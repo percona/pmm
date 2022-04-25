@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeProxySQLExporterOK() *ChangeProxySQLExporterOK {
 	return &ChangeProxySQLExporterOK{}
 }
 
-/*ChangeProxySQLExporterOK handles this case with default header values.
+/* ChangeProxySQLExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeProxySQLExporterOK struct {
 func (o *ChangeProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeProxySQLExporterOK) GetPayload() *ChangeProxySQLExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeProxySQLExporterDefault(code int) *ChangeProxySQLExporterDefault {
 	}
 }
 
-/*ChangeProxySQLExporterDefault handles this case with default header values.
+/* ChangeProxySQLExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeProxySQLExporterDefault) Code() int {
 func (o *ChangeProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeProxySQLExporterDefault) GetPayload() *ChangeProxySQLExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeProxySQLExporterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeProxySQLExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeProxySQLExporterBody) validateCommon(formats strfmt.Registry) err
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change proxy SQL exporter body based on the context it is used
+func (o *ChangeProxySQLExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeProxySQLExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeProxySQLExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeProxySQLExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change proxy SQL exporter default body
@@ -214,7 +244,6 @@ func (o *ChangeProxySQLExporterDefaultBody) Validate(formats strfmt.Registry) er
 }
 
 func (o *ChangeProxySQLExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeProxySQLExporterDefaultBody) validateDetails(formats strfmt.Regis
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change proxy SQL exporter default body based on the context it is used
+func (o *ChangeProxySQLExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeProxySQLExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeProxySQLExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeProxySQLExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeProxySQLExporterDefaultBodyDetailsItems0 change proxy SQL exporter default body details items0
+swagger:model ChangeProxySQLExporterDefaultBodyDetailsItems0
+*/
+type ChangeProxySQLExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change proxy SQL exporter default body details items0
+func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change proxy SQL exporter default body details items0 based on context it is used
+func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeProxySQLExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeProxySQLExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ProxysqlExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeProxySQLExporterOKBody) validateProxysqlExporter(formats strfmt.R
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change proxy SQL exporter OK body based on the context it is used
+func (o *ChangeProxySQLExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateProxysqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeProxySQLExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ProxysqlExporter != nil {
+		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeProxySqlExporterOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -432,7 +569,6 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateStatusEnum(path, 
 }
 
 func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -484,7 +620,6 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateLogLevelEnum(path
 }
 
 func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -494,6 +629,11 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateLogLevel(formats 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change proxy SQL exporter OK body proxysql exporter based on context it is used
+func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -542,6 +682,11 @@ type ChangeProxySQLExporterParamsBodyCommon struct {
 
 // Validate validates this change proxy SQL exporter params body common
 func (o *ChangeProxySQLExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change proxy SQL exporter params body common based on context it is used
+func (o *ChangeProxySQLExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

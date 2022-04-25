@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewScheduleBackupOK() *ScheduleBackupOK {
 	return &ScheduleBackupOK{}
 }
 
-/*ScheduleBackupOK handles this case with default header values.
+/* ScheduleBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ScheduleBackupOK struct {
 func (o *ScheduleBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
 }
-
 func (o *ScheduleBackupOK) GetPayload() *ScheduleBackupOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewScheduleBackupDefault(code int) *ScheduleBackupDefault {
 	}
 }
 
-/*ScheduleBackupDefault handles this case with default header values.
+/* ScheduleBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ScheduleBackupDefault) Code() int {
 func (o *ScheduleBackupDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ScheduleBackupDefault) GetPayload() *ScheduleBackupDefaultBody {
 	return o.Payload
 }
@@ -179,7 +178,6 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.StartTime) { // not required
 		return nil
 	}
@@ -227,7 +225,6 @@ func (o *ScheduleBackupBody) validateModeEnum(path, location string, value strin
 }
 
 func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mode) { // not required
 		return nil
 	}
@@ -237,6 +234,11 @@ func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this schedule backup body based on context it is used
+func (o *ScheduleBackupBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -273,7 +275,7 @@ type ScheduleBackupDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ScheduleBackupDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this schedule backup default body
@@ -291,7 +293,6 @@ func (o *ScheduleBackupDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ScheduleBackupDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -305,6 +306,42 @@ func (o *ScheduleBackupDefaultBody) validateDetails(formats strfmt.Registry) err
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this schedule backup default body based on the context it is used
+func (o *ScheduleBackupDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ScheduleBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -333,6 +370,47 @@ func (o *ScheduleBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
+swagger:model ScheduleBackupDefaultBodyDetailsItems0
+*/
+type ScheduleBackupDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this schedule backup default body details items0
+func (o *ScheduleBackupDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this schedule backup default body details items0 based on context it is used
+func (o *ScheduleBackupDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ScheduleBackupDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ScheduleBackupDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ScheduleBackupOKBody schedule backup OK body
 swagger:model ScheduleBackupOKBody
 */
@@ -344,6 +422,11 @@ type ScheduleBackupOKBody struct {
 
 // Validate validates this schedule backup OK body
 func (o *ScheduleBackupOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this schedule backup OK body based on context it is used
+func (o *ScheduleBackupOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

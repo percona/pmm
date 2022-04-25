@@ -10,10 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
+	"github.com/percona/pmm/api/platformpb/json/client/platform"
 )
 
-// Default PMM d baa s HTTP client.
+// Default PMM platform API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM d baa s HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaS {
+// NewHTTPClient creates a new PMM platform API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMPlatformAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s HTTP client,
+// NewHTTPClientWithConfig creates a new PMM platform API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaS {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMPlatformAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaS {
+// New creates a new PMM platform API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMPlatformAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaS)
+	cli := new(PMMPlatformAPI)
 	cli.Transport = transport
-	cli.AzureDatabase = azure_database.New(transport, formats)
+	cli.Platform = platform.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaS is a client for PMM d baa s
-type PMMDBaaS struct {
-	AzureDatabase azure_database.ClientService
+// PMMPlatformAPI is a client for PMM platform API
+type PMMPlatformAPI struct {
+	Platform platform.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaS) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMPlatformAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AzureDatabase.SetTransport(transport)
+	c.Platform.SetTransport(transport)
 }

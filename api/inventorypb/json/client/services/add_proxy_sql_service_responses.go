@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddProxySQLServiceOK() *AddProxySQLServiceOK {
 	return &AddProxySQLServiceOK{}
 }
 
-/*AddProxySQLServiceOK handles this case with default header values.
+/* AddProxySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddProxySQLServiceOK struct {
 func (o *AddProxySQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *AddProxySQLServiceOK) GetPayload() *AddProxySQLServiceOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddProxySQLServiceDefault(code int) *AddProxySQLServiceDefault {
 	}
 }
 
-/*AddProxySQLServiceDefault handles this case with default header values.
+/* AddProxySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddProxySQLServiceDefault) Code() int {
 func (o *AddProxySQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddProxySQLServiceDefault) GetPayload() *AddProxySQLServiceDefaultBody {
 	return o.Payload
 }
@@ -158,6 +157,11 @@ func (o *AddProxySQLServiceBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add proxy SQL service body based on context it is used
+func (o *AddProxySQLServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddProxySQLServiceBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -191,7 +195,7 @@ type AddProxySQLServiceDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddProxySQLServiceDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add proxy SQL service default body
@@ -209,7 +213,6 @@ func (o *AddProxySQLServiceDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *AddProxySQLServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -223,6 +226,42 @@ func (o *AddProxySQLServiceDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddProxySQLService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddProxySQLService default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add proxy SQL service default body based on the context it is used
+func (o *AddProxySQLServiceDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddProxySQLServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddProxySQLService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddProxySQLService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -244,6 +283,47 @@ func (o *AddProxySQLServiceDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddProxySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddProxySQLServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddProxySQLServiceDefaultBodyDetailsItems0 add proxy SQL service default body details items0
+swagger:model AddProxySQLServiceDefaultBodyDetailsItems0
+*/
+type AddProxySQLServiceDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add proxy SQL service default body details items0
+func (o *AddProxySQLServiceDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add proxy SQL service default body details items0 based on context it is used
+func (o *AddProxySQLServiceDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddProxySQLServiceDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddProxySQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddProxySQLServiceDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -275,7 +355,6 @@ func (o *AddProxySQLServiceOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddProxySQLServiceOKBody) validateProxysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -284,6 +363,38 @@ func (o *AddProxySQLServiceOKBody) validateProxysql(formats strfmt.Registry) err
 		if err := o.Proxysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addProxySqlServiceOk" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addProxySqlServiceOk" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add proxy SQL service OK body based on the context it is used
+func (o *AddProxySQLServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddProxySQLServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Proxysql != nil {
+		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addProxySqlServiceOk" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addProxySqlServiceOk" + "." + "proxysql")
 			}
 			return err
 		}
@@ -351,6 +462,11 @@ type AddProxySQLServiceOKBodyProxysql struct {
 
 // Validate validates this add proxy SQL service OK body proxysql
 func (o *AddProxySQLServiceOKBodyProxysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add proxy SQL service OK body proxysql based on context it is used
+func (o *AddProxySQLServiceOKBodyProxysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

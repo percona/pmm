@@ -6,6 +6,7 @@ package backups
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewRestoreBackupOK() *RestoreBackupOK {
 	return &RestoreBackupOK{}
 }
 
-/*RestoreBackupOK handles this case with default header values.
+/* RestoreBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type RestoreBackupOK struct {
 func (o *RestoreBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] restoreBackupOk  %+v", 200, o.Payload)
 }
-
 func (o *RestoreBackupOK) GetPayload() *RestoreBackupOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewRestoreBackupDefault(code int) *RestoreBackupDefault {
 	}
 }
 
-/*RestoreBackupDefault handles this case with default header values.
+/* RestoreBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *RestoreBackupDefault) Code() int {
 func (o *RestoreBackupDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RestoreBackupDefault) GetPayload() *RestoreBackupDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type RestoreBackupBody struct {
 
 // Validate validates this restore backup body
 func (o *RestoreBackupBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this restore backup body based on context it is used
+func (o *RestoreBackupBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type RestoreBackupDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*RestoreBackupDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this restore backup default body
@@ -185,7 +189,6 @@ func (o *RestoreBackupDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *RestoreBackupDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *RestoreBackupDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this restore backup default body based on the context it is used
+func (o *RestoreBackupDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RestoreBackup default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -227,6 +266,47 @@ func (o *RestoreBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
+swagger:model RestoreBackupDefaultBodyDetailsItems0
+*/
+type RestoreBackupDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this restore backup default body details items0
+func (o *RestoreBackupDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this restore backup default body details items0 based on context it is used
+func (o *RestoreBackupDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RestoreBackupDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res RestoreBackupDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*RestoreBackupOKBody restore backup OK body
 swagger:model RestoreBackupOKBody
 */
@@ -238,6 +318,11 @@ type RestoreBackupOKBody struct {
 
 // Validate validates this restore backup OK body
 func (o *RestoreBackupOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this restore backup OK body based on context it is used
+func (o *RestoreBackupOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListDBClustersParams creates a new ListDBClustersParams object
-// with the default values initialized.
+// NewListDBClustersParams creates a new ListDBClustersParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListDBClustersParams() *ListDBClustersParams {
-	var ()
 	return &ListDBClustersParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListDBClustersParamsWithTimeout creates a new ListDBClustersParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListDBClustersParamsWithTimeout(timeout time.Duration) *ListDBClustersParams {
-	var ()
 	return &ListDBClustersParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListDBClustersParamsWithContext creates a new ListDBClustersParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListDBClustersParamsWithContext(ctx context.Context) *ListDBClustersParams {
-	var ()
 	return &ListDBClustersParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListDBClustersParamsWithHTTPClient creates a new ListDBClustersParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListDBClustersParamsWithHTTPClient(client *http.Client) *ListDBClustersParams {
-	var ()
 	return &ListDBClustersParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListDBClustersParams contains all the parameters to send to the API endpoint
-for the list DB clusters operation typically these are written to a http.Request
+/* ListDBClustersParams contains all the parameters to send to the API endpoint
+   for the list DB clusters operation.
+
+   Typically these are written to a http.Request.
 */
 type ListDBClustersParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListDBClustersBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list DB clusters params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListDBClustersParams) WithDefaults() *ListDBClustersParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list DB clusters params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListDBClustersParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list DB clusters params
@@ -119,7 +133,6 @@ func (o *ListDBClustersParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

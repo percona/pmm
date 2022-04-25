@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeQANMySQLSlowlogAgentParams creates a new ChangeQANMySQLSlowlogAgentParams object
-// with the default values initialized.
+// NewChangeQANMySQLSlowlogAgentParams creates a new ChangeQANMySQLSlowlogAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeQANMySQLSlowlogAgentParams() *ChangeQANMySQLSlowlogAgentParams {
-	var ()
 	return &ChangeQANMySQLSlowlogAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeQANMySQLSlowlogAgentParamsWithTimeout creates a new ChangeQANMySQLSlowlogAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeQANMySQLSlowlogAgentParamsWithTimeout(timeout time.Duration) *ChangeQANMySQLSlowlogAgentParams {
-	var ()
 	return &ChangeQANMySQLSlowlogAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeQANMySQLSlowlogAgentParamsWithContext creates a new ChangeQANMySQLSlowlogAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeQANMySQLSlowlogAgentParamsWithContext(ctx context.Context) *ChangeQANMySQLSlowlogAgentParams {
-	var ()
 	return &ChangeQANMySQLSlowlogAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeQANMySQLSlowlogAgentParamsWithHTTPClient creates a new ChangeQANMySQLSlowlogAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeQANMySQLSlowlogAgentParamsWithHTTPClient(client *http.Client) *ChangeQANMySQLSlowlogAgentParams {
-	var ()
 	return &ChangeQANMySQLSlowlogAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeQANMySQLSlowlogAgentParams contains all the parameters to send to the API endpoint
-for the change QAN my SQL slowlog agent operation typically these are written to a http.Request
+/* ChangeQANMySQLSlowlogAgentParams contains all the parameters to send to the API endpoint
+   for the change QAN my SQL slowlog agent operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeQANMySQLSlowlogAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeQANMySQLSlowlogAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change QAN my SQL slowlog agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMySQLSlowlogAgentParams) WithDefaults() *ChangeQANMySQLSlowlogAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change QAN my SQL slowlog agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANMySQLSlowlogAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change QAN my SQL slowlog agent params
@@ -119,7 +133,6 @@ func (o *ChangeQANMySQLSlowlogAgentParams) WriteToRequest(r runtime.ClientReques
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

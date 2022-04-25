@@ -6,6 +6,7 @@ package postgre_sql
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddPostgreSQLOK() *AddPostgreSQLOK {
 	return &AddPostgreSQLOK{}
 }
 
-/*AddPostgreSQLOK handles this case with default header values.
+/* AddPostgreSQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddPostgreSQLOK struct {
 func (o *AddPostgreSQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
 }
-
 func (o *AddPostgreSQLOK) GetPayload() *AddPostgreSQLOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddPostgreSQLDefault(code int) *AddPostgreSQLDefault {
 	}
 }
 
-/*AddPostgreSQLDefault handles this case with default header values.
+/* AddPostgreSQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddPostgreSQLDefault) Code() int {
 func (o *AddPostgreSQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddPostgreSQLDefault) GetPayload() *AddPostgreSQLDefaultBody {
 	return o.Payload
 }
@@ -272,7 +271,6 @@ func (o *AddPostgreSQLBody) validateMetricsModeEnum(path, location string, value
 }
 
 func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -324,7 +322,6 @@ func (o *AddPostgreSQLBody) validateLogLevelEnum(path, location string, value st
 }
 
 func (o *AddPostgreSQLBody) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -338,7 +335,6 @@ func (o *AddPostgreSQLBody) validateLogLevel(formats strfmt.Registry) error {
 }
 
 func (o *AddPostgreSQLBody) validateAddNode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
@@ -347,6 +343,38 @@ func (o *AddPostgreSQLBody) validateAddNode(formats strfmt.Registry) error {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add postgre SQL body based on the context it is used
+func (o *AddPostgreSQLBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AddNode != nil {
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -388,7 +416,7 @@ type AddPostgreSQLDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddPostgreSQLDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add postgre SQL default body
@@ -406,7 +434,6 @@ func (o *AddPostgreSQLDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddPostgreSQLDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -420,6 +447,42 @@ func (o *AddPostgreSQLDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddPostgreSQL default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddPostgreSQL default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add postgre SQL default body based on the context it is used
+func (o *AddPostgreSQLDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddPostgreSQL default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddPostgreSQL default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -441,6 +504,47 @@ func (o *AddPostgreSQLDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPostgreSQLDefaultBodyDetailsItems0 add postgre SQL default body details items0
+swagger:model AddPostgreSQLDefaultBodyDetailsItems0
+*/
+type AddPostgreSQLDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add postgre SQL default body details items0
+func (o *AddPostgreSQLDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL default body details items0 based on context it is used
+func (o *AddPostgreSQLDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgreSQLDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgreSQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddPostgreSQLDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -493,7 +597,6 @@ func (o *AddPostgreSQLOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
 	}
@@ -502,6 +605,8 @@ func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) 
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -511,7 +616,6 @@ func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) 
 }
 
 func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
 		return nil
 	}
@@ -520,6 +624,8 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats str
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
 			return err
 		}
@@ -529,7 +635,6 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats str
 }
 
 func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
 		return nil
 	}
@@ -538,6 +643,8 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats st
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -547,7 +654,6 @@ func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatmonitorAgent(formats st
 }
 
 func (o *AddPostgreSQLOKBody) validateService(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Service) { // not required
 		return nil
 	}
@@ -556,6 +662,98 @@ func (o *AddPostgreSQLOKBody) validateService(formats strfmt.Registry) error {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add postgre SQL OK body based on the context it is used
+func (o *AddPostgreSQLOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePostgresExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANPostgresqlPgstatementsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANPostgresqlPgstatmonitorAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PostgresExporter != nil {
+		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatementsAgent != nil {
+		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatmonitorAgent != nil {
+		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Service != nil {
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addPostgreSqlOk" + "." + "service")
 			}
 			return err
 		}
@@ -699,7 +897,6 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatusEnum(path, location 
 }
 
 func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -751,7 +948,6 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevelEnum(path, locatio
 }
 
 func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -761,6 +957,11 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevel(formats strfmt.Re
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL OK body postgres exporter based on context it is used
+func (o *AddPostgreSQLOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -882,7 +1083,6 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatusEnum(p
 }
 
 func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -892,6 +1092,11 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(forma
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL OK body QAN postgresql pgstatements agent based on context it is used
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1016,7 +1221,6 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatusEnum(
 }
 
 func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1026,6 +1230,11 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(form
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL OK body QAN postgresql pgstatmonitor agent based on context it is used
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1091,6 +1300,11 @@ type AddPostgreSQLOKBodyService struct {
 
 // Validate validates this add postgre SQL OK body service
 func (o *AddPostgreSQLOKBodyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL OK body service based on context it is used
+func (o *AddPostgreSQLOKBodyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1205,7 +1419,6 @@ func (o *AddPostgreSQLParamsBodyAddNode) validateNodeTypeEnum(path, location str
 }
 
 func (o *AddPostgreSQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -1215,6 +1428,11 @@ func (o *AddPostgreSQLParamsBodyAddNode) validateNodeType(formats strfmt.Registr
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add postgre SQL params body add node based on context it is used
+func (o *AddPostgreSQLParamsBodyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1229,42 +1447,6 @@ func (o *AddPostgreSQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLParamsBodyAddNode
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

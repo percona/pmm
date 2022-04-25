@@ -23,23 +23,26 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*ChangeScheduledBackupOK, error)
+	ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error)
 
-	GetLogs(params *GetLogsParams) (*GetLogsOK, error)
+	GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error)
 
-	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error)
+	ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error)
 
-	ListScheduledBackups(params *ListScheduledBackupsParams) (*ListScheduledBackupsOK, error)
+	ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error)
 
-	RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*RemoveScheduledBackupOK, error)
+	RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error)
 
-	RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error)
+	RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error)
 
-	ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK, error)
+	ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error)
 
-	StartBackup(params *StartBackupParams) (*StartBackupOK, error)
+	StartBackup(params *StartBackupParams, opts ...ClientOption) (*StartBackupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -47,13 +50,12 @@ type ClientService interface {
 /*
   ChangeScheduledBackup changes scheduled backup changes existing scheduled backup
 */
-func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*ChangeScheduledBackupOK, error) {
+func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeScheduledBackupParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeScheduledBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ChangeScheduled",
@@ -64,7 +66,12 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*Ch
 		Reader:             &ChangeScheduledBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -80,13 +87,12 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams) (*Ch
 /*
   GetLogs gets logs returns logs for provided artifact
 */
-func (a *Client) GetLogs(params *GetLogsParams) (*GetLogsOK, error) {
+func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetLogsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetLogs",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/GetLogs",
@@ -97,7 +103,12 @@ func (a *Client) GetLogs(params *GetLogsParams) (*GetLogsOK, error) {
 		Reader:             &GetLogsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -113,13 +124,12 @@ func (a *Client) GetLogs(params *GetLogsParams) (*GetLogsOK, error) {
 /*
   ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
 */
-func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams) (*ListArtifactCompatibleServicesOK, error) {
+func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListArtifactCompatibleServicesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListArtifactCompatibleServices",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ListArtifactCompatibleServices",
@@ -130,7 +140,12 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 		Reader:             &ListArtifactCompatibleServicesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -146,13 +161,12 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 /*
   ListScheduledBackups lists scheduled backups returns all scheduled backups
 */
-func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams) (*ListScheduledBackupsOK, error) {
+func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListScheduledBackupsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListScheduledBackups",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/ListScheduled",
@@ -163,7 +177,12 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams) (*List
 		Reader:             &ListScheduledBackupsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -179,13 +198,12 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams) (*List
 /*
   RemoveScheduledBackup removes scheduled backup removes existing scheduled backup
 */
-func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*RemoveScheduledBackupOK, error) {
+func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveScheduledBackupParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveScheduledBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/RemoveScheduled",
@@ -196,7 +214,12 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams) (*Re
 		Reader:             &RemoveScheduledBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -218,13 +241,12 @@ ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
 ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup
 */
-func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, error) {
+func (a *Client) RestoreBackup(params *RestoreBackupParams, opts ...ClientOption) (*RestoreBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRestoreBackupParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RestoreBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Restore",
@@ -235,7 +257,12 @@ func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, e
 		Reader:             &RestoreBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -251,13 +278,12 @@ func (a *Client) RestoreBackup(params *RestoreBackupParams) (*RestoreBackupOK, e
 /*
   ScheduleBackup schedules backup schedules repeated backup
 */
-func (a *Client) ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK, error) {
+func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewScheduleBackupParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ScheduleBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Schedule",
@@ -268,7 +294,12 @@ func (a *Client) ScheduleBackup(params *ScheduleBackupParams) (*ScheduleBackupOK
 		Reader:             &ScheduleBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -289,13 +320,12 @@ ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
 ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
 */
-func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) {
+func (a *Client) StartBackup(params *StartBackupParams, opts ...ClientOption) (*StartBackupOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartBackupParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartBackup",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Backups/Start",
@@ -306,7 +336,12 @@ func (a *Client) StartBackup(params *StartBackupParams) (*StartBackupOK, error) 
 		Reader:             &StartBackupReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

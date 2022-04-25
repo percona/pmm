@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUnregisterKubernetesClusterParams creates a new UnregisterKubernetesClusterParams object
-// with the default values initialized.
+// NewUnregisterKubernetesClusterParams creates a new UnregisterKubernetesClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUnregisterKubernetesClusterParams() *UnregisterKubernetesClusterParams {
-	var ()
 	return &UnregisterKubernetesClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUnregisterKubernetesClusterParamsWithTimeout creates a new UnregisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUnregisterKubernetesClusterParamsWithTimeout(timeout time.Duration) *UnregisterKubernetesClusterParams {
-	var ()
 	return &UnregisterKubernetesClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUnregisterKubernetesClusterParamsWithContext creates a new UnregisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUnregisterKubernetesClusterParamsWithContext(ctx context.Context) *UnregisterKubernetesClusterParams {
-	var ()
 	return &UnregisterKubernetesClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUnregisterKubernetesClusterParamsWithHTTPClient creates a new UnregisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUnregisterKubernetesClusterParamsWithHTTPClient(client *http.Client) *UnregisterKubernetesClusterParams {
-	var ()
 	return &UnregisterKubernetesClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*UnregisterKubernetesClusterParams contains all the parameters to send to the API endpoint
-for the unregister kubernetes cluster operation typically these are written to a http.Request
+/* UnregisterKubernetesClusterParams contains all the parameters to send to the API endpoint
+   for the unregister kubernetes cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type UnregisterKubernetesClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body UnregisterKubernetesClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the unregister kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UnregisterKubernetesClusterParams) WithDefaults() *UnregisterKubernetesClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the unregister kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UnregisterKubernetesClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the unregister kubernetes cluster params
@@ -119,7 +133,6 @@ func (o *UnregisterKubernetesClusterParams) WriteToRequest(r runtime.ClientReque
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

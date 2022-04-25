@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeQANPostgreSQLPgStatementsAgentParams creates a new ChangeQANPostgreSQLPgStatementsAgentParams object
-// with the default values initialized.
+// NewChangeQANPostgreSQLPgStatementsAgentParams creates a new ChangeQANPostgreSQLPgStatementsAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeQANPostgreSQLPgStatementsAgentParams() *ChangeQANPostgreSQLPgStatementsAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatementsAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatementsAgentParamsWithTimeout creates a new ChangeQANPostgreSQLPgStatementsAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeQANPostgreSQLPgStatementsAgentParamsWithTimeout(timeout time.Duration) *ChangeQANPostgreSQLPgStatementsAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatementsAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatementsAgentParamsWithContext creates a new ChangeQANPostgreSQLPgStatementsAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeQANPostgreSQLPgStatementsAgentParamsWithContext(ctx context.Context) *ChangeQANPostgreSQLPgStatementsAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatementsAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatementsAgentParamsWithHTTPClient creates a new ChangeQANPostgreSQLPgStatementsAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeQANPostgreSQLPgStatementsAgentParamsWithHTTPClient(client *http.Client) *ChangeQANPostgreSQLPgStatementsAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatementsAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeQANPostgreSQLPgStatementsAgentParams contains all the parameters to send to the API endpoint
-for the change QAN postgre SQL pg statements agent operation typically these are written to a http.Request
+/* ChangeQANPostgreSQLPgStatementsAgentParams contains all the parameters to send to the API endpoint
+   for the change QAN postgre SQL pg statements agent operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeQANPostgreSQLPgStatementsAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change QAN postgre SQL pg statements agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANPostgreSQLPgStatementsAgentParams) WithDefaults() *ChangeQANPostgreSQLPgStatementsAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change QAN postgre SQL pg statements agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANPostgreSQLPgStatementsAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change QAN postgre SQL pg statements agent params
@@ -119,7 +133,6 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentParams) WriteToRequest(r runtime.Cl
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

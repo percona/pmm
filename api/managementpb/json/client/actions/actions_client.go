@@ -23,37 +23,40 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CancelAction(params *CancelActionParams) (*CancelActionOK, error)
+	CancelAction(params *CancelActionParams, opts ...ClientOption) (*CancelActionOK, error)
 
-	GetAction(params *GetActionParams) (*GetActionOK, error)
+	GetAction(params *GetActionParams, opts ...ClientOption) (*GetActionOK, error)
 
-	StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error)
+	StartMongoDBExplainAction(params *StartMongoDBExplainActionParams, opts ...ClientOption) (*StartMongoDBExplainActionOK, error)
 
-	StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error)
+	StartMySQLExplainAction(params *StartMySQLExplainActionParams, opts ...ClientOption) (*StartMySQLExplainActionOK, error)
 
-	StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error)
+	StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams, opts ...ClientOption) (*StartMySQLExplainJSONActionOK, error)
 
-	StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error)
+	StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams, opts ...ClientOption) (*StartMySQLExplainTraditionalJSONActionOK, error)
 
-	StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error)
+	StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams, opts ...ClientOption) (*StartMySQLShowCreateTableActionOK, error)
 
-	StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error)
+	StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams, opts ...ClientOption) (*StartMySQLShowIndexActionOK, error)
 
-	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error)
+	StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams, opts ...ClientOption) (*StartMySQLShowTableStatusActionOK, error)
 
-	StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error)
+	StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams, opts ...ClientOption) (*StartPTMongoDBSummaryActionOK, error)
 
-	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error)
+	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams, opts ...ClientOption) (*StartPTMySQLSummaryActionOK, error)
 
-	StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*StartPTPgSummaryActionOK, error)
+	StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, opts ...ClientOption) (*StartPTPgSummaryActionOK, error)
 
-	StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error)
+	StartPTSummaryAction(params *StartPTSummaryActionParams, opts ...ClientOption) (*StartPTSummaryActionOK, error)
 
-	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error)
+	StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams, opts ...ClientOption) (*StartPostgreSQLShowCreateTableActionOK, error)
 
-	StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error)
+	StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams, opts ...ClientOption) (*StartPostgreSQLShowIndexActionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -63,13 +66,12 @@ type ClientService interface {
 
   Stops an Action.
 */
-func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, error) {
+func (a *Client) CancelAction(params *CancelActionParams, opts ...ClientOption) (*CancelActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCancelActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CancelAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/Cancel",
@@ -80,7 +82,12 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 		Reader:             &CancelActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -98,13 +105,12 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 
   Gets the result of a given Action.
 */
-func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
+func (a *Client) GetAction(params *GetActionParams, opts ...ClientOption) (*GetActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/Get",
@@ -115,7 +121,12 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 		Reader:             &GetActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -133,13 +144,12 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 
   Starts 'MongoDB EXPLAIN' Action.
 */
-func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams) (*StartMongoDBExplainActionOK, error) {
+func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionParams, opts ...ClientOption) (*StartMongoDBExplainActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMongoDBExplainActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMongoDBExplainAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMongoDBExplain",
@@ -150,7 +160,12 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 		Reader:             &StartMongoDBExplainActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -168,13 +183,12 @@ func (a *Client) StartMongoDBExplainAction(params *StartMongoDBExplainActionPara
 
   Starts 'MySQL EXPLAIN' Action with traditional output.
 */
-func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {
+func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams, opts ...ClientOption) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLExplainActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplain",
@@ -185,7 +199,12 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 		Reader:             &StartMySQLExplainActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -203,13 +222,12 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 
   Starts 'MySQL EXPLAIN' Action with JSON output.
 */
-func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error) {
+func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams, opts ...ClientOption) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLExplainJSONActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainJSONAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplainJSON",
@@ -220,7 +238,12 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 		Reader:             &StartMySQLExplainJSONActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -238,13 +261,12 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 
   Starts 'MySQL EXPLAIN' Action with traditional JSON output.
 */
-func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error) {
+func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams, opts ...ClientOption) (*StartMySQLExplainTraditionalJSONActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLExplainTraditionalJSONActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLExplainTraditionalJSONAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLExplainTraditionalJSON",
@@ -255,7 +277,12 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 		Reader:             &StartMySQLExplainTraditionalJSONActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -273,13 +300,12 @@ func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplai
 
   Starts 'MySQL SHOW CREATE TABLE' Action.
 */
-func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams) (*StartMySQLShowCreateTableActionOK, error) {
+func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTableActionParams, opts ...ClientOption) (*StartMySQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLShowCreateTableActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowCreateTableAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowCreateTable",
@@ -290,7 +316,12 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 		Reader:             &StartMySQLShowCreateTableActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -308,13 +339,12 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 
   Starts 'MySQL SHOW INDEX' Action.
 */
-func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error) {
+func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams, opts ...ClientOption) (*StartMySQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLShowIndexActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowIndexAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowIndex",
@@ -325,7 +355,12 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 		Reader:             &StartMySQLShowIndexActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -343,13 +378,12 @@ func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionPara
 
   Starts 'MySQL SHOW TABLE STATUS' Action.
 */
-func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error) {
+func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams, opts ...ClientOption) (*StartMySQLShowTableStatusActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartMySQLShowTableStatusActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartMySQLShowTableStatusAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartMySQLShowTableStatus",
@@ -360,7 +394,12 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 		Reader:             &StartMySQLShowTableStatusActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -378,13 +417,12 @@ func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStat
 
   Starts 'Percona Toolkit MongoDB Summary' Action.
 */
-func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams) (*StartPTMongoDBSummaryActionOK, error) {
+func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams, opts ...ClientOption) (*StartPTMongoDBSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPTMongoDBSummaryActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPTMongoDBSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTMongoDBSummary",
@@ -395,7 +433,12 @@ func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryAction
 		Reader:             &StartPTMongoDBSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -413,13 +456,12 @@ func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryAction
 
   Starts 'Percona Toolkit MySQL Summary' Action.
 */
-func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {
+func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams, opts ...ClientOption) (*StartPTMySQLSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPTMySQLSummaryActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPTMySQLSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTMySQLSummary",
@@ -430,7 +472,12 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 		Reader:             &StartPTMySQLSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -448,13 +495,12 @@ func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionPara
 
   Starts 'Percona Toolkit PostgreSQL Summary' Action.
 */
-func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*StartPTPgSummaryActionOK, error) {
+func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, opts ...ClientOption) (*StartPTPgSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPTPgSummaryActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPTPgSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTPgSummary",
@@ -465,7 +511,12 @@ func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*
 		Reader:             &StartPTPgSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -483,13 +534,12 @@ func (a *Client) StartPTPgSummaryAction(params *StartPTPgSummaryActionParams) (*
 
   Starts 'Percona Toolkit Summary' Action.
 */
-func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error) {
+func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams, opts ...ClientOption) (*StartPTSummaryActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPTSummaryActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPTSummaryAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPTSummary",
@@ -500,7 +550,12 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*Star
 		Reader:             &StartPTSummaryActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -518,13 +573,12 @@ func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*Star
 
   Starts 'PostgreSQL SHOW CREATE TABLE' Action.
 */
-func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams) (*StartPostgreSQLShowCreateTableActionOK, error) {
+func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLShowCreateTableActionParams, opts ...ClientOption) (*StartPostgreSQLShowCreateTableActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPostgreSQLShowCreateTableActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowCreateTableAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowCreateTable",
@@ -535,7 +589,12 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 		Reader:             &StartPostgreSQLShowCreateTableActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -553,13 +612,12 @@ func (a *Client) StartPostgreSQLShowCreateTableAction(params *StartPostgreSQLSho
 
   Starts 'PostgreSQL SHOW INDEX' Action.
 */
-func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams) (*StartPostgreSQLShowIndexActionOK, error) {
+func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndexActionParams, opts ...ClientOption) (*StartPostgreSQLShowIndexActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartPostgreSQLShowIndexActionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartPostgreSQLShowIndexAction",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Actions/StartPostgreSQLShowIndex",
@@ -570,7 +628,12 @@ func (a *Client) StartPostgreSQLShowIndexAction(params *StartPostgreSQLShowIndex
 		Reader:             &StartPostgreSQLShowIndexActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

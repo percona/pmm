@@ -23,17 +23,20 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddLocation(params *AddLocationParams) (*AddLocationOK, error)
+	AddLocation(params *AddLocationParams, opts ...ClientOption) (*AddLocationOK, error)
 
-	ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error)
+	ChangeLocation(params *ChangeLocationParams, opts ...ClientOption) (*ChangeLocationOK, error)
 
-	ListLocations(params *ListLocationsParams) (*ListLocationsOK, error)
+	ListLocations(params *ListLocationsParams, opts ...ClientOption) (*ListLocationsOK, error)
 
-	RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error)
+	RemoveLocation(params *RemoveLocationParams, opts ...ClientOption) (*RemoveLocationOK, error)
 
-	TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error)
+	TestLocationConfig(params *TestLocationConfigParams, opts ...ClientOption) (*TestLocationConfigOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -41,13 +44,12 @@ type ClientService interface {
 /*
   AddLocation adds location adds backup location
 */
-func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) {
+func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*AddLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddLocationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Add",
@@ -58,7 +60,12 @@ func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) 
 		Reader:             &AddLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +81,12 @@ func (a *Client) AddLocation(params *AddLocationParams) (*AddLocationOK, error) 
 /*
   ChangeLocation changes location changes backup location
 */
-func (a *Client) ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK, error) {
+func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOption) (*ChangeLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeLocationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Change",
@@ -91,7 +97,12 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK
 		Reader:             &ChangeLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -107,13 +118,12 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams) (*ChangeLocationOK
 /*
   ListLocations lists locations returns a list of all backup locations
 */
-func (a *Client) ListLocations(params *ListLocationsParams) (*ListLocationsOK, error) {
+func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption) (*ListLocationsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListLocationsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListLocations",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/List",
@@ -124,7 +134,12 @@ func (a *Client) ListLocations(params *ListLocationsParams) (*ListLocationsOK, e
 		Reader:             &ListLocationsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -140,13 +155,12 @@ func (a *Client) ListLocations(params *ListLocationsParams) (*ListLocationsOK, e
 /*
   RemoveLocation removes location removes existing backup location
 */
-func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK, error) {
+func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOption) (*RemoveLocationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveLocationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveLocation",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/Remove",
@@ -157,7 +171,12 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK
 		Reader:             &RemoveLocationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -173,13 +192,12 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams) (*RemoveLocationOK
 /*
   TestLocationConfig tests location config tests backup location and credentials
 */
-func (a *Client) TestLocationConfig(params *TestLocationConfigParams) (*TestLocationConfigOK, error) {
+func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...ClientOption) (*TestLocationConfigOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewTestLocationConfigParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "TestLocationConfig",
 		Method:             "POST",
 		PathPattern:        "/v1/management/backup/Locations/TestConfig",
@@ -190,7 +208,12 @@ func (a *Client) TestLocationConfig(params *TestLocationConfigParams) (*TestLoca
 		Reader:             &TestLocationConfigReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

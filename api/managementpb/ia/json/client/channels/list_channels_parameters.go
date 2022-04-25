@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListChannelsParams creates a new ListChannelsParams object
-// with the default values initialized.
+// NewListChannelsParams creates a new ListChannelsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListChannelsParams() *ListChannelsParams {
-	var ()
 	return &ListChannelsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListChannelsParamsWithTimeout creates a new ListChannelsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListChannelsParamsWithTimeout(timeout time.Duration) *ListChannelsParams {
-	var ()
 	return &ListChannelsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListChannelsParamsWithContext creates a new ListChannelsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListChannelsParamsWithContext(ctx context.Context) *ListChannelsParams {
-	var ()
 	return &ListChannelsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListChannelsParamsWithHTTPClient creates a new ListChannelsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListChannelsParamsWithHTTPClient(client *http.Client) *ListChannelsParams {
-	var ()
 	return &ListChannelsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListChannelsParams contains all the parameters to send to the API endpoint
-for the list channels operation typically these are written to a http.Request
+/* ListChannelsParams contains all the parameters to send to the API endpoint
+   for the list channels operation.
+
+   Typically these are written to a http.Request.
 */
 type ListChannelsParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListChannelsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list channels params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListChannelsParams) WithDefaults() *ListChannelsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list channels params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListChannelsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list channels params
@@ -119,7 +133,6 @@ func (o *ListChannelsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -23,15 +23,18 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK, error)
+	CreateTemplate(params *CreateTemplateParams, opts ...ClientOption) (*CreateTemplateOK, error)
 
-	DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK, error)
+	DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOption) (*DeleteTemplateOK, error)
 
-	ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, error)
+	ListTemplates(params *ListTemplatesParams, opts ...ClientOption) (*ListTemplatesOK, error)
 
-	UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK, error)
+	UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOption) (*UpdateTemplateOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -39,13 +42,12 @@ type ClientService interface {
 /*
   CreateTemplate creates template creates a new template
 */
-func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK, error) {
+func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOption) (*CreateTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateTemplateParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CreateTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Create",
@@ -56,7 +58,12 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK
 		Reader:             &CreateTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +79,12 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams) (*CreateTemplateOK
 /*
   DeleteTemplate deletes template deletes existing previously created via API
 */
-func (a *Client) DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK, error) {
+func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOption) (*DeleteTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteTemplateParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Delete",
@@ -89,7 +95,12 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK
 		Reader:             &DeleteTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -105,13 +116,12 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams) (*DeleteTemplateOK
 /*
   ListTemplates lists templates returns a list of all collected alert rule templates
 */
-func (a *Client) ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, error) {
+func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption) (*ListTemplatesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListTemplatesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListTemplates",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/List",
@@ -122,7 +132,12 @@ func (a *Client) ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, e
 		Reader:             &ListTemplatesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +153,12 @@ func (a *Client) ListTemplates(params *ListTemplatesParams) (*ListTemplatesOK, e
 /*
   UpdateTemplate updates template updates existing template previously created via API
 */
-func (a *Client) UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK, error) {
+func (a *Client) UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOption) (*UpdateTemplateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateTemplateParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UpdateTemplate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Templates/Update",
@@ -155,7 +169,12 @@ func (a *Client) UpdateTemplate(params *UpdateTemplateParams) (*UpdateTemplateOK
 		Reader:             &UpdateTemplateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

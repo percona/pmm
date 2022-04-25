@@ -6,6 +6,7 @@ package my_sql
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddMySQLOK() *AddMySQLOK {
 	return &AddMySQLOK{}
 }
 
-/*AddMySQLOK handles this case with default header values.
+/* AddMySQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddMySQLOK struct {
 func (o *AddMySQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMySQLOK) GetPayload() *AddMySQLOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddMySQLDefault(code int) *AddMySQLDefault {
 	}
 }
 
-/*AddMySQLDefault handles this case with default header values.
+/* AddMySQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddMySQLDefault) Code() int {
 func (o *AddMySQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMySQLDefault) GetPayload() *AddMySQLDefaultBody {
 	return o.Payload
 }
@@ -279,7 +278,6 @@ func (o *AddMySQLBody) validateMetricsModeEnum(path, location string, value stri
 }
 
 func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MetricsMode) { // not required
 		return nil
 	}
@@ -331,7 +329,6 @@ func (o *AddMySQLBody) validateLogLevelEnum(path, location string, value string)
 }
 
 func (o *AddMySQLBody) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -345,7 +342,6 @@ func (o *AddMySQLBody) validateLogLevel(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
 	}
@@ -354,6 +350,38 @@ func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
 		if err := o.AddNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my SQL body based on the context it is used
+func (o *AddMySQLBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAddNode(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AddNode != nil {
+		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "add_node")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "add_node")
 			}
 			return err
 		}
@@ -395,7 +423,7 @@ type AddMySQLDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddMySQLDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add my SQL default body
@@ -413,7 +441,6 @@ func (o *AddMySQLDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -427,6 +454,42 @@ func (o *AddMySQLDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddMySQL default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMySQL default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my SQL default body based on the context it is used
+func (o *AddMySQLDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddMySQL default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMySQL default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -448,6 +511,47 @@ func (o *AddMySQLDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddMySQLDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
+swagger:model AddMySQLDefaultBodyDetailsItems0
+*/
+type AddMySQLDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add my SQL default body details items0
+func (o *AddMySQLDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add my SQL default body details items0 based on context it is used
+func (o *AddMySQLDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddMySQLDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -503,7 +607,6 @@ func (o *AddMySQLOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLOKBody) validateMysqldExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -512,6 +615,8 @@ func (o *AddMySQLOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -521,7 +626,6 @@ func (o *AddMySQLOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlPerfschema) { // not required
 		return nil
 	}
@@ -530,6 +634,8 @@ func (o *AddMySQLOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) err
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_perfschema")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "qan_mysql_perfschema")
 			}
 			return err
 		}
@@ -539,7 +645,6 @@ func (o *AddMySQLOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) err
 }
 
 func (o *AddMySQLOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlSlowlog) { // not required
 		return nil
 	}
@@ -548,6 +653,8 @@ func (o *AddMySQLOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error 
 		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_slowlog")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "qan_mysql_slowlog")
 			}
 			return err
 		}
@@ -557,7 +664,6 @@ func (o *AddMySQLOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error 
 }
 
 func (o *AddMySQLOKBody) validateService(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Service) { // not required
 		return nil
 	}
@@ -566,6 +672,98 @@ func (o *AddMySQLOKBody) validateService(formats strfmt.Registry) error {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMySqlOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "service")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my SQL OK body based on the context it is used
+func (o *AddMySQLOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMysqlPerfschema(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMysqlSlowlog(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateService(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MysqldExporter != nil {
+		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddMySQLOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlPerfschema != nil {
+		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_perfschema")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "qan_mysql_perfschema")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddMySQLOKBody) contextValidateQANMysqlSlowlog(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlSlowlog != nil {
+		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "qan_mysql_slowlog")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "qan_mysql_slowlog")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddMySQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Service != nil {
+		if err := o.Service.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySqlOk" + "." + "service")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySqlOk" + "." + "service")
 			}
 			return err
 		}
@@ -726,7 +924,6 @@ func (o *AddMySQLOKBodyMysqldExporter) validateStatusEnum(path, location string,
 }
 
 func (o *AddMySQLOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -778,7 +975,6 @@ func (o *AddMySQLOKBodyMysqldExporter) validateLogLevelEnum(path, location strin
 }
 
 func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -788,6 +984,11 @@ func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body mysqld exporter based on context it is used
+func (o *AddMySQLOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -921,7 +1122,6 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatusEnum(path, location str
 }
 
 func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -931,6 +1131,11 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registr
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body QAN mysql perfschema based on context it is used
+func (o *AddMySQLOKBodyQANMysqlPerfschema) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1067,7 +1272,6 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatusEnum(path, location string
 }
 
 func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1077,6 +1281,11 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body QAN mysql slowlog based on context it is used
+func (o *AddMySQLOKBodyQANMysqlSlowlog) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1139,6 +1348,11 @@ type AddMySQLOKBodyService struct {
 
 // Validate validates this add my SQL OK body service
 func (o *AddMySQLOKBodyService) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add my SQL OK body service based on context it is used
+func (o *AddMySQLOKBodyService) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1253,7 +1467,6 @@ func (o *AddMySQLParamsBodyAddNode) validateNodeTypeEnum(path, location string, 
 }
 
 func (o *AddMySQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -1263,6 +1476,11 @@ func (o *AddMySQLParamsBodyAddNode) validateNodeType(formats strfmt.Registry) er
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add my SQL params body add node based on context it is used
+func (o *AddMySQLParamsBodyAddNode) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1277,42 +1495,6 @@ func (o *AddMySQLParamsBodyAddNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLParamsBodyAddNode) UnmarshalBinary(b []byte) error {
 	var res AddMySQLParamsBodyAddNode
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewCreateTemplateParams creates a new CreateTemplateParams object
-// with the default values initialized.
+// NewCreateTemplateParams creates a new CreateTemplateParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCreateTemplateParams() *CreateTemplateParams {
-	var ()
 	return &CreateTemplateParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCreateTemplateParamsWithTimeout creates a new CreateTemplateParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCreateTemplateParamsWithTimeout(timeout time.Duration) *CreateTemplateParams {
-	var ()
 	return &CreateTemplateParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCreateTemplateParamsWithContext creates a new CreateTemplateParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCreateTemplateParamsWithContext(ctx context.Context) *CreateTemplateParams {
-	var ()
 	return &CreateTemplateParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCreateTemplateParamsWithHTTPClient creates a new CreateTemplateParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCreateTemplateParamsWithHTTPClient(client *http.Client) *CreateTemplateParams {
-	var ()
 	return &CreateTemplateParams{
 		HTTPClient: client,
 	}
 }
 
-/*CreateTemplateParams contains all the parameters to send to the API endpoint
-for the create template operation typically these are written to a http.Request
+/* CreateTemplateParams contains all the parameters to send to the API endpoint
+   for the create template operation.
+
+   Typically these are written to a http.Request.
 */
 type CreateTemplateParams struct {
 
-	/*Body*/
+	// Body.
 	Body CreateTemplateBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the create template params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateTemplateParams) WithDefaults() *CreateTemplateParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the create template params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CreateTemplateParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the create template params
@@ -119,7 +133,6 @@ func (o *CreateTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddMySQLdExporterOK() *AddMySQLdExporterOK {
 	return &AddMySQLdExporterOK{}
 }
 
-/*AddMySQLdExporterOK handles this case with default header values.
+/* AddMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddMySQLdExporterOK struct {
 func (o *AddMySQLdExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySQLdExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMySQLdExporterOK) GetPayload() *AddMySQLdExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddMySQLdExporterDefault(code int) *AddMySQLdExporterDefault {
 	}
 }
 
-/*AddMySQLdExporterDefault handles this case with default header values.
+/* AddMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddMySQLdExporterDefault) Code() int {
 func (o *AddMySQLdExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMySQLdExporterDefault) GetPayload() *AddMySQLdExporterDefaultBody {
 	return o.Payload
 }
@@ -177,6 +176,11 @@ func (o *AddMySQLdExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add my s q ld exporter body based on context it is used
+func (o *AddMySQLdExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddMySQLdExporterBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -210,7 +214,7 @@ type AddMySQLdExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddMySQLdExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add my s q ld exporter default body
@@ -228,7 +232,6 @@ func (o *AddMySQLdExporterDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLdExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -242,6 +245,42 @@ func (o *AddMySQLdExporterDefaultBody) validateDetails(formats strfmt.Registry) 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my s q ld exporter default body based on the context it is used
+func (o *AddMySQLdExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddMySQLdExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -263,6 +302,47 @@ func (o *AddMySQLdExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddMySQLdExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySQLdExporterDefaultBodyDetailsItems0 add my s q ld exporter default body details items0
+swagger:model AddMySQLdExporterDefaultBodyDetailsItems0
+*/
+type AddMySQLdExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add my s q ld exporter default body details items0
+func (o *AddMySQLdExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add my s q ld exporter default body details items0 based on context it is used
+func (o *AddMySQLdExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLdExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddMySQLdExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -297,7 +377,6 @@ func (o *AddMySQLdExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddMySQLdExporterOKBody) validateMysqldExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -306,6 +385,38 @@ func (o *AddMySQLdExporterOKBody) validateMysqldExporter(formats strfmt.Registry
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addMySQLdExporterOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySQLdExporterOk" + "." + "mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add my s q ld exporter OK body based on the context it is used
+func (o *AddMySQLdExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddMySQLdExporterOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MysqldExporter != nil {
+		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addMySQLdExporterOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addMySQLdExporterOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -466,7 +577,6 @@ func (o *AddMySQLdExporterOKBodyMysqldExporter) validateStatusEnum(path, locatio
 }
 
 func (o *AddMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -518,7 +628,6 @@ func (o *AddMySQLdExporterOKBodyMysqldExporter) validateLogLevelEnum(path, locat
 }
 
 func (o *AddMySQLdExporterOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -528,6 +637,11 @@ func (o *AddMySQLdExporterOKBodyMysqldExporter) validateLogLevel(formats strfmt.
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add my s q ld exporter OK body mysqld exporter based on context it is used
+func (o *AddMySQLdExporterOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

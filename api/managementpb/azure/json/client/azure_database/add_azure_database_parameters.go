@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddAzureDatabaseParams creates a new AddAzureDatabaseParams object
-// with the default values initialized.
+// NewAddAzureDatabaseParams creates a new AddAzureDatabaseParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddAzureDatabaseParams() *AddAzureDatabaseParams {
-	var ()
 	return &AddAzureDatabaseParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddAzureDatabaseParamsWithTimeout creates a new AddAzureDatabaseParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddAzureDatabaseParamsWithTimeout(timeout time.Duration) *AddAzureDatabaseParams {
-	var ()
 	return &AddAzureDatabaseParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddAzureDatabaseParamsWithContext creates a new AddAzureDatabaseParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddAzureDatabaseParamsWithContext(ctx context.Context) *AddAzureDatabaseParams {
-	var ()
 	return &AddAzureDatabaseParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddAzureDatabaseParamsWithHTTPClient creates a new AddAzureDatabaseParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddAzureDatabaseParamsWithHTTPClient(client *http.Client) *AddAzureDatabaseParams {
-	var ()
 	return &AddAzureDatabaseParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddAzureDatabaseParams contains all the parameters to send to the API endpoint
-for the add azure database operation typically these are written to a http.Request
+/* AddAzureDatabaseParams contains all the parameters to send to the API endpoint
+   for the add azure database operation.
+
+   Typically these are written to a http.Request.
 */
 type AddAzureDatabaseParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddAzureDatabaseBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add azure database params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddAzureDatabaseParams) WithDefaults() *AddAzureDatabaseParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add azure database params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddAzureDatabaseParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add azure database params
@@ -119,7 +133,6 @@ func (o *AddAzureDatabaseParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
