@@ -181,7 +181,7 @@ func addServerData(ctx context.Context, zipW *zip.Writer) {
 	}
 }
 
-func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agents_info.AgentsInfoItems0) {
+func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agents_info.StatusOKBodyAgentsInfoItems0) {
 	now := time.Now()
 
 	for _, agent := range agentsInfo {
