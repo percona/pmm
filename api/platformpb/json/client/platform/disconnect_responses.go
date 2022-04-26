@@ -119,7 +119,7 @@ swagger:model DisconnectBody
 */
 type DisconnectBody struct {
 
-	// A flag to clean up connection only from the PMM side
+	// Forces the cleanup process for connected PMM instances regardless of the Portal API response
 	Force bool `json:"force,omitempty"`
 }
 

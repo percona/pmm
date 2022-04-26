@@ -150,7 +150,7 @@ type DisconnectRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// A flag to clean up connection only from the PMM side
+	// Forces the cleanup process for connected PMM instances regardless of the Portal API response
 	Force bool `protobuf:"varint,1,opt,name=force,proto3" json:"force,omitempty"`
 }
 

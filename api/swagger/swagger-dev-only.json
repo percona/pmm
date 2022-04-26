@@ -2094,7 +2094,7 @@
               "properties": {
                 "force": {
                   "type": "boolean",
-                  "title": "A flag to clean up connection only from the PMM side",
+                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
                   "x-order": 0
                 }
               }
