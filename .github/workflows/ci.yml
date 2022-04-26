@@ -188,21 +188,19 @@ jobs:
           go run .github/check-license.go
           bin/go-sumtype ./...
           # use GITHUB_TOKEN because only it has access to GitHub Checks API
-          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -name='Required checks' -reporter=github-pr-check
+          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
 
-          # run it like that until some of those issues/PRs are resolved:
-          # * https://github.com/quasilyte/go-consistent/issues/33
+          # run it like this until it will be added to golangci-lint:
           # * https://github.com/golangci/golangci-lint/issues/288
-          # * https://github.com/reviewdog/errorformat/pull/47 (once it is atually used by reviewdog)
-          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
+          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
 
       - name: Run optional checks/linters
         run: |
           # use ROBOT_TOKEN for better reviewer's name
           if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
-            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -name='Linters' -reporter=github-pr-review
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
           else
-            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -name='Linters' -reporter=github-pr-review
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
           fi
 
       - name: Check that there are no source code changes

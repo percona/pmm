@@ -26,11 +26,14 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 const configPath = "../../testdata/victoriametrics/promscrape.yml"
@@ -755,19 +758,20 @@ scrape_configs:
 		assert.Errorf(t, err, "error when checking Prometheus config")
 	})
 
-	t.Run("Good scrape config file with unsupported params", func(t *testing.T) {
+	t.Run("Scrape config file with unknown params", func(t *testing.T) {
 		err := svc.configAndReload(context.TODO(), []byte(strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
   scrape_interval: 1m
   scrape_timeout: 54s
-remote_write:
-- url: http://some-remote-url
-remote_read:
-- url: http://some-remote-read-url
+unknown_filed: unknown_value
+
 `)))
-		assert.NoError(t, err)
+		tests.AssertGRPCError(t, status.New(codes.Aborted,
+			"yaml: unmarshal errors:\n  line 6: field unknown_filed not found in type promscrape.Config;"+
+				" pass -promscrape.config.strictParse=false command-line flag for ignoring unknown fields in yaml config\n",
+		), err)
 	})
 }
 
