@@ -1,0 +1,490 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/ia/templates.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/ia/Templates/Create": {
+      "post": {
+        "summary": "CreateTemplate creates a new template.",
+        "operationId": "CreateTemplate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreateTemplateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreateTemplateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      }
+    },
+    "/v1/management/ia/Templates/Delete": {
+      "post": {
+        "summary": "DeleteTemplate deletes existing, previously created via API.",
+        "operationId": "DeleteTemplate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1DeleteTemplateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1DeleteTemplateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      }
+    },
+    "/v1/management/ia/Templates/List": {
+      "post": {
+        "summary": "ListTemplates returns a list of all collected Alert Rule Templates.",
+        "operationId": "ListTemplates",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1ListTemplatesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1ListTemplatesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      }
+    },
+    "/v1/management/ia/Templates/Update": {
+      "post": {
+        "summary": "UpdateTemplate updates existing template, previously created via API.",
+        "operationId": "UpdateTemplate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1UpdateTemplateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1UpdateTemplateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Templates"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "managementPageParams": {
+      "type": "object",
+      "properties": {
+        "page_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of results per page."
+        },
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Index of the requested page, starts from 0."
+        }
+      },
+      "description": "PageParams represents page request parameters for pagination."
+    },
+    "managementPageTotals": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of results."
+        },
+        "total_pages": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of pages."
+        }
+      },
+      "description": "PageTotals represents total values for pagination."
+    },
+    "managementSeverity": {
+      "type": "string",
+      "enum": [
+        "SEVERITY_INVALID",
+        "SEVERITY_EMERGENCY",
+        "SEVERITY_ALERT",
+        "SEVERITY_CRITICAL",
+        "SEVERITY_ERROR",
+        "SEVERITY_WARNING",
+        "SEVERITY_NOTICE",
+        "SEVERITY_INFO",
+        "SEVERITY_DEBUG"
+      ],
+      "default": "SEVERITY_INVALID",
+      "description": "Severity represents severity level of the check result or alert."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1BoolParamDefinition": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "$ref": "#/definitions/v1beta1BooleanFlag"
+        }
+      },
+      "description": "BoolParamDefinition represents boolean parameter's default value."
+    },
+    "v1beta1BooleanFlag": {
+      "type": "string",
+      "enum": [
+        "DO_NOT_CHANGE",
+        "TRUE",
+        "FALSE"
+      ],
+      "default": "DO_NOT_CHANGE",
+      "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False."
+    },
+    "v1beta1CreateTemplateRequest": {
+      "type": "object",
+      "properties": {
+        "yaml": {
+          "type": "string",
+          "description": "YAML (or JSON) template file content."
+        }
+      }
+    },
+    "v1beta1CreateTemplateResponse": {
+      "type": "object"
+    },
+    "v1beta1DeleteTemplateRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1beta1DeleteTemplateResponse": {
+      "type": "object"
+    },
+    "v1beta1FloatParamDefinition": {
+      "type": "object",
+      "properties": {
+        "has_default": {
+          "type": "boolean",
+          "description": "True if default value is set."
+        },
+        "default": {
+          "type": "number",
+          "format": "double",
+          "description": "Default value if has_default is true."
+        },
+        "has_min": {
+          "type": "boolean",
+          "description": "True if minimal valid value is set."
+        },
+        "min": {
+          "type": "number",
+          "format": "double",
+          "description": "Minimal valid value (inclusive) if has_min is true."
+        },
+        "has_max": {
+          "type": "boolean",
+          "description": "True if maximal valid value is set."
+        },
+        "max": {
+          "type": "number",
+          "format": "double",
+          "description": "Maximal valid value (inclusive) if has_max is true."
+        }
+      },
+      "description": "FloatParamDefinition represents float parameter's default value and valid range."
+    },
+    "v1beta1ListTemplatesRequest": {
+      "type": "object",
+      "properties": {
+        "reload": {
+          "type": "boolean",
+          "description": "If true, template files will be re-read from disk."
+        },
+        "page_params": {
+          "$ref": "#/definitions/managementPageParams",
+          "description": "Page request."
+        }
+      }
+    },
+    "v1beta1ListTemplatesResponse": {
+      "type": "object",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1beta1Template"
+          }
+        },
+        "totals": {
+          "$ref": "#/definitions/managementPageTotals",
+          "description": "Total items and pages."
+        }
+      }
+    },
+    "v1beta1ParamDefinition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Machine-readable name (ID) that is used in expression."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable parameter summary."
+        },
+        "unit": {
+          "$ref": "#/definitions/v1beta1ParamUnit",
+          "description": "Parameter unit."
+        },
+        "type": {
+          "$ref": "#/definitions/v1beta1ParamType",
+          "description": "Parameter type."
+        },
+        "bool": {
+          "$ref": "#/definitions/v1beta1BoolParamDefinition",
+          "description": "Bool value."
+        },
+        "float": {
+          "$ref": "#/definitions/v1beta1FloatParamDefinition",
+          "description": "Float value."
+        },
+        "string": {
+          "$ref": "#/definitions/v1beta1StringParamDefinition",
+          "description": "String value."
+        }
+      },
+      "description": "ParamDefinition represents a single query parameter."
+    },
+    "v1beta1ParamType": {
+      "type": "string",
+      "enum": [
+        "PARAM_TYPE_INVALID",
+        "BOOL",
+        "FLOAT",
+        "STRING"
+      ],
+      "default": "PARAM_TYPE_INVALID",
+      "description": "ParamType represents template parameter type."
+    },
+    "v1beta1ParamUnit": {
+      "type": "string",
+      "enum": [
+        "PARAM_UNIT_INVALID",
+        "PERCENTAGE",
+        "SECONDS"
+      ],
+      "default": "PARAM_UNIT_INVALID",
+      "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s"
+    },
+    "v1beta1StringParamDefinition": {
+      "type": "object",
+      "properties": {
+        "has_default": {
+          "type": "boolean",
+          "description": "True if default value is set."
+        },
+        "default": {
+          "type": "string",
+          "description": "Default value if has_default is true."
+        }
+      },
+      "description": "StringParamDefinition represents string parameter's default value."
+    },
+    "v1beta1Template": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Machine-readable name (ID)."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "expr": {
+          "type": "string",
+          "description": "PromQL query expression with templating parameters."
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1beta1ParamDefinition"
+          },
+          "description": "Query parameters definitions."
+        },
+        "for": {
+          "type": "string",
+          "description": "Default duration value."
+        },
+        "severity": {
+          "$ref": "#/definitions/managementSeverity",
+          "description": "Severity."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Labels."
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations."
+        },
+        "source": {
+          "$ref": "#/definitions/v1beta1TemplateSource",
+          "description": "Template source. Only templates created via API can be updated or deleted via API."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Template creation time. Empty for built-in and SaaS templates."
+        },
+        "yaml": {
+          "type": "string",
+          "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates."
+        }
+      },
+      "description": "Template represents Alert Template that is used to create Alert Rule."
+    },
+    "v1beta1TemplateSource": {
+      "type": "string",
+      "enum": [
+        "TEMPLATE_SOURCE_INVALID",
+        "BUILT_IN",
+        "SAAS",
+        "USER_FILE",
+        "USER_API"
+      ],
+      "default": "TEMPLATE_SOURCE_INVALID",
+      "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API."
+    },
+    "v1beta1UpdateTemplateRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Machine-readable name (ID)."
+        },
+        "yaml": {
+          "type": "string",
+          "description": "YAML (or JSON) template file content."
+        }
+      }
+    },
+    "v1beta1UpdateTemplateResponse": {
+      "type": "object"
+    }
+  }
+}

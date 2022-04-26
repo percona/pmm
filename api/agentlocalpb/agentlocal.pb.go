@@ -7,15 +7,13 @@
 package agentlocalpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

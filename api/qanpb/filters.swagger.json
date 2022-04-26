@@ -1,0 +1,162 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "qanpb/filters.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/qan/Filters/Get": {
+      "post": {
+        "summary": "Get gets map of metrics names.",
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1FiltersReply"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1FiltersRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Filters"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1FiltersReply": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v1beta1ListLabels"
+          }
+        }
+      },
+      "description": "FiltersReply is map of labels for given period by key.\nKey is label's name and value is label's value and how many times it occur."
+    },
+    "v1beta1FiltersRequest": {
+      "type": "object",
+      "properties": {
+        "period_start_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "period_start_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "main_metric_name": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1beta1MapFieldEntry"
+          }
+        }
+      },
+      "description": "FiltersRequest contains period for which we need filters."
+    },
+    "v1beta1ListLabels": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1beta1Values"
+          }
+        }
+      },
+      "description": "ListLabels is list of label's values: duplicates are impossible."
+    },
+    "v1beta1MapFieldEntry": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}."
+    },
+    "v1beta1Values": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "main_metric_percent": {
+          "type": "number",
+          "format": "float"
+        },
+        "main_metric_per_sec": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "Values is label values and main metric percent and per second."
+    }
+  }
+}

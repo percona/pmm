@@ -7,13 +7,12 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

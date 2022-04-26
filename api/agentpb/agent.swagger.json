@@ -1,0 +1,2285 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "agentpb/agent.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "CheckConnectionResponseStats": {
+      "type": "object",
+      "properties": {
+        "table_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "A number of tables, 0 if unknown."
+        }
+      },
+      "description": "Stats contains various Service statistics."
+    },
+    "GetVersionsRequestMySQLd": {
+      "type": "object",
+      "description": "MySQLd is used for mysqld binary version retrieving using `mysqld --version`."
+    },
+    "GetVersionsRequestQpress": {
+      "type": "object",
+      "description": "Qpress is used for qpress binary version retrieving."
+    },
+    "GetVersionsRequestSoftware": {
+      "type": "object",
+      "properties": {
+        "mysqld": {
+          "$ref": "#/definitions/GetVersionsRequestMySQLd"
+        },
+        "xtrabackup": {
+          "$ref": "#/definitions/GetVersionsRequestXtrabackup"
+        },
+        "xbcloud": {
+          "$ref": "#/definitions/GetVersionsRequestXbcloud"
+        },
+        "qpress": {
+          "$ref": "#/definitions/GetVersionsRequestQpress"
+        }
+      },
+      "description": "Software is used to select software for which retrieve version."
+    },
+    "GetVersionsRequestXbcloud": {
+      "type": "object",
+      "description": "Xbcloud is used for xbcloud binary version retrieving."
+    },
+    "GetVersionsRequestXtrabackup": {
+      "type": "object",
+      "description": "Xtrabackup is used for xtrabackup binary version retrieving."
+    },
+    "GetVersionsResponseVersion": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "error": {
+          "type": "string"
+        }
+      },
+      "description": "Version contains the version field of the requested software and\nthe error field which is set in case of version retrieving error."
+    },
+    "JobProgressLogs": {
+      "type": "object",
+      "properties": {
+        "chunk_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "string"
+        },
+        "done": {
+          "type": "boolean"
+        }
+      },
+      "description": "Logs contains generic logs from job."
+    },
+    "MetricsBucketCommon": {
+      "type": "object",
+      "properties": {
+        "queryid": {
+          "type": "string",
+          "description": "md5 of digest_text/fingerprint."
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "digest_text - query signature. Query without values."
+        },
+        "database": {
+          "type": "string",
+          "description": "Dimension Group.\n\nMongoDB or PostgreSQL database.\nSeveral databases can't be combined in a single declarative query."
+        },
+        "schema": {
+          "type": "string",
+          "description": "MySQL database or PostgreSQL schema.\nSeveral schemas can be combined in a single declarative query."
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tables or Collections list."
+        },
+        "username": {
+          "type": "string",
+          "description": "client user name."
+        },
+        "client_host": {
+          "type": "string",
+          "description": "client IP or hostname."
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "Identifier of agent that collect and send metrics."
+        },
+        "agent_type": {
+          "$ref": "#/definitions/inventoryAgentType",
+          "description": "Metrics source."
+        },
+        "period_start_unix_secs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Time when collection of bucket started."
+        },
+        "period_length_secs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Duration of bucket."
+        },
+        "example": {
+          "type": "string",
+          "description": "One of query example from set found in bucket."
+        },
+        "example_format": {
+          "$ref": "#/definitions/agentExampleFormat",
+          "description": "Deprecated: should not be used, should be removed."
+        },
+        "example_type": {
+          "$ref": "#/definitions/agentExampleType"
+        },
+        "is_truncated": {
+          "type": "boolean",
+          "description": "Indicates if the query example is truncated."
+        },
+        "num_queries_with_warnings": {
+          "type": "number",
+          "format": "float",
+          "description": "How many queries was with warnings in bucket."
+        },
+        "num_queries_with_errors": {
+          "type": "number",
+          "format": "float",
+          "description": "How many queries was with error in bucket."
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "uint64"
+          },
+          "description": "List of errors: {code: count}."
+        },
+        "num_queries": {
+          "type": "number",
+          "format": "float",
+          "description": "Amount queries in this bucket."
+        },
+        "m_query_time_cnt": {
+          "type": "number",
+          "format": "float",
+          "description": "How many times query_time was found."
+        },
+        "m_query_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The statement execution time in seconds."
+        },
+        "m_query_time_min": {
+          "type": "number",
+          "format": "float",
+          "description": "Smallest value of query_time in bucket."
+        },
+        "m_query_time_max": {
+          "type": "number",
+          "format": "float",
+          "description": "Biggest value of query_time in bucket."
+        },
+        "m_query_time_p99": {
+          "type": "number",
+          "format": "float",
+          "description": "99 percentile of value of query_time in bucket."
+        }
+      },
+      "description": "Common contains common fields for all DBs."
+    },
+    "MetricsBucketMongoDB": {
+      "type": "object",
+      "properties": {
+        "m_docs_returned_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of returned documents."
+        },
+        "m_docs_returned_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The response length of the query result in bytes."
+        },
+        "m_response_length_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of scanned documents."
+        },
+        "m_docs_scanned_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_p99": {
+          "type": "number",
+          "format": "float"
+        }
+      },
+      "description": "MongoDB contains metrics for Mongo DB."
+    },
+    "MetricsBucketMySQL": {
+      "type": "object",
+      "properties": {
+        "m_lock_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The time to acquire locks in seconds."
+        },
+        "m_lock_time_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows sent to the client."
+        },
+        "m_rows_sent_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows scanned - SELECT."
+        },
+        "m_rows_examined_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows changed - UPDATE, DELETE, INSERT."
+        },
+        "m_rows_affected_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows read from tables."
+        },
+        "m_rows_read_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of merge passes that the sort algorithm has had to do."
+        },
+        "m_merge_passes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts the number of page read operations scheduled."
+        },
+        "m_innodb_io_r_ops_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Similar to innodb_IO_r_ops, but the unit is bytes."
+        },
+        "m_innodb_io_r_bytes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage."
+        },
+        "m_innodb_io_r_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query waited for row locks."
+        },
+        "m_innodb_rec_lock_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution."
+        },
+        "m_innodb_queue_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts approximately the number of unique pages the query accessed."
+        },
+        "m_innodb_pages_distinct_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long the query is."
+        },
+        "m_query_length_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of bytes sent to all clients."
+        },
+        "m_bytes_sent_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on memory for the query."
+        },
+        "m_tmp_tables_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on disk for the query."
+        },
+        "m_tmp_disk_tables_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total Size in bytes for all temporary tables used in the query."
+        },
+        "m_tmp_table_sizes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_qc_hit_cnt": {
+          "type": "number",
+          "format": "float",
+          "description": "Boolean metrics:\n- *_cnt - how many times this metric was met.\n- *_sum - how many times this metric was true."
+        },
+        "m_qc_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Query Cache hits."
+        },
+        "m_full_scan_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_full_scan_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full table scan."
+        },
+        "m_full_join_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_full_join_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full join (a join without indexes)."
+        },
+        "m_tmp_table_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query created an implicit internal temporary table."
+        },
+        "m_tmp_table_on_disk_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_on_disk_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The querys temporary table was stored on disk."
+        },
+        "m_filesort_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_filesort_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query used a filesort."
+        },
+        "m_filesort_on_disk_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_filesort_on_disk_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The filesort was performed on disk."
+        },
+        "m_select_full_range_join_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_full_range_join_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used a range search on a reference table."
+        },
+        "m_select_range_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_range_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used ranges on the first table."
+        },
+        "m_select_range_check_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_range_check_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins without keys that check for key usage after each row."
+        },
+        "m_sort_range_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_range_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done using ranges."
+        },
+        "m_sort_rows_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_rows_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorted rows."
+        },
+        "m_sort_scan_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_scan_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done by scanning the table."
+        },
+        "m_no_index_used_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_no_index_used_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without index."
+        },
+        "m_no_good_index_used_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_no_good_index_used_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without good index."
+        }
+      },
+      "description": "MySQL contains metrics for MySQL."
+    },
+    "MetricsBucketPostgreSQL": {
+      "type": "object",
+      "properties": {
+        "m_rows_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows sent to the client."
+        },
+        "m_shared_blks_hit_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared block cache hits by the statement."
+        },
+        "m_shared_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks read by the statement."
+        },
+        "m_shared_blks_dirtied_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_dirtied_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks dirtied by the statement."
+        },
+        "m_shared_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks written by the statement."
+        },
+        "m_local_blks_hit_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local block cache hits by the statement."
+        },
+        "m_local_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks read by the statement."
+        },
+        "m_local_blks_dirtied_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_dirtied_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks dirtied by the statement."
+        },
+        "m_local_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks written by the statement."
+        },
+        "m_temp_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_temp_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks read by the statement."
+        },
+        "m_temp_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_temp_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks written by the statement."
+        },
+        "m_blk_read_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_blk_read_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_blk_write_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_blk_write_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_cpu_user_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_cpu_user_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time user spent in query."
+        },
+        "m_cpu_sys_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_cpu_sys_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time system spent in query."
+        },
+        "cmd_type": {
+          "type": "string",
+          "description": "Type of SQL command."
+        },
+        "m_plans_calls_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of planned calls.",
+          "title": "pg_stat_monitor 0.9 metrics"
+        },
+        "m_plans_calls_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_records_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of WAL (Write-ahead logging) records."
+        },
+        "m_wal_records_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_fpi_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records."
+        },
+        "m_wal_fpi_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_bytes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total bytes of WAL (Write-ahead logging) records."
+        },
+        "m_wal_bytes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Sum, count, min, max of plan time."
+        },
+        "m_plan_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "top_queryid": {
+          "type": "string",
+          "title": "Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):\nmin_time, max_time, mean_time\nplan_mean_time\nstddev_time\nOther metrics skipped (empty values, codes):\ncmd_type_text, elevel, sqlcode, message, state_code, state"
+        },
+        "top_query": {
+          "type": "string"
+        },
+        "application_name": {
+          "type": "string"
+        },
+        "planid": {
+          "type": "string"
+        },
+        "query_plan": {
+          "type": "string"
+        },
+        "histogram_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/agentHistogramItem"
+          }
+        }
+      },
+      "description": "PostgreSQL contains metrics for PostgreSQL."
+    },
+    "SetStateRequestAgentProcess": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/inventoryAgentType"
+        },
+        "template_left_delim": {
+          "type": "string"
+        },
+        "template_right_delim": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "text_files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "redact_words": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "AgentProcess describes desired configuration of a single agent process started by pmm-agent."
+    },
+    "SetStateRequestBuiltinAgent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/inventoryAgentType"
+        },
+        "dsn": {
+          "type": "string"
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disables query examples for QAN Agents if true."
+        },
+        "max_query_log_size": {
+          "type": "string",
+          "format": "int64",
+          "description": "Instructs QAN Agents to rotate query log file or table at this size if \u003e 0."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "TLS in enabled if true."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent."
+    },
+    "StartActionRequestMongoDBExplainParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "query": {
+          "type": "string"
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBExplainParams describes MongoDB EXPLAIN action parameters."
+    },
+    "StartActionRequestMongoDBQueryBuildInfoParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBQueryBuildInfoParams describes MongoDB buildInfo query action parameters."
+    },
+    "StartActionRequestMongoDBQueryGetCmdLineOptsParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBQueryGetCmdLineOptsParams describes MongoDB getCmdLineOpts query action parameters."
+    },
+    "StartActionRequestMongoDBQueryGetDiagnosticDataParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBQueryGetDiagnosticDataParams describes MongoDB getDiagnosticData query action parameters."
+    },
+    "StartActionRequestMongoDBQueryGetParameterParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters."
+    },
+    "StartActionRequestMongoDBQueryReplSetGetStatusParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        }
+      },
+      "description": "MongoDBQueryReplSetGetStatusParams describes MongoDB replSetGetStatus query action parameters."
+    },
+    "StartActionRequestMySQLExplainParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "query": {
+          "type": "string"
+        },
+        "output_format": {
+          "$ref": "#/definitions/agentMysqlExplainOutputFormat"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLExplainParams describes MySQL EXPLAIN action parameters."
+    },
+    "StartActionRequestMySQLQuerySelectParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query suffix (without leading SELECT)."
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLQuerySelectParams describes MySQL SELECT query action parameters."
+    },
+    "StartActionRequestMySQLQueryShowParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query suffix (without leading SHOW)."
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLQueryShowParams describes MySQL SHOW query action parameters."
+    },
+    "StartActionRequestMySQLShowCreateTableParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "table": {
+          "type": "string"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters."
+    },
+    "StartActionRequestMySQLShowIndexParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "table": {
+          "type": "string"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLShowIndexParams describes MySQL SHOW INDEX action parameters."
+    },
+    "StartActionRequestMySQLShowTableStatusParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "table": {
+          "type": "string"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters."
+    },
+    "StartActionRequestPTMongoDBSummaryParams": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "description": "PTMongoDBSummaryParams describes parameters for PT MongoDB summary."
+    },
+    "StartActionRequestPTMySQLSummaryParams": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "socket": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "description": "PTMySQLSummaryParams describes parameters for PT MySQL summary."
+    },
+    "StartActionRequestPTPgSummaryParams": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "description": "PTPgSummaryParams describes parameters for PT PG summary."
+    },
+    "StartActionRequestPTSummaryParams": {
+      "type": "object",
+      "description": "PTSummaryParams describes parameters for PT summary."
+    },
+    "StartActionRequestPostgreSQLQuerySelectParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query suffix (without leading SELECT)."
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters."
+    },
+    "StartActionRequestPostgreSQLQueryShowParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters."
+    },
+    "StartActionRequestPostgreSQLShowCreateTableParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "table": {
+          "type": "string"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters."
+    },
+    "StartActionRequestPostgreSQLShowIndexParams": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "table": {
+          "type": "string"
+        },
+        "tls_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters."
+    },
+    "agentActionResultRequest": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique action ID."
+        },
+        "output": {
+          "type": "string",
+          "format": "byte",
+          "description": "New chunk of action output."
+        },
+        "done": {
+          "type": "boolean",
+          "description": "True if action is finished."
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if action failed."
+        }
+      },
+      "description": "ActionResultRequest is an AgentMessage containing action run status and new chunk of output."
+    },
+    "agentActionResultResponse": {
+      "type": "object",
+      "description": "ActionResultResponse is an ServerMessage for ActionResultRequest acceptance."
+    },
+    "agentCheckConnectionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/inventoryServiceType",
+          "description": "Service type."
+        },
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the service. May contain connection (dial) timeout."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout for the whole request."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "TLS certificate wont be verified."
+        }
+      },
+      "description": "CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service."
+    },
+    "agentCheckConnectionResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error message if connection check failed."
+        },
+        "stats": {
+          "$ref": "#/definitions/CheckConnectionResponseStats"
+        }
+      },
+      "description": "CheckConnectionResponse is an AgentMessage containing a result of connection check."
+    },
+    "agentExampleFormat": {
+      "type": "string",
+      "enum": [
+        "EXAMPLE_FORMAT_INVALID",
+        "EXAMPLE",
+        "FINGERPRINT"
+      ],
+      "default": "EXAMPLE_FORMAT_INVALID",
+      "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed."
+    },
+    "agentExampleType": {
+      "type": "string",
+      "enum": [
+        "EXAMPLE_TYPE_INVALID",
+        "RANDOM",
+        "SLOWEST",
+        "FASTEST",
+        "WITH_ERROR"
+      ],
+      "default": "EXAMPLE_TYPE_INVALID",
+      "description": "ExampleType is a type of query example selected for this query class in given period of time."
+    },
+    "agentGetVersionsRequest": {
+      "type": "object",
+      "properties": {
+        "softwares": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetVersionsRequestSoftware"
+          }
+        }
+      },
+      "description": "GetVersionsRequest represents a request for version retrieving of different software."
+    },
+    "agentGetVersionsResponse": {
+      "type": "object",
+      "properties": {
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetVersionsResponseVersion"
+          }
+        }
+      },
+      "description": "GetVersionsResponse represents a response containing versions of software in the same order as in the request."
+    },
+    "agentHistogramItem": {
+      "type": "object",
+      "properties": {
+        "range": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "HistogramItem represents one item in histogram."
+    },
+    "agentJobProgress": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "mysql_backup": {
+          "$ref": "#/definitions/agentJobProgressMySQLBackup"
+        },
+        "mysql_restore_backup": {
+          "$ref": "#/definitions/agentJobProgressMySQLRestoreBackup"
+        },
+        "logs": {
+          "$ref": "#/definitions/JobProgressLogs"
+        }
+      },
+      "description": "JobProgress represents job progress messages like percentage of completion, status updates, etc."
+    },
+    "agentJobProgressMySQLBackup": {
+      "type": "object",
+      "description": "MySQLBackup contains backup job status update."
+    },
+    "agentJobProgressMySQLRestoreBackup": {
+      "type": "object",
+      "description": "MySQLRestoreBackup contains restore backup job status update."
+    },
+    "agentJobResult": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "error": {
+          "$ref": "#/definitions/agentJobResultError"
+        },
+        "mysql_backup": {
+          "$ref": "#/definitions/agentJobResultMySQLBackup"
+        },
+        "mysql_restore_backup": {
+          "$ref": "#/definitions/agentJobResultMySQLRestoreBackup"
+        },
+        "mongodb_backup": {
+          "$ref": "#/definitions/agentJobResultMongoDBBackup"
+        },
+        "mongodb_restore_backup": {
+          "$ref": "#/definitions/agentJobResultMongoDBRestoreBackup"
+        }
+      },
+      "description": "JobResult represents job result."
+    },
+    "agentJobResultError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "description": "Error contains job error message."
+    },
+    "agentJobResultMongoDBBackup": {
+      "type": "object",
+      "description": "MongoDBBackup contains result for MongoDB backup job."
+    },
+    "agentJobResultMongoDBRestoreBackup": {
+      "type": "object",
+      "description": "MongoDBRestoreBackup contains result for MongoDB restore backup job."
+    },
+    "agentJobResultMySQLBackup": {
+      "type": "object",
+      "description": "MySQLBackup contains result for MySQL backup job."
+    },
+    "agentJobResultMySQLRestoreBackup": {
+      "type": "object",
+      "description": "MySQLRestoreBackup contains result for MySQL restore backup job."
+    },
+    "agentJobStatusRequest": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "description": "JobStatusRequest is a ServerMessage asking pmm-agent for job status."
+    },
+    "agentJobStatusResponse": {
+      "type": "object",
+      "properties": {
+        "alive": {
+          "type": "boolean"
+        }
+      },
+      "description": "JobStatusResponse is an AgentMessage containing job status."
+    },
+    "agentMetricsBucket": {
+      "type": "object",
+      "properties": {
+        "common": {
+          "$ref": "#/definitions/MetricsBucketCommon"
+        },
+        "mysql": {
+          "$ref": "#/definitions/MetricsBucketMySQL"
+        },
+        "mongodb": {
+          "$ref": "#/definitions/MetricsBucketMongoDB"
+        },
+        "postgresql": {
+          "$ref": "#/definitions/MetricsBucketPostgreSQL"
+        }
+      },
+      "description": "MetricsBucket is aggregated message created by pmm-agent.\nContains information about one query selected in defined way from query class in specific period of time."
+    },
+    "agentMysqlExplainOutputFormat": {
+      "type": "string",
+      "enum": [
+        "MYSQL_EXPLAIN_OUTPUT_FORMAT_INVALID",
+        "MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT",
+        "MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON",
+        "MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON"
+      ],
+      "default": "MYSQL_EXPLAIN_OUTPUT_FORMAT_INVALID",
+      "description": "MysqlExplainOutputFormat output formats supported by MySQL Explain action.\n\n - MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT: EXPLAIN FORMAT=TRADITIONAL, returns result as text\n - MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON: EXPLAIN FORMAT=JSON\n - MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON: EXPLAIN FORMAT=TRADITIONAL, returns result as JSON"
+    },
+    "agentPBMSwitchPITRRequest": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string",
+          "description": "DSN for the MongoDB service. May contain connection (dial) timeout.\nMay contain placeholders for file paths in DSN."
+        },
+        "text_files": {
+          "$ref": "#/definitions/agentTextFiles",
+          "description": "Contains files and their contents which can be used in DSN."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Specifies if PITR should be enabled or disabled."
+        }
+      },
+      "description": "PBMSwitchPITRRequest is a ServerMessage asking pmm-agent to switch PITR pbm feature."
+    },
+    "agentPBMSwitchPITRResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error message."
+        }
+      },
+      "description": "PBMSwitchPITRResponse is an AgentMessage for PBMSwitchPITRRequest success result."
+    },
+    "agentPing": {
+      "type": "object",
+      "description": "Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift."
+    },
+    "agentPong": {
+      "type": "object",
+      "properties": {
+        "current_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Pong is an AgentMessage/ServerMessage with current time for measuring clock drift."
+    },
+    "agentQANCollectRequest": {
+      "type": "object",
+      "properties": {
+        "metrics_bucket": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/agentMetricsBucket"
+          }
+        }
+      },
+      "description": "QANCollectRequest is an AgentMessage for sending QAN data for qan-api."
+    },
+    "agentQANCollectResponse": {
+      "type": "object",
+      "description": "QANCollectResponse is a ServerMessage for QAN data acceptance."
+    },
+    "agentS3LocationConfig": {
+      "type": "object",
+      "properties": {
+        "endpoint": {
+          "type": "string"
+        },
+        "access_key": {
+          "type": "string"
+        },
+        "secret_key": {
+          "type": "string"
+        },
+        "bucket_name": {
+          "type": "string"
+        },
+        "bucket_region": {
+          "type": "string"
+        }
+      },
+      "description": "S3LocationConfig represents S3 bucket configuration."
+    },
+    "agentServerMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "$ref": "#/definitions/rpcStatus",
+          "description": "The responder sets the status field in two situations:\n1. When it received a request with the payload field not set.\n   That means that responded is older than the requester, and doesn't know about newer payload types.\n   Status code UNIMPLEMENTED (12) is reserved for that case.\n2. When the payload is set, but the request can't be performed due to some error."
+        },
+        "pong": {
+          "$ref": "#/definitions/agentPong",
+          "title": "responses from server"
+        },
+        "state_changed": {
+          "$ref": "#/definitions/agentStateChangedResponse"
+        },
+        "qan_collect": {
+          "$ref": "#/definitions/agentQANCollectResponse"
+        },
+        "action_result": {
+          "$ref": "#/definitions/agentActionResultResponse"
+        },
+        "ping": {
+          "$ref": "#/definitions/agentPing",
+          "title": "requests from server"
+        },
+        "set_state": {
+          "$ref": "#/definitions/agentSetStateRequest"
+        },
+        "start_action": {
+          "$ref": "#/definitions/agentStartActionRequest"
+        },
+        "stop_action": {
+          "$ref": "#/definitions/agentStopActionRequest"
+        },
+        "check_connection": {
+          "$ref": "#/definitions/agentCheckConnectionRequest"
+        },
+        "start_job": {
+          "$ref": "#/definitions/agentStartJobRequest"
+        },
+        "stop_job": {
+          "$ref": "#/definitions/agentStopJobRequest"
+        },
+        "job_status": {
+          "$ref": "#/definitions/agentJobStatusRequest"
+        },
+        "get_versions": {
+          "$ref": "#/definitions/agentGetVersionsRequest"
+        },
+        "pbm_switch_pitr": {
+          "$ref": "#/definitions/agentPBMSwitchPITRRequest"
+        }
+      }
+    },
+    "agentSetStateRequest": {
+      "type": "object",
+      "properties": {
+        "agent_processes": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SetStateRequestAgentProcess"
+          }
+        },
+        "builtin_agents": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/SetStateRequestBuiltinAgent"
+          }
+        }
+      },
+      "description": "SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state."
+    },
+    "agentSetStateResponse": {
+      "type": "object",
+      "description": "SetStateResponse is an AgentMessage for SetStateRequest acceptance."
+    },
+    "agentStartActionRequest": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string"
+        },
+        "mysql_explain_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLExplainParams"
+        },
+        "mysql_show_create_table_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLShowCreateTableParams"
+        },
+        "mysql_show_table_status_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLShowTableStatusParams"
+        },
+        "mysql_show_index_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLShowIndexParams"
+        },
+        "postgresql_show_create_table_params": {
+          "$ref": "#/definitions/StartActionRequestPostgreSQLShowCreateTableParams"
+        },
+        "postgresql_show_index_params": {
+          "$ref": "#/definitions/StartActionRequestPostgreSQLShowIndexParams"
+        },
+        "mongodb_explain_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBExplainParams"
+        },
+        "pt_summary_params": {
+          "$ref": "#/definitions/StartActionRequestPTSummaryParams"
+        },
+        "pt_pg_summary_params": {
+          "$ref": "#/definitions/StartActionRequestPTPgSummaryParams"
+        },
+        "pt_mongodb_summary_params": {
+          "$ref": "#/definitions/StartActionRequestPTMongoDBSummaryParams"
+        },
+        "pt_mysql_summary_params": {
+          "$ref": "#/definitions/StartActionRequestPTMySQLSummaryParams"
+        },
+        "mysql_query_show_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLQueryShowParams"
+        },
+        "mysql_query_select_params": {
+          "$ref": "#/definitions/StartActionRequestMySQLQuerySelectParams"
+        },
+        "postgresql_query_show_params": {
+          "$ref": "#/definitions/StartActionRequestPostgreSQLQueryShowParams"
+        },
+        "postgresql_query_select_params": {
+          "$ref": "#/definitions/StartActionRequestPostgreSQLQuerySelectParams"
+        },
+        "mongodb_query_getparameter_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBQueryGetParameterParams"
+        },
+        "mongodb_query_buildinfo_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBQueryBuildInfoParams"
+        },
+        "mongodb_query_getcmdlineopts_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBQueryGetCmdLineOptsParams"
+        },
+        "mongodb_query_replsetgetstatus_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBQueryReplSetGetStatusParams"
+        },
+        "mongodb_query_getdiagnosticdata_params": {
+          "$ref": "#/definitions/StartActionRequestMongoDBQueryGetDiagnosticDataParams"
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout for the whole action. If zero or absent, pmm-agent will pick one itself."
+        }
+      },
+      "description": "StartActionRequest is a ServerMessage asking pmm-agent to start action."
+    },
+    "agentStartActionResponse": {
+      "type": "object",
+      "description": "StartActionResponse is an AgentMessage for StartActionRequest acceptance."
+    },
+    "agentStartJobRequest": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout for the job."
+        },
+        "mysql_backup": {
+          "$ref": "#/definitions/agentStartJobRequestMySQLBackup"
+        },
+        "mysql_restore_backup": {
+          "$ref": "#/definitions/agentStartJobRequestMySQLRestoreBackup"
+        },
+        "mongodb_backup": {
+          "$ref": "#/definitions/agentStartJobRequestMongoDBBackup"
+        },
+        "mongodb_restore_backup": {
+          "$ref": "#/definitions/agentStartJobRequestMongoDBRestoreBackup"
+        }
+      },
+      "description": "StartJobRequest is a ServerMessage asking pmm-agent to start job."
+    },
+    "agentStartJobRequestMongoDBBackup": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string",
+          "title": "Database user;"
+        },
+        "password": {
+          "type": "string",
+          "description": "Database password."
+        },
+        "address": {
+          "type": "string",
+          "description": "Database address. Can't be specified with socket."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Database port. Can't be specified with socket."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Database unix socket. Can't be specified with address/port."
+        },
+        "name": {
+          "type": "string",
+          "description": "Backup name."
+        },
+        "enable_pitr": {
+          "type": "boolean",
+          "description": "Enable Point-in-Time recovery feature."
+        },
+        "s3_config": {
+          "$ref": "#/definitions/agentS3LocationConfig"
+        }
+      },
+      "description": "MongoDBBackup is job for backup MongoDB service."
+    },
+    "agentStartJobRequestMongoDBRestoreBackup": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string",
+          "title": "Database user;"
+        },
+        "password": {
+          "type": "string",
+          "description": "Database password."
+        },
+        "address": {
+          "type": "string",
+          "description": "Database address. Can't be specified with socket."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Database port. Can't be specified with socket."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Database unix socket. Can't be specified with address/port."
+        },
+        "name": {
+          "type": "string",
+          "description": "Backup name."
+        },
+        "pitr_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Point-in-Time recovery timestamp."
+        },
+        "s3_config": {
+          "$ref": "#/definitions/agentS3LocationConfig"
+        }
+      },
+      "description": "MongoDBRestoreBackup is job for MongoDB restore backup service."
+    },
+    "agentStartJobRequestMySQLBackup": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "string",
+          "title": "Database user;"
+        },
+        "password": {
+          "type": "string",
+          "description": "Database password."
+        },
+        "address": {
+          "type": "string",
+          "description": "Database address. Can't be specified with socket."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Database port. Can't be specified with socket."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Database unix socket. Can't be specified with address/port."
+        },
+        "name": {
+          "type": "string",
+          "description": "Backup name."
+        },
+        "s3_config": {
+          "$ref": "#/definitions/agentS3LocationConfig"
+        }
+      },
+      "description": "MySQLBackup is job for backup MySQL service."
+    },
+    "agentStartJobRequestMySQLRestoreBackup": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier where the backup should be restored."
+        },
+        "name": {
+          "type": "string",
+          "description": "Backup name."
+        },
+        "s3_config": {
+          "$ref": "#/definitions/agentS3LocationConfig"
+        }
+      },
+      "description": "MySQLRestoreBackup is job for MySQL restore backup service."
+    },
+    "agentStartJobResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        }
+      },
+      "description": "StartJobResponse is an AgentMessage for StartJobRequest acceptance."
+    },
+    "agentStateChangedRequest": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus"
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "description": "StateChangedRequest is an AgentMessage describing actual agent status."
+    },
+    "agentStateChangedResponse": {
+      "type": "object",
+      "description": "StateChangedResponse is a ServerMessage for StateChangedRequest acceptance."
+    },
+    "agentStopActionRequest": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string"
+        }
+      },
+      "description": "StopActionRequest is a ServerMessage asking pmm-agent to stop action."
+    },
+    "agentStopActionResponse": {
+      "type": "object",
+      "description": "StopActionResponse is an AgentMessage for StopActionRequest acceptance."
+    },
+    "agentStopJobRequest": {
+      "type": "object",
+      "properties": {
+        "job_id": {
+          "type": "string"
+        }
+      },
+      "description": "StopJobRequest is a ServerMessage asking pmm-agent to stop job."
+    },
+    "agentStopJobResponse": {
+      "type": "object",
+      "description": "StopJobResponse is an AgentMessage for StopJobRequest acceptance."
+    },
+    "agentTextFiles": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "files contains files which can be used to connect to DB (certificates, keys and etc)."
+        },
+        "template_left_delim": {
+          "type": "string",
+          "description": "template_left_delim is used to replace placeholders in templates (DSN and etc.) with paths to files."
+        },
+        "template_right_delim": {
+          "type": "string",
+          "description": "template_right_delim is used to replace placeholders in templates (DSN and etc.) with paths to files."
+        }
+      },
+      "description": "TextFiles contains files which can be used to connect to DB (certificates, keys and etc)."
+    },
+    "gatewayruntimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "inventoryAgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_INVALID",
+        "STARTING",
+        "RUNNING",
+        "WAITING",
+        "STOPPING",
+        "DONE",
+        "UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_INVALID",
+      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "inventoryAgentType": {
+      "type": "string",
+      "enum": [
+        "AGENT_TYPE_INVALID",
+        "PMM_AGENT",
+        "VM_AGENT",
+        "NODE_EXPORTER",
+        "MYSQLD_EXPORTER",
+        "MONGODB_EXPORTER",
+        "POSTGRES_EXPORTER",
+        "PROXYSQL_EXPORTER",
+        "QAN_MYSQL_PERFSCHEMA_AGENT",
+        "QAN_MYSQL_SLOWLOG_AGENT",
+        "QAN_MONGODB_PROFILER_AGENT",
+        "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+        "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+        "RDS_EXPORTER",
+        "EXTERNAL_EXPORTER",
+        "AZURE_DATABASE_EXPORTER"
+      ],
+      "default": "AGENT_TYPE_INVALID",
+      "description": "AgentType describes supported Agent types."
+    },
+    "inventoryServiceType": {
+      "type": "string",
+      "enum": [
+        "SERVICE_TYPE_INVALID",
+        "MYSQL_SERVICE",
+        "MONGODB_SERVICE",
+        "POSTGRESQL_SERVICE",
+        "PROXYSQL_SERVICE",
+        "HAPROXY_SERVICE",
+        "EXTERNAL_SERVICE"
+      ],
+      "default": "SERVICE_TYPE_INVALID",
+      "description": "ServiceType describes supported Service types."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string",
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+        },
+        "value": {
+          "type": "string",
+          "format": "byte",
+          "description": "Must be a valid serialized protocol buffer of the above specified type."
+        }
+      },
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code]."
+        },
+        "message": {
+          "type": "string",
+          "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\n[google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client."
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "description": "A list of messages that carry the error details.  There is a common set of\nmessage types for APIs to use."
+        }
+      },
+      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors)."
+    },
+    "runtimeStreamError": {
+      "type": "object",
+      "properties": {
+        "grpc_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "http_code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "http_status": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

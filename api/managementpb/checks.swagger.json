@@ -1,0 +1,631 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/checks.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/SecurityChecks/Change": {
+      "post": {
+        "summary": "Change Security Checks",
+        "description": "Enables/disables Security Thread Tool checks or changes their interval by names.",
+        "operationId": "ChangeSecurityChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementChangeSecurityChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementChangeSecurityChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/FailedChecks": {
+      "post": {
+        "summary": "Get Failed Checks",
+        "description": "Returns the latest check results for a given service.",
+        "operationId": "GetFailedChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementGetFailedChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementGetFailedChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/GetCheckResults": {
+      "post": {
+        "summary": "Get Security Check Results",
+        "description": "Returns Security Thread Tool's latest checks results.",
+        "operationId": "GetSecurityCheckResults",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementGetSecurityCheckResultsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementGetSecurityCheckResultsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/List": {
+      "post": {
+        "summary": "List Security Checks",
+        "description": "Returns a list of available Security Thread Tool checks.",
+        "operationId": "ListSecurityChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementListSecurityChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementListSecurityChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/ListFailedServices": {
+      "post": {
+        "summary": "List Failed Services",
+        "description": "Returns a list of services with failed checks and a summary of check results.",
+        "operationId": "ListFailedServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementListFailedServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementListFailedServicesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/Start": {
+      "post": {
+        "summary": "Start Security Checks",
+        "description": "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "operationId": "StartSecurityChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementStartSecurityChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementStartSecurityChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    },
+    "/v1/management/SecurityChecks/ToggleCheckAlert": {
+      "post": {
+        "summary": "Toggle Check Alert",
+        "description": "Silence/Unsilence alerts for a specific check result.",
+        "operationId": "ToggleCheckAlert",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementToggleCheckAlertResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementToggleCheckAlertRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityChecks"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "managementChangeSecurityCheckParams": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the check to change."
+        },
+        "enable": {
+          "type": "boolean"
+        },
+        "disable": {
+          "type": "boolean"
+        },
+        "interval": {
+          "$ref": "#/definitions/managementSecurityCheckInterval",
+          "description": "check execution interval."
+        }
+      },
+      "description": "ChangeSecurityCheckParams specifies a single check parameters."
+    },
+    "managementChangeSecurityChecksRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementChangeSecurityCheckParams"
+          }
+        }
+      }
+    },
+    "managementChangeSecurityChecksResponse": {
+      "type": "object"
+    },
+    "managementCheckResult": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/managementSeverity"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "read_more_url": {
+          "type": "string",
+          "description": "URL containing information on how to resolve an issue detected by an STT check."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the monitored service on which the check ran."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "ID of the monitored service on which the check ran."
+        },
+        "check_name": {
+          "type": "string",
+          "title": "Name of the check that failed"
+        },
+        "alert_id": {
+          "type": "string",
+          "title": "ID of the check result as stored in AlertManager"
+        },
+        "silenced": {
+          "type": "boolean",
+          "title": "Silence status of the check result"
+        }
+      },
+      "description": "CheckResult represents the check results for a given service."
+    },
+    "managementCheckResultSummary": {
+      "type": "object",
+      "properties": {
+        "service_name": {
+          "type": "string"
+        },
+        "service_id": {
+          "type": "string"
+        },
+        "emergency_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"EMERGENCY\"."
+        },
+        "alert_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"ALERT\"."
+        },
+        "critical_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"CRITICAL\"."
+        },
+        "error_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"ERROR\"."
+        },
+        "warning_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"WARNING\"."
+        },
+        "notice_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"NOTICE\"."
+        },
+        "info_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"INFO\"."
+        },
+        "debug_count": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of failed checks for this service with severity level \"DEBUG\"."
+        }
+      },
+      "description": "CheckResultSummary is a summary of check results."
+    },
+    "managementGetFailedChecksRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string"
+        },
+        "page_params": {
+          "$ref": "#/definitions/managementPageParams"
+        }
+      }
+    },
+    "managementGetFailedChecksResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementCheckResult"
+          }
+        },
+        "page_totals": {
+          "$ref": "#/definitions/managementPageTotals"
+        }
+      }
+    },
+    "managementGetSecurityCheckResultsRequest": {
+      "type": "object"
+    },
+    "managementGetSecurityCheckResultsResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementSecurityCheckResult"
+          }
+        }
+      }
+    },
+    "managementListFailedServicesRequest": {
+      "type": "object"
+    },
+    "managementListFailedServicesResponse": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementCheckResultSummary"
+          }
+        }
+      }
+    },
+    "managementListSecurityChecksRequest": {
+      "type": "object"
+    },
+    "managementListSecurityChecksResponse": {
+      "type": "object",
+      "properties": {
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementSecurityCheck"
+          }
+        }
+      }
+    },
+    "managementPageParams": {
+      "type": "object",
+      "properties": {
+        "page_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of results per page."
+        },
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Index of the requested page, starts from 0."
+        }
+      },
+      "description": "PageParams represents page request parameters for pagination."
+    },
+    "managementPageTotals": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of results."
+        },
+        "total_pages": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of pages."
+        }
+      },
+      "description": "PageTotals represents total values for pagination."
+    },
+    "managementSecurityCheck": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Machine-readable name (ID) that is used in expression."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "True if that check is disabled."
+        },
+        "description": {
+          "type": "string",
+          "description": "Long human-readable description."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "interval": {
+          "$ref": "#/definitions/managementSecurityCheckInterval",
+          "description": "Check execution interval."
+        }
+      },
+      "description": "SecurityCheck contains check name and status."
+    },
+    "managementSecurityCheckInterval": {
+      "type": "string",
+      "enum": [
+        "SECURITY_CHECK_INTERVAL_INVALID",
+        "STANDARD",
+        "FREQUENT",
+        "RARE"
+      ],
+      "default": "SECURITY_CHECK_INTERVAL_INVALID",
+      "description": "SecurityCheckInterval represents possible execution interval values for checks."
+    },
+    "managementSecurityCheckResult": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/managementSeverity"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "read_more_url": {
+          "type": "string",
+          "description": "URL containing information on how to resolve an issue detected by an STT check."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the monitored service on which the check ran."
+        }
+      },
+      "description": "SecurityCheckResult represents the check result returned from pmm-managed after running the check."
+    },
+    "managementSeverity": {
+      "type": "string",
+      "enum": [
+        "SEVERITY_INVALID",
+        "SEVERITY_EMERGENCY",
+        "SEVERITY_ALERT",
+        "SEVERITY_CRITICAL",
+        "SEVERITY_ERROR",
+        "SEVERITY_WARNING",
+        "SEVERITY_NOTICE",
+        "SEVERITY_INFO",
+        "SEVERITY_DEBUG"
+      ],
+      "default": "SEVERITY_INVALID",
+      "description": "Severity represents severity level of the check result or alert."
+    },
+    "managementStartSecurityChecksRequest": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of the checks that should be started."
+        }
+      }
+    },
+    "managementStartSecurityChecksResponse": {
+      "type": "object"
+    },
+    "managementToggleCheckAlertRequest": {
+      "type": "object",
+      "properties": {
+        "alert_id": {
+          "type": "string",
+          "description": "Alert ID of the check result."
+        },
+        "silence": {
+          "type": "boolean",
+          "description": "Silence the check result if set to true, unsilence otherwise."
+        }
+      }
+    },
+    "managementToggleCheckAlertResponse": {
+      "type": "object"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

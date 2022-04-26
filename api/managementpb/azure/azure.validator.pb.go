@@ -6,11 +6,10 @@ package azurev1beta1
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

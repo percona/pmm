@@ -1,0 +1,1056 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "qanpb/collector.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "inventoryAgentType": {
+      "type": "string",
+      "enum": [
+        "AGENT_TYPE_INVALID",
+        "PMM_AGENT",
+        "VM_AGENT",
+        "NODE_EXPORTER",
+        "MYSQLD_EXPORTER",
+        "MONGODB_EXPORTER",
+        "POSTGRES_EXPORTER",
+        "PROXYSQL_EXPORTER",
+        "QAN_MYSQL_PERFSCHEMA_AGENT",
+        "QAN_MYSQL_SLOWLOG_AGENT",
+        "QAN_MONGODB_PROFILER_AGENT",
+        "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+        "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+        "RDS_EXPORTER",
+        "EXTERNAL_EXPORTER",
+        "AZURE_DATABASE_EXPORTER"
+      ],
+      "default": "AGENT_TYPE_INVALID",
+      "description": "AgentType describes supported Agent types."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1CollectResponse": {
+      "type": "object"
+    },
+    "v1beta1ExampleFormat": {
+      "type": "string",
+      "enum": [
+        "EXAMPLE_FORMAT_INVALID",
+        "EXAMPLE",
+        "FINGERPRINT"
+      ],
+      "default": "EXAMPLE_FORMAT_INVALID",
+      "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed."
+    },
+    "v1beta1ExampleType": {
+      "type": "string",
+      "enum": [
+        "EXAMPLE_TYPE_INVALID",
+        "RANDOM",
+        "SLOWEST",
+        "FASTEST",
+        "WITH_ERROR"
+      ],
+      "default": "EXAMPLE_TYPE_INVALID",
+      "description": "ExampleType is a type of query example selected for this query class in given period of time."
+    },
+    "v1beta1MetricsBucket": {
+      "type": "object",
+      "properties": {
+        "queryid": {
+          "type": "string",
+          "description": "md5 of digest_text/fingerprint."
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "digest_text - query signature. Query without values."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service Name (can be several Services on one Node)."
+        },
+        "database": {
+          "type": "string",
+          "description": "MongoDB or PostgreSQL database.\nSeveral databases can't be combined in a single declarative query."
+        },
+        "schema": {
+          "type": "string",
+          "description": "MySQL database or PostgreSQL schema.\nSeveral schemas can be combined in a single declarative query."
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tables or Collections list."
+        },
+        "username": {
+          "type": "string",
+          "description": "client user name."
+        },
+        "client_host": {
+          "type": "string",
+          "description": "client IP or hostname."
+        },
+        "node_id": {
+          "type": "string",
+          "title": "Node identifier"
+        },
+        "node_name": {
+          "type": "string",
+          "title": "Node name"
+        },
+        "node_type": {
+          "type": "string",
+          "title": "Node type"
+        },
+        "machine_id": {
+          "type": "string",
+          "title": "Machine identifier"
+        },
+        "container_id": {
+          "type": "string",
+          "title": "Container identifier"
+        },
+        "container_name": {
+          "type": "string",
+          "title": "Container name"
+        },
+        "node_model": {
+          "type": "string",
+          "title": "Node model"
+        },
+        "region": {
+          "type": "string",
+          "title": "Region name"
+        },
+        "az": {
+          "type": "string",
+          "title": "Availability zone"
+        },
+        "service_id": {
+          "type": "string",
+          "title": "Service identifier"
+        },
+        "service_type": {
+          "type": "string",
+          "title": "Type of service"
+        },
+        "environment": {
+          "type": "string",
+          "title": "Environment name"
+        },
+        "cluster": {
+          "type": "string",
+          "title": "Cluster name"
+        },
+        "replication_set": {
+          "type": "string",
+          "title": "Name of replication set"
+        },
+        "agent_id": {
+          "type": "string",
+          "description": "Identifier of agent that collect and send metrics."
+        },
+        "agent_type": {
+          "$ref": "#/definitions/inventoryAgentType",
+          "description": "Metrics source."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom labels names:values."
+        },
+        "period_start_unix_secs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Time when collection of bucket started."
+        },
+        "period_length_secs": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Duration of bucket."
+        },
+        "example": {
+          "type": "string",
+          "description": "One of query example from set found in bucket."
+        },
+        "example_format": {
+          "$ref": "#/definitions/v1beta1ExampleFormat",
+          "description": "Deprecated: should not be used, should be removed."
+        },
+        "is_truncated": {
+          "type": "boolean",
+          "description": "Indicates if the query example is truncated."
+        },
+        "example_type": {
+          "$ref": "#/definitions/v1beta1ExampleType"
+        },
+        "example_metrics": {
+          "type": "string",
+          "description": "Metrics of query example in JSON format."
+        },
+        "num_queries_with_warnings": {
+          "type": "number",
+          "format": "float",
+          "description": "How many queries was with warnings in bucket."
+        },
+        "warnings": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "uint64"
+          },
+          "description": "List of warnings: {code: count}."
+        },
+        "num_queries_with_errors": {
+          "type": "number",
+          "format": "float",
+          "description": "How many queries was with error in bucket."
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "uint64"
+          },
+          "description": "List of errors: {code: count}."
+        },
+        "num_queries": {
+          "type": "number",
+          "format": "float",
+          "description": "Amount queries in this bucket."
+        },
+        "m_query_time_cnt": {
+          "type": "number",
+          "format": "float",
+          "description": "How many times query_time was found."
+        },
+        "m_query_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The statement execution time in seconds."
+        },
+        "m_query_time_min": {
+          "type": "number",
+          "format": "float",
+          "description": "Smallest value of query_time in bucket."
+        },
+        "m_query_time_max": {
+          "type": "number",
+          "format": "float",
+          "description": "Biggest value of query_time in bucket."
+        },
+        "m_query_time_p99": {
+          "type": "number",
+          "format": "float",
+          "description": "99 percentile of value of query_time in bucket."
+        },
+        "m_lock_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The time to acquire locks in seconds."
+        },
+        "m_lock_time_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_lock_time_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows sent to the client."
+        },
+        "m_rows_sent_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_sent_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows scanned - SELECT."
+        },
+        "m_rows_examined_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_examined_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of rows changed - UPDATE, DELETE, INSERT."
+        },
+        "m_rows_affected_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_affected_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of rows read from tables."
+        },
+        "m_rows_read_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_rows_read_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of merge passes that the sort algorithm has had to do."
+        },
+        "m_merge_passes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_merge_passes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts the number of page read operations scheduled."
+        },
+        "m_innodb_io_r_ops_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_ops_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Similar to innodb_IO_r_ops, but the unit is bytes."
+        },
+        "m_innodb_io_r_bytes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_bytes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage."
+        },
+        "m_innodb_io_r_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_io_r_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query waited for row locks."
+        },
+        "m_innodb_rec_lock_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_rec_lock_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution."
+        },
+        "m_innodb_queue_wait_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_queue_wait_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Counts approximately the number of unique pages the query accessed."
+        },
+        "m_innodb_pages_distinct_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_innodb_pages_distinct_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Shows how long the query is."
+        },
+        "m_query_length_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_query_length_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of bytes sent to all clients."
+        },
+        "m_bytes_sent_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_bytes_sent_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on memory for the query."
+        },
+        "m_tmp_tables_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_tables_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Number of temporary tables created on disk for the query."
+        },
+        "m_tmp_disk_tables_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_disk_tables_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total Size in bytes for all temporary tables used in the query."
+        },
+        "m_tmp_table_sizes_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sizes_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_qc_hit_cnt": {
+          "type": "number",
+          "format": "float",
+          "description": "Boolean metrics:\n- *_cnt - how many times this matric was met.\n- *_sum - how many times this matric was true."
+        },
+        "m_qc_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Query Cache hits."
+        },
+        "m_full_scan_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_full_scan_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full table scan."
+        },
+        "m_full_join_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_full_join_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query performed a full join (a join without indexes)."
+        },
+        "m_tmp_table_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query created an implicit internal temporary table."
+        },
+        "m_tmp_table_on_disk_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_tmp_table_on_disk_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The querys temporary table was stored on disk."
+        },
+        "m_filesort_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_filesort_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The query used a filesort."
+        },
+        "m_filesort_on_disk_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_filesort_on_disk_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The filesort was performed on disk."
+        },
+        "m_select_full_range_join_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_full_range_join_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used a range search on a reference table."
+        },
+        "m_select_range_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_range_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins that used ranges on the first table."
+        },
+        "m_select_range_check_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_select_range_check_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of joins without keys that check for key usage after each row."
+        },
+        "m_sort_range_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_range_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done using ranges."
+        },
+        "m_sort_rows_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_rows_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorted rows."
+        },
+        "m_sort_scan_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_sort_scan_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of sorts that were done by scanning the table."
+        },
+        "m_no_index_used_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_no_index_used_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without index."
+        },
+        "m_no_good_index_used_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_no_good_index_used_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of queries without good index."
+        },
+        "m_docs_returned_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of returned documents."
+        },
+        "m_docs_returned_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_returned_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The response length of the query result in bytes."
+        },
+        "m_response_length_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_response_length_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "The number of scanned documents."
+        },
+        "m_docs_scanned_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_docs_scanned_p99": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_hit_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared block cache hits by the statement."
+        },
+        "m_shared_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks read by the statement."
+        },
+        "m_shared_blks_dirtied_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_dirtied_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks dirtied by the statement."
+        },
+        "m_shared_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_shared_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of shared blocks written by the statement."
+        },
+        "m_local_blks_hit_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_hit_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local block cache hits by the statement."
+        },
+        "m_local_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks read by the statement."
+        },
+        "m_local_blks_dirtied_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_dirtied_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks dirtied by the statement."
+        },
+        "m_local_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_local_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of local blocks written by the statement."
+        },
+        "m_temp_blks_read_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_temp_blks_read_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks read by the statement."
+        },
+        "m_temp_blks_written_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_temp_blks_written_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of temp blocks written by the statement."
+        },
+        "m_blk_read_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_blk_read_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_blk_write_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_blk_write_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero)."
+        },
+        "m_cpu_user_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_cpu_user_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time user spent in query."
+        },
+        "m_cpu_sys_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_cpu_sys_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total time system spent in query."
+        },
+        "cmd_type": {
+          "type": "string",
+          "description": "Type of SQL command."
+        },
+        "m_plans_calls_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of planned calls.",
+          "title": "pg_stat_monitor 0.9 metrics"
+        },
+        "m_plans_calls_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_records_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of WAL (Write-ahead logging) records."
+        },
+        "m_wal_records_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_fpi_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total number of FPI (full page images) in WAL (Write-ahead logging) records."
+        },
+        "m_wal_fpi_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_wal_bytes_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Total bytes of WAL (Write-ahead logging) records."
+        },
+        "m_wal_bytes_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_sum": {
+          "type": "number",
+          "format": "float",
+          "description": "Sum, count, min, max of plan time."
+        },
+        "m_plan_time_cnt": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_min": {
+          "type": "number",
+          "format": "float"
+        },
+        "m_plan_time_max": {
+          "type": "number",
+          "format": "float"
+        },
+        "top_queryid": {
+          "type": "string",
+          "title": "Metrics skipped due to different bucket_time in pg_stat_monitor (1min in PMM, 5min in pg_stat_monitor):\nmin_time, max_time, mean_time\nplan_mean_time\nstddev_time\nOther metrics skipped (empty values, codes):\ncmd_type_text, elevel, sqlcode, message, state_code, state"
+        },
+        "top_query": {
+          "type": "string"
+        },
+        "application_name": {
+          "type": "string"
+        },
+        "planid": {
+          "type": "string"
+        },
+        "query_plan": {
+          "type": "string"
+        },
+        "histogram_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "MetricsBucket is aggregated message created by pmm-agent.\nContains information about one query selected in defined way from query class in specific period of time."
+    }
+  }
+}

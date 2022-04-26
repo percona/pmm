@@ -1,0 +1,492 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/ia/channels.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/ia/Channels/Add": {
+      "post": {
+        "summary": "AddChannel adds notification channel.",
+        "operationId": "AddChannel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1AddChannelResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1AddChannelRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Channels"
+        ]
+      }
+    },
+    "/v1/management/ia/Channels/Change": {
+      "post": {
+        "summary": "ChangeChannel changes notification channel.",
+        "operationId": "ChangeChannel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1ChangeChannelResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1ChangeChannelRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Channels"
+        ]
+      }
+    },
+    "/v1/management/ia/Channels/List": {
+      "post": {
+        "summary": "ListChannels returns a list of all notifation channels.",
+        "operationId": "ListChannels",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1ListChannelsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1ListChannelsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Channels"
+        ]
+      }
+    },
+    "/v1/management/ia/Channels/Remove": {
+      "post": {
+        "summary": "RemoveChannel removes notification channel.",
+        "operationId": "RemoveChannel",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1RemoveChannelResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1RemoveChannelRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Channels"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "managementPageParams": {
+      "type": "object",
+      "properties": {
+        "page_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of results per page."
+        },
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Index of the requested page, starts from 0."
+        }
+      },
+      "description": "PageParams represents page request parameters for pagination."
+    },
+    "managementPageTotals": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of results."
+        },
+        "total_pages": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of pages."
+        }
+      },
+      "description": "PageTotals represents total values for pagination."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1AddChannelRequest": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "email_config": {
+          "$ref": "#/definitions/v1beta1EmailConfig",
+          "description": "Email configuration. Exactly one config should be set."
+        },
+        "pagerduty_config": {
+          "$ref": "#/definitions/v1beta1PagerDutyConfig",
+          "description": "PagerDuty configuration. Exactly one config should be set."
+        },
+        "slack_config": {
+          "$ref": "#/definitions/v1beta1SlackConfig",
+          "description": "Slack configuration. Exactly one config should be set."
+        },
+        "webhook_config": {
+          "$ref": "#/definitions/v1beta1WebhookConfig",
+          "description": "Webhook configuration. Exactly one config should be set."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "New channel status."
+        }
+      }
+    },
+    "v1beta1AddChannelResponse": {
+      "type": "object",
+      "properties": {
+        "channel_id": {
+          "type": "string",
+          "description": "Machine-readable ID."
+        }
+      }
+    },
+    "v1beta1BasicAuth": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "password_file": {
+          "type": "string"
+        }
+      },
+      "description": "BasicAuth represents basic HTTP auth configuration."
+    },
+    "v1beta1ChangeChannelRequest": {
+      "type": "object",
+      "properties": {
+        "channel_id": {
+          "type": "string",
+          "description": "Machine-readable ID."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary. Empty value will not change it."
+        },
+        "email_config": {
+          "$ref": "#/definitions/v1beta1EmailConfig",
+          "description": "Email configuration. Exactly one config should be set."
+        },
+        "pagerduty_config": {
+          "$ref": "#/definitions/v1beta1PagerDutyConfig",
+          "description": "PagerDuty configuration. Exactly one config should be set."
+        },
+        "slack_config": {
+          "$ref": "#/definitions/v1beta1SlackConfig",
+          "description": "Slack configuration. Exactly one config should be set."
+        },
+        "webhook_config": {
+          "$ref": "#/definitions/v1beta1WebhookConfig",
+          "description": "Webhook configuration. Exactly one config should be set."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Enables or disables that channel. Should be set."
+        }
+      }
+    },
+    "v1beta1ChangeChannelResponse": {
+      "type": "object"
+    },
+    "v1beta1Channel": {
+      "type": "object",
+      "properties": {
+        "channel_id": {
+          "type": "string",
+          "description": "Machine-readable ID."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "email_config": {
+          "$ref": "#/definitions/v1beta1EmailConfig"
+        },
+        "pagerduty_config": {
+          "$ref": "#/definitions/v1beta1PagerDutyConfig"
+        },
+        "slack_config": {
+          "$ref": "#/definitions/v1beta1SlackConfig"
+        },
+        "webhook_config": {
+          "$ref": "#/definitions/v1beta1WebhookConfig"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "True if that channel is disabled."
+        }
+      },
+      "description": "Channel represents a single Notification Channel."
+    },
+    "v1beta1EmailConfig": {
+      "type": "object",
+      "properties": {
+        "send_resolved": {
+          "type": "boolean"
+        },
+        "to": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "EmailConfig represents email configuration."
+    },
+    "v1beta1HTTPConfig": {
+      "type": "object",
+      "properties": {
+        "basic_auth": {
+          "$ref": "#/definitions/v1beta1BasicAuth",
+          "description": "Basic HTTP auth configuration. Zero value will remove it."
+        },
+        "bearer_token": {
+          "type": "string"
+        },
+        "bearer_token_file": {
+          "type": "string"
+        },
+        "tls_config": {
+          "$ref": "#/definitions/v1beta1TLSConfig",
+          "description": "TLS configuration. Zero value will remove it."
+        },
+        "proxy_url": {
+          "type": "string"
+        }
+      },
+      "description": "HTTPConfig represents HTTP client configuration."
+    },
+    "v1beta1ListChannelsRequest": {
+      "type": "object",
+      "properties": {
+        "page_params": {
+          "$ref": "#/definitions/managementPageParams",
+          "description": "Page request."
+        }
+      }
+    },
+    "v1beta1ListChannelsResponse": {
+      "type": "object",
+      "properties": {
+        "channels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1beta1Channel"
+          }
+        },
+        "totals": {
+          "$ref": "#/definitions/managementPageTotals",
+          "description": "Total items and pages."
+        }
+      }
+    },
+    "v1beta1PagerDutyConfig": {
+      "type": "object",
+      "properties": {
+        "send_resolved": {
+          "type": "boolean"
+        },
+        "routing_key": {
+          "type": "string",
+          "description": "The PagerDuty key for \"Events API v2\" integration type. Exactly one key should be set."
+        },
+        "service_key": {
+          "type": "string",
+          "description": "The PagerDuty key for \"Prometheus\" integration type. Exactly one key should be set."
+        }
+      },
+      "description": "PagerDutyConfig represents PagerDuty configuration."
+    },
+    "v1beta1RemoveChannelRequest": {
+      "type": "object",
+      "properties": {
+        "channel_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1beta1RemoveChannelResponse": {
+      "type": "object"
+    },
+    "v1beta1SlackConfig": {
+      "type": "object",
+      "properties": {
+        "send_resolved": {
+          "type": "boolean"
+        },
+        "channel": {
+          "type": "string"
+        }
+      },
+      "description": "SlackConfig represents Slack configuration."
+    },
+    "v1beta1TLSConfig": {
+      "type": "object",
+      "properties": {
+        "ca_file": {
+          "type": "string",
+          "description": "A path to the CA certificate file to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time."
+        },
+        "cert_file": {
+          "type": "string",
+          "description": "A path to the certificate file for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time."
+        },
+        "key_file": {
+          "type": "string",
+          "description": "A path to the key file for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time."
+        },
+        "server_name": {
+          "type": "string",
+          "description": "Name of the server."
+        },
+        "insecure_skip_verify": {
+          "type": "boolean",
+          "description": "Disable validation of the server certificate."
+        },
+        "ca_file_content": {
+          "type": "string",
+          "description": "CA certificate to validate the server certificate with.\nca_file and ca_file_content should not be set at the same time."
+        },
+        "cert_file_content": {
+          "type": "string",
+          "description": "A certificate for client cert authentication to the server.\ncert_file and cert_file_content should not be set at the same time."
+        },
+        "key_file_content": {
+          "type": "string",
+          "description": "A key for client cert authentication to the server.\nkey_file and key_file_content should not be set at the same time."
+        }
+      },
+      "title": "TLSConfig represents TLS configuration for alertmanager\nhttps://prometheus.io/docs/alerting/latest/configuration/#tls_config"
+    },
+    "v1beta1WebhookConfig": {
+      "type": "object",
+      "properties": {
+        "send_resolved": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        },
+        "http_config": {
+          "$ref": "#/definitions/v1beta1HTTPConfig"
+        },
+        "max_alerts": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "WebhookConfig represents webhook configuration."
+    }
+  }
+}

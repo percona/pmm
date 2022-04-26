@@ -7,17 +7,15 @@
 package iav1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
+	managementpb "github.com/percona/pmm/api/managementpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	managementpb "github.com/percona/pmm/api/managementpb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

@@ -7,9 +7,6 @@
 package platformpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -17,6 +14,8 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

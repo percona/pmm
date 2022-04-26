@@ -1,0 +1,277 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "agentlocalpb/agentlocal.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/local/Reload": {
+      "post": {
+        "summary": "Reload reloads pmm-agent configuration.",
+        "operationId": "Reload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/agentlocalReloadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/agentlocalReloadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AgentLocal"
+        ]
+      }
+    },
+    "/local/Status": {
+      "get": {
+        "summary": "Status returns current pmm-agent status.",
+        "operationId": "Status2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/agentlocalStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "get_network_info",
+            "description": "Returns network info (latency and clock_drift) if true.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AgentLocal"
+        ]
+      },
+      "post": {
+        "summary": "Status returns current pmm-agent status.",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/agentlocalStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/agentlocalStatusRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AgentLocal"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "agentlocalAgentInfo": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "agent_type": {
+          "$ref": "#/definitions/inventoryAgentType"
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus"
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported."
+        }
+      },
+      "description": "AgentInfo contains information about Agent managed by pmm-agent."
+    },
+    "agentlocalReloadRequest": {
+      "type": "object"
+    },
+    "agentlocalReloadResponse": {
+      "type": "object",
+      "description": "ReloadRequest may not be received by the client due to pmm-agent restart."
+    },
+    "agentlocalServerInfo": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "PMM Server URL in a form https://HOST:PORT/."
+        },
+        "insecure_tls": {
+          "type": "boolean",
+          "description": "PMM Server's TLS certificate validation should be skipped if true."
+        },
+        "connected": {
+          "type": "boolean",
+          "description": "True if pmm-agent is currently connected to the server."
+        },
+        "version": {
+          "type": "string",
+          "description": "PMM Server version (if agent is connected)."
+        },
+        "latency": {
+          "type": "string",
+          "description": "Ping time from pmm-agent to pmm-managed (if agent is connected)."
+        },
+        "clock_drift": {
+          "type": "string",
+          "description": "Clock drift from PMM Server (if agent is connected)."
+        }
+      },
+      "description": "ServerInfo contains information about the PMM Server."
+    },
+    "agentlocalStatusRequest": {
+      "type": "object",
+      "properties": {
+        "get_network_info": {
+          "type": "boolean",
+          "description": "Returns network info (latency and clock_drift) if true."
+        }
+      }
+    },
+    "agentlocalStatusResponse": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "runs_on_node_id": {
+          "type": "string"
+        },
+        "server_info": {
+          "$ref": "#/definitions/agentlocalServerInfo"
+        },
+        "agents_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/agentlocalAgentInfo"
+          }
+        },
+        "config_filepath": {
+          "type": "string",
+          "description": "Config file path if pmm-agent was started with one."
+        },
+        "agent_version": {
+          "type": "string",
+          "description": "PMM Agent version."
+        }
+      }
+    },
+    "inventoryAgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_INVALID",
+        "STARTING",
+        "RUNNING",
+        "WAITING",
+        "STOPPING",
+        "DONE",
+        "UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_INVALID",
+      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "inventoryAgentType": {
+      "type": "string",
+      "enum": [
+        "AGENT_TYPE_INVALID",
+        "PMM_AGENT",
+        "VM_AGENT",
+        "NODE_EXPORTER",
+        "MYSQLD_EXPORTER",
+        "MONGODB_EXPORTER",
+        "POSTGRES_EXPORTER",
+        "PROXYSQL_EXPORTER",
+        "QAN_MYSQL_PERFSCHEMA_AGENT",
+        "QAN_MYSQL_SLOWLOG_AGENT",
+        "QAN_MONGODB_PROFILER_AGENT",
+        "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+        "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+        "RDS_EXPORTER",
+        "EXTERNAL_EXPORTER",
+        "AZURE_DATABASE_EXPORTER"
+      ],
+      "default": "AGENT_TYPE_INVALID",
+      "description": "AgentType describes supported Agent types."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -7,19 +7,17 @@
 package backupv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
-
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

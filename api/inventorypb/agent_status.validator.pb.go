@@ -6,7 +6,6 @@ package inventorypb
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
 )
 

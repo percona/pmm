@@ -7,13 +7,11 @@
 package qanv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (

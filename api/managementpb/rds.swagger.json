@@ -1,0 +1,819 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/rds.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/RDS/Add": {
+      "post": {
+        "summary": "Add RDS",
+        "description": "Adds RDS instance.",
+        "operationId": "AddRDS",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementAddRDSResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementAddRDSRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RDS"
+        ]
+      }
+    },
+    "/v1/management/RDS/Discover": {
+      "post": {
+        "summary": "Discover RDS",
+        "description": "Discovers RDS instances.",
+        "operationId": "DiscoverRDS",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementDiscoverRDSResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementDiscoverRDSRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RDS"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "inventoryAgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_INVALID",
+        "STARTING",
+        "RUNNING",
+        "WAITING",
+        "STOPPING",
+        "DONE",
+        "UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_INVALID",
+      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "inventoryMySQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        }
+      },
+      "description": "MySQLService represents a generic MySQL instance."
+    },
+    "inventoryMySQLdExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "tablestats_group_disabled": {
+          "type": "boolean",
+          "description": "True if tablestats group collectors are currently disabled."
+        }
+      },
+      "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics."
+    },
+    "inventoryPostgreSQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        }
+      },
+      "description": "PostgreSQLService represents a generic PostgreSQL instance."
+    },
+    "inventoryPostgresExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        }
+      },
+      "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics."
+    },
+    "inventoryQANMySQLPerfSchemaAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for getting performance data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "query_examples_disabled": {
+          "type": "boolean",
+          "description": "True if query examples are disabled."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status."
+        }
+      },
+      "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server."
+    },
+    "inventoryQANPostgreSQLPgStatementsAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for getting pg stat statements data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status."
+        }
+      },
+      "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server."
+    },
+    "inventoryRDSExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier."
+        },
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access Key."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status (the same for several configurations)."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics (the same for several configurations)."
+        },
+        "basic_metrics_disabled": {
+          "type": "boolean",
+          "description": "Basic metrics are disabled."
+        },
+        "enhanced_metrics_disabled": {
+          "type": "boolean",
+          "description": "Enhanced metrics are disabled."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        }
+      },
+      "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics."
+    },
+    "inventoryRemoteRDSNode": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "address": {
+          "type": "string",
+          "description": "DB instance identifier."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        }
+      },
+      "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes."
+    },
+    "managementAddRDSRequest": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region."
+        },
+        "az": {
+          "type": "string",
+          "description": "AWS availability zone."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "AWS instance class."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        },
+        "engine": {
+          "$ref": "#/definitions/managementDiscoverRDSEngine",
+          "description": "Instance engine."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Defaults to AWS instance ID."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password for scraping metrics."
+        },
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access key."
+        },
+        "aws_secret_key": {
+          "type": "string",
+          "description": "AWS Secret key."
+        },
+        "rds_exporter": {
+          "type": "boolean",
+          "description": "If true, adds rds_exporter."
+        },
+        "qan_mysql_perfschema": {
+          "type": "boolean",
+          "description": "If true, adds qan-mysql-perfschema-agent."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node and Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disable query examples."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them."
+        },
+        "disable_basic_metrics": {
+          "type": "boolean",
+          "description": "Disable basic metrics."
+        },
+        "disable_enhanced_metrics": {
+          "type": "boolean",
+          "description": "Disable enhanced metrics."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/managementMetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nPush metrics mode is not allowed."
+        },
+        "qan_postgresql_pgstatements": {
+          "type": "boolean",
+          "title": "If true, add qan-pgstatements"
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        }
+      }
+    },
+    "managementAddRDSResponse": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/inventoryRemoteRDSNode"
+        },
+        "rds_exporter": {
+          "$ref": "#/definitions/inventoryRDSExporter"
+        },
+        "mysql": {
+          "$ref": "#/definitions/inventoryMySQLService"
+        },
+        "mysqld_exporter": {
+          "$ref": "#/definitions/inventoryMySQLdExporter"
+        },
+        "qan_mysql_perfschema": {
+          "$ref": "#/definitions/inventoryQANMySQLPerfSchemaAgent"
+        },
+        "table_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Actual table count at the moment of adding."
+        },
+        "postgresql": {
+          "$ref": "#/definitions/inventoryPostgreSQLService"
+        },
+        "postgresql_exporter": {
+          "$ref": "#/definitions/inventoryPostgresExporter"
+        },
+        "qan_postgresql_pgstatements": {
+          "$ref": "#/definitions/inventoryQANPostgreSQLPgStatementsAgent"
+        }
+      }
+    },
+    "managementDiscoverRDSEngine": {
+      "type": "string",
+      "enum": [
+        "DISCOVER_RDS_ENGINE_INVALID",
+        "DISCOVER_RDS_MYSQL",
+        "DISCOVER_RDS_POSTGRESQL"
+      ],
+      "default": "DISCOVER_RDS_ENGINE_INVALID",
+      "description": "DiscoverRDSEngine describes supported RDS instance engines."
+    },
+    "managementDiscoverRDSInstance": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region."
+        },
+        "az": {
+          "type": "string",
+          "description": "AWS availability zone."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "AWS instance class."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        },
+        "engine": {
+          "$ref": "#/definitions/managementDiscoverRDSEngine",
+          "description": "Instance engine."
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "Engine version."
+        }
+      },
+      "description": "DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery."
+    },
+    "managementDiscoverRDSRequest": {
+      "type": "object",
+      "properties": {
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access key. Optional."
+        },
+        "aws_secret_key": {
+          "type": "string",
+          "description": "AWS Secret key. Optional."
+        }
+      }
+    },
+    "managementDiscoverRDSResponse": {
+      "type": "object",
+      "properties": {
+        "rds_instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/managementDiscoverRDSInstance"
+          }
+        }
+      }
+    },
+    "managementMetricsMode": {
+      "type": "string",
+      "enum": [
+        "AUTO",
+        "PULL",
+        "PUSH"
+      ],
+      "default": "AUTO",
+      "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

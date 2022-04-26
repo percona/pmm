@@ -1,0 +1,400 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/dbaas/psmdb_clusters.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/DBaaS/PSMDBCluster/Create": {
+      "post": {
+        "summary": "CreatePSMDBCluster creates a new PSMDB cluster.",
+        "operationId": "CreatePSMDBCluster",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreatePSMDBClusterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreatePSMDBClusterRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PSMDBClusters"
+        ]
+      }
+    },
+    "/v1/management/DBaaS/PSMDBCluster/Resources/Get": {
+      "post": {
+        "summary": "GetPSMDBClusterResources returns expected resources to be consumed by the cluster.",
+        "operationId": "GetPSMDBClusterResources",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1GetPSMDBClusterResourcesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1GetPSMDBClusterResourcesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PSMDBClusters"
+        ]
+      }
+    },
+    "/v1/management/DBaaS/PSMDBCluster/Update": {
+      "post": {
+        "summary": "UpdatePSMDBCluster updates existing PSMDB cluster.",
+        "operationId": "UpdatePSMDBCluster",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1UpdatePSMDBClusterResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1UpdatePSMDBClusterRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PSMDBClusters"
+        ]
+      }
+    },
+    "/v1/management/DBaaS/PSMDBClusters/GetCredentials": {
+      "post": {
+        "summary": "GetPSMDBClusterCredentials returns a PSMDB cluster credentials by cluster name.",
+        "operationId": "GetPSMDBClusterCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1GetPSMDBClusterCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1GetPSMDBClusterCredentialsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PSMDBClusters"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "GetPSMDBClusterCredentialsResponsePSMDBCredentials": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "MongoDB username."
+        },
+        "password": {
+          "type": "string",
+          "description": "MongoDB password."
+        },
+        "host": {
+          "type": "string",
+          "description": "MongoDB host."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "MongoDB port."
+        },
+        "replicaset": {
+          "type": "string",
+          "description": "Replicaset name."
+        }
+      },
+      "description": "PSMDBCredentials is a credentials to connect to PSMDB.\nTODO Do not use inner messages in all public APIs (for consistency)."
+    },
+    "UpdatePSMDBClusterRequestUpdatePSMDBClusterParams": {
+      "type": "object",
+      "properties": {
+        "cluster_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Cluster size."
+        },
+        "replicaset": {
+          "$ref": "#/definitions/UpdatePSMDBClusterRequestUpdatePSMDBClusterParamsReplicaSet",
+          "description": "ReplicaSet container parameters."
+        },
+        "suspend": {
+          "type": "boolean",
+          "description": "Suspend cluster `pause: true`."
+        },
+        "resume": {
+          "type": "boolean",
+          "description": "Resume cluster `pause: false`."
+        },
+        "image": {
+          "type": "string",
+          "description": "PSMDB image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned."
+        }
+      },
+      "description": "UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated."
+    },
+    "UpdatePSMDBClusterRequestUpdatePSMDBClusterParamsReplicaSet": {
+      "type": "object",
+      "properties": {
+        "compute_resources": {
+          "$ref": "#/definitions/v1beta1ComputeResources",
+          "description": "Requested compute resources."
+        }
+      },
+      "description": "ReplicaSet container parameters."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1ComputeResources": {
+      "type": "object",
+      "properties": {
+        "cpu_m": {
+          "type": "integer",
+          "format": "int32",
+          "description": "CPUs in milliCPUs; 1000m = 1 vCPU."
+        },
+        "memory_bytes": {
+          "type": "string",
+          "format": "int64",
+          "description": "Memory in bytes."
+        }
+      },
+      "description": "ComputeResources represents container computer resources requests or limits."
+    },
+    "v1beta1CreatePSMDBClusterRequest": {
+      "type": "object",
+      "properties": {
+        "kubernetes_cluster_name": {
+          "type": "string",
+          "description": "Kubernetes cluster name."
+        },
+        "name": {
+          "type": "string",
+          "title": "PSMDB cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')"
+        },
+        "params": {
+          "$ref": "#/definitions/v1beta1PSMDBClusterParams",
+          "description": "Cluster parameters."
+        },
+        "expose": {
+          "type": "boolean",
+          "description": "Make DB cluster accessible outside of K8s cluster."
+        }
+      }
+    },
+    "v1beta1CreatePSMDBClusterResponse": {
+      "type": "object"
+    },
+    "v1beta1GetPSMDBClusterCredentialsRequest": {
+      "type": "object",
+      "properties": {
+        "kubernetes_cluster_name": {
+          "type": "string",
+          "description": "Kubernetes cluster name."
+        },
+        "name": {
+          "type": "string",
+          "description": "PSMDB cluster name."
+        }
+      }
+    },
+    "v1beta1GetPSMDBClusterCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "connection_credentials": {
+          "$ref": "#/definitions/GetPSMDBClusterCredentialsResponsePSMDBCredentials"
+        }
+      }
+    },
+    "v1beta1GetPSMDBClusterResourcesRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "$ref": "#/definitions/v1beta1PSMDBClusterParams",
+          "description": "Cluster parameters."
+        }
+      }
+    },
+    "v1beta1GetPSMDBClusterResourcesResponse": {
+      "type": "object",
+      "properties": {
+        "expected": {
+          "$ref": "#/definitions/v1beta1Resources",
+          "description": "Expected resources to be consumed by the cluster."
+        }
+      }
+    },
+    "v1beta1PSMDBClusterParams": {
+      "type": "object",
+      "properties": {
+        "cluster_size": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Cluster size."
+        },
+        "replicaset": {
+          "$ref": "#/definitions/v1beta1PSMDBClusterParamsReplicaSet",
+          "description": "ReplicaSet container parameters."
+        },
+        "image": {
+          "type": "string",
+          "description": "Docker image used for PSMDB."
+        }
+      },
+      "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated."
+    },
+    "v1beta1PSMDBClusterParamsReplicaSet": {
+      "type": "object",
+      "properties": {
+        "compute_resources": {
+          "$ref": "#/definitions/v1beta1ComputeResources",
+          "description": "Requested compute resources."
+        },
+        "disk_size": {
+          "type": "string",
+          "format": "int64",
+          "description": "Disk size in bytes."
+        }
+      },
+      "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency)."
+    },
+    "v1beta1Resources": {
+      "type": "object",
+      "properties": {
+        "memory_bytes": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Memory in bytes."
+        },
+        "cpu_m": {
+          "type": "string",
+          "format": "uint64",
+          "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu."
+        },
+        "disk_size": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Disk size in bytes."
+        }
+      },
+      "description": "Resources contains Kubernetes cluster resources."
+    },
+    "v1beta1UpdatePSMDBClusterRequest": {
+      "type": "object",
+      "properties": {
+        "kubernetes_cluster_name": {
+          "type": "string",
+          "description": "Kubernetes cluster name."
+        },
+        "name": {
+          "type": "string",
+          "description": "PSMDB cluster name."
+        },
+        "params": {
+          "$ref": "#/definitions/UpdatePSMDBClusterRequestUpdatePSMDBClusterParams",
+          "description": "Cluster parameters."
+        }
+      }
+    },
+    "v1beta1UpdatePSMDBClusterResponse": {
+      "type": "object"
+    }
+  }
+}

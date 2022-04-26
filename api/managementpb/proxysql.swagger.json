@@ -1,0 +1,384 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "managementpb/proxysql.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/ProxySQL/Add": {
+      "post": {
+        "summary": "Add ProxySQL",
+        "description": "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
+        "operationId": "AddProxySQL",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/managementAddProxySQLResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/managementAddProxySQLRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ProxySQL"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "inventoryAgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_INVALID",
+        "STARTING",
+        "RUNNING",
+        "WAITING",
+        "STOPPING",
+        "DONE",
+        "UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_INVALID",
+      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "inventoryNodeType": {
+      "type": "string",
+      "enum": [
+        "NODE_TYPE_INVALID",
+        "GENERIC_NODE",
+        "CONTAINER_NODE",
+        "REMOTE_NODE",
+        "REMOTE_RDS_NODE",
+        "REMOTE_AZURE_DATABASE_NODE"
+      ],
+      "default": "NODE_TYPE_INVALID",
+      "description": "NodeType describes supported Node types."
+    },
+    "inventoryProxySQLExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "ProxySQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/inventoryAgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        }
+      },
+      "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics."
+    },
+    "inventoryProxySQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        }
+      },
+      "description": "ProxySQLService represents a generic ProxySQL instance."
+    },
+    "managementAddNodeParams": {
+      "type": "object",
+      "properties": {
+        "node_type": {
+          "$ref": "#/definitions/inventoryNodeType",
+          "description": "Node type to be registered."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id."
+        },
+        "distro": {
+          "type": "string",
+          "description": "Linux distribution name and version."
+        },
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier. If specified, must be a unique Docker container identifier."
+        },
+        "container_name": {
+          "type": "string",
+          "description": "Container name."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node."
+        }
+      },
+      "description": "AddNodeParams is a params to add new node to inventory while adding new service."
+    },
+    "managementAddProxySQLRequest": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/managementAddNodeParams",
+          "description": "Create a new Node with those parameters.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service Access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "ProxySQL username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "ProxySQL password for scraping metrics."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/managementMetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        }
+      }
+    },
+    "managementAddProxySQLResponse": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/inventoryProxySQLService"
+        },
+        "proxysql_exporter": {
+          "$ref": "#/definitions/inventoryProxySQLExporter"
+        }
+      }
+    },
+    "managementMetricsMode": {
+      "type": "string",
+      "enum": [
+        "AUTO",
+        "PULL",
+        "PUSH"
+      ],
+      "default": "AUTO",
+      "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
