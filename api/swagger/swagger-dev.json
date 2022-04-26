@@ -2204,7 +2204,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean",
+                  "title": "A flag to clean up connection only from the PMM side",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
