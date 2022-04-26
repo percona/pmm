@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartUpdateOK() *StartUpdateOK {
 	return &StartUpdateOK{}
 }
 
-/*StartUpdateOK handles this case with default header values.
+/* StartUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartUpdateOK struct {
 func (o *StartUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
 }
-
 func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 	}
 }
 
-/*StartUpdateDefault handles this case with default header values.
+/* StartUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartUpdateDefault) Code() int {
 func (o *StartUpdateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type StartUpdateDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartUpdateDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start update default body
@@ -150,7 +149,6 @@ func (o *StartUpdateDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *StartUpdateDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *StartUpdateDefaultBody) validateDetails(formats strfmt.Registry) error 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start update default body based on the context it is used
+func (o *StartUpdateDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartUpdate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -192,6 +226,47 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartUpdateDefaultBodyDetailsItems0 start update default body details items0
+swagger:model StartUpdateDefaultBodyDetailsItems0
+*/
+type StartUpdateDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start update default body details items0
+func (o *StartUpdateDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start update default body details items0 based on context it is used
+func (o *StartUpdateDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartUpdateDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartUpdateDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartUpdateOKBody start update OK body
 swagger:model StartUpdateOKBody
 */
@@ -206,6 +281,11 @@ type StartUpdateOKBody struct {
 
 // Validate validates this start update OK body
 func (o *StartUpdateOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start update OK body based on context it is used
+func (o *StartUpdateOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

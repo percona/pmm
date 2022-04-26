@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartMySQLExplainJSONActionParams creates a new StartMySQLExplainJSONActionParams object
-// with the default values initialized.
+// NewStartMySQLExplainJSONActionParams creates a new StartMySQLExplainJSONActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartMySQLExplainJSONActionParams() *StartMySQLExplainJSONActionParams {
-	var ()
 	return &StartMySQLExplainJSONActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartMySQLExplainJSONActionParamsWithTimeout creates a new StartMySQLExplainJSONActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartMySQLExplainJSONActionParamsWithTimeout(timeout time.Duration) *StartMySQLExplainJSONActionParams {
-	var ()
 	return &StartMySQLExplainJSONActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartMySQLExplainJSONActionParamsWithContext creates a new StartMySQLExplainJSONActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartMySQLExplainJSONActionParamsWithContext(ctx context.Context) *StartMySQLExplainJSONActionParams {
-	var ()
 	return &StartMySQLExplainJSONActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartMySQLExplainJSONActionParamsWithHTTPClient creates a new StartMySQLExplainJSONActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartMySQLExplainJSONActionParamsWithHTTPClient(client *http.Client) *StartMySQLExplainJSONActionParams {
-	var ()
 	return &StartMySQLExplainJSONActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartMySQLExplainJSONActionParams contains all the parameters to send to the API endpoint
-for the start my SQL explain JSON action operation typically these are written to a http.Request
+/* StartMySQLExplainJSONActionParams contains all the parameters to send to the API endpoint
+   for the start my SQL explain JSON action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartMySQLExplainJSONActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartMySQLExplainJSONActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start my SQL explain JSON action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartMySQLExplainJSONActionParams) WithDefaults() *StartMySQLExplainJSONActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start my SQL explain JSON action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartMySQLExplainJSONActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start my SQL explain JSON action params
@@ -119,7 +133,6 @@ func (o *StartMySQLExplainJSONActionParams) WriteToRequest(r runtime.ClientReque
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

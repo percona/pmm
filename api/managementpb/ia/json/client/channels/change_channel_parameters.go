@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeChannelParams creates a new ChangeChannelParams object
-// with the default values initialized.
+// NewChangeChannelParams creates a new ChangeChannelParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeChannelParams() *ChangeChannelParams {
-	var ()
 	return &ChangeChannelParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeChannelParamsWithTimeout creates a new ChangeChannelParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeChannelParamsWithTimeout(timeout time.Duration) *ChangeChannelParams {
-	var ()
 	return &ChangeChannelParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeChannelParamsWithContext creates a new ChangeChannelParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeChannelParamsWithContext(ctx context.Context) *ChangeChannelParams {
-	var ()
 	return &ChangeChannelParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeChannelParamsWithHTTPClient creates a new ChangeChannelParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeChannelParamsWithHTTPClient(client *http.Client) *ChangeChannelParams {
-	var ()
 	return &ChangeChannelParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeChannelParams contains all the parameters to send to the API endpoint
-for the change channel operation typically these are written to a http.Request
+/* ChangeChannelParams contains all the parameters to send to the API endpoint
+   for the change channel operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeChannelParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeChannelBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change channel params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeChannelParams) WithDefaults() *ChangeChannelParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change channel params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeChannelParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change channel params
@@ -119,7 +133,6 @@ func (o *ChangeChannelParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package platform
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewSearchOrganizationEntitlementsOK() *SearchOrganizationEntitlementsOK {
 	return &SearchOrganizationEntitlementsOK{}
 }
 
-/*SearchOrganizationEntitlementsOK handles this case with default header values.
+/* SearchOrganizationEntitlementsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type SearchOrganizationEntitlementsOK struct {
 func (o *SearchOrganizationEntitlementsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] searchOrganizationEntitlementsOk  %+v", 200, o.Payload)
 }
-
 func (o *SearchOrganizationEntitlementsOK) GetPayload() *SearchOrganizationEntitlementsOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewSearchOrganizationEntitlementsDefault(code int) *SearchOrganizationEntit
 	}
 }
 
-/*SearchOrganizationEntitlementsDefault handles this case with default header values.
+/* SearchOrganizationEntitlementsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *SearchOrganizationEntitlementsDefault) Code() int {
 func (o *SearchOrganizationEntitlementsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] SearchOrganizationEntitlements default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *SearchOrganizationEntitlementsDefault) GetPayload() *SearchOrganizationEntitlementsDefaultBody {
 	return o.Payload
 }
@@ -118,10 +117,262 @@ func (o *SearchOrganizationEntitlementsDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*EntitlementsItems0 OrganizationEntitlement contains information about Organization entitlement.
-swagger:model EntitlementsItems0
+/*SearchOrganizationEntitlementsDefaultBody search organization entitlements default body
+swagger:model SearchOrganizationEntitlementsDefaultBody
 */
-type EntitlementsItems0 struct {
+type SearchOrganizationEntitlementsDefaultBody struct {
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*SearchOrganizationEntitlementsDefaultBodyDetailsItems0 `json:"details"`
+}
+
+// Validate validates this search organization entitlements default body
+func (o *SearchOrganizationEntitlementsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationEntitlementsDefaultBody) validateDetails(formats strfmt.Registry) error {
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search organization entitlements default body based on the context it is used
+func (o *SearchOrganizationEntitlementsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationEntitlementsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationEntitlementsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*SearchOrganizationEntitlementsDefaultBodyDetailsItems0 search organization entitlements default body details items0
+swagger:model SearchOrganizationEntitlementsDefaultBodyDetailsItems0
+*/
+type SearchOrganizationEntitlementsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this search organization entitlements default body details items0
+func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search organization entitlements default body details items0 based on context it is used
+func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationEntitlementsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*SearchOrganizationEntitlementsOKBody search organization entitlements OK body
+swagger:model SearchOrganizationEntitlementsOKBody
+*/
+type SearchOrganizationEntitlementsOKBody struct {
+
+	// entitlements
+	Entitlements []*SearchOrganizationEntitlementsOKBodyEntitlementsItems0 `json:"entitlements"`
+}
+
+// Validate validates this search organization entitlements OK body
+func (o *SearchOrganizationEntitlementsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateEntitlements(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationEntitlementsOKBody) validateEntitlements(formats strfmt.Registry) error {
+	if swag.IsZero(o.Entitlements) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Entitlements); i++ {
+		if swag.IsZero(o.Entitlements[i]) { // not required
+			continue
+		}
+
+		if o.Entitlements[i] != nil {
+			if err := o.Entitlements[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search organization entitlements OK body based on the context it is used
+func (o *SearchOrganizationEntitlementsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateEntitlements(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationEntitlementsOKBody) contextValidateEntitlements(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Entitlements); i++ {
+
+		if o.Entitlements[i] != nil {
+			if err := o.Entitlements[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchOrganizationEntitlementsOKBody) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationEntitlementsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*SearchOrganizationEntitlementsOKBodyEntitlementsItems0 OrganizationEntitlement contains information about Organization entitlement.
+swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0
+*/
+type SearchOrganizationEntitlementsOKBodyEntitlementsItems0 struct {
 
 	// Entitlement number.
 	Number string `json:"number,omitempty"`
@@ -158,11 +409,11 @@ type EntitlementsItems0 struct {
 	EndDate strfmt.DateTime `json:"end_date,omitempty"`
 
 	// platform
-	Platform *EntitlementsItems0Platform `json:"platform,omitempty"`
+	Platform *SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform `json:"platform,omitempty"`
 }
 
-// Validate validates this entitlements items0
-func (o *EntitlementsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this search organization entitlements OK body entitlements items0
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStartDate(formats); err != nil {
@@ -183,8 +434,7 @@ func (o *EntitlementsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *EntitlementsItems0) validateStartDate(formats strfmt.Registry) error {
-
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) validateStartDate(formats strfmt.Registry) error {
 	if swag.IsZero(o.StartDate) { // not required
 		return nil
 	}
@@ -196,8 +446,7 @@ func (o *EntitlementsItems0) validateStartDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *EntitlementsItems0) validateEndDate(formats strfmt.Registry) error {
-
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) validateEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(o.EndDate) { // not required
 		return nil
 	}
@@ -209,8 +458,7 @@ func (o *EntitlementsItems0) validateEndDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *EntitlementsItems0) validatePlatform(formats strfmt.Registry) error {
-
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) validatePlatform(formats strfmt.Registry) error {
 	if swag.IsZero(o.Platform) { // not required
 		return nil
 	}
@@ -219,6 +467,38 @@ func (o *EntitlementsItems0) validatePlatform(formats strfmt.Registry) error {
 		if err := o.Platform.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("platform")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("platform")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search organization entitlements OK body entitlements items0 based on the context it is used
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidatePlatform(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) contextValidatePlatform(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Platform != nil {
+		if err := o.Platform.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("platform")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("platform")
 			}
 			return err
 		}
@@ -228,7 +508,7 @@ func (o *EntitlementsItems0) validatePlatform(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *EntitlementsItems0) MarshalBinary() ([]byte, error) {
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -236,8 +516,8 @@ func (o *EntitlementsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *EntitlementsItems0) UnmarshalBinary(b []byte) error {
-	var res EntitlementsItems0
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationEntitlementsOKBodyEntitlementsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -245,10 +525,10 @@ func (o *EntitlementsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*EntitlementsItems0Platform Platform indicates platform specific entitlements.
-swagger:model EntitlementsItems0Platform
+/*SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform Platform indicates platform specific entitlements.
+swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform
 */
-type EntitlementsItems0Platform struct {
+type SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform struct {
 
 	// Flag indicates that security advisors are covered by this entitlement.
 	SecurityAdvisor string `json:"security_advisor,omitempty"`
@@ -257,13 +537,18 @@ type EntitlementsItems0Platform struct {
 	ConfigAdvisor string `json:"config_advisor,omitempty"`
 }
 
-// Validate validates this entitlements items0 platform
-func (o *EntitlementsItems0Platform) Validate(formats strfmt.Registry) error {
+// Validate validates this search organization entitlements OK body entitlements items0 platform
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search organization entitlements OK body entitlements items0 platform based on context it is used
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *EntitlementsItems0Platform) MarshalBinary() ([]byte, error) {
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -271,149 +556,8 @@ func (o *EntitlementsItems0Platform) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *EntitlementsItems0Platform) UnmarshalBinary(b []byte) error {
-	var res EntitlementsItems0Platform
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SearchOrganizationEntitlementsDefaultBody search organization entitlements default body
-swagger:model SearchOrganizationEntitlementsDefaultBody
-*/
-type SearchOrganizationEntitlementsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-
-	// details
-	Details []*DetailsItems0 `json:"details"`
-}
-
-// Validate validates this search organization entitlements default body
-func (o *SearchOrganizationEntitlementsDefaultBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateDetails(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *SearchOrganizationEntitlementsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Details) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Details); i++ {
-		if swag.IsZero(o.Details[i]) { // not required
-			continue
-		}
-
-		if o.Details[i] != nil {
-			if err := o.Details[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("SearchOrganizationEntitlements default" + "." + "details" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SearchOrganizationEntitlementsDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SearchOrganizationEntitlementsDefaultBody) UnmarshalBinary(b []byte) error {
-	var res SearchOrganizationEntitlementsDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*SearchOrganizationEntitlementsOKBody search organization entitlements OK body
-swagger:model SearchOrganizationEntitlementsOKBody
-*/
-type SearchOrganizationEntitlementsOKBody struct {
-
-	// entitlements
-	Entitlements []*EntitlementsItems0 `json:"entitlements"`
-}
-
-// Validate validates this search organization entitlements OK body
-func (o *SearchOrganizationEntitlementsOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateEntitlements(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *SearchOrganizationEntitlementsOKBody) validateEntitlements(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Entitlements) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Entitlements); i++ {
-		if swag.IsZero(o.Entitlements[i]) { // not required
-			continue
-		}
-
-		if o.Entitlements[i] != nil {
-			if err := o.Entitlements[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("searchOrganizationEntitlementsOk" + "." + "entitlements" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *SearchOrganizationEntitlementsOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *SearchOrganizationEntitlementsOKBody) UnmarshalBinary(b []byte) error {
-	var res SearchOrganizationEntitlementsOKBody
+func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

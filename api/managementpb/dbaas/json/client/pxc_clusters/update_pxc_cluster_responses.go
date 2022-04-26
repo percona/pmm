@@ -6,6 +6,7 @@ package pxc_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewUpdatePXCClusterOK() *UpdatePXCClusterOK {
 	return &UpdatePXCClusterOK{}
 }
 
-/*UpdatePXCClusterOK handles this case with default header values.
+/* UpdatePXCClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type UpdatePXCClusterOK struct {
 func (o *UpdatePXCClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdatePXCClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewUpdatePXCClusterDefault(code int) *UpdatePXCClusterDefault {
 	}
 }
 
-/*UpdatePXCClusterDefault handles this case with default header values.
+/* UpdatePXCClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *UpdatePXCClusterDefault) Code() int {
 func (o *UpdatePXCClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdatePXCClusterDefault) GetPayload() *UpdatePXCClusterDefaultBody {
 	return o.Payload
 }
@@ -145,7 +144,6 @@ func (o *UpdatePXCClusterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *UpdatePXCClusterBody) validateParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Params) { // not required
 		return nil
 	}
@@ -154,6 +152,38 @@ func (o *UpdatePXCClusterBody) validateParams(formats strfmt.Registry) error {
 		if err := o.Params.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster body based on the context it is used
+func (o *UpdatePXCClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Params != nil {
+		if err := o.Params.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params")
 			}
 			return err
 		}
@@ -195,7 +225,7 @@ type UpdatePXCClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*UpdatePXCClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this update PXC cluster default body
@@ -213,7 +243,6 @@ func (o *UpdatePXCClusterDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *UpdatePXCClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -227,6 +256,42 @@ func (o *UpdatePXCClusterDefaultBody) validateDetails(formats strfmt.Registry) e
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UpdatePXCCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdatePXCCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster default body based on the context it is used
+func (o *UpdatePXCClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("UpdatePXCCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdatePXCCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -248,6 +313,47 @@ func (o *UpdatePXCClusterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *UpdatePXCClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res UpdatePXCClusterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details items0
+swagger:model UpdatePXCClusterDefaultBodyDetailsItems0
+*/
+type UpdatePXCClusterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this update PXC cluster default body details items0
+func (o *UpdatePXCClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster default body details items0 based on context it is used
+func (o *UpdatePXCClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdatePXCClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdatePXCClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res UpdatePXCClusterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -302,7 +408,6 @@ func (o *UpdatePXCClusterParamsBodyParams) Validate(formats strfmt.Registry) err
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) validateHaproxy(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
@@ -311,6 +416,8 @@ func (o *UpdatePXCClusterParamsBodyParams) validateHaproxy(formats strfmt.Regist
 		if err := o.Haproxy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "haproxy")
 			}
 			return err
 		}
@@ -320,7 +427,6 @@ func (o *UpdatePXCClusterParamsBodyParams) validateHaproxy(formats strfmt.Regist
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) validateProxysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -329,6 +435,8 @@ func (o *UpdatePXCClusterParamsBodyParams) validateProxysql(formats strfmt.Regis
 		if err := o.Proxysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "proxysql")
 			}
 			return err
 		}
@@ -338,7 +446,6 @@ func (o *UpdatePXCClusterParamsBodyParams) validateProxysql(formats strfmt.Regis
 }
 
 func (o *UpdatePXCClusterParamsBodyParams) validatePXC(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PXC) { // not required
 		return nil
 	}
@@ -347,6 +454,78 @@ func (o *UpdatePXCClusterParamsBodyParams) validatePXC(formats strfmt.Registry) 
 		if err := o.PXC.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "pxc")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "pxc")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster params body params based on the context it is used
+func (o *UpdatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePXC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParams) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParams) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Proxysql != nil {
+		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParams) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PXC != nil {
+		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "pxc")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "pxc")
 			}
 			return err
 		}
@@ -397,7 +576,6 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxy) Validate(formats strfmt.Regist
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsHaproxy) validateComputeResources(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
 	}
@@ -406,6 +584,38 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxy) validateComputeResources(forma
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster params body params haproxy based on the context it is used
+func (o *UpdatePXCClusterParamsBodyParamsHaproxy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "haproxy" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -446,6 +656,11 @@ type UpdatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
 
 // Validate validates this update PXC cluster params body params haproxy compute resources
 func (o *UpdatePXCClusterParamsBodyParamsHaproxyComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster params body params haproxy compute resources based on context it is used
+func (o *UpdatePXCClusterParamsBodyParamsHaproxyComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -495,7 +710,6 @@ func (o *UpdatePXCClusterParamsBodyParamsPXC) Validate(formats strfmt.Registry) 
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsPXC) validateComputeResources(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
 	}
@@ -504,6 +718,38 @@ func (o *UpdatePXCClusterParamsBodyParamsPXC) validateComputeResources(formats s
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster params body params PXC based on the context it is used
+func (o *UpdatePXCClusterParamsBodyParamsPXC) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "pxc" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -544,6 +790,11 @@ type UpdatePXCClusterParamsBodyParamsPXCComputeResources struct {
 
 // Validate validates this update PXC cluster params body params PXC compute resources
 func (o *UpdatePXCClusterParamsBodyParamsPXCComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster params body params PXC compute resources based on context it is used
+func (o *UpdatePXCClusterParamsBodyParamsPXCComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -589,7 +840,6 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysql) Validate(formats strfmt.Regis
 }
 
 func (o *UpdatePXCClusterParamsBodyParamsProxysql) validateComputeResources(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ComputeResources) { // not required
 		return nil
 	}
@@ -598,6 +848,38 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysql) validateComputeResources(form
 		if err := o.ComputeResources.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update PXC cluster params body params proxysql based on the context it is used
+func (o *UpdatePXCClusterParamsBodyParamsProxysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdatePXCClusterParamsBodyParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ComputeResources != nil {
+		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "params" + "." + "proxysql" + "." + "compute_resources")
 			}
 			return err
 		}
@@ -638,6 +920,11 @@ type UpdatePXCClusterParamsBodyParamsProxysqlComputeResources struct {
 
 // Validate validates this update PXC cluster params body params proxysql compute resources
 func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update PXC cluster params body params proxysql compute resources based on context it is used
+func (o *UpdatePXCClusterParamsBodyParamsProxysqlComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

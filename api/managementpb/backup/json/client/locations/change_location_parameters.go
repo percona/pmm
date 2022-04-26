@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeLocationParams creates a new ChangeLocationParams object
-// with the default values initialized.
+// NewChangeLocationParams creates a new ChangeLocationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeLocationParams() *ChangeLocationParams {
-	var ()
 	return &ChangeLocationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeLocationParamsWithTimeout creates a new ChangeLocationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeLocationParamsWithTimeout(timeout time.Duration) *ChangeLocationParams {
-	var ()
 	return &ChangeLocationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeLocationParamsWithContext creates a new ChangeLocationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeLocationParamsWithContext(ctx context.Context) *ChangeLocationParams {
-	var ()
 	return &ChangeLocationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeLocationParamsWithHTTPClient creates a new ChangeLocationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeLocationParamsWithHTTPClient(client *http.Client) *ChangeLocationParams {
-	var ()
 	return &ChangeLocationParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeLocationParams contains all the parameters to send to the API endpoint
-for the change location operation typically these are written to a http.Request
+/* ChangeLocationParams contains all the parameters to send to the API endpoint
+   for the change location operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeLocationParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeLocationBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change location params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeLocationParams) WithDefaults() *ChangeLocationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change location params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeLocationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change location params
@@ -119,7 +133,6 @@ func (o *ChangeLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

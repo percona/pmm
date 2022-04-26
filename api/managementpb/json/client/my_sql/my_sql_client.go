@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error)
+	AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mysqld_exporter", and "qan_mysql_perfschema" agents with the provided "pmm_agent_id" and other parameters.
 */
-func (a *Client) AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error) {
+func (a *Client) AddMySQL(params *AddMySQLParams, opts ...ClientOption) (*AddMySQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMySQLParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMySQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MySQL/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error) {
 		Reader:             &AddMySQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

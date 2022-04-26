@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewTestLocationConfigParams creates a new TestLocationConfigParams object
-// with the default values initialized.
+// NewTestLocationConfigParams creates a new TestLocationConfigParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewTestLocationConfigParams() *TestLocationConfigParams {
-	var ()
 	return &TestLocationConfigParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewTestLocationConfigParamsWithTimeout creates a new TestLocationConfigParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewTestLocationConfigParamsWithTimeout(timeout time.Duration) *TestLocationConfigParams {
-	var ()
 	return &TestLocationConfigParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewTestLocationConfigParamsWithContext creates a new TestLocationConfigParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewTestLocationConfigParamsWithContext(ctx context.Context) *TestLocationConfigParams {
-	var ()
 	return &TestLocationConfigParams{
-
 		Context: ctx,
 	}
 }
 
 // NewTestLocationConfigParamsWithHTTPClient creates a new TestLocationConfigParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewTestLocationConfigParamsWithHTTPClient(client *http.Client) *TestLocationConfigParams {
-	var ()
 	return &TestLocationConfigParams{
 		HTTPClient: client,
 	}
 }
 
-/*TestLocationConfigParams contains all the parameters to send to the API endpoint
-for the test location config operation typically these are written to a http.Request
+/* TestLocationConfigParams contains all the parameters to send to the API endpoint
+   for the test location config operation.
+
+   Typically these are written to a http.Request.
 */
 type TestLocationConfigParams struct {
 
-	/*Body*/
+	// Body.
 	Body TestLocationConfigBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the test location config params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *TestLocationConfigParams) WithDefaults() *TestLocationConfigParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the test location config params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *TestLocationConfigParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the test location config params
@@ -119,7 +133,6 @@ func (o *TestLocationConfigParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

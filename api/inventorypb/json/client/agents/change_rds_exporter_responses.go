@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewChangeRDSExporterOK() *ChangeRDSExporterOK {
 	return &ChangeRDSExporterOK{}
 }
 
-/*ChangeRDSExporterOK handles this case with default header values.
+/* ChangeRDSExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ChangeRDSExporterOK struct {
 func (o *ChangeRDSExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] changeRdsExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeRDSExporterOK) GetPayload() *ChangeRDSExporterOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewChangeRDSExporterDefault(code int) *ChangeRDSExporterDefault {
 	}
 }
 
-/*ChangeRDSExporterDefault handles this case with default header values.
+/* ChangeRDSExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ChangeRDSExporterDefault) Code() int {
 func (o *ChangeRDSExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] ChangeRDSExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeRDSExporterDefault) GetPayload() *ChangeRDSExporterDefaultBody {
 	return o.Payload
 }
@@ -146,7 +145,6 @@ func (o *ChangeRDSExporterBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeRDSExporterBody) validateCommon(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Common) { // not required
 		return nil
 	}
@@ -155,6 +153,38 @@ func (o *ChangeRDSExporterBody) validateCommon(formats strfmt.Registry) error {
 		if err := o.Common.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change RDS exporter body based on the context it is used
+func (o *ChangeRDSExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCommon(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Common != nil {
+		if err := o.Common.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common")
 			}
 			return err
 		}
@@ -196,7 +226,7 @@ type ChangeRDSExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ChangeRDSExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this change RDS exporter default body
@@ -214,7 +244,6 @@ func (o *ChangeRDSExporterDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeRDSExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,6 +257,42 @@ func (o *ChangeRDSExporterDefaultBody) validateDetails(formats strfmt.Registry) 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ChangeRDSExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeRDSExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change RDS exporter default body based on the context it is used
+func (o *ChangeRDSExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeRDSExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ChangeRDSExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,6 +314,47 @@ func (o *ChangeRDSExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ChangeRDSExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeRDSExporterDefaultBodyDetailsItems0 change RDS exporter default body details items0
+swagger:model ChangeRDSExporterDefaultBodyDetailsItems0
+*/
+type ChangeRDSExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this change RDS exporter default body details items0
+func (o *ChangeRDSExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change RDS exporter default body details items0 based on context it is used
+func (o *ChangeRDSExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeRDSExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeRDSExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeRDSExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -280,7 +386,6 @@ func (o *ChangeRDSExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ChangeRDSExporterOKBody) validateRDSExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RDSExporter) { // not required
 		return nil
 	}
@@ -289,6 +394,38 @@ func (o *ChangeRDSExporterOKBody) validateRDSExporter(formats strfmt.Registry) e
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("changeRdsExporterOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeRdsExporterOk" + "." + "rds_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change RDS exporter OK body based on the context it is used
+func (o *ChangeRDSExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RDSExporter != nil {
+		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeRdsExporterOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeRdsExporterOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -421,7 +558,6 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) validateStatusEnum(path, location s
 }
 
 func (o *ChangeRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -431,6 +567,11 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Regis
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this change RDS exporter OK body RDS exporter based on context it is used
+func (o *ChangeRDSExporterOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -479,6 +620,11 @@ type ChangeRDSExporterParamsBodyCommon struct {
 
 // Validate validates this change RDS exporter params body common
 func (o *ChangeRDSExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change RDS exporter params body common based on context it is used
+func (o *ChangeRDSExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

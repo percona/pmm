@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListLocationsParams creates a new ListLocationsParams object
-// with the default values initialized.
+// NewListLocationsParams creates a new ListLocationsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListLocationsParams() *ListLocationsParams {
-	var ()
 	return &ListLocationsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListLocationsParamsWithTimeout creates a new ListLocationsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListLocationsParamsWithTimeout(timeout time.Duration) *ListLocationsParams {
-	var ()
 	return &ListLocationsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListLocationsParamsWithContext creates a new ListLocationsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListLocationsParamsWithContext(ctx context.Context) *ListLocationsParams {
-	var ()
 	return &ListLocationsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListLocationsParamsWithHTTPClient creates a new ListLocationsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListLocationsParamsWithHTTPClient(client *http.Client) *ListLocationsParams {
-	var ()
 	return &ListLocationsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListLocationsParams contains all the parameters to send to the API endpoint
-for the list locations operation typically these are written to a http.Request
+/* ListLocationsParams contains all the parameters to send to the API endpoint
+   for the list locations operation.
+
+   Typically these are written to a http.Request.
 */
 type ListLocationsParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list locations params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListLocationsParams) WithDefaults() *ListLocationsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list locations params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListLocationsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list locations params
@@ -119,7 +133,6 @@ func (o *ListLocationsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

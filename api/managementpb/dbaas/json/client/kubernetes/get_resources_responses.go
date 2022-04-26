@@ -6,6 +6,7 @@ package kubernetes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetResourcesOK() *GetResourcesOK {
 	return &GetResourcesOK{}
 }
 
-/*GetResourcesOK handles this case with default header values.
+/* GetResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetResourcesOK struct {
 func (o *GetResourcesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Resources/Get][%d] getResourcesOk  %+v", 200, o.Payload)
 }
-
 func (o *GetResourcesOK) GetPayload() *GetResourcesOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetResourcesDefault(code int) *GetResourcesDefault {
 	}
 }
 
-/*GetResourcesDefault handles this case with default header values.
+/* GetResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetResourcesDefault) Code() int {
 func (o *GetResourcesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Resources/Get][%d] GetResources default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetResourcesDefault) GetPayload() *GetResourcesDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type GetResourcesBody struct {
 
 // Validate validates this get resources body
 func (o *GetResourcesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get resources body based on context it is used
+func (o *GetResourcesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type GetResourcesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetResourcesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get resources default body
@@ -182,7 +186,6 @@ func (o *GetResourcesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetResourcesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *GetResourcesDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetResources default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetResources default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get resources default body based on the context it is used
+func (o *GetResourcesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetResourcesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetResources default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetResources default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -217,6 +256,47 @@ func (o *GetResourcesDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetResourcesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetResourcesDefaultBodyDetailsItems0 get resources default body details items0
+swagger:model GetResourcesDefaultBodyDetailsItems0
+*/
+type GetResourcesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get resources default body details items0
+func (o *GetResourcesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get resources default body details items0 based on context it is used
+func (o *GetResourcesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetResourcesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetResourcesDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -255,7 +335,6 @@ func (o *GetResourcesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetResourcesOKBody) validateAll(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.All) { // not required
 		return nil
 	}
@@ -264,6 +343,8 @@ func (o *GetResourcesOKBody) validateAll(formats strfmt.Registry) error {
 		if err := o.All.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getResourcesOk" + "." + "all")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getResourcesOk" + "." + "all")
 			}
 			return err
 		}
@@ -273,7 +354,6 @@ func (o *GetResourcesOKBody) validateAll(formats strfmt.Registry) error {
 }
 
 func (o *GetResourcesOKBody) validateAvailable(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Available) { // not required
 		return nil
 	}
@@ -282,6 +362,58 @@ func (o *GetResourcesOKBody) validateAvailable(formats strfmt.Registry) error {
 		if err := o.Available.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getResourcesOk" + "." + "available")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getResourcesOk" + "." + "available")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get resources OK body based on the context it is used
+func (o *GetResourcesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAll(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateAvailable(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetResourcesOKBody) contextValidateAll(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.All != nil {
+		if err := o.All.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getResourcesOk" + "." + "all")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getResourcesOk" + "." + "all")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetResourcesOKBody) contextValidateAvailable(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Available != nil {
+		if err := o.Available.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getResourcesOk" + "." + "available")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getResourcesOk" + "." + "available")
 			}
 			return err
 		}
@@ -329,6 +461,11 @@ func (o *GetResourcesOKBodyAll) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get resources OK body all based on context it is used
+func (o *GetResourcesOKBodyAll) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetResourcesOKBodyAll) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -365,6 +502,11 @@ type GetResourcesOKBodyAvailable struct {
 
 // Validate validates this get resources OK body available
 func (o *GetResourcesOKBodyAvailable) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get resources OK body available based on context it is used
+func (o *GetResourcesOKBodyAvailable) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

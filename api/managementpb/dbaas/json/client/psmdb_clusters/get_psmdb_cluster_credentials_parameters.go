@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetPSMDBClusterCredentialsParams creates a new GetPSMDBClusterCredentialsParams object
-// with the default values initialized.
+// NewGetPSMDBClusterCredentialsParams creates a new GetPSMDBClusterCredentialsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetPSMDBClusterCredentialsParams() *GetPSMDBClusterCredentialsParams {
-	var ()
 	return &GetPSMDBClusterCredentialsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetPSMDBClusterCredentialsParamsWithTimeout creates a new GetPSMDBClusterCredentialsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetPSMDBClusterCredentialsParamsWithTimeout(timeout time.Duration) *GetPSMDBClusterCredentialsParams {
-	var ()
 	return &GetPSMDBClusterCredentialsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetPSMDBClusterCredentialsParamsWithContext creates a new GetPSMDBClusterCredentialsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetPSMDBClusterCredentialsParamsWithContext(ctx context.Context) *GetPSMDBClusterCredentialsParams {
-	var ()
 	return &GetPSMDBClusterCredentialsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetPSMDBClusterCredentialsParamsWithHTTPClient creates a new GetPSMDBClusterCredentialsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetPSMDBClusterCredentialsParamsWithHTTPClient(client *http.Client) *GetPSMDBClusterCredentialsParams {
-	var ()
 	return &GetPSMDBClusterCredentialsParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetPSMDBClusterCredentialsParams contains all the parameters to send to the API endpoint
-for the get PSMDB cluster credentials operation typically these are written to a http.Request
+/* GetPSMDBClusterCredentialsParams contains all the parameters to send to the API endpoint
+   for the get PSMDB cluster credentials operation.
+
+   Typically these are written to a http.Request.
 */
 type GetPSMDBClusterCredentialsParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetPSMDBClusterCredentialsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get PSMDB cluster credentials params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPSMDBClusterCredentialsParams) WithDefaults() *GetPSMDBClusterCredentialsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get PSMDB cluster credentials params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPSMDBClusterCredentialsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get PSMDB cluster credentials params
@@ -119,7 +133,6 @@ func (o *GetPSMDBClusterCredentialsParams) WriteToRequest(r runtime.ClientReques
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

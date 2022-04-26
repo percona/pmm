@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddNodeExporterParams creates a new AddNodeExporterParams object
-// with the default values initialized.
+// NewAddNodeExporterParams creates a new AddNodeExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddNodeExporterParams() *AddNodeExporterParams {
-	var ()
 	return &AddNodeExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddNodeExporterParamsWithTimeout creates a new AddNodeExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddNodeExporterParamsWithTimeout(timeout time.Duration) *AddNodeExporterParams {
-	var ()
 	return &AddNodeExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddNodeExporterParamsWithContext creates a new AddNodeExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddNodeExporterParamsWithContext(ctx context.Context) *AddNodeExporterParams {
-	var ()
 	return &AddNodeExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddNodeExporterParamsWithHTTPClient creates a new AddNodeExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddNodeExporterParamsWithHTTPClient(client *http.Client) *AddNodeExporterParams {
-	var ()
 	return &AddNodeExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddNodeExporterParams contains all the parameters to send to the API endpoint
-for the add node exporter operation typically these are written to a http.Request
+/* AddNodeExporterParams contains all the parameters to send to the API endpoint
+   for the add node exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type AddNodeExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddNodeExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add node exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddNodeExporterParams) WithDefaults() *AddNodeExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add node exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddNodeExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add node exporter params
@@ -119,7 +133,6 @@ func (o *AddNodeExporterParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

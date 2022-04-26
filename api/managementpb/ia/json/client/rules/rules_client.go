@@ -23,17 +23,20 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRuleOK, error)
+	CreateAlertRule(params *CreateAlertRuleParams, opts ...ClientOption) (*CreateAlertRuleOK, error)
 
-	DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRuleOK, error)
+	DeleteAlertRule(params *DeleteAlertRuleParams, opts ...ClientOption) (*DeleteAlertRuleOK, error)
 
-	ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK, error)
+	ListAlertRules(params *ListAlertRulesParams, opts ...ClientOption) (*ListAlertRulesOK, error)
 
-	ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error)
+	ToggleAlertRule(params *ToggleAlertRuleParams, opts ...ClientOption) (*ToggleAlertRuleOK, error)
 
-	UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error)
+	UpdateAlertRule(params *UpdateAlertRuleParams, opts ...ClientOption) (*UpdateAlertRuleOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -41,13 +44,12 @@ type ClientService interface {
 /*
   CreateAlertRule creates alert rule creates alerting rule
 */
-func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRuleOK, error) {
+func (a *Client) CreateAlertRule(params *CreateAlertRuleParams, opts ...ClientOption) (*CreateAlertRuleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateAlertRuleParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CreateAlertRule",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Rules/Create",
@@ -58,7 +60,12 @@ func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRul
 		Reader:             &CreateAlertRuleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +81,12 @@ func (a *Client) CreateAlertRule(params *CreateAlertRuleParams) (*CreateAlertRul
 /*
   DeleteAlertRule deletes alert rule deletes alerting rule
 */
-func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRuleOK, error) {
+func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams, opts ...ClientOption) (*DeleteAlertRuleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteAlertRuleParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteAlertRule",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Rules/Delete",
@@ -91,7 +97,12 @@ func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRul
 		Reader:             &DeleteAlertRuleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -107,13 +118,12 @@ func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams) (*DeleteAlertRul
 /*
   ListAlertRules lists alert rules returns a list of all alerting rules
 */
-func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK, error) {
+func (a *Client) ListAlertRules(params *ListAlertRulesParams, opts ...ClientOption) (*ListAlertRulesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListAlertRulesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListAlertRules",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Rules/List",
@@ -124,7 +134,12 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 		Reader:             &ListAlertRulesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -140,13 +155,12 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams) (*ListAlertRulesOK
 /*
   ToggleAlertRule toggles alert rule allows to switch between disabled and enabled states of an alert rule
 */
-func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRuleOK, error) {
+func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams, opts ...ClientOption) (*ToggleAlertRuleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewToggleAlertRuleParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ToggleAlertRule",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Rules/Toggle",
@@ -157,7 +171,12 @@ func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRul
 		Reader:             &ToggleAlertRuleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -173,13 +192,12 @@ func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams) (*ToggleAlertRul
 /*
   UpdateAlertRule updates alert rule updates alerting rule
 */
-func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRuleOK, error) {
+func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams, opts ...ClientOption) (*UpdateAlertRuleOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateAlertRuleParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UpdateAlertRule",
 		Method:             "POST",
 		PathPattern:        "/v1/management/ia/Rules/Update",
@@ -190,7 +208,12 @@ func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams) (*UpdateAlertRul
 		Reader:             &UpdateAlertRuleReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

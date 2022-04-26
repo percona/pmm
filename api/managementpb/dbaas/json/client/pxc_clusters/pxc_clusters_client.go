@@ -23,15 +23,18 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClusterOK, error)
+	CreatePXCCluster(params *CreatePXCClusterParams, opts ...ClientOption) (*CreatePXCClusterOK, error)
 
-	GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams) (*GetPXCClusterCredentialsOK, error)
+	GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams, opts ...ClientOption) (*GetPXCClusterCredentialsOK, error)
 
-	GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*GetPXCClusterResourcesOK, error)
+	GetPXCClusterResources(params *GetPXCClusterResourcesParams, opts ...ClientOption) (*GetPXCClusterResourcesOK, error)
 
-	UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClusterOK, error)
+	UpdatePXCCluster(params *UpdatePXCClusterParams, opts ...ClientOption) (*UpdatePXCClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -39,13 +42,12 @@ type ClientService interface {
 /*
   CreatePXCCluster creates PXC cluster creates a new PXC cluster
 */
-func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClusterOK, error) {
+func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams, opts ...ClientOption) (*CreatePXCClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreatePXCClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CreatePXCCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Create",
@@ -56,7 +58,12 @@ func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClu
 		Reader:             &CreatePXCClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +79,12 @@ func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams) (*CreatePXCClu
 /*
   GetPXCClusterCredentials gets PXC cluster credentials returns a PXC cluster credentials by cluster name
 */
-func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams) (*GetPXCClusterCredentialsOK, error) {
+func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams, opts ...ClientOption) (*GetPXCClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPXCClusterCredentialsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPXCClusterCredentials",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCClusters/GetCredentials",
@@ -89,7 +95,12 @@ func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams
 		Reader:             &GetPXCClusterCredentialsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -105,13 +116,12 @@ func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams
 /*
   GetPXCClusterResources gets PXC cluster resources returns expected resources to be consumed by the cluster
 */
-func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*GetPXCClusterResourcesOK, error) {
+func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams, opts ...ClientOption) (*GetPXCClusterResourcesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPXCClusterResourcesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPXCClusterResources",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Resources/Get",
@@ -122,7 +132,12 @@ func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*
 		Reader:             &GetPXCClusterResourcesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +153,12 @@ func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams) (*
 /*
   UpdatePXCCluster updates PXC cluster updates existing PXC cluster
 */
-func (a *Client) UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClusterOK, error) {
+func (a *Client) UpdatePXCCluster(params *UpdatePXCClusterParams, opts ...ClientOption) (*UpdatePXCClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdatePXCClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UpdatePXCCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PXCCluster/Update",
@@ -155,7 +169,12 @@ func (a *Client) UpdatePXCCluster(params *UpdatePXCClusterParams) (*UpdatePXCClu
 		Reader:             &UpdatePXCClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

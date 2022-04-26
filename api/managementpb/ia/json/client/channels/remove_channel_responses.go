@@ -6,6 +6,7 @@ package channels
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewRemoveChannelOK() *RemoveChannelOK {
 	return &RemoveChannelOK{}
 }
 
-/*RemoveChannelOK handles this case with default header values.
+/* RemoveChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type RemoveChannelOK struct {
 func (o *RemoveChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] removeChannelOk  %+v", 200, o.Payload)
 }
-
 func (o *RemoveChannelOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewRemoveChannelDefault(code int) *RemoveChannelDefault {
 	}
 }
 
-/*RemoveChannelDefault handles this case with default header values.
+/* RemoveChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *RemoveChannelDefault) Code() int {
 func (o *RemoveChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] RemoveChannel default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RemoveChannelDefault) GetPayload() *RemoveChannelDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type RemoveChannelBody struct {
 
 // Validate validates this remove channel body
 func (o *RemoveChannelBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this remove channel body based on context it is used
+func (o *RemoveChannelBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type RemoveChannelDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*RemoveChannelDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this remove channel default body
@@ -180,7 +184,6 @@ func (o *RemoveChannelDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *RemoveChannelDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *RemoveChannelDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("RemoveChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RemoveChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this remove channel default body based on the context it is used
+func (o *RemoveChannelDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RemoveChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("RemoveChannel default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("RemoveChannel default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -215,6 +254,47 @@ func (o *RemoveChannelDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RemoveChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	var res RemoveChannelDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
+swagger:model RemoveChannelDefaultBodyDetailsItems0
+*/
+type RemoveChannelDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this remove channel default body details items0
+func (o *RemoveChannelDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this remove channel default body details items0 based on context it is used
+func (o *RemoveChannelDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveChannelDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res RemoveChannelDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

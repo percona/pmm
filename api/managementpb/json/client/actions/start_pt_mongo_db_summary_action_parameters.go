@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartPTMongoDBSummaryActionParams creates a new StartPTMongoDBSummaryActionParams object
-// with the default values initialized.
+// NewStartPTMongoDBSummaryActionParams creates a new StartPTMongoDBSummaryActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartPTMongoDBSummaryActionParams() *StartPTMongoDBSummaryActionParams {
-	var ()
 	return &StartPTMongoDBSummaryActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartPTMongoDBSummaryActionParamsWithTimeout creates a new StartPTMongoDBSummaryActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartPTMongoDBSummaryActionParamsWithTimeout(timeout time.Duration) *StartPTMongoDBSummaryActionParams {
-	var ()
 	return &StartPTMongoDBSummaryActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartPTMongoDBSummaryActionParamsWithContext creates a new StartPTMongoDBSummaryActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartPTMongoDBSummaryActionParamsWithContext(ctx context.Context) *StartPTMongoDBSummaryActionParams {
-	var ()
 	return &StartPTMongoDBSummaryActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartPTMongoDBSummaryActionParamsWithHTTPClient creates a new StartPTMongoDBSummaryActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartPTMongoDBSummaryActionParamsWithHTTPClient(client *http.Client) *StartPTMongoDBSummaryActionParams {
-	var ()
 	return &StartPTMongoDBSummaryActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartPTMongoDBSummaryActionParams contains all the parameters to send to the API endpoint
-for the start PT mongo DB summary action operation typically these are written to a http.Request
+/* StartPTMongoDBSummaryActionParams contains all the parameters to send to the API endpoint
+   for the start PT mongo DB summary action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartPTMongoDBSummaryActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartPTMongoDBSummaryActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start PT mongo DB summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTMongoDBSummaryActionParams) WithDefaults() *StartPTMongoDBSummaryActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start PT mongo DB summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTMongoDBSummaryActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start PT mongo DB summary action params
@@ -119,7 +133,6 @@ func (o *StartPTMongoDBSummaryActionParams) WriteToRequest(r runtime.ClientReque
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

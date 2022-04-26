@@ -6,6 +6,7 @@ package rules
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewToggleAlertRuleOK() *ToggleAlertRuleOK {
 	return &ToggleAlertRuleOK{}
 }
 
-/*ToggleAlertRuleOK handles this case with default header values.
+/* ToggleAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ToggleAlertRuleOK struct {
 func (o *ToggleAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] toggleAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *ToggleAlertRuleOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewToggleAlertRuleDefault(code int) *ToggleAlertRuleDefault {
 	}
 }
 
-/*ToggleAlertRuleDefault handles this case with default header values.
+/* ToggleAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *ToggleAlertRuleDefault) Code() int {
 func (o *ToggleAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] ToggleAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ToggleAlertRuleDefault) GetPayload() *ToggleAlertRuleDefaultBody {
 	return o.Payload
 }
@@ -182,7 +181,6 @@ func (o *ToggleAlertRuleBody) validateDisabledEnum(path, location string, value 
 }
 
 func (o *ToggleAlertRuleBody) validateDisabled(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Disabled) { // not required
 		return nil
 	}
@@ -192,6 +190,11 @@ func (o *ToggleAlertRuleBody) validateDisabled(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this toggle alert rule body based on context it is used
+func (o *ToggleAlertRuleBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -228,7 +231,7 @@ type ToggleAlertRuleDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ToggleAlertRuleDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this toggle alert rule default body
@@ -246,7 +249,6 @@ func (o *ToggleAlertRuleDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ToggleAlertRuleDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -260,6 +262,42 @@ func (o *ToggleAlertRuleDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ToggleAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ToggleAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this toggle alert rule default body based on the context it is used
+func (o *ToggleAlertRuleDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ToggleAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ToggleAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ToggleAlertRule default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -281,6 +319,47 @@ func (o *ToggleAlertRuleDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ToggleAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ToggleAlertRuleDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ToggleAlertRuleDefaultBodyDetailsItems0 toggle alert rule default body details items0
+swagger:model ToggleAlertRuleDefaultBodyDetailsItems0
+*/
+type ToggleAlertRuleDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this toggle alert rule default body details items0
+func (o *ToggleAlertRuleDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this toggle alert rule default body details items0 based on context it is used
+func (o *ToggleAlertRuleDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ToggleAlertRuleDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ToggleAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ToggleAlertRuleDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

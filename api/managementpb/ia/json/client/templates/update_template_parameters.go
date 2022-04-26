@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewUpdateTemplateParams creates a new UpdateTemplateParams object
-// with the default values initialized.
+// NewUpdateTemplateParams creates a new UpdateTemplateParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewUpdateTemplateParams() *UpdateTemplateParams {
-	var ()
 	return &UpdateTemplateParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewUpdateTemplateParamsWithTimeout creates a new UpdateTemplateParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewUpdateTemplateParamsWithTimeout(timeout time.Duration) *UpdateTemplateParams {
-	var ()
 	return &UpdateTemplateParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewUpdateTemplateParamsWithContext creates a new UpdateTemplateParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewUpdateTemplateParamsWithContext(ctx context.Context) *UpdateTemplateParams {
-	var ()
 	return &UpdateTemplateParams{
-
 		Context: ctx,
 	}
 }
 
 // NewUpdateTemplateParamsWithHTTPClient creates a new UpdateTemplateParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewUpdateTemplateParamsWithHTTPClient(client *http.Client) *UpdateTemplateParams {
-	var ()
 	return &UpdateTemplateParams{
 		HTTPClient: client,
 	}
 }
 
-/*UpdateTemplateParams contains all the parameters to send to the API endpoint
-for the update template operation typically these are written to a http.Request
+/* UpdateTemplateParams contains all the parameters to send to the API endpoint
+   for the update template operation.
+
+   Typically these are written to a http.Request.
 */
 type UpdateTemplateParams struct {
 
-	/*Body*/
+	// Body.
 	Body UpdateTemplateBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the update template params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateTemplateParams) WithDefaults() *UpdateTemplateParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the update template params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *UpdateTemplateParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the update template params
@@ -119,7 +133,6 @@ func (o *UpdateTemplateParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

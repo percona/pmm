@@ -10,13 +10,15 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/components"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
 )
 
-// Default PMM backup management HTTP client.
+// Default PMM d baa s API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -31,14 +33,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM backup management HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMBackupManagement {
+// NewHTTPClient creates a new PMM d baa s API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMDBaaSAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM backup management HTTP client,
+// NewHTTPClientWithConfig creates a new PMM d baa s API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMBackupManagement {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -49,19 +51,21 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM backup management client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupManagement {
+// New creates a new PMM d baa s API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMBackupManagement)
+	cli := new(PMMDBaaSAPI)
 	cli.Transport = transport
-	cli.Artifacts = artifacts.New(transport, formats)
-	cli.Backups = backups.New(transport, formats)
-	cli.Locations = locations.New(transport, formats)
-	cli.RestoreHistory = restore_history.New(transport, formats)
+	cli.Components = components.New(transport, formats)
+	cli.DBClusters = db_clusters.New(transport, formats)
+	cli.Kubernetes = kubernetes.New(transport, formats)
+	cli.LogsAPI = logs_api.New(transport, formats)
+	cli.PSMDBClusters = psmdb_clusters.New(transport, formats)
+	cli.PXCClusters = pxc_clusters.New(transport, formats)
 	return cli
 }
 
@@ -104,24 +108,30 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMBackupManagement is a client for PMM backup management
-type PMMBackupManagement struct {
-	Artifacts artifacts.ClientService
+// PMMDBaaSAPI is a client for PMM d baa s API
+type PMMDBaaSAPI struct {
+	Components components.ClientService
 
-	Backups backups.ClientService
+	DBClusters db_clusters.ClientService
 
-	Locations locations.ClientService
+	Kubernetes kubernetes.ClientService
 
-	RestoreHistory restore_history.ClientService
+	LogsAPI logs_api.ClientService
+
+	PSMDBClusters psmdb_clusters.ClientService
+
+	PXCClusters pxc_clusters.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMBackupManagement) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Artifacts.SetTransport(transport)
-	c.Backups.SetTransport(transport)
-	c.Locations.SetTransport(transport)
-	c.RestoreHistory.SetTransport(transport)
+	c.Components.SetTransport(transport)
+	c.DBClusters.SetTransport(transport)
+	c.Kubernetes.SetTransport(transport)
+	c.LogsAPI.SetTransport(transport)
+	c.PSMDBClusters.SetTransport(transport)
+	c.PXCClusters.SetTransport(transport)
 }

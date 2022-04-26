@@ -23,13 +23,16 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBClusterOK, error)
+	DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error)
 
-	ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK, error)
+	ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error)
 
-	RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error)
+	RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -37,13 +40,12 @@ type ClientService interface {
 /*
   DeleteDBCluster deletes DB cluster deletes DB cluster
 */
-func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBClusterOK, error) {
+func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDeleteDBClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DeleteDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/Delete",
@@ -54,7 +56,12 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBCluste
 		Reader:             &DeleteDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +77,12 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams) (*DeleteDBCluste
 /*
   ListDBClusters lists DB clusters returns a list of DB clusters
 */
-func (a *Client) ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK, error) {
+func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListDBClustersParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListDBClusters",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/List",
@@ -87,7 +93,12 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK
 		Reader:             &ListDBClustersReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -103,13 +114,12 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams) (*ListDBClustersOK
 /*
   RestartDBCluster restarts DB cluster restarts DB cluster
 */
-func (a *Client) RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClusterOK, error) {
+func (a *Client) RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRestartDBClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RestartDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/DBClusters/Restart",
@@ -120,7 +130,12 @@ func (a *Client) RestartDBCluster(params *RestartDBClusterParams) (*RestartDBClu
 		Reader:             &RestartDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

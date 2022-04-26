@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 
@@ -44,11 +45,12 @@ func (o *LogsReader) ReadResponse(response runtime.ClientResponse, consumer runt
 // NewLogsOK creates a LogsOK with default headers values
 func NewLogsOK(writer io.Writer) *LogsOK {
 	return &LogsOK{
+
 		Payload: writer,
 	}
 }
 
-/*LogsOK handles this case with default header values.
+/* LogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +61,6 @@ type LogsOK struct {
 func (o *LogsOK) Error() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] logsOk  %+v", 200, o.Payload)
 }
-
 func (o *LogsOK) GetPayload() io.Writer {
 	return o.Payload
 }
@@ -81,7 +82,7 @@ func NewLogsDefault(code int) *LogsDefault {
 	}
 }
 
-/*LogsDefault handles this case with default header values.
+/* LogsDefault describes a response with status code -1, with default header values.
 
 An error response.
 */
@@ -99,7 +100,6 @@ func (o *LogsDefault) Code() int {
 func (o *LogsDefault) Error() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *LogsDefault) GetPayload() *LogsDefaultBody {
 	return o.Payload
 }
@@ -133,6 +133,11 @@ type LogsDefaultBody struct {
 
 // Validate validates this logs default body
 func (o *LogsDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this logs default body based on context it is used
+func (o *LogsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
