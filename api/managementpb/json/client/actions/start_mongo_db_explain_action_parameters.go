@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartMongoDBExplainActionParams creates a new StartMongoDBExplainActionParams object
-// with the default values initialized.
+// NewStartMongoDBExplainActionParams creates a new StartMongoDBExplainActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartMongoDBExplainActionParams() *StartMongoDBExplainActionParams {
-	var ()
 	return &StartMongoDBExplainActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartMongoDBExplainActionParamsWithTimeout creates a new StartMongoDBExplainActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartMongoDBExplainActionParamsWithTimeout(timeout time.Duration) *StartMongoDBExplainActionParams {
-	var ()
 	return &StartMongoDBExplainActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartMongoDBExplainActionParamsWithContext creates a new StartMongoDBExplainActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartMongoDBExplainActionParamsWithContext(ctx context.Context) *StartMongoDBExplainActionParams {
-	var ()
 	return &StartMongoDBExplainActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartMongoDBExplainActionParamsWithHTTPClient creates a new StartMongoDBExplainActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartMongoDBExplainActionParamsWithHTTPClient(client *http.Client) *StartMongoDBExplainActionParams {
-	var ()
 	return &StartMongoDBExplainActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartMongoDBExplainActionParams contains all the parameters to send to the API endpoint
-for the start mongo DB explain action operation typically these are written to a http.Request
+/* StartMongoDBExplainActionParams contains all the parameters to send to the API endpoint
+   for the start mongo DB explain action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartMongoDBExplainActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartMongoDBExplainActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start mongo DB explain action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartMongoDBExplainActionParams) WithDefaults() *StartMongoDBExplainActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start mongo DB explain action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartMongoDBExplainActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start mongo DB explain action params
@@ -119,7 +133,6 @@ func (o *StartMongoDBExplainActionParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

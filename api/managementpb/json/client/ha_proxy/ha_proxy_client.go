@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddHAProxy(params *AddHAProxyParams) (*AddHAProxyOK, error)
+	AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided "node_id", then adds an "external exporter" agent to the inventory.
 */
-func (a *Client) AddHAProxy(params *AddHAProxyParams) (*AddHAProxyOK, error) {
+func (a *Client) AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddHAProxyParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddHAProxy",
 		Method:             "POST",
 		PathPattern:        "/v1/management/HAProxy/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddHAProxy(params *AddHAProxyParams) (*AddHAProxyOK, error) {
 		Reader:             &AddHAProxyReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

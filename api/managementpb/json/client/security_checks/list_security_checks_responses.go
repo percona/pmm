@@ -6,6 +6,7 @@ package security_checks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListSecurityChecksOK() *ListSecurityChecksOK {
 	return &ListSecurityChecksOK{}
 }
 
-/*ListSecurityChecksOK handles this case with default header values.
+/* ListSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListSecurityChecksOK struct {
 func (o *ListSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] listSecurityChecksOk  %+v", 200, o.Payload)
 }
-
 func (o *ListSecurityChecksOK) GetPayload() *ListSecurityChecksOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListSecurityChecksDefault(code int) *ListSecurityChecksDefault {
 	}
 }
 
-/*ListSecurityChecksDefault handles this case with default header values.
+/* ListSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListSecurityChecksDefault) Code() int {
 func (o *ListSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] ListSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListSecurityChecksDefault) GetPayload() *ListSecurityChecksDefaultBody {
 	return o.Payload
 }
@@ -116,112 +115,6 @@ func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse
 		return err
 	}
 
-	return nil
-}
-
-/*ChecksItems0 SecurityCheck contains check name and status.
-swagger:model ChecksItems0
-*/
-type ChecksItems0 struct {
-
-	// Machine-readable name (ID) that is used in expression.
-	Name string `json:"name,omitempty"`
-
-	// True if that check is disabled.
-	Disabled bool `json:"disabled,omitempty"`
-
-	// Long human-readable description.
-	Description string `json:"description,omitempty"`
-
-	// Short human-readable summary.
-	Summary string `json:"summary,omitempty"`
-
-	// SecurityCheckInterval represents possible execution interval values for checks.
-	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
-	Interval *string `json:"interval,omitempty"`
-
-	// Category to which the check belongs.
-	Category string `json:"category,omitempty"`
-}
-
-// Validate validates this checks items0
-func (o *ChecksItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateInterval(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var checksItems0TypeIntervalPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		checksItems0TypeIntervalPropEnum = append(checksItems0TypeIntervalPropEnum, v)
-	}
-}
-
-const (
-
-	// ChecksItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
-	ChecksItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
-
-	// ChecksItems0IntervalSTANDARD captures enum value "STANDARD"
-	ChecksItems0IntervalSTANDARD string = "STANDARD"
-
-	// ChecksItems0IntervalFREQUENT captures enum value "FREQUENT"
-	ChecksItems0IntervalFREQUENT string = "FREQUENT"
-
-	// ChecksItems0IntervalRARE captures enum value "RARE"
-	ChecksItems0IntervalRARE string = "RARE"
-)
-
-// prop value enum
-func (o *ChecksItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, checksItems0TypeIntervalPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChecksItems0) validateInterval(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Interval) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChecksItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChecksItems0) UnmarshalBinary(b []byte) error {
-	var res ChecksItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -249,7 +142,6 @@ func (o *ListSecurityChecksBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListSecurityChecksBody) validateFilterParams(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.FilterParams) { // not required
 		return nil
 	}
@@ -258,6 +150,38 @@ func (o *ListSecurityChecksBody) validateFilterParams(formats strfmt.Registry) e
 		if err := o.FilterParams.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filter_params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list security checks body based on the context it is used
+func (o *ListSecurityChecksBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateFilterParams(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksBody) contextValidateFilterParams(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.FilterParams != nil {
+		if err := o.FilterParams.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params")
 			}
 			return err
 		}
@@ -299,7 +223,7 @@ type ListSecurityChecksDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListSecurityChecksDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list security checks default body
@@ -317,7 +241,6 @@ func (o *ListSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *ListSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -331,6 +254,42 @@ func (o *ListSecurityChecksDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list security checks default body based on the context it is used
+func (o *ListSecurityChecksDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListSecurityChecks default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -359,13 +318,54 @@ func (o *ListSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListSecurityChecksDefaultBodyDetailsItems0 list security checks default body details items0
+swagger:model ListSecurityChecksDefaultBodyDetailsItems0
+*/
+type ListSecurityChecksDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list security checks default body details items0
+func (o *ListSecurityChecksDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list security checks default body details items0 based on context it is used
+func (o *ListSecurityChecksDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListSecurityChecksDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListSecurityChecksOKBody list security checks OK body
 swagger:model ListSecurityChecksOKBody
 */
 type ListSecurityChecksOKBody struct {
 
 	// checks
-	Checks []*ChecksItems0 `json:"checks"`
+	Checks []*ListSecurityChecksOKBodyChecksItems0 `json:"checks"`
 }
 
 // Validate validates this list security checks OK body
@@ -383,7 +383,6 @@ func (o *ListSecurityChecksOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListSecurityChecksOKBody) validateChecks(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Checks) { // not required
 		return nil
 	}
@@ -397,6 +396,42 @@ func (o *ListSecurityChecksOKBody) validateChecks(formats strfmt.Registry) error
 			if err := o.Checks[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listSecurityChecksOk" + "." + "checks" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listSecurityChecksOk" + "." + "checks" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list security checks OK body based on the context it is used
+func (o *ListSecurityChecksOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateChecks(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksOKBody) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Checks); i++ {
+
+		if o.Checks[i] != nil {
+			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listSecurityChecksOk" + "." + "checks" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listSecurityChecksOk" + "." + "checks" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -418,6 +453,116 @@ func (o *ListSecurityChecksOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListSecurityChecksOKBody) UnmarshalBinary(b []byte) error {
 	var res ListSecurityChecksOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListSecurityChecksOKBodyChecksItems0 SecurityCheck contains check name and status.
+swagger:model ListSecurityChecksOKBodyChecksItems0
+*/
+type ListSecurityChecksOKBodyChecksItems0 struct {
+
+	// Machine-readable name (ID) that is used in expression.
+	Name string `json:"name,omitempty"`
+
+	// True if that check is disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Long human-readable description.
+	Description string `json:"description,omitempty"`
+
+	// Short human-readable summary.
+	Summary string `json:"summary,omitempty"`
+
+	// SecurityCheckInterval represents possible execution interval values for checks.
+	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
+	Interval *string `json:"interval,omitempty"`
+
+	// Category to which the check belongs.
+	Category string `json:"category,omitempty"`
+}
+
+// Validate validates this list security checks OK body checks items0
+func (o *ListSecurityChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listSecurityChecksOkBodyChecksItems0TypeIntervalPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listSecurityChecksOkBodyChecksItems0TypeIntervalPropEnum = append(listSecurityChecksOkBodyChecksItems0TypeIntervalPropEnum, v)
+	}
+}
+
+const (
+
+	// ListSecurityChecksOKBodyChecksItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
+	ListSecurityChecksOKBodyChecksItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+
+	// ListSecurityChecksOKBodyChecksItems0IntervalSTANDARD captures enum value "STANDARD"
+	ListSecurityChecksOKBodyChecksItems0IntervalSTANDARD string = "STANDARD"
+
+	// ListSecurityChecksOKBodyChecksItems0IntervalFREQUENT captures enum value "FREQUENT"
+	ListSecurityChecksOKBodyChecksItems0IntervalFREQUENT string = "FREQUENT"
+
+	// ListSecurityChecksOKBodyChecksItems0IntervalRARE captures enum value "RARE"
+	ListSecurityChecksOKBodyChecksItems0IntervalRARE string = "RARE"
+)
+
+// prop value enum
+func (o *ListSecurityChecksOKBodyChecksItems0) validateIntervalEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listSecurityChecksOkBodyChecksItems0TypeIntervalPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksOKBodyChecksItems0) validateInterval(formats strfmt.Registry) error {
+	if swag.IsZero(o.Interval) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list security checks OK body checks items0 based on context it is used
+func (o *ListSecurityChecksOKBodyChecksItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListSecurityChecksOKBodyChecksItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListSecurityChecksOKBodyChecksItems0) UnmarshalBinary(b []byte) error {
+	var res ListSecurityChecksOKBodyChecksItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -449,7 +594,6 @@ func (o *ListSecurityChecksParamsBodyFilterParams) Validate(formats strfmt.Regis
 }
 
 func (o *ListSecurityChecksParamsBodyFilterParams) validateCategory(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Category) { // not required
 		return nil
 	}
@@ -458,6 +602,38 @@ func (o *ListSecurityChecksParamsBodyFilterParams) validateCategory(formats strf
 		if err := o.Category.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filter_params" + "." + "category")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list security checks params body filter params based on the context it is used
+func (o *ListSecurityChecksParamsBodyFilterParams) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCategory(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksParamsBodyFilterParams) contextValidateCategory(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Category != nil {
+		if err := o.Category.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category")
 			}
 			return err
 		}
@@ -523,7 +699,6 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) Validate(formats strf
 }
 
 func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateIntValues(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.IntValues) { // not required
 		return nil
 	}
@@ -532,6 +707,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateIntValues(for
 		if err := o.IntValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "int_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "int_values")
 			}
 			return err
 		}
@@ -541,7 +718,6 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateIntValues(for
 }
 
 func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateLongValues(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.LongValues) { // not required
 		return nil
 	}
@@ -550,6 +726,8 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateLongValues(fo
 		if err := o.LongValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "long_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "long_values")
 			}
 			return err
 		}
@@ -559,7 +737,6 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateLongValues(fo
 }
 
 func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateStringValues(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.StringValues) { // not required
 		return nil
 	}
@@ -568,6 +745,78 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategory) validateStringValues(
 		if err := o.StringValues.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "string_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "string_values")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list security checks params body filter params category based on the context it is used
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateIntValues(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateLongValues(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateStringValues(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) contextValidateIntValues(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.IntValues != nil {
+		if err := o.IntValues.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "int_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "int_values")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) contextValidateLongValues(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.LongValues != nil {
+		if err := o.LongValues.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "long_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "long_values")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ListSecurityChecksParamsBodyFilterParamsCategory) contextValidateStringValues(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.StringValues != nil {
+		if err := o.StringValues.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "string_values")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "filter_params" + "." + "category" + "." + "string_values")
 			}
 			return err
 		}
@@ -608,6 +857,11 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) Validate(for
 	return nil
 }
 
+// ContextValidate validates this list security checks params body filter params category int values based on context it is used
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListSecurityChecksParamsBodyFilterParamsCategoryIntValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -640,6 +894,11 @@ func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) Validate(fo
 	return nil
 }
 
+// ContextValidate validates this list security checks params body filter params category long values based on context it is used
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *ListSecurityChecksParamsBodyFilterParamsCategoryLongValues) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -669,6 +928,11 @@ type ListSecurityChecksParamsBodyFilterParamsCategoryStringValues struct {
 
 // Validate validates this list security checks params body filter params category string values
 func (o *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list security checks params body filter params category string values based on context it is used
+func (o *ListSecurityChecksParamsBodyFilterParamsCategoryStringValues) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

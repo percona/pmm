@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAWSInstanceCheckOK() *AWSInstanceCheckOK {
 	return &AWSInstanceCheckOK{}
 }
 
-/*AWSInstanceCheckOK handles this case with default header values.
+/* AWSInstanceCheckOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AWSInstanceCheckOK struct {
 func (o *AWSInstanceCheckOK) Error() string {
 	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] awsInstanceCheckOk  %+v", 200, o.Payload)
 }
-
 func (o *AWSInstanceCheckOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewAWSInstanceCheckDefault(code int) *AWSInstanceCheckDefault {
 	}
 }
 
-/*AWSInstanceCheckDefault handles this case with default header values.
+/* AWSInstanceCheckDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *AWSInstanceCheckDefault) Code() int {
 func (o *AWSInstanceCheckDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] AWSInstanceCheck default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AWSInstanceCheckDefault) GetPayload() *AWSInstanceCheckDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type AWSInstanceCheckBody struct {
 
 // Validate validates this AWS instance check body
 func (o *AWSInstanceCheckBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this AWS instance check body based on context it is used
+func (o *AWSInstanceCheckBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type AWSInstanceCheckDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AWSInstanceCheckDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this AWS instance check default body
@@ -180,7 +184,6 @@ func (o *AWSInstanceCheckDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AWSInstanceCheckDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *AWSInstanceCheckDefaultBody) validateDetails(formats strfmt.Registry) e
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AWSInstanceCheck default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AWSInstanceCheck default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this AWS instance check default body based on the context it is used
+func (o *AWSInstanceCheckDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AWSInstanceCheckDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AWSInstanceCheck default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AWSInstanceCheck default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -222,10 +261,10 @@ func (o *AWSInstanceCheckDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*AWSInstanceCheckDefaultBodyDetailsItems0 AWS instance check default body details items0
+swagger:model AWSInstanceCheckDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type AWSInstanceCheckDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -235,13 +274,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this AWS instance check default body details items0
+func (o *AWSInstanceCheckDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this AWS instance check default body details items0 based on context it is used
+func (o *AWSInstanceCheckDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *AWSInstanceCheckDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -249,8 +293,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *AWSInstanceCheckDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AWSInstanceCheckDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

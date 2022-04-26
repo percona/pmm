@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetSecurityCheckResultsParams creates a new GetSecurityCheckResultsParams object
-// with the default values initialized.
+// NewGetSecurityCheckResultsParams creates a new GetSecurityCheckResultsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetSecurityCheckResultsParams() *GetSecurityCheckResultsParams {
-	var ()
 	return &GetSecurityCheckResultsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetSecurityCheckResultsParamsWithTimeout creates a new GetSecurityCheckResultsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetSecurityCheckResultsParamsWithTimeout(timeout time.Duration) *GetSecurityCheckResultsParams {
-	var ()
 	return &GetSecurityCheckResultsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetSecurityCheckResultsParamsWithContext creates a new GetSecurityCheckResultsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetSecurityCheckResultsParamsWithContext(ctx context.Context) *GetSecurityCheckResultsParams {
-	var ()
 	return &GetSecurityCheckResultsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetSecurityCheckResultsParamsWithHTTPClient creates a new GetSecurityCheckResultsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetSecurityCheckResultsParamsWithHTTPClient(client *http.Client) *GetSecurityCheckResultsParams {
-	var ()
 	return &GetSecurityCheckResultsParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetSecurityCheckResultsParams contains all the parameters to send to the API endpoint
-for the get security check results operation typically these are written to a http.Request
+/* GetSecurityCheckResultsParams contains all the parameters to send to the API endpoint
+   for the get security check results operation.
+
+   Typically these are written to a http.Request.
 */
 type GetSecurityCheckResultsParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get security check results params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetSecurityCheckResultsParams) WithDefaults() *GetSecurityCheckResultsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get security check results params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetSecurityCheckResultsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get security check results params
@@ -119,7 +133,6 @@ func (o *GetSecurityCheckResultsParams) WriteToRequest(r runtime.ClientRequest, 
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

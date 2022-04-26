@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewDeleteDBClusterParams creates a new DeleteDBClusterParams object
-// with the default values initialized.
+// NewDeleteDBClusterParams creates a new DeleteDBClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewDeleteDBClusterParams() *DeleteDBClusterParams {
-	var ()
 	return &DeleteDBClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewDeleteDBClusterParamsWithTimeout creates a new DeleteDBClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewDeleteDBClusterParamsWithTimeout(timeout time.Duration) *DeleteDBClusterParams {
-	var ()
 	return &DeleteDBClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewDeleteDBClusterParamsWithContext creates a new DeleteDBClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewDeleteDBClusterParamsWithContext(ctx context.Context) *DeleteDBClusterParams {
-	var ()
 	return &DeleteDBClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewDeleteDBClusterParamsWithHTTPClient creates a new DeleteDBClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewDeleteDBClusterParamsWithHTTPClient(client *http.Client) *DeleteDBClusterParams {
-	var ()
 	return &DeleteDBClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*DeleteDBClusterParams contains all the parameters to send to the API endpoint
-for the delete DB cluster operation typically these are written to a http.Request
+/* DeleteDBClusterParams contains all the parameters to send to the API endpoint
+   for the delete DB cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type DeleteDBClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body DeleteDBClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the delete DB cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteDBClusterParams) WithDefaults() *DeleteDBClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the delete DB cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DeleteDBClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the delete DB cluster params
@@ -119,7 +133,6 @@ func (o *DeleteDBClusterParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

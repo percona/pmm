@@ -6,6 +6,7 @@ package filters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewGetOK() *GetOK {
 	return &GetOK{}
 }
 
-/*GetOK handles this case with default header values.
+/* GetOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type GetOK struct {
 func (o *GetOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
-
 func (o *GetOK) GetPayload() *GetOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewGetDefault(code int) *GetDefault {
 	}
 }
 
-/*GetDefault handles this case with default header values.
+/* GetDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *GetDefault) Code() int {
 func (o *GetDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetDefault) GetPayload() *GetDefaultBody {
 	return o.Payload
 }
@@ -115,42 +114,6 @@ func (o *GetDefault) readResponse(response runtime.ClientResponse, consumer runt
 		return err
 	}
 
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -171,7 +134,7 @@ type GetBody struct {
 	MainMetricName string `json:"main_metric_name,omitempty"`
 
 	// labels
-	Labels []*LabelsItems0 `json:"labels"`
+	Labels []*GetParamsBodyLabelsItems0 `json:"labels"`
 }
 
 // Validate validates this get body
@@ -197,7 +160,6 @@ func (o *GetBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
@@ -210,7 +172,6 @@ func (o *GetBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 }
 
 func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
@@ -223,7 +184,6 @@ func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
 }
 
 func (o *GetBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -237,6 +197,42 @@ func (o *GetBody) validateLabels(formats strfmt.Registry) error {
 			if err := o.Labels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get body based on the context it is used
+func (o *GetBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Labels); i++ {
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -280,7 +276,7 @@ type GetDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get default body
@@ -298,7 +294,6 @@ func (o *GetDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -312,6 +307,42 @@ func (o *GetDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Get default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Get default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get default body based on the context it is used
+func (o *GetDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Get default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Get default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -340,6 +371,47 @@ func (o *GetDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetDefaultBodyDetailsItems0 get default body details items0
+swagger:model GetDefaultBodyDetailsItems0
+*/
+type GetDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get default body details items0
+func (o *GetDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get default body details items0 based on context it is used
+func (o *GetDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetOKBody FiltersReply is map of labels for given period by key.
 // Key is label's name and value is label's value and how many times it occur.
 swagger:model GetOKBody
@@ -347,7 +419,7 @@ swagger:model GetOKBody
 type GetOKBody struct {
 
 	// labels
-	Labels map[string]LabelsAnon `json:"labels,omitempty"`
+	Labels map[string]GetOKBodyLabelsAnon `json:"labels,omitempty"`
 }
 
 // Validate validates this get OK body
@@ -365,7 +437,6 @@ func (o *GetOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetOKBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -377,6 +448,40 @@ func (o *GetOKBody) validateLabels(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Labels[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getOk" + "." + "labels" + "." + k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getOk" + "." + "labels" + "." + k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get OK body based on the context it is used
+func (o *GetOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetOKBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for k := range o.Labels {
+
+		if val, ok := o.Labels[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
@@ -404,17 +509,17 @@ func (o *GetOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnon ListLabels is list of label's values: duplicates are impossible.
-swagger:model LabelsAnon
+/*GetOKBodyLabelsAnon ListLabels is list of label's values: duplicates are impossible.
+swagger:model GetOKBodyLabelsAnon
 */
-type LabelsAnon struct {
+type GetOKBodyLabelsAnon struct {
 
 	// name
-	Name []*LabelsAnonNameItems0 `json:"name"`
+	Name []*GetOKBodyLabelsAnonNameItems0 `json:"name"`
 }
 
-// Validate validates this labels anon
-func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
+// Validate validates this get OK body labels anon
+func (o *GetOKBodyLabelsAnon) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateName(formats); err != nil {
@@ -427,8 +532,7 @@ func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LabelsAnon) validateName(formats strfmt.Registry) error {
-
+func (o *GetOKBodyLabelsAnon) validateName(formats strfmt.Registry) error {
 	if swag.IsZero(o.Name) { // not required
 		return nil
 	}
@@ -442,6 +546,42 @@ func (o *LabelsAnon) validateName(formats strfmt.Registry) error {
 			if err := o.Name[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("name" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("name" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get OK body labels anon based on the context it is used
+func (o *GetOKBodyLabelsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateName(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetOKBodyLabelsAnon) contextValidateName(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Name); i++ {
+
+		if o.Name[i] != nil {
+			if err := o.Name[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("name" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("name" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -453,7 +593,7 @@ func (o *LabelsAnon) validateName(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
+func (o *GetOKBodyLabelsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -461,8 +601,8 @@ func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
-	var res LabelsAnon
+func (o *GetOKBodyLabelsAnon) UnmarshalBinary(b []byte) error {
+	var res GetOKBodyLabelsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -470,10 +610,10 @@ func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnonNameItems0 Values is label values and main metric percent and per second.
-swagger:model LabelsAnonNameItems0
+/*GetOKBodyLabelsAnonNameItems0 Values is label values and main metric percent and per second.
+swagger:model GetOKBodyLabelsAnonNameItems0
 */
-type LabelsAnonNameItems0 struct {
+type GetOKBodyLabelsAnonNameItems0 struct {
 
 	// value
 	Value string `json:"value,omitempty"`
@@ -485,13 +625,18 @@ type LabelsAnonNameItems0 struct {
 	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
 }
 
-// Validate validates this labels anon name items0
-func (o *LabelsAnonNameItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get OK body labels anon name items0
+func (o *GetOKBodyLabelsAnonNameItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get OK body labels anon name items0 based on context it is used
+func (o *GetOKBodyLabelsAnonNameItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsAnonNameItems0) MarshalBinary() ([]byte, error) {
+func (o *GetOKBodyLabelsAnonNameItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -499,8 +644,8 @@ func (o *LabelsAnonNameItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsAnonNameItems0
+func (o *GetOKBodyLabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
+	var res GetOKBodyLabelsAnonNameItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -508,10 +653,10 @@ func (o *LabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-swagger:model LabelsItems0
+/*GetParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model GetParamsBodyLabelsItems0
 */
-type LabelsItems0 struct {
+type GetParamsBodyLabelsItems0 struct {
 
 	// key
 	Key string `json:"key,omitempty"`
@@ -520,13 +665,18 @@ type LabelsItems0 struct {
 	Value []string `json:"value"`
 }
 
-// Validate validates this labels items0
-func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get params body labels items0
+func (o *GetParamsBodyLabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get params body labels items0 based on context it is used
+func (o *GetParamsBodyLabelsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -534,8 +684,8 @@ func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsItems0
+func (o *GetParamsBodyLabelsItems0) UnmarshalBinary(b []byte) error {
+	var res GetParamsBodyLabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

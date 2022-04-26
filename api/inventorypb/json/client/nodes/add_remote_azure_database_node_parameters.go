@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddRemoteAzureDatabaseNodeParams creates a new AddRemoteAzureDatabaseNodeParams object
-// with the default values initialized.
+// NewAddRemoteAzureDatabaseNodeParams creates a new AddRemoteAzureDatabaseNodeParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddRemoteAzureDatabaseNodeParams() *AddRemoteAzureDatabaseNodeParams {
-	var ()
 	return &AddRemoteAzureDatabaseNodeParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddRemoteAzureDatabaseNodeParamsWithTimeout creates a new AddRemoteAzureDatabaseNodeParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddRemoteAzureDatabaseNodeParamsWithTimeout(timeout time.Duration) *AddRemoteAzureDatabaseNodeParams {
-	var ()
 	return &AddRemoteAzureDatabaseNodeParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddRemoteAzureDatabaseNodeParamsWithContext creates a new AddRemoteAzureDatabaseNodeParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddRemoteAzureDatabaseNodeParamsWithContext(ctx context.Context) *AddRemoteAzureDatabaseNodeParams {
-	var ()
 	return &AddRemoteAzureDatabaseNodeParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddRemoteAzureDatabaseNodeParamsWithHTTPClient creates a new AddRemoteAzureDatabaseNodeParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddRemoteAzureDatabaseNodeParamsWithHTTPClient(client *http.Client) *AddRemoteAzureDatabaseNodeParams {
-	var ()
 	return &AddRemoteAzureDatabaseNodeParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddRemoteAzureDatabaseNodeParams contains all the parameters to send to the API endpoint
-for the add remote azure database node operation typically these are written to a http.Request
+/* AddRemoteAzureDatabaseNodeParams contains all the parameters to send to the API endpoint
+   for the add remote azure database node operation.
+
+   Typically these are written to a http.Request.
 */
 type AddRemoteAzureDatabaseNodeParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddRemoteAzureDatabaseNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add remote azure database node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteAzureDatabaseNodeParams) WithDefaults() *AddRemoteAzureDatabaseNodeParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add remote azure database node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteAzureDatabaseNodeParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add remote azure database node params
@@ -119,7 +133,6 @@ func (o *AddRemoteAzureDatabaseNodeParams) WriteToRequest(r runtime.ClientReques
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

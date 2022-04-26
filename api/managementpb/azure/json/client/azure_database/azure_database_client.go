@@ -23,11 +23,14 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureDatabaseOK, error)
+	AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error)
 
-	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*DiscoverAzureDatabaseOK, error)
+	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 /*
   AddAzureDatabase adds azure database adds azure database instance
 */
-func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureDatabaseOK, error) {
+func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams, opts ...ClientOption) (*AddAzureDatabaseOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddAzureDatabaseParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddAzureDatabase",
 		Method:             "POST",
 		PathPattern:        "/v1/management/azure/AzureDatabase/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureData
 		Reader:             &AddAzureDatabaseReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -68,13 +75,12 @@ func (a *Client) AddAzureDatabase(params *AddAzureDatabaseParams) (*AddAzureData
 /*
   DiscoverAzureDatabase discovers azure database discovers azure database for my SQL maria DB and postgre SQL server instances
 */
-func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*DiscoverAzureDatabaseOK, error) {
+func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDiscoverAzureDatabaseParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "DiscoverAzureDatabase",
 		Method:             "POST",
 		PathPattern:        "/v1/management/azure/AzureDatabase/Discover",
@@ -85,7 +91,12 @@ func (a *Client) DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams) (*Di
 		Reader:             &DiscoverAzureDatabaseReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

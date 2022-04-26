@@ -23,15 +23,18 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePSMDBClusterOK, error)
+	CreatePSMDBCluster(params *CreatePSMDBClusterParams, opts ...ClientOption) (*CreatePSMDBClusterOK, error)
 
-	GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error)
+	GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams, opts ...ClientOption) (*GetPSMDBClusterCredentialsOK, error)
 
-	GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error)
+	GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams, opts ...ClientOption) (*GetPSMDBClusterResourcesOK, error)
 
-	UpdatePSMDBCluster(params *UpdatePSMDBClusterParams) (*UpdatePSMDBClusterOK, error)
+	UpdatePSMDBCluster(params *UpdatePSMDBClusterParams, opts ...ClientOption) (*UpdatePSMDBClusterOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -39,13 +42,12 @@ type ClientService interface {
 /*
   CreatePSMDBCluster creates PSMDB cluster creates a new PSMDB cluster
 */
-func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePSMDBClusterOK, error) {
+func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams, opts ...ClientOption) (*CreatePSMDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreatePSMDBClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CreatePSMDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Create",
@@ -56,7 +58,12 @@ func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePS
 		Reader:             &CreatePSMDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +79,12 @@ func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams) (*CreatePS
 /*
   GetPSMDBClusterCredentials gets PSMDB cluster credentials returns a PSMDB cluster credentials by cluster name
 */
-func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams) (*GetPSMDBClusterCredentialsOK, error) {
+func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams, opts ...ClientOption) (*GetPSMDBClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPSMDBClusterCredentialsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPSMDBClusterCredentials",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PSMDBClusters/GetCredentials",
@@ -89,7 +95,12 @@ func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsPa
 		Reader:             &GetPSMDBClusterCredentialsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -105,13 +116,12 @@ func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsPa
 /*
   GetPSMDBClusterResources gets PSMDB cluster resources returns expected resources to be consumed by the cluster
 */
-func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams) (*GetPSMDBClusterResourcesOK, error) {
+func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams, opts ...ClientOption) (*GetPSMDBClusterResourcesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPSMDBClusterResourcesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPSMDBClusterResources",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Resources/Get",
@@ -122,7 +132,12 @@ func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams
 		Reader:             &GetPSMDBClusterResourcesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +153,12 @@ func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams
 /*
   UpdatePSMDBCluster updates PSMDB cluster updates existing PSMDB cluster
 */
-func (a *Client) UpdatePSMDBCluster(params *UpdatePSMDBClusterParams) (*UpdatePSMDBClusterOK, error) {
+func (a *Client) UpdatePSMDBCluster(params *UpdatePSMDBClusterParams, opts ...ClientOption) (*UpdatePSMDBClusterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdatePSMDBClusterParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UpdatePSMDBCluster",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/PSMDBCluster/Update",
@@ -155,7 +169,12 @@ func (a *Client) UpdatePSMDBCluster(params *UpdatePSMDBClusterParams) (*UpdatePS
 		Reader:             &UpdatePSMDBClusterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

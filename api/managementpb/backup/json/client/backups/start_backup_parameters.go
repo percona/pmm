@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartBackupParams creates a new StartBackupParams object
-// with the default values initialized.
+// NewStartBackupParams creates a new StartBackupParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartBackupParams() *StartBackupParams {
-	var ()
 	return &StartBackupParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartBackupParamsWithTimeout creates a new StartBackupParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartBackupParamsWithTimeout(timeout time.Duration) *StartBackupParams {
-	var ()
 	return &StartBackupParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartBackupParamsWithContext creates a new StartBackupParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartBackupParamsWithContext(ctx context.Context) *StartBackupParams {
-	var ()
 	return &StartBackupParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartBackupParamsWithHTTPClient creates a new StartBackupParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartBackupParamsWithHTTPClient(client *http.Client) *StartBackupParams {
-	var ()
 	return &StartBackupParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartBackupParams contains all the parameters to send to the API endpoint
-for the start backup operation typically these are written to a http.Request
+/* StartBackupParams contains all the parameters to send to the API endpoint
+   for the start backup operation.
+
+   Typically these are written to a http.Request.
 */
 type StartBackupParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartBackupBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start backup params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartBackupParams) WithDefaults() *StartBackupParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start backup params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartBackupParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start backup params
@@ -119,7 +133,6 @@ func (o *StartBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

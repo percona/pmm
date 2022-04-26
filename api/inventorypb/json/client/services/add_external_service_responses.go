@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddExternalServiceOK() *AddExternalServiceOK {
 	return &AddExternalServiceOK{}
 }
 
-/*AddExternalServiceOK handles this case with default header values.
+/* AddExternalServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddExternalServiceOK struct {
 func (o *AddExternalServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddExternalService][%d] addExternalServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *AddExternalServiceOK) GetPayload() *AddExternalServiceOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddExternalServiceDefault(code int) *AddExternalServiceDefault {
 	}
 }
 
-/*AddExternalServiceDefault handles this case with default header values.
+/* AddExternalServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddExternalServiceDefault) Code() int {
 func (o *AddExternalServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddExternalService][%d] AddExternalService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddExternalServiceDefault) GetPayload() *AddExternalServiceDefaultBody {
 	return o.Payload
 }
@@ -149,6 +148,11 @@ func (o *AddExternalServiceBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add external service body based on context it is used
+func (o *AddExternalServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddExternalServiceBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -182,7 +186,7 @@ type AddExternalServiceDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddExternalServiceDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add external service default body
@@ -200,7 +204,6 @@ func (o *AddExternalServiceDefaultBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *AddExternalServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -214,6 +217,42 @@ func (o *AddExternalServiceDefaultBody) validateDetails(formats strfmt.Registry)
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddExternalService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternalService default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external service default body based on the context it is used
+func (o *AddExternalServiceDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddExternalService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternalService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -235,6 +274,47 @@ func (o *AddExternalServiceDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddExternalServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddExternalServiceDefaultBodyDetailsItems0 add external service default body details items0
+swagger:model AddExternalServiceDefaultBodyDetailsItems0
+*/
+type AddExternalServiceDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add external service default body details items0
+func (o *AddExternalServiceDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add external service default body details items0 based on context it is used
+func (o *AddExternalServiceDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddExternalServiceDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddExternalServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddExternalServiceDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -266,7 +346,6 @@ func (o *AddExternalServiceOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddExternalServiceOKBody) validateExternal(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.External) { // not required
 		return nil
 	}
@@ -275,6 +354,38 @@ func (o *AddExternalServiceOKBody) validateExternal(formats strfmt.Registry) err
 		if err := o.External.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addExternalServiceOk" + "." + "external")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalServiceOk" + "." + "external")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external service OK body based on the context it is used
+func (o *AddExternalServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateExternal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.External != nil {
+		if err := o.External.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addExternalServiceOk" + "." + "external")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalServiceOk" + "." + "external")
 			}
 			return err
 		}
@@ -336,6 +447,11 @@ func (o *AddExternalServiceOKBodyExternal) Validate(formats strfmt.Registry) err
 	return nil
 }
 
+// ContextValidate validates this add external service OK body external based on context it is used
+func (o *AddExternalServiceOKBodyExternal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddExternalServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -347,42 +463,6 @@ func (o *AddExternalServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalServiceOKBodyExternal) UnmarshalBinary(b []byte) error {
 	var res AddExternalServiceOKBodyExternal
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

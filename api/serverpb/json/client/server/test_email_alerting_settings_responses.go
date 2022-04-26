@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewTestEmailAlertingSettingsOK() *TestEmailAlertingSettingsOK {
 	return &TestEmailAlertingSettingsOK{}
 }
 
-/*TestEmailAlertingSettingsOK handles this case with default header values.
+/* TestEmailAlertingSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type TestEmailAlertingSettingsOK struct {
 func (o *TestEmailAlertingSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] testEmailAlertingSettingsOk  %+v", 200, o.Payload)
 }
-
 func (o *TestEmailAlertingSettingsOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewTestEmailAlertingSettingsDefault(code int) *TestEmailAlertingSettingsDef
 	}
 }
 
-/*TestEmailAlertingSettingsDefault handles this case with default header values.
+/* TestEmailAlertingSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *TestEmailAlertingSettingsDefault) Code() int {
 func (o *TestEmailAlertingSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] TestEmailAlertingSettings default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *TestEmailAlertingSettingsDefault) GetPayload() *TestEmailAlertingSettingsDefaultBody {
 	return o.Payload
 }
@@ -142,7 +141,6 @@ func (o *TestEmailAlertingSettingsBody) Validate(formats strfmt.Registry) error 
 }
 
 func (o *TestEmailAlertingSettingsBody) validateEmailAlertingSettings(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.EmailAlertingSettings) { // not required
 		return nil
 	}
@@ -151,6 +149,38 @@ func (o *TestEmailAlertingSettingsBody) validateEmailAlertingSettings(formats st
 		if err := o.EmailAlertingSettings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("body" + "." + "email_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_alerting_settings")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this test email alerting settings body based on the context it is used
+func (o *TestEmailAlertingSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateEmailAlertingSettings(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *TestEmailAlertingSettingsBody) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.EmailAlertingSettings != nil {
+		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "email_alerting_settings")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "email_alerting_settings")
 			}
 			return err
 		}
@@ -192,7 +222,7 @@ type TestEmailAlertingSettingsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*TestEmailAlertingSettingsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this test email alerting settings default body
@@ -210,7 +240,6 @@ func (o *TestEmailAlertingSettingsDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *TestEmailAlertingSettingsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -224,6 +253,42 @@ func (o *TestEmailAlertingSettingsDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("TestEmailAlertingSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("TestEmailAlertingSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this test email alerting settings default body based on the context it is used
+func (o *TestEmailAlertingSettingsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *TestEmailAlertingSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("TestEmailAlertingSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("TestEmailAlertingSettings default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -245,6 +310,47 @@ func (o *TestEmailAlertingSettingsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *TestEmailAlertingSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res TestEmailAlertingSettingsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*TestEmailAlertingSettingsDefaultBodyDetailsItems0 test email alerting settings default body details items0
+swagger:model TestEmailAlertingSettingsDefaultBodyDetailsItems0
+*/
+type TestEmailAlertingSettingsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this test email alerting settings default body details items0
+func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this test email alerting settings default body details items0 based on context it is used
+func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res TestEmailAlertingSettingsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -284,6 +390,11 @@ type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {
 
 // Validate validates this test email alerting settings params body email alerting settings
 func (o *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this test email alerting settings params body email alerting settings based on context it is used
+func (o *TestEmailAlertingSettingsParamsBodyEmailAlertingSettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

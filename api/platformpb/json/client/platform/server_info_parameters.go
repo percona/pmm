@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewServerInfoParams creates a new ServerInfoParams object
-// with the default values initialized.
+// NewServerInfoParams creates a new ServerInfoParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewServerInfoParams() *ServerInfoParams {
-	var ()
 	return &ServerInfoParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewServerInfoParamsWithTimeout creates a new ServerInfoParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewServerInfoParamsWithTimeout(timeout time.Duration) *ServerInfoParams {
-	var ()
 	return &ServerInfoParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewServerInfoParamsWithContext creates a new ServerInfoParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewServerInfoParamsWithContext(ctx context.Context) *ServerInfoParams {
-	var ()
 	return &ServerInfoParams{
-
 		Context: ctx,
 	}
 }
 
 // NewServerInfoParamsWithHTTPClient creates a new ServerInfoParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewServerInfoParamsWithHTTPClient(client *http.Client) *ServerInfoParams {
-	var ()
 	return &ServerInfoParams{
 		HTTPClient: client,
 	}
 }
 
-/*ServerInfoParams contains all the parameters to send to the API endpoint
-for the server info operation typically these are written to a http.Request
+/* ServerInfoParams contains all the parameters to send to the API endpoint
+   for the server info operation.
+
+   Typically these are written to a http.Request.
 */
 type ServerInfoParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the server info params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ServerInfoParams) WithDefaults() *ServerInfoParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the server info params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ServerInfoParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the server info params
@@ -119,7 +133,6 @@ func (o *ServerInfoParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

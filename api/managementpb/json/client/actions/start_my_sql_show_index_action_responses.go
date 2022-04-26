@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartMySQLShowIndexActionOK() *StartMySQLShowIndexActionOK {
 	return &StartMySQLShowIndexActionOK{}
 }
 
-/*StartMySQLShowIndexActionOK handles this case with default header values.
+/* StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartMySQLShowIndexActionOK struct {
 func (o *StartMySQLShowIndexActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLShowIndexActionOK) GetPayload() *StartMySQLShowIndexActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartMySQLShowIndexActionDefault(code int) *StartMySQLShowIndexActionDef
 	}
 }
 
-/*StartMySQLShowIndexActionDefault handles this case with default header values.
+/* StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 func (o *StartMySQLShowIndexActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLShowIndexActionDefault) GetPayload() *StartMySQLShowIndexActionDefaultBody {
 	return o.Payload
 }
@@ -140,6 +139,11 @@ func (o *StartMySQLShowIndexActionBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
+// ContextValidate validates this start my SQL show index action body based on context it is used
+func (o *StartMySQLShowIndexActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *StartMySQLShowIndexActionBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +177,7 @@ type StartMySQLShowIndexActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartMySQLShowIndexActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start my SQL show index action default body
@@ -191,7 +195,6 @@ func (o *StartMySQLShowIndexActionDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *StartMySQLShowIndexActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -205,6 +208,42 @@ func (o *StartMySQLShowIndexActionDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartMySQLShowIndexAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLShowIndexAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start my SQL show index action default body based on the context it is used
+func (o *StartMySQLShowIndexActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartMySQLShowIndexActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartMySQLShowIndexAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartMySQLShowIndexAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -233,6 +272,47 @@ func (o *StartMySQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action default body details items0
+swagger:model StartMySQLShowIndexActionDefaultBodyDetailsItems0
+*/
+type StartMySQLShowIndexActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start my SQL show index action default body details items0
+func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL show index action default body details items0 based on context it is used
+func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartMySQLShowIndexActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartMySQLShowIndexActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartMySQLShowIndexActionOKBody start my SQL show index action OK body
 swagger:model StartMySQLShowIndexActionOKBody
 */
@@ -247,6 +327,11 @@ type StartMySQLShowIndexActionOKBody struct {
 
 // Validate validates this start my SQL show index action OK body
 func (o *StartMySQLShowIndexActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start my SQL show index action OK body based on context it is used
+func (o *StartMySQLShowIndexActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

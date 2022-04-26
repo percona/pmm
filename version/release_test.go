@@ -44,7 +44,8 @@ func TestFullInfoPlainManaged(t *testing.T) {
 		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
 		fmt.Sprintf("FullCommit: %s", FullCommit),
 		fmt.Sprintf("Branch: %s", Branch),
-	}, "\n")
+	}, "\n",
+	)
 	actual := FullInfo()
 	if expected != actual {
 		t.Errorf("expected: %q\nactual: %q", expected, actual)
@@ -61,7 +62,8 @@ func TestFullInfoJsonManaged(t *testing.T) {
 		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
 		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
 		fmt.Sprintf(`"Version":"%s"`, Version),
-	}, ",") + "}"
+	}, ",",
+	) + "}"
 
 	actual := FullInfoJson()
 	if actual != expected {
@@ -89,7 +91,8 @@ func TestFullInfoPlainExporter(t *testing.T) {
 		fmt.Sprintf("Timestamp: %s", timestampFormatted()),
 		fmt.Sprintf("FullCommit: %s", FullCommit),
 		fmt.Sprintf("Branch: %s", Branch),
-	}, "\n")
+	}, "\n",
+	)
 
 	actual := FullInfo()
 	if expected != actual {
@@ -107,7 +110,8 @@ func TestFullInfoJsonExporter(t *testing.T) {
 		fmt.Sprintf(`"ProjectName":"%s"`, ProjectName),
 		fmt.Sprintf(`"Timestamp":"%s"`, timestampFormatted()),
 		fmt.Sprintf(`"Version":"%s"`, Version),
-	}, ",") + "}"
+	}, ",",
+	) + "}"
 
 	actual := FullInfoJson()
 	if actual != expected {

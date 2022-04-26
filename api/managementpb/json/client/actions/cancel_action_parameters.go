@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewCancelActionParams creates a new CancelActionParams object
-// with the default values initialized.
+// NewCancelActionParams creates a new CancelActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewCancelActionParams() *CancelActionParams {
-	var ()
 	return &CancelActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewCancelActionParamsWithTimeout creates a new CancelActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewCancelActionParamsWithTimeout(timeout time.Duration) *CancelActionParams {
-	var ()
 	return &CancelActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewCancelActionParamsWithContext creates a new CancelActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewCancelActionParamsWithContext(ctx context.Context) *CancelActionParams {
-	var ()
 	return &CancelActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewCancelActionParamsWithHTTPClient creates a new CancelActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewCancelActionParamsWithHTTPClient(client *http.Client) *CancelActionParams {
-	var ()
 	return &CancelActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*CancelActionParams contains all the parameters to send to the API endpoint
-for the cancel action operation typically these are written to a http.Request
+/* CancelActionParams contains all the parameters to send to the API endpoint
+   for the cancel action operation.
+
+   Typically these are written to a http.Request.
 */
 type CancelActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body CancelActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the cancel action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CancelActionParams) WithDefaults() *CancelActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the cancel action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *CancelActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the cancel action params
@@ -119,7 +133,6 @@ func (o *CancelActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

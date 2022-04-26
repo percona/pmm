@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewSearchOrganizationEntitlementsParams creates a new SearchOrganizationEntitlementsParams object
-// with the default values initialized.
+// NewSearchOrganizationEntitlementsParams creates a new SearchOrganizationEntitlementsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewSearchOrganizationEntitlementsParams() *SearchOrganizationEntitlementsParams {
-	var ()
 	return &SearchOrganizationEntitlementsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewSearchOrganizationEntitlementsParamsWithTimeout creates a new SearchOrganizationEntitlementsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewSearchOrganizationEntitlementsParamsWithTimeout(timeout time.Duration) *SearchOrganizationEntitlementsParams {
-	var ()
 	return &SearchOrganizationEntitlementsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewSearchOrganizationEntitlementsParamsWithContext creates a new SearchOrganizationEntitlementsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewSearchOrganizationEntitlementsParamsWithContext(ctx context.Context) *SearchOrganizationEntitlementsParams {
-	var ()
 	return &SearchOrganizationEntitlementsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewSearchOrganizationEntitlementsParamsWithHTTPClient creates a new SearchOrganizationEntitlementsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewSearchOrganizationEntitlementsParamsWithHTTPClient(client *http.Client) *SearchOrganizationEntitlementsParams {
-	var ()
 	return &SearchOrganizationEntitlementsParams{
 		HTTPClient: client,
 	}
 }
 
-/*SearchOrganizationEntitlementsParams contains all the parameters to send to the API endpoint
-for the search organization entitlements operation typically these are written to a http.Request
+/* SearchOrganizationEntitlementsParams contains all the parameters to send to the API endpoint
+   for the search organization entitlements operation.
+
+   Typically these are written to a http.Request.
 */
 type SearchOrganizationEntitlementsParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the search organization entitlements params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *SearchOrganizationEntitlementsParams) WithDefaults() *SearchOrganizationEntitlementsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the search organization entitlements params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *SearchOrganizationEntitlementsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the search organization entitlements params
@@ -119,7 +133,6 @@ func (o *SearchOrganizationEntitlementsParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

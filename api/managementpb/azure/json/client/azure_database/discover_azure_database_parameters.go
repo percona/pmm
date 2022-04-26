@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewDiscoverAzureDatabaseParams creates a new DiscoverAzureDatabaseParams object
-// with the default values initialized.
+// NewDiscoverAzureDatabaseParams creates a new DiscoverAzureDatabaseParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewDiscoverAzureDatabaseParams() *DiscoverAzureDatabaseParams {
-	var ()
 	return &DiscoverAzureDatabaseParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewDiscoverAzureDatabaseParamsWithTimeout creates a new DiscoverAzureDatabaseParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewDiscoverAzureDatabaseParamsWithTimeout(timeout time.Duration) *DiscoverAzureDatabaseParams {
-	var ()
 	return &DiscoverAzureDatabaseParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewDiscoverAzureDatabaseParamsWithContext creates a new DiscoverAzureDatabaseParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewDiscoverAzureDatabaseParamsWithContext(ctx context.Context) *DiscoverAzureDatabaseParams {
-	var ()
 	return &DiscoverAzureDatabaseParams{
-
 		Context: ctx,
 	}
 }
 
 // NewDiscoverAzureDatabaseParamsWithHTTPClient creates a new DiscoverAzureDatabaseParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewDiscoverAzureDatabaseParamsWithHTTPClient(client *http.Client) *DiscoverAzureDatabaseParams {
-	var ()
 	return &DiscoverAzureDatabaseParams{
 		HTTPClient: client,
 	}
 }
 
-/*DiscoverAzureDatabaseParams contains all the parameters to send to the API endpoint
-for the discover azure database operation typically these are written to a http.Request
+/* DiscoverAzureDatabaseParams contains all the parameters to send to the API endpoint
+   for the discover azure database operation.
+
+   Typically these are written to a http.Request.
 */
 type DiscoverAzureDatabaseParams struct {
 
-	/*Body*/
+	// Body.
 	Body DiscoverAzureDatabaseBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the discover azure database params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DiscoverAzureDatabaseParams) WithDefaults() *DiscoverAzureDatabaseParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the discover azure database params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *DiscoverAzureDatabaseParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the discover azure database params
@@ -119,7 +133,6 @@ func (o *DiscoverAzureDatabaseParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

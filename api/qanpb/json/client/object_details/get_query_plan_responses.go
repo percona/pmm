@@ -6,6 +6,7 @@ package object_details
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetQueryPlanOK() *GetQueryPlanOK {
 	return &GetQueryPlanOK{}
 }
 
-/*GetQueryPlanOK handles this case with default header values.
+/* GetQueryPlanOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetQueryPlanOK struct {
 func (o *GetQueryPlanOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
 }
-
 func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetQueryPlanDefault(code int) *GetQueryPlanDefault {
 	}
 }
 
-/*GetQueryPlanDefault handles this case with default header values.
+/* GetQueryPlanDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetQueryPlanDefault) Code() int {
 func (o *GetQueryPlanDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type GetQueryPlanBody struct {
 
 // Validate validates this get query plan body
 func (o *GetQueryPlanBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get query plan body based on context it is used
+func (o *GetQueryPlanBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type GetQueryPlanDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetQueryPlanDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get query plan default body
@@ -182,7 +186,6 @@ func (o *GetQueryPlanDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetQueryPlanDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *GetQueryPlanDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetQueryPlan default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetQueryPlan default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get query plan default body based on the context it is used
+func (o *GetQueryPlanDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetQueryPlan default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetQueryPlan default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -224,6 +263,47 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetQueryPlanDefaultBodyDetailsItems0 get query plan default body details items0
+swagger:model GetQueryPlanDefaultBodyDetailsItems0
+*/
+type GetQueryPlanDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get query plan default body details items0
+func (o *GetQueryPlanDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get query plan default body details items0 based on context it is used
+func (o *GetQueryPlanDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetQueryPlanDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetQueryPlanDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
@@ -238,6 +318,11 @@ type GetQueryPlanOKBody struct {
 
 // Validate validates this get query plan OK body
 func (o *GetQueryPlanOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get query plan OK body based on context it is used
+func (o *GetQueryPlanOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error)
+	GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOption) (*GetMetricsNamesOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -33,13 +36,12 @@ type ClientService interface {
 /*
   GetMetricsNames gets metrics names gets map of metrics names
 */
-func (a *Client) GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsNamesOK, error) {
+func (a *Client) GetMetricsNames(params *GetMetricsNamesParams, opts ...ClientOption) (*GetMetricsNamesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetMetricsNamesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetMetricsNames",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/GetMetricsNames",
@@ -50,7 +52,12 @@ func (a *Client) GetMetricsNames(params *GetMetricsNamesParams) (*GetMetricsName
 		Reader:             &GetMetricsNamesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

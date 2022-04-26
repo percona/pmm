@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetNodeOK() *GetNodeOK {
 	return &GetNodeOK{}
 }
 
-/*GetNodeOK handles this case with default header values.
+/* GetNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetNodeOK struct {
 func (o *GetNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetNodeDefault(code int) *GetNodeDefault {
 	}
 }
 
-/*GetNodeDefault handles this case with default header values.
+/* GetNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetNodeDefault) Code() int {
 func (o *GetNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type GetNodeBody struct {
 
 // Validate validates this get node body
 func (o *GetNodeBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get node body based on context it is used
+func (o *GetNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type GetNodeDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetNodeDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get node default body
@@ -182,7 +186,6 @@ func (o *GetNodeDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *GetNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get node default body based on the context it is used
+func (o *GetNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -217,6 +256,47 @@ func (o *GetNodeDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetNodeDefaultBodyDetailsItems0 get node default body details items0
+swagger:model GetNodeDefaultBodyDetailsItems0
+*/
+type GetNodeDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get node default body details items0
+func (o *GetNodeDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get node default body details items0 based on context it is used
+func (o *GetNodeDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNodeDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetNodeDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -276,7 +356,6 @@ func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetNodeOKBody) validateContainer(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Container) { // not required
 		return nil
 	}
@@ -285,6 +364,8 @@ func (o *GetNodeOKBody) validateContainer(formats strfmt.Registry) error {
 		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "container")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "container")
 			}
 			return err
 		}
@@ -294,7 +375,6 @@ func (o *GetNodeOKBody) validateContainer(formats strfmt.Registry) error {
 }
 
 func (o *GetNodeOKBody) validateGeneric(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Generic) { // not required
 		return nil
 	}
@@ -303,6 +383,8 @@ func (o *GetNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "generic")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "generic")
 			}
 			return err
 		}
@@ -312,7 +394,6 @@ func (o *GetNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 }
 
 func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Remote) { // not required
 		return nil
 	}
@@ -321,6 +402,8 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "remote")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote")
 			}
 			return err
 		}
@@ -330,7 +413,6 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 }
 
 func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RemoteAzureDatabase) { // not required
 		return nil
 	}
@@ -339,6 +421,8 @@ func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 		if err := o.RemoteAzureDatabase.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "remote_azure_database")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote_azure_database")
 			}
 			return err
 		}
@@ -348,7 +432,6 @@ func (o *GetNodeOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) err
 }
 
 func (o *GetNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
 	}
@@ -357,6 +440,118 @@ func (o *GetNodeOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getNodeOk" + "." + "remote_rds")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote_rds")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get node OK body based on the context it is used
+func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateContainer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateGeneric(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemote(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteAzureDatabase(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteRDS(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Container != nil {
+		if err := o.Container.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "container")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "container")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Generic != nil {
+		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "generic")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "generic")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Remote != nil {
+		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "remote")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RemoteAzureDatabase != nil {
+		if err := o.RemoteAzureDatabase.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "remote_azure_database")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote_azure_database")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RemoteRDS != nil {
+		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getNodeOk" + "." + "remote_rds")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getNodeOk" + "." + "remote_rds")
 			}
 			return err
 		}
@@ -424,6 +619,11 @@ func (o *GetNodeOKBodyContainer) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get node OK body container based on context it is used
+func (o *GetNodeOKBodyContainer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetNodeOKBodyContainer) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -480,6 +680,11 @@ func (o *GetNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get node OK body generic based on context it is used
+func (o *GetNodeOKBodyGeneric) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetNodeOKBodyGeneric) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -527,6 +732,11 @@ type GetNodeOKBodyRemote struct {
 
 // Validate validates this get node OK body remote
 func (o *GetNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get node OK body remote based on context it is used
+func (o *GetNodeOKBodyRemote) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -580,6 +790,11 @@ func (o *GetNodeOKBodyRemoteAzureDatabase) Validate(formats strfmt.Registry) err
 	return nil
 }
 
+// ContextValidate validates this get node OK body remote azure database based on context it is used
+func (o *GetNodeOKBodyRemoteAzureDatabase) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetNodeOKBodyRemoteAzureDatabase) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -627,6 +842,11 @@ type GetNodeOKBodyRemoteRDS struct {
 
 // Validate validates this get node OK body remote RDS
 func (o *GetNodeOKBodyRemoteRDS) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get node OK body remote RDS based on context it is used
+func (o *GetNodeOKBodyRemoteRDS) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
