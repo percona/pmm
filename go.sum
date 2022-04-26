@@ -319,8 +319,8 @@ github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2 h1:0tQBti5FIrKfH3
 github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2/go.mod h1:/SGLf9OMxlnK6jq4mkFiImBcJXXk5jwD+lDrwDaGXcw=
 github.com/percona/percona-toolkit v3.2.1+incompatible h1:5jLvtZKcu9fDmaLRB8qA4bLR727t5iYyguHJJQTk9w0=
 github.com/percona/percona-toolkit v3.2.1+incompatible/go.mod h1:netQWdWMaF1cnmwiIS+i5uyaqNXz46yNeM6HKkR6yeI=
-github.com/percona/pmm v0.0.0-20220425171601-f7d00530d1ae h1:7URruB9o4o7ooKOUmFcyjhykgx5mfy9BdmIspGWCXlM=
-github.com/percona/pmm v0.0.0-20220425171601-f7d00530d1ae/go.mod h1:FFbpyZXm+Ilg8M/GewuhdjJhPaW1/v1zjRRerYhCfEA=
+github.com/percona/pmm v0.0.0-20220426211313-0e41d01d66dc h1:sXrwdP3UgwjR2BFp2ks+oPHgzNYiMKj+4sXuvfRlsDU=
+github.com/percona/pmm v0.0.0-20220426211313-0e41d01d66dc/go.mod h1:FFbpyZXm+Ilg8M/GewuhdjJhPaW1/v1zjRRerYhCfEA=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
