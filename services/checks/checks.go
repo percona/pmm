@@ -183,6 +183,7 @@ func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
 
+	s.CollectChecks(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to get settings: %+v.", err)
@@ -349,8 +350,8 @@ func (s *Service) ToggleCheckAlert(ctx context.Context, alertID string, silence 
 	return err
 }
 
-// runChecksGroup downloads and executes STT checks in synchronous way.
-// If intervalGroup is empty.
+// runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
+// All checks are executed if intervalGroup is empty.
 func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -361,6 +362,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return services.ErrSTTDisabled
 	}
 
+	s.CollectChecks(ctx)
 	return s.run(ctx, intervalGroup, nil)
 }
 
@@ -377,7 +379,9 @@ func (s *Service) StartChecks(checkNames []string) error {
 	}
 
 	go func() {
-		if err := s.run(context.Background(), "", checkNames); err != nil {
+		ctx := context.Background()
+		s.CollectChecks(ctx)
+		if err := s.run(ctx, "", checkNames); err != nil {
 			s.l.Errorf("Failed to execute STT checks: %+v.", err)
 		}
 	}()
@@ -389,8 +393,6 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 	if err := intervalGroup.Validate(); err != nil {
 		return errors.WithStack(err)
 	}
-
-	s.CollectChecks(ctx)
 
 	if err := s.executeChecks(ctx, intervalGroup, checkNames); err != nil {
 		return errors.WithStack(err)

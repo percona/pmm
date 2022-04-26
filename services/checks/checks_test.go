@@ -428,6 +428,10 @@ func TestStartChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
+		s.localChecksFile = testChecksFile
+		s.CollectChecks(context.Background())
+		assert.NotEmpty(t, s.checks)
+
 		err = s.runChecksGroup(context.Background(), "")
 		require.NoError(t, err)
 	})

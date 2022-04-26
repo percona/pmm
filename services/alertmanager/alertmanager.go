@@ -20,7 +20,7 @@ package alertmanager
 import (
 	"context"
 	"crypto/sha256"
-	_ "embed" //nolint:gci
+	_ "embed" // for email templates
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"

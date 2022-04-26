@@ -47,30 +47,21 @@ var (
 	errGetSSODetailsFailed = status.Error(codes.Aborted, "Failed to fetch SSO details.")
 )
 
-// supervisordService is a subset of methods of supervisord.Service used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type supervisordService interface {
-	UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error
-}
-
 // Service is responsible for interactions with Percona Platform.
 type Service struct {
 	db            *reform.DB
 	host          string
 	l             *logrus.Entry
-	supervisord   supervisordService
 	client        http.Client
 	grafanaClient grafanaClient
+	supervisord   supervisordService
+	checksService checksService
 
 	platformpb.UnimplementedPlatformServer
 }
 
-type grafanaClient interface {
-	GetCurrentUserAccessToken(ctx context.Context) (string, error)
-}
-
 // New returns platform Service.
-func New(db *reform.DB, supervisord supervisordService, grafanaClient grafanaClient, c Config) (*Service, error) {
+func New(db *reform.DB, supervisord supervisordService, checksService checksService, grafanaClient grafanaClient, c Config) (*Service, error) {
 	l := logrus.WithField("component", "platform")
 
 	host, err := envvars.GetSAASHost()
@@ -81,10 +72,11 @@ func New(db *reform.DB, supervisord supervisordService, grafanaClient grafanaCli
 	timeout := envvars.GetPlatformAPITimeout(l)
 
 	s := Service{
-		host:        host,
-		db:          db,
-		l:           l,
-		supervisord: supervisord,
+		host:          host,
+		db:            db,
+		l:             l,
+		supervisord:   supervisord,
+		checksService: checksService,
 		client: http.Client{
 			Timeout: timeout,
 			Transport: &http.Transport{
@@ -140,6 +132,10 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		return nil, errInternalServer
 	}
 
+	if settings.SaaS.STTEnabled {
+		s.checksService.CollectChecks(ctx)
+	}
+
 	if err := s.UpdateSupervisordConfigurations(ctx); err != nil {
 		s.l.Errorf("Failed to update configuration of grafana after connecting PMM to Portal: %s", err)
 		return nil, errInternalServer
@@ -190,6 +186,10 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 		}
 
 		return nil, err // this is already a status error
+	}
+
+	if settings.SaaS.STTEnabled {
+		s.checksService.CollectChecks(ctx)
 	}
 
 	if err = s.UpdateSupervisordConfigurations(ctx); err != nil {
