@@ -6,12 +6,14 @@ package agentpb
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/percona/pmm/api/inventorypb"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/rpc/status"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	_ "google.golang.org/genproto/googleapis/rpc/status"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+
+	_ "github.com/percona/pmm/api/inventorypb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

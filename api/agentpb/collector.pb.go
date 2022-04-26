@@ -7,11 +7,13 @@
 package agentpb
 
 import (
-	inventorypb "github.com/percona/pmm/api/inventorypb"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 const (
