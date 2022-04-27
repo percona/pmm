@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewReadinessOK() *ReadinessOK {
 	return &ReadinessOK{}
 }
 
-/*ReadinessOK handles this case with default header values.
+/* ReadinessOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ReadinessOK struct {
 func (o *ReadinessOK) Error() string {
 	return fmt.Sprintf("[GET /v1/readyz][%d] readinessOk  %+v", 200, o.Payload)
 }
-
 func (o *ReadinessOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewReadinessDefault(code int) *ReadinessDefault {
 	}
 }
 
-/*ReadinessDefault handles this case with default header values.
+/* ReadinessDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ReadinessDefault) Code() int {
 func (o *ReadinessDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/readyz][%d] Readiness default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ReadinessDefault) GetPayload() *ReadinessDefaultBody {
 	return o.Payload
 }
@@ -130,7 +129,7 @@ type ReadinessDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ReadinessDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this readiness default body
@@ -148,7 +147,6 @@ func (o *ReadinessDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ReadinessDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -162,6 +160,42 @@ func (o *ReadinessDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this readiness default body based on the context it is used
+func (o *ReadinessDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ReadinessDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Readiness default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -183,6 +217,47 @@ func (o *ReadinessDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ReadinessDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ReadinessDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ReadinessDefaultBodyDetailsItems0 readiness default body details items0
+swagger:model ReadinessDefaultBodyDetailsItems0
+*/
+type ReadinessDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this readiness default body details items0
+func (o *ReadinessDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this readiness default body details items0 based on context it is used
+func (o *ReadinessDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ReadinessDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ReadinessDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ReadinessDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

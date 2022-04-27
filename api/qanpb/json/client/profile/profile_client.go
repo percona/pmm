@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	GetReport(params *GetReportParams) (*GetReportOK, error)
+	GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -33,13 +36,12 @@ type ClientService interface {
 /*
   GetReport gets report returns list of metrics group by queryid or other dimentions
 */
-func (a *Client) GetReport(params *GetReportParams) (*GetReportOK, error) {
+func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetReportParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetReport",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/GetReport",
@@ -50,7 +52,12 @@ func (a *Client) GetReport(params *GetReportParams) (*GetReportOK, error) {
 		Reader:             &GetReportReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

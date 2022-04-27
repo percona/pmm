@@ -10,10 +10,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/platformpb/json/client/platform"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
 )
 
-// Default PMM platform HTTP client.
+// Default PMM backup management API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +31,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM platform HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMPlatform {
+// NewHTTPClient creates a new PMM backup management API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMBackupManagementAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM platform HTTP client,
+// NewHTTPClientWithConfig creates a new PMM backup management API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMPlatform {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMBackupManagementAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +49,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM platform client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMPlatform {
+// New creates a new PMM backup management API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupManagementAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMPlatform)
+	cli := new(PMMBackupManagementAPI)
 	cli.Transport = transport
-	cli.Platform = platform.New(transport, formats)
+	cli.Artifacts = artifacts.New(transport, formats)
+	cli.Backups = backups.New(transport, formats)
+	cli.Locations = locations.New(transport, formats)
+	cli.RestoreHistory = restore_history.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +104,24 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMPlatform is a client for PMM platform
-type PMMPlatform struct {
-	Platform platform.ClientService
+// PMMBackupManagementAPI is a client for PMM backup management API
+type PMMBackupManagementAPI struct {
+	Artifacts artifacts.ClientService
+
+	Backups backups.ClientService
+
+	Locations locations.ClientService
+
+	RestoreHistory restore_history.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMPlatform) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMBackupManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Platform.SetTransport(transport)
+	c.Artifacts.SetTransport(transport)
+	c.Backups.SetTransport(transport)
+	c.Locations.SetTransport(transport)
+	c.RestoreHistory.SetTransport(transport)
 }

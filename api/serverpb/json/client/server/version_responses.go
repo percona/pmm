@@ -6,6 +6,7 @@ package server
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewVersionOK() *VersionOK {
 	return &VersionOK{}
 }
 
-/*VersionOK handles this case with default header values.
+/* VersionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type VersionOK struct {
 func (o *VersionOK) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] versionOk  %+v", 200, o.Payload)
 }
-
 func (o *VersionOK) GetPayload() *VersionOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewVersionDefault(code int) *VersionDefault {
 	}
 }
 
-/*VersionDefault handles this case with default header values.
+/* VersionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *VersionDefault) Code() int {
 func (o *VersionDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *VersionDefault) GetPayload() *VersionDefaultBody {
 	return o.Payload
 }
@@ -134,7 +133,7 @@ type VersionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*VersionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this version default body
@@ -152,7 +151,6 @@ func (o *VersionDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *VersionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -166,6 +164,42 @@ func (o *VersionDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this version default body based on the context it is used
+func (o *VersionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Version default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -187,6 +221,47 @@ func (o *VersionDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
 	var res VersionDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*VersionDefaultBodyDetailsItems0 version default body details items0
+swagger:model VersionDefaultBodyDetailsItems0
+*/
+type VersionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this version default body details items0
+func (o *VersionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this version default body details items0 based on context it is used
+func (o *VersionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *VersionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *VersionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res VersionDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -277,7 +352,6 @@ func (o *VersionOKBody) validateDistributionMethodEnum(path, location string, va
 }
 
 func (o *VersionOKBody) validateDistributionMethod(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.DistributionMethod) { // not required
 		return nil
 	}
@@ -291,7 +365,6 @@ func (o *VersionOKBody) validateDistributionMethod(formats strfmt.Registry) erro
 }
 
 func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Managed) { // not required
 		return nil
 	}
@@ -300,6 +373,8 @@ func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 		if err := o.Managed.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("versionOk" + "." + "managed")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("versionOk" + "." + "managed")
 			}
 			return err
 		}
@@ -309,7 +384,6 @@ func (o *VersionOKBody) validateManaged(formats strfmt.Registry) error {
 }
 
 func (o *VersionOKBody) validateServer(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Server) { // not required
 		return nil
 	}
@@ -318,6 +392,58 @@ func (o *VersionOKBody) validateServer(formats strfmt.Registry) error {
 		if err := o.Server.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("versionOk" + "." + "server")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("versionOk" + "." + "server")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this version OK body based on the context it is used
+func (o *VersionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateManaged(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateServer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Managed != nil {
+		if err := o.Managed.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("versionOk" + "." + "managed")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("versionOk" + "." + "managed")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *VersionOKBody) contextValidateServer(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Server != nil {
+		if err := o.Server.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("versionOk" + "." + "server")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("versionOk" + "." + "server")
 			}
 			return err
 		}
@@ -375,7 +501,6 @@ func (o *VersionOKBodyManaged) Validate(formats strfmt.Registry) error {
 }
 
 func (o *VersionOKBodyManaged) validateTimestamp(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Timestamp) { // not required
 		return nil
 	}
@@ -384,6 +509,11 @@ func (o *VersionOKBodyManaged) validateTimestamp(formats strfmt.Registry) error 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this version OK body managed based on context it is used
+func (o *VersionOKBodyManaged) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -436,7 +566,6 @@ func (o *VersionOKBodyServer) Validate(formats strfmt.Registry) error {
 }
 
 func (o *VersionOKBodyServer) validateTimestamp(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Timestamp) { // not required
 		return nil
 	}
@@ -445,6 +574,11 @@ func (o *VersionOKBodyServer) validateTimestamp(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this version OK body server based on context it is used
+func (o *VersionOKBodyServer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

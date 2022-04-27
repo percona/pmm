@@ -23,21 +23,24 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Connect(params *ConnectParams) (*ConnectOK, error)
+	Connect(params *ConnectParams, opts ...ClientOption) (*ConnectOK, error)
 
-	Disconnect(params *DisconnectParams) (*DisconnectOK, error)
+	Disconnect(params *DisconnectParams, opts ...ClientOption) (*DisconnectOK, error)
 
-	GetContactInformation(params *GetContactInformationParams) (*GetContactInformationOK, error)
+	GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error)
 
-	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error)
+	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error)
 
-	SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error)
+	SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error)
 
-	ServerInfo(params *ServerInfoParams) (*ServerInfoOK, error)
+	ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*ServerInfoOK, error)
 
-	UserStatus(params *UserStatusParams) (*UserStatusOK, error)
+	UserStatus(params *UserStatusParams, opts ...ClientOption) (*UserStatusOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -47,13 +50,12 @@ type ClientService interface {
 
   Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 */
-func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
+func (a *Client) Connect(params *ConnectParams, opts ...ClientOption) (*ConnectOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewConnectParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Connect",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/Connect",
@@ -64,7 +66,12 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 		Reader:             &ConnectReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +89,12 @@ func (a *Client) Connect(params *ConnectParams) (*ConnectOK, error) {
 
   Disconnect a PMM server from the organization created on Percona Portal.
 */
-func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
+func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*DisconnectOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewDisconnectParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Disconnect",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/Disconnect",
@@ -99,7 +105,12 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 		Reader:             &DisconnectReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -117,13 +128,12 @@ func (a *Client) Disconnect(params *DisconnectParams) (*DisconnectOK, error) {
 
   GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
 */
-func (a *Client) GetContactInformation(params *GetContactInformationParams) (*GetContactInformationOK, error) {
+func (a *Client) GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetContactInformationParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetContactInformation",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/GetContactInformation",
@@ -134,7 +144,12 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams) (*Ge
 		Reader:             &GetContactInformationReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +167,12 @@ func (a *Client) GetContactInformation(params *GetContactInformationParams) (*Ge
 
   SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 */
-func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams) (*SearchOrganizationEntitlementsOK, error) {
+func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewSearchOrganizationEntitlementsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationEntitlements",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/SearchOrganizationEntitlements",
@@ -169,7 +183,12 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 		Reader:             &SearchOrganizationEntitlementsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -187,13 +206,12 @@ func (a *Client) SearchOrganizationEntitlements(params *SearchOrganizationEntitl
 
   SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.
 */
-func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams) (*SearchOrganizationTicketsOK, error) {
+func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewSearchOrganizationTicketsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "SearchOrganizationTickets",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/SearchOrganizationTickets",
@@ -204,7 +222,12 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 		Reader:             &SearchOrganizationTicketsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -222,13 +245,12 @@ func (a *Client) SearchOrganizationTickets(params *SearchOrganizationTicketsPara
 
   ServerInfo returns PMM server ID and name.
 */
-func (a *Client) ServerInfo(params *ServerInfoParams) (*ServerInfoOK, error) {
+func (a *Client) ServerInfo(params *ServerInfoParams, opts ...ClientOption) (*ServerInfoOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewServerInfoParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ServerInfo",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/ServerInfo",
@@ -239,7 +261,12 @@ func (a *Client) ServerInfo(params *ServerInfoParams) (*ServerInfoOK, error) {
 		Reader:             &ServerInfoReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -257,13 +284,12 @@ func (a *Client) ServerInfo(params *ServerInfoParams) (*ServerInfoOK, error) {
 
   UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
 */
-func (a *Client) UserStatus(params *UserStatusParams) (*UserStatusOK, error) {
+func (a *Client) UserStatus(params *UserStatusParams, opts ...ClientOption) (*UserStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUserStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UserStatus",
 		Method:             "POST",
 		PathPattern:        "/v1/Platform/UserStatus",
@@ -274,7 +300,12 @@ func (a *Client) UserStatus(params *UserStatusParams) (*UserStatusOK, error) {
 		Reader:             &UserStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

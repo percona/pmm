@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewListNodesOK() *ListNodesOK {
 	return &ListNodesOK{}
 }
 
-/*ListNodesOK handles this case with default header values.
+/* ListNodesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type ListNodesOK struct {
 func (o *ListNodesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 	}
 }
 
-/*ListNodesDefault handles this case with default header values.
+/* ListNodesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *ListNodesDefault) Code() int {
 func (o *ListNodesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 	return o.Payload
 }
@@ -116,121 +115,6 @@ func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consume
 		return err
 	}
 
-	return nil
-}
-
-/*ContainerItems0 ContainerNode represents a Docker container.
-swagger:model ContainerItems0
-*/
-type ContainerItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Container identifier. If specified, must be a unique Docker container identifier.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
-
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this container items0
-func (o *ContainerItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ContainerItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ContainerItems0) UnmarshalBinary(b []byte) error {
-	var res ContainerItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GenericItems0 GenericNode represents a bare metal server or virtual machine.
-swagger:model GenericItems0
-*/
-type GenericItems0 struct {
-
-	// Unique randomly generated instance identifier.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// Node address (DNS name or IP).
-	Address string `json:"address,omitempty"`
-
-	// Linux machine-id.
-	MachineID string `json:"machine_id,omitempty"`
-
-	// Linux distribution name and version.
-	Distro string `json:"distro,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
-
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this generic items0
-func (o *GenericItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GenericItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GenericItems0) UnmarshalBinary(b []byte) error {
-	var res GenericItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -300,7 +184,6 @@ func (o *ListNodesBody) validateNodeTypeEnum(path, location string, value string
 }
 
 func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
@@ -310,6 +193,11 @@ func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this list nodes body based on context it is used
+func (o *ListNodesBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -346,7 +234,7 @@ type ListNodesDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ListNodesDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this list nodes default body
@@ -364,7 +252,6 @@ func (o *ListNodesDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -378,6 +265,42 @@ func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list nodes default body based on the context it is used
+func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -406,25 +329,66 @@ func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
+swagger:model ListNodesDefaultBodyDetailsItems0
+*/
+type ListNodesDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this list nodes default body details items0
+func (o *ListNodesDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes default body details items0 based on context it is used
+func (o *ListNodesDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
 
 	// generic
-	Generic []*GenericItems0 `json:"generic"`
+	Generic []*ListNodesOKBodyGenericItems0 `json:"generic"`
 
 	// container
-	Container []*ContainerItems0 `json:"container"`
+	Container []*ListNodesOKBodyContainerItems0 `json:"container"`
 
 	// remote
-	Remote []*RemoteItems0 `json:"remote"`
+	Remote []*ListNodesOKBodyRemoteItems0 `json:"remote"`
 
 	// remote rds
-	RemoteRDS []*RemoteRDSItems0 `json:"remote_rds"`
+	RemoteRDS []*ListNodesOKBodyRemoteRDSItems0 `json:"remote_rds"`
 
 	// remote azure database
-	RemoteAzureDatabase []*RemoteAzureDatabaseItems0 `json:"remote_azure_database"`
+	RemoteAzureDatabase []*ListNodesOKBodyRemoteAzureDatabaseItems0 `json:"remote_azure_database"`
 }
 
 // Validate validates this list nodes OK body
@@ -458,7 +422,6 @@ func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Generic) { // not required
 		return nil
 	}
@@ -472,6 +435,8 @@ func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
 			if err := o.Generic[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -483,7 +448,6 @@ func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Container) { // not required
 		return nil
 	}
@@ -497,6 +461,8 @@ func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
 			if err := o.Container[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -508,7 +474,6 @@ func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Remote) { // not required
 		return nil
 	}
@@ -522,6 +487,8 @@ func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
 			if err := o.Remote[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -533,7 +500,6 @@ func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
 	}
@@ -547,6 +513,8 @@ func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 			if err := o.RemoteRDS[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -558,7 +526,6 @@ func (o *ListNodesOKBody) validateRemoteRDS(formats strfmt.Registry) error {
 }
 
 func (o *ListNodesOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RemoteAzureDatabase) { // not required
 		return nil
 	}
@@ -572,6 +539,138 @@ func (o *ListNodesOKBody) validateRemoteAzureDatabase(formats strfmt.Registry) e
 			if err := o.RemoteAzureDatabase[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list nodes OK body based on the context it is used
+func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateGeneric(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateContainer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemote(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteRDS(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRemoteAzureDatabase(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Generic); i++ {
+
+		if o.Generic[i] != nil {
+			if err := o.Generic[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Container); i++ {
+
+		if o.Container[i] != nil {
+			if err := o.Container[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Remote); i++ {
+
+		if o.Remote[i] != nil {
+			if err := o.Remote[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.RemoteRDS); i++ {
+
+		if o.RemoteRDS[i] != nil {
+			if err := o.RemoteRDS[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote_rds" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.RemoteAzureDatabase); i++ {
+
+		if o.RemoteAzureDatabase[i] != nil {
+			if err := o.RemoteAzureDatabase[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("listNodesOk" + "." + "remote_azure_database" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -600,10 +699,135 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
-swagger:model RemoteAzureDatabaseItems0
+/*ListNodesOKBodyContainerItems0 ContainerNode represents a Docker container.
+swagger:model ListNodesOKBodyContainerItems0
 */
-type RemoteAzureDatabaseItems0 struct {
+type ListNodesOKBodyContainerItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Linux machine-id of the Generic Node where this Container Node runs.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this list nodes OK body container items0
+func (o *ListNodesOKBodyContainerItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body container items0 based on context it is used
+func (o *ListNodesOKBodyContainerItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesOKBodyContainerItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesOKBodyContainerItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyContainerItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListNodesOKBodyGenericItems0 GenericNode represents a bare metal server or virtual machine.
+swagger:model ListNodesOKBodyGenericItems0
+*/
+type ListNodesOKBodyGenericItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// Node address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Linux machine-id.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Linux distribution name and version.
+	Distro string `json:"distro,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this list nodes OK body generic items0
+func (o *ListNodesOKBodyGenericItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body generic items0 based on context it is used
+func (o *ListNodesOKBodyGenericItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesOKBodyGenericItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesOKBodyGenericItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyGenericItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListNodesOKBodyRemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+swagger:model ListNodesOKBodyRemoteAzureDatabaseItems0
+*/
+type ListNodesOKBodyRemoteAzureDatabaseItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
@@ -627,13 +851,18 @@ type RemoteAzureDatabaseItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this remote azure database items0
-func (o *RemoteAzureDatabaseItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list nodes OK body remote azure database items0
+func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body remote azure database items0 based on context it is used
+func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RemoteAzureDatabaseItems0) MarshalBinary() ([]byte, error) {
+func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -641,8 +870,8 @@ func (o *RemoteAzureDatabaseItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) error {
-	var res RemoteAzureDatabaseItems0
+func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyRemoteAzureDatabaseItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -650,10 +879,10 @@ func (o *RemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteItems0 RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
-swagger:model RemoteItems0
+/*ListNodesOKBodyRemoteItems0 RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+swagger:model ListNodesOKBodyRemoteItems0
 */
-type RemoteItems0 struct {
+type ListNodesOKBodyRemoteItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
@@ -677,13 +906,18 @@ type RemoteItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this remote items0
-func (o *RemoteItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list nodes OK body remote items0
+func (o *ListNodesOKBodyRemoteItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body remote items0 based on context it is used
+func (o *ListNodesOKBodyRemoteItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RemoteItems0) MarshalBinary() ([]byte, error) {
+func (o *ListNodesOKBodyRemoteItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -691,8 +925,8 @@ func (o *RemoteItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RemoteItems0) UnmarshalBinary(b []byte) error {
-	var res RemoteItems0
+func (o *ListNodesOKBodyRemoteItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyRemoteItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -700,10 +934,10 @@ func (o *RemoteItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
-swagger:model RemoteRDSItems0
+/*ListNodesOKBodyRemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+swagger:model ListNodesOKBodyRemoteRDSItems0
 */
-type RemoteRDSItems0 struct {
+type ListNodesOKBodyRemoteRDSItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
@@ -727,13 +961,18 @@ type RemoteRDSItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this remote RDS items0
-func (o *RemoteRDSItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list nodes OK body remote RDS items0
+func (o *ListNodesOKBodyRemoteRDSItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list nodes OK body remote RDS items0 based on context it is used
+func (o *ListNodesOKBodyRemoteRDSItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RemoteRDSItems0) MarshalBinary() ([]byte, error) {
+func (o *ListNodesOKBodyRemoteRDSItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -741,8 +980,8 @@ func (o *RemoteRDSItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RemoteRDSItems0) UnmarshalBinary(b []byte) error {
-	var res RemoteRDSItems0
+func (o *ListNodesOKBodyRemoteRDSItems0) UnmarshalBinary(b []byte) error {
+	var res ListNodesOKBodyRemoteRDSItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

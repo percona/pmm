@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddExternal(params *AddExternalParams) (*AddExternalOK, error)
+	AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided "node_id", then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 */
-func (a *Client) AddExternal(params *AddExternalParams) (*AddExternalOK, error) {
+func (a *Client) AddExternal(params *AddExternalParams, opts ...ClientOption) (*AddExternalOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddExternalParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddExternal",
 		Method:             "POST",
 		PathPattern:        "/v1/management/External/Add",
@@ -52,7 +54,12 @@ func (a *Client) AddExternal(params *AddExternalParams) (*AddExternalOK, error) 
 		Reader:             &AddExternalReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

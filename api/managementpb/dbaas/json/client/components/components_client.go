@@ -23,19 +23,22 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*ChangePSMDBComponentsOK, error)
+	ChangePSMDBComponents(params *ChangePSMDBComponentsParams, opts ...ClientOption) (*ChangePSMDBComponentsOK, error)
 
-	ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error)
+	ChangePXCComponents(params *ChangePXCComponentsParams, opts ...ClientOption) (*ChangePXCComponentsOK, error)
 
-	CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error)
+	CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, opts ...ClientOption) (*CheckForOperatorUpdateOK, error)
 
-	GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error)
+	GetPSMDBComponents(params *GetPSMDBComponentsParams, opts ...ClientOption) (*GetPSMDBComponentsOK, error)
 
-	GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error)
+	GetPXCComponents(params *GetPXCComponentsParams, opts ...ClientOption) (*GetPXCComponentsOK, error)
 
-	InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error)
+	InstallOperator(params *InstallOperatorParams, opts ...ClientOption) (*InstallOperatorOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -43,13 +46,12 @@ type ClientService interface {
 /*
   ChangePSMDBComponents changes PSMDB components manages PSMDB related components
 */
-func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*ChangePSMDBComponentsOK, error) {
+func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams, opts ...ClientOption) (*ChangePSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangePSMDBComponentsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangePSMDBComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/ChangePSMDB",
@@ -60,7 +62,12 @@ func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*Ch
 		Reader:             &ChangePSMDBComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +83,12 @@ func (a *Client) ChangePSMDBComponents(params *ChangePSMDBComponentsParams) (*Ch
 /*
   ChangePXCComponents changes PXC components manages PXC related components
 */
-func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*ChangePXCComponentsOK, error) {
+func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams, opts ...ClientOption) (*ChangePXCComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangePXCComponentsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangePXCComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/ChangePXC",
@@ -93,7 +99,12 @@ func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*Change
 		Reader:             &ChangePXCComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -109,13 +120,12 @@ func (a *Client) ChangePXCComponents(params *ChangePXCComponentsParams) (*Change
 /*
   CheckForOperatorUpdate checks for operator update checks if a new version of an operator is available
 */
-func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*CheckForOperatorUpdateOK, error) {
+func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams, opts ...ClientOption) (*CheckForOperatorUpdateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCheckForOperatorUpdateParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CheckForOperatorUpdate",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/CheckForOperatorUpdate",
@@ -126,7 +136,12 @@ func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*
 		Reader:             &CheckForOperatorUpdateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -142,13 +157,12 @@ func (a *Client) CheckForOperatorUpdate(params *CheckForOperatorUpdateParams) (*
 /*
   GetPSMDBComponents gets PSMDB components returns list of available components for PSMDB clusters
 */
-func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDBComponentsOK, error) {
+func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams, opts ...ClientOption) (*GetPSMDBComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPSMDBComponentsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPSMDBComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/GetPSMDB",
@@ -159,7 +173,12 @@ func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDB
 		Reader:             &GetPSMDBComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -175,13 +194,12 @@ func (a *Client) GetPSMDBComponents(params *GetPSMDBComponentsParams) (*GetPSMDB
 /*
   GetPXCComponents gets PXC components returns list of available components for PXC clusters
 */
-func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCComponentsOK, error) {
+func (a *Client) GetPXCComponents(params *GetPXCComponentsParams, opts ...ClientOption) (*GetPXCComponentsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetPXCComponentsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetPXCComponents",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/GetPXC",
@@ -192,7 +210,12 @@ func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCCompon
 		Reader:             &GetPXCComponentsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -208,13 +231,12 @@ func (a *Client) GetPXCComponents(params *GetPXCComponentsParams) (*GetPXCCompon
 /*
   InstallOperator installs operator installs given operator in given version
 */
-func (a *Client) InstallOperator(params *InstallOperatorParams) (*InstallOperatorOK, error) {
+func (a *Client) InstallOperator(params *InstallOperatorParams, opts ...ClientOption) (*InstallOperatorOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewInstallOperatorParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "InstallOperator",
 		Method:             "POST",
 		PathPattern:        "/v1/management/DBaaS/Components/InstallOperator",
@@ -225,7 +247,12 @@ func (a *Client) InstallOperator(params *InstallOperatorParams) (*InstallOperato
 		Reader:             &InstallOperatorReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

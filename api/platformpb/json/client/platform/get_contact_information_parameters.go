@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetContactInformationParams creates a new GetContactInformationParams object
-// with the default values initialized.
+// NewGetContactInformationParams creates a new GetContactInformationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetContactInformationParams() *GetContactInformationParams {
-	var ()
 	return &GetContactInformationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetContactInformationParamsWithTimeout creates a new GetContactInformationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetContactInformationParamsWithTimeout(timeout time.Duration) *GetContactInformationParams {
-	var ()
 	return &GetContactInformationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetContactInformationParamsWithContext creates a new GetContactInformationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetContactInformationParamsWithContext(ctx context.Context) *GetContactInformationParams {
-	var ()
 	return &GetContactInformationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetContactInformationParamsWithHTTPClient creates a new GetContactInformationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetContactInformationParamsWithHTTPClient(client *http.Client) *GetContactInformationParams {
-	var ()
 	return &GetContactInformationParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetContactInformationParams contains all the parameters to send to the API endpoint
-for the get contact information operation typically these are written to a http.Request
+/* GetContactInformationParams contains all the parameters to send to the API endpoint
+   for the get contact information operation.
+
+   Typically these are written to a http.Request.
 */
 type GetContactInformationParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get contact information params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetContactInformationParams) WithDefaults() *GetContactInformationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get contact information params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetContactInformationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get contact information params
@@ -119,7 +133,6 @@ func (o *GetContactInformationParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

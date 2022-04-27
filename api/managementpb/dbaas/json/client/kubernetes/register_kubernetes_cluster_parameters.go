@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewRegisterKubernetesClusterParams creates a new RegisterKubernetesClusterParams object
-// with the default values initialized.
+// NewRegisterKubernetesClusterParams creates a new RegisterKubernetesClusterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewRegisterKubernetesClusterParams() *RegisterKubernetesClusterParams {
-	var ()
 	return &RegisterKubernetesClusterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewRegisterKubernetesClusterParamsWithTimeout creates a new RegisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewRegisterKubernetesClusterParamsWithTimeout(timeout time.Duration) *RegisterKubernetesClusterParams {
-	var ()
 	return &RegisterKubernetesClusterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewRegisterKubernetesClusterParamsWithContext creates a new RegisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewRegisterKubernetesClusterParamsWithContext(ctx context.Context) *RegisterKubernetesClusterParams {
-	var ()
 	return &RegisterKubernetesClusterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewRegisterKubernetesClusterParamsWithHTTPClient creates a new RegisterKubernetesClusterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewRegisterKubernetesClusterParamsWithHTTPClient(client *http.Client) *RegisterKubernetesClusterParams {
-	var ()
 	return &RegisterKubernetesClusterParams{
 		HTTPClient: client,
 	}
 }
 
-/*RegisterKubernetesClusterParams contains all the parameters to send to the API endpoint
-for the register kubernetes cluster operation typically these are written to a http.Request
+/* RegisterKubernetesClusterParams contains all the parameters to send to the API endpoint
+   for the register kubernetes cluster operation.
+
+   Typically these are written to a http.Request.
 */
 type RegisterKubernetesClusterParams struct {
 
-	/*Body*/
+	// Body.
 	Body RegisterKubernetesClusterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the register kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RegisterKubernetesClusterParams) WithDefaults() *RegisterKubernetesClusterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the register kubernetes cluster params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *RegisterKubernetesClusterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the register kubernetes cluster params
@@ -119,7 +133,6 @@ func (o *RegisterKubernetesClusterParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

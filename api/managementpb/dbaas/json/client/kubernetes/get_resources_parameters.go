@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetResourcesParams creates a new GetResourcesParams object
-// with the default values initialized.
+// NewGetResourcesParams creates a new GetResourcesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetResourcesParams() *GetResourcesParams {
-	var ()
 	return &GetResourcesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetResourcesParamsWithTimeout creates a new GetResourcesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetResourcesParamsWithTimeout(timeout time.Duration) *GetResourcesParams {
-	var ()
 	return &GetResourcesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetResourcesParamsWithContext creates a new GetResourcesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetResourcesParamsWithContext(ctx context.Context) *GetResourcesParams {
-	var ()
 	return &GetResourcesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetResourcesParamsWithHTTPClient creates a new GetResourcesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetResourcesParamsWithHTTPClient(client *http.Client) *GetResourcesParams {
-	var ()
 	return &GetResourcesParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetResourcesParams contains all the parameters to send to the API endpoint
-for the get resources operation typically these are written to a http.Request
+/* GetResourcesParams contains all the parameters to send to the API endpoint
+   for the get resources operation.
+
+   Typically these are written to a http.Request.
 */
 type GetResourcesParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetResourcesBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get resources params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetResourcesParams) WithDefaults() *GetResourcesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get resources params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetResourcesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get resources params
@@ -119,7 +133,6 @@ func (o *GetResourcesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddExternalExporterOK() *AddExternalExporterOK {
 	return &AddExternalExporterOK{}
 }
 
-/*AddExternalExporterOK handles this case with default header values.
+/* AddExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddExternalExporterOK struct {
 func (o *AddExternalExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddExternalExporterOK) GetPayload() *AddExternalExporterOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddExternalExporterDefault(code int) *AddExternalExporterDefault {
 	}
 }
 
-/*AddExternalExporterDefault handles this case with default header values.
+/* AddExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddExternalExporterDefault) Code() int {
 func (o *AddExternalExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] AddExternalExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddExternalExporterDefault) GetPayload() *AddExternalExporterDefaultBody {
 	return o.Payload
 }
@@ -155,6 +154,11 @@ func (o *AddExternalExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add external exporter body based on context it is used
+func (o *AddExternalExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddExternalExporterBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -188,7 +192,7 @@ type AddExternalExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddExternalExporterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add external exporter default body
@@ -206,7 +210,6 @@ func (o *AddExternalExporterDefaultBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *AddExternalExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -220,6 +223,42 @@ func (o *AddExternalExporterDefaultBody) validateDetails(formats strfmt.Registry
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddExternalExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternalExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external exporter default body based on the context it is used
+func (o *AddExternalExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddExternalExporter default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddExternalExporter default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -241,6 +280,47 @@ func (o *AddExternalExporterDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddExternalExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddExternalExporterDefaultBodyDetailsItems0 add external exporter default body details items0
+swagger:model AddExternalExporterDefaultBodyDetailsItems0
+*/
+type AddExternalExporterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add external exporter default body details items0
+func (o *AddExternalExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add external exporter default body details items0 based on context it is used
+func (o *AddExternalExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddExternalExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddExternalExporterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -272,7 +352,6 @@ func (o *AddExternalExporterOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddExternalExporterOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -281,6 +360,38 @@ func (o *AddExternalExporterOKBody) validateExternalExporter(formats strfmt.Regi
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addExternalExporterOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalExporterOk" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add external exporter OK body based on the context it is used
+func (o *AddExternalExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddExternalExporterOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addExternalExporterOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addExternalExporterOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -345,6 +456,11 @@ type AddExternalExporterOKBodyExternalExporter struct {
 
 // Validate validates this add external exporter OK body external exporter
 func (o *AddExternalExporterOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add external exporter OK body external exporter based on context it is used
+func (o *AddExternalExporterOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

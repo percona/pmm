@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewChangeQANPostgreSQLPgStatMonitorAgentParams creates a new ChangeQANPostgreSQLPgStatMonitorAgentParams object
-// with the default values initialized.
+// NewChangeQANPostgreSQLPgStatMonitorAgentParams creates a new ChangeQANPostgreSQLPgStatMonitorAgentParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewChangeQANPostgreSQLPgStatMonitorAgentParams() *ChangeQANPostgreSQLPgStatMonitorAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatMonitorAgentParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithTimeout creates a new ChangeQANPostgreSQLPgStatMonitorAgentParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithTimeout(timeout time.Duration) *ChangeQANPostgreSQLPgStatMonitorAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatMonitorAgentParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithContext creates a new ChangeQANPostgreSQLPgStatMonitorAgentParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithContext(ctx context.Context) *ChangeQANPostgreSQLPgStatMonitorAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatMonitorAgentParams{
-
 		Context: ctx,
 	}
 }
 
 // NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithHTTPClient creates a new ChangeQANPostgreSQLPgStatMonitorAgentParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewChangeQANPostgreSQLPgStatMonitorAgentParamsWithHTTPClient(client *http.Client) *ChangeQANPostgreSQLPgStatMonitorAgentParams {
-	var ()
 	return &ChangeQANPostgreSQLPgStatMonitorAgentParams{
 		HTTPClient: client,
 	}
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentParams contains all the parameters to send to the API endpoint
-for the change QAN postgre SQL pg stat monitor agent operation typically these are written to a http.Request
+/* ChangeQANPostgreSQLPgStatMonitorAgentParams contains all the parameters to send to the API endpoint
+   for the change QAN postgre SQL pg stat monitor agent operation.
+
+   Typically these are written to a http.Request.
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 
-	/*Body*/
+	// Body.
 	Body ChangeQANPostgreSQLPgStatMonitorAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the change QAN postgre SQL pg stat monitor agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANPostgreSQLPgStatMonitorAgentParams) WithDefaults() *ChangeQANPostgreSQLPgStatMonitorAgentParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the change QAN postgre SQL pg stat monitor agent params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ChangeQANPostgreSQLPgStatMonitorAgentParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the change QAN postgre SQL pg stat monitor agent params
@@ -119,7 +133,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentParams) WriteToRequest(r runtime.C
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

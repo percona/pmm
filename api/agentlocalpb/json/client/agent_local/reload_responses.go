@@ -6,6 +6,7 @@ package agent_local
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewReloadOK() *ReloadOK {
 	return &ReloadOK{}
 }
 
-/*ReloadOK handles this case with default header values.
+/* ReloadOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type ReloadOK struct {
 func (o *ReloadOK) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
 }
-
 func (o *ReloadOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewReloadDefault(code int) *ReloadDefault {
 	}
 }
 
-/*ReloadDefault handles this case with default header values.
+/* ReloadDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *ReloadDefault) Code() int {
 func (o *ReloadDefault) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ReloadDefault) GetPayload() *ReloadDefaultBody {
 	return o.Payload
 }
@@ -112,42 +111,6 @@ func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer r
 		return err
 	}
 
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -166,7 +129,7 @@ type ReloadDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*ReloadDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this reload default body
@@ -184,7 +147,6 @@ func (o *ReloadDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *ReloadDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -198,6 +160,42 @@ func (o *ReloadDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this reload default body based on the context it is used
+func (o *ReloadDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ReloadDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("Reload default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -219,6 +217,47 @@ func (o *ReloadDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ReloadDefaultBody) UnmarshalBinary(b []byte) error {
 	var res ReloadDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ReloadDefaultBodyDetailsItems0 reload default body details items0
+swagger:model ReloadDefaultBodyDetailsItems0
+*/
+type ReloadDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this reload default body details items0
+func (o *ReloadDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this reload default body details items0 based on context it is used
+func (o *ReloadDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ReloadDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ReloadDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ReloadDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

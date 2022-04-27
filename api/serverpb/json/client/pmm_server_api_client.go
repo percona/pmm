@@ -10,32 +10,32 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	serverops "github.com/percona/pmm/api/serverpb/json/client/server"
 )
 
-// Default PMM agent local HTTP client.
+// Default PMM server API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
 	// DefaultHost is the default Host
 	// found in Meta (info) section of spec file
-	DefaultHost string = "127.0.0.1:7777"
+	DefaultHost string = "localhost"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
 	DefaultBasePath string = "/"
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
-var DefaultSchemes = []string{"http"}
+var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM agent local HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMAgentLocal {
+// NewHTTPClient creates a new PMM server API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMServerAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM agent local HTTP client,
+// NewHTTPClientWithConfig creates a new PMM server API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMAgentLocal {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMServerAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,16 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM agent local client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAgentLocal {
+// New creates a new PMM server API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMAgentLocal)
+	cli := new(PMMServerAPI)
 	cli.Transport = transport
-	cli.AgentLocal = agent_local.New(transport, formats)
+	cli.Server = serverops.New(transport, formats)
 	return cli
 }
 
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMAgentLocal is a client for PMM agent local
-type PMMAgentLocal struct {
-	AgentLocal agent_local.ClientService
+// PMMServerAPI is a client for PMM server API
+type PMMServerAPI struct {
+	Server serverops.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMAgentLocal) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMServerAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AgentLocal.SetTransport(transport)
+	c.Server.SetTransport(transport)
 }

@@ -6,6 +6,7 @@ package platform
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetContactInformationOK() *GetContactInformationOK {
 	return &GetContactInformationOK{}
 }
 
-/*GetContactInformationOK handles this case with default header values.
+/* GetContactInformationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetContactInformationOK struct {
 func (o *GetContactInformationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] getContactInformationOk  %+v", 200, o.Payload)
 }
-
 func (o *GetContactInformationOK) GetPayload() *GetContactInformationOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetContactInformationDefault(code int) *GetContactInformationDefault {
 	}
 }
 
-/*GetContactInformationDefault handles this case with default header values.
+/* GetContactInformationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetContactInformationDefault) Code() int {
 func (o *GetContactInformationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetContactInformationDefault) GetPayload() *GetContactInformationDefaultBody {
 	return o.Payload
 }
@@ -132,7 +131,7 @@ type GetContactInformationDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetContactInformationDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get contact information default body
@@ -150,7 +149,6 @@ func (o *GetContactInformationDefaultBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *GetContactInformationDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -164,6 +162,42 @@ func (o *GetContactInformationDefaultBody) validateDetails(formats strfmt.Regist
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetContactInformation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetContactInformation default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get contact information default body based on the context it is used
+func (o *GetContactInformationDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetContactInformationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetContactInformation default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetContactInformation default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -185,6 +219,47 @@ func (o *GetContactInformationDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetContactInformationDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetContactInformationDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetContactInformationDefaultBodyDetailsItems0 get contact information default body details items0
+swagger:model GetContactInformationDefaultBodyDetailsItems0
+*/
+type GetContactInformationDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get contact information default body details items0
+func (o *GetContactInformationDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get contact information default body details items0 based on context it is used
+func (o *GetContactInformationDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetContactInformationDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetContactInformationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetContactInformationDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -219,7 +294,6 @@ func (o *GetContactInformationOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetContactInformationOKBody) validateCustomerSuccess(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.CustomerSuccess) { // not required
 		return nil
 	}
@@ -228,6 +302,38 @@ func (o *GetContactInformationOKBody) validateCustomerSuccess(formats strfmt.Reg
 		if err := o.CustomerSuccess.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getContactInformationOk" + "." + "customer_success")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getContactInformationOk" + "." + "customer_success")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get contact information OK body based on the context it is used
+func (o *GetContactInformationOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomerSuccess(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetContactInformationOKBody) contextValidateCustomerSuccess(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.CustomerSuccess != nil {
+		if err := o.CustomerSuccess.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getContactInformationOk" + "." + "customer_success")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getContactInformationOk" + "." + "customer_success")
 			}
 			return err
 		}
@@ -268,6 +374,11 @@ type GetContactInformationOKBodyCustomerSuccess struct {
 
 // Validate validates this get contact information OK body customer success
 func (o *GetContactInformationOKBodyCustomerSuccess) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get contact information OK body customer success based on context it is used
+func (o *GetContactInformationOKBodyCustomerSuccess) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

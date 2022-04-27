@@ -6,6 +6,7 @@ package platform
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewSearchOrganizationTicketsOK() *SearchOrganizationTicketsOK {
 	return &SearchOrganizationTicketsOK{}
 }
 
-/*SearchOrganizationTicketsOK handles this case with default header values.
+/* SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type SearchOrganizationTicketsOK struct {
 func (o *SearchOrganizationTicketsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] searchOrganizationTicketsOk  %+v", 200, o.Payload)
 }
-
 func (o *SearchOrganizationTicketsOK) GetPayload() *SearchOrganizationTicketsOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewSearchOrganizationTicketsDefault(code int) *SearchOrganizationTicketsDef
 	}
 }
 
-/*SearchOrganizationTicketsDefault handles this case with default header values.
+/* SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *SearchOrganizationTicketsDefault) Code() int {
 func (o *SearchOrganizationTicketsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationTickets][%d] SearchOrganizationTickets default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *SearchOrganizationTicketsDefault) GetPayload() *SearchOrganizationTicketsDefaultBody {
 	return o.Payload
 }
@@ -133,7 +132,7 @@ type SearchOrganizationTicketsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*SearchOrganizationTicketsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this search organization tickets default body
@@ -151,7 +150,6 @@ func (o *SearchOrganizationTicketsDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *SearchOrganizationTicketsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -165,6 +163,42 @@ func (o *SearchOrganizationTicketsDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search organization tickets default body based on the context it is used
+func (o *SearchOrganizationTicketsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationTicketsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("SearchOrganizationTickets default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -193,13 +227,54 @@ func (o *SearchOrganizationTicketsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets default body details items0
+swagger:model SearchOrganizationTicketsDefaultBodyDetailsItems0
+*/
+type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this search organization tickets default body details items0
+func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search organization tickets default body details items0 based on context it is used
+func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationTicketsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*SearchOrganizationTicketsOKBody search organization tickets OK body
 swagger:model SearchOrganizationTicketsOKBody
 */
 type SearchOrganizationTicketsOKBody struct {
 
 	// Support tickets belonging to the Percona Portal Organization.
-	Tickets []*TicketsItems0 `json:"tickets"`
+	Tickets []*SearchOrganizationTicketsOKBodyTicketsItems0 `json:"tickets"`
 }
 
 // Validate validates this search organization tickets OK body
@@ -217,7 +292,6 @@ func (o *SearchOrganizationTicketsOKBody) Validate(formats strfmt.Registry) erro
 }
 
 func (o *SearchOrganizationTicketsOKBody) validateTickets(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Tickets) { // not required
 		return nil
 	}
@@ -231,6 +305,42 @@ func (o *SearchOrganizationTicketsOKBody) validateTickets(formats strfmt.Registr
 			if err := o.Tickets[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search organization tickets OK body based on the context it is used
+func (o *SearchOrganizationTicketsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateTickets(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchOrganizationTicketsOKBody) contextValidateTickets(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Tickets); i++ {
+
+		if o.Tickets[i] != nil {
+			if err := o.Tickets[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("searchOrganizationTicketsOk" + "." + "tickets" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -259,10 +369,10 @@ func (o *SearchOrganizationTicketsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TicketsItems0 OrganizationTicket contains information about the support ticket.
-swagger:model TicketsItems0
+/*SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains information about the support ticket.
+swagger:model SearchOrganizationTicketsOKBodyTicketsItems0
 */
-type TicketsItems0 struct {
+type SearchOrganizationTicketsOKBodyTicketsItems0 struct {
 
 	// Ticket number.
 	Number string `json:"number,omitempty"`
@@ -293,8 +403,8 @@ type TicketsItems0 struct {
 	URL string `json:"url,omitempty"`
 }
 
-// Validate validates this tickets items0
-func (o *TicketsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this search organization tickets OK body tickets items0
+func (o *SearchOrganizationTicketsOKBodyTicketsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCreateTime(formats); err != nil {
@@ -307,8 +417,7 @@ func (o *TicketsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TicketsItems0) validateCreateTime(formats strfmt.Registry) error {
-
+func (o *SearchOrganizationTicketsOKBodyTicketsItems0) validateCreateTime(formats strfmt.Registry) error {
 	if swag.IsZero(o.CreateTime) { // not required
 		return nil
 	}
@@ -320,8 +429,13 @@ func (o *TicketsItems0) validateCreateTime(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this search organization tickets OK body tickets items0 based on context it is used
+func (o *SearchOrganizationTicketsOKBodyTicketsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *TicketsItems0) MarshalBinary() ([]byte, error) {
+func (o *SearchOrganizationTicketsOKBodyTicketsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -329,8 +443,8 @@ func (o *TicketsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *TicketsItems0) UnmarshalBinary(b []byte) error {
-	var res TicketsItems0
+func (o *SearchOrganizationTicketsOKBodyTicketsItems0) UnmarshalBinary(b []byte) error {
+	var res SearchOrganizationTicketsOKBodyTicketsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListFailedServicesParams creates a new ListFailedServicesParams object
-// with the default values initialized.
+// NewListFailedServicesParams creates a new ListFailedServicesParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListFailedServicesParams() *ListFailedServicesParams {
-	var ()
 	return &ListFailedServicesParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListFailedServicesParamsWithTimeout creates a new ListFailedServicesParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListFailedServicesParamsWithTimeout(timeout time.Duration) *ListFailedServicesParams {
-	var ()
 	return &ListFailedServicesParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListFailedServicesParamsWithContext creates a new ListFailedServicesParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListFailedServicesParamsWithContext(ctx context.Context) *ListFailedServicesParams {
-	var ()
 	return &ListFailedServicesParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListFailedServicesParamsWithHTTPClient creates a new ListFailedServicesParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListFailedServicesParamsWithHTTPClient(client *http.Client) *ListFailedServicesParams {
-	var ()
 	return &ListFailedServicesParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListFailedServicesParams contains all the parameters to send to the API endpoint
-for the list failed services operation typically these are written to a http.Request
+/* ListFailedServicesParams contains all the parameters to send to the API endpoint
+   for the list failed services operation.
+
+   Typically these are written to a http.Request.
 */
 type ListFailedServicesParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list failed services params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListFailedServicesParams) WithDefaults() *ListFailedServicesParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list failed services params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListFailedServicesParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list failed services params
@@ -119,7 +133,6 @@ func (o *ListFailedServicesParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartPTMySQLSummaryActionOK() *StartPTMySQLSummaryActionOK {
 	return &StartPTMySQLSummaryActionOK{}
 }
 
-/*StartPTMySQLSummaryActionOK handles this case with default header values.
+/* StartPTMySQLSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartPTMySQLSummaryActionOK struct {
 func (o *StartPTMySQLSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartPTMySQLSummaryActionDefault(code int) *StartPTMySQLSummaryActionDef
 	}
 }
 
-/*StartPTMySQLSummaryActionDefault handles this case with default header values.
+/* StartPTMySQLSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartPTMySQLSummaryActionDefault) Code() int {
 func (o *StartPTMySQLSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTMySQLSummaryActionDefault) GetPayload() *StartPTMySQLSummaryActionDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type StartPTMySQLSummaryActionBody struct {
 
 // Validate validates this start PT my SQL summary action body
 func (o *StartPTMySQLSummaryActionBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT my SQL summary action body based on context it is used
+func (o *StartPTMySQLSummaryActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type StartPTMySQLSummaryActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartPTMySQLSummaryActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start PT my SQL summary action default body
@@ -185,7 +189,6 @@ func (o *StartPTMySQLSummaryActionDefaultBody) Validate(formats strfmt.Registry)
 }
 
 func (o *StartPTMySQLSummaryActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *StartPTMySQLSummaryActionDefaultBody) validateDetails(formats strfmt.Re
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPTMySQLSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTMySQLSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start PT my SQL summary action default body based on the context it is used
+func (o *StartPTMySQLSummaryActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartPTMySQLSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartPTMySQLSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTMySQLSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -227,6 +266,47 @@ func (o *StartPTMySQLSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*StartPTMySQLSummaryActionDefaultBodyDetailsItems0 start PT my SQL summary action default body details items0
+swagger:model StartPTMySQLSummaryActionDefaultBodyDetailsItems0
+*/
+type StartPTMySQLSummaryActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start PT my SQL summary action default body details items0
+func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT my SQL summary action default body details items0 based on context it is used
+func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartPTMySQLSummaryActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartPTMySQLSummaryActionOKBody Message to retrieve the prepared pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionOKBody
 */
@@ -241,6 +321,11 @@ type StartPTMySQLSummaryActionOKBody struct {
 
 // Validate validates this start PT my SQL summary action OK body
 func (o *StartPTMySQLSummaryActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT my SQL summary action OK body based on context it is used
+func (o *StartPTMySQLSummaryActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewStartPTMongoDBSummaryActionOK() *StartPTMongoDBSummaryActionOK {
 	return &StartPTMongoDBSummaryActionOK{}
 }
 
-/*StartPTMongoDBSummaryActionOK handles this case with default header values.
+/* StartPTMongoDBSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type StartPTMongoDBSummaryActionOK struct {
 func (o *StartPTMongoDBSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTMongoDBSummaryActionOK) GetPayload() *StartPTMongoDBSummaryActionOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewStartPTMongoDBSummaryActionDefault(code int) *StartPTMongoDBSummaryActio
 	}
 }
 
-/*StartPTMongoDBSummaryActionDefault handles this case with default header values.
+/* StartPTMongoDBSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *StartPTMongoDBSummaryActionDefault) Code() int {
 func (o *StartPTMongoDBSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTMongoDBSummaryActionDefault) GetPayload() *StartPTMongoDBSummaryActionDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type StartPTMongoDBSummaryActionBody struct {
 
 // Validate validates this start PT mongo DB summary action body
 func (o *StartPTMongoDBSummaryActionBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT mongo DB summary action body based on context it is used
+func (o *StartPTMongoDBSummaryActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type StartPTMongoDBSummaryActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this start PT mongo DB summary action default body
@@ -185,7 +189,6 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) Validate(formats strfmt.Registr
 }
 
 func (o *StartPTMongoDBSummaryActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) validateDetails(formats strfmt.
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("StartPTMongoDBSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTMongoDBSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start PT mongo DB summary action default body based on the context it is used
+func (o *StartPTMongoDBSummaryActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartPTMongoDBSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("StartPTMongoDBSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("StartPTMongoDBSummaryAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -227,6 +266,47 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
+/*StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary action default body details items0
+swagger:model StartPTMongoDBSummaryActionDefaultBodyDetailsItems0
+*/
+type StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this start PT mongo DB summary action default body details items0
+func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT mongo DB summary action default body details items0 based on context it is used
+func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res StartPTMongoDBSummaryActionDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionOKBody
 */
@@ -241,6 +321,11 @@ type StartPTMongoDBSummaryActionOKBody struct {
 
 // Validate validates this start PT mongo DB summary action OK body
 func (o *StartPTMongoDBSummaryActionOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start PT mongo DB summary action OK body based on context it is used
+func (o *StartPTMongoDBSummaryActionOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

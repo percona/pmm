@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAWSInstanceCheckParams creates a new AWSInstanceCheckParams object
-// with the default values initialized.
+// NewAWSInstanceCheckParams creates a new AWSInstanceCheckParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAWSInstanceCheckParams() *AWSInstanceCheckParams {
-	var ()
 	return &AWSInstanceCheckParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAWSInstanceCheckParamsWithTimeout creates a new AWSInstanceCheckParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAWSInstanceCheckParamsWithTimeout(timeout time.Duration) *AWSInstanceCheckParams {
-	var ()
 	return &AWSInstanceCheckParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAWSInstanceCheckParamsWithContext creates a new AWSInstanceCheckParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAWSInstanceCheckParamsWithContext(ctx context.Context) *AWSInstanceCheckParams {
-	var ()
 	return &AWSInstanceCheckParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAWSInstanceCheckParamsWithHTTPClient creates a new AWSInstanceCheckParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAWSInstanceCheckParamsWithHTTPClient(client *http.Client) *AWSInstanceCheckParams {
-	var ()
 	return &AWSInstanceCheckParams{
 		HTTPClient: client,
 	}
 }
 
-/*AWSInstanceCheckParams contains all the parameters to send to the API endpoint
-for the AWS instance check operation typically these are written to a http.Request
+/* AWSInstanceCheckParams contains all the parameters to send to the API endpoint
+   for the AWS instance check operation.
+
+   Typically these are written to a http.Request.
 */
 type AWSInstanceCheckParams struct {
 
-	/*Body*/
+	// Body.
 	Body AWSInstanceCheckBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the AWS instance check params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AWSInstanceCheckParams) WithDefaults() *AWSInstanceCheckParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the AWS instance check params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AWSInstanceCheckParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the AWS instance check params
@@ -119,7 +133,6 @@ func (o *AWSInstanceCheckParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -25,27 +25,30 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error)
+	AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...ClientOption) (*AWSInstanceCheckOK, error)
 
-	ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error)
+	ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error)
 
-	CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error)
+	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
 
-	GetSettings(params *GetSettingsParams) (*GetSettingsOK, error)
+	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
-	Logs(params *LogsParams, writer io.Writer) (*LogsOK, error)
+	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
-	Readiness(params *ReadinessParams) (*ReadinessOK, error)
+	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
 
-	StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error)
+	StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error)
 
-	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error)
+	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error)
 
-	UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error)
+	UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error)
 
-	Version(params *VersionParams) (*VersionOK, error)
+	Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -55,13 +58,12 @@ type ClientService interface {
 
   Checks AWS EC2 instance ID.
 */
-func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceCheckOK, error) {
+func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...ClientOption) (*AWSInstanceCheckOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAWSInstanceCheckParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AWSInstanceCheck",
 		Method:             "POST",
 		PathPattern:        "/v1/AWSInstanceCheck",
@@ -72,7 +74,12 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 		Reader:             &AWSInstanceCheckReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -90,13 +97,12 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams) (*AWSInstanceC
 
   Changes PMM Server settings.
 */
-func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK, error) {
+func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeSettingsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeSettings",
 		Method:             "POST",
 		PathPattern:        "/v1/Settings/Change",
@@ -107,7 +113,12 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 		Reader:             &ChangeSettingsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -125,13 +136,12 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams) (*ChangeSettingsOK
 
   Checks for available PMM Server updates.
 */
-func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, error) {
+func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCheckUpdatesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "CheckUpdates",
 		Method:             "POST",
 		PathPattern:        "/v1/Updates/Check",
@@ -142,7 +152,12 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 		Reader:             &CheckUpdatesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -160,13 +175,12 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams) (*CheckUpdatesOK, erro
 
   Returns current PMM Server settings.
 */
-func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) {
+func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetSettingsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetSettings",
 		Method:             "POST",
 		PathPattern:        "/v1/Settings/Get",
@@ -177,7 +191,12 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 		Reader:             &GetSettingsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -195,13 +214,12 @@ func (a *Client) GetSettings(params *GetSettingsParams) (*GetSettingsOK, error) 
 
   Returns the PMM Server logs.
 */
-func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
+func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewLogsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Logs",
 		Method:             "GET",
 		PathPattern:        "/logs.zip",
@@ -212,7 +230,12 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 		Reader:             &LogsReader{formats: a.formats, writer: writer},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -230,13 +253,12 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer) (*LogsOK, error) {
 
   Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 */
-func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
+func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewReadinessParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Readiness",
 		Method:             "GET",
 		PathPattern:        "/v1/readyz",
@@ -247,7 +269,12 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 		Reader:             &ReadinessReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -265,13 +292,12 @@ func (a *Client) Readiness(params *ReadinessParams) (*ReadinessOK, error) {
 
   Starts PMM Server update.
 */
-func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) {
+func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartUpdateParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartUpdate",
 		Method:             "POST",
 		PathPattern:        "/v1/Updates/Start",
@@ -282,7 +308,12 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 		Reader:             &StartUpdateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -300,13 +331,12 @@ func (a *Client) StartUpdate(params *StartUpdateParams) (*StartUpdateOK, error) 
 
   Sends test email to check current SMTP settings for email alerting.
 */
-func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams) (*TestEmailAlertingSettingsOK, error) {
+func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewTestEmailAlertingSettingsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "TestEmailAlertingSettings",
 		Method:             "POST",
 		PathPattern:        "/v1/Settings/TestEmailAlertingSettings",
@@ -317,7 +347,12 @@ func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsPara
 		Reader:             &TestEmailAlertingSettingsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -335,13 +370,12 @@ func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsPara
 
   Returns PMM Server update status.
 */
-func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, error) {
+func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateStatusParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "UpdateStatus",
 		Method:             "POST",
 		PathPattern:        "/v1/Updates/Status",
@@ -352,7 +386,12 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 		Reader:             &UpdateStatusReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -370,13 +409,12 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams) (*UpdateStatusOK, erro
 
   Returns PMM Server versions.
 */
-func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
+func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewVersionParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "Version",
 		Method:             "GET",
 		PathPattern:        "/v1/version",
@@ -387,7 +425,12 @@ func (a *Client) Version(params *VersionParams) (*VersionOK, error) {
 		Reader:             &VersionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

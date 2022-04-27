@@ -6,6 +6,7 @@ package db_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewDeleteDBClusterOK() *DeleteDBClusterOK {
 	return &DeleteDBClusterOK{}
 }
 
-/*DeleteDBClusterOK handles this case with default header values.
+/* DeleteDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type DeleteDBClusterOK struct {
 func (o *DeleteDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Delete][%d] deleteDbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *DeleteDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewDeleteDBClusterDefault(code int) *DeleteDBClusterDefault {
 	}
 }
 
-/*DeleteDBClusterDefault handles this case with default header values.
+/* DeleteDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *DeleteDBClusterDefault) Code() int {
 func (o *DeleteDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Delete][%d] DeleteDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *DeleteDBClusterDefault) GetPayload() *DeleteDBClusterDefaultBody {
 	return o.Payload
 }
@@ -184,7 +183,6 @@ func (o *DeleteDBClusterBody) validateClusterTypeEnum(path, location string, val
 }
 
 func (o *DeleteDBClusterBody) validateClusterType(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ClusterType) { // not required
 		return nil
 	}
@@ -194,6 +192,11 @@ func (o *DeleteDBClusterBody) validateClusterType(formats strfmt.Registry) error
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this delete DB cluster body based on context it is used
+func (o *DeleteDBClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -230,7 +233,7 @@ type DeleteDBClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*DeleteDBClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this delete DB cluster default body
@@ -248,7 +251,6 @@ func (o *DeleteDBClusterDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *DeleteDBClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -262,6 +264,42 @@ func (o *DeleteDBClusterDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("DeleteDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("DeleteDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this delete DB cluster default body based on the context it is used
+func (o *DeleteDBClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("DeleteDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("DeleteDBCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -290,10 +328,10 @@ func (o *DeleteDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*DeleteDBClusterDefaultBodyDetailsItems0 delete DB cluster default body details items0
+swagger:model DeleteDBClusterDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type DeleteDBClusterDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -303,13 +341,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this delete DB cluster default body details items0
+func (o *DeleteDBClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this delete DB cluster default body details items0 based on context it is used
+func (o *DeleteDBClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *DeleteDBClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -317,8 +360,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *DeleteDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res DeleteDBClusterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

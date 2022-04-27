@@ -6,6 +6,7 @@ package templates
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewUpdateTemplateOK() *UpdateTemplateOK {
 	return &UpdateTemplateOK{}
 }
 
-/*UpdateTemplateOK handles this case with default header values.
+/* UpdateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type UpdateTemplateOK struct {
 func (o *UpdateTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdateTemplateOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewUpdateTemplateDefault(code int) *UpdateTemplateDefault {
 	}
 }
 
-/*UpdateTemplateDefault handles this case with default header values.
+/* UpdateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *UpdateTemplateDefault) Code() int {
 func (o *UpdateTemplateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdateTemplateDefault) GetPayload() *UpdateTemplateDefaultBody {
 	return o.Payload
 }
@@ -129,6 +128,11 @@ type UpdateTemplateBody struct {
 
 // Validate validates this update template body
 func (o *UpdateTemplateBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update template body based on context it is used
+func (o *UpdateTemplateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -165,7 +169,7 @@ type UpdateTemplateDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*UpdateTemplateDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this update template default body
@@ -183,7 +187,6 @@ func (o *UpdateTemplateDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *UpdateTemplateDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -197,6 +200,42 @@ func (o *UpdateTemplateDefaultBody) validateDetails(formats strfmt.Registry) err
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this update template default body based on the context it is used
+func (o *UpdateTemplateDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UpdateTemplateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UpdateTemplate default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -218,6 +257,47 @@ func (o *UpdateTemplateDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *UpdateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	var res UpdateTemplateDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UpdateTemplateDefaultBodyDetailsItems0 update template default body details items0
+swagger:model UpdateTemplateDefaultBodyDetailsItems0
+*/
+type UpdateTemplateDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this update template default body details items0
+func (o *UpdateTemplateDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this update template default body details items0 based on context it is used
+func (o *UpdateTemplateDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UpdateTemplateDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UpdateTemplateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res UpdateTemplateDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddProxySQLExporterParams creates a new AddProxySQLExporterParams object
-// with the default values initialized.
+// NewAddProxySQLExporterParams creates a new AddProxySQLExporterParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddProxySQLExporterParams() *AddProxySQLExporterParams {
-	var ()
 	return &AddProxySQLExporterParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddProxySQLExporterParamsWithTimeout creates a new AddProxySQLExporterParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddProxySQLExporterParamsWithTimeout(timeout time.Duration) *AddProxySQLExporterParams {
-	var ()
 	return &AddProxySQLExporterParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddProxySQLExporterParamsWithContext creates a new AddProxySQLExporterParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddProxySQLExporterParamsWithContext(ctx context.Context) *AddProxySQLExporterParams {
-	var ()
 	return &AddProxySQLExporterParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddProxySQLExporterParamsWithHTTPClient creates a new AddProxySQLExporterParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddProxySQLExporterParamsWithHTTPClient(client *http.Client) *AddProxySQLExporterParams {
-	var ()
 	return &AddProxySQLExporterParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddProxySQLExporterParams contains all the parameters to send to the API endpoint
-for the add proxy SQL exporter operation typically these are written to a http.Request
+/* AddProxySQLExporterParams contains all the parameters to send to the API endpoint
+   for the add proxy SQL exporter operation.
+
+   Typically these are written to a http.Request.
 */
 type AddProxySQLExporterParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddProxySQLExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add proxy SQL exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddProxySQLExporterParams) WithDefaults() *AddProxySQLExporterParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add proxy SQL exporter params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddProxySQLExporterParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add proxy SQL exporter params
@@ -119,7 +133,6 @@ func (o *AddProxySQLExporterParams) WriteToRequest(r runtime.ClientRequest, reg 
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

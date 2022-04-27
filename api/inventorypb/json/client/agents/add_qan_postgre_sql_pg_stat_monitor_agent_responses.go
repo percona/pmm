@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentOK() *AddQANPostgreSQLPgStatMonitorAge
 	return &AddQANPostgreSQLPgStatMonitorAgentOK{}
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentOK handles this case with default header values.
+/* AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddQANPostgreSQLPgStatMonitorAgentOK struct {
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] addQanPostgreSqlPgStatMonitorAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) GetPayload() *AddQANPostgreSQLPgStatMonitorAgentOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentDefault(code int) *AddQANPostgreSQLPgS
 	}
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentDefault handles this case with default header values.
+/* AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Code() int {
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] AddQANPostgreSQLPgStatMonitorAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) GetPayload() *AddQANPostgreSQLPgStatMonitorAgentDefaultBody {
 	return o.Payload
 }
@@ -166,6 +165,11 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentBody) Validate(formats strfmt.Registr
 	return nil
 }
 
+// ContextValidate validates this add QAN postgre SQL pg stat monitor agent body based on context it is used
+func (o *AddQANPostgreSQLPgStatMonitorAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddQANPostgreSQLPgStatMonitorAgentBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -199,7 +203,7 @@ type AddQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent default body
@@ -217,7 +221,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) Validate(formats strfmt.
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -231,6 +234,42 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) validateDetails(formats 
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddQANPostgreSQLPgStatMonitorAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddQANPostgreSQLPgStatMonitorAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add QAN postgre SQL pg stat monitor agent default body based on the context it is used
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddQANPostgreSQLPgStatMonitorAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddQANPostgreSQLPgStatMonitorAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -252,6 +291,47 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddQANPostgreSQLPgStatMonitorAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg stat monitor agent default body details items0
+swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
+*/
+type AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add QAN postgre SQL pg stat monitor agent default body details items0
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add QAN postgre SQL pg stat monitor agent default body details items0 based on context it is used
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -283,7 +363,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) Validate(formats strfmt.Regis
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
 		return nil
 	}
@@ -292,6 +371,38 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) validateQANPostgresqlPgstatmo
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add QAN postgre SQL pg stat monitor agent OK body based on the context it is used
+func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQANPostgresqlPgstatmonitorAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatmonitorAgent != nil {
+		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addQanPostgreSqlPgStatMonitorAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -421,7 +532,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -431,6 +541,11 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add QAN postgre SQL pg stat monitor agent OK body QAN postgresql pgstatmonitor agent based on context it is used
+func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

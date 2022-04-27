@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddLocationParams creates a new AddLocationParams object
-// with the default values initialized.
+// NewAddLocationParams creates a new AddLocationParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddLocationParams() *AddLocationParams {
-	var ()
 	return &AddLocationParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddLocationParamsWithTimeout creates a new AddLocationParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddLocationParamsWithTimeout(timeout time.Duration) *AddLocationParams {
-	var ()
 	return &AddLocationParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddLocationParamsWithContext creates a new AddLocationParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddLocationParamsWithContext(ctx context.Context) *AddLocationParams {
-	var ()
 	return &AddLocationParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddLocationParamsWithHTTPClient creates a new AddLocationParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddLocationParamsWithHTTPClient(client *http.Client) *AddLocationParams {
-	var ()
 	return &AddLocationParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddLocationParams contains all the parameters to send to the API endpoint
-for the add location operation typically these are written to a http.Request
+/* AddLocationParams contains all the parameters to send to the API endpoint
+   for the add location operation.
+
+   Typically these are written to a http.Request.
 */
 type AddLocationParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddLocationBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add location params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddLocationParams) WithDefaults() *AddLocationParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add location params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddLocationParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add location params
@@ -119,7 +133,6 @@ func (o *AddLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}
