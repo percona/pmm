@@ -472,6 +472,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "connected_to_portal": {
+                  "type": "boolean",
+                  "x-order": 3
+                },
                 "pmm_server_id": {
                   "type": "string",
                   "x-order": 1
@@ -479,6 +483,10 @@
                 "pmm_server_name": {
                   "type": "string",
                   "x-order": 0
+                },
+                "pmm_server_telemetry_id": {
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
