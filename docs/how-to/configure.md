@@ -20,7 +20,7 @@ On the left are the selector tabs:
     - [DBaaS](#dbaas)
     - [Integrated Alerting](#integrated-alerting)
     - [Microsoft Azure Monitoring](#microsoft-azure-monitoring)
-    - [Public Address {: #public-address-1 }](#public-address--public-address-1-)
+    - [Public Address](#public-address--public-address-1-)
   - [SSH Key](#ssh-key)
   - [Alertmanager integration](#alertmanager-integration)
   - [Percona Platform](#percona-platform)
