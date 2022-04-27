@@ -277,6 +277,12 @@ type ServerInfoOKBody struct {
 
 	// pmm server id
 	PMMServerID string `json:"pmm_server_id,omitempty"`
+
+	// pmm server telemetry id
+	PMMServerTelemetryID string `json:"pmm_server_telemetry_id,omitempty"`
+
+	// connected to portal
+	ConnectedToPortal bool `json:"connected_to_portal,omitempty"`
 }
 
 // Validate validates this server info OK body
