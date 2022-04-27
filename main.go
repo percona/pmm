@@ -592,20 +592,23 @@ func main() {
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
+	logLevelF := kingpin.Flag("log-level", "Set logging level").Envar("PMM_LOG_LEVEL").Default("info").Enum("trace", "debug", "info", "warn", "error", "fatal")
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
-	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
+	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
-	if *debugF {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	if *traceF {
-		logrus.SetLevel(logrus.TraceLevel)
+
+	level := parseLoggerConfig(*logLevelF, *debugF, *traceF)
+
+	logrus.SetLevel(level)
+
+	if level == logrus.TraceLevel {
 		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 		logrus.SetReportCaller(true)
 	}
+
 	logrus.Infof("Log level: %s.", logrus.GetLevel())
 
 	l := logrus.WithField("component", "main")
@@ -951,4 +954,26 @@ func main() {
 	}()
 
 	wg.Wait()
+}
+
+func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
+	if trace {
+		return logrus.TraceLevel
+	}
+
+	if debug {
+		return logrus.DebugLevel
+	}
+
+	if level != "" {
+		parsedLevel, err := logrus.ParseLevel(level)
+
+		if err != nil {
+			logrus.Warnf("Cannot parse logging level: %s, error: %v", level, err)
+		} else {
+			return parsedLevel
+		}
+	}
+
+	return logrus.InfoLevel
 }
