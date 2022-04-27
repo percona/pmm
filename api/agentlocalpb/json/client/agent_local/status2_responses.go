@@ -454,6 +454,9 @@ type Status2OKBodyAgentsInfoItems0 struct {
 	// The current listen port of this Agent (exporter or vmagent).
 	// Zero for other Agent types, or if unknown or not yet supported.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Store logs
+	Logs []string `json:"logs"`
 }
 
 // Validate validates this status2 OK body agents info items0
