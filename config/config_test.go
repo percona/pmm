@@ -180,6 +180,7 @@ func TestGet(t *testing.T) {
 		actual, configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
+			"--log-level=info",
 			"--debug",
 		}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
@@ -212,7 +213,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			LogLevel: "info",
+			Debug:    true,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
