@@ -6,6 +6,7 @@ package services
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetServiceOK() *GetServiceOK {
 	return &GetServiceOK{}
 }
 
-/*GetServiceOK handles this case with default header values.
+/* GetServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetServiceOK struct {
 func (o *GetServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetServiceDefault(code int) *GetServiceDefault {
 	}
 }
 
-/*GetServiceDefault handles this case with default header values.
+/* GetServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetServiceDefault) Code() int {
 func (o *GetServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
 	return o.Payload
 }
@@ -128,6 +127,11 @@ type GetServiceBody struct {
 
 // Validate validates this get service body
 func (o *GetServiceBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get service body based on context it is used
+func (o *GetServiceBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -164,7 +168,7 @@ type GetServiceDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetServiceDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get service default body
@@ -182,7 +186,6 @@ func (o *GetServiceDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -196,6 +199,42 @@ func (o *GetServiceDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetService default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get service default body based on the context it is used
+func (o *GetServiceDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetService default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetService default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -217,6 +256,47 @@ func (o *GetServiceDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceDefaultBodyDetailsItems0 get service default body details items0
+swagger:model GetServiceDefaultBodyDetailsItems0
+*/
+type GetServiceDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get service default body details items0
+func (o *GetServiceDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get service default body details items0 based on context it is used
+func (o *GetServiceDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetServiceDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -283,7 +363,6 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validateExternal(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.External) { // not required
 		return nil
 	}
@@ -292,6 +371,8 @@ func (o *GetServiceOKBody) validateExternal(formats strfmt.Registry) error {
 		if err := o.External.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "external")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "external")
 			}
 			return err
 		}
@@ -301,7 +382,6 @@ func (o *GetServiceOKBody) validateExternal(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Haproxy) { // not required
 		return nil
 	}
@@ -310,6 +390,8 @@ func (o *GetServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 		if err := o.Haproxy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "haproxy")
 			}
 			return err
 		}
@@ -319,7 +401,6 @@ func (o *GetServiceOKBody) validateHaproxy(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mongodb) { // not required
 		return nil
 	}
@@ -328,6 +409,8 @@ func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 		if err := o.Mongodb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "mongodb")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "mongodb")
 			}
 			return err
 		}
@@ -337,7 +420,6 @@ func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Mysql) { // not required
 		return nil
 	}
@@ -346,6 +428,8 @@ func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "mysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -355,7 +439,6 @@ func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Postgresql) { // not required
 		return nil
 	}
@@ -364,6 +447,8 @@ func (o *GetServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
 		if err := o.Postgresql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "postgresql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "postgresql")
 			}
 			return err
 		}
@@ -373,7 +458,6 @@ func (o *GetServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
 }
 
 func (o *GetServiceOKBody) validateProxysql(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Proxysql) { // not required
 		return nil
 	}
@@ -382,6 +466,138 @@ func (o *GetServiceOKBody) validateProxysql(formats strfmt.Registry) error {
 		if err := o.Proxysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "proxysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get service OK body based on the context it is used
+func (o *GetServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateExternal(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMongodb(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.External != nil {
+		if err := o.External.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "external")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "external")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Haproxy != nil {
+		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "haproxy")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "haproxy")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Mongodb != nil {
+		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "mongodb")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "mongodb")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Mysql != nil {
+		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "mysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "mysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Postgresql != nil {
+		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "postgresql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "postgresql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Proxysql != nil {
+		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "proxysql")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getServiceOk" + "." + "proxysql")
 			}
 			return err
 		}
@@ -443,6 +659,11 @@ func (o *GetServiceOKBodyExternal) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get service OK body external based on context it is used
+func (o *GetServiceOKBodyExternal) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetServiceOKBodyExternal) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -490,6 +711,11 @@ type GetServiceOKBodyHaproxy struct {
 
 // Validate validates this get service OK body haproxy
 func (o *GetServiceOKBodyHaproxy) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get service OK body haproxy based on context it is used
+func (o *GetServiceOKBodyHaproxy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -555,6 +781,11 @@ func (o *GetServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get service OK body mongodb based on context it is used
+func (o *GetServiceOKBodyMongodb) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetServiceOKBodyMongodb) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -614,6 +845,11 @@ type GetServiceOKBodyMysql struct {
 
 // Validate validates this get service OK body mysql
 func (o *GetServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get service OK body mysql based on context it is used
+func (o *GetServiceOKBodyMysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -682,6 +918,11 @@ func (o *GetServiceOKBodyPostgresql) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this get service OK body postgresql based on context it is used
+func (o *GetServiceOKBodyPostgresql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetServiceOKBodyPostgresql) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -741,6 +982,11 @@ type GetServiceOKBodyProxysql struct {
 
 // Validate validates this get service OK body proxysql
 func (o *GetServiceOKBodyProxysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get service OK body proxysql based on context it is used
+func (o *GetServiceOKBodyProxysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

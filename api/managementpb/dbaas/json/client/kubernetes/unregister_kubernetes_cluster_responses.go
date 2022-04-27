@@ -6,6 +6,7 @@ package kubernetes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewUnregisterKubernetesClusterOK() *UnregisterKubernetesClusterOK {
 	return &UnregisterKubernetesClusterOK{}
 }
 
-/*UnregisterKubernetesClusterOK handles this case with default header values.
+/* UnregisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type UnregisterKubernetesClusterOK struct {
 func (o *UnregisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *UnregisterKubernetesClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewUnregisterKubernetesClusterDefault(code int) *UnregisterKubernetesCluste
 	}
 }
 
-/*UnregisterKubernetesClusterDefault handles this case with default header values.
+/* UnregisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *UnregisterKubernetesClusterDefault) Code() int {
 func (o *UnregisterKubernetesClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UnregisterKubernetesClusterDefault) GetPayload() *UnregisterKubernetesClusterDefaultBody {
 	return o.Payload
 }
@@ -130,6 +129,11 @@ type UnregisterKubernetesClusterBody struct {
 
 // Validate validates this unregister kubernetes cluster body
 func (o *UnregisterKubernetesClusterBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this unregister kubernetes cluster body based on context it is used
+func (o *UnregisterKubernetesClusterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -166,7 +170,7 @@ type UnregisterKubernetesClusterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*UnregisterKubernetesClusterDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this unregister kubernetes cluster default body
@@ -184,7 +188,6 @@ func (o *UnregisterKubernetesClusterDefaultBody) Validate(formats strfmt.Registr
 }
 
 func (o *UnregisterKubernetesClusterDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -198,6 +201,42 @@ func (o *UnregisterKubernetesClusterDefaultBody) validateDetails(formats strfmt.
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("UnregisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UnregisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this unregister kubernetes cluster default body based on the context it is used
+func (o *UnregisterKubernetesClusterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *UnregisterKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("UnregisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("UnregisterKubernetesCluster default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -219,6 +258,47 @@ func (o *UnregisterKubernetesClusterDefaultBody) MarshalBinary() ([]byte, error)
 // UnmarshalBinary interface implementation
 func (o *UnregisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	var res UnregisterKubernetesClusterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluster default body details items0
+swagger:model UnregisterKubernetesClusterDefaultBodyDetailsItems0
+*/
+type UnregisterKubernetesClusterDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this unregister kubernetes cluster default body details items0
+func (o *UnregisterKubernetesClusterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this unregister kubernetes cluster default body details items0 based on context it is used
+func (o *UnregisterKubernetesClusterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *UnregisterKubernetesClusterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *UnregisterKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res UnregisterKubernetesClusterDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

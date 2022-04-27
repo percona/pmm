@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListAgentsParams creates a new ListAgentsParams object
-// with the default values initialized.
+// NewListAgentsParams creates a new ListAgentsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListAgentsParams() *ListAgentsParams {
-	var ()
 	return &ListAgentsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListAgentsParamsWithTimeout creates a new ListAgentsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListAgentsParamsWithTimeout(timeout time.Duration) *ListAgentsParams {
-	var ()
 	return &ListAgentsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListAgentsParamsWithContext creates a new ListAgentsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListAgentsParamsWithContext(ctx context.Context) *ListAgentsParams {
-	var ()
 	return &ListAgentsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListAgentsParamsWithHTTPClient creates a new ListAgentsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListAgentsParamsWithHTTPClient(client *http.Client) *ListAgentsParams {
-	var ()
 	return &ListAgentsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListAgentsParams contains all the parameters to send to the API endpoint
-for the list agents operation typically these are written to a http.Request
+/* ListAgentsParams contains all the parameters to send to the API endpoint
+   for the list agents operation.
+
+   Typically these are written to a http.Request.
 */
 type ListAgentsParams struct {
 
-	/*Body*/
+	// Body.
 	Body ListAgentsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list agents params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListAgentsParams) WithDefaults() *ListAgentsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list agents params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListAgentsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list agents params
@@ -119,7 +133,6 @@ func (o *ListAgentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

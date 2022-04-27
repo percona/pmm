@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddRemoteNodeOK() *AddRemoteNodeOK {
 	return &AddRemoteNodeOK{}
 }
 
-/*AddRemoteNodeOK handles this case with default header values.
+/* AddRemoteNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddRemoteNodeOK struct {
 func (o *AddRemoteNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *AddRemoteNodeOK) GetPayload() *AddRemoteNodeOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
 	}
 }
 
-/*AddRemoteNodeDefault handles this case with default header values.
+/* AddRemoteNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddRemoteNodeDefault) Code() int {
 func (o *AddRemoteNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddRemoteNodeDefault) GetPayload() *AddRemoteNodeDefaultBody {
 	return o.Payload
 }
@@ -146,6 +145,11 @@ func (o *AddRemoteNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add remote node body based on context it is used
+func (o *AddRemoteNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddRemoteNodeBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -179,7 +183,7 @@ type AddRemoteNodeDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddRemoteNodeDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add remote node default body
@@ -197,7 +201,6 @@ func (o *AddRemoteNodeDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddRemoteNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -211,6 +214,42 @@ func (o *AddRemoteNodeDefaultBody) validateDetails(formats strfmt.Registry) erro
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddRemoteNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddRemoteNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add remote node default body based on the context it is used
+func (o *AddRemoteNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRemoteNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddRemoteNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddRemoteNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -232,6 +271,47 @@ func (o *AddRemoteNodeDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddRemoteNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRemoteNodeDefaultBodyDetailsItems0 add remote node default body details items0
+swagger:model AddRemoteNodeDefaultBodyDetailsItems0
+*/
+type AddRemoteNodeDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add remote node default body details items0
+func (o *AddRemoteNodeDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add remote node default body details items0 based on context it is used
+func (o *AddRemoteNodeDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddRemoteNodeDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -263,7 +343,6 @@ func (o *AddRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddRemoteNodeOKBody) validateRemote(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Remote) { // not required
 		return nil
 	}
@@ -272,6 +351,38 @@ func (o *AddRemoteNodeOKBody) validateRemote(formats strfmt.Registry) error {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addRemoteNodeOk" + "." + "remote")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRemoteNodeOk" + "." + "remote")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add remote node OK body based on the context it is used
+func (o *AddRemoteNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRemote(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRemoteNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Remote != nil {
+		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRemoteNodeOk" + "." + "remote")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRemoteNodeOk" + "." + "remote")
 			}
 			return err
 		}
@@ -327,6 +438,11 @@ type AddRemoteNodeOKBodyRemote struct {
 
 // Validate validates this add remote node OK body remote
 func (o *AddRemoteNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add remote node OK body remote based on context it is used
+func (o *AddRemoteNodeOKBodyRemote) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewGetPXCComponentsParams creates a new GetPXCComponentsParams object
-// with the default values initialized.
+// NewGetPXCComponentsParams creates a new GetPXCComponentsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewGetPXCComponentsParams() *GetPXCComponentsParams {
-	var ()
 	return &GetPXCComponentsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewGetPXCComponentsParamsWithTimeout creates a new GetPXCComponentsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewGetPXCComponentsParamsWithTimeout(timeout time.Duration) *GetPXCComponentsParams {
-	var ()
 	return &GetPXCComponentsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewGetPXCComponentsParamsWithContext creates a new GetPXCComponentsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewGetPXCComponentsParamsWithContext(ctx context.Context) *GetPXCComponentsParams {
-	var ()
 	return &GetPXCComponentsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewGetPXCComponentsParamsWithHTTPClient creates a new GetPXCComponentsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewGetPXCComponentsParamsWithHTTPClient(client *http.Client) *GetPXCComponentsParams {
-	var ()
 	return &GetPXCComponentsParams{
 		HTTPClient: client,
 	}
 }
 
-/*GetPXCComponentsParams contains all the parameters to send to the API endpoint
-for the get PXC components operation typically these are written to a http.Request
+/* GetPXCComponentsParams contains all the parameters to send to the API endpoint
+   for the get PXC components operation.
+
+   Typically these are written to a http.Request.
 */
 type GetPXCComponentsParams struct {
 
-	/*Body*/
+	// Body.
 	Body GetPXCComponentsBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the get PXC components params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPXCComponentsParams) WithDefaults() *GetPXCComponentsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the get PXC components params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *GetPXCComponentsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the get PXC components params
@@ -119,7 +133,6 @@ func (o *GetPXCComponentsParams) WriteToRequest(r runtime.ClientRequest, reg str
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

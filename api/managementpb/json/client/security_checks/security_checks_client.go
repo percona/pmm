@@ -23,21 +23,24 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error)
+	ChangeSecurityChecks(params *ChangeSecurityChecksParams, opts ...ClientOption) (*ChangeSecurityChecksOK, error)
 
-	GetFailedChecks(params *GetFailedChecksParams) (*GetFailedChecksOK, error)
+	GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOption) (*GetFailedChecksOK, error)
 
-	GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error)
+	GetSecurityCheckResults(params *GetSecurityCheckResultsParams, opts ...ClientOption) (*GetSecurityCheckResultsOK, error)
 
-	ListFailedServices(params *ListFailedServicesParams) (*ListFailedServicesOK, error)
+	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
 
-	ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error)
+	ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error)
 
-	StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error)
+	StartSecurityChecks(params *StartSecurityChecksParams, opts ...ClientOption) (*StartSecurityChecksOK, error)
 
-	ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckAlertOK, error)
+	ToggleCheckAlert(params *ToggleCheckAlertParams, opts ...ClientOption) (*ToggleCheckAlertOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -47,13 +50,12 @@ type ClientService interface {
 
   Enables/disables Security Thread Tool checks or changes their interval by names.
 */
-func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*ChangeSecurityChecksOK, error) {
+func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams, opts ...ClientOption) (*ChangeSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewChangeSecurityChecksParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ChangeSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/Change",
@@ -64,7 +66,12 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*Chan
 		Reader:             &ChangeSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +89,12 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams) (*Chan
 
   Returns the latest check results for a given service.
 */
-func (a *Client) GetFailedChecks(params *GetFailedChecksParams) (*GetFailedChecksOK, error) {
+func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOption) (*GetFailedChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetFailedChecksParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetFailedChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/FailedChecks",
@@ -99,7 +105,12 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams) (*GetFailedCheck
 		Reader:             &GetFailedChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -117,13 +128,12 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams) (*GetFailedCheck
 
   Returns Security Thread Tool's latest checks results.
 */
-func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) (*GetSecurityCheckResultsOK, error) {
+func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams, opts ...ClientOption) (*GetSecurityCheckResultsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetSecurityCheckResultsParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetSecurityCheckResults",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/GetCheckResults",
@@ -134,7 +144,12 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 		Reader:             &GetSecurityCheckResultsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -152,13 +167,12 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams) 
 
   Returns a list of services with failed checks and a summary of check results.
 */
-func (a *Client) ListFailedServices(params *ListFailedServicesParams) (*ListFailedServicesOK, error) {
+func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListFailedServicesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListFailedServices",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/ListFailedServices",
@@ -169,7 +183,12 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams) (*ListFail
 		Reader:             &ListFailedServicesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -187,13 +206,12 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams) (*ListFail
 
   Returns a list of available Security Thread Tool checks.
 */
-func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecurityChecksOK, error) {
+func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListSecurityChecksParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/List",
@@ -204,7 +222,12 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecu
 		Reader:             &ListSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -222,13 +245,12 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams) (*ListSecu
 
   Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
 */
-func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartSecurityChecksOK, error) {
+func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams, opts ...ClientOption) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewStartSecurityChecksParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "StartSecurityChecks",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/Start",
@@ -239,7 +261,12 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 		Reader:             &StartSecurityChecksReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -257,13 +284,12 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams) (*StartS
 
   Silence/Unsilence alerts for a specific check result.
 */
-func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckAlertOK, error) {
+func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams, opts ...ClientOption) (*ToggleCheckAlertOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewToggleCheckAlertParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ToggleCheckAlert",
 		Method:             "POST",
 		PathPattern:        "/v1/management/SecurityChecks/ToggleCheckAlert",
@@ -274,7 +300,12 @@ func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams) (*ToggleCheckA
 		Reader:             &ToggleCheckAlertReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

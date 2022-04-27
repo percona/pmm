@@ -6,6 +6,7 @@ package object_details
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -48,7 +49,7 @@ func NewGetHistogramOK() *GetHistogramOK {
 	return &GetHistogramOK{}
 }
 
-/*GetHistogramOK handles this case with default header values.
+/* GetHistogramOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +60,6 @@ type GetHistogramOK struct {
 func (o *GetHistogramOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
 }
-
 func (o *GetHistogramOK) GetPayload() *GetHistogramOKBody {
 	return o.Payload
 }
@@ -83,7 +83,7 @@ func NewGetHistogramDefault(code int) *GetHistogramDefault {
 	}
 }
 
-/*GetHistogramDefault handles this case with default header values.
+/* GetHistogramDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +101,6 @@ func (o *GetHistogramDefault) Code() int {
 func (o *GetHistogramDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetHistogramDefault) GetPayload() *GetHistogramDefaultBody {
 	return o.Payload
 }
@@ -115,42 +114,6 @@ func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, cons
 		return err
 	}
 
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }
 
@@ -168,7 +131,7 @@ type GetHistogramBody struct {
 	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 
 	// labels
-	Labels []*LabelsItems0 `json:"labels"`
+	Labels []*GetHistogramParamsBodyLabelsItems0 `json:"labels"`
 
 	// queryid
 	Queryid string `json:"queryid,omitempty"`
@@ -197,7 +160,6 @@ func (o *GetHistogramBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetHistogramBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
@@ -210,7 +172,6 @@ func (o *GetHistogramBody) validatePeriodStartFrom(formats strfmt.Registry) erro
 }
 
 func (o *GetHistogramBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
@@ -223,7 +184,6 @@ func (o *GetHistogramBody) validatePeriodStartTo(formats strfmt.Registry) error 
 }
 
 func (o *GetHistogramBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -237,6 +197,42 @@ func (o *GetHistogramBody) validateLabels(formats strfmt.Registry) error {
 			if err := o.Labels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get histogram body based on the context it is used
+func (o *GetHistogramBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetHistogramBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Labels); i++ {
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -280,7 +276,7 @@ type GetHistogramDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetHistogramDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get histogram default body
@@ -298,7 +294,6 @@ func (o *GetHistogramDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetHistogramDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -312,6 +307,42 @@ func (o *GetHistogramDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get histogram default body based on the context it is used
+func (o *GetHistogramDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetHistogramDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetHistogram default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -340,13 +371,54 @@ func (o *GetHistogramDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetHistogramDefaultBodyDetailsItems0 get histogram default body details items0
+swagger:model GetHistogramDefaultBodyDetailsItems0
+*/
+type GetHistogramDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get histogram default body details items0
+func (o *GetHistogramDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get histogram default body details items0 based on context it is used
+func (o *GetHistogramDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetHistogramDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetHistogramDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetHistogramOKBody HistogramReply is histogram items as a list.
 swagger:model GetHistogramOKBody
 */
 type GetHistogramOKBody struct {
 
 	// histogram items
-	HistogramItems []*HistogramItemsItems0 `json:"histogram_items"`
+	HistogramItems []*GetHistogramOKBodyHistogramItemsItems0 `json:"histogram_items"`
 }
 
 // Validate validates this get histogram OK body
@@ -364,7 +436,6 @@ func (o *GetHistogramOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetHistogramOKBody) validateHistogramItems(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.HistogramItems) { // not required
 		return nil
 	}
@@ -378,6 +449,42 @@ func (o *GetHistogramOKBody) validateHistogramItems(formats strfmt.Registry) err
 			if err := o.HistogramItems[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get histogram OK body based on the context it is used
+func (o *GetHistogramOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateHistogramItems(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetHistogramOKBody) contextValidateHistogramItems(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.HistogramItems); i++ {
+
+		if o.HistogramItems[i] != nil {
+			if err := o.HistogramItems[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getHistogramOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -406,10 +513,10 @@ func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*HistogramItemsItems0 HistogramItem represents one item in histogram.
-swagger:model HistogramItemsItems0
+/*GetHistogramOKBodyHistogramItemsItems0 HistogramItem represents one item in histogram.
+swagger:model GetHistogramOKBodyHistogramItemsItems0
 */
-type HistogramItemsItems0 struct {
+type GetHistogramOKBodyHistogramItemsItems0 struct {
 
 	// range
 	Range string `json:"range,omitempty"`
@@ -418,13 +525,18 @@ type HistogramItemsItems0 struct {
 	Frequency int64 `json:"frequency,omitempty"`
 }
 
-// Validate validates this histogram items items0
-func (o *HistogramItemsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get histogram OK body histogram items items0
+func (o *GetHistogramOKBodyHistogramItemsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get histogram OK body histogram items items0 based on context it is used
+func (o *GetHistogramOKBodyHistogramItemsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *HistogramItemsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetHistogramOKBodyHistogramItemsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -432,8 +544,8 @@ func (o *HistogramItemsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *HistogramItemsItems0) UnmarshalBinary(b []byte) error {
-	var res HistogramItemsItems0
+func (o *GetHistogramOKBodyHistogramItemsItems0) UnmarshalBinary(b []byte) error {
+	var res GetHistogramOKBodyHistogramItemsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -441,10 +553,10 @@ func (o *HistogramItemsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-swagger:model LabelsItems0
+/*GetHistogramParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model GetHistogramParamsBodyLabelsItems0
 */
-type LabelsItems0 struct {
+type GetHistogramParamsBodyLabelsItems0 struct {
 
 	// key
 	Key string `json:"key,omitempty"`
@@ -453,13 +565,18 @@ type LabelsItems0 struct {
 	Value []string `json:"value"`
 }
 
-// Validate validates this labels items0
-func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get histogram params body labels items0
+func (o *GetHistogramParamsBodyLabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get histogram params body labels items0 based on context it is used
+func (o *GetHistogramParamsBodyLabelsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetHistogramParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -467,8 +584,8 @@ func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsItems0
+func (o *GetHistogramParamsBodyLabelsItems0) UnmarshalBinary(b []byte) error {
+	var res GetHistogramParamsBodyLabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

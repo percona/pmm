@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewStartPTMySQLSummaryActionParams creates a new StartPTMySQLSummaryActionParams object
-// with the default values initialized.
+// NewStartPTMySQLSummaryActionParams creates a new StartPTMySQLSummaryActionParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewStartPTMySQLSummaryActionParams() *StartPTMySQLSummaryActionParams {
-	var ()
 	return &StartPTMySQLSummaryActionParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewStartPTMySQLSummaryActionParamsWithTimeout creates a new StartPTMySQLSummaryActionParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewStartPTMySQLSummaryActionParamsWithTimeout(timeout time.Duration) *StartPTMySQLSummaryActionParams {
-	var ()
 	return &StartPTMySQLSummaryActionParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewStartPTMySQLSummaryActionParamsWithContext creates a new StartPTMySQLSummaryActionParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewStartPTMySQLSummaryActionParamsWithContext(ctx context.Context) *StartPTMySQLSummaryActionParams {
-	var ()
 	return &StartPTMySQLSummaryActionParams{
-
 		Context: ctx,
 	}
 }
 
 // NewStartPTMySQLSummaryActionParamsWithHTTPClient creates a new StartPTMySQLSummaryActionParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewStartPTMySQLSummaryActionParamsWithHTTPClient(client *http.Client) *StartPTMySQLSummaryActionParams {
-	var ()
 	return &StartPTMySQLSummaryActionParams{
 		HTTPClient: client,
 	}
 }
 
-/*StartPTMySQLSummaryActionParams contains all the parameters to send to the API endpoint
-for the start PT my SQL summary action operation typically these are written to a http.Request
+/* StartPTMySQLSummaryActionParams contains all the parameters to send to the API endpoint
+   for the start PT my SQL summary action operation.
+
+   Typically these are written to a http.Request.
 */
 type StartPTMySQLSummaryActionParams struct {
 
-	/*Body*/
+	// Body.
 	Body StartPTMySQLSummaryActionBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the start PT my SQL summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTMySQLSummaryActionParams) WithDefaults() *StartPTMySQLSummaryActionParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the start PT my SQL summary action params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *StartPTMySQLSummaryActionParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the start PT my SQL summary action params
@@ -119,7 +133,6 @@ func (o *StartPTMySQLSummaryActionParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewAddQANMySQLPerfSchemaAgentOK() *AddQANMySQLPerfSchemaAgentOK {
 	return &AddQANMySQLPerfSchemaAgentOK{}
 }
 
-/*AddQANMySQLPerfSchemaAgentOK handles this case with default header values.
+/* AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddQANMySQLPerfSchemaAgentOK) GetPayload() *AddQANMySQLPerfSchemaAgentOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentD
 	}
 }
 
-/*AddQANMySQLPerfSchemaAgentDefault handles this case with default header values.
+/* AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
 func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddQANMySQLPerfSchemaAgentDefault) GetPayload() *AddQANMySQLPerfSchemaAgentDefaultBody {
 	return o.Payload
 }
@@ -166,6 +165,11 @@ func (o *AddQANMySQLPerfSchemaAgentBody) Validate(formats strfmt.Registry) error
 	return nil
 }
 
+// ContextValidate validates this add QAN my SQL perf schema agent body based on context it is used
+func (o *AddQANMySQLPerfSchemaAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddQANMySQLPerfSchemaAgentBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -199,7 +203,7 @@ type AddQANMySQLPerfSchemaAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent default body
@@ -217,7 +221,6 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) Validate(formats strfmt.Registry
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -231,6 +234,42 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) validateDetails(formats strfmt.R
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddQANMySQLPerfSchemaAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddQANMySQLPerfSchemaAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add QAN my SQL perf schema agent default body based on the context it is used
+func (o *AddQANMySQLPerfSchemaAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddQANMySQLPerfSchemaAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddQANMySQLPerfSchemaAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddQANMySQLPerfSchemaAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -252,6 +291,47 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddQANMySQLPerfSchemaAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
+swagger:model AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
+*/
+type AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add QAN my SQL perf schema agent default body details items0
+func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add QAN my SQL perf schema agent default body details items0 based on context it is used
+func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -283,7 +363,6 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) Validate(formats strfmt.Registry) err
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
 		return nil
 	}
@@ -292,6 +371,38 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) validateQANMysqlPerfschemaAgent(forma
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add QAN my SQL perf schema agent OK body based on the context it is used
+func (o *AddQANMySQLPerfSchemaAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQANMysqlPerfschemaAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddQANMySQLPerfSchemaAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlPerfschemaAgent != nil {
+		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
 			return err
 		}
@@ -430,7 +541,6 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -440,6 +550,11 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this add QAN my SQL perf schema agent OK body QAN mysql perfschema agent based on context it is used
+func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

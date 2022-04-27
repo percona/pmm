@@ -23,23 +23,26 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error)
+	AddContainerNode(params *AddContainerNodeParams, opts ...ClientOption) (*AddContainerNodeOK, error)
 
-	AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error)
+	AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error)
 
-	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error)
+	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error)
 
-	AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error)
+	AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error)
 
-	AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error)
+	AddRemoteRDSNode(params *AddRemoteRDSNodeParams, opts ...ClientOption) (*AddRemoteRDSNodeOK, error)
 
-	GetNode(params *GetNodeParams) (*GetNodeOK, error)
+	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
-	ListNodes(params *ListNodesParams) (*ListNodesOK, error)
+	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
-	RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error)
+	RemoveNode(params *RemoveNodeParams, opts ...ClientOption) (*RemoveNodeOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -49,13 +52,12 @@ type ClientService interface {
 
   Adds container Node.
 */
-func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
+func (a *Client) AddContainerNode(params *AddContainerNodeParams, opts ...ClientOption) (*AddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddContainerNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddContainerNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddContainer",
@@ -66,7 +68,12 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 		Reader:             &AddContainerNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -84,13 +91,12 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 
   Adds generic Node.
 */
-func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error) {
+func (a *Client) AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddGenericNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddGenericNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddGeneric",
@@ -101,7 +107,12 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 		Reader:             &AddGenericNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -119,13 +130,12 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 
   Adds remote Azure database Node.
 */
-func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams) (*AddRemoteAzureDatabaseNodeOK, error) {
+func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddRemoteAzureDatabaseNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddRemoteAzureDatabaseNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemoteAzureDatabase",
@@ -136,7 +146,12 @@ func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodePa
 		Reader:             &AddRemoteAzureDatabaseNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -154,13 +169,12 @@ func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodePa
 
   Adds remote Node.
 */
-func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
+func (a *Client) AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddRemoteNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddRemoteNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemote",
@@ -171,7 +185,12 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 		Reader:             &AddRemoteNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -189,13 +208,12 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 
   Adds remote RDS Node.
 */
-func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDSNodeOK, error) {
+func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams, opts ...ClientOption) (*AddRemoteRDSNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddRemoteRDSNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddRemoteRDSNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/AddRemoteRDS",
@@ -206,7 +224,12 @@ func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDS
 		Reader:             &AddRemoteRDSNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -224,13 +247,12 @@ func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams) (*AddRemoteRDS
 
   Returns a single Node by ID.
 */
-func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
+func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/Get",
@@ -241,7 +263,12 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 		Reader:             &GetNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -259,13 +286,12 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 
   Returns a list of all Nodes.
 */
-func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
+func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListNodesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListNodes",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/List",
@@ -276,7 +302,12 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 		Reader:             &ListNodesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -294,13 +325,12 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 
   Removes Node.
 */
-func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
+func (a *Client) RemoveNode(params *RemoveNodeParams, opts ...ClientOption) (*RemoveNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveNodeParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveNode",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Nodes/Remove",
@@ -311,7 +341,12 @@ func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 		Reader:             &RemoveNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

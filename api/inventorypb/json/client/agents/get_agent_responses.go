@@ -6,6 +6,7 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewGetAgentOK() *GetAgentOK {
 	return &GetAgentOK{}
 }
 
-/*GetAgentOK handles this case with default header values.
+/* GetAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type GetAgentOK struct {
 func (o *GetAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *GetAgentOK) GetPayload() *GetAgentOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewGetAgentDefault(code int) *GetAgentDefault {
 	}
 }
 
-/*GetAgentDefault handles this case with default header values.
+/* GetAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *GetAgentDefault) Code() int {
 func (o *GetAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetAgentDefault) GetPayload() *GetAgentDefaultBody {
 	return o.Payload
 }
@@ -130,6 +129,11 @@ type GetAgentBody struct {
 
 // Validate validates this get agent body
 func (o *GetAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent body based on context it is used
+func (o *GetAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -166,7 +170,7 @@ type GetAgentDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get agent default body
@@ -184,7 +188,6 @@ func (o *GetAgentDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -198,6 +201,42 @@ func (o *GetAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get agent default body based on the context it is used
+func (o *GetAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetAgent default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -219,6 +258,47 @@ func (o *GetAgentDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentDefaultBodyDetailsItems0 get agent default body details items0
+swagger:model GetAgentDefaultBodyDetailsItems0
+*/
+type GetAgentDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get agent default body details items0
+func (o *GetAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent default body details items0 based on context it is used
+func (o *GetAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -348,7 +428,6 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
@@ -357,6 +436,8 @@ func (o *GetAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) 
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "azure_database_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "azure_database_exporter")
 			}
 			return err
 		}
@@ -366,7 +447,6 @@ func (o *GetAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) 
 }
 
 func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -375,6 +455,8 @@ func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -384,7 +466,6 @@ func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 }
 
 func (o *GetAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -393,6 +474,8 @@ func (o *GetAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error 
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -402,7 +485,6 @@ func (o *GetAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error 
 }
 
 func (o *GetAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -411,6 +493,8 @@ func (o *GetAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -420,7 +504,6 @@ func (o *GetAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.NodeExporter) { // not required
 		return nil
 	}
@@ -429,6 +512,8 @@ func (o *GetAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "node_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -438,7 +523,6 @@ func (o *GetAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PMMAgent) { // not required
 		return nil
 	}
@@ -447,6 +531,8 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "pmm_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -456,7 +542,6 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
 	}
@@ -465,6 +550,8 @@ func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -474,7 +561,6 @@ func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error
 }
 
 func (o *GetAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ProxysqlExporter) { // not required
 		return nil
 	}
@@ -483,6 +569,8 @@ func (o *GetAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -492,7 +580,6 @@ func (o *GetAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error
 }
 
 func (o *GetAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
 	}
@@ -501,6 +588,8 @@ func (o *GetAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry
 		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_mongodb_profiler_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
 			return err
 		}
@@ -510,7 +599,6 @@ func (o *GetAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry
 }
 
 func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
 		return nil
 	}
@@ -519,6 +607,8 @@ func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
 			return err
 		}
@@ -528,7 +618,6 @@ func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry
 }
 
 func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
 		return nil
 	}
@@ -537,6 +626,8 @@ func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) e
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
 			return err
 		}
@@ -546,7 +637,6 @@ func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) e
 }
 
 func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
 		return nil
 	}
@@ -555,6 +645,8 @@ func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.R
 		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
 			return err
 		}
@@ -564,7 +656,6 @@ func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.R
 }
 
 func (o *GetAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
 		return nil
 	}
@@ -573,6 +664,8 @@ func (o *GetAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.
 		if err := o.QANPostgresqlPgstatmonitorAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
 			}
 			return err
 		}
@@ -582,7 +675,6 @@ func (o *GetAgentOKBody) validateQANPostgresqlPgstatmonitorAgent(formats strfmt.
 }
 
 func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.RDSExporter) { // not required
 		return nil
 	}
@@ -591,6 +683,8 @@ func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -600,7 +694,6 @@ func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 }
 
 func (o *GetAgentOKBody) validateVmagent(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Vmagent) { // not required
 		return nil
 	}
@@ -609,6 +702,318 @@ func (o *GetAgentOKBody) validateVmagent(formats strfmt.Registry) error {
 		if err := o.Vmagent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "vmagent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "vmagent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get agent OK body based on the context it is used
+func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateAzureDatabaseExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateExternalExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMongodbExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMysqldExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateNodeExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePMMAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateProxysqlExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMongodbProfilerAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMysqlPerfschemaAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANMysqlSlowlogAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANPostgresqlPgstatementsAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateQANPostgresqlPgstatmonitorAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRDSExporter(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateVmagent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.AzureDatabaseExporter != nil {
+		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "azure_database_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "azure_database_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "external_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MongodbExporter != nil {
+		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "mongodb_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "mongodb_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.MysqldExporter != nil {
+		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "mysqld_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.NodeExporter != nil {
+		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "node_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PMMAgent != nil {
+		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "pmm_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "pmm_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PostgresExporter != nil {
+		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "postgres_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "postgres_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ProxysqlExporter != nil {
+		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "proxysql_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "proxysql_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMongodbProfilerAgent != nil {
+		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mongodb_profiler_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mongodb_profiler_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlPerfschemaAgent != nil {
+		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANMysqlSlowlogAgent != nil {
+		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatementsAgent != nil {
+		if err := o.QANPostgresqlPgstatementsAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.QANPostgresqlPgstatmonitorAgent != nil {
+		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatmonitor_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RDSExporter != nil {
+		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "rds_exporter")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "rds_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) contextValidateVmagent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Vmagent != nil {
+		if err := o.Vmagent.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "vmagent")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getAgentOk" + "." + "vmagent")
 			}
 			return err
 		}
@@ -738,7 +1143,6 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatusEnum(path, location 
 }
 
 func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -748,6 +1152,11 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Regi
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body azure database exporter based on context it is used
+func (o *GetAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -807,6 +1216,11 @@ type GetAgentOKBodyExternalExporter struct {
 
 // Validate validates this get agent OK body external exporter
 func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent OK body external exporter based on context it is used
+func (o *GetAgentOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -947,7 +1361,6 @@ func (o *GetAgentOKBodyMongodbExporter) validateStatusEnum(path, location string
 }
 
 func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -957,6 +1370,11 @@ func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) 
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body mongodb exporter based on context it is used
+func (o *GetAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1104,7 +1522,6 @@ func (o *GetAgentOKBodyMysqldExporter) validateStatusEnum(path, location string,
 }
 
 func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1114,6 +1531,11 @@ func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body mysqld exporter based on context it is used
+func (o *GetAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1232,7 +1654,6 @@ func (o *GetAgentOKBodyNodeExporter) validateStatusEnum(path, location string, v
 }
 
 func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1242,6 +1663,11 @@ func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) err
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body node exporter based on context it is used
+func (o *GetAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1283,6 +1709,11 @@ type GetAgentOKBodyPMMAgent struct {
 
 // Validate validates this get agent OK body PMM agent
 func (o *GetAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent OK body PMM agent based on context it is used
+func (o *GetAgentOKBodyPMMAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1413,7 +1844,6 @@ func (o *GetAgentOKBodyPostgresExporter) validateStatusEnum(path, location strin
 }
 
 func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1423,6 +1853,11 @@ func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body postgres exporter based on context it is used
+func (o *GetAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1553,7 +1988,6 @@ func (o *GetAgentOKBodyProxysqlExporter) validateStatusEnum(path, location strin
 }
 
 func (o *GetAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1563,6 +1997,11 @@ func (o *GetAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry)
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body proxysql exporter based on context it is used
+func (o *GetAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1684,7 +2123,6 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatusEnum(path, locatio
 }
 
 func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1694,6 +2132,11 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Re
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN mongodb profiler agent based on context it is used
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1827,7 +2270,6 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, locatio
 }
 
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1837,6 +2279,11 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Re
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN mysql perfschema agent based on context it is used
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -1973,7 +2420,6 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatusEnum(path, location s
 }
 
 func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -1983,6 +2429,11 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Regis
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN mysql slowlog agent based on context it is used
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -2104,7 +2555,6 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatusEnum(path, 
 }
 
 func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -2114,6 +2564,11 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats st
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN postgresql pgstatements agent based on context it is used
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -2238,7 +2693,6 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatusEnum(path,
 }
 
 func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -2248,6 +2702,11 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats s
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body QAN postgresql pgstatmonitor agent based on context it is used
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -2375,7 +2834,6 @@ func (o *GetAgentOKBodyRDSExporter) validateStatusEnum(path, location string, va
 }
 
 func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -2385,6 +2843,11 @@ func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) erro
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body RDS exporter based on context it is used
+func (o *GetAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -2490,7 +2953,6 @@ func (o *GetAgentOKBodyVmagent) validateStatusEnum(path, location string, value 
 }
 
 func (o *GetAgentOKBodyVmagent) validateStatus(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
@@ -2500,6 +2962,11 @@ func (o *GetAgentOKBodyVmagent) validateStatus(formats strfmt.Registry) error {
 		return err
 	}
 
+	return nil
+}
+
+// ContextValidate validates this get agent OK body vmagent based on context it is used
+func (o *GetAgentOKBodyVmagent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

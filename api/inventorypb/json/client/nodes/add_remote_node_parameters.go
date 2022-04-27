@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewAddRemoteNodeParams creates a new AddRemoteNodeParams object
-// with the default values initialized.
+// NewAddRemoteNodeParams creates a new AddRemoteNodeParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewAddRemoteNodeParams() *AddRemoteNodeParams {
-	var ()
 	return &AddRemoteNodeParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewAddRemoteNodeParamsWithTimeout creates a new AddRemoteNodeParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewAddRemoteNodeParamsWithTimeout(timeout time.Duration) *AddRemoteNodeParams {
-	var ()
 	return &AddRemoteNodeParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewAddRemoteNodeParamsWithContext creates a new AddRemoteNodeParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewAddRemoteNodeParamsWithContext(ctx context.Context) *AddRemoteNodeParams {
-	var ()
 	return &AddRemoteNodeParams{
-
 		Context: ctx,
 	}
 }
 
 // NewAddRemoteNodeParamsWithHTTPClient creates a new AddRemoteNodeParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewAddRemoteNodeParamsWithHTTPClient(client *http.Client) *AddRemoteNodeParams {
-	var ()
 	return &AddRemoteNodeParams{
 		HTTPClient: client,
 	}
 }
 
-/*AddRemoteNodeParams contains all the parameters to send to the API endpoint
-for the add remote node operation typically these are written to a http.Request
+/* AddRemoteNodeParams contains all the parameters to send to the API endpoint
+   for the add remote node operation.
+
+   Typically these are written to a http.Request.
 */
 type AddRemoteNodeParams struct {
 
-	/*Body*/
+	// Body.
 	Body AddRemoteNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the add remote node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteNodeParams) WithDefaults() *AddRemoteNodeParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the add remote node params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *AddRemoteNodeParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the add remote node params
@@ -119,7 +133,6 @@ func (o *AddRemoteNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 	var res []error
-
 	if err := r.SetBodyParam(o.Body); err != nil {
 		return err
 	}

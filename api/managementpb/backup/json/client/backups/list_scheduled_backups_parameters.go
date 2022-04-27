@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewListScheduledBackupsParams creates a new ListScheduledBackupsParams object
-// with the default values initialized.
+// NewListScheduledBackupsParams creates a new ListScheduledBackupsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewListScheduledBackupsParams() *ListScheduledBackupsParams {
-	var ()
 	return &ListScheduledBackupsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewListScheduledBackupsParamsWithTimeout creates a new ListScheduledBackupsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewListScheduledBackupsParamsWithTimeout(timeout time.Duration) *ListScheduledBackupsParams {
-	var ()
 	return &ListScheduledBackupsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewListScheduledBackupsParamsWithContext creates a new ListScheduledBackupsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewListScheduledBackupsParamsWithContext(ctx context.Context) *ListScheduledBackupsParams {
-	var ()
 	return &ListScheduledBackupsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewListScheduledBackupsParamsWithHTTPClient creates a new ListScheduledBackupsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewListScheduledBackupsParamsWithHTTPClient(client *http.Client) *ListScheduledBackupsParams {
-	var ()
 	return &ListScheduledBackupsParams{
 		HTTPClient: client,
 	}
 }
 
-/*ListScheduledBackupsParams contains all the parameters to send to the API endpoint
-for the list scheduled backups operation typically these are written to a http.Request
+/* ListScheduledBackupsParams contains all the parameters to send to the API endpoint
+   for the list scheduled backups operation.
+
+   Typically these are written to a http.Request.
 */
 type ListScheduledBackupsParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the list scheduled backups params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListScheduledBackupsParams) WithDefaults() *ListScheduledBackupsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the list scheduled backups params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *ListScheduledBackupsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the list scheduled backups params
@@ -119,7 +133,6 @@ func (o *ListScheduledBackupsParams) WriteToRequest(r runtime.ClientRequest, reg
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

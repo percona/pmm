@@ -23,9 +23,12 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error)
+	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -35,13 +38,12 @@ type ClientService interface {
 
   Removes Service with Agents.
 */
-func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
+func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Service/Remove",
@@ -52,7 +54,12 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 		Reader:             &RemoveServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

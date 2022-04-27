@@ -6,6 +6,7 @@ package pxc_clusters
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewGetPXCClusterCredentialsOK() *GetPXCClusterCredentialsOK {
 	return &GetPXCClusterCredentialsOK{}
 }
 
-/*GetPXCClusterCredentialsOK handles this case with default header values.
+/* GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type GetPXCClusterCredentialsOK struct {
 func (o *GetPXCClusterCredentialsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] getPxcClusterCredentialsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPXCClusterCredentialsOK) GetPayload() *GetPXCClusterCredentialsOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewGetPXCClusterCredentialsDefault(code int) *GetPXCClusterCredentialsDefau
 	}
 }
 
-/*GetPXCClusterCredentialsDefault handles this case with default header values.
+/* GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *GetPXCClusterCredentialsDefault) Code() int {
 func (o *GetPXCClusterCredentialsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] GetPXCClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPXCClusterCredentialsDefault) GetPayload() *GetPXCClusterCredentialsDefaultBody {
 	return o.Payload
 }
@@ -131,6 +130,11 @@ type GetPXCClusterCredentialsBody struct {
 
 // Validate validates this get PXC cluster credentials body
 func (o *GetPXCClusterCredentialsBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster credentials body based on context it is used
+func (o *GetPXCClusterCredentialsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -167,7 +171,7 @@ type GetPXCClusterCredentialsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetPXCClusterCredentialsDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get PXC cluster credentials default body
@@ -185,7 +189,6 @@ func (o *GetPXCClusterCredentialsDefaultBody) Validate(formats strfmt.Registry) 
 }
 
 func (o *GetPXCClusterCredentialsDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -199,6 +202,42 @@ func (o *GetPXCClusterCredentialsDefaultBody) validateDetails(formats strfmt.Reg
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetPXCClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPXCClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PXC cluster credentials default body based on the context it is used
+func (o *GetPXCClusterCredentialsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPXCClusterCredentialsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetPXCClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetPXCClusterCredentials default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -220,6 +259,47 @@ func (o *GetPXCClusterCredentialsDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetPXCClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error {
 	var res GetPXCClusterCredentialsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials default body details items0
+swagger:model GetPXCClusterCredentialsDefaultBodyDetailsItems0
+*/
+type GetPXCClusterCredentialsDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get PXC cluster credentials default body details items0
+func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster credentials default body details items0 based on context it is used
+func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPXCClusterCredentialsDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -251,7 +331,6 @@ func (o *GetPXCClusterCredentialsOKBody) Validate(formats strfmt.Registry) error
 }
 
 func (o *GetPXCClusterCredentialsOKBody) validateConnectionCredentials(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.ConnectionCredentials) { // not required
 		return nil
 	}
@@ -260,6 +339,38 @@ func (o *GetPXCClusterCredentialsOKBody) validateConnectionCredentials(formats s
 		if err := o.ConnectionCredentials.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getPxcClusterCredentialsOk" + "." + "connection_credentials")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getPxcClusterCredentialsOk" + "." + "connection_credentials")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get PXC cluster credentials OK body based on the context it is used
+func (o *GetPXCClusterCredentialsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateConnectionCredentials(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetPXCClusterCredentialsOKBody) contextValidateConnectionCredentials(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.ConnectionCredentials != nil {
+		if err := o.ConnectionCredentials.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getPxcClusterCredentialsOk" + "." + "connection_credentials")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("getPxcClusterCredentialsOk" + "." + "connection_credentials")
 			}
 			return err
 		}
@@ -306,6 +417,11 @@ type GetPXCClusterCredentialsOKBodyConnectionCredentials struct {
 
 // Validate validates this get PXC cluster credentials OK body connection credentials
 func (o *GetPXCClusterCredentialsOKBodyConnectionCredentials) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get PXC cluster credentials OK body connection credentials based on context it is used
+func (o *GetPXCClusterCredentialsOKBodyConnectionCredentials) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 

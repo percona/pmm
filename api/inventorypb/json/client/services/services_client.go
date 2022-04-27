@@ -23,25 +23,28 @@ type Client struct {
 	formats   strfmt.Registry
 }
 
+// ClientOption is the option for Client methods
+type ClientOption func(*runtime.ClientOperation)
+
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error)
+	AddExternalService(params *AddExternalServiceParams, opts ...ClientOption) (*AddExternalServiceOK, error)
 
-	AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error)
+	AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error)
 
-	AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error)
+	AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error)
 
-	AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error)
+	AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOption) (*AddMySQLServiceOK, error)
 
-	AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error)
+	AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error)
 
-	AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error)
+	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
 
-	GetService(params *GetServiceParams) (*GetServiceOK, error)
+	GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error)
 
-	ListServices(params *ListServicesParams) (*ListServicesOK, error)
+	ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error)
 
-	RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error)
+	RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -51,13 +54,12 @@ type ClientService interface {
 
   Adds External Service.
 */
-func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExternalServiceOK, error) {
+func (a *Client) AddExternalService(params *AddExternalServiceParams, opts ...ClientOption) (*AddExternalServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddExternalServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddExternalService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddExternalService",
@@ -68,7 +70,12 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExter
 		Reader:             &AddExternalServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -86,13 +93,12 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams) (*AddExter
 
   Adds HAProxy Service.
 */
-func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxyServiceOK, error) {
+func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddHAProxyServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddHAProxyService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddHAProxyService",
@@ -103,7 +109,12 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxy
 		Reader:             &AddHAProxyServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -121,13 +132,12 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams) (*AddHAProxy
 
   Adds MongoDB Service.
 */
-func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
+func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMongoDBServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMongoDBService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddMongoDB",
@@ -138,7 +148,12 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDB
 		Reader:             &AddMongoDBServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -156,13 +171,12 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDB
 
   Adds MySQL Service.
 */
-func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error) {
+func (a *Client) AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOption) (*AddMySQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddMySQLServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddMySQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddMySQL",
@@ -173,7 +187,12 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 		Reader:             &AddMySQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -191,13 +210,12 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 
   Adds PostgreSQL Service.
 */
-func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error) {
+func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddPostgreSQLServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddPostgreSQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
@@ -208,7 +226,12 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 		Reader:             &AddPostgreSQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -226,13 +249,12 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 
   Adds ProxySQL Service.
 */
-func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error) {
+func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewAddProxySQLServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "AddProxySQLService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/AddProxySQL",
@@ -243,7 +265,12 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 		Reader:             &AddProxySQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -261,13 +288,12 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxy
 
   Returns a single Service by ID.
 */
-func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
+func (a *Client) GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewGetServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "GetService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/Get",
@@ -278,7 +304,12 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 		Reader:             &GetServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -296,13 +327,12 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 
   Returns a list of Services filtered by type.
 */
-func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, error) {
+func (a *Client) ListServices(params *ListServicesParams, opts ...ClientOption) (*ListServicesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewListServicesParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "ListServices",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/List",
@@ -313,7 +343,12 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 		Reader:             &ListServicesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}
@@ -331,13 +366,12 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 
   Removes Service.
 */
-func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
+func (a *Client) RemoveService(params *RemoveServiceParams, opts ...ClientOption) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRemoveServiceParams()
 	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
+	op := &runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
 		PathPattern:        "/v1/inventory/Services/Remove",
@@ -348,7 +382,12 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 		Reader:             &RemoveServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
-	})
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
 	if err != nil {
 		return nil, err
 	}

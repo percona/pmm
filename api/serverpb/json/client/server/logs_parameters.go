@@ -16,52 +16,66 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewLogsParams creates a new LogsParams object
-// with the default values initialized.
+// NewLogsParams creates a new LogsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewLogsParams() *LogsParams {
-
 	return &LogsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewLogsParamsWithTimeout creates a new LogsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewLogsParamsWithTimeout(timeout time.Duration) *LogsParams {
-
 	return &LogsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewLogsParamsWithContext creates a new LogsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewLogsParamsWithContext(ctx context.Context) *LogsParams {
-
 	return &LogsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewLogsParamsWithHTTPClient creates a new LogsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewLogsParamsWithHTTPClient(client *http.Client) *LogsParams {
-
 	return &LogsParams{
 		HTTPClient: client,
 	}
 }
 
-/*LogsParams contains all the parameters to send to the API endpoint
-for the logs operation typically these are written to a http.Request
+/* LogsParams contains all the parameters to send to the API endpoint
+   for the logs operation.
+
+   Typically these are written to a http.Request.
 */
 type LogsParams struct {
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the logs params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *LogsParams) WithDefaults() *LogsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the logs params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *LogsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the logs params

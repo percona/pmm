@@ -6,6 +6,7 @@ package object_details
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,7 +50,7 @@ func NewGetQueryExampleOK() *GetQueryExampleOK {
 	return &GetQueryExampleOK{}
 }
 
-/*GetQueryExampleOK handles this case with default header values.
+/* GetQueryExampleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -60,7 +61,6 @@ type GetQueryExampleOK struct {
 func (o *GetQueryExampleOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
 }
-
 func (o *GetQueryExampleOK) GetPayload() *GetQueryExampleOKBody {
 	return o.Payload
 }
@@ -84,7 +84,7 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 	}
 }
 
-/*GetQueryExampleDefault handles this case with default header values.
+/* GetQueryExampleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -102,7 +102,6 @@ func (o *GetQueryExampleDefault) Code() int {
 func (o *GetQueryExampleDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetQueryExampleDefault) GetPayload() *GetQueryExampleDefaultBody {
 	return o.Payload
 }
@@ -140,7 +139,7 @@ type GetQueryExampleBody struct {
 	GroupBy string `json:"group_by,omitempty"`
 
 	// labels
-	Labels []*LabelsItems0 `json:"labels"`
+	Labels []*GetQueryExampleParamsBodyLabelsItems0 `json:"labels"`
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
@@ -169,7 +168,6 @@ func (o *GetQueryExampleBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetQueryExampleBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
@@ -182,7 +180,6 @@ func (o *GetQueryExampleBody) validatePeriodStartFrom(formats strfmt.Registry) e
 }
 
 func (o *GetQueryExampleBody) validatePeriodStartTo(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
@@ -195,7 +192,6 @@ func (o *GetQueryExampleBody) validatePeriodStartTo(formats strfmt.Registry) err
 }
 
 func (o *GetQueryExampleBody) validateLabels(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Labels) { // not required
 		return nil
 	}
@@ -209,6 +205,42 @@ func (o *GetQueryExampleBody) validateLabels(formats strfmt.Registry) error {
 			if err := o.Labels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get query example body based on the context it is used
+func (o *GetQueryExampleBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Labels); i++ {
+
+		if o.Labels[i] != nil {
+			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -252,7 +284,7 @@ type GetQueryExampleDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*GetQueryExampleDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this get query example default body
@@ -270,7 +302,6 @@ func (o *GetQueryExampleDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetQueryExampleDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -284,6 +315,42 @@ func (o *GetQueryExampleDefaultBody) validateDetails(formats strfmt.Registry) er
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get query example default body based on the context it is used
+func (o *GetQueryExampleDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("GetQueryExample default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -312,13 +379,54 @@ func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetQueryExampleDefaultBodyDetailsItems0 get query example default body details items0
+swagger:model GetQueryExampleDefaultBodyDetailsItems0
+*/
+type GetQueryExampleDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this get query example default body details items0
+func (o *GetQueryExampleDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get query example default body details items0 based on context it is used
+func (o *GetQueryExampleDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetQueryExampleDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res GetQueryExampleDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetQueryExampleOKBody QueryExampleReply list of query examples.
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {
 
 	// query examples
-	QueryExamples []*QueryExamplesItems0 `json:"query_examples"`
+	QueryExamples []*GetQueryExampleOKBodyQueryExamplesItems0 `json:"query_examples"`
 }
 
 // Validate validates this get query example OK body
@@ -336,7 +444,6 @@ func (o *GetQueryExampleOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *GetQueryExampleOKBody) validateQueryExamples(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.QueryExamples) { // not required
 		return nil
 	}
@@ -350,6 +457,42 @@ func (o *GetQueryExampleOKBody) validateQueryExamples(formats strfmt.Registry) e
 			if err := o.QueryExamples[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get query example OK body based on the context it is used
+func (o *GetQueryExampleOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQueryExamples(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.QueryExamples); i++ {
+
+		if o.QueryExamples[i] != nil {
+			if err := o.QueryExamples[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getQueryExampleOk" + "." + "query_examples" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -378,10 +521,10 @@ func (o *GetQueryExampleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*QueryExamplesItems0 QueryExample shows query examples and their metrics.
-swagger:model QueryExamplesItems0
+/*GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and their metrics.
+swagger:model GetQueryExampleOKBodyQueryExamplesItems0
 */
-type QueryExamplesItems0 struct {
+type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 
 	// example
 	Example string `json:"example,omitempty"`
@@ -415,8 +558,8 @@ type QueryExamplesItems0 struct {
 	Tables []string `json:"tables"`
 }
 
-// Validate validates this query examples items0
-func (o *QueryExamplesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get query example OK body query examples items0
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateExampleFormat(formats); err != nil {
@@ -433,7 +576,7 @@ func (o *QueryExamplesItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var queryExamplesItems0TypeExampleFormatPropEnum []interface{}
+var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -441,32 +584,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		queryExamplesItems0TypeExampleFormatPropEnum = append(queryExamplesItems0TypeExampleFormatPropEnum, v)
+		getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum = append(getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum, v)
 	}
 }
 
 const (
 
-	// QueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID captures enum value "EXAMPLE_FORMAT_INVALID"
-	QueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID string = "EXAMPLE_FORMAT_INVALID"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID captures enum value "EXAMPLE_FORMAT_INVALID"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID string = "EXAMPLE_FORMAT_INVALID"
 
-	// QueryExamplesItems0ExampleFormatEXAMPLE captures enum value "EXAMPLE"
-	QueryExamplesItems0ExampleFormatEXAMPLE string = "EXAMPLE"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE captures enum value "EXAMPLE"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE string = "EXAMPLE"
 
-	// QueryExamplesItems0ExampleFormatFINGERPRINT captures enum value "FINGERPRINT"
-	QueryExamplesItems0ExampleFormatFINGERPRINT string = "FINGERPRINT"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatFINGERPRINT captures enum value "FINGERPRINT"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatFINGERPRINT string = "FINGERPRINT"
 )
 
 // prop value enum
-func (o *QueryExamplesItems0) validateExampleFormatEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, queryExamplesItems0TypeExampleFormatPropEnum, true); err != nil {
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleFormatEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *QueryExamplesItems0) validateExampleFormat(formats strfmt.Registry) error {
-
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleFormat(formats strfmt.Registry) error {
 	if swag.IsZero(o.ExampleFormat) { // not required
 		return nil
 	}
@@ -479,7 +621,7 @@ func (o *QueryExamplesItems0) validateExampleFormat(formats strfmt.Registry) err
 	return nil
 }
 
-var queryExamplesItems0TypeExampleTypePropEnum []interface{}
+var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -487,38 +629,37 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		queryExamplesItems0TypeExampleTypePropEnum = append(queryExamplesItems0TypeExampleTypePropEnum, v)
+		getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum = append(getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum, v)
 	}
 }
 
 const (
 
-	// QueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID captures enum value "EXAMPLE_TYPE_INVALID"
-	QueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID string = "EXAMPLE_TYPE_INVALID"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID captures enum value "EXAMPLE_TYPE_INVALID"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID string = "EXAMPLE_TYPE_INVALID"
 
-	// QueryExamplesItems0ExampleTypeRANDOM captures enum value "RANDOM"
-	QueryExamplesItems0ExampleTypeRANDOM string = "RANDOM"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM captures enum value "RANDOM"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM string = "RANDOM"
 
-	// QueryExamplesItems0ExampleTypeSLOWEST captures enum value "SLOWEST"
-	QueryExamplesItems0ExampleTypeSLOWEST string = "SLOWEST"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeSLOWEST captures enum value "SLOWEST"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeSLOWEST string = "SLOWEST"
 
-	// QueryExamplesItems0ExampleTypeFASTEST captures enum value "FASTEST"
-	QueryExamplesItems0ExampleTypeFASTEST string = "FASTEST"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeFASTEST captures enum value "FASTEST"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeFASTEST string = "FASTEST"
 
-	// QueryExamplesItems0ExampleTypeWITHERROR captures enum value "WITH_ERROR"
-	QueryExamplesItems0ExampleTypeWITHERROR string = "WITH_ERROR"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeWITHERROR captures enum value "WITH_ERROR"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeWITHERROR string = "WITH_ERROR"
 )
 
 // prop value enum
-func (o *QueryExamplesItems0) validateExampleTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, queryExamplesItems0TypeExampleTypePropEnum, true); err != nil {
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *QueryExamplesItems0) validateExampleType(formats strfmt.Registry) error {
-
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleType(formats strfmt.Registry) error {
 	if swag.IsZero(o.ExampleType) { // not required
 		return nil
 	}
@@ -531,8 +672,13 @@ func (o *QueryExamplesItems0) validateExampleType(formats strfmt.Registry) error
 	return nil
 }
 
+// ContextValidate validates this get query example OK body query examples items0 based on context it is used
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
-func (o *QueryExamplesItems0) MarshalBinary() ([]byte, error) {
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -540,8 +686,48 @@ func (o *QueryExamplesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *QueryExamplesItems0) UnmarshalBinary(b []byte) error {
-	var res QueryExamplesItems0
+func (o *GetQueryExampleOKBodyQueryExamplesItems0) UnmarshalBinary(b []byte) error {
+	var res GetQueryExampleOKBodyQueryExamplesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+swagger:model GetQueryExampleParamsBodyLabelsItems0
+*/
+type GetQueryExampleParamsBodyLabelsItems0 struct {
+
+	// key
+	Key string `json:"key,omitempty"`
+
+	// value
+	Value []string `json:"value"`
+}
+
+// Validate validates this get query example params body labels items0
+func (o *GetQueryExampleParamsBodyLabelsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get query example params body labels items0 based on context it is used
+func (o *GetQueryExampleParamsBodyLabelsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetQueryExampleParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetQueryExampleParamsBodyLabelsItems0) UnmarshalBinary(b []byte) error {
+	var res GetQueryExampleParamsBodyLabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

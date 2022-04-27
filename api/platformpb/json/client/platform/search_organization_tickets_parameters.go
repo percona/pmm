@@ -16,56 +16,70 @@ import (
 	"github.com/go-openapi/strfmt"
 )
 
-// NewSearchOrganizationTicketsParams creates a new SearchOrganizationTicketsParams object
-// with the default values initialized.
+// NewSearchOrganizationTicketsParams creates a new SearchOrganizationTicketsParams object,
+// with the default timeout for this client.
+//
+// Default values are not hydrated, since defaults are normally applied by the API server side.
+//
+// To enforce default values in parameter, use SetDefaults or WithDefaults.
 func NewSearchOrganizationTicketsParams() *SearchOrganizationTicketsParams {
-	var ()
 	return &SearchOrganizationTicketsParams{
-
 		timeout: cr.DefaultTimeout,
 	}
 }
 
 // NewSearchOrganizationTicketsParamsWithTimeout creates a new SearchOrganizationTicketsParams object
-// with the default values initialized, and the ability to set a timeout on a request
+// with the ability to set a timeout on a request.
 func NewSearchOrganizationTicketsParamsWithTimeout(timeout time.Duration) *SearchOrganizationTicketsParams {
-	var ()
 	return &SearchOrganizationTicketsParams{
-
 		timeout: timeout,
 	}
 }
 
 // NewSearchOrganizationTicketsParamsWithContext creates a new SearchOrganizationTicketsParams object
-// with the default values initialized, and the ability to set a context for a request
+// with the ability to set a context for a request.
 func NewSearchOrganizationTicketsParamsWithContext(ctx context.Context) *SearchOrganizationTicketsParams {
-	var ()
 	return &SearchOrganizationTicketsParams{
-
 		Context: ctx,
 	}
 }
 
 // NewSearchOrganizationTicketsParamsWithHTTPClient creates a new SearchOrganizationTicketsParams object
-// with the default values initialized, and the ability to set a custom HTTPClient for a request
+// with the ability to set a custom HTTPClient for a request.
 func NewSearchOrganizationTicketsParamsWithHTTPClient(client *http.Client) *SearchOrganizationTicketsParams {
-	var ()
 	return &SearchOrganizationTicketsParams{
 		HTTPClient: client,
 	}
 }
 
-/*SearchOrganizationTicketsParams contains all the parameters to send to the API endpoint
-for the search organization tickets operation typically these are written to a http.Request
+/* SearchOrganizationTicketsParams contains all the parameters to send to the API endpoint
+   for the search organization tickets operation.
+
+   Typically these are written to a http.Request.
 */
 type SearchOrganizationTicketsParams struct {
 
-	/*Body*/
+	// Body.
 	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
+}
+
+// WithDefaults hydrates default values in the search organization tickets params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *SearchOrganizationTicketsParams) WithDefaults() *SearchOrganizationTicketsParams {
+	o.SetDefaults()
+	return o
+}
+
+// SetDefaults hydrates default values in the search organization tickets params (not the query body).
+//
+// All values with no default are reset to their zero value.
+func (o *SearchOrganizationTicketsParams) SetDefaults() {
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the search organization tickets params
@@ -119,7 +133,6 @@ func (o *SearchOrganizationTicketsParams) WriteToRequest(r runtime.ClientRequest
 		return err
 	}
 	var res []error
-
 	if o.Body != nil {
 		if err := r.SetBodyParam(o.Body); err != nil {
 			return err

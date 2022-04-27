@@ -6,6 +6,7 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewCancelActionOK() *CancelActionOK {
 	return &CancelActionOK{}
 }
 
-/*CancelActionOK handles this case with default header values.
+/* CancelActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type CancelActionOK struct {
 func (o *CancelActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
 }
-
 func (o *CancelActionOK) GetPayload() interface{} {
 	return o.Payload
 }
@@ -80,7 +80,7 @@ func NewCancelActionDefault(code int) *CancelActionDefault {
 	}
 }
 
-/*CancelActionDefault handles this case with default header values.
+/* CancelActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -98,7 +98,6 @@ func (o *CancelActionDefault) Code() int {
 func (o *CancelActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CancelActionDefault) GetPayload() *CancelActionDefaultBody {
 	return o.Payload
 }
@@ -126,6 +125,11 @@ type CancelActionBody struct {
 
 // Validate validates this cancel action body
 func (o *CancelActionBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this cancel action body based on context it is used
+func (o *CancelActionBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
@@ -162,7 +166,7 @@ type CancelActionDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*CancelActionDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this cancel action default body
@@ -180,7 +184,6 @@ func (o *CancelActionDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *CancelActionDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -194,6 +197,42 @@ func (o *CancelActionDefaultBody) validateDetails(formats strfmt.Registry) error
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this cancel action default body based on the context it is used
+func (o *CancelActionDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CancelActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("CancelAction default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -222,10 +261,10 @@ func (o *CancelActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
+/*CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
+swagger:model CancelActionDefaultBodyDetailsItems0
 */
-type DetailsItems0 struct {
+type CancelActionDefaultBodyDetailsItems0 struct {
 
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
@@ -235,13 +274,18 @@ type DetailsItems0 struct {
 	Value strfmt.Base64 `json:"value,omitempty"`
 }
 
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel action default body details items0
+func (o *CancelActionDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this cancel action default body details items0 based on context it is used
+func (o *CancelActionDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelActionDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -249,8 +293,8 @@ func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
+func (o *CancelActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelActionDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

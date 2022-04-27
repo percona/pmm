@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strconv"
@@ -47,7 +48,7 @@ func NewAddContainerNodeOK() *AddContainerNodeOK {
 	return &AddContainerNodeOK{}
 }
 
-/*AddContainerNodeOK handles this case with default header values.
+/* AddContainerNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +59,6 @@ type AddContainerNodeOK struct {
 func (o *AddContainerNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *AddContainerNodeOK) GetPayload() *AddContainerNodeOKBody {
 	return o.Payload
 }
@@ -82,7 +82,7 @@ func NewAddContainerNodeDefault(code int) *AddContainerNodeDefault {
 	}
 }
 
-/*AddContainerNodeDefault handles this case with default header values.
+/* AddContainerNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +100,6 @@ func (o *AddContainerNodeDefault) Code() int {
 func (o *AddContainerNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddContainerNodeDefault) GetPayload() *AddContainerNodeDefaultBody {
 	return o.Payload
 }
@@ -155,6 +154,11 @@ func (o *AddContainerNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+// ContextValidate validates this add container node body based on context it is used
+func (o *AddContainerNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddContainerNodeBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -188,7 +192,7 @@ type AddContainerNodeDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*DetailsItems0 `json:"details"`
+	Details []*AddContainerNodeDefaultBodyDetailsItems0 `json:"details"`
 }
 
 // Validate validates this add container node default body
@@ -206,7 +210,6 @@ func (o *AddContainerNodeDefaultBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddContainerNodeDefaultBody) validateDetails(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -220,6 +223,42 @@ func (o *AddContainerNodeDefaultBody) validateDetails(formats strfmt.Registry) e
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("AddContainerNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddContainerNode default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add container node default body based on the context it is used
+func (o *AddContainerNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateDetails(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddContainerNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Details); i++ {
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("AddContainerNode default" + "." + "details" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("AddContainerNode default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -241,6 +280,47 @@ func (o *AddContainerNodeDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	var res AddContainerNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddContainerNodeDefaultBodyDetailsItems0 add container node default body details items0
+swagger:model AddContainerNodeDefaultBodyDetailsItems0
+*/
+type AddContainerNodeDefaultBodyDetailsItems0 struct {
+
+	// type url
+	TypeURL string `json:"type_url,omitempty"`
+
+	// value
+	// Format: byte
+	Value strfmt.Base64 `json:"value,omitempty"`
+}
+
+// Validate validates this add container node default body details items0
+func (o *AddContainerNodeDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add container node default body details items0 based on context it is used
+func (o *AddContainerNodeDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddContainerNodeDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddContainerNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddContainerNodeDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -272,7 +352,6 @@ func (o *AddContainerNodeOKBody) Validate(formats strfmt.Registry) error {
 }
 
 func (o *AddContainerNodeOKBody) validateContainer(formats strfmt.Registry) error {
-
 	if swag.IsZero(o.Container) { // not required
 		return nil
 	}
@@ -281,6 +360,38 @@ func (o *AddContainerNodeOKBody) validateContainer(formats strfmt.Registry) erro
 		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addContainerNodeOk" + "." + "container")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addContainerNodeOk" + "." + "container")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add container node OK body based on the context it is used
+func (o *AddContainerNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateContainer(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddContainerNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.Container != nil {
+		if err := o.Container.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addContainerNodeOk" + "." + "container")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addContainerNodeOk" + "." + "container")
 			}
 			return err
 		}
@@ -348,6 +459,11 @@ func (o *AddContainerNodeOKBodyContainer) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
+// ContextValidate validates this add container node OK body container based on context it is used
+func (o *AddContainerNodeOKBodyContainer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *AddContainerNodeOKBodyContainer) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -359,42 +475,6 @@ func (o *AddContainerNodeOKBodyContainer) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddContainerNodeOKBodyContainer) UnmarshalBinary(b []byte) error {
 	var res AddContainerNodeOKBodyContainer
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*DetailsItems0 details items0
-swagger:model DetailsItems0
-*/
-type DetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
-}
-
-// Validate validates this details items0
-func (o *DetailsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *DetailsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *DetailsItems0) UnmarshalBinary(b []byte) error {
-	var res DetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
