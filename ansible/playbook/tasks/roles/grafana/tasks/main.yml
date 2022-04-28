@@ -21,7 +21,7 @@
     dest: /etc/grafana/grafana.ini
     owner: grafana
     group: grafana
-    mode: '0544'
+    mode: '0444'
 
 - name: Create provisioning directory
   file:
