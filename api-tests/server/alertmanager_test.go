@@ -22,8 +22,6 @@ import (
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -37,16 +35,6 @@ func TestAlertManager(t *testing.T) {
 		}
 
 		defer restoreSettingsDefaults(t)
-
-		// Enabling STT
-		res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableStt: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.SttEnabled)
 
 		// sync with pmm-managed
 		const (

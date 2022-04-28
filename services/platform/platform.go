@@ -132,7 +132,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		return nil, errInternalServer
 	}
 
-	if settings.SaaS.STTEnabled {
+	if !settings.SaaS.STTDisabled {
 		s.checksService.CollectChecks(ctx)
 	}
 
@@ -188,7 +188,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 		return nil, err // this is already a status error
 	}
 
-	if settings.SaaS.STTEnabled {
+	if !settings.SaaS.STTDisabled {
 		s.checksService.CollectChecks(ctx)
 	}
 

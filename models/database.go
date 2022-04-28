@@ -704,6 +704,9 @@ var databaseSchema = [][]string{
 			ADD COLUMN pmm_server_name VARCHAR NOT NULL,
 			ALTER COLUMN organization_id SET NOT NULL`,
 	},
+	61: {
+		`UPDATE settings SET settings = settings #- '{sass, stt_enabled}';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

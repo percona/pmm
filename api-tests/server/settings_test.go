@@ -44,7 +44,7 @@ func TestSettings(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
-		assert.False(t, res.Payload.Settings.SttEnabled)
+		assert.True(t, res.Payload.Settings.SttEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
 			Mr: "10s",
@@ -462,7 +462,7 @@ func TestSettings(t *testing.T) {
 				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
 				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
-				assert.False(t, resg.Payload.Settings.SttEnabled)
+				assert.True(t, resg.Payload.Settings.SttEnabled)
 
 				t.Run("EnableSTTWhileTelemetryDisabled", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
@@ -498,7 +498,7 @@ func TestSettings(t *testing.T) {
 					resg, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
 					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-					assert.False(t, resg.Payload.Settings.SttEnabled)
+					assert.True(t, resg.Payload.Settings.SttEnabled)
 				})
 			})
 

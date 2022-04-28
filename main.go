@@ -704,7 +704,7 @@ func main() {
 
 	actionsService := agents.NewActionsService(agentsRegistry)
 
-	checksService, err := checks.New(actionsService, alertManager, db)
+	checksService, err := checks.New(actionsService, alertManager, db, *victoriaMetricsURLF)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}

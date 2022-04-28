@@ -31,7 +31,7 @@ var privateNetworks []*net.IPNet
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 	switch version {
-	case 1:
+	case 1, 2:
 		return map[string]starlark.GoFunc{
 			"parse_version":      parseVersion,
 			"format_version_num": formatVersionNum,

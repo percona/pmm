@@ -448,7 +448,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
 		AlertManagerUrl:      settings.AlertManagerURL,
-		SttEnabled:           settings.SaaS.STTEnabled,
+		SttEnabled:           !settings.SaaS.STTDisabled,
 		DbaasEnabled:         settings.DBaaS.Enabled,
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
@@ -704,7 +704,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	// When STT moved from disabled state to enabled force checks download and execution.
 	var sttStarted bool
-	if !oldSettings.SaaS.STTEnabled && newSettings.SaaS.STTEnabled {
+	if oldSettings.SaaS.STTDisabled && !newSettings.SaaS.STTDisabled {
 		sttStarted = true
 		if err := s.checksService.StartChecks(nil); err != nil {
 			s.l.Error(err)
@@ -712,7 +712,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	// When STT moved from enabled state to disabled drop all existing STT alerts.
-	if oldSettings.SaaS.STTEnabled && !newSettings.SaaS.STTEnabled {
+	if !oldSettings.SaaS.STTDisabled && newSettings.SaaS.STTDisabled {
 		s.checksService.CleanupAlerts()
 	}
 

@@ -38,11 +38,12 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 	}
 
 	var s Settings
+
 	if err := json.Unmarshal(b, &s); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal settings")
 	}
-
 	s.fillDefaults()
+
 	return &s, nil
 }
 
@@ -182,10 +183,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableSTT {
-		settings.SaaS.STTEnabled = false
+		settings.SaaS.STTDisabled = true
 	}
 	if params.EnableSTT {
-		settings.SaaS.STTEnabled = true
+		settings.SaaS.STTDisabled = false
 	}
 
 	if params.STTCheckIntervals.RareInterval != 0 {

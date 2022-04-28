@@ -116,10 +116,10 @@ func TestStarlarkSandbox(t *testing.T) {
 			require.NoError(t, err)
 
 			data := &checks.StarlarkScriptData{
-				Version:     1,
-				Name:        tc.name,
-				Script:      tc.script,
-				QueryResult: result,
+				Version:        1,
+				Name:           tc.name,
+				Script:         tc.script,
+				QueriesResults: [][]byte{result},
 			}
 
 			cmd := exec.Command("./../../bin/pmm-managed-starlark")

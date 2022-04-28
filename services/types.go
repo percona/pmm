@@ -27,6 +27,7 @@ type Target struct {
 	AgentID       string
 	ServiceID     string
 	ServiceName   string
+	NodeName      string
 	Labels        map[string]string
 	DSN           string
 	Files         map[string]string

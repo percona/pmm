@@ -463,12 +463,8 @@ github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813 h1:Jb/t6zDMQMwt
 github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472 h1:Henk22VMEBX2jwxAW/pHmiJ9s/w8uwRD4ErPidAS9Vs=
 github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472/go.mod h1:WZZ3Hi+lAWCaGWmsrfkkvRQPkIa8n1OZ0s8Su+vbgus=
-github.com/percona-platform/saas v0.0.0-20220326163809-90f261fe195c h1:laB9JpVYIRclGKk596X/qJaHbchx6O/em0MugBkqPVU=
-github.com/percona-platform/saas v0.0.0-20220326163809-90f261fe195c/go.mod h1:gFUwaFp6Ugu5qsBwiOVJYbDlzgZ77tmXdXGO7tG5xVI=
-github.com/percona/pmm v0.0.0-20220425093801-6ff2b4fb108f h1:HV3NCszjpxkVXWUJSfmT86YFWl1TFHKuAf7mM9t5szQ=
-github.com/percona/pmm v0.0.0-20220425093801-6ff2b4fb108f/go.mod h1:FFbpyZXm+Ilg8M/GewuhdjJhPaW1/v1zjRRerYhCfEA=
-github.com/percona/pmm v0.0.0-20220426095359-6ec19a46c5a2 h1:82QYprx2f64L08A7g0ZzkzkRlVN2NElGJh/mGsciGGQ=
-github.com/percona/pmm v0.0.0-20220426095359-6ec19a46c5a2/go.mod h1:FFbpyZXm+Ilg8M/GewuhdjJhPaW1/v1zjRRerYhCfEA=
+github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16 h1:0fx16uGtl4MwrBwm9/VSoNEhjL0cXYxS0quEhLthGcc=
+github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16/go.mod h1:gFUwaFp6Ugu5qsBwiOVJYbDlzgZ77tmXdXGO7tG5xVI=
 github.com/percona/pmm v0.0.0-20220427122756-c52cc545e1f3 h1:6IKHKNDNJADEN/YsvXcUiJ8M75/PW+bJZ3kMb+CL7kM=
 github.com/percona/pmm v0.0.0-20220427122756-c52cc545e1f3/go.mod h1:FFbpyZXm+Ilg8M/GewuhdjJhPaW1/v1zjRRerYhCfEA=
 github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54 h1:aI1emmycDTGWKsBdxFPKZqohfBbK4y2ta9G4+RX7gVg=
