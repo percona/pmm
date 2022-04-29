@@ -33,7 +33,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
 
 You need the authentication string which is described [here](ref:authentication).
 
-Then you need the [service_id](ref:listservices) and [location_id](ref:location_id).
+Then you need the [service_id](ref:listservices) and [location_id](ref:listlocations).
 
 You can choose your own `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if that is necessary. 
 
