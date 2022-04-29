@@ -32,7 +32,7 @@ PMM provides set of API calls to enable DBaaS, configure it and to create and ma
 - https://percona-pmm.readme.io/reference/createpxccluster
 - https://percona-pmm.readme.io/reference/createpsmdbcluster
 
-In this example we would use minikube for the kubernetes cluster and create PXC DB cluster, but similar API endpoints exist for the PSMDB.
+In this example we would use minikube for the kubernetes cluster and will create a PXC DB cluster, but similar API endpoints exist for the PSMDB.
 
 ### Enabling
 
