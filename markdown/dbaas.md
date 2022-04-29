@@ -70,7 +70,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \
 ```
 This command will register kubernetes cluster, start monitoring of kubernetes cluster and install required kubernetes operators.
 
-API endpoint used in this step: [RegisterKubernetesCluster](https://percona-pmm.readme.io/reference/registerkubernetescluster)
+API endpoint used in this step: [RegisterKubernetesCluster](ref:registerkubernetescluster)
 
 ### Get available PXC image names
 To create a PXC cluster, we need to provide the image name for the database instance.
