@@ -28,6 +28,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	LogZip(params *LogZipParams, opts ...ClientOption) (*LogZipOK, error)
+
 	Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error)
 
 	Status(params *StatusParams, opts ...ClientOption) (*StatusOK, error)
@@ -35,6 +37,43 @@ type ClientService interface {
 	Status2(params *Status2Params, opts ...ClientOption) (*Status2OK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+  LogZip logs zip returns current pmm agent status
+*/
+func (a *Client) LogZip(params *LogZipParams, opts ...ClientOption) (*LogZipOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewLogZipParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "LogZip",
+		Method:             "POST",
+		PathPattern:        "/logs.zip",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &LogZipReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*LogZipOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*LogZipDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*

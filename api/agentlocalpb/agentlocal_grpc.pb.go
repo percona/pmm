@@ -27,6 +27,8 @@ type AgentLocalClient interface {
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	// Reload reloads pmm-agent configuration.
 	Reload(ctx context.Context, in *ReloadRequest, opts ...grpc.CallOption) (*ReloadResponse, error)
+	// LogZip returns current pmm-agent status.
+	LogZip(ctx context.Context, in *LogZipRequest, opts ...grpc.CallOption) (*LogZipResponse, error)
 }
 
 type agentLocalClient struct {
@@ -55,6 +57,15 @@ func (c *agentLocalClient) Reload(ctx context.Context, in *ReloadRequest, opts .
 	return out, nil
 }
 
+func (c *agentLocalClient) LogZip(ctx context.Context, in *LogZipRequest, opts ...grpc.CallOption) (*LogZipResponse, error) {
+	out := new(LogZipResponse)
+	err := c.cc.Invoke(ctx, "/agentlocal.AgentLocal/LogZip", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentLocalServer is the server API for AgentLocal service.
 // All implementations must embed UnimplementedAgentLocalServer
 // for forward compatibility
@@ -63,6 +74,8 @@ type AgentLocalServer interface {
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	// Reload reloads pmm-agent configuration.
 	Reload(context.Context, *ReloadRequest) (*ReloadResponse, error)
+	// LogZip returns current pmm-agent status.
+	LogZip(context.Context, *LogZipRequest) (*LogZipResponse, error)
 	mustEmbedUnimplementedAgentLocalServer()
 }
 
@@ -75,6 +88,9 @@ func (UnimplementedAgentLocalServer) Status(context.Context, *StatusRequest) (*S
 }
 func (UnimplementedAgentLocalServer) Reload(context.Context, *ReloadRequest) (*ReloadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reload not implemented")
+}
+func (UnimplementedAgentLocalServer) LogZip(context.Context, *LogZipRequest) (*LogZipResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LogZip not implemented")
 }
 func (UnimplementedAgentLocalServer) mustEmbedUnimplementedAgentLocalServer() {}
 
@@ -125,6 +141,24 @@ func _AgentLocal_Reload_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AgentLocal_LogZip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LogZipRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentLocalServer).LogZip(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agentlocal.AgentLocal/LogZip",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentLocalServer).LogZip(ctx, req.(*LogZipRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AgentLocal_ServiceDesc is the grpc.ServiceDesc for AgentLocal service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +173,10 @@ var AgentLocal_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Reload",
 			Handler:    _AgentLocal_Reload_Handler,
+		},
+		{
+			MethodName: "LogZip",
+			Handler:    _AgentLocal_LogZip_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

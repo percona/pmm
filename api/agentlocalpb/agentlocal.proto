@@ -58,6 +58,13 @@ message ReloadRequest {}
 // ReloadRequest may not be received by the client due to pmm-agent restart.
 message ReloadResponse {}
 
+message LogZipRequest {}
+
+// ReloadRequest may not be received by the client due to pmm-agent restart.
+message LogZipResponse {
+  bytes logs = 1;
+}
+
 // AgentLocal service provides public methods for checking pmm-agent status locally.
 service AgentLocal {
   // Status returns current pmm-agent status.
@@ -74,6 +81,14 @@ service AgentLocal {
   rpc Reload(ReloadRequest) returns (ReloadResponse) {
     option (google.api.http) = {
       post: "/local/Reload"
+      body: "*"
+    };
+  }
+
+  // LogZip returns current pmm-agent status.
+  rpc LogZip(LogZipRequest) returns (LogZipResponse) {
+    option (google.api.http) = {
+      post: "/logs.zip"
       body: "*"
     };
   }
