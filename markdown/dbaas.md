@@ -33,6 +33,7 @@ PMM provides set of API calls to enable DBaaS, configure it and to create and ma
 - https://percona-pmm.readme.io/reference/createpsmdbcluster
 
 In this example we would use minikube for the kubernetes cluster and create PXC DB cluster, but similar API endpoints exist for the PSMDB.
+
 ### Enabling
 
 To enable DBaaS, first we need:
@@ -76,3 +77,47 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" -H "accept
 ```
 
 API endpoint used in this step: [CreatePXCCluster creates](https://percona-pmm.readme.io/reference/createpxccluster).
+
+### List Kubernetes clusters
+
+Once you created PXC cluster you can check the status of the cluster by calling `List` endpoint.
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
+```
+
+Example response:
+```json
+{
+  "pxc_clusters": [
+    {
+      "name": "my-cluster-1",
+      "state": "DB_CLUSTER_STATE_READY",
+      "operation": {
+        "finished_steps": 6,
+        "total_steps": 6
+      },
+      "params": {
+        "cluster_size": 3,
+        "pxc": {
+          "compute_resources": {
+            "cpu_m": 1000,
+            "memory_bytes": "2000000000"
+          },
+          "disk_size": "25000000000"
+        },
+        "haproxy": {
+          "compute_resources": {
+            "cpu_m": 1000,
+            "memory_bytes": "2000000000"
+          }
+        }
+      },
+      "installed_image": "percona/percona-xtradb-cluster:8.0.25-15.1"
+    }
+  ]
+}
+```
+Response contains field `state` which provides current state of DB cluster. `DB_CLUSTER_STATE_READY` means that DB cluster is ready for use.
+
+API endpoint used in this step: [ListDBClusters](https://percona-pmm.readme.io/reference/listdbclusters)
+
