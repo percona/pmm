@@ -76,7 +76,7 @@ Once we registered kubernetes cluster we can use it’s name to create DB Cluste
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
 ```
 
-API endpoint used in this step: [CreatePXCCluster creates](https://percona-pmm.readme.io/reference/createpxccluster).
+API endpoint used in this step: [CreatePXCCluster](https://percona-pmm.readme.io/reference/createpxccluster).
 
 ### List Kubernetes clusters
 
