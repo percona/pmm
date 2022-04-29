@@ -234,7 +234,7 @@ Example: `"image": "percona/percona-xtradb-cluster:8.0.19-10.1"`
 
 ### Create PXC Cluster
 
-Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster.
+Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster, the values for parameters are recomended by Percona:
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
