@@ -69,7 +69,13 @@ You can check this using Ansible with a task such as:
 
 ### Changing the password following initial installation
 
-The payload for changing a user's password is:
+**Caution:** Once you have changed the password, you need to use the new password
+from then on. Should you be doing this for an account that is used elsewhere then
+you may find that the account gets blocked due to too many failed login attemps.
+You should disconnect any clients using the same account before proceeding to
+avoid such issues.
+
+The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-password) for changing a user's password is:
 ```json
 {
   "oldPassword": "xxx",
@@ -110,8 +116,4 @@ This can be achieved in Ansible with a task such as:
       newPassword: 'notAdminAnymore'
       confirmNew: 'notAdminAnymore'
 ```
-
-**Caution:** Once you have changed the password, you need to use the new password
-from then on. Should you be doing this for an account that is used elsewhere then
-you may find that the account gets blocked due to too many failed login attemps.
 
