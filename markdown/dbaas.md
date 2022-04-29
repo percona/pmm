@@ -31,3 +31,48 @@ PMM provides set of API calls to enable DBaaS, configure it and to create and ma
 - https://percona-pmm.readme.io/reference/registerkubernetescluster
 - https://percona-pmm.readme.io/reference/createpxccluster
 - https://percona-pmm.readme.io/reference/createpsmdbcluster
+
+In this example we would use minikube for the kubernetes cluster and create PXC DB cluster, but similar API endpoints exist for the PSMDB.
+### Enabling
+
+To enable DBaaS, first we need:
+- Enable DBaaS in settings.
+- Specify the DNS name or public IP address of the pmm-server instance to be able to monitor DB clusters we create in DBaaS and Kubernetes cluster itself.
+
+It is highly recommended to **use DNS name** instead of IP address but in example bellow we have a dev environment and use IP address instead.
+#### Get Docker container IP and set it as public address
+
+First of all we should get IP address of PMM (or DNS name should be used and that is recommended). If you are running in local minikube environment you can use following command to get IP address:
+```bash
+IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pmm-server)
+```
+If your kubernetes cluster is located outside of your local system you can get public address by calling `ifconfig`.
+
+Then to enable DBaaS send request to `Settings/Change` endpoint like below where `IP` is public IP address or DNS name of PMM Server instance.
+```bash
+curl -X POST "http://localhost/v1/Settings/Change" -H "accept: application/json" -u "admin:admin" -H "Content-Type: application/json" -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true}"
+```
+
+API endpoint used in this step: [Change settings](https://percona-pmm.readme.io/reference/changesettings).
+
+### Registering new Kubernetes cluster
+
+Once kubernetes cluster is created it should be registered in PMM where `my_cluster` is a name of kubernetes cluster which will be used later. `sed` command is used to remove newlines, otherwise this script doesn’t work.
+```bash
+KUBECONFIG=$(kubectl -- config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
+
+curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" -H "accept: application/json" -u "admin:admin" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }}"
+```
+This command will register kubernetes cluster, start monitoring of kubernetes cluster and install required kubernetes operators.
+
+API endpoint used in this step: [RegisterKubernetesCluster](https://percona-pmm.readme.io/reference/registerkubernetescluster)
+
+### Create PXC Cluster
+
+Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster.
+
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
+```
+
+API endpoint used in this step: [CreatePXCCluster creates](https://percona-pmm.readme.io/reference/createpxccluster).
