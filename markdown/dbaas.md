@@ -241,7 +241,7 @@ From this response, choose one of the images in the `pxc` section:
           },
 ```
 
-The chosen `image_path` value is the value you should provide in the next API call as the `image` field.
+The chosen `image_path` value is the value you should provide in the next API call as the `image` field. We recommend using the one with `"status": "recommended"`
 Example: `"image": "percona/percona-xtradb-cluster:8.0.19-10.1"`
 
 API endpoint used in this step: [ChangePXCComponents](ref:changepxccomponents).
