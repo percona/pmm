@@ -41,6 +41,7 @@ To enable DBaaS, first we need:
 - Specify the DNS name or public IP address of the pmm-server instance to be able to monitor DB clusters we create in DBaaS and Kubernetes cluster itself.
 
 It is highly recommended to **use DNS name** instead of IP address but in example bellow we have a dev environment and use IP address instead.
+
 #### Get Docker container IP and set it as public address
 
 First of all we should get IP address of PMM (or DNS name should be used and that is recommended). If you are running in local minikube environment you can use following command to get IP address:
@@ -73,6 +74,7 @@ This command will register kubernetes cluster, start monitoring of kubernetes cl
 API endpoint used in this step: [RegisterKubernetesCluster](ref:registerkubernetescluster)
 
 ### Get available PXC image names
+
 To create a PXC cluster, we need to provide the image name for the database instance.
 Percona maintains a list of available versions for each component. For example, to retrieve the list of the available PXC components we can call the `Components/GetPXC` API method:
 
@@ -231,6 +233,7 @@ From this response, choose one of the images in the `pxc` section:
 The chosen `image_path` value is the value you should provide in the next API call as the `image` field.
 Example: `"image": "percona/percona-xtradb-cluster:8.0.19-10.1"`
 
+API endpoint used in this step: [ChangePXCComponents](ref:changepxccomponents).
 
 ### Create PXC Cluster
 
