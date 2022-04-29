@@ -89,6 +89,7 @@ This can be achieved in Ansible with a task such as:
     body:
       name: 'grafana-admin-token'
       role: 'Admin'
+  no_log: true
 ```
 
 ### Combining this all together to create batch accounts
@@ -111,6 +112,8 @@ For simplicity, we will only be using Ansible for this example.
     status_code:
     - 200
     - 201
+    - 412
+  no_log: true
   loop:
   - user: User 1
     login: user1
@@ -131,6 +134,7 @@ For simplicity, we will only be using Ansible for this example.
     body:
       name: '{{ item.login }}-{{ item.role }}'
       role: '{{ item.role }}'
+  no_log: true
   loop:
   - login: user1
     role: Viewer
