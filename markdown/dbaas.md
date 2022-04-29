@@ -27,10 +27,10 @@ To configure and use DBaaS you would need to have PMM deployment and Kubernetes 
 How to get this environment up and running you can read in our [documentation](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/dbaas.html#create-a-kubernetes-cluster).
 
 PMM provides set of API calls to enable DBaaS, configure it and to create and manage DBs:
-- https://percona-pmm.readme.io/reference/changesettings
-- https://percona-pmm.readme.io/reference/registerkubernetescluster
-- https://percona-pmm.readme.io/reference/createpxccluster
-- https://percona-pmm.readme.io/reference/createpsmdbcluster
+- [Change Settings](ref:changesettings)
+- [Register Kubernetes Cluster](ref:registerkubernetescluster)
+- [Create PXC Cluster](ref:createpxccluster)
+- [Create PSMDB Cluster](ref:createpsmdbcluster)
 
 In this example we would use minikube for the kubernetes cluster and will create a PXC DB cluster, but similar API endpoints exist for the PSMDB.
 
@@ -56,7 +56,7 @@ curl -X POST "http://localhost/v1/Settings/Change" \
      -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true}"
 ```
 
-API endpoint used in this step: [Change settings](https://percona-pmm.readme.io/reference/changesettings).
+API endpoint used in this step: [Change settings](ref:changesettings).
 
 ### Registering new Kubernetes cluster
 
@@ -242,7 +242,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
 ```
 
-API endpoint used in this step: [CreatePXCCluster](https://percona-pmm.readme.io/reference/createpxccluster).
+API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
 
 ### List Kubernetes clusters
 
@@ -287,7 +287,7 @@ Example response:
 ```
 Response contains field `state` which provides current state of DB cluster. `DB_CLUSTER_STATE_READY` means that DB cluster is ready for use.
 
-API endpoint used in this step: [ListDBClusters](https://percona-pmm.readme.io/reference/listdbclusters)
+API endpoint used in this step: [ListDBClusters](ref:listdbclusters)
 
 ### Get credentials
 
@@ -310,7 +310,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" \
 }
 ```
 
-API endpoint used in this step: [GetPXCClusterCredentials](https://percona-pmm.readme.io/reference/getpxcclustercredentials)
+API endpoint used in this step: [GetPXCClusterCredentials](ref:getpxcclustercredentials)
 
 ### Delete DB Cluster
 
@@ -321,7 +321,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"cluster_type\": \"DB_CLUSTER_TYPE_PXC\"}"
 ```
 
-API endpoint used in this step: [DeleteDBCluster deletes](https://percona-pmm.readme.io/reference/deletedbcluster)
+API endpoint used in this step: [DeleteDBCluster deletes](ref:deletedbcluster)
 
 ### Unregister Kubernetes Cluster
 
@@ -335,4 +335,4 @@ curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" \
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"force\": true}"
 ```
 
-API endpoint used in this step: [UnregisterKubernetesCluster](https://percona-pmm.readme.io/reference/unregisterkubernetescluster)
+API endpoint used in this step: [UnregisterKubernetesCluster](ref:unregisterkubernetescluster)
