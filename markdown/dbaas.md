@@ -54,7 +54,12 @@ Then to enable DBaaS send request to `Settings/Change` endpoint like below where
 ```bash
 curl -X POST "http://localhost/v1/Settings/Change" \ 
      -H "accept: application/json" -u "admin:admin" -H "Content-Type: application/json" \ 
-     -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true}"
+     -d "
+{ 
+        \"pmm_public_address\": \"${IP}\", 
+        \"enable_dbaas\": true
+}
+"
 ```
 
 API endpoint used in this step: [Change settings](ref:changesettings).
@@ -67,7 +72,12 @@ KUBECONFIG=$(kubectl -- config view --flatten --minify | sed -e ':a' -e 'N' -e '
 
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \ 
      -H "accept: application/json" -u "admin:admin" \ 
-     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }}"
+     -d "
+{ 
+        \"kubernetes_cluster_name\": \"my_cluster\", 
+        \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }
+}
+"
 ```
 This command will register kubernetes cluster, start monitoring of kubernetes cluster and install required kubernetes operators.
 
@@ -81,7 +91,8 @@ Percona maintains a list of available versions for each component. For example, 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/Components/GetPXC" \ 
      -H "accept: application/json" -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
-     -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
+     -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
 Example response: 
 
@@ -242,7 +253,14 @@ Once we registered kubernetes cluster we can use it’s name to create DB Cluste
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
      -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
-     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
+     -d "
+{ 
+        \"kubernetes_cluster_name\": \"my_cluster\", 
+        \"name\": \"my-cluster-1\", 
+        \"expose\": true, 
+        \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }
+}
+"
 ```
 
 API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
@@ -253,7 +271,8 @@ Once you created PXC cluster you can check the status of the cluster by calling 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" \ 
      -H "accept: application/json" -u “admin:admin” \ 
-     -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
+     -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
 
 Example response:
