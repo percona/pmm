@@ -62,7 +62,9 @@ Once kubernetes cluster is created it should be registered in PMM where `my_clus
 ```bash
 KUBECONFIG=$(kubectl -- config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
 
-curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" -H "accept: application/json" -u "admin:admin" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }}"
+curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \ 
+     -H "accept: application/json" -u "admin:admin" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }}"
 ```
 This command will register kubernetes cluster, start monitoring of kubernetes cluster and install required kubernetes operators.
 
@@ -73,7 +75,9 @@ To create a PXC cluster, we need to provide the image name for the database inst
 Percona maintains a list of available versions for each component. For example, to retrieve the list of the available PXC components we can call the `Components/GetPXC` API method:
 
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/Components/GetPXC" -H "accept: application/json" -H "authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
+curl -X POST "http://localhost/v1/management/DBaaS/Components/GetPXC" \ 
+     -H "accept: application/json" -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
+     -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
 Example response: 
 
@@ -231,7 +235,9 @@ Example: `"image": "percona/percona-xtradb-cluster:8.0.19-10.1"`
 Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster.
 
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
+curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
+     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }}"
 ```
 
 API endpoint used in this step: [CreatePXCCluster](https://percona-pmm.readme.io/reference/createpxccluster).
@@ -240,7 +246,9 @@ API endpoint used in this step: [CreatePXCCluster](https://percona-pmm.readme.io
 
 Once you created PXC cluster you can check the status of the cluster by calling the `List` endpoint.
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
+curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" \ 
+     -H "accept: application/json" -u “admin:admin” \ 
+     -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
 
 Example response:
@@ -284,7 +292,9 @@ API endpoint used in this step: [ListDBClusters](https://percona-pmm.readme.io/r
 Once PXC Cluster is ready we can request credentials to connect to DB.
 
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\"}"
+curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" \ 
+     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\"}"
 ```
 **Example response:**
 ```json
@@ -304,7 +314,9 @@ API endpoint used in this step: [GetPXCClusterCredentials](https://percona-pmm.r
 
 If we don’t need DB Cluster anymore we can delete it using request below.
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"cluster_type\": \"DB_CLUSTER_TYPE_PXC\"}"
+curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \ 
+     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"cluster_type\": \"DB_CLUSTER_TYPE_PXC\"}"
 ```
 
 API endpoint used in this step: [DeleteDBCluster deletes](https://percona-pmm.readme.io/reference/deletedbcluster)
@@ -316,7 +328,9 @@ After we played with DBaaS we can unregister kubernetes cluster.
 Unregister a kubernetes cluster doesn’t delete anything, it just removes the cluster from the list of registered clusters and all database clusters will remain active and will send metrics to PMM.
 
 ```bash
-curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" -H "accept: application/json" –u “admin:admin" -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"force\": true}"
+curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" \ 
+     -H "accept: application/json" –u “admin:admin" -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"force\": true}"
 ```
 
 API endpoint used in this step: [UnregisterKubernetesCluster](https://percona-pmm.readme.io/reference/unregisterkubernetescluster)
