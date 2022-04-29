@@ -8,7 +8,7 @@ PMM Server will start up with a single user account, the administrator account.
 This account should not be for general use, because it allows complete control of
 the server and access to all data that is accessible via the UI.
 
-Similar to the management of the [admin account](#change-admin-password), it is
+Similar to the management of the [admin account](ref:change-admin-password), it is
 possible to manage other user accounts via the API. Waiting for readiness and
 using `netrc` files with `cURL` are relevant for API usage in general and are
 thus relevant here.
