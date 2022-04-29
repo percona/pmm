@@ -19,7 +19,7 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX'
 }
 '
 ```
-First you have to get the (<a href="https://percona-pmm.readme.io/reference/authentication">authetication string</a>).
+First you have to get the [authetication string](ref:authentication).
 
 Then you have to choose form the follwing Node types, usually `GENERIC_NODE` is a good first choose:
 `NODE_TYPE_INVALID, GENERIC_NODE, CONTAINER_NODE, REMOTE_NODE, REMOTE_RDS_NODE, REMOTE_AZURE_DATABASE_NODE`

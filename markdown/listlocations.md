@@ -14,4 +14,4 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json'
 ```
 
-You will need the (<a href="https://percona-pmm.readme.io/reference/authentication">authetication string</a>).
+You will need the [authetication string](ref:authentication).

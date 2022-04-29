@@ -31,9 +31,9 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
 '
 ```
 
-You need the authentication string which is described (<a href="https://percona-pmm.readme.io/reference/authentication">here</a>).
+You need the authentication string which is described [here](ref:authentication).
 
-Then you need the (<a href="https://percona-pmm.readme.io/reference/listservices">service_id</a>) and (<a href="https://percona-pmm.readme.io/reference/listlocations">location_id</a>).
+Then you need the [service_id](ref:listservices) and [location_id](ref:location_id).
 
 You can choose your own `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if that is necessary. 
 
