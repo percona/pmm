@@ -31,7 +31,7 @@ password admin
 
 When the server starts up, there are a number of tasks that execute before the server and API
 are reliably available to the user. You can check whether the server is ready using the dedicated
-endpoint, [`/v1/readyz`](https://pmmdemo.percona.com/swagger#/Server/Readiness):
+endpoint, [`/v1/readyz`](https://percona-pmm.readme.io/reference/readiness):
 
 ```sh
 $ curl --silent https://127.0.0.1/v1/readyz
