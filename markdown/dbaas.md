@@ -80,7 +80,7 @@ API endpoint used in this step: [CreatePXCCluster](https://percona-pmm.readme.io
 
 ### List Kubernetes clusters
 
-Once you created PXC cluster you can check the status of the cluster by calling `List` endpoint.
+Once you created PXC cluster you can check the status of the cluster by calling the `List` endpoint.
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
