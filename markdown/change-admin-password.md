@@ -1,5 +1,5 @@
 ---
-slug: "change-admin-password"
+slug: 'change-admin-password'
 ---
 
 ## Changing the admin password
@@ -11,16 +11,15 @@ secure the account.
 When automating the deployment and/or management of your PMM Server, it is prefereable to use the
 available APIs instead of relying upon human interaction.
 
-The [authentication](#authentication) overview explains the different ways that you can
-programmatically access the API, using either [basic](#use-an-api-key-in-basic-auth), or
-[token-based](#authenticate) authentication. **Note:** for basic authentication, you can use the
+The [authentication](#authentication) overview explains the different ways that you can programmatically access the API, using either [basic](#use-an-api-key-in-basic-auth), or [token-based](#authenticate) authentication. **Note:** for basic authentication, you can use the
 same approach for standard credentials if you haven't yet created a token.
 
-**Note** Examples using cURL will be shown with the `--netrc` argument, which allows
-credentials to be hidden from view in the processlist and shell history. Should you wish to
-use credentials in the command instead then substitute `--netrc` for `--basic --user '<user>:<password>'`
+**Note** Examples using cURL will be shown with the `--netrc` argument, which allows credentials to be
+hidden from view in the processlist and shell history. Should you wish to use credentials in the command
+instead then substitute `--netrc` for `--basic --user '<user>:<password>'`
 
 Here is an example `.netrc`:
+
 ```
 machine 127.0.0.1
 login admin
@@ -35,12 +34,11 @@ endpoint, [`/v1/readyz`](https://percona-pmm.readme.io/reference/readiness):
 
 ```sh
 $ curl --silent https://127.0.0.1/v1/readyz
-{
-
-}
+{}
 ```
 
 If the server is not yet ready then you will see a response such as:
+
 ```json
 {
   "error": "PMM Server is not ready yet.",
@@ -50,6 +48,7 @@ If the server is not yet ready then you will see a response such as:
 ```
 
 You can check this using Ansible with a task such as:
+
 ```yaml
 - name: Wait for PMM Server to be ready
   uri:
@@ -76,6 +75,7 @@ You should disconnect any clients using the same account before proceeding to
 avoid such issues.
 
 The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-password) for changing a user's password is:
+
 ```json
 {
   "oldPassword": "xxx",
@@ -85,6 +85,7 @@ The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-pass
 ```
 
 Here is an example that changes the password from `admin` to `notAdminAnymore`:
+
 ```sh
 $ cat <<EOF > /tmp/data.json
 {
@@ -101,6 +102,7 @@ $ curl --silent -X PUT --netrc \
 ```
 
 This can be achieved in Ansible with a task such as:
+
 ```yaml
 - name: Change the admin password
   uri:
@@ -116,4 +118,3 @@ This can be achieved in Ansible with a task such as:
       newPassword: 'notAdminAnymore'
       confirmNew: 'notAdminAnymore'
 ```
-
