@@ -53,11 +53,12 @@ This can be acheived with Ansible with a task such as:
       login: 'grafana-admin'
       password: 'ChangeME123!'
     status_code:
-    - 200
     - 201
+    - 412
+  no_log: true
 ```
 The accepted status codes here will allow the task to pass when the user already
-exists (200) as well as when the account is created (201).
+exists (412) as well as when the account is created (201).
 
 ### Creating API tokens
 
