@@ -121,3 +121,44 @@ Response contains field `state` which provides current state of DB cluster. `DB_
 
 API endpoint used in this step: [ListDBClusters](https://percona-pmm.readme.io/reference/listdbclusters)
 
+### Get credentials
+
+Once PXC Cluster is ready we can request credentials to connect to DB.
+
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\"}"
+```
+**Example response:**
+```json
+{
+  "connection_credentials": {
+    "username": "root",
+    "password": "8fhAK0wjBLcjPncEfJM2r4Ny",
+    "host": "my-cluster-1-haproxy.default",
+    "port": 3306
+  }
+}
+```
+
+API endpoint used in this step: [GetPXCClusterCredentials](https://percona-pmm.readme.io/reference/getpxcclustercredentials)
+
+### Delete DB Cluster
+
+If we don’t need DB Cluster anymore we can delete it using request below.
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"cluster_type\": \"DB_CLUSTER_TYPE_PXC\"}"
+```
+
+API endpoint used in this step: [DeleteDBCluster deletes](https://percona-pmm.readme.io/reference/deletedbcluster)
+
+### Unregister Kubernetes Cluster
+
+After we played with DBaaS we can unregister kubernetes cluster. 
+
+Unregister a kubernetes cluster doesn’t delete anything, it just removes the cluster from the list of registered clusters and all database clusters will remain active and will send metrics to PMM.
+
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" -H "accept: application/json" –u “admin:admin" -H "Content-Type: application/json" -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"force\": true}"
+```
+
+API endpoint used in this step: [UnregisterKubernetesCluster](https://percona-pmm.readme.io/reference/unregisterkubernetescluster)
