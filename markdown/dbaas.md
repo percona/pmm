@@ -51,7 +51,9 @@ If your kubernetes cluster is located outside of your local system you can get p
 
 Then to enable DBaaS send request to `Settings/Change` endpoint like below where `IP` is public IP address or DNS name of PMM Server instance.
 ```bash
-curl -X POST "http://localhost/v1/Settings/Change" -H "accept: application/json" -u "admin:admin" -H "Content-Type: application/json" -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true}"
+curl -X POST "http://localhost/v1/Settings/Change" \ 
+     -H "accept: application/json" -u "admin:admin" -H "Content-Type: application/json" \ 
+     -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true}"
 ```
 
 API endpoint used in this step: [Change settings](https://percona-pmm.readme.io/reference/changesettings).
