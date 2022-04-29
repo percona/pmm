@@ -115,5 +115,6 @@ This can be achieved in Ansible with a task such as:
       oldPassword: 'admin'
       newPassword: 'notAdminAnymore'
       confirmNew: 'notAdminAnymore'
+  no_log: true
 ```
 
