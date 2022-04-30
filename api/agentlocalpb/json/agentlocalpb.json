@@ -466,6 +466,68 @@
       }
     },
     "/logs.zip": {
+      "get": {
+        "tags": [
+          "AgentLocal"
+        ],
+        "summary": "LogZip returns current pmm-agent status.",
+        "operationId": "LogZip2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "LogZipResponse may not be received by the client due to pmm-agent restart.",
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "string",
+                  "format": "byte",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "AgentLocal"
@@ -486,7 +548,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ReloadRequest may not be received by the client due to pmm-agent restart.",
+              "description": "LogZipResponse may not be received by the client due to pmm-agent restart.",
               "type": "object",
               "properties": {
                 "logs": {

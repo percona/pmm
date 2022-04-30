@@ -60,7 +60,7 @@ message ReloadResponse {}
 
 message LogZipRequest {}
 
-// ReloadRequest may not be received by the client due to pmm-agent restart.
+// LogZipResponse may not be received by the client due to pmm-agent restart.
 message LogZipResponse {
   bytes logs = 1;
 }
@@ -90,6 +90,9 @@ service AgentLocal {
     option (google.api.http) = {
       post: "/logs.zip"
       body: "*"
+      additional_bindings: {
+        get: "/logs.zip"
+      }
     };
   }
 }

@@ -267,7 +267,7 @@ func (o *LogZipDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LogZipOKBody ReloadRequest may not be received by the client due to pmm-agent restart.
+/*LogZipOKBody LogZipResponse may not be received by the client due to pmm-agent restart.
 swagger:model LogZipOKBody
 */
 type LogZipOKBody struct {
