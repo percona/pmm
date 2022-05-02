@@ -13,7 +13,7 @@ In this section we will show you how can you take ad hoc Backups from a service.
 
 Here is an example Curl API call to create a backup:
 
-```
+```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --request POST \
      --url https://127.0.0.1/v1/management/backup/Backups/Start \
