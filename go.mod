@@ -23,7 +23,7 @@ require (
 	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.13.0
-	github.com/go-openapi/runtime v0.23.3
+	github.com/go-openapi/runtime v0.24.0
 	github.com/go-openapi/strfmt v0.21.2
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
