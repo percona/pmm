@@ -570,7 +570,7 @@ func (x *MySQLdExporter) GetLogLevel() LogLevel {
 	if x != nil {
 		return x.LogLevel
 	}
-	return LogLevel_warn
+	return LogLevel_auto
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -754,7 +754,7 @@ func (x *MongoDBExporter) GetLogLevel() LogLevel {
 	if x != nil {
 		return x.LogLevel
 	}
-	return LogLevel_warn
+	return LogLevel_auto
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -910,7 +910,7 @@ func (x *PostgresExporter) GetLogLevel() LogLevel {
 	if x != nil {
 		return x.LogLevel
 	}
-	return LogLevel_warn
+	return LogLevel_auto
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -1066,7 +1066,7 @@ func (x *ProxySQLExporter) GetLogLevel() LogLevel {
 	if x != nil {
 		return x.LogLevel
 	}
-	return LogLevel_warn
+	return LogLevel_auto
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.

@@ -502,7 +502,7 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -585,7 +585,7 @@ var changeProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -595,20 +595,23 @@ func init() {
 
 const (
 
-	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
+	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelAuto string = "auto"
 
-	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
-
-	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
 
 	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelError captures enum value "error"
 	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelError string = "error"
 
-	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	ChangeProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

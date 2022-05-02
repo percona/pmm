@@ -572,13 +572,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 15
                     },
@@ -830,13 +831,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 17
                     },
@@ -1381,13 +1383,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -1610,13 +1613,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -3442,13 +3446,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 15
                     },
@@ -3662,13 +3667,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 17
                     },
@@ -4079,13 +4085,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -4291,13 +4298,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -5749,13 +5757,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 15
                     },
@@ -5854,13 +5863,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 17
                     },
@@ -6071,13 +6081,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -6168,13 +6179,14 @@
                     "log_level": {
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "warn",
+                      "default": "auto",
                       "enum": [
-                        "warn",
-                        "debug",
-                        "info",
+                        "auto",
+                        "fatal",
                         "error",
-                        "fatal"
+                        "warn",
+                        "info",
+                        "debug"
                       ],
                       "x-order": 12
                     },
@@ -7010,13 +7022,14 @@
                       "log_level": {
                         "type": "string",
                         "title": "Log level for exporters",
-                        "default": "warn",
+                        "default": "auto",
                         "enum": [
-                          "warn",
-                          "debug",
-                          "info",
+                          "auto",
+                          "fatal",
                           "error",
-                          "fatal"
+                          "warn",
+                          "info",
+                          "debug"
                         ],
                         "x-order": 15
                       },
@@ -7118,13 +7131,14 @@
                       "log_level": {
                         "type": "string",
                         "title": "Log level for exporters",
-                        "default": "warn",
+                        "default": "auto",
                         "enum": [
-                          "warn",
-                          "debug",
-                          "info",
+                          "auto",
+                          "fatal",
                           "error",
-                          "fatal"
+                          "warn",
+                          "info",
+                          "debug"
                         ],
                         "x-order": 17
                       },
@@ -7344,13 +7358,14 @@
                       "log_level": {
                         "type": "string",
                         "title": "Log level for exporters",
-                        "default": "warn",
+                        "default": "auto",
                         "enum": [
-                          "warn",
-                          "debug",
-                          "info",
+                          "auto",
+                          "fatal",
                           "error",
-                          "fatal"
+                          "warn",
+                          "info",
+                          "debug"
                         ],
                         "x-order": 12
                       },
@@ -7444,13 +7459,14 @@
                       "log_level": {
                         "type": "string",
                         "title": "Log level for exporters",
-                        "default": "warn",
+                        "default": "auto",
                         "enum": [
-                          "warn",
-                          "debug",
-                          "info",
+                          "auto",
+                          "fatal",
                           "error",
-                          "fatal"
+                          "warn",
+                          "info",
+                          "debug"
                         ],
                         "x-order": 12
                       },

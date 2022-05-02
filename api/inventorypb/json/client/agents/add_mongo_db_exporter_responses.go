@@ -510,7 +510,7 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -593,7 +593,7 @@ var addMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -603,20 +603,23 @@ func init() {
 
 const (
 
-	// AddMongoDBExporterOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
-	AddMongoDBExporterOKBodyMongodbExporterLogLevelWarn string = "warn"
+	// AddMongoDBExporterOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	AddMongoDBExporterOKBodyMongodbExporterLogLevelAuto string = "auto"
 
-	// AddMongoDBExporterOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
-	AddMongoDBExporterOKBodyMongodbExporterLogLevelDebug string = "debug"
-
-	// AddMongoDBExporterOKBodyMongodbExporterLogLevelInfo captures enum value "info"
-	AddMongoDBExporterOKBodyMongodbExporterLogLevelInfo string = "info"
+	// AddMongoDBExporterOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	AddMongoDBExporterOKBodyMongodbExporterLogLevelFatal string = "fatal"
 
 	// AddMongoDBExporterOKBodyMongodbExporterLogLevelError captures enum value "error"
 	AddMongoDBExporterOKBodyMongodbExporterLogLevelError string = "error"
 
-	// AddMongoDBExporterOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
-	AddMongoDBExporterOKBodyMongodbExporterLogLevelFatal string = "fatal"
+	// AddMongoDBExporterOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	AddMongoDBExporterOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// AddMongoDBExporterOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	AddMongoDBExporterOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// AddMongoDBExporterOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	AddMongoDBExporterOKBodyMongodbExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

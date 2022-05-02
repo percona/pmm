@@ -1047,7 +1047,7 @@ type AddRDSOKBodyMysqldExporter struct {
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1130,7 +1130,7 @@ var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1140,20 +1140,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// AddRDSOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyMysqldExporterLogLevelAuto string = "auto"
 
-	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
-
-	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
 
 	// AddRDSOKBodyMysqldExporterLogLevelError captures enum value "error"
 	AddRDSOKBodyMysqldExporterLogLevelError string = "error"
 
-	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -1375,7 +1378,7 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1458,7 +1461,7 @@ var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1468,20 +1471,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+	// AddRDSOKBodyPostgresqlExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyPostgresqlExporterLogLevelAuto string = "auto"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
-
-	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
-	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
 
 	// AddRDSOKBodyPostgresqlExporterLogLevelError captures enum value "error"
 	AddRDSOKBodyPostgresqlExporterLogLevelError string = "error"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
+	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

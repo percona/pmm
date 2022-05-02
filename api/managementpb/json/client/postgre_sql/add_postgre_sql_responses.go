@@ -209,7 +209,7 @@ type AddPostgreSQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -287,7 +287,7 @@ var addPostgreSqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -297,20 +297,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLBodyLogLevelWarn captures enum value "warn"
-	AddPostgreSQLBodyLogLevelWarn string = "warn"
+	// AddPostgreSQLBodyLogLevelAuto captures enum value "auto"
+	AddPostgreSQLBodyLogLevelAuto string = "auto"
 
-	// AddPostgreSQLBodyLogLevelDebug captures enum value "debug"
-	AddPostgreSQLBodyLogLevelDebug string = "debug"
-
-	// AddPostgreSQLBodyLogLevelInfo captures enum value "info"
-	AddPostgreSQLBodyLogLevelInfo string = "info"
+	// AddPostgreSQLBodyLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLBodyLogLevelFatal string = "fatal"
 
 	// AddPostgreSQLBodyLogLevelError captures enum value "error"
 	AddPostgreSQLBodyLogLevelError string = "error"
 
-	// AddPostgreSQLBodyLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLBodyLogLevelFatal string = "fatal"
+	// AddPostgreSQLBodyLogLevelWarn captures enum value "warn"
+	AddPostgreSQLBodyLogLevelWarn string = "warn"
+
+	// AddPostgreSQLBodyLogLevelInfo captures enum value "info"
+	AddPostgreSQLBodyLogLevelInfo string = "info"
+
+	// AddPostgreSQLBodyLogLevelDebug captures enum value "debug"
+	AddPostgreSQLBodyLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -830,7 +833,7 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -913,7 +916,7 @@ var addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -923,20 +926,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelAuto string = "auto"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelDebug string = "debug"
-
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelInfo string = "info"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelFatal string = "fatal"
 
 	// AddPostgreSQLOKBodyPostgresExporterLogLevelError captures enum value "error"
 	AddPostgreSQLOKBodyPostgresExporterLogLevelError string = "error"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

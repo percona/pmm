@@ -485,7 +485,7 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -568,7 +568,7 @@ var addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -578,20 +578,23 @@ func init() {
 
 const (
 
-	// AddPostgresExporterOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	AddPostgresExporterOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelAuto string = "auto"
 
-	// AddPostgresExporterOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	AddPostgresExporterOKBodyPostgresExporterLogLevelDebug string = "debug"
-
-	// AddPostgresExporterOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	AddPostgresExporterOKBodyPostgresExporterLogLevelInfo string = "info"
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelFatal string = "fatal"
 
 	// AddPostgresExporterOKBodyPostgresExporterLogLevelError captures enum value "error"
 	AddPostgresExporterOKBodyPostgresExporterLogLevelError string = "error"
 
-	// AddPostgresExporterOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	AddPostgresExporterOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

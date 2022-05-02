@@ -218,7 +218,7 @@ type AddMongoDBBody struct {
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -296,7 +296,7 @@ var addMongoDbBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -306,20 +306,23 @@ func init() {
 
 const (
 
-	// AddMongoDBBodyLogLevelWarn captures enum value "warn"
-	AddMongoDBBodyLogLevelWarn string = "warn"
+	// AddMongoDBBodyLogLevelAuto captures enum value "auto"
+	AddMongoDBBodyLogLevelAuto string = "auto"
 
-	// AddMongoDBBodyLogLevelDebug captures enum value "debug"
-	AddMongoDBBodyLogLevelDebug string = "debug"
-
-	// AddMongoDBBodyLogLevelInfo captures enum value "info"
-	AddMongoDBBodyLogLevelInfo string = "info"
+	// AddMongoDBBodyLogLevelFatal captures enum value "fatal"
+	AddMongoDBBodyLogLevelFatal string = "fatal"
 
 	// AddMongoDBBodyLogLevelError captures enum value "error"
 	AddMongoDBBodyLogLevelError string = "error"
 
-	// AddMongoDBBodyLogLevelFatal captures enum value "fatal"
-	AddMongoDBBodyLogLevelFatal string = "fatal"
+	// AddMongoDBBodyLogLevelWarn captures enum value "warn"
+	AddMongoDBBodyLogLevelWarn string = "warn"
+
+	// AddMongoDBBodyLogLevelInfo captures enum value "info"
+	AddMongoDBBodyLogLevelInfo string = "info"
+
+	// AddMongoDBBodyLogLevelDebug captures enum value "debug"
+	AddMongoDBBodyLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -803,7 +806,7 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -886,7 +889,7 @@ var addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -896,20 +899,23 @@ func init() {
 
 const (
 
-	// AddMongoDBOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
-	AddMongoDBOKBodyMongodbExporterLogLevelWarn string = "warn"
+	// AddMongoDBOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	AddMongoDBOKBodyMongodbExporterLogLevelAuto string = "auto"
 
-	// AddMongoDBOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
-	AddMongoDBOKBodyMongodbExporterLogLevelDebug string = "debug"
-
-	// AddMongoDBOKBodyMongodbExporterLogLevelInfo captures enum value "info"
-	AddMongoDBOKBodyMongodbExporterLogLevelInfo string = "info"
+	// AddMongoDBOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	AddMongoDBOKBodyMongodbExporterLogLevelFatal string = "fatal"
 
 	// AddMongoDBOKBodyMongodbExporterLogLevelError captures enum value "error"
 	AddMongoDBOKBodyMongodbExporterLogLevelError string = "error"
 
-	// AddMongoDBOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
-	AddMongoDBOKBodyMongodbExporterLogLevelFatal string = "fatal"
+	// AddMongoDBOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	AddMongoDBOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	AddMongoDBOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	AddMongoDBOKBodyMongodbExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

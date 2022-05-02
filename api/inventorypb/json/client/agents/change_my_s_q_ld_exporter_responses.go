@@ -519,7 +519,7 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -602,7 +602,7 @@ var changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -612,20 +612,23 @@ func init() {
 
 const (
 
-	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelAuto string = "auto"
 
-	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug string = "debug"
-
-	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo string = "info"
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal string = "fatal"
 
 	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelError captures enum value "error"
 	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelError string = "error"
 
-	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

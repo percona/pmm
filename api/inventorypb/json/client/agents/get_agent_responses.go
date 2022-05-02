@@ -1302,7 +1302,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1385,7 +1385,7 @@ var getAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1395,20 +1395,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyMongodbExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyMongodbExporterLogLevelAuto string = "auto"
 
-	// GetAgentOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyMongodbExporterLogLevelDebug string = "debug"
-
-	// GetAgentOKBodyMongodbExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyMongodbExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyMongodbExporterLogLevelFatal string = "fatal"
 
 	// GetAgentOKBodyMongodbExporterLogLevelError captures enum value "error"
 	GetAgentOKBodyMongodbExporterLogLevelError string = "error"
 
-	// GetAgentOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyMongodbExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyMongodbExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -1522,7 +1525,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1605,7 +1608,7 @@ var getAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1615,20 +1618,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyMysqldExporterLogLevelAuto string = "auto"
 
-	// GetAgentOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyMysqldExporterLogLevelDebug string = "debug"
-
-	// GetAgentOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyMysqldExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyMysqldExporterLogLevelFatal string = "fatal"
 
 	// GetAgentOKBodyMysqldExporterLogLevelError captures enum value "error"
 	GetAgentOKBodyMysqldExporterLogLevelError string = "error"
 
-	// GetAgentOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyMysqldExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -1903,7 +1909,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1986,7 +1992,7 @@ var getAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1996,20 +2002,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyPostgresExporterLogLevelAuto string = "auto"
 
-	// GetAgentOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyPostgresExporterLogLevelDebug string = "debug"
-
-	// GetAgentOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyPostgresExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyPostgresExporterLogLevelFatal string = "fatal"
 
 	// GetAgentOKBodyPostgresExporterLogLevelError captures enum value "error"
 	GetAgentOKBodyPostgresExporterLogLevelError string = "error"
 
-	// GetAgentOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyPostgresExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum
@@ -2106,7 +2115,7 @@ type GetAgentOKBodyProxysqlExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2189,7 +2198,7 @@ var getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2199,20 +2208,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyProxysqlExporterLogLevelAuto string = "auto"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyProxysqlExporterLogLevelDebug string = "debug"
-
-	// GetAgentOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyProxysqlExporterLogLevelFatal string = "fatal"
 
 	// GetAgentOKBodyProxysqlExporterLogLevelError captures enum value "error"
 	GetAgentOKBodyProxysqlExporterLogLevelError string = "error"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyProxysqlExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum

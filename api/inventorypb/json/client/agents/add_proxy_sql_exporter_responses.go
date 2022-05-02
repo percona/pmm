@@ -476,7 +476,7 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Log level for exporters
-	// Enum: [warn debug info error fatal]
+	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -559,7 +559,7 @@ var addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["warn","debug","info","error","fatal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -569,20 +569,23 @@ func init() {
 
 const (
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto string = "auto"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
-
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
 
 	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelError captures enum value "error"
 	AddProxySQLExporterOKBodyProxysqlExporterLogLevelError string = "error"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
 )
 
 // prop value enum
