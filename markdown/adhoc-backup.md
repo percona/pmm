@@ -2,7 +2,7 @@
 slug: 'adhoc-backup'
 ---
 
-## Adhoc Backup
+## Ad hoc Backup
 
 PMM is able to backup the monitored servers. 
 
