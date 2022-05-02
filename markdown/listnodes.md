@@ -7,7 +7,7 @@ slug: 'listnodes'
 In this section we are going to describe how can you list Nodes in the inventory.
 
 Example:
-```
+```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX'      
 	--reuest POST      
 	--url https://127.0.0.1/v1/inventory/Nodes/List
