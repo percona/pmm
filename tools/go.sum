@@ -243,8 +243,8 @@ github.com/fzipp/gocyclo v0.4.0/go.mod h1:rXPyn8fnlpa0R2csP/31uerbiVBugk5whMdlya
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-critic/go-critic v0.6.2 h1:L5SDut1N4ZfsWZY0sH4DCrsHLHnhuuWak2wa165t9gs=
 github.com/go-critic/go-critic v0.6.2/go.mod h1:td1s27kfmLpe5G/DPjlnFI7o1UCzePptwU7Az0V5iCM=
-github.com/go-delve/delve v1.8.2 h1:gsRTPR3Yi61RpeuCFvJb6vIxB3xABx6pnNKGISxdsSU=
-github.com/go-delve/delve v1.8.2/go.mod h1:XB6XKpI5DqMCNai0MkNPVbrd3OtBovJ/vfcVofkWy/k=
+github.com/go-delve/delve v1.8.3 h1:D0jTF4DHZQNBPMQwAPe0WtZV4I4gEeWOsSt4VmhGys8=
+github.com/go-delve/delve v1.8.3/go.mod h1:XB6XKpI5DqMCNai0MkNPVbrd3OtBovJ/vfcVofkWy/k=
 github.com/go-delve/liner v1.2.2-1 h1:0hGpZh6vjI6LFTlXuHFCX9PebaluzDzps2owdMrrSuk=
 github.com/go-delve/liner v1.2.2-1/go.mod h1:biJCRbqp51wS+I92HMqn5H8/A0PAhxn2vyOT+JqhiGI=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=

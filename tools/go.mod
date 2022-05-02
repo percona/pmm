@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/daixiang0/gci v0.3.3
-	github.com/go-delve/delve v1.8.2
+	github.com/go-delve/delve v1.8.3
 	github.com/golangci/golangci-lint v1.45.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
 	github.com/reviewdog/reviewdog v0.14.1
