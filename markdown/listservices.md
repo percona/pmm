@@ -6,7 +6,7 @@ slug: 'listservices'
 
 The Following Curl API call will list the available services on a Node:
 
-```
+```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
      --request POST \
      --url https://127.0.0.1/v1/inventory/Services/List \
