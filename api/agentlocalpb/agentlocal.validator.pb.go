@@ -60,9 +60,3 @@ func (this *ReloadRequest) Validate() error {
 func (this *ReloadResponse) Validate() error {
 	return nil
 }
-func (this *LogZipRequest) Validate() error {
-	return nil
-}
-func (this *LogZipResponse) Validate() error {
-	return nil
-}
