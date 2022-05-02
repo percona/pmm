@@ -90,6 +90,6 @@ func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 		}
 	}
 
-	// warning level default by issue PMM-7326
-	return logrus.WarnLevel
+	// info level set by default, because we use info level to write logs of exporters.
+	return logrus.InfoLevel
 }
