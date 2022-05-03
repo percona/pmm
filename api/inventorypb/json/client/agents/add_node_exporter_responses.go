@@ -169,9 +169,6 @@ swagger:model AddNodeExporterDefaultBody
 */
 type AddNodeExporterDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -279,12 +276,8 @@ swagger:model AddNodeExporterDefaultBodyDetailsItems0
 */
 type AddNodeExporterDefaultBodyDetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add node exporter default body details items0

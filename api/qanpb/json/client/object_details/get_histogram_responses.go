@@ -266,9 +266,6 @@ swagger:model GetHistogramDefaultBody
 */
 type GetHistogramDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -376,12 +373,8 @@ swagger:model GetHistogramDefaultBodyDetailsItems0
 */
 type GetHistogramDefaultBodyDetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get histogram default body details items0

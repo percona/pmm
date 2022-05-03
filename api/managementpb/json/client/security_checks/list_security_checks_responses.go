@@ -123,9 +123,6 @@ swagger:model ListSecurityChecksDefaultBody
 */
 type ListSecurityChecksDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -233,12 +230,8 @@ swagger:model ListSecurityChecksDefaultBodyDetailsItems0
 */
 type ListSecurityChecksDefaultBodyDetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this list security checks default body details items0

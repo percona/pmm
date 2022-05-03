@@ -215,9 +215,6 @@ swagger:model UpdatePSMDBClusterDefaultBody
 */
 type UpdatePSMDBClusterDefaultBody struct {
 
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -325,12 +322,8 @@ swagger:model UpdatePSMDBClusterDefaultBodyDetailsItems0
 */
 type UpdatePSMDBClusterDefaultBodyDetailsItems0 struct {
 
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this update PSMDB cluster default body details items0
