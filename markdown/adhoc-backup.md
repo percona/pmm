@@ -11,7 +11,8 @@ In this section we will show you how can you take ad hoc Backups from a service.
 
 ### Creating a Backup
 
-Here is an example Curl API call to create a backup:
+Here is an example of a Curl API call to create a backup:
+
 
 ```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
@@ -31,9 +32,9 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
 '
 ```
 
-You need the authentication string which is described [here](ref:authentication).
+You require an authentication string which is described [here](ref:authentication).
 
-Then you need the [service_id](ref:listservices) and [location_id](ref:listlocations).
+Also, you require the [service_id](ref:listservices) and [location_id](ref:listlocations).
 
-You can choose your own `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if that is necessary. 
+You can choose a `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if required. 
 
