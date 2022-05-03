@@ -4,7 +4,7 @@ slug: 'listservices'
 
 ## List Services
 
-The Following Curl API call will list the available services on a Node:
+The following Curl API call lists the available services on a Node:
 
 ```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
@@ -19,11 +19,11 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
 }'
 ```
 
-First you have to get the [authetication string](ref:authentication).
+Firstly, get the [authentication string](ref:authentication).
 
-Then you need the [node_id](ref:listnodes).
+Then, you require the [node_id](ref:listnodes).
 
-You have to also choose which `service_type` you would like to list, the options are:
+Choose the `service_type` that you want to list. The options are:
 `SERVICE_TYPE_INVALID, MYSQL_SERVICE, MONGODB_SERVICE, POSTGRESQL_SERVICE, PROXYSQL_SERVICE, HAPROXY_SERVICE, EXTERNAL_SERVICE`
 
 
