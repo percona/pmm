@@ -4,7 +4,7 @@ slug: 'adhoc-backup'
 
 ## Ad hoc Backup
 
-PMM is able to backup the monitored servers. 
+PMM can backup the monitored servers. 
 
 In this section we will show you how can you take ad hoc Backups from a service.
 
