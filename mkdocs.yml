@@ -1,7 +1,7 @@
 # MkDocs configuration for default Material-themed build
 INHERIT: mkdocs-base.yml
-site_url: https://pmm-doc.onrender.com/
+
+site_url: https://www.percona.com/percona-monitoring-and-management/
+
 plugins:
   section-index: {}
-   
-
