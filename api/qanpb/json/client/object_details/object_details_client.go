@@ -34,6 +34,8 @@ type ClientService interface {
 
 	GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error)
 
+	GetPGSMSettings(params *GetPGSMSettingsParams, opts ...ClientOption) (*GetPGSMSettingsOK, error)
+
 	GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error)
 
 	GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error)
@@ -149,6 +151,43 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetMetricsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetPGSMSettings gets p g s m settings gets p g s m settings from settings view
+*/
+func (a *Client) GetPGSMSettings(params *GetPGSMSettingsParams, opts ...ClientOption) (*GetPGSMSettingsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetPGSMSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetPGSMSettings",
+		Method:             "POST",
+		PathPattern:        "/v0/qan/ObjectDetails/GetPGSMSettings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetPGSMSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetPGSMSettingsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetPGSMSettingsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

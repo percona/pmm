@@ -33,6 +33,8 @@ type ObjectDetailsClient interface {
 	GetQueryPlan(ctx context.Context, in *QueryPlanRequest, opts ...grpc.CallOption) (*QueryPlanReply, error)
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
+	// GetPGSMSettings gets PGSM settings from settings view.
+	GetPGSMSettings(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
 }
 
 type objectDetailsClient struct {
@@ -88,6 +90,15 @@ func (c *objectDetailsClient) GetHistogram(ctx context.Context, in *HistogramReq
 	return out, nil
 }
 
+func (c *objectDetailsClient) GetPGSMSettings(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error) {
+	out := new(HistogramReply)
+	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/GetPGSMSettings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -102,6 +113,8 @@ type ObjectDetailsServer interface {
 	GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error)
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error)
+	// GetPGSMSettings gets PGSM settings from settings view.
+	GetPGSMSettings(context.Context, *HistogramRequest) (*HistogramReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -123,6 +136,9 @@ func (UnimplementedObjectDetailsServer) GetQueryPlan(context.Context, *QueryPlan
 }
 func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
+}
+func (UnimplementedObjectDetailsServer) GetPGSMSettings(context.Context, *HistogramRequest) (*HistogramReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPGSMSettings not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -227,6 +243,24 @@ func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ObjectDetails_GetPGSMSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HistogramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ObjectDetailsServer).GetPGSMSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/qan.v1beta1.ObjectDetails/GetPGSMSettings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ObjectDetailsServer).GetPGSMSettings(ctx, req.(*HistogramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -253,6 +287,10 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHistogram",
 			Handler:    _ObjectDetails_GetHistogram_Handler,
+		},
+		{
+			MethodName: "GetPGSMSettings",
+			Handler:    _ObjectDetails_GetPGSMSettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

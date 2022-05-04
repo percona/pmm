@@ -45,6 +45,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // GetPGSMSettings gets PGSM settings from settings view.
+  rpc GetPGSMSettings(HistogramRequest) returns (HistogramReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/GetPGSMSettings"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -166,6 +173,22 @@ message HistogramReply {
 
 // HistogramItem represents one item in histogram.
 message HistogramItem {
+  string range = 1;
+  uint32 frequency = 2;
+}
+
+// SettingsRequest defines filtering by agentid.
+message SettingsRequest {
+  string agentid = 1;
+}
+
+// SettingsReply is settings rows as a list.
+message SettingsReply {
+  repeated SettingsItem settings_items = 1;
+}
+
+// SettingsItem represents one row in settings.
+message SettingsItem {
   string range = 1;
   uint32 frequency = 2;
 }

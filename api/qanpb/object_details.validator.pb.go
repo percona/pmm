@@ -149,3 +149,19 @@ func (this *HistogramReply) Validate() error {
 func (this *HistogramItem) Validate() error {
 	return nil
 }
+func (this *SettingsRequest) Validate() error {
+	return nil
+}
+func (this *SettingsReply) Validate() error {
+	for _, item := range this.SettingsItems {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SettingsItems", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *SettingsItem) Validate() error {
+	return nil
+}
