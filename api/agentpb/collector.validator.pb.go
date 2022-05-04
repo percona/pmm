@@ -11,6 +11,7 @@ import (
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 
 	_ "github.com/percona/pmm/api/inventorypb"
+	_ "github.com/percona/pmm/api/qanpb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -56,6 +57,13 @@ func (this *MetricsBucket_PostgreSQL) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("HistogramItems", err)
+			}
+		}
+	}
+	for _, item := range this.SettingsItems {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SettingsItems", err)
 			}
 		}
 	}
