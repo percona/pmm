@@ -189,6 +189,12 @@ message SettingsReply {
 
 // SettingsItem represents one row in settings.
 message SettingsItem {
-  string range = 1;
-  uint32 frequency = 2;
+  string name = 1;
+  string value = 2;
+  string default_value = 3;
+  string description = 4;
+  int64 minimum = 5;
+  int64 maximum = 6;
+  string options = 7;
+  string restart = 8;
 }
