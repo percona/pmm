@@ -6,7 +6,6 @@ option go_package = "api/qanpb;qanpb";
 
 import "inventorypb/agents.proto";
 import "qanpb/qan.proto";
-import "qanpb/object_details.proto";
 
 // Collector service accepts data from pmm-agent (via pmm-managed).
 service Collector {
@@ -376,7 +375,7 @@ message MetricsBucket {
   string planid = 249;
   string query_plan = 251;
   repeated string histogram_items = 252;
-  repeated SettingsItem settings_items = 253;
+  repeated string settings_items = 253;
 }
 
 message CollectResponse {}
