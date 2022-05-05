@@ -183,6 +183,7 @@ type CreateNodeParams struct {
 	CustomLabels  map[string]string
 	Address       string
 	Region        *string
+	Password      *string
 }
 
 // createNodeWithID creates a Node with given ID.
