@@ -37,7 +37,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
 
 #### For System Administrators
 
-- [Setting up](https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/index.html)
+- [Setting up](https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/)
 - [How to configure](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/configure.html)
 - [How to upgrade](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/upgrade.html)
 - [pmm-admin](https://www.percona.com/doc/percona-monitoring-and-management/2.x/details/commands/pmm-admin.html)
