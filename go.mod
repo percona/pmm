@@ -16,7 +16,7 @@ require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-openapi/runtime v0.23.3
+	github.com/go-openapi/runtime v0.24.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
