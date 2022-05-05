@@ -15,7 +15,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // GetPGSMSettingsReader is a Reader for the GetPGSMSettings structure.
@@ -117,129 +116,22 @@ func (o *GetPGSMSettingsDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetPGSMSettingsBody HistogramRequest defines filtering by time range, labels and queryid.
+/*GetPGSMSettingsBody SettingsRequest defines filtering by agentid.
 swagger:model GetPGSMSettingsBody
 */
 type GetPGSMSettingsBody struct {
 
-	// period start from
-	// Format: date-time
-	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
-
-	// period start to
-	// Format: date-time
-	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
-
-	// labels
-	Labels []*GetPGSMSettingsParamsBodyLabelsItems0 `json:"labels"`
-
-	// queryid
-	Queryid string `json:"queryid,omitempty"`
+	// agentid
+	Agentid string `json:"agentid,omitempty"`
 }
 
 // Validate validates this get p g s m settings body
 func (o *GetPGSMSettingsBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePeriodStartFrom(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePeriodStartTo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateLabels(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 
-func (o *GetPGSMSettingsBody) validatePeriodStartFrom(formats strfmt.Registry) error {
-	if swag.IsZero(o.PeriodStartFrom) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetPGSMSettingsBody) validatePeriodStartTo(formats strfmt.Registry) error {
-	if swag.IsZero(o.PeriodStartTo) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *GetPGSMSettingsBody) validateLabels(formats strfmt.Registry) error {
-	if swag.IsZero(o.Labels) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Labels); i++ {
-		if swag.IsZero(o.Labels[i]) { // not required
-			continue
-		}
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// ContextValidate validate this get p g s m settings body based on the context it is used
+// ContextValidate validates this get p g s m settings body based on context it is used
 func (o *GetPGSMSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateLabels(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetPGSMSettingsBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(o.Labels); i++ {
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("body" + "." + "labels" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -412,20 +304,20 @@ func (o *GetPGSMSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*GetPGSMSettingsOKBody HistogramReply is histogram items as a list.
+/*GetPGSMSettingsOKBody SettingsReply is settings rows as a list.
 swagger:model GetPGSMSettingsOKBody
 */
 type GetPGSMSettingsOKBody struct {
 
-	// histogram items
-	HistogramItems []*GetPGSMSettingsOKBodyHistogramItemsItems0 `json:"histogram_items"`
+	// settings items
+	SettingsItems []*GetPGSMSettingsOKBodySettingsItemsItems0 `json:"settings_items"`
 }
 
 // Validate validates this get p g s m settings OK body
 func (o *GetPGSMSettingsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHistogramItems(formats); err != nil {
+	if err := o.validateSettingsItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -435,22 +327,22 @@ func (o *GetPGSMSettingsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetPGSMSettingsOKBody) validateHistogramItems(formats strfmt.Registry) error {
-	if swag.IsZero(o.HistogramItems) { // not required
+func (o *GetPGSMSettingsOKBody) validateSettingsItems(formats strfmt.Registry) error {
+	if swag.IsZero(o.SettingsItems) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.HistogramItems); i++ {
-		if swag.IsZero(o.HistogramItems[i]) { // not required
+	for i := 0; i < len(o.SettingsItems); i++ {
+		if swag.IsZero(o.SettingsItems[i]) { // not required
 			continue
 		}
 
-		if o.HistogramItems[i] != nil {
-			if err := o.HistogramItems[i].Validate(formats); err != nil {
+		if o.SettingsItems[i] != nil {
+			if err := o.SettingsItems[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getPGSMSettingsOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getPGSMSettingsOk" + "." + "settings_items" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getPGSMSettingsOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+					return ce.ValidateName("getPGSMSettingsOk" + "." + "settings_items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -465,7 +357,7 @@ func (o *GetPGSMSettingsOKBody) validateHistogramItems(formats strfmt.Registry) 
 func (o *GetPGSMSettingsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateHistogramItems(ctx, formats); err != nil {
+	if err := o.contextValidateSettingsItems(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -475,16 +367,16 @@ func (o *GetPGSMSettingsOKBody) ContextValidate(ctx context.Context, formats str
 	return nil
 }
 
-func (o *GetPGSMSettingsOKBody) contextValidateHistogramItems(ctx context.Context, formats strfmt.Registry) error {
+func (o *GetPGSMSettingsOKBody) contextValidateSettingsItems(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(o.HistogramItems); i++ {
+	for i := 0; i < len(o.SettingsItems); i++ {
 
-		if o.HistogramItems[i] != nil {
-			if err := o.HistogramItems[i].ContextValidate(ctx, formats); err != nil {
+		if o.SettingsItems[i] != nil {
+			if err := o.SettingsItems[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getPGSMSettingsOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getPGSMSettingsOk" + "." + "settings_items" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("getPGSMSettingsOk" + "." + "histogram_items" + "." + strconv.Itoa(i))
+					return ce.ValidateName("getPGSMSettingsOk" + "." + "settings_items" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -513,70 +405,48 @@ func (o *GetPGSMSettingsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPGSMSettingsOKBodyHistogramItemsItems0 HistogramItem represents one item in histogram.
-swagger:model GetPGSMSettingsOKBodyHistogramItemsItems0
+/*GetPGSMSettingsOKBodySettingsItemsItems0 SettingsItem represents one row in settings.
+swagger:model GetPGSMSettingsOKBodySettingsItemsItems0
 */
-type GetPGSMSettingsOKBodyHistogramItemsItems0 struct {
+type GetPGSMSettingsOKBodySettingsItemsItems0 struct {
 
-	// range
-	Range string `json:"range,omitempty"`
-
-	// frequency
-	Frequency int64 `json:"frequency,omitempty"`
-}
-
-// Validate validates this get p g s m settings OK body histogram items items0
-func (o *GetPGSMSettingsOKBodyHistogramItemsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get p g s m settings OK body histogram items items0 based on context it is used
-func (o *GetPGSMSettingsOKBodyHistogramItemsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetPGSMSettingsOKBodyHistogramItemsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetPGSMSettingsOKBodyHistogramItemsItems0) UnmarshalBinary(b []byte) error {
-	var res GetPGSMSettingsOKBodyHistogramItemsItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetPGSMSettingsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
-swagger:model GetPGSMSettingsParamsBodyLabelsItems0
-*/
-type GetPGSMSettingsParamsBodyLabelsItems0 struct {
-
-	// key
-	Key string `json:"key,omitempty"`
+	// name
+	Name string `json:"name,omitempty"`
 
 	// value
-	Value []string `json:"value"`
+	Value string `json:"value,omitempty"`
+
+	// default value
+	DefaultValue string `json:"default_value,omitempty"`
+
+	// description
+	Description string `json:"description,omitempty"`
+
+	// minimum
+	Minimum string `json:"minimum,omitempty"`
+
+	// maximum
+	Maximum string `json:"maximum,omitempty"`
+
+	// options
+	Options string `json:"options,omitempty"`
+
+	// restart
+	Restart string `json:"restart,omitempty"`
 }
 
-// Validate validates this get p g s m settings params body labels items0
-func (o *GetPGSMSettingsParamsBodyLabelsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this get p g s m settings OK body settings items items0
+func (o *GetPGSMSettingsOKBodySettingsItemsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this get p g s m settings params body labels items0 based on context it is used
-func (o *GetPGSMSettingsParamsBodyLabelsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this get p g s m settings OK body settings items items0 based on context it is used
+func (o *GetPGSMSettingsOKBodySettingsItemsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetPGSMSettingsParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) {
+func (o *GetPGSMSettingsOKBodySettingsItemsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -584,8 +454,8 @@ func (o *GetPGSMSettingsParamsBodyLabelsItems0) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetPGSMSettingsParamsBodyLabelsItems0) UnmarshalBinary(b []byte) error {
-	var res GetPGSMSettingsParamsBodyLabelsItems0
+func (o *GetPGSMSettingsOKBodySettingsItemsItems0) UnmarshalBinary(b []byte) error {
+	var res GetPGSMSettingsOKBodySettingsItemsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -1731,43 +1731,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "HistogramRequest defines filtering by time range, labels and queryid.",
+              "description": "SettingsRequest defines filtering by agentid.",
               "type": "object",
               "properties": {
-                "labels": {
-                  "type": "array",
-                  "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
-                    "type": "object",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "value": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 2
-                },
-                "period_start_from": {
+                "agentid": {
                   "type": "string",
-                  "format": "date-time",
                   "x-order": 0
-                },
-                "period_start_to": {
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 1
-                },
-                "queryid": {
-                  "type": "string",
-                  "x-order": 3
                 }
               }
             }
@@ -1777,23 +1746,48 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "HistogramReply is histogram items as a list.",
+              "description": "SettingsReply is settings rows as a list.",
               "type": "object",
               "properties": {
-                "histogram_items": {
+                "settings_items": {
                   "type": "array",
                   "items": {
-                    "description": "HistogramItem represents one item in histogram.",
+                    "description": "SettingsItem represents one row in settings.",
                     "type": "object",
                     "properties": {
-                      "frequency": {
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 1
+                      "default_value": {
+                        "type": "string",
+                        "x-order": 2
                       },
-                      "range": {
+                      "description": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "maximum": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 5
+                      },
+                      "minimum": {
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "name": {
                         "type": "string",
                         "x-order": 0
+                      },
+                      "options": {
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "restart": {
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "value": {
+                        "type": "string",
+                        "x-order": 1
                       }
                     }
                   },

@@ -46,7 +46,7 @@ service ObjectDetails {
     };
   }
   // GetPGSMSettings gets PGSM settings from settings view.
-  rpc GetPGSMSettings(HistogramRequest) returns (HistogramReply) {
+  rpc GetPGSMSettings(SettingsRequest) returns (SettingsReply) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/GetPGSMSettings"
       body: "*"

@@ -34,7 +34,7 @@ type ObjectDetailsClient interface {
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
 	// GetPGSMSettings gets PGSM settings from settings view.
-	GetPGSMSettings(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
+	GetPGSMSettings(ctx context.Context, in *SettingsRequest, opts ...grpc.CallOption) (*SettingsReply, error)
 }
 
 type objectDetailsClient struct {
@@ -90,8 +90,8 @@ func (c *objectDetailsClient) GetHistogram(ctx context.Context, in *HistogramReq
 	return out, nil
 }
 
-func (c *objectDetailsClient) GetPGSMSettings(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error) {
-	out := new(HistogramReply)
+func (c *objectDetailsClient) GetPGSMSettings(ctx context.Context, in *SettingsRequest, opts ...grpc.CallOption) (*SettingsReply, error) {
+	out := new(SettingsReply)
 	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/GetPGSMSettings", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ type ObjectDetailsServer interface {
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error)
 	// GetPGSMSettings gets PGSM settings from settings view.
-	GetPGSMSettings(context.Context, *HistogramRequest) (*HistogramReply, error)
+	GetPGSMSettings(context.Context, *SettingsRequest) (*SettingsReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -137,7 +137,7 @@ func (UnimplementedObjectDetailsServer) GetQueryPlan(context.Context, *QueryPlan
 func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
 }
-func (UnimplementedObjectDetailsServer) GetPGSMSettings(context.Context, *HistogramRequest) (*HistogramReply, error) {
+func (UnimplementedObjectDetailsServer) GetPGSMSettings(context.Context, *SettingsRequest) (*SettingsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPGSMSettings not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
@@ -244,7 +244,7 @@ func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _ObjectDetails_GetPGSMSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HistogramRequest)
+	in := new(SettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -256,7 +256,7 @@ func _ObjectDetails_GetPGSMSettings_Handler(srv interface{}, ctx context.Context
 		FullMethod: "/qan.v1beta1.ObjectDetails/GetPGSMSettings",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetPGSMSettings(ctx, req.(*HistogramRequest))
+		return srv.(ObjectDetailsServer).GetPGSMSettings(ctx, req.(*SettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

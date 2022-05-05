@@ -204,7 +204,7 @@ func local_request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler r
 }
 
 func request_ObjectDetails_GetPGSMSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
+	var protoReq SettingsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -221,7 +221,7 @@ func request_ObjectDetails_GetPGSMSettings_0(ctx context.Context, marshaler runt
 }
 
 func local_request_ObjectDetails_GetPGSMSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
+	var protoReq SettingsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
