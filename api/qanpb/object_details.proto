@@ -179,7 +179,10 @@ message HistogramItem {
 
 // SettingsRequest defines filtering by agentid.
 message SettingsRequest {
-  string agentid = 1;
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  repeated MapFieldEntry labels = 3;
+  string queryid = 4;
 }
 
 // SettingsReply is settings rows as a list.
