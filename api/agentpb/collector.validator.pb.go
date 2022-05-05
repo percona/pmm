@@ -11,7 +11,6 @@ import (
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 
 	_ "github.com/percona/pmm/api/inventorypb"
-	_ "github.com/percona/pmm/api/qanpb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -70,5 +69,8 @@ func (this *MetricsBucket_PostgreSQL) Validate() error {
 	return nil
 }
 func (this *HistogramItem) Validate() error {
+	return nil
+}
+func (this *SettingsItem) Validate() error {
 	return nil
 }

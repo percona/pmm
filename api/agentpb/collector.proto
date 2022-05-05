@@ -5,7 +5,6 @@ package agent;
 option go_package = "api/agentpb;agentpb";
 
 import "inventorypb/agents.proto";
-import "qanpb/object_details.proto";
 
 // ExampleFormat is format of query example: real or query without values.
 //
@@ -348,7 +347,7 @@ message MetricsBucket {
     string planid = 46;
     string query_plan = 48;
     repeated HistogramItem histogram_items = 49;
-    repeated qan.v1beta1.SettingsItem settings_items = 50;
+    repeated SettingsItem settings_items = 50;
   }
   Common common = 1;
   MySQL mysql = 2;
@@ -361,3 +360,16 @@ message HistogramItem {
   string range = 1;
   uint32 frequency = 2;
 }
+
+// SettingsItem represents one row in settings.
+message SettingsItem {
+  string name = 1;
+  string value = 2;
+  string default_value = 3;
+  string description = 4;
+  int64 minimum = 5;
+  int64 maximum = 6;
+  string options = 7;
+  string restart = 8;
+}
+
