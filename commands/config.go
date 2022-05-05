@@ -46,6 +46,7 @@ type configCommand struct {
 	NodeType    string
 	NodeName    string
 
+	AgentPassword     string
 	NodeModel         string
 	Region            string
 	Az                string
@@ -123,7 +124,12 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 		res = append(res, fmt.Sprintf("--paths-base=%s", cmd.BasePath))
 	}
 
+	if cmd.AgentPassword != "" {
+		res = append(res, fmt.Sprintf("--agent-password=%s", cmd.AgentPassword))
+	}
+
 	res = append(res, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
+
 	return //nolint:nakedret
 }
 
@@ -172,6 +178,7 @@ func init() {
 	ConfigC.Flag("region", "Node region").StringVar(&Config.Region)
 	ConfigC.Flag("az", "Node availability zone").StringVar(&Config.Az)
 
+	ConfigC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&Config.AgentPassword)
 	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Config.Force)
 	ConfigC.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
 		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Config.MetricsMode, "auto", "push", "pull")

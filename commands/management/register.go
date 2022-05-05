@@ -61,6 +61,7 @@ type registerCommand struct {
 	Address           string
 	MetricsMode       string
 	DisableCollectors string
+	AgentPassword     string
 
 	Force bool
 }
@@ -84,6 +85,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 			Az:            cmd.Az,
 			CustomLabels:  customLabels,
 			Address:       cmd.Address,
+			AgentPassword: cmd.AgentPassword,
 
 			Reregister:        cmd.Force,
 			MetricsMode:       pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
@@ -141,6 +143,7 @@ func init() {
 	RegisterC.Flag("az", "Node availability zone").StringVar(&Register.Az)
 	RegisterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Register.CustomLabels)
 
+	RegisterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&Register.AgentPassword)
 	RegisterC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Register.Force)
 	RegisterC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
 		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Register.MetricsMode, "auto", "pull", "push")
