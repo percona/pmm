@@ -67,7 +67,7 @@ Please make sure to read and agree to our [Code of Conduct](https://github.com/p
 
 ## Submitting a Bug
 
-See [Submitting Bug Reports](README.md##Submitting-Bug-Reports) in [README.md](README.md).
+See [Submitting Bug Reports](README.md#Submitting-Bug-Reports) in [README.md](README.md).
 
 
 ## Setup your local development environment
@@ -82,19 +82,18 @@ To run pmm-managed with a new changes just run `make env TARGET=run` to update `
 
 ### PMM Client
 
-Clone [pmm-agent repository](https://github.com/percona/pmm-agent) and [pmm-admin repository](https://github.com/percona/pmm-admin).
-Navigate to the root folder of pmm-agent. 
-Run `make setup-dev` to connect pmm-agent to PMM Server.
-This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
-Once it's connected just use `make run` to run pmm-agent.
-To work correctly pmm-agent needs exporters installed on the system.
-All pathes to exporters binaries is configured in `pmm-agent-dev.yaml`, so they can be changed manually
-Exporters can be setup by building each of them or by downloading pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+* Clone [pmm-agent repository](https://github.com/percona/pmm-agent) and [pmm-admin repository](https://github.com/percona/pmm-admin).
+* Navigate to the root folder of pmm-agent. 
+* Run `make setup-dev` to connect pmm-agent to PMM Server.
+  * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
+  * Once it's connected just use `make run` to run pmm-agent.
+* To work correctly pmm-agent needs exporters installed on the system.
+  * All pathes to exporters binaries is configured in `pmm-agent-dev.yaml`, so they can be changed manually
+  * Exporters can be setup by building each of them or by downloading pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to exporters_base directory configured in a `pmm-agent-dev.yaml` file.
 
 ### Exporters
 
-Exporters by itself is an independent applications, so each of them contains their own README files explaining how to contribute.
-[see PMM Client](##PMM-Client)
+Exporters by itself is an independent applications, so each of them contains their own README files explaining how to contribute [see PMM Client](#PMM-Client).
 
 ### UI
 
@@ -114,9 +113,9 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
     
 API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm-managed/tree/main/api-tests). API tests runs against running PMM Server container.
     
-### End to end tests
+### End to End (E2E) tests
     
-End to end tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
+End to End tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
 Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run theese.
 
 ## Submitting a Pull Request

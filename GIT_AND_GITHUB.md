@@ -64,6 +64,5 @@ If you are community contributor and there is no ticket exists, either create on
 
 [Check GitHub PR review documentation](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review).
 
-
-![](https://docs.github.com/assets/cb-4714/images/help/pull_requests/request-re-review.png "")
 Figure 1. Request another review from a reviewer.
+![](https://docs.github.com/assets/cb-4714/images/help/pull_requests/request-re-review.png "")
