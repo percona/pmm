@@ -54,7 +54,6 @@ See API definitions [here](https://percona-pmm.readme.io/reference/introduction)
 Before submitting code or documentation contributions, you should first complete the following prerequisites.
 
 
-
 ### 1. Sign the CLA
 
 Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/<linktoCLA>) (CLA). You can do this using your GitHub account and one click.
