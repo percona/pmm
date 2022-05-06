@@ -13,10 +13,13 @@ This project is built from several repositories:
 
 ### PMM Server
 
+#### BackEnd
 * [percona/pmm-managed](https://github.com/percona/pmm-managed)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
 * [percona/pmm-update](https://github.com/percona/pmm-update)
+
+#### FrontEnd
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
 * [percona-platform/grafana](https://github.com/percona-platform/grafana)
 
@@ -54,6 +57,7 @@ See API definitions [here](https://percona-pmm.readme.io/reference/introduction)
 Before submitting code or documentation contributions, you should first complete the following prerequisites.
 
 
+
 ### 1. Sign the CLA
 
 Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/<linktoCLA>) (CLA). You can do this using your GitHub account and one click.
@@ -82,20 +86,119 @@ As a general rule of thumb, please try to create bug reports that are:
 - *Specific.* Include as much detail as possible: which version, what environment, etc.
 - *Unique.* Do not duplicate existing tickets.
 
+
 ## Setup your local development environment
-<explanation of local setup>
+Since PMM has a lot of components, we will mention only three big parts of it.
+
+### PMM Server
+Clone [pmm-managed repository](https://github.com/percona/pmm-managed)
+Run `make env-up` to start development container.
+To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
+
+### PMM Client
+Clone [pmm-agent repository](https://github.com/percona/pmm-agent) and [pmm-admin repository](https://github.com/percona/pmm-admin).
+Navigate to the root folder of pmm-agent. 
+Run `make setup-dev` to connect pmm-agent to PMM Server.
+This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
+Once it's connected just use `make run` to run pmm-agent.
+To work correctly pmm-agent needs exporters installed on the system.
+All pathes to exporters binaries is configured in `pmm-agent-dev.yaml`, so they can be changed manually
+Exporters can be setup by building each of them or by downloading pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+
+### Exporters
+Exporters by itself is an independent applications, so each of them contains their own README files explaining how to contribute.
+[see PMM Client](##PMM-Client)
+
+### UI
+
+< TODO:Explain how to contribute to UI >
 
 ## Tests
-
-<include section about how to test and how to write tests>
+    
+In a PMM we have 4 kind of tests.
+    
+### Unit tests
+    
+The first one is a Unit testing, so we have unit tests in each repository mentioned above. each of repositories has it's own instruction how to run unit tests.
+    
+### API tests
+    
+API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm-managed/tree/main/api-tests). API tests runs against running PMM Server container.
+    
+### End to end tests
+    
+End to end tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
+< TODO: How to run them? >
 
 ## Submitting a Pull Request
 
-<include information of what you expect from a PR to be successfully merged - code standards, branching, etc>
+See [Working with Git and GitHub](GIT_AND_GITHUB.md)
+
+As a PR created you are responsible to:
+* make sure PR is ready (linted, tested and etc)
+* make sure it is reviewed (ask for review, ping reviewers and etc)
+* make sure it is merged
+  * merge when it is reviewed and tested
+  * ask code owners/admins to merge it if merging is blocked for some reason
+
+### When can the code be merged?
+
+* code can only be merged via PRs
+* at least 2 reviews are assigned and they should have approved the PR
+* tests passed
+* FB was tested by QA (if it applies)
+
+If above criteria are met - anyone (PR owner or any other developer) can merge the code.
+
+In case of CODEOWNERs they would merge it.
+
+If there are any issues with tests, checks or CODEOWNER is absent but there are 2 reviews - PR owner should ask anyone from PMM Admins to merge PRs.
+
+## Feature Build (FB)
+
+PMM is quite complex project, it consists from many different repos descibed above. Feature Build is a way to get changes all together, build them all together, run tests and get client and server containers.
+
+Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
+
+### The Goals of the Feature Builds
+
+1. Provide an easy way to test/accept functionality for PO/PM and QA
+2. Inform the Developer about Automation Tests results before the code is merged
+3. (Future) Let the Developers add/modify e2e tests when they change functionality
+
+### The Rules
+
+1. Start Feature Build for every feature/improvement you are working on.
+2. Start PullRequest to percona-lab/pmm-submodules as DRAFT.
+3. Change the status of Pull Request from Draft to Open ONLY if your changes must be merged to pmm-submodules.
+4. Include a short explanation in the Long Description field of the Feature in PR for feature build and checkboxes to all related Pull Requests. Check other PRs (https://github.com/Percona-Lab/pmm-submodules/pulls) as examples.
+5. After all related PRs in feature build are merged you should:
+   a. either close the PR and delete the branch (this is the default option) or
+   b. merge the PR to pmm-submodules repository (please note, this rarely needs to be merged, for example infrastructure changes do)
 
 ### Code Reviews
 
-<explain how the project code is reviewed and how to raise questions, if reviewers need to be added etc>
+There are number of approaches for the code review and ownership: Code Ownership (CODEOWNERS), [github auto review](https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/managing-code-review-assignment-for-your-team), PR owner assign ppl that are better fit for the particular code/job.
+
+
+We want efficient review process that would work for different repos and parts of the code, that allow engineers to have broader view on the product, learn more and keep code up to date wherever possible.
+
+For that we use a mixed approach:
+* repos that have CODEOWNERS
+  * add **auto-review-team** additionally to CODEOWNERS assigned
+* repos that don't have CODEOWNERS
+  * add **auto-review-team**
+* if you know exactly who should review your code
+  * add ppl to the review
+
+
+| Team                 | Description                                                             | Members |
+| -------------------- | ----------------------------------------------------------------------- | ------- |
+| pmm-review-fe        | ppl for UI/UX reviews for [FrontEnd repos](###FrontEnd)                 | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
+| pmm-review-exporters | reviewers for all exporters [see PMM Client](##PMM-Client)              | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
+| pmm-review-be        | Back-End engineers                                                      | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
+| PMM Admins           | ppl that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
+
 
 ## After your Pull Request is merged
 
