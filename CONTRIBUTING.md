@@ -2,6 +2,16 @@
 
 We're glad that you would like to become a Percona community member and participate in keeping open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers.
 
+## Table of contents
+1. [Project repos structure](#Project-repos-structure)
+2. [API documentation](#API-documentation)
+3. [Prerequisites](#Prerequisites)
+4. [Submitting a Bug](#Submitting-a-Bug)
+5. [Setup your local development environment](#Setup-your-local-development-environment)
+6. [Tests](#Tests)
+7. [Feature Build (FB)](#Feature-Build-(FB))
+8. [Code Reviews](#Code-Reviews)
+
 ## Project repos structure
 This project is built from several repositories:
 
@@ -48,7 +58,7 @@ This project is built from several repositories:
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [percona/pmm-doc](https://github.com/percona/pmm-doc)
 
-## APIs
+## API documentation
 
 See API definitions [here](https://percona-pmm.readme.io/reference/introduction).
 
@@ -164,7 +174,7 @@ Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-s
    a. either close the PR and delete the branch (this is the default option) or
    b. merge the PR to pmm-submodules repository (please note, this rarely needs to be merged, for example infrastructure changes do)
 
-### Code Reviews
+## Code Reviews
 
 There are number of approaches for the code review and ownership: Code Ownership (CODEOWNERS), [github auto review](https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/managing-code-review-assignment-for-your-team), PR owner assign ppl that are better fit for the particular code/job.
 
