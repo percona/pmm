@@ -42,11 +42,11 @@ func isDMLQuery(query string) bool {
 }
 
 /*
-  MySQL version prior 5.6.3 cannot run explain on DML commands.
-  Newer MySQL versions can run explain on DML queries but higher persmissions
-  are needed and the pmm user is a not privileged user.
-  This function converts DML queries to the equivalent SELECT to make
-  it able to explain DML queries on older MySQL versions and for unprivileged users.
+MySQL version prior 5.6.3 cannot run explain on DML commands.
+Newer MySQL versions can run explain on DML queries but higher persmissions
+are needed and the pmm user is a not privileged user.
+This function converts DML queries to the equivalent SELECT to make
+it able to explain DML queries on older MySQL versions and for unprivileged users.
 */
 func dmlToSelect(query string) string {
 	query = strings.ReplaceAll(query, "\n", " ")

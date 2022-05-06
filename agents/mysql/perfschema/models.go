@@ -18,6 +18,7 @@ package perfschema
 //go:generate reform
 
 // eventsStatementsSummaryByDigest represents a row in performance_schema.events_statements_summary_by_digest table.
+//
 //reform:performance_schema.events_statements_summary_by_digest
 type eventsStatementsSummaryByDigest struct {
 	SchemaName              *string `reform:"SCHEMA_NAME"`
@@ -53,6 +54,7 @@ type eventsStatementsSummaryByDigest struct {
 
 // eventsStatementsSummaryByDigestExamples represents a row in
 // performance_schema.events_statements_summary_by_digest table for MySQL 8.0 examples.
+//
 //reform:performance_schema.events_statements_summary_by_digest
 type eventsStatementsSummaryByDigestExamples struct {
 	SQLText       *string `reform:"QUERY_SAMPLE_TEXT"`
@@ -61,6 +63,7 @@ type eventsStatementsSummaryByDigestExamples struct {
 }
 
 // eventsStatementsHistory represents a row in performance_schema.events_statements_history table.
+//
 //reform:performance_schema.events_statements_history
 type eventsStatementsHistory struct {
 	// ThreadID   int64   `reform:"THREAD_ID"`
@@ -104,6 +107,7 @@ type eventsStatementsHistory struct {
 }
 
 // setupConsumers represents a row in performance_schema.setup_consumers table.
+//
 //reform:performance_schema.setup_consumers
 type setupConsumers struct {
 	Name    string `reform:"NAME"`
@@ -111,6 +115,7 @@ type setupConsumers struct {
 }
 
 // setupInstruments represents a row in performance_schema.setup_instruments table.
+//
 //reform:performance_schema.setup_instruments
 type setupInstruments struct {
 	Name    string  `reform:"NAME"`
