@@ -9,7 +9,7 @@ We're glad that you would like to become a Percona community member and particip
 4. [Submitting a Bug](#Submitting-a-Bug)
 5. [Setup your local development environment](#Setup-your-local-development-environment)
 6. [Tests](#Tests)
-7. [Feature Build (FB)](#Feature-Build-(FB))
+7. [Feature Build](#Feature-Build)
 8. [Code Reviews](#Code-Reviews)
 
 ## Project repos structure
@@ -152,9 +152,9 @@ In case of CODEOWNERs they would merge it.
 
 If there are any issues with tests, checks or CODEOWNER is absent but there are 2 reviews - PR owner should ask anyone from PMM Admins to merge PRs.
 
-## Feature Build (FB)
+## Feature Build
 
-PMM is quite complex project, it consists from many different repos descibed above. Feature Build is a way to get changes all together, build them all together, run tests and get client and server containers.
+PMM is quite complex project, it consists from many different repos descibed above. Feature Build (FB) is a way to get changes all together, build them all together, run tests and get client and server containers.
 
 Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
 
