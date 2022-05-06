@@ -98,7 +98,9 @@ Exporters by itself is an independent applications, so each of them contains the
 
 ### UI
 
-< TODO:Explain how to contribute to UI >
+See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-dashboards/blob/main/CONTRIBUTING.md).
+
+< TODO:Explain how to contribute to Grafana >
 
 ## Tests
     
