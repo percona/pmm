@@ -6,9 +6,9 @@ Commit and push to the feature branches daily. Use pull requests (in the draft s
 
 ## Preparation
 
-Make sure your `git user.name` is set, and `user.email` is set to your corporate (if youre Perconian) or personal email, i.e. john.doe@percona.com.
+Make sure your `git user.name` is set, and `user.email` is set to your corporate (if you are Perconian) or personal email, i.e. john.doe@percona.com.
 
-Use topic branches in the same repository instead of Github forks if you have such permissions.
+Use topic branches in the same repository instead of GitHub forks if you have such permissions.
 
 Name topic branches like this: `PMM-1234-short-description`. Always start with `PMM-XXXX` or `SAAS-XXXX`. Never omit a short description. Separate words with dashes, not underscore. Use only lowercase letters.
 
