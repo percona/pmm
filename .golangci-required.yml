@@ -25,6 +25,11 @@ linters-settings:
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm-managed) # Groups all local imports.
 
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+      - github.com/percona-platform/dbaas-api
+
 linters:
   disable-all: true
   enable:
