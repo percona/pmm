@@ -99,7 +99,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly pmm-agent needs exporters installed on the system.
   * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
-  * Exporters can be setup by building each of them or by downloading pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+  * Exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
 
 ### Exporters
 
