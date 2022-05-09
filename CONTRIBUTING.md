@@ -109,8 +109,6 @@ Exporters by themselves are independent applications, so each of them contains i
 
 See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-dashboards/blob/main/CONTRIBUTING.md).
 
-< TODO:Explain how to contribute to Grafana >
-
 ## Tests
     
 In a PMM we have 4 kind of tests.
