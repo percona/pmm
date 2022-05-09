@@ -28,6 +28,10 @@ linters-settings:
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm-admin) # Groups all local imports.
 
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+
 linters:
   enable-all: true
   disable:
