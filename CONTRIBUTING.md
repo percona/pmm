@@ -137,19 +137,6 @@ As a PR created you are responsible to:
   * merge when it is reviewed and tested
   * ask code owners/admins to merge it if merging is blocked for some reason
 
-### When can the code be merged?
-
-* code can only be merged via PRs
-* at least 2 reviews are assigned and they should have approved the PR
-* tests and checks passed
-* FB was tested by QA (if it applies)
-
-If above criteria are met - anyone (PR owner or any other developer) can merge the code.
-
-In case of CODEOWNERs they would merge it.
-
-If there are any issues with tests, checks or CODEOWNER is absent but there are 2 reviews - PR owner should ask anyone from PMM Admins to merge PRs.
-
 ## Feature Build
 
 PMM is quite complex project, it consists from many different repos descibed above. Feature Build (FB) is a way to get changes all together, build them all together, run tests and get client and server containers.

@@ -25,9 +25,7 @@ Optional 72-character wrapped longer description.
 
 There should be a blank line between short summary and longer description. Final dot in the title is optional – if you hate it, drop it :)
 
-While addressing review comments push the requested changes as a new commit instead of amending the original commit and force pushing to Github
-
-If you are community contributor and there is no ticket exists, either create one or just omit ticket number (start with short summary).
+While addressing review comments push the requested changes as a new commit instead of amending the original commit and force pushing to Github.
 
 ## Pull Request rules
 
