@@ -103,7 +103,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### Exporters
 
-Exporters by itself is an independent applications, so each of them contains their own README files explaining how to contribute [see PMM Client](#PMM-Client).
+Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#PMM-Client).
 
 ### UI
 
