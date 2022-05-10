@@ -17,7 +17,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v63.2.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.27
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
-	github.com/ClickHouse/clickhouse-go/v2 v2.0.12
+	github.com/ClickHouse/clickhouse-go/v2 v2.0.14
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/aws/aws-sdk-go v1.44.4
 	github.com/brianvoe/gofakeit/v6 v6.16.0
@@ -49,7 +49,7 @@ require (
 	go.starlark.net v0.0.0-20220302181546-5411bad688d1
 	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
+	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32
 	google.golang.org/genproto v0.0.0-20220414192740-2d67ff6cf2b4
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
@@ -117,7 +117,7 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/paulmach/orb v0.4.0 // indirect
+	github.com/paulmach/orb v0.5.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/prometheus/client_model v0.2.1-0.20200623203004-60555c9708c7 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
@@ -130,8 +130,8 @@ require (
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
 	go.mongodb.org/mongo-driver v1.9.0 // indirect
-	go.opentelemetry.io/otel v1.4.1 // indirect
-	go.opentelemetry.io/otel/trace v1.4.1 // indirect
+	go.opentelemetry.io/otel v1.7.0 // indirect
+	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
