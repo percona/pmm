@@ -8,20 +8,60 @@ package gmodels
 import (
 	"context"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 )
 
-// LabelSet LabelSet label set
+// LabelSet A LabelSet is a collection of LabelName and LabelValue pairs.  The LabelSet
+// may be fully-qualified down to the point where it may resolve to a single
+// Metric in the data store or not.  All operations that occur within the realm
+// of a LabelSet can emit a vector of Metric entities to which the LabelSet may
+// match.
 //
 // swagger:model LabelSet
-type LabelSet map[string]string
+type LabelSet map[string]LabelValue
 
 // Validate validates this label set
 func (m LabelSet) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	for k := range m {
+
+		if val, ok := m[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName(k)
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName(k)
+				}
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this label set based on context it is used
+// ContextValidate validate this label set based on the context it is used
 func (m LabelSet) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	for k := range m {
+
+		if val, ok := m[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }

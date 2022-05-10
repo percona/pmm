@@ -56,6 +56,7 @@ type GlobalConfig struct {
 	PagerdutyURL *URL `json:"pagerduty_url,omitempty"`
 
 	// resolve timeout
+	// Format: duration
 	ResolveTimeout Duration `json:"resolve_timeout,omitempty"`
 
 	// slack api url

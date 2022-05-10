@@ -7,9 +7,11 @@ package gmodels
 
 import (
 	"context"
-	"time"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // Duration A Duration represents the elapsed time between two instants
@@ -17,14 +19,51 @@ import (
 // largest representable duration to approximately 290 years.
 //
 // swagger:model Duration
-type Duration time.Duration
+type Duration strfmt.Duration
+
+// UnmarshalJSON sets a Duration value from JSON input
+func (m *Duration) UnmarshalJSON(b []byte) error {
+	return ((*strfmt.Duration)(m)).UnmarshalJSON(b)
+}
+
+// MarshalJSON retrieves a Duration value as JSON output
+func (m Duration) MarshalJSON() ([]byte, error) {
+	return (strfmt.Duration(m)).MarshalJSON()
+}
 
 // Validate validates this duration
 func (m Duration) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := validate.FormatOf("", "body", "duration", strfmt.Duration(m).String(), formats); err != nil {
+		return err
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
 // ContextValidate validates this duration based on context it is used
 func (m Duration) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *Duration) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *Duration) UnmarshalBinary(b []byte) error {
+	var res Duration
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
 	return nil
 }

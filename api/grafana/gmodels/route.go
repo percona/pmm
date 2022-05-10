@@ -39,9 +39,11 @@ type Route struct {
 	Routes []*Route `json:"routes"`
 
 	// group interval
+	// Format: duration
 	GroupInterval Duration `json:"group_interval,omitempty"`
 
 	// group wait
+	// Format: duration
 	GroupWait Duration `json:"group_wait,omitempty"`
 
 	// match re
@@ -57,6 +59,7 @@ type Route struct {
 	Provenance Provenance `json:"provenance,omitempty"`
 
 	// repeat interval
+	// Format: duration
 	RepeatInterval Duration `json:"repeat_interval,omitempty"`
 }
 
@@ -81,6 +84,10 @@ func (m *Route) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMatchers(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateObjectMatchers(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -194,6 +201,23 @@ func (m *Route) validateMatchers(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Route) validateObjectMatchers(formats strfmt.Registry) error {
+	if swag.IsZero(m.ObjectMatchers) { // not required
+		return nil
+	}
+
+	if err := m.ObjectMatchers.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("object_matchers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("object_matchers")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *Route) validateProvenance(formats strfmt.Registry) error {
 	if swag.IsZero(m.Provenance) { // not required
 		return nil
@@ -249,6 +273,10 @@ func (m *Route) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	}
 
 	if err := m.contextValidateMatchers(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateObjectMatchers(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -335,6 +363,20 @@ func (m *Route) contextValidateMatchers(ctx context.Context, formats strfmt.Regi
 			return ve.ValidateName("matchers")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("matchers")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *Route) contextValidateObjectMatchers(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ObjectMatchers.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("object_matchers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("object_matchers")
 		}
 		return err
 	}

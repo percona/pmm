@@ -26,6 +26,7 @@ type PostableRuleGroupConfig struct {
 	Rules []*PostableExtendedRuleNode `json:"rules"`
 
 	// interval
+	// Format: duration
 	Interval Duration `json:"interval,omitempty"`
 }
 

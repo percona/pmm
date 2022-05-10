@@ -29,6 +29,7 @@ type GettableRuleGroupConfig struct {
 	SourceTenants []string `json:"source_tenants"`
 
 	// interval
+	// Format: duration
 	Interval Duration `json:"interval,omitempty"`
 }
 

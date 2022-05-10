@@ -34,6 +34,7 @@ type GettableExtendedRuleNode struct {
 	Record string `json:"record,omitempty"`
 
 	// for
+	// Format: duration
 	For Duration `json:"for,omitempty"`
 
 	// grafana alert

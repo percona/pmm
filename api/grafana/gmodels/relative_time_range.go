@@ -20,9 +20,11 @@ import (
 type RelativeTimeRange struct {
 
 	// from
+	// Format: duration
 	From Duration `json:"from,omitempty"`
 
 	// to
+	// Format: duration
 	To Duration `json:"to,omitempty"`
 }
 

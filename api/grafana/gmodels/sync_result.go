@@ -21,6 +21,7 @@ import (
 type SyncResult struct {
 
 	// elapsed
+	// Format: duration
 	Elapsed Duration `json:"Elapsed,omitempty"`
 
 	// failed users

@@ -43,12 +43,14 @@ type PushoverConfig struct {
 	VSendResolved bool `json:"send_resolved,omitempty"`
 
 	// expire
+	// Format: duration
 	Expire Duration `json:"expire,omitempty"`
 
 	// http config
 	HTTPConfig *HTTPClientConfig `json:"http_config,omitempty"`
 
 	// retry
+	// Format: duration
 	Retry Duration `json:"retry,omitempty"`
 
 	// token
