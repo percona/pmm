@@ -509,7 +509,7 @@ paths:
       produces:
         - application/json
       responses:
-        '202':
+        '200':
           description: NamespaceConfigResponse
           schema:
             $ref: '#/definitions/NamespaceConfigResponse'

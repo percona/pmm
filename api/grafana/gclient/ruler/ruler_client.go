@@ -38,7 +38,7 @@ type ClientService interface {
 
 	RouteGetRulegGroupConfig(params *RouteGetRulegGroupConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RouteGetRulegGroupConfigAccepted, error)
 
-	RouteGetRulesConfig(params *RouteGetRulesConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RouteGetRulesConfigAccepted, error)
+	RouteGetRulesConfig(params *RouteGetRulesConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RouteGetRulesConfigOK, error)
 
 	RoutePostNameRulesConfig(params *RoutePostNameRulesConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RoutePostNameRulesConfigAccepted, error)
 
@@ -204,7 +204,7 @@ func (a *Client) RouteGetRulegGroupConfig(params *RouteGetRulegGroupConfigParams
 /*
   RouteGetRulesConfig List rule groups
 */
-func (a *Client) RouteGetRulesConfig(params *RouteGetRulesConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RouteGetRulesConfigAccepted, error) {
+func (a *Client) RouteGetRulesConfig(params *RouteGetRulesConfigParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*RouteGetRulesConfigOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewRouteGetRulesConfigParams()
@@ -230,7 +230,7 @@ func (a *Client) RouteGetRulesConfig(params *RouteGetRulesConfigParams, authInfo
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*RouteGetRulesConfigAccepted)
+	success, ok := result.(*RouteGetRulesConfigOK)
 	if ok {
 		return success, nil
 	}
