@@ -53,13 +53,10 @@ If your kubernetes cluster is located outside of your local system you can get p
 Then to enable DBaaS send request to `Settings/Change` endpoint like below where `IP` is public IP address or DNS name of PMM Server instance.
 ```bash
 curl -X POST "http://localhost/v1/Settings/Change" \ 
-     -H "accept: application/json" -u "admin:admin" -H "Content-Type: application/json" \ 
-     -d "
-{ 
-        \"pmm_public_address\": \"${IP}\", 
-        \"enable_dbaas\": true
-}
-"
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \
+     -H "Content-Type: application/json" \ 
+     -d "{ \"pmm_public_address\": \"${IP}\", \"enable_dbaas\": true }"
 ```
 
 API endpoint used in this step: [Change settings](ref:changesettings).
@@ -71,13 +68,9 @@ Once kubernetes cluster is created it should be registered in PMM where `my_clus
 KUBECONFIG=$(kubectl -- config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
 
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \ 
-     -H "accept: application/json" -u "admin:admin" \ 
-     -d "
-{ 
-        \"kubernetes_cluster_name\": \"my_cluster\", 
-        \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }
-}
-"
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"kube_auth\": { \"kubeconfig\": \"${KUBECONFIG}\" }}"
 ```
 This command will register kubernetes cluster, start monitoring of kubernetes cluster and install required kubernetes operators.
 
@@ -90,7 +83,8 @@ Percona maintains a list of available versions for each component. For example, 
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/Components/GetPXC" \ 
-     -H "accept: application/json" -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
      -H "Content-Type: application/json" \ 
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
@@ -252,16 +246,87 @@ Once we registered kubernetes cluster we can use it’s name to create DB Cluste
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
-     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
-     -d "
-{ 
-        \"kubernetes_cluster_name\": \"my_cluster\", 
-        \"name\": \"my-cluster-1\", 
-        \"expose\": true, 
-        \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } }
-}
-"
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \
+     -H "Content-Type: application/json" \ 
+     -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } } }"
 ```
+
+### Request parameters
+
+```
+{
+  "kubernetes_cluster_name": "string",
+  "name": "string",
+  "params": {
+    "cluster_size": 0,
+    "pxc": {
+      "image": "string",
+      "compute_resources": {
+        "cpu_m": 0,
+        "memory_bytes": "string"
+      },
+      "disk_size": "string"
+    },
+    "proxysql": {
+      "image": "string",
+      "compute_resources": {
+        "cpu_m": 0,
+        "memory_bytes": "string"
+      },
+      "disk_size": "string"
+    },
+    "haproxy": {
+      "image": "string",
+      "compute_resources": {
+        "cpu_m": 0,
+        "memory_bytes": "string"
+      }
+    }
+  },
+  "expose": true
+}
+```
+
+
+
+|Parameter|Description|Notes|
+|-----|-----|-----|
+|kubernetes_cluster_name|Kubernetes cluster name|Required|
+|name|PXC cluster name to create|name|
+|cluster_size|Cluster size|Default: 3|
+|image|Docker image name|Default is the recommended version from the Percona's version service|
+|compute_resources.cpu_m|CPU resources millis|Default: 1000|
+|mcompute_resources.memory_bytes|Max memory size in bytes|Default: 2 Gb|
+|disk_size|Max disk size for the PXC instance|Default: 25 Gb|
+|proxysql.image|Docker image for ProxySQL|Default: empty. (Use operator's default)|
+|proxysql.compute_resources.cpu_m|CPU resources millis|Default: 1000|
+|proxysql.compute_resources.memory_bytes|Max memory size in bytes|Default 2 Gb|
+|proxysql.disk_size|Max disk size for ProxySQL|Default: empty, use operator's default|
+|haproxyimage|Docker image for HA Proxy|Default: empty, use operator's default|
+|haproxy.compute_resources.cpu_m|CPU resources millis|Default: 1000|
+|haproxy.compute_resources.memory_bytes|Max memory size in bytes|Default: 2 Gb|
+|expose|Make it available outside the Kubernetes cluster|Default: false|
+
+**Note:** 
+Only one of ProxySQL or HAProxy should be specified in the request.
+
+#### Minimum request example
+
+Since the API has the defaults mentioned above, the HTTP request can have the kubernetes cluster name as the only parameter.
+
+Example:
+
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
+    -H "accept: application/json" \
+    -H "authorization: Basic YWRtaW46YWRtaW4=" \
+    -H "Content-Type: application/json" \
+    -d '{ "kubernetes_cluster_name": "my_cluster", "name": "my-pxc-cluster", "expose": true}'
+```
+
+
+
 
 API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
 
@@ -270,7 +335,8 @@ API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
 Once you created PXC cluster you can check the status of the cluster by calling the `List` endpoint.
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" \ 
-     -H "accept: application/json" -u “admin:admin” \ 
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
      -H "Content-Type: application/json" \ 
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\"}"
 ```
@@ -317,7 +383,9 @@ Once PXC Cluster is ready we can request credentials to connect to DB.
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" \ 
-     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \
+     -H "Content-Type: application/json" \ 
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\"}"
 ```
 **Example response:**
@@ -334,12 +402,58 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" \
 
 API endpoint used in this step: [GetPXCClusterCredentials](ref:getpxcclustercredentials)
 
+### Create a PSMDB Cluster
+
+The PSMDB Create endpoint can also set defaults so, creating a PSMDB cluster can be made with a request like this:
+
+```bash
+curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
+    -H "accept: application/json" \
+    -H "authorization: Basic YWRtaW46YWRtaW4=" \
+    -H "Content-Type: application/json" \
+    -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"expose\": true}"
+```
+
+#### Request fields
+
+```json
+{
+  "kubernetes_cluster_name": "string",
+  "name": "string",
+  "params": {
+    "cluster_size": 0,
+    "replicaset": {
+      "compute_resources": {
+        "cpu_m": 0,
+        "memory_bytes": "string"
+      },
+      "disk_size": "string"
+    },
+    "image": "string"
+  },
+  "expose": true
+}
+```
+
+| Field                                     | Description                           | Notes                                                        |
+| ----------------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
+| kubernetes_cluster_name                   | Kubernetes cluster name               | Required                                                     |
+| name                                      | PSMDB cluster name                    | Default: `psmdb`+DB version+4 digits random number           |
+| cluster_size                              | Cluster size                          | Default: 3                                                   |
+| replicaset.compute_resources.cpu_m        | CPU resources millis                  | Default: 1000                                                |
+| replicaset.compute_resources.memory_bytes | Max memory size in bytes              | Default: 2 Gb                                                |
+| disk_size                                 | Max disk size                         | Default: 25 Gb                                               |
+| image                                     | PSMDB Docker image                    | Default is the recommended version from the Percona's version service |
+| expose                                    | Expose outside the Kubernetes cluster | Default: false                                               |
+
 ### Delete DB Cluster
 
 If we don’t need DB Cluster anymore we can delete it using request below.
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \ 
-     -H "accept: application/json" -u “admin:admin” -H "Content-Type: application/json" \ 
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \
+     -H "Content-Type: application/json" \ 
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"cluster_type\": \"DB_CLUSTER_TYPE_PXC\"}"
 ```
 
@@ -353,7 +467,9 @@ Unregister a kubernetes cluster doesn’t delete anything, it just removes the c
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" \ 
-     -H "accept: application/json" –u “admin:admin" -H "Content-Type: application/json" \ 
+     -H "accept: application/json" \
+     -H "authorization: Basic YWRtaW46YWRtaW4=" \
+     -H "Content-Type: application/json" \ 
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"force\": true}"
 ```
 
