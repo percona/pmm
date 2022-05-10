@@ -22482,6 +22482,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
