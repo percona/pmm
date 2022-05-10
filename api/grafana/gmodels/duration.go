@@ -7,6 +7,7 @@ package gmodels
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 )
@@ -16,7 +17,7 @@ import (
 // largest representable duration to approximately 290 years.
 //
 // swagger:model Duration
-type Duration int64
+type Duration time.Duration
 
 // Validate validates this duration
 func (m Duration) Validate(formats strfmt.Registry) error {
