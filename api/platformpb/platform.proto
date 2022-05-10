@@ -32,7 +32,10 @@ message ConnectRequest {
 
 message ConnectResponse {}
 
-message DisconnectRequest {}
+message DisconnectRequest {
+  // Forces the cleanup process for connected PMM instances regardless of the Portal API response
+  bool force = 1;
+}
 
 message DisconnectResponse {}
 
