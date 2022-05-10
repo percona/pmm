@@ -91,6 +91,12 @@ gen-alertmanager:     # Generate Alertmanager client.
 	bin/gofumpt  -l -w ./api/alertmanager
 	go install -v ./api/alertmanager/...
 
+gen-grafana:     # Generate Grafana Unified Alerting API client.
+	bin/swagger generate client --model-package=gmodels --client-package=gclient --spec=api/grafana/swagger.yaml --target=api/grafana
+
+	bin/gofumpt  -l -w ./api/grafana
+	go install -v ./api/grafana/...
+
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
 
