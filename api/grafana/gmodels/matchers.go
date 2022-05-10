@@ -14,7 +14,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// Matchers Matchers matchers
+// Matchers Matchers is a slice of Matchers that is sortable, implements Stringer, and
+// provides a Matches method to match a LabelSet against all Matchers in the
+// slice. Note that some users of Matchers might require it to be sorted.
 //
 // swagger:model Matchers
 type Matchers []*Matcher

@@ -8,7 +8,6 @@ package gmodels
 import (
 	"context"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -20,109 +19,19 @@ import (
 type RelativeTimeRange struct {
 
 	// from
-	// Format: duration
-	From Duration `json:"from,omitempty"`
+	From int64 `json:"from,omitempty"`
 
 	// to
-	// Format: duration
-	To Duration `json:"to,omitempty"`
+	To int64 `json:"to,omitempty"`
 }
 
 // Validate validates this relative time range
 func (m *RelativeTimeRange) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateFrom(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateTo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 
-func (m *RelativeTimeRange) validateFrom(formats strfmt.Registry) error {
-	if swag.IsZero(m.From) { // not required
-		return nil
-	}
-
-	if err := m.From.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("from")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("from")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *RelativeTimeRange) validateTo(formats strfmt.Registry) error {
-	if swag.IsZero(m.To) { // not required
-		return nil
-	}
-
-	if err := m.To.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("to")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("to")
-		}
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validate this relative time range based on the context it is used
+// ContextValidate validates this relative time range based on context it is used
 func (m *RelativeTimeRange) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateFrom(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateTo(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *RelativeTimeRange) contextValidateFrom(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.From.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("from")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("from")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *RelativeTimeRange) contextValidateTo(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.To.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("to")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("to")
-		}
-		return err
-	}
-
 	return nil
 }
 

@@ -6056,9 +6056,11 @@ definitions:
       for requests.
     properties:
       from:
-        $ref: '#/definitions/Duration'
+        type: integer
+        format: int64
       to:
-        $ref: '#/definitions/Duration'
+        type: integer
+        format: int64
     type: object
     x-go-package: github.com/grafana/grafana/pkg/services/ngalert/models
   ResponseDetails:

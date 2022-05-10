@@ -11,28 +11,43 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
-// Matcher Matcher models the matching of a label.
+// Matcher Matcher matcher
 //
 // swagger:model Matcher
 type Matcher struct {
 
-	// name
-	Name string `json:"Name,omitempty"`
+	// is equal
+	IsEqual bool `json:"isEqual,omitempty"`
 
-	// type
-	Type MatchType `json:"Type,omitempty"`
+	// is regex
+	// Required: true
+	IsRegex *bool `json:"isRegex"`
+
+	// name
+	// Required: true
+	Name *string `json:"name"`
 
 	// value
-	Value string `json:"Value,omitempty"`
+	// Required: true
+	Value *string `json:"value"`
 }
 
 // Validate validates this matcher
 func (m *Matcher) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateType(formats); err != nil {
+	if err := m.validateIsRegex(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateValue(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -42,48 +57,35 @@ func (m *Matcher) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Matcher) validateType(formats strfmt.Registry) error {
-	if swag.IsZero(m.Type) { // not required
-		return nil
-	}
+func (m *Matcher) validateIsRegex(formats strfmt.Registry) error {
 
-	if err := m.Type.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("Type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("Type")
-		}
+	if err := validate.Required("isRegex", "body", m.IsRegex); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validate this matcher based on the context it is used
+func (m *Matcher) validateName(formats strfmt.Registry) error {
+
+	if err := validate.Required("name", "body", m.Name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Matcher) validateValue(formats strfmt.Registry) error {
+
+	if err := validate.Required("value", "body", m.Value); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this matcher based on context it is used
 func (m *Matcher) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateType(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *Matcher) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.Type.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("Type")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("Type")
-		}
-		return err
-	}
-
 	return nil
 }
 
