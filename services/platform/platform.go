@@ -169,7 +169,9 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	err = s.disconnect(ctx, &disconnectPMMParams{
 		PMMServerID: settings.PMMServerID,
 	})
-	if err != nil {
+	needRecover := err != nil && !req.Force
+
+	if needRecover {
 		if e := models.InsertPerconaSSODetails(s.db.Querier, &models.PerconaSSODetailsInsert{
 			PMMManagedClientID:     ssoDetails.PMMManagedClientID,
 			PMMManagedClientSecret: ssoDetails.PMMManagedClientSecret,
