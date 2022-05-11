@@ -780,6 +780,29 @@ paths:
             $ref: '#/definitions/TestRuleResponse'
       tags:
         - testing
+  /datasources/name/{datasource_name}:
+    get:
+      description: |-
+        If you are running Grafana Enterprise and have Fine-grained access control enabled
+        you need to have a permission with action: `datasources:read` and scopes: `datasources:*`, `datasources:name:*` and `datasources:name:test_datasource` (single data source).
+      tags:
+        - datasources
+      summary: Get a single data source by Name.
+      operationId: getDatasourceByName
+      parameters:
+        - type: string
+          x-go-name: DatasourceName
+          name: datasource_name
+          in: path
+          required: true
+      responses:
+        '200':
+          $ref: '#/responses/getDatasourceResponse'
+        '401':
+          $ref: '#/responses/unauthorisedError'
+        '403':
+          $ref: '#/responses/forbiddenError'
+        '500':
 definitions:
   ActiveSyncStatusDTO:
     description: ActiveSyncStatusDTO holds the information for LDAP background Sync

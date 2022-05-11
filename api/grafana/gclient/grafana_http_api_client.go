@@ -12,6 +12,7 @@ import (
 
 	"github.com/percona/pmm/api/grafana/gclient/alertmanager"
 	"github.com/percona/pmm/api/grafana/gclient/configuration"
+	"github.com/percona/pmm/api/grafana/gclient/datasources"
 	"github.com/percona/pmm/api/grafana/gclient/prometheus"
 	"github.com/percona/pmm/api/grafana/gclient/ruler"
 	"github.com/percona/pmm/api/grafana/gclient/testing"
@@ -61,6 +62,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *GrafanaHTT
 	cli.Transport = transport
 	cli.Alertmanager = alertmanager.New(transport, formats)
 	cli.Configuration = configuration.New(transport, formats)
+	cli.Datasources = datasources.New(transport, formats)
 	cli.Prometheus = prometheus.New(transport, formats)
 	cli.Ruler = ruler.New(transport, formats)
 	cli.Testing = testing.New(transport, formats)
@@ -112,6 +114,8 @@ type GrafanaHTTPAPI struct {
 
 	Configuration configuration.ClientService
 
+	Datasources datasources.ClientService
+
 	Prometheus prometheus.ClientService
 
 	Ruler ruler.ClientService
@@ -126,6 +130,7 @@ func (c *GrafanaHTTPAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Alertmanager.SetTransport(transport)
 	c.Configuration.SetTransport(transport)
+	c.Datasources.SetTransport(transport)
 	c.Prometheus.SetTransport(transport)
 	c.Ruler.SetTransport(transport)
 	c.Testing.SetTransport(transport)
