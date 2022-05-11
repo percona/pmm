@@ -66,7 +66,7 @@ type GetDatasourceByNameOK struct {
 }
 
 func (o *GetDatasourceByNameOK) Error() string {
-	return fmt.Sprintf("[GET /datasources/name/{datasource_name}][%d] getDatasourceByNameOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameOK  %+v", 200, o.Payload)
 }
 func (o *GetDatasourceByNameOK) GetPayload() *gmodels.DataSource {
 	return o.Payload
@@ -98,7 +98,7 @@ type GetDatasourceByNameUnauthorized struct {
 }
 
 func (o *GetDatasourceByNameUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /datasources/name/{datasource_name}][%d] getDatasourceByNameUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameUnauthorized  %+v", 401, o.Payload)
 }
 func (o *GetDatasourceByNameUnauthorized) GetPayload() *gmodels.ErrorResponseBody {
 	return o.Payload
@@ -130,7 +130,7 @@ type GetDatasourceByNameForbidden struct {
 }
 
 func (o *GetDatasourceByNameForbidden) Error() string {
-	return fmt.Sprintf("[GET /datasources/name/{datasource_name}][%d] getDatasourceByNameForbidden  %+v", 403, o.Payload)
+	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameForbidden  %+v", 403, o.Payload)
 }
 func (o *GetDatasourceByNameForbidden) GetPayload() *gmodels.ErrorResponseBody {
 	return o.Payload
@@ -161,7 +161,7 @@ type GetDatasourceByNameInternalServerError struct {
 }
 
 func (o *GetDatasourceByNameInternalServerError) Error() string {
-	return fmt.Sprintf("[GET /datasources/name/{datasource_name}][%d] getDatasourceByNameInternalServerError ", 500)
+	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameInternalServerError ", 500)
 }
 
 func (o *GetDatasourceByNameInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

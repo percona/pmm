@@ -49,7 +49,7 @@ func (a *Client) GetDatasourceByName(params *GetDatasourceByNameParams, authInfo
 	op := &runtime.ClientOperation{
 		ID:                 "getDatasourceByName",
 		Method:             "GET",
-		PathPattern:        "/datasources/name/{datasource_name}",
+		PathPattern:        "/api/datasources/name/{datasource_name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

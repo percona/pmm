@@ -780,7 +780,7 @@ paths:
             $ref: '#/definitions/TestRuleResponse'
       tags:
         - testing
-  /datasources/name/{datasource_name}:
+  /api/datasources/name/{datasource_name}:
     get:
       description: |-
         If you are running Grafana Enterprise and have Fine-grained access control enabled
