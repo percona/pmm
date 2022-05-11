@@ -59,7 +59,12 @@ import (
 	"github.com/percona/qan-api2/utils/logger"
 )
 
-const shutdownTimeout = 3 * time.Second
+const (
+	shutdownTimeout = 3 * time.Second
+	defaultDsnF     = "clickhouse://%s?database=%s&block_size=%s&pool_size=%s"
+	maxIdleConns    = 5
+	maxOpenConns    = 10
+)
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, bind string) {
@@ -245,7 +250,14 @@ func main() {
 	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
-	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN").Default("clickhouse://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2").String()
+	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be override with database/host/port options").Default(defaultDsnF).String()
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+	clickhouseBlockSizeF := kingpin.Flag("clickhouse-block-size", "Number of rows that can be load from table in one cycle").
+		Default("10000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE").String()
+	clickhousePoolSizeF := kingpin.Flag("clickhouse-pool-size", "Controls how much queries can be run simultaneously").
+		Default("2").Envar("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE").String()
+
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
 
@@ -288,7 +300,15 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	db := NewDB(*dsnF, 5, 10)
+	var dsn string
+	if *dsnF == defaultDsnF {
+		dsn = fmt.Sprintf(defaultDsnF, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseBlockSizeF, *clickhousePoolSizeF)
+	} else {
+		dsn = *dsnF
+	}
+
+	l.Info("DNS: ", dsn)
+	db := NewDB(dsn, maxIdleConns, maxOpenConns)
 
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
