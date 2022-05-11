@@ -47,6 +47,11 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+const (
+	defaultClickhouseDatabase = "pmm"
+	defaultClickhouseAddr     = "127.0.0.1:9000"
+)
+
 // Service is responsible for interactions with Supervisord via supervisorctl.
 type Service struct {
 	configDir         string
@@ -400,12 +405,36 @@ func (s *Service) reload(name string) error {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
+	clickhouseDatabase, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE")
+	if !ok {
+		clickhouseDatabase = defaultClickhouseDatabase
+	}
+
+	clickhouseAddr, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_ADDR")
+	if !ok {
+		clickhouseAddr = defaultClickhouseAddr
+	}
+
+	clickhousePoolSize, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE")
+	if !ok {
+		clickhousePoolSize = ""
+	}
+
+	clickhouseBlockSize, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE")
+	if !ok {
+		clickhouseBlockSize = ""
+	}
+
 	templateParams := map[string]interface{}{
-		"DataRetentionHours": int(settings.DataRetention.Hours()),
-		"DataRetentionDays":  int(settings.DataRetention.Hours() / 24),
-		"VMAlertFlags":       s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":   !settings.VictoriaMetrics.CacheEnabled,
-		"PerconaTestDbaas":   settings.DBaaS.Enabled,
+		"DataRetentionHours":  int(settings.DataRetention.Hours()),
+		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
+		"VMAlertFlags":        s.vmParams.VMAlertFlags,
+		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
+		"PerconaTestDbaas":    settings.DBaaS.Enabled,
+		"ClickhouseAddr":      clickhouseAddr,
+		"ClickhouseDatabase":  clickhouseDatabase,
+		"ClickhousePoolSize":  clickhousePoolSize,
+		"ClickhouseBlockSize": clickhouseBlockSize,
 	}
 
 	if ssoDetails != nil {
@@ -681,6 +710,11 @@ priority = 13
 command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
+environment =
+	PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	PERCONA_TEST_PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+{{ if .ClickhousePoolSize }}	PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE={{ .ClickhousePoolSize }},{{- end}}
+{{ if .ClickhouseBlockSize }}	PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE={{ .ClickhouseBlockSize }}{{- end}}
 user = pmm
 autorestart = true
 autostart = true
@@ -721,6 +755,9 @@ command =
 
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
         {{- end}}
+environment =
+    PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana
 directory = /usr/share/grafana
 autorestart = true
