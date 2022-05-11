@@ -2204,7 +2204,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean",
+                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -22564,6 +22571,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
