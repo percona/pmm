@@ -24,7 +24,7 @@
     - Backup;
     - DBaaS;
     - Integrated Alerting;
-    - Security Checks.
+    - Advisors.
 
     To use these features you must be logged in as a PMM Admin user and activate the features.
 

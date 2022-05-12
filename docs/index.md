@@ -8,7 +8,7 @@ It allows you to observe the health of your database systems, explore new patter
 
 - The PMM [web UI](using/interface.md) **visualizes data** in [dashboards](details/dashboards/).
 
-- Additional features include checking databases for [security threats](details/develop-checks.md).
+- Additional features include [advisors for database health assessments](details/develop-checks/index.md).
 
 !!! alert alert-info ""
     This is the documentation for the latest release, **PMM {{release}}** ([Release Notes](release-notes/{{release}}.md)).
@@ -107,7 +107,7 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
         <rect x="915" y="222" width="188" height="48" rx="9" fill="#B6D7E4" stroke="#9A1E39" stroke-width="2"/>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="980.453" y="252.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/">How to</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="568.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html">DBaaS</a></tspan></text>
-        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="519.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/security-threat-tool.html">Security Threat Tool</a></tspan></text>
+        <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="519.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html">Advisors</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="469.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/query-analytics.html">Query Analytics</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="419.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/backup.html">Backup and Restore</a></tspan></text>
         <text fill="#001CF5" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="18" letter-spacing="0em" text-decoration="underline"><tspan x="756" y="369.152"><a href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/alerting.html">Integrated Alerting</a></tspan></text>

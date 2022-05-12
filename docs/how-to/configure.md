@@ -241,5 +241,3 @@ Settings for Slack notifications:
 
 !!! seealso alert alert-info "See also"
     [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)
-
-[Security Threat Tool]: ../using/security-threat-tool.md

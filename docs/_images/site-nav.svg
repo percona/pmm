@@ -218,12 +218,11 @@
     </text>
   </a>
   <path stroke="#a80036" stroke-width="1.5" d="M383 257.6563h10"/>
-  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/security-threat-tool.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/security-threat-tool.html" xlink:type="simple">
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:type="simple">
     <text fill="#00F" font-family="Chivo" font-size="12" text-decoration="underline" textLength="50" x="393" y="254.8262">
-      Security
     </text>
   </a>
-  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/security-threat-tool.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/security-threat-tool.html" xlink:type="simple">
+  <a target="_blank" xlink:actuate="onRequest" xlink:href="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:show="new" xlink:title="https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/advisors.html" xlink:type="simple">
     <text fill="#00F" font-family="Chivo" font-size="12" text-decoration="underline" textLength="71" x="393" y="268.7949">
       Threat Tool
     </text>
