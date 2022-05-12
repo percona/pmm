@@ -145,6 +145,12 @@ nav:
           - details/index.md
           - details/architecture.md
           - details/interface.md
+
+
+          - Develop checks:
+                - details/develop-checks/index.md
+                - details/develop-checks/checks-v1.md
+                - details/develop-checks/checks-v2.md
             
           - Dashboards:
                 - details/dashboards/index.md
@@ -219,10 +225,6 @@ nav:
           - details/victoria-metrics.md
           - details/glossary.md
 
-          - Develop checks:
-                - details/develop-checks/index.md
-                - details/develop-checks/checks-v1.md
-                - details/develop-checks/checks-v2.md
             
     - faq.md
     
