@@ -193,6 +193,23 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 			}
 
 			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
+			var html []byte
+			req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
+			req.Header.Set("accept", "text/html")
+			res, _ := http.DefaultClient.Do(req)
+			if err != nil {
+				logrus.Debugf("%s", err)
+				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
+				return
+			}
+			defer res.Body.Close()
+			html, err = io.ReadAll(res.Body)
+			if err != nil {
+				logrus.Debugf("%s", err)
+				html = []byte(err.Error())
+			}
+			addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader(html))
+			return
 		}
 	}
 }
