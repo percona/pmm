@@ -9,7 +9,6 @@ Open the *Settings* page from the [main menu](../details/interface.md#main-menu)
 On the left are the selector tabs:
 
 - [Configure](#configure)
-  - [Diagnostics](#diagnostics)
   - [Metrics resolution](#metrics-resolution)
   - [Advanced Settings](#advanced-settings)
     - [Data Retention](#data-retention)
@@ -34,10 +33,6 @@ On the left are the selector tabs:
 
 !!! hint alert alert-success "Tip"
     Click *Apply changes* to save any changes made here.
-
-## Diagnostics
-
-On all tabs is a *Diagnostics* section (top-right). Click *Download server diagnostics* to retrieve PMM diagnostics data which can be examined and/or shared with our support team should you need help.
 
 ## Metrics resolution
 
@@ -116,7 +111,8 @@ When active, PMM will automatically check for updates and put a notification in 
 Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered instance. 
 
 The findings are reported on the **Advisors > Failed Checks** page, and an overview is displayed on the Dashboard in the Failed Advisor Checks panel.  
-By default, the Advisors option is disabled. 
+
+The Advisors option is enabled by default. 
 
 Checks are refetched and rerun at intervals. 
 

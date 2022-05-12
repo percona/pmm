@@ -37,11 +37,11 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
-### From Settings page
+### From Help menu
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*.
+1. Select <i class="uil uil-question-circle"></i> *Help* → <i class="uil uil-download-alt"></i> *PMM Logs*.
 
-2. Click *Download server diagnostics*. (See [Diagnostics in PMM Settings](configure.md#diagnostics).)
+2. Click *PMM Logs* to retrieve PMM diagnostics data which can be examined and shared with our support team should you need help.
 
 ## Connection difficulties
 
