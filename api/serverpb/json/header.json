@@ -17,6 +17,15 @@
         "description": "Returns the PMM Server logs.",
         "summary": "Logs",
         "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
         "produces": ["application/zip"],
         "responses": {
           "200": {

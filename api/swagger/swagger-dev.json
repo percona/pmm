@@ -27,6 +27,15 @@
         ],
         "summary": "Logs",
         "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
