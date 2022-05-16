@@ -33,6 +33,10 @@ linters-settings:
   unparam:
     check-exported: true
 
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+
 linters:
   enable-all: true
   disable:

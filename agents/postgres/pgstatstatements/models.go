@@ -22,6 +22,7 @@ import (
 //go:generate reform
 
 // pgStatDatabase represents a row in pg_stat_database view.
+//
 //reform:pg_catalog.pg_stat_database
 type pgStatDatabase struct {
 	DatID   int64   `reform:"datid"`
@@ -29,6 +30,7 @@ type pgStatDatabase struct {
 }
 
 // pgUser represents a row in pg_user view.
+//
 //reform:pg_catalog.pg_user
 type pgUser struct {
 	UserID   int64   `reform:"usesysid"`
@@ -36,6 +38,7 @@ type pgUser struct {
 }
 
 // pgStatStatements represents a row in pg_stat_statements view.
+//
 //reform:pg_stat_statements
 type pgStatStatements struct {
 	UserID    int64   `reform:"userid"`

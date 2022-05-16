@@ -191,6 +191,7 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 			Az:            cfgSetup.Az,
 			Address:       cfgSetup.Address,
 			CustomLabels:  customLabels,
+			AgentPassword: cfgSetup.AgentPassword,
 
 			Reregister:        cfgSetup.Force,
 			MetricsMode:       pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
