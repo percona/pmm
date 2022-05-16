@@ -290,23 +290,23 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 
 
 
-|Parameter|Description|Notes|
-|-----|-----|-----|
-|kubernetes_cluster_name|Kubernetes cluster name|Required|
-|name|PXC cluster name to create|name|
-|cluster_size|Cluster size|Default: 3|
-|image|Docker image name|Default is the recommended version from the Percona's version service|
-|compute_resources.cpu_m|CPU resources millis|Default: 1000|
-|mcompute_resources.memory_bytes|Max memory size in bytes|Default: 2 Gb|
-|disk_size|Max disk size for the PXC instance|Default: 25 Gb|
-|proxysql.image|Docker image for ProxySQL|Default: empty. (Use operator's default)|
-|proxysql.compute_resources.cpu_m|CPU resources millis|Default: 1000|
-|proxysql.compute_resources.memory_bytes|Max memory size in bytes|Default 2 Gb|
-|proxysql.disk_size|Max disk size for ProxySQL|Default: empty, use operator's default|
-|haproxyimage|Docker image for HA Proxy|Default: empty, use operator's default|
-|haproxy.compute_resources.cpu_m|CPU resources millis|Default: 1000|
-|haproxy.compute_resources.memory_bytes|Max memory size in bytes|Default: 2 Gb|
-|expose|Make it available outside the Kubernetes cluster|Default: false|
+|Parameter                              |Description                                     |Notes                                                                |
+|---------------------------------------|------------------------------------------------|---------------------------------------------------------------------|
+|kubernetes_cluster_name                |Kubernetes cluster name                         |Required                                                             |
+|name                                   |PXC cluster name to create                      |Default: pxc + DB version + 5 chars random string                    |
+|cluster_size                           |Cluster size                                    |Default: 3                                                           |
+|image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
+|compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
+|mcompute_resources.memory_bytes        |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|disk_size                              |Max disk size for the PXC instance              |Default: 25 Gb                                                       |
+|proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
+|proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
+|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 Gb                                                         |
+|proxysql.disk_size                     |Max disk size for ProxySQL                      |Default: empty, use operator's default                               |
+|haproxyimage                           |Docker image for HA Proxy                       |Default: empty, use operator's default                               |
+|haproxy.compute_resources.cpu_m        |CPU resources millis                            |Default: 1000                                                        |
+|haproxy.compute_resources.memory_bytes |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|expose                                 |Make it available outside the Kubernetes cluster|Default: false                                                       |
 
 **Note:** 
 Only one of ProxySQL or HAProxy should be specified in the request.
@@ -324,9 +324,6 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
     -H "Content-Type: application/json" \
     -d '{ "kubernetes_cluster_name": "my_cluster", "name": "my-pxc-cluster", "expose": true}'
 ```
-
-
-
 
 API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
 
@@ -438,7 +435,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
 | Field                                     | Description                           | Notes                                                        |
 | ----------------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
 | kubernetes_cluster_name                   | Kubernetes cluster name               | Required                                                     |
-| name                                      | PSMDB cluster name                    | Default: `psmdb`+DB version+4 digits random number           |
+| name                                      | PSMDB cluster name                    | Default: `psmdb`+DB version+5 chars random string            |
 | cluster_size                              | Cluster size                          | Default: 3                                                   |
 | replicaset.compute_resources.cpu_m        | CPU resources millis                  | Default: 1000                                                |
 | replicaset.compute_resources.memory_bytes | Max memory size in bytes              | Default: 2 Gb                                                |
