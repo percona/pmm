@@ -312,7 +312,7 @@ message QANMySQLSlowlogAgent {
 
   // Actual Agent status.
   AgentStatus status = 11;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 15;
 }
 

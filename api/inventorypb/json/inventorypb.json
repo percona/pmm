@@ -2263,8 +2263,8 @@
                       "x-order": 1
                     },
                     "process_exec_path": {
+                      "description": "Path to exec process.",
                       "type": "string",
-                      "title": "Path to exec process",
                       "x-order": 14
                     },
                     "query_examples_disabled": {
@@ -4889,8 +4889,8 @@
                       "x-order": 1
                     },
                     "process_exec_path": {
+                      "description": "Path to exec process.",
                       "type": "string",
-                      "title": "Path to exec process",
                       "x-order": 14
                     },
                     "query_examples_disabled": {
@@ -6439,8 +6439,8 @@
                       "x-order": 1
                     },
                     "process_exec_path": {
+                      "description": "Path to exec process.",
                       "type": "string",
-                      "title": "Path to exec process",
                       "x-order": 14
                     },
                     "query_examples_disabled": {
@@ -7747,8 +7747,8 @@
                         "x-order": 1
                       },
                       "process_exec_path": {
+                        "description": "Path to exec process.",
                         "type": "string",
-                        "title": "Path to exec process",
                         "x-order": 14
                       },
                       "query_examples_disabled": {
