@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/daixiang0/gci v0.3.3
-	github.com/golangci/golangci-lint v1.46.0
+	github.com/golangci/golangci-lint v1.46.1
 	github.com/reviewdog/reviewdog v0.14.1
 	golang.org/x/tools v0.1.11-0.20220316014157-77aa08bb151a
 	mvdan.cc/gofumpt v0.3.1
@@ -99,7 +99,7 @@ require (
 	github.com/ldez/gomoddirectives v0.2.3 // indirect
 	github.com/ldez/tagliatelle v0.3.1 // indirect
 	github.com/leonklingele/grouper v1.1.0 // indirect
-	github.com/lufeee/execinquery v1.0.0 // indirect
+	github.com/lufeee/execinquery v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/maratori/testpackage v1.0.1 // indirect
 	github.com/matoous/godox v0.0.0-20210227103229-6504466cf951 // indirect
