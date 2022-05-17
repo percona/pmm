@@ -15,7 +15,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/stretchr/testify v1.7.1
 	go.mongodb.org/mongo-driver v1.9.0
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
