@@ -414,7 +414,7 @@ type AddPMMAgentOKBodyPMMAgent struct {
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 

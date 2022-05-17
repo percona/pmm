@@ -127,7 +127,7 @@ type PMMAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,3,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `protobuf:"varint,4,opt,name=connected,proto3" json:"connected,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,5,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -212,7 +212,7 @@ type VMAgent struct {
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,5,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,6,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -298,7 +298,7 @@ type NodeExporter struct {
 	Status AgentStatus `protobuf:"varint,5,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,6,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,9,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -439,7 +439,7 @@ type MySQLdExporter struct {
 	ListenPort uint32 `protobuf:"varint,10,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `protobuf:"varint,12,opt,name=tablestats_group_disabled,json=tablestatsGroupDisabled,proto3" json:"tablestats_group_disabled,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,18,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -638,7 +638,7 @@ type MongoDBExporter struct {
 	CollectionsLimit int32 `protobuf:"varint,14,opt,name=collections_limit,json=collectionsLimit,proto3" json:"collections_limit,omitempty"`
 	// Enable All collectors.
 	EnableAllCollectors bool `protobuf:"varint,15,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,16,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -816,7 +816,7 @@ type PostgresExporter struct {
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,10,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -973,7 +973,7 @@ type ProxySQLExporter struct {
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,10,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -1132,7 +1132,7 @@ type QANMySQLPerfSchemaAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,14,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -1465,7 +1465,7 @@ type QANMongoDBProfilerAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,11,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -1595,7 +1595,7 @@ type QANPostgreSQLPgStatementsAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,9,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,10,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -1727,7 +1727,7 @@ type QANPostgreSQLPgStatMonitorAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,11,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -1868,7 +1868,7 @@ type RDSExporter struct {
 	EnhancedMetricsDisabled bool `protobuf:"varint,10,opt,name=enhanced_metrics_disabled,json=enhancedMetricsDisabled,proto3" json:"enhanced_metrics_disabled,omitempty"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,12,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -2014,7 +2014,7 @@ type ExternalExporter struct {
 	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,11,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,12,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 
@@ -2153,7 +2153,7 @@ type AzureDatabaseExporter struct {
 	ListenPort uint32 `protobuf:"varint,9,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `protobuf:"varint,10,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `protobuf:"bytes,11,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 }
 

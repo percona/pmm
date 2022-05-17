@@ -43,7 +43,7 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 4;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 5;
 }
 
@@ -61,7 +61,7 @@ message VMAgent {
 
   // Actual Agent status.
   AgentStatus status = 5;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 6;
 }
 
@@ -87,7 +87,7 @@ message NodeExporter {
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 9;
 }
 
@@ -133,7 +133,7 @@ message MySQLdExporter {
   uint32 listen_port = 10;
   // True if tablestats group collectors are currently disabled.
   bool tablestats_group_disabled = 12;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 18;
 }
 
@@ -174,7 +174,7 @@ message MongoDBExporter {
   int32 collections_limit = 14;
   // Enable All collectors.
   bool enable_all_collectors = 15;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 16;
 }
 
@@ -204,7 +204,7 @@ message PostgresExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 13;
 }
 
@@ -238,7 +238,7 @@ message ProxySQLExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 13;
 }
 
@@ -274,7 +274,7 @@ message QANMySQLPerfSchemaAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 14;
 }
 
@@ -343,7 +343,7 @@ message QANMongoDBProfilerAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 11;
 }
 
@@ -371,7 +371,7 @@ message QANPostgreSQLPgStatementsAgent {
 
   // Actual Agent status.
   AgentStatus status = 9;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 10;
 }
 
@@ -401,7 +401,7 @@ message QANPostgreSQLPgStatMonitorAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 11;
 }
 
@@ -437,7 +437,7 @@ message RDSExporter {
   bool enhanced_metrics_disabled = 10;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 12;
 }
 
@@ -463,7 +463,7 @@ message ExternalExporter {
   uint32 listen_port = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 12;
 }
 
@@ -493,7 +493,7 @@ message AzureDatabaseExporter {
   uint32 listen_port = 9;
   // True if the exporter operates in push metrics mode.
   bool push_metrics_enabled = 10;
-  // Path to exec process
+  // Path to exec process.
   string process_exec_path = 11;
 }
 

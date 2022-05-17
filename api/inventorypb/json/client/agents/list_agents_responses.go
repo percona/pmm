@@ -1354,7 +1354,7 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1487,7 +1487,7 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1578,7 +1578,7 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1742,7 +1742,7 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1877,7 +1877,7 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1992,7 +1992,7 @@ type ListAgentsOKBodyPMMAgentItems0 struct {
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2073,7 +2073,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2220,7 +2220,7 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2358,7 +2358,7 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2508,7 +2508,7 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2799,7 +2799,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -2940,7 +2940,7 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -3084,7 +3084,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -3206,7 +3206,7 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 

@@ -629,7 +629,7 @@ type AddHAProxyOKBodyExternalExporter struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 

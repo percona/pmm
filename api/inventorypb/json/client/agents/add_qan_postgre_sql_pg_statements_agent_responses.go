@@ -466,7 +466,7 @@ type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struc
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 

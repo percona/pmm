@@ -1046,7 +1046,7 @@ type AddRDSOKBodyMysqldExporter struct {
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1318,7 +1318,7 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1468,7 +1468,7 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1606,7 +1606,7 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
@@ -1750,7 +1750,7 @@ type AddRDSOKBodyRDSExporter struct {
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
-	// Path to exec process
+	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
