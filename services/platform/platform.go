@@ -558,6 +558,85 @@ func convertEntitlement(ent *entitlementResponse) (*platformpb.OrganizationEntit
 	}, nil
 }
 
+type contactInformation struct {
+	Contacts struct {
+		CustomerSuccess struct {
+			Name  string `json:"name"`
+			Email string `json:"email"`
+		} `json:"customer_success"` //nolint:tagliatelle
+		NewTicketURL string `json:"new_ticket_url"` //nolint:tagliatelle
+	} `json:"contacts"`
+}
+
+// GetContactInformation fetches contact information of the Customer Success employee assigned to the Percona customer from Percona Portal.
+func (s *Service) GetContactInformation(ctx context.Context, req *platformpb.GetContactInformationRequest) (*platformpb.GetContactInformationResponse, error) {
+	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
+	if err != nil {
+		if errors.Is(err, grafana.ErrFailedToGetToken) {
+			s.l.Error("Failed to get access token.")
+			return nil, status.Error(codes.Unauthenticated, "Failed to get access token. Please sign in using your Percona Account.")
+		}
+		s.l.Errorf("GetContactInformation request failed: %s", err)
+		return nil, errInternalServer
+	}
+
+	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
+	if err != nil {
+		s.l.Errorf("failed to get SSO details: %s", err)
+		return nil, status.Error(codes.Aborted, "PMM server is not connected to Portal")
+	}
+
+	endpoint := fmt.Sprintf("https://%s/v1/orgs/%s", s.host, ssoDetails.OrganizationID)
+
+	r, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		s.l.Errorf("Failed to build GetContactInformation request: %s", err)
+		return nil, errInternalServer
+	}
+
+	h := r.Header
+	h.Add("Authorization", fmt.Sprintf("Bearer %s", userAccessToken))
+
+	resp, err := s.client.Do(r)
+	if err != nil {
+		s.l.Errorf("GetContactInformation request failed: %s", err)
+		return nil, errInternalServer
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	decoder := json.NewDecoder(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		var gwErr grpcGatewayError
+		if err := decoder.Decode(&gwErr); err != nil {
+			s.l.Errorf("Failed to decode error message: %s", err)
+			return nil, errInternalServer
+		}
+		return nil, status.Error(codes.Code(gwErr.Code), gwErr.Message)
+	}
+
+	var platformResp contactInformation
+	if err := decoder.Decode(&platformResp); err != nil {
+		s.l.Errorf("Failed to decode response : %s", err)
+		return nil, errInternalServer
+	}
+
+	res := &platformpb.GetContactInformationResponse{
+		CustomerSuccess: &platformpb.GetContactInformationResponse_CustomerSuccess{
+			Name:  platformResp.Contacts.CustomerSuccess.Name,
+			Email: platformResp.Contacts.CustomerSuccess.Email,
+		},
+		NewTicketUrl: platformResp.Contacts.NewTicketURL,
+	}
+
+	// Platform account is not linked to ServiceNow.
+	if res.CustomerSuccess.Email == "" {
+		s.l.Error("Failed to find contact information, non-customer account.")
+		return nil, status.Error(codes.FailedPrecondition, "Platform account user is not a Percona customer.")
+	}
+
+	return res, nil
+}
+
 func (s *Service) ServerInfo(ctx context.Context, req *platformpb.ServerInfoRequest) (*platformpb.ServerInfoResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

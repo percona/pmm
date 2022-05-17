@@ -154,7 +154,7 @@ func TestPlatform(t *testing.T) {
 		})
 	})
 
-	t.Run("search_tickets", func(t *testing.T) {
+	t.Run("search tickets", func(t *testing.T) {
 		if username == "" || password == "" {
 			t.Skip("Environment variables PERCONA_TEST_PORTAL_USERNAME, PERCONA_TEST_PORTAL_PASSWORD not set.")
 		}
@@ -182,7 +182,7 @@ func TestPlatform(t *testing.T) {
 		})
 	})
 
-	t.Run("search_entitlements", func(t *testing.T) { //nolint:dupl
+	t.Run("search entitlements", func(t *testing.T) { //nolint:dupl
 		if username == "" || password == "" {
 			t.Skip("Environment variables PERCONA_TEST_PORTAL_USERNAME, PERCONA_TEST_PORTAL_PASSWORD not set.")
 		}
@@ -207,6 +207,36 @@ func TestPlatform(t *testing.T) {
 			resp, err := client.SearchOrganizationEntitlements(&platform.SearchOrganizationEntitlementsParams{Context: pmmapitests.Context})
 			require.NoError(t, err)
 			require.NotNil(t, resp.GetPayload().Entitlements)
+		})
+	})
+
+	t.Run("get contact information", func(t *testing.T) { //nolint:dupl
+		if username == "" || password == "" {
+			t.Skip("Environment variables PERCONA_TEST_PORTAL_USERNAME, PERCONA_TEST_PORTAL_PASSWORD not set.")
+		}
+
+		t.Run("success", func(t *testing.T) {
+			_, err := client.Connect(&platform.ConnectParams{
+				Body: platform.ConnectBody{
+					ServerName: serverName,
+					Email:      username,
+					Password:   password,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			// Confirm we are connected to Portal.
+			settings, err := serverClient.GetSettings(nil)
+			require.NoError(t, err)
+			require.NotNil(t, settings)
+			assert.True(t, settings.GetPayload().Settings.ConnectedToPlatform)
+
+			resp, err := client.GetContactInformation(&platform.GetContactInformationParams{Context: pmmapitests.Context})
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.GetPayload().CustomerSuccess.Email)
+			require.NotEmpty(t, resp.GetPayload().CustomerSuccess.Name)
+			require.NotEmpty(t, resp.GetPayload().NewTicketURL)
 		})
 	})
 }

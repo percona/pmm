@@ -36,12 +36,12 @@ require (
 	github.com/minio/minio-go/v7 v7.0.24
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
-	github.com/percona/pmm v0.0.0-20220510110703-cd16c3d93199
+	github.com/percona/pmm v0.0.0-20220517143005-ac6985a5a857
 	github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.24.0
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/common v0.34.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
