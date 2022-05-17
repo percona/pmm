@@ -80,5 +80,5 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
     -H "Content-Type: application/json" \
-    -d '{ "kubernetes_cluster_name": "my_cluster", "name": "my-pxc-cluster", "expose": true}'
+    -d '{ "kubernetes_cluster_name": "my_cluster" }'
 ```

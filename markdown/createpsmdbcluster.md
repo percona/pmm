@@ -42,6 +42,6 @@ curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
     -H "Content-Type: application/json" \
-    -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"expose\": true}"
+    -d "{ \"kubernetes_cluster_name\": \"my_cluster\" }"
 ```
 

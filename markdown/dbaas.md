@@ -289,7 +289,6 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 ```
 
 
-
 |Parameter                              |Description                                     |Notes                                                                |
 |---------------------------------------|------------------------------------------------|---------------------------------------------------------------------|
 |kubernetes_cluster_name                |Kubernetes cluster name                         |Required                                                             |
@@ -297,7 +296,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |cluster_size                           |Cluster size                                    |Default: 3                                                           |
 |image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
 |compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
-|mcompute_resources.memory_bytes        |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|compute_resources.memory_bytes         |Max memory size in bytes                        |Default: 2 Gb                                                        |
 |disk_size                              |Max disk size for the PXC instance              |Default: 25 Gb                                                       |
 |proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
 |proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
@@ -322,7 +321,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
     -H "Content-Type: application/json" \
-    -d '{ "kubernetes_cluster_name": "my_cluster", "name": "my-pxc-cluster", "expose": true}'
+    -d '{ "kubernetes_cluster_name": "my_cluster" }'
 ```
 
 API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
