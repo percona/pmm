@@ -27,14 +27,13 @@ systemctl start docker
 
 ### minikube
 
-!!! note alert alert-primary ""
-    Please install minikube 1.16.0
+Please follow minikube's [documentation to install](https://minikube.sigs.k8s.io/docs/start/) it.
 
 #### Red Hat, CentOS
 
 ```sh
 yum -y install curl
-curl -Lo /usr/local/sbin/minikube https://github.com/kubernetes/minikube/releases/download/v1.16.0/minikube-linux-amd64
+curl -Lo /usr/local/sbin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 chmod +x /usr/local/sbin/minikube
 ln -s /usr/local/sbin/minikube /usr/sbin/minikube
 alias kubectl='minikube kubectl --'
@@ -76,10 +75,7 @@ alias kubectl='minikube kubectl --'
 1. Configure and start minikube:
 
     ```sh
-    minikube config set cpus 16
-    minikube config set memory 32768
-    minikube config set kubernetes-version 1.20.1
-    minikube start
+    minikube start --cpus=16 --memory=32G
     ```
 
 2. Get your kubeconfig details from `minikube`. (You need these to register your Kubernetes cluster with PMM Server):
