@@ -3611,8 +3611,8 @@
                       "x-order": 13
                     },
                     "process_exec_path": {
-                      "description": "Path to exec process.",
                       "type": "string",
+                      "title": "mod tidy",
                       "x-order": 14
                     }
                   },
@@ -6237,8 +6237,8 @@
                       "x-order": 13
                     },
                     "process_exec_path": {
-                      "description": "Path to exec process.",
                       "type": "string",
+                      "title": "mod tidy",
                       "x-order": 14
                     }
                   },
@@ -7612,8 +7612,8 @@
                       "x-order": 13
                     },
                     "process_exec_path": {
-                      "description": "Path to exec process.",
                       "type": "string",
+                      "title": "mod tidy",
                       "x-order": 14
                     }
                   },
@@ -8914,8 +8914,8 @@
                         "x-order": 13
                       },
                       "process_exec_path": {
-                        "description": "Path to exec process.",
                         "type": "string",
+                        "title": "mod tidy",
                         "x-order": 14
                       }
                     }
@@ -16413,8 +16413,8 @@
                       "x-order": 13
                     },
                     "process_exec_path": {
-                      "description": "Path to exec process.",
                       "type": "string",
+                      "title": "mod tidy",
                       "x-order": 14
                     }
                   },
