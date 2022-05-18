@@ -15,6 +15,10 @@ In this section we will talk about two main authentication mechanisms:
 
 Basic authentication is a very simple way to authenticate a user. An API request must contain a header field in the form of `Authorization: Basic <credentials>`, where `<credentials>` is the Base64 encoding of ID (most often username or login) and password joined by a single colon `:`.
 
+```bash
+echo -n admin:admin | base64
+```
+
 Let's assume the username is `admin` and the password is also `admin`. Then the API call to get the PMM Server version info would be as follows:
 
 ```bash
@@ -44,3 +48,4 @@ curl -X GET -H 'Content-Type: application/json' \
 https://api_key:eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=@127.0.0.1/v1/version
 
 ```
+
