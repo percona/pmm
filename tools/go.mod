@@ -7,7 +7,7 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percon
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
-	github.com/bufbuild/buf v1.3.1
+	github.com/bufbuild/buf v1.4.0
 	github.com/daixiang0/gci v0.3.3
 	github.com/go-openapi/runtime v0.24.0
 	github.com/go-openapi/spec v0.20.4
@@ -112,7 +112,7 @@ require (
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
 	github.com/jhump/protocompile v0.0.0-20220216033700-d705409f108f // indirect
-	github.com/jhump/protoreflect v1.12.0 // indirect
+	github.com/jhump/protoreflect v1.12.1-0.20220417024638-438db461d753 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/josharian/intern v1.0.0 // indirect
