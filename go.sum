@@ -181,6 +181,8 @@ github.com/go-openapi/runtime v0.24.0 h1:vTgDijpGLCgJOJTdAp5kG+O+nRsVCbH417YQ3O0
 github.com/go-openapi/runtime v0.24.0/go.mod h1:AKurw9fNre+h3ELZfk6ILsfvPN+bvvlaU/M9q/r9hpk=
 github.com/go-openapi/spec v0.20.4 h1:O8hJrt0UMnhHcluhIdUgCLRWyM2x7QkBXRvOs7m+O1M=
 github.com/go-openapi/spec v0.20.4/go.mod h1:faYFR1CvsJZ0mNsmsphTMSoRrNV3TEDoAM7FOEWeq8I=
+github.com/go-openapi/spec v0.20.5 h1:skHa8av4VnAtJU5zyAUXrrdK/NDiVX8lchbG+BfcdrE=
+github.com/go-openapi/spec v0.20.5/go.mod h1:QbfOSIVt3/sac+a1wzmKbbcLXm5NdZnyBZYtCijp43o=
 github.com/go-openapi/strfmt v0.21.0/go.mod h1:ZRQ409bWMj+SOgXofQAGTIo2Ebu72Gs+WaRADcS5iNg=
 github.com/go-openapi/strfmt v0.21.1/go.mod h1:I/XVKeLc5+MM5oPNN7P6urMOpuLXEcNrCX/rPGuWb0k=
 github.com/go-openapi/strfmt v0.21.2 h1:5NDNgadiX1Vhemth/TH4gCGopWSTdDjxl60H3B7f+os=
@@ -430,6 +432,8 @@ github.com/mitchellh/mapstructure v1.3.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RR
 github.com/mitchellh/mapstructure v1.4.1/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/mitchellh/mapstructure v1.4.3 h1:OVowDSCllw/YjdLkam3/sm7wEtOy59d8ndGgCcyj8cs=
 github.com/mitchellh/mapstructure v1.4.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
+github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
+github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/mkevac/debugcharts v0.0.0-20191222103121-ae1c48aa8615/go.mod h1:Ad7oeElCZqA1Ufj0U9/liOF4BtVepxRcTvr2ey7zTvM=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
@@ -468,6 +472,8 @@ github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16 h1:0fx16uGtl
 github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16/go.mod h1:gFUwaFp6Ugu5qsBwiOVJYbDlzgZ77tmXdXGO7tG5xVI=
 github.com/percona/pmm v0.0.0-20220517143005-ac6985a5a857 h1:9nw28TjRRFWOnPVYCoD8Rh/2g2gFRLVCjJCtb9shZGI=
 github.com/percona/pmm v0.0.0-20220517143005-ac6985a5a857/go.mod h1:CyTSJFtA0+LPGLnC8rE3tr8nDbfP/QkJ9+HyUzimsR4=
+github.com/percona/pmm v0.0.0-20220518171255-d446045c2d1c h1:H2/DJaY8k/1qdJfpHzRw5dRnpFgKRh/3NjO2yrPWt+E=
+github.com/percona/pmm v0.0.0-20220518171255-d446045c2d1c/go.mod h1:gr+WLd8clEAe2xMFgsGhpw9ziZc2UCWcfy6d3M6Aq00=
 github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54 h1:aI1emmycDTGWKsBdxFPKZqohfBbK4y2ta9G4+RX7gVg=
 github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54/go.mod h1:Y2uXi5QNk71+ceJHuI9poank+0S1kjxd3K105fXKVkg=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
@@ -686,6 +692,8 @@ golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd/go.mod h1:CfG3xpIq0wQ8r1q4Su
 golang.org/x/net v0.0.0-20220225172249-27dd8689420f/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
 golang.org/x/net v0.0.0-20220412020605-290c469a71a5 h1:bRb386wvrE+oBNdF1d/Xh9mQrfQ4ecYhW5qJ5GvTGT4=
 golang.org/x/net v0.0.0-20220412020605-290c469a71a5/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
+golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 h1:HVyaeDAYux4pnY+D/SiwmLOR36ewZ4iGQIIrtnuCjFA=
+golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4/go.mod h1:CfG3xpIq0wQ8r1q4Su4UZFWDARRcnwPjda9FqA0JpMk=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=
 golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=

@@ -36,7 +36,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.24
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
-	github.com/percona/pmm v0.0.0-20220517143005-ac6985a5a857
+	github.com/percona/pmm v0.0.0-20220518171255-d446045c2d1c
 	github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
@@ -81,7 +81,7 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/loads v0.21.1 // indirect
-	github.com/go-openapi/spec v0.20.4 // indirect
+	github.com/go-openapi/spec v0.20.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/go-openapi/validate v0.21.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
@@ -109,7 +109,7 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/mapstructure v1.4.3 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
@@ -133,7 +133,7 @@ require (
 	go.opentelemetry.io/otel v1.7.0 // indirect
 	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect

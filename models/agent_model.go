@@ -149,10 +149,11 @@ type Agent struct {
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
 
-	Disabled   bool    `reform:"disabled"`
-	Status     string  `reform:"status"`
-	ListenPort *uint16 `reform:"listen_port"`
-	Version    *string `reform:"version"`
+	Disabled        bool    `reform:"disabled"`
+	Status          string  `reform:"status"`
+	ListenPort      *uint16 `reform:"listen_port"`
+	Version         *string `reform:"version"`
+	ProcessExecPath *string `reform:"process_exec_path"`
 
 	Username      *string `reform:"username"`
 	Password      *string `reform:"password"`

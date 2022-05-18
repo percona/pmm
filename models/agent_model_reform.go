@@ -41,6 +41,7 @@ func (v *agentTableType) Columns() []string {
 		"status",
 		"listen_port",
 		"version",
+		"process_exec_path",
 		"username",
 		"password",
 		"agent_password",
@@ -99,6 +100,7 @@ var AgentTable = &agentTableType{
 			{Name: "Status", Type: "string", Column: "status"},
 			{Name: "ListenPort", Type: "*uint16", Column: "listen_port"},
 			{Name: "Version", Type: "*string", Column: "version"},
+			{Name: "ProcessExecPath", Type: "*string", Column: "process_exec_path"},
 			{Name: "Username", Type: "*string", Column: "username"},
 			{Name: "Password", Type: "*string", Column: "password"},
 			{Name: "AgentPassword", Type: "*string", Column: "agent_password"},
@@ -128,7 +130,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 34)
+	res := make([]string, 35)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -142,27 +144,28 @@ func (s Agent) String() string {
 	res[10] = "Status: " + reform.Inspect(s.Status, true)
 	res[11] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
 	res[12] = "Version: " + reform.Inspect(s.Version, true)
-	res[13] = "Username: " + reform.Inspect(s.Username, true)
-	res[14] = "Password: " + reform.Inspect(s.Password, true)
-	res[15] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
-	res[16] = "TLS: " + reform.Inspect(s.TLS, true)
-	res[17] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
-	res[18] = "AWSAccessKey: " + reform.Inspect(s.AWSAccessKey, true)
-	res[19] = "AWSSecretKey: " + reform.Inspect(s.AWSSecretKey, true)
-	res[20] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
-	res[21] = "TableCount: " + reform.Inspect(s.TableCount, true)
-	res[22] = "TableCountTablestatsGroupLimit: " + reform.Inspect(s.TableCountTablestatsGroupLimit, true)
-	res[23] = "QueryExamplesDisabled: " + reform.Inspect(s.QueryExamplesDisabled, true)
-	res[24] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
-	res[25] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
-	res[26] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
-	res[27] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
-	res[28] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
-	res[29] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
-	res[30] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[31] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[32] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[33] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[13] = "ProcessExecPath: " + reform.Inspect(s.ProcessExecPath, true)
+	res[14] = "Username: " + reform.Inspect(s.Username, true)
+	res[15] = "Password: " + reform.Inspect(s.Password, true)
+	res[16] = "AgentPassword: " + reform.Inspect(s.AgentPassword, true)
+	res[17] = "TLS: " + reform.Inspect(s.TLS, true)
+	res[18] = "TLSSkipVerify: " + reform.Inspect(s.TLSSkipVerify, true)
+	res[19] = "AWSAccessKey: " + reform.Inspect(s.AWSAccessKey, true)
+	res[20] = "AWSSecretKey: " + reform.Inspect(s.AWSSecretKey, true)
+	res[21] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
+	res[22] = "TableCount: " + reform.Inspect(s.TableCount, true)
+	res[23] = "TableCountTablestatsGroupLimit: " + reform.Inspect(s.TableCountTablestatsGroupLimit, true)
+	res[24] = "QueryExamplesDisabled: " + reform.Inspect(s.QueryExamplesDisabled, true)
+	res[25] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
+	res[26] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
+	res[27] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
+	res[28] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
+	res[29] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
+	res[30] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
+	res[31] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
+	res[32] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[33] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[34] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
 	return strings.Join(res, ", ")
 }
 
@@ -183,6 +186,7 @@ func (s *Agent) Values() []interface{} {
 		s.Status,
 		s.ListenPort,
 		s.Version,
+		s.ProcessExecPath,
 		s.Username,
 		s.Password,
 		s.AgentPassword,
@@ -224,6 +228,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.Status,
 		&s.ListenPort,
 		&s.Version,
+		&s.ProcessExecPath,
 		&s.Username,
 		&s.Password,
 		&s.AgentPassword,

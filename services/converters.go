@@ -216,13 +216,14 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}
 		serviceID = service.ServiceID
 	}
-
+	processExecPath := pointer.GetString(agent.ProcessExecPath)
 	switch agent.AgentType {
 	case models.PMMAgentType:
 		return &inventorypb.PMMAgent{
-			AgentId:      agent.AgentID,
-			RunsOnNodeId: pointer.GetString(agent.RunsOnNodeID),
-			CustomLabels: labels,
+			AgentId:         agent.AgentID,
+			RunsOnNodeId:    pointer.GetString(agent.RunsOnNodeID),
+			CustomLabels:    labels,
+			ProcessExecPath: processExecPath,
 		}, nil
 
 	case models.NodeExporterType:
@@ -235,6 +236,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:       labels,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -253,6 +255,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TablestatsGroupDisabled:   !agent.IsMySQLTablestatsGroupEnabled(),
 			PushMetricsEnabled:        agent.PushMetrics,
 			DisabledCollectors:        agent.DisabledCollectors,
+			ProcessExecPath:           processExecPath,
 		}, nil
 
 	case models.MongoDBExporterType:
@@ -269,6 +272,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
 		}
 		if agent.MongoDBOptions != nil {
 			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
@@ -291,6 +295,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
 		}, nil
 
 	case models.QANMySQLPerfSchemaAgentType:
@@ -305,6 +310,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
+			ProcessExecPath:       processExecPath,
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
@@ -320,19 +326,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			MaxSlowlogFileSize:    agent.MaxQueryLogSize,
+			ProcessExecPath:       processExecPath,
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
 		return &inventorypb.QANMongoDBProfilerAgent{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			ServiceId:       serviceID,
+			Username:        pointer.GetString(agent.Username),
+			Disabled:        agent.Disabled,
+			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:    labels,
+			Tls:             agent.TLS,
+			TlsSkipVerify:   agent.TLSSkipVerify,
+			ProcessExecPath: processExecPath,
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
@@ -350,19 +358,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
 		return &inventorypb.QANPostgreSQLPgStatementsAgent{
-			AgentId:       agent.AgentID,
-			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
-			ServiceId:     serviceID,
-			Username:      pointer.GetString(agent.Username),
-			Disabled:      agent.Disabled,
-			Status:        inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:  labels,
-			Tls:           agent.TLS,
-			TlsSkipVerify: agent.TLSSkipVerify,
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			ServiceId:       serviceID,
+			Username:        pointer.GetString(agent.Username),
+			Disabled:        agent.Disabled,
+			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:    labels,
+			Tls:             agent.TLS,
+			TlsSkipVerify:   agent.TLSSkipVerify,
+			ProcessExecPath: processExecPath,
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -377,6 +387,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
+			ProcessExecPath:       processExecPath,
 		}, nil
 
 	case models.RDSExporterType:
@@ -392,6 +403,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			BasicMetricsDisabled:    agent.RDSBasicMetricsDisabled,
 			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
 			PushMetricsEnabled:      agent.PushMetrics,
+			ProcessExecPath:         processExecPath,
 		}, nil
 
 	case models.ExternalExporterType:
@@ -413,6 +425,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:       labels,
 			PushMetricsEnabled: agent.PushMetrics,
+			ProcessExecPath:    processExecPath,
 		}, nil
 
 	case models.AzureDatabaseExporterType:
@@ -425,13 +438,15 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Status:                      inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
+			ProcessExecPath:             processExecPath,
 		}, nil
 
 	case models.VMAgentType:
 		return &inventorypb.VMAgent{
-			AgentId:    agent.AgentID,
-			PmmAgentId: pointer.GetString(agent.PMMAgentID),
-			Status:     inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ProcessExecPath: processExecPath,
 		}, nil
 
 	default:
