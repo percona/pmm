@@ -79,12 +79,12 @@ password admin
 
 This can then be used as follows:
 ```bash
-curl --netrc -X GET https://127.0.0.1/v1/version
+curl --netrc -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 Should you wish to use a differnt file then the `--netrc-file` option needs to be used. If we have the credentials stored in `~/.netrc-pmm` then the command would become:
 ```bash
-curl --netrc --netrc-file ~/.netrc-pmm -X GET https://127.0.0.1/v1/version
+curl --netrc --netrc-file ~/.netrc-pmm -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
 You can use API keys in this way too, for example:
