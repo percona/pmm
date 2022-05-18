@@ -769,6 +769,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -904,6 +907,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatements agent
@@ -1042,6 +1048,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatmonitor agent
