@@ -49,3 +49,47 @@ https://api_key:eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1t
 
 ```
 
+### Protecting Credentials
+
+In the previous examples, the credentials can be gleaned from the shell history or processlist, which is undesirable.
+
+#### Disable History
+
+It is possible to hide from the shell history:
+
+bash
+```bash
+set +o history
+```
+
+zsh
+```zsh
+SAVEHIST=0
+```
+
+#### Using --netrc
+
+When using `curl` you also have the option of using `--netrc`. Here is an example `~/.netrc`:
+
+```
+machine 127.0.0.1
+login admin
+password admin
+```
+
+This can then be used as follows:
+```bash
+curl --netrc -X GET https://127.0.0.1/v1/version
+```
+
+Should you wish to use a differnt file then the `--netrc-file` option needs to be used. If we have the credentials stored in `~/.netrc-pmm` then the command would become:
+```bash
+curl --netrc --netrc-file ~/.netrc-pmm -X GET https://127.0.0.1/v1/version
+```
+
+You can use API keys in this way too, for example:
+```
+machine 127.0.0.1
+login api_key
+password eyJrIjoiUXRkeDNMS1g1bFVyY0tUj1o0SmhBc3g4QUdTRVAwekoiLCJuIjoicG1tLXRlc3QiLCJpZCI6MX0=
+```
