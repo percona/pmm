@@ -742,6 +742,9 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter
@@ -877,6 +880,9 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body QAN mongodb profiler
