@@ -121,6 +121,20 @@ func (this *OrganizationEntitlement_Platform) Validate() error {
 	}
 	return nil
 }
+func (this *GetContactInformationRequest) Validate() error {
+	return nil
+}
+func (this *GetContactInformationResponse) Validate() error {
+	if this.CustomerSuccess != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CustomerSuccess); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CustomerSuccess", err)
+		}
+	}
+	return nil
+}
+func (this *GetContactInformationResponse_CustomerSuccess) Validate() error {
+	return nil
+}
 func (this *ServerInfoRequest) Validate() error {
 	return nil
 }
