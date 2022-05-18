@@ -2150,6 +2150,95 @@
         }
       }
     },
+    "/v1/Platform/GetContactInformation": {
+      "post": {
+        "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
+        "tags": [
+          "Platform"
+        ],
+        "summary": "GetContactInformation",
+        "operationId": "GetContactInformation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customer_success": {
+                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "email": {
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                },
+                "new_ticket_url": {
+                  "description": "URL to open a new support ticket.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/Platform/SearchOrganizationEntitlements": {
       "post": {
         "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
