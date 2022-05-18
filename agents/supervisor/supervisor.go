@@ -66,10 +66,11 @@ type Supervisor struct {
 
 // agentProcessInfo describes Agent process.
 type agentProcessInfo struct {
-	cancel         func()          // to cancel Process.Run(ctx)
-	done           <-chan struct{} // closes when Process.Changes() channel closes
-	requestedState *agentpb.SetStateRequest_AgentProcess
-	listenPort     uint16
+	cancel          func()          // to cancel Process.Run(ctx)
+	done            <-chan struct{} // closes when Process.Changes() channel closes
+	requestedState  *agentpb.SetStateRequest_AgentProcess
+	listenPort      uint16
+	processExecPath string
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -120,10 +121,11 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 
 	for id, agent := range s.agentProcesses {
 		info := &agentlocalpb.AgentInfo{
-			AgentId:    id,
-			AgentType:  agent.requestedState.Type,
-			Status:     s.lastStatuses[id],
-			ListenPort: uint32(agent.listenPort),
+			AgentId:         id,
+			AgentType:       agent.requestedState.Type,
+			Status:          s.lastStatuses[id],
+			ListenPort:      uint32(agent.listenPort),
+			ProcessExecPath: agent.processExecPath,
 		}
 		res = append(res, info)
 	}
@@ -355,19 +357,21 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 			s.storeLastStatus(agentID, status)
 			l.Infof("Sending status: %s (port %d).", status, port)
 			s.changes <- &agentpb.StateChangedRequest{
-				AgentId:    agentID,
-				Status:     status,
-				ListenPort: uint32(port),
+				AgentId:         agentID,
+				Status:          status,
+				ListenPort:      uint32(port),
+				ProcessExecPath: processParams.Path,
 			}
 		}
 		close(done)
 	}()
 
 	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:         cancel,
-		done:           done,
-		requestedState: proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
-		listenPort:     port,
+		cancel:          cancel,
+		done:            done,
+		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
+		listenPort:      port,
+		processExecPath: processParams.Path,
 	}
 	return nil
 }
