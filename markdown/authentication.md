@@ -82,7 +82,7 @@ This can then be used as follows:
 curl --netrc -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
 
-Should you wish to use a differnt file then the `--netrc-file` option needs to be used. If we have the credentials stored in `~/.netrc-pmm` then the command would become:
+Should you wish to use a different file then the `--netrc-file` option needs to be used. If we have the credentials stored in `~/.netrc-pmm` then the command would become:
 ```bash
 curl --netrc --netrc-file ~/.netrc-pmm -X GET -H 'Content-Type: application/json' https://127.0.0.1/v1/version
 ```
