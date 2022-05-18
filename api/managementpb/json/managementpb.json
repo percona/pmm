@@ -3267,6 +3267,11 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
+                },
                 "az": {
                   "description": "Node availability zone.",
                   "type": "string",

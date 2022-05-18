@@ -32,6 +32,8 @@ type ClientService interface {
 
 	Disconnect(params *DisconnectParams, opts ...ClientOption) (*DisconnectOK, error)
 
+	GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error)
+
 	SearchOrganizationEntitlements(params *SearchOrganizationEntitlementsParams, opts ...ClientOption) (*SearchOrganizationEntitlementsOK, error)
 
 	SearchOrganizationTickets(params *SearchOrganizationTicketsParams, opts ...ClientOption) (*SearchOrganizationTicketsOK, error)
@@ -118,6 +120,45 @@ func (a *Client) Disconnect(params *DisconnectParams, opts ...ClientOption) (*Di
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*DisconnectDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  GetContactInformation gets contact information
+
+  GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+*/
+func (a *Client) GetContactInformation(params *GetContactInformationParams, opts ...ClientOption) (*GetContactInformationOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetContactInformationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetContactInformation",
+		Method:             "POST",
+		PathPattern:        "/v1/Platform/GetContactInformation",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetContactInformationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*GetContactInformationOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*GetContactInformationDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
