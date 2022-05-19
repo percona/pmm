@@ -510,6 +510,9 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body mongodb exporter

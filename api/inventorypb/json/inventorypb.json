@@ -147,6 +147,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "push_metrics_enabled": {
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
@@ -322,6 +327,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -574,6 +584,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -819,6 +834,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -1032,6 +1052,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -1160,6 +1185,11 @@
                         "type": "string"
                       },
                       "x-order": 2
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -1356,6 +1386,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -1573,6 +1608,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -1782,6 +1822,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
@@ -1980,6 +2025,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -2212,6 +2262,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -2431,6 +2486,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -2629,6 +2689,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2840,6 +2905,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -3026,6 +3096,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "push_metrics_enabled": {
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
@@ -3196,6 +3271,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -3391,6 +3471,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -3598,6 +3683,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -3824,6 +3914,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -4002,6 +4097,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -4202,6 +4302,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -4387,6 +4492,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
@@ -4566,6 +4676,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -4773,6 +4888,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -4973,6 +5093,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -5157,6 +5282,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5364,6 +5494,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -5511,6 +5646,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "push_metrics_enabled": {
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
@@ -5566,6 +5706,11 @@
                       "description": "Path under which metrics are exposed, used to generate URI.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5646,6 +5791,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5738,6 +5888,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5849,6 +6004,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -5893,6 +6053,11 @@
                         "type": "string"
                       },
                       "x-order": 2
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -5942,6 +6107,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -6027,6 +6197,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -6097,6 +6272,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
@@ -6161,6 +6341,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -6253,6 +6438,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -6338,6 +6528,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
@@ -6402,6 +6597,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -6499,6 +6699,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -6535,6 +6740,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 3
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6714,6 +6924,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
+                      },
                       "push_metrics_enabled": {
                         "description": "True if the exporter operates in push metrics mode.",
                         "type": "boolean",
@@ -6772,6 +6987,11 @@
                         "description": "Path under which metrics are exposed, used to generate URI.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
@@ -6855,6 +7075,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 15
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
@@ -6950,6 +7175,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 17
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
@@ -7064,6 +7294,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 8
+                      },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
@@ -7111,6 +7346,11 @@
                           "type": "string"
                         },
                         "x-order": 2
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 4
                       },
                       "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
@@ -7163,6 +7403,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 12
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
@@ -7251,6 +7496,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 12
+                      },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
@@ -7324,6 +7574,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "service_id": {
                         "description": "Service identifier.",
                         "type": "string",
@@ -7391,6 +7646,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 13
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
@@ -7486,6 +7746,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "type": "string",
+                        "title": "mod tidy",
+                        "x-order": 14
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
@@ -7574,6 +7839,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 9
+                      },
                       "service_id": {
                         "description": "Service identifier.",
                         "type": "string",
@@ -7641,6 +7911,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
                       },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
@@ -7741,6 +8016,11 @@
                         "type": "string",
                         "x-order": 1
                       },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 11
+                      },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
@@ -7780,6 +8060,11 @@
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
                         "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 3
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
