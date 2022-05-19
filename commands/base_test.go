@@ -34,6 +34,71 @@ func init() {
 	logrus.SetFormatter(new(logger.TextFormatter))
 }
 
+func CreateDummyCredentialsSource(data string, p string, exec bool) (string, error) {
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "CreateDummyCredentialsSource.*"+p)
+	if err != nil {
+		return "", fmt.Errorf("%w", err)
+	}
+
+	defer func() {
+		if tmpErr := tmpFile.Close(); tmpErr != nil {
+			err = tmpErr
+		}
+	}()
+
+	content := []byte(data)
+	if _, err := tmpFile.Write(content); err != nil {
+		return "", fmt.Errorf("%w", err)
+	}
+
+	if exec {
+		if err := tmpFile.Chmod(0o111); err != nil {
+			return "", fmt.Errorf("%w", err)
+		}
+	}
+
+	return tmpFile.Name(), err
+}
+
+func CreateDummyCredentialsExecutable(d string) (string, error) {
+	credSource, err := CreateDummyCredentialsSource(`
+#!/bin/sh
+
+echo `+d, "sh", true)
+	if err != nil {
+		return "", err
+	}
+
+	return credSource, nil
+}
+
+func TestCredentials(t *testing.T) {
+	t.Parallel()
+
+	data := `{"username": "testuser", "password": "testpass", "agentpassword": "testagentpass"}`
+	credSource, _ := CreateDummyCredentialsSource(data, "json", false)
+	credSourceX, _ := CreateDummyCredentialsExecutable(data)
+
+	t.Cleanup(func() {
+		assert.NoError(t, os.Remove(credSource))
+		assert.NoError(t, os.Remove(credSourceX))
+	})
+
+	t.Run("Reading", func(t *testing.T) {
+		// Test reading is OK
+		t.Parallel()
+		creds, _ := ReadFromSource(credSource)
+		assert.Equal(t, creds.Username, "testuser")
+	})
+
+	t.Run("Executing", func(t *testing.T) {
+		// Ensure that execution currently errors
+		t.Parallel()
+		_, err := ReadFromSource(credSourceX)
+		require.Error(t, err)
+	})
+}
+
 func TestParseRenderTemplate(t *testing.T) {
 	var stderr bytes.Buffer
 	logrus.SetOutput(&stderr)

@@ -51,6 +51,7 @@ type addPostgreSQLCommand struct {
 	Password            string
 	Database            string
 	AgentPassword       string
+	CredentialsSource   string
 	SkipConnectionCheck bool
 
 	NodeID            string
@@ -87,6 +88,19 @@ func (cmd *addPostgreSQLCommand) GetDefaultAddress() string {
 
 func (cmd *addPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
+}
+
+func (cmd *addPostgreSQLCommand) GetCredentials() error {
+	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	cmd.AgentPassword = creds.AgentPassword
+	cmd.Password = creds.Password
+	cmd.Username = creds.Username
+
+	return nil
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -140,6 +154,12 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		tlsKey, err = commands.ReadFile(cmd.TLSKeyFile)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	if cmd.CredentialsSource != "" {
+		if err := cmd.GetCredentials(); err != nil {
+			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
 
@@ -206,6 +226,7 @@ func init() {
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
 	AddPostgreSQLC.Flag("database", "PostgreSQL database").StringVar(&AddPostgreSQL.Database)
 	AddPostgreSQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddPostgreSQL.AgentPassword)
+	AddPostgreSQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddPostgreSQL.CredentialsSource)
 
 	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
 	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)

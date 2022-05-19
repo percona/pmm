@@ -55,6 +55,7 @@ type addExternalCommand struct {
 	ServiceName         string
 	Username            string
 	Password            string
+	CredentialsSource   string
 	Scheme              string
 	MetricsPath         string
 	ListenPort          uint16
@@ -66,6 +67,18 @@ type addExternalCommand struct {
 	MetricsMode         string
 	Group               string
 	SkipConnectionCheck bool
+}
+
+func (cmd *addExternalCommand) GetCredentials() error {
+	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	cmd.Password = creds.Password
+	cmd.Username = creds.Username
+
+	return nil
 }
 
 func (cmd *addExternalCommand) Run() (commands.Result, error) {
@@ -96,6 +109,12 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+	}
+
+	if cmd.CredentialsSource != "" {
+		if err := cmd.GetCredentials(); err != nil {
+			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
+		}
 	}
 
 	params := &external.AddExternalParams{
@@ -144,6 +163,7 @@ func init() {
 
 	AddExternalC.Flag("username", "External username").StringVar(&AddExternal.Username)
 	AddExternalC.Flag("password", "External password").StringVar(&AddExternal.Password)
+	AddExternalC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddExternal.CredentialsSource)
 
 	AddExternalC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").
 		PlaceHolder("http or https").StringVar(&AddExternal.Scheme)

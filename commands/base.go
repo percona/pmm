@@ -20,11 +20,14 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -42,8 +45,12 @@ import (
 	"github.com/percona/pmm-admin/agentlocal"
 )
 
-// Ctx is a shared context for all requests.
-var Ctx = context.Background()
+var (
+	// Ctx is a shared context for all requests.
+	Ctx = context.Background()
+
+	errExecutionNotImplemented = errors.New("execution is not supported")
+)
 
 // Result is a common interface for all command results.
 //
@@ -73,6 +80,42 @@ type Command interface {
 type CommandWithContext interface {
 	// TODO rename to Run
 	RunWithContext(ctx context.Context) (Result, error)
+}
+
+// Credentials provides access to an external provider so that
+// the username, password, or agent password can be managed
+// externally, e.g. HashiCorp Vault, Ansible Vault, etc.
+type Credentials struct {
+	AgentPassword string `json:"agentpassword"`
+	Password      string `json:"password"`
+	Username      string `json:"username"`
+}
+
+// ReadFromSource parses a JSON file src and return
+// a Credentials pointer containing the data.
+func ReadFromSource(src string) (*Credentials, error) {
+	creds := Credentials{"", "", ""}
+
+	f, err := os.Lstat(src)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if f.Mode()&0o111 != 0 {
+		return nil, fmt.Errorf("%w: %s", errExecutionNotImplemented, src)
+	}
+
+	// Read the file
+	content, err := ReadFile(src)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	return &creds, nil
 }
 
 type ErrorResponse interface {
@@ -162,17 +205,17 @@ func ParseDisableCollectors(collectors string) []string {
 }
 
 // ReadFile reads file from filepath if filepath is not empty.
-func ReadFile(filepath string) (string, error) {
-	if filepath == "" {
+func ReadFile(filePath string) (string, error) {
+	if filePath == "" {
 		return "", nil
 	}
 
-	certificate, err := ioutil.ReadFile(filepath)
+	content, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
-		return "", errors.Wrapf(err, "cannot load file in path %q", filepath)
+		return "", errors.Wrapf(err, "cannot load file in path %q", filePath)
 	}
 
-	return string(certificate), nil
+	return string(content), nil
 }
 
 type errFromNginx string

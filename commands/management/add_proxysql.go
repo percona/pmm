@@ -53,6 +53,7 @@ type addProxySQLCommand struct {
 	Username          string
 	Password          string
 	AgentPassword     string
+	CredentialsSource string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -81,6 +82,19 @@ func (cmd *addProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+func (cmd *addProxySQLCommand) GetCredentials() error {
+	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	cmd.AgentPassword = creds.AgentPassword
+	cmd.Password = creds.Password
+	cmd.Username = creds.Username
+
+	return nil
+}
+
 func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -103,6 +117,12 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
+	}
+
+	if cmd.CredentialsSource != "" {
+		if err := cmd.GetCredentials(); err != nil {
+			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
+		}
 	}
 
 	params := &proxysql.AddProxySQLParams{
@@ -160,6 +180,7 @@ func init() {
 	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)
 	AddProxySQLC.Flag("password", "ProxySQL password").Default("admin").StringVar(&AddProxySQL.Password)
 	AddProxySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddProxySQL.AgentPassword)
+	AddProxySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddProxySQL.CredentialsSource)
 
 	AddProxySQLC.Flag("environment", "Environment name").StringVar(&AddProxySQL.Environment)
 	AddProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddProxySQL.Cluster)

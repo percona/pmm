@@ -58,6 +58,7 @@ type addMongoDBCommand struct {
 	Username          string
 	Password          string
 	AgentPassword     string
+	CredentialsSource string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -97,6 +98,19 @@ func (cmd *addMongoDBCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+func (cmd *addMongoDBCommand) GetCredentials() error {
+	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	cmd.AgentPassword = creds.AgentPassword
+	cmd.Password = creds.Password
+	cmd.Username = creds.Username
+
+	return nil
+}
+
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -128,6 +142,12 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
 	if err != nil {
 		return nil, err
+	}
+
+	if cmd.CredentialsSource != "" {
+		if err := cmd.GetCredentials(); err != nil {
+			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
+		}
 	}
 
 	params := &mongodb.AddMongoDBParams{
@@ -196,6 +216,7 @@ func init() {
 	AddMongoDBC.Flag("username", "MongoDB username").StringVar(&AddMongoDB.Username)
 	AddMongoDBC.Flag("password", "MongoDB password").StringVar(&AddMongoDB.Password)
 	AddMongoDBC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMongoDB.AgentPassword)
+	AddMongoDBC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddMongoDB.CredentialsSource)
 
 	querySources := []string{mongodbQuerySourceProfiler, mongodbQuerySourceNone} // TODO add "auto"
 	querySourceHelp := fmt.Sprintf("Source of queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
