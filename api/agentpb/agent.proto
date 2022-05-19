@@ -43,6 +43,7 @@ message StateChangedRequest {
   string agent_id = 1;
   inventory.AgentStatus status = 2;
   uint32 listen_port = 3;
+  string process_exec_path = 4;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
