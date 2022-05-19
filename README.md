@@ -4,7 +4,6 @@
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
-
 ## Percona Monitoring and Management
 
 A 'single pane of glass' to easily view and monitor the performance of your MySQL, MongoDB, PostgreSQL, and MariaDB databases.
@@ -18,9 +17,48 @@ PMM helps users to:
 
 See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
+## Use Cases
+
+* Monitor your database performance with customizable dashboards and real-time alerting.
+* Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
+* Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
+* Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
+* DBaaS: Create and configure database clusters no matter where the infrastructure is deployed.
+* Backup and restore databases up to a specific moment with Point-in-Time-Recovery.
+
+## Architecture
+
+Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
+
+![Overal Architecture](https://docs.percona.com/percona-monitoring-and-management/_images/C_S_Architecture.jpg "Client Server Architecture")
+
+
+![PMM Conponents](https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Architecture_Client_Server.jpg "PMM Server Architecture")
+
+
+## Installation
+
+There are numbers of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/setting-up/index.html) documentation page.
+
+But in a nutshell:
+```bash
+$ docker pull percona/pmm-server:2
+
+$ docker create --volume /srv \
+--name pmm-data \
+percona/pmm-server:2 /bin/true
+
+$ docker run --detach --restart always \
+--publish 443:443 \
+--volumes-from pmm-data \
+--name pmm-server \
+percona/pmm-server:2
+
+```
+
 ## Submitting Bug Reports
 
-If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker.
+If you find a bug in Percona Monitoring and Management  or one of the related projects, you should submit a report to that project's [JIRA](https://jira.percona.com) issue tracker. Some of related project also have GitHub Issues enabled, so you also could submit there.
 
 Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
 
@@ -38,51 +76,17 @@ As a general rule of thumb, please try to create bug reports that are:
 - *Specific.* Include as much detail as possible: which version, what environment, etc.
 - *Unique.* Do not duplicate existing tickets.
 
-## APIs
 
-See stable API definitions [there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger.json),
-and all API definitions (including technical preview, development and testing APIs)
-[there](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/percona/pmm/main/api/swagger/swagger-dev.json).
+## Licensing
 
+Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](https://github.com/percona/pmm/blob/main/LICENSE) license.
 
-## Repositories
+## How to get involved
 
-### APIs
+First please check [contribution guidelines](CONTRIBUTING.md) for this repo to get started.
 
-* [percona/pmm](https://github.com/percona/pmm)
-* [percona-platform/saas](https://github.com/percona-platform/saas)
-* [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
+We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
 
-### PMM Server
+If you’re looking for information about how you can contribute, we have [contribution guidelines](CONTRIBUTING.md) across all our repositories in `CONTRIBUTING.md` files. Some of them may just link to the main project’s repository’s contribution guidelines.
 
-* [percona/pmm-managed](https://github.com/percona/pmm-managed)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
-* [percona/qan-api2](https://github.com/percona/qan-api2)
-* [percona/pmm-update](https://github.com/percona/pmm-update)
-* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
-* [percona-platform/grafana](https://github.com/percona-platform/grafana)
-
-### PMM Client
-
-* [percona/pmm-agent](https://github.com/percona/pmm-agent)
-* [percona/pmm-admin](https://github.com/percona/pmm-admin)
-* [percona/node_exporter](https://github.com/percona/node_exporter)
-* [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
-* [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
-* [percona/postgres_exporter](https://github.com/percona/postgres_exporter)
-* [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter)
-* [percona/rds_exporter](https://github.com/percona/rds_exporter)
-* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter)
-* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
-* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
-
-### Building and Packaging
-
-* [percona/pmm-server](https://github.com/percona/pmm-server)
-* [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules)
-* [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
-
-### QA, Testing and Documentation
-* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
-* [percona/pmm-qa](https://github.com/percona/pmm-qa)
-* [percona/pmm-doc](https://github.com/percona/pmm-doc)
+We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://discord.gg/mQEyGPkNbR).
