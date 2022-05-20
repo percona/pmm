@@ -440,8 +440,9 @@ type MySQLdExporter struct {
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `protobuf:"varint,12,opt,name=tablestats_group_disabled,json=tablestatsGroupDisabled,proto3" json:"tablestats_group_disabled,omitempty"`
 	// Path to exec process.
-	ProcessExecPath string   `protobuf:"bytes,18,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
-	LogLevel        LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
+	ProcessExecPath string `protobuf:"bytes,18,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
+	// Log level for exporter.
+	LogLevel LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
 }
 
 func (x *MySQLdExporter) Reset() {
@@ -647,8 +648,9 @@ type MongoDBExporter struct {
 	// Enable All collectors.
 	EnableAllCollectors bool `protobuf:"varint,15,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
 	// Path to exec process.
-	ProcessExecPath string   `protobuf:"bytes,16,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
-	LogLevel        LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
+	ProcessExecPath string `protobuf:"bytes,16,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
+	// Log level for exporter.
+	LogLevel LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -833,8 +835,9 @@ type PostgresExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,10,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// Path to exec process.
-	ProcessExecPath string   `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
-	LogLevel        LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
+	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
+	// Log level for exporter.
+	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
 }
 
 func (x *PostgresExporter) Reset() {
@@ -998,8 +1001,9 @@ type ProxySQLExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,10,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// Path to exec process.
-	ProcessExecPath string   `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
-	LogLevel        LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
+	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
+	// Log level for exporter.
+	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
 }
 
 func (x *ProxySQLExporter) Reset() {

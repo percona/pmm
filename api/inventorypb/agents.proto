@@ -136,7 +136,7 @@ message MySQLdExporter {
   bool tablestats_group_disabled = 12;
   // Path to exec process.
   string process_exec_path = 18;
-
+  // Log level for exporter.
   LogLevel log_level = 19;
 }
 
@@ -179,7 +179,7 @@ message MongoDBExporter {
   bool enable_all_collectors = 15;
   // Path to exec process.
   string process_exec_path = 16;
-
+  // Log level for exporter.
   LogLevel log_level = 17;
 }
 
@@ -211,7 +211,7 @@ message PostgresExporter {
   uint32 listen_port = 10;
   // Path to exec process.
   string process_exec_path = 13;
-
+  // Log level for exporter.
   LogLevel log_level = 14;
 }
 
@@ -247,7 +247,7 @@ message ProxySQLExporter {
   uint32 listen_port = 10;
   // Path to exec process.
   string process_exec_path = 13;
-
+  // Log level for exporter.
   LogLevel log_level = 14;
 }
 
