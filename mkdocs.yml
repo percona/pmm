@@ -5,3 +5,9 @@ site_url: https://www.percona.com/percona-monitoring-and-management/
 
 plugins:
   section-index: {}
+  
+#Google Analytics configuration 
+extra:
+  analytics:
+    provider: google
+    property: UA-343802-3
