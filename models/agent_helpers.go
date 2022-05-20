@@ -688,6 +688,7 @@ type CreateAgentParams struct {
 	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
 	DisableCollectors              []string
+	LogLevel                       string
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -834,6 +835,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
 		DisabledCollectors:             params.DisableCollectors,
+		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}
 
 	if err := row.SetCustomLabels(params.CustomLabels); err != nil {

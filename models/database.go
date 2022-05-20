@@ -711,6 +711,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ADD COLUMN process_exec_path TEXT`,
 	},
+	63: {
+		`ALTER TABLE agents
+			ADD COLUMN log_level VARCHAR`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

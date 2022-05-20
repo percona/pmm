@@ -118,6 +118,8 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		}
 	}
 
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion)
+
 	sort.Strings(args)
 
 	res := &agentpb.SetStateRequest_AgentProcess{

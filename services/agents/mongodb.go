@@ -82,6 +82,8 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion)
+
 	sort.Strings(args)
 
 	database := ""

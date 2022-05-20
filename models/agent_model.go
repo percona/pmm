@@ -188,6 +188,7 @@ type Agent struct {
 	MySQLOptions      *MySQLOptions      `reform:"mysql_options"`
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
+	LogLevel          *string            `reform:"log_level"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

@@ -408,7 +408,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(62))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(63))
 
 		agent, err := models.FindAgentByID(db.Querier, "id")
 		require.NoError(t, err)
@@ -416,7 +416,7 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.Equal(t, []string{"db.col1", "db.col2", "db.col3"}, agent.MongoDBOptions.StatsCollections)
 	})
 	t.Run("stats_collections field migration: string array to string array", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(62))
+		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(63))
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		defer sqlDB.Close() //nolint:errcheck
 
