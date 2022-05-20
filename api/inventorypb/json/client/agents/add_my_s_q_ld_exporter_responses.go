@@ -509,6 +509,9 @@ type AddMySQLdExporterOKBodyMysqldExporter struct {
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`

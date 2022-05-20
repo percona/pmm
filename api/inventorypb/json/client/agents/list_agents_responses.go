@@ -1353,6 +1353,9 @@ type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
 
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body azure database exporter items0
@@ -1483,6 +1486,9 @@ type ListAgentsOKBodyExternalExporterItems0 struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body external exporter items0
@@ -1571,6 +1577,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
@@ -1795,6 +1804,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
@@ -1988,6 +2000,9 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body node exporter items0
@@ -2100,6 +2115,9 @@ type ListAgentsOKBodyPMMAgentItems0 struct {
 
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body PMM agent items0
@@ -2178,6 +2196,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
@@ -2385,6 +2406,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
@@ -2581,6 +2605,9 @@ type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mongodb profiler agent items0
@@ -2728,6 +2755,9 @@ type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql perfschema agent items0
@@ -2878,6 +2908,9 @@ type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// mod tidy
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN mysql slowlog agent items0
@@ -3013,6 +3046,9 @@ type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN postgresql pgstatements agent items0
@@ -3151,6 +3187,9 @@ type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body QAN postgresql pgstatmonitor agent items0
@@ -3292,6 +3331,9 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body RDS exporter items0
@@ -3411,6 +3453,9 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this list agents OK body VM agent items0

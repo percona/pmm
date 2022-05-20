@@ -475,6 +475,9 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`

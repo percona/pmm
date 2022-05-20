@@ -44,6 +44,8 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 4;
+  // Path to exec process.
+  string process_exec_path = 5;
 }
 
 // VMAgent runs on Generic or Container Node alongside pmm-agent.
@@ -60,6 +62,8 @@ message VMAgent {
 
   // Actual Agent status.
   AgentStatus status = 5;
+  // Path to exec process.
+  string process_exec_path = 6;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -84,6 +88,8 @@ message NodeExporter {
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
+  // Path to exec process.
+  string process_exec_path = 9;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -128,8 +134,10 @@ message MySQLdExporter {
   uint32 listen_port = 10;
   // True if tablestats group collectors are currently disabled.
   bool tablestats_group_disabled = 12;
+  // Path to exec process.
+  string process_exec_path = 18;
 
-  LogLevel log_level = 18;
+  LogLevel log_level = 19;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -169,8 +177,10 @@ message MongoDBExporter {
   int32 collections_limit = 14;
   // Enable All collectors.
   bool enable_all_collectors = 15;
+  // Path to exec process.
+  string process_exec_path = 16;
 
-  LogLevel log_level = 16;
+  LogLevel log_level = 17;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -199,8 +209,10 @@ message PostgresExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+  // Path to exec process.
+  string process_exec_path = 13;
 
-  LogLevel log_level = 13;
+  LogLevel log_level = 14;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -233,8 +245,10 @@ message ProxySQLExporter {
   AgentStatus status = 9;
   // Listen port for scraping metrics.
   uint32 listen_port = 10;
+  // Path to exec process.
+  string process_exec_path = 13;
 
-  LogLevel log_level = 13;
+  LogLevel log_level = 14;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -269,6 +283,8 @@ message QANMySQLPerfSchemaAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
+  // Path to exec process.
+  string process_exec_path = 14;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -305,6 +321,8 @@ message QANMySQLSlowlogAgent {
 
   // Actual Agent status.
   AgentStatus status = 11;
+  //  mod tidy
+  string process_exec_path = 15;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -334,6 +352,8 @@ message QANMongoDBProfilerAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
+  // Path to exec process.
+  string process_exec_path = 11;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -360,6 +380,8 @@ message QANPostgreSQLPgStatementsAgent {
 
   // Actual Agent status.
   AgentStatus status = 9;
+  // Path to exec process.
+  string process_exec_path = 10;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -388,6 +410,8 @@ message QANPostgreSQLPgStatMonitorAgent {
 
   // Actual Agent status.
   AgentStatus status = 10;
+  // Path to exec process.
+  string process_exec_path = 11;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -422,6 +446,8 @@ message RDSExporter {
   bool enhanced_metrics_disabled = 10;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // Path to exec process.
+  string process_exec_path = 12;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -446,6 +472,8 @@ message ExternalExporter {
   uint32 listen_port = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
+  // Path to exec process.
+  string process_exec_path = 12;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -474,6 +502,8 @@ message AzureDatabaseExporter {
   uint32 listen_port = 9;
   // True if the exporter operates in push metrics mode.
   bool push_metrics_enabled = 10;
+  // Path to exec process.
+  string process_exec_path = 11;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.

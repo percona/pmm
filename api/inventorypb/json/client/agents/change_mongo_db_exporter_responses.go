@@ -511,6 +511,9 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
