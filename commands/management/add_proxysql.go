@@ -146,6 +146,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:            &addLogLevel,
 		},
 		Context: commands.Ctx,
 	}

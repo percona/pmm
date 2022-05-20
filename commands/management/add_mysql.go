@@ -238,6 +238,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:                  &addLogLevel,
 		},
 		Context: commands.Ctx,
 	}

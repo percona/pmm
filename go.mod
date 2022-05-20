@@ -2,13 +2,19 @@ module github.com/percona/pmm-admin
 
 go 1.18
 
+// Use for local development, but do not commit:
+// replace github.com/percona/pmm => ../pmm
+
+// Update depedencies with:
+// go get -v github.com/percona/pmm@main
+
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
 
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
 	github.com/go-openapi/runtime v0.24.0
-	github.com/percona/pmm v0.0.0-20220516171205-6f9c9d3e0c6b
+	github.com/percona/pmm v0.0.0-20220520150831-23069cdf1bb8
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1

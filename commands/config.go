@@ -55,6 +55,7 @@ type configCommand struct {
 	CustomLabels      string
 	BasePath          string
 	ListenPort        uint32
+	LogLevel          string
 
 	Force bool
 }
@@ -87,6 +88,9 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 		res = append(res, "--server-insecure-tls")
 	}
 
+	if cmd.LogLevel != "" {
+		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
+	}
 	if GlobalFlags.Debug {
 		res = append(res, "--debug")
 	}
@@ -185,4 +189,5 @@ func init() {
 	ConfigC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&Config.DisableCollectors)
 	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
 	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
+	ConfigC.Flag("log-level", "Logging level").Default("warn").EnumVar(&Config.LogLevel, "debug", "info", "warn", "error", "fatal")
 }
