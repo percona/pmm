@@ -9,17 +9,20 @@ import (
 	_ "embed"
 	"encoding/base32"
 	"encoding/pem"
-	"github.com/pkg/errors"
 	"io/fs"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
-const EncryptedTextBlockStart = "##!!"
-const EncryptedTextBlockParamsDelimiter = ":"
-const EncryptedTextBlockCipherStart = "["
-const EncryptedTextBlockCipherEnd = "]"
+const (
+	EncryptedTextBlockStart           = "##!!"
+	EncryptedTextBlockParamsDelimiter = ":"
+	EncryptedTextBlockCipherStart     = "["
+	EncryptedTextBlockCipherEnd       = "]"
+)
 
 // Formatter formats given string.
 type Formatter func(string) string
@@ -160,7 +163,7 @@ func (s *Service) EncryptBase32(msg []byte) ([]byte, error) {
 		return nil, errors.Wrapf(err, "Failed to encypt: %s \n", err)
 	}
 
-	var buf = make([]byte, base32.StdEncoding.EncodedLen(len(ciphertext)))
+	buf := make([]byte, base32.StdEncoding.EncodedLen(len(ciphertext)))
 	base32.StdEncoding.Encode(buf, ciphertext)
 	return buf, nil
 }
@@ -187,14 +190,14 @@ func (s *Service) DecryptBase32(ciphertextBase32 string) ([]byte, error) {
 	return s.Decrypt(ciphertext)
 }
 
-//DecryptEmbedded decrypts embedded ciphertext in text.
+// DecryptEmbedded decrypts embedded ciphertext in text.
 func (s *Service) DecryptEmbedded(text string) (string, error) {
 	return s.DecryptEmbeddedWithFormat(text, func(str string) string {
 		return str
 	})
 }
 
-//DecryptEmbeddedWithFormat decrypts embedded ciphertext in text.
+// DecryptEmbeddedWithFormat decrypts embedded ciphertext in text.
 func (s *Service) DecryptEmbeddedWithFormat(text string, formatter Formatter) (string, error) {
 	result := strings.Builder{}
 	for splitIndex := strings.Index(text, EncryptedTextBlockStart); splitIndex >= 0; splitIndex = strings.Index(text, EncryptedTextBlockStart) {
@@ -225,7 +228,7 @@ func (s *Service) DecryptEmbeddedWithFormat(text string, formatter Formatter) (s
 	return result.String(), nil
 }
 
-//EncodeCipherBlock encodes ciphertext into a Base32 block with metadata.
+// EncodeCipherBlock encodes ciphertext into a Base32 block with metadata.
 func (s *Service) EncodeCipherBlock(text []byte) (string, error) {
 	if bytes.Index(text, []byte(EncryptedTextBlockStart)) != -1 {
 		return "", errors.Errorf("Text cannot include %s", EncryptedTextBlockStart)
@@ -241,7 +244,7 @@ func (s *Service) EncodeCipherBlock(text []byte) (string, error) {
 	return result.String(), nil
 }
 
-//DecodeCipherBlock decodes ciphertext into a Base32 block with metadata.
+// DecodeCipherBlock decodes ciphertext into a Base32 block with metadata.
 func (s *Service) DecodeCipherBlock(text string) (CipherBloc, error) {
 	if strings.Index(text, EncryptedTextBlockStart) != 0 {
 		return CipherBloc{}, errors.Errorf("Cipher block must start with %s", EncryptedTextBlockStart)

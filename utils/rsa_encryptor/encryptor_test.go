@@ -3,8 +3,9 @@ package rsa_encryptor
 import (
 	_ "embed"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 //go:embed test.key
