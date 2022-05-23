@@ -1,6 +1,6 @@
 ---
 # We already have nginx package in epel repo
-- name: Packages                   | Add Nginx repository
+- name: Add Nginx repository
   yum_repository:
     name: nginx
     description: nginx repo
