@@ -9,7 +9,7 @@ This section describes listing the Nodes in the inventory.
 Example:
 ```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX'      
-	--reuest POST      
+	--request POST      
 	--url https://127.0.0.1/v1/inventory/Nodes/List
 	--header 'Accept: application/json'
 	--header 'Content-Type: application/json'
