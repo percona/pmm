@@ -215,6 +215,10 @@ type AddMySQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -224,6 +228,10 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -276,6 +284,60 @@ func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMySqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlBodyTypeLogLevelPropEnum = append(addMySqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLBodyLogLevelAuto captures enum value "auto"
+	AddMySQLBodyLogLevelAuto string = "auto"
+
+	// AddMySQLBodyLogLevelFatal captures enum value "fatal"
+	AddMySQLBodyLogLevelFatal string = "fatal"
+
+	// AddMySQLBodyLogLevelError captures enum value "error"
+	AddMySQLBodyLogLevelError string = "error"
+
+	// AddMySQLBodyLogLevelWarn captures enum value "warn"
+	AddMySQLBodyLogLevelWarn string = "warn"
+
+	// AddMySQLBodyLogLevelInfo captures enum value "info"
+	AddMySQLBodyLogLevelInfo string = "info"
+
+	// AddMySQLBodyLogLevelDebug captures enum value "debug"
+	AddMySQLBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -799,6 +861,10 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -806,6 +872,10 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -866,6 +936,60 @@ func (o *AddMySQLOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 
 	// value enum
 	if err := o.validateStatusEnum("addMySqlOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum = append(addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	AddMySQLOKBodyMysqldExporterLogLevelAuto string = "auto"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddMySQLOKBodyMysqldExporterLogLevelFatal string = "fatal"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelError captures enum value "error"
+	AddMySQLOKBodyMysqldExporterLogLevelError string = "error"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddMySQLOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddMySQLOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddMySQLOKBodyMysqldExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMySqlOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
