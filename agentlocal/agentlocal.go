@@ -82,6 +82,7 @@ type AgentStatus struct {
 	AgentID   string `json:"agent_id"`
 	AgentType string `json:"agent_type"`
 	Status    string `json:"status"`
+	Port      int64  `json:"listen_port,omitempty"`
 }
 
 // GetRawStatus returns raw local pmm-agent status. No special cases.
@@ -129,6 +130,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 			AgentID:   a.AgentID,
 			AgentType: pointer.GetString(a.AgentType),
 			Status:    pointer.GetString(a.Status),
+			Port:      a.ListenPort,
 		}
 	}
 	var clockDrift time.Duration

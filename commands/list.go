@@ -40,9 +40,9 @@ Service type{{"\t"}}Service name{{"\t"}}Address and port{{"\t"}}Service ID
 {{ range .Services }}
 {{- .HumanReadableServiceType }}{{"\t"}}{{ .ServiceName }}{{"\t"}}{{ .AddressPort }}{{"\t"}}{{ .ServiceID }}
 {{ end }}
-Agent type{{"\t"}}Status{{"\t"}}Metrics Mode{{"\t"}}Agent ID{{"\t"}}Service ID
+Agent type{{"\t"}}Status{{"\t"}}Metrics Mode{{"\t"}}Agent ID{{"\t"}}Service ID{{"\t"}}Port
 {{ range .Agents }}
-{{- .HumanReadableAgentType }}{{"\t"}}{{ .NiceAgentStatus }}{{"\t"}}{{ .MetricsMode }}{{"\t"}}{{ .AgentID }}{{"\t"}}{{ .ServiceID }} 
+{{- .HumanReadableAgentType }}{{"\t"}}{{ .NiceAgentStatus }}{{"\t"}}{{ .MetricsMode }}{{"\t"}}{{ .AgentID }}{{"\t"}}{{ .ServiceID }}{{"\t"}}{{ .Port }} 
 {{ end }}
 `)
 
@@ -53,6 +53,7 @@ type listResultAgent struct {
 	Status      string `json:"status"`
 	Disabled    bool   `json:"disabled"`
 	MetricsMode string `json:"push_metrics_enabled"`
+	Port        int64  `json:"port,omitempty"`
 }
 
 func (a listResultAgent) HumanReadableAgentType() string {
@@ -242,6 +243,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -254,6 +256,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -266,6 +269,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -278,6 +282,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -290,6 +295,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -301,6 +307,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(a.Status),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}
@@ -368,6 +375,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				Status:      getStatus(nil),
 				Disabled:    a.Disabled,
 				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
 			})
 		}
 	}

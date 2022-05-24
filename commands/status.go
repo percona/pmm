@@ -44,7 +44,7 @@ PMM Client:
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
-{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }}
+{{ range .PMMAgentStatus.Agents }}	{{ .AgentID }} {{ .AgentType | $.HumanReadableAgentType }} {{ .Status | $.NiceAgentStatus }} {{ .Port }}
 {{ end }}
 `)
 

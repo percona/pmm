@@ -29,9 +29,9 @@ import (
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 
-{{ printf "%-27s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-47s" "Agent ID" }} {{ printf "%-47s" "PMM-Agent ID" }} {{ printf "%-47s" "Service ID" }}
+{{ printf "%-27s" "Agent type" }} {{ printf "%-15s" "Status" }} {{ printf "%-47s" "Agent ID" }} {{ printf "%-47s" "PMM-Agent ID" }} {{ printf "%-47s" "Service ID" }} {{ printf "%-47s" "Port" }}
 {{ range .Agents }}
-{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ .AgentID }}  {{ .PMMAgentID }}  {{ .ServiceID }}
+{{- printf "%-27s" .HumanReadableAgentType }} {{ printf "%-15s" .NiceAgentStatus }} {{ .AgentID }}  {{ .PMMAgentID }}  {{ .ServiceID }} {{ .Port }}
 {{ end }}
 `)
 
@@ -57,6 +57,7 @@ type listResultAgent struct {
 	ServiceID  string `json:"service_id"`
 	Status     string `json:"status"`
 	Disabled   bool   `json:"disabled"`
+	Port       int64  `json:"port,omitempty"`
 }
 
 func (a listResultAgent) HumanReadableAgentType() string {
@@ -132,6 +133,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			PMMAgentID: a.PMMAgentID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.MysqldExporter {
@@ -142,6 +144,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			ServiceID:  a.ServiceID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.MongodbExporter {
@@ -152,6 +155,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			ServiceID:  a.ServiceID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.PostgresExporter {
@@ -162,6 +166,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			ServiceID:  a.ServiceID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.ProxysqlExporter {
@@ -172,6 +177,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			ServiceID:  a.ServiceID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.RDSExporter {
@@ -181,6 +187,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			PMMAgentID: a.PMMAgentID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+			Port:       a.ListenPort,
 		})
 	}
 	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
@@ -240,6 +247,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			ServiceID: a.ServiceID,
 			Status:    getAgentStatus(nil),
 			Disabled:  a.Disabled,
+			Port:      a.ListenPort,
 		})
 	}
 

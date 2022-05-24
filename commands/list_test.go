@@ -36,15 +36,15 @@ func TestListResultString(t *testing.T) {
 					{ServiceType: types.ServiceTypeMySQLService, ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "mysql-service"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", MetricsMode: "pull"},
+					{AgentType: types.AgentTypeMySQLdExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140", ServiceID: "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", MetricsMode: "pull", Port: 3306},
 				},
 			},
 			expected: strings.TrimSpace(`
 Service type        Service name         Address and port        Service ID
 MySQL               mysql-service                                /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type             Status         Metrics Mode        Agent ID                                              Service ID
-mysqld_exporter        Running        pull                /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140        /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a
+Agent type             Status         Metrics Mode        Agent ID                                              Service ID                                              Port
+mysqld_exporter        Running        pull                /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140        /service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a        3306
 `),
 		},
 		{
@@ -53,7 +53,7 @@ mysqld_exporter        Running        pull                /agent_id/8b732ac3-825
 			expected: strings.TrimSpace(`
 Service type        Service name        Address and port        Service ID
 
-Agent type        Status        Metrics Mode        Agent ID        Service ID
+Agent type        Status        Metrics Mode        Agent ID        Service ID        Port
 `),
 		},
 		{
@@ -63,15 +63,15 @@ Agent type        Status        Metrics Mode        Agent ID        Service ID
 					{ServiceType: types.ServiceTypeExternalService, ServiceID: "/service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a", ServiceName: "myhost-redis", Group: "redis"},
 				},
 				Agents: []listResultAgent{
-					{AgentType: types.AgentTypeExternalExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149", ServiceID: "/service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING"},
+					{AgentType: types.AgentTypeExternalExporter, AgentID: "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149", ServiceID: "/service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a", Status: "RUNNING", Port: 8080},
 				},
 			},
 			expected: strings.TrimSpace(`
 Service type          Service name        Address and port        Service ID
 External:redis        myhost-redis                                /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
 
-Agent type               Status         Metrics Mode        Agent ID                                              Service ID
-external-exporter        Running                            /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149        /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a
+Agent type               Status         Metrics Mode        Agent ID                                              Service ID                                              Port
+external-exporter        Running                            /agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1149        /service_id/8ff49c41-80a1-4030-bc02-cd76e3b0b84a        8080
 `),
 		},
 	}
