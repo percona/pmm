@@ -693,6 +693,8 @@ message AddMySQLdExporterRequest {
   repeated string disable_collectors = 11;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
 }
 
 message AddMySQLdExporterResponse {
@@ -764,6 +766,8 @@ message AddMongoDBExporterRequest {
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
   int32 collections_limit = 18;
+  // Log level for exporter.
+  LogLevel log_level = 19;
 }
 
 message AddMongoDBExporterResponse {
@@ -826,6 +830,8 @@ message AddPostgresExporterRequest {
   string tls_key = 13;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
 }
 
 message AddPostgresExporterResponse {
@@ -882,6 +888,8 @@ message AddProxySQLExporterRequest {
   repeated string disable_collectors = 10;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddProxySQLExporterResponse {
@@ -940,6 +948,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
@@ -1001,6 +1011,8 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 9;
   // Skip connection check.
   bool skip_connection_check = 10;
+  // Log level for exporter.
+  LogLevel log_level = 14;
 }
 
 message AddQANMySQLSlowlogAgentResponse {
@@ -1059,6 +1071,8 @@ message AddQANMongoDBProfilerAgentRequest {
   string authentication_mechanism = 12;
   // Authentication database.
   string authentication_database = 13;
+  // Log level for exporter.
+  LogLevel log_level = 14;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
@@ -1115,6 +1129,8 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   string tls_cert = 10;
   // TLS Certificate Key.
   string tls_key = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddQANPostgreSQLPgStatementsAgentResponse {
@@ -1173,6 +1189,8 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   string tls_cert = 11;
   // TLS Certificate Key.
   string tls_key = 12;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 message AddQANPostgreSQLPgStatMonitorAgentResponse {
@@ -1221,6 +1239,8 @@ message AddRDSExporterRequest {
   bool disable_enhanced_metrics = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // Log level for exporter.
+  LogLevel log_level = 10;
 }
 
 message AddRDSExporterResponse {
@@ -1326,6 +1346,8 @@ message AddAzureDatabaseExporterRequest {
   bool skip_connection_check = 9;
   // Enables push metrics mode for exporter.
   bool push_metrics = 10;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddAzureDatabaseExporterResponse {
