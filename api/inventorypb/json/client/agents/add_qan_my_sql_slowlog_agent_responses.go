@@ -162,10 +162,77 @@ type AddQANMySQLSlowlogAgentBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add QAN my SQL slowlog agent body
 func (o *AddQANMySQLSlowlogAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum = append(addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelAuto captures enum value "auto"
+	AddQANMySQLSlowlogAgentBodyLogLevelAuto string = "auto"
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelFatal captures enum value "fatal"
+	AddQANMySQLSlowlogAgentBodyLogLevelFatal string = "fatal"
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelError captures enum value "error"
+	AddQANMySQLSlowlogAgentBodyLogLevelError string = "error"
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelWarn captures enum value "warn"
+	AddQANMySQLSlowlogAgentBodyLogLevelWarn string = "warn"
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelInfo captures enum value "info"
+	AddQANMySQLSlowlogAgentBodyLogLevelInfo string = "info"
+
+	// AddQANMySQLSlowlogAgentBodyLogLevelDebug captures enum value "debug"
+	AddQANMySQLSlowlogAgentBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddQANMySQLSlowlogAgentBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANMySQLSlowlogAgentBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

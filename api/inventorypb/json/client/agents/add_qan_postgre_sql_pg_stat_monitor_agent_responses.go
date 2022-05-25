@@ -158,10 +158,77 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 
 	// TLS Certificate Key.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent body
 func (o *AddQANPostgreSQLPgStatMonitorAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum = append(addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelAuto captures enum value "auto"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelAuto string = "auto"
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelFatal captures enum value "fatal"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelFatal string = "fatal"
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelError captures enum value "error"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelError string = "error"
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelWarn captures enum value "warn"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelWarn string = "warn"
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelInfo captures enum value "info"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelInfo string = "info"
+
+	// AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelDebug captures enum value "debug"
+	AddQANPostgreSQLPgStatMonitorAgentBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddQANPostgreSQLPgStatMonitorAgentBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANPostgreSQLPgStatMonitorAgentBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

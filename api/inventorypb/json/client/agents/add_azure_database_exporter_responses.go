@@ -155,10 +155,77 @@ type AddAzureDatabaseExporterBody struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add azure database exporter body
 func (o *AddAzureDatabaseExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAzureDatabaseExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAzureDatabaseExporterBodyTypeLogLevelPropEnum = append(addAzureDatabaseExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAzureDatabaseExporterBodyLogLevelAuto captures enum value "auto"
+	AddAzureDatabaseExporterBodyLogLevelAuto string = "auto"
+
+	// AddAzureDatabaseExporterBodyLogLevelFatal captures enum value "fatal"
+	AddAzureDatabaseExporterBodyLogLevelFatal string = "fatal"
+
+	// AddAzureDatabaseExporterBodyLogLevelError captures enum value "error"
+	AddAzureDatabaseExporterBodyLogLevelError string = "error"
+
+	// AddAzureDatabaseExporterBodyLogLevelWarn captures enum value "warn"
+	AddAzureDatabaseExporterBodyLogLevelWarn string = "warn"
+
+	// AddAzureDatabaseExporterBodyLogLevelInfo captures enum value "info"
+	AddAzureDatabaseExporterBodyLogLevelInfo string = "info"
+
+	// AddAzureDatabaseExporterBodyLogLevelDebug captures enum value "debug"
+	AddAzureDatabaseExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddAzureDatabaseExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAzureDatabaseExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAzureDatabaseExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

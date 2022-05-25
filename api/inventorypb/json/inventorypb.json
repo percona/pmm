@@ -69,6 +69,20 @@
                   },
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
+                },
                 "node_id": {
                   "description": "Node identifier.",
                   "type": "string",
@@ -459,6 +473,20 @@
                   },
                   "x-order": 12
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 18
+                },
                 "password": {
                   "description": "MongoDB password for scraping metrics.",
                   "type": "string",
@@ -735,6 +763,20 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 15
                 },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
@@ -1309,6 +1351,20 @@
                   },
                   "x-order": 9
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 14
+                },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
                   "type": "string",
@@ -1559,6 +1615,20 @@
                   },
                   "x-order": 9
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
+                },
                 "password": {
                   "description": "ProxySQL password for scraping metrics.",
                   "type": "string",
@@ -1791,6 +1861,20 @@
                   },
                   "x-order": 9
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
+                },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
                   "type": "string",
@@ -1994,6 +2078,20 @@
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
                 },
                 "password": {
                   "description": "MySQL password for getting performance data.",
@@ -2218,6 +2316,20 @@
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
@@ -2455,6 +2567,20 @@
                   "type": "boolean",
                   "x-order": 6
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
+                },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat monitor data.",
                   "type": "string",
@@ -2658,6 +2784,20 @@
                     "type": "string"
                   },
                   "x-order": 6
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat statements data.",
@@ -2877,6 +3017,20 @@
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 9
                 },
                 "node_id": {
                   "description": "Node identifier.",

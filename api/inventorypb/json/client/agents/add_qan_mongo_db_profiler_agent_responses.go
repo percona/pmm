@@ -163,10 +163,77 @@ type AddQANMongoDBProfilerAgentBody struct {
 
 	// Authentication database.
 	AuthenticationDatabase string `json:"authentication_database,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add QAN mongo DB profiler agent body
 func (o *AddQANMongoDBProfilerAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum = append(addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelAuto captures enum value "auto"
+	AddQANMongoDBProfilerAgentBodyLogLevelAuto string = "auto"
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelFatal captures enum value "fatal"
+	AddQANMongoDBProfilerAgentBodyLogLevelFatal string = "fatal"
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelError captures enum value "error"
+	AddQANMongoDBProfilerAgentBodyLogLevelError string = "error"
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelWarn captures enum value "warn"
+	AddQANMongoDBProfilerAgentBodyLogLevelWarn string = "warn"
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelInfo captures enum value "info"
+	AddQANMongoDBProfilerAgentBodyLogLevelInfo string = "info"
+
+	// AddQANMongoDBProfilerAgentBodyLogLevelDebug captures enum value "debug"
+	AddQANMongoDBProfilerAgentBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddQANMongoDBProfilerAgentBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANMongoDBProfilerAgentBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

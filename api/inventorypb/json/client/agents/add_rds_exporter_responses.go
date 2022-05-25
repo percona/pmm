@@ -149,10 +149,77 @@ type AddRDSExporterBody struct {
 
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `json:"push_metrics,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS exporter body
 func (o *AddRDSExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addRdsExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsExporterBodyTypeLogLevelPropEnum = append(addRdsExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSExporterBodyLogLevelAuto captures enum value "auto"
+	AddRDSExporterBodyLogLevelAuto string = "auto"
+
+	// AddRDSExporterBodyLogLevelFatal captures enum value "fatal"
+	AddRDSExporterBodyLogLevelFatal string = "fatal"
+
+	// AddRDSExporterBodyLogLevelError captures enum value "error"
+	AddRDSExporterBodyLogLevelError string = "error"
+
+	// AddRDSExporterBodyLogLevelWarn captures enum value "warn"
+	AddRDSExporterBodyLogLevelWarn string = "warn"
+
+	// AddRDSExporterBodyLogLevelInfo captures enum value "info"
+	AddRDSExporterBodyLogLevelInfo string = "info"
+
+	// AddRDSExporterBodyLogLevelDebug captures enum value "debug"
+	AddRDSExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 
