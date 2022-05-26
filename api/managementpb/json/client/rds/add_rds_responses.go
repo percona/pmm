@@ -1045,6 +1045,13 @@ type AddRDSOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -1052,6 +1059,10 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1112,6 +1123,60 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyMysqldExporterTypeLogLevelPropEnum = append(addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyMysqldExporterLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyMysqldExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyMysqldExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1314,6 +1379,13 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1321,6 +1393,10 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1381,6 +1457,60 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum = append(addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyPostgresqlExporterLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyPostgresqlExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1461,6 +1591,9 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN mysql perfschema
@@ -1596,6 +1729,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN postgresql pgstatements
@@ -1737,6 +1873,9 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter

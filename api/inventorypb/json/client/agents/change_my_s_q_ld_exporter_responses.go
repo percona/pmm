@@ -517,6 +517,13 @@ type ChangeMySQLdExporterOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter OK body mysqld exporter
@@ -524,6 +531,10 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) Validate(formats strfmt.Regis
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -584,6 +595,60 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt
 
 	// value enum
 	if err := o.validateStatusEnum("changeMySQLdExporterOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum = append(changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelAuto string = "auto"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelFatal string = "fatal"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelError captures enum value "error"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelError string = "error"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	ChangeMySQLdExporterOKBodyMysqldExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeMySQLdExporterOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
