@@ -60,7 +60,7 @@ func NewDisconnectParamsWithHTTPClient(client *http.Client) *DisconnectParams {
 type DisconnectParams struct {
 
 	// Body.
-	Body interface{}
+	Body DisconnectBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -116,13 +116,13 @@ func (o *DisconnectParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the disconnect params
-func (o *DisconnectParams) WithBody(body interface{}) *DisconnectParams {
+func (o *DisconnectParams) WithBody(body DisconnectBody) *DisconnectParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the disconnect params
-func (o *DisconnectParams) SetBody(body interface{}) {
+func (o *DisconnectParams) SetBody(body DisconnectBody) {
 	o.Body = body
 }
 
@@ -133,10 +133,8 @@ func (o *DisconnectParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

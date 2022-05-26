@@ -152,6 +152,10 @@
                         "format": "int64",
                         "x-order": 3
                       },
+                      "process_exec_path": {
+                        "type": "string",
+                        "x-order": 4
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -338,6 +342,10 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 3
+                      },
+                      "process_exec_path": {
+                        "type": "string",
+                        "x-order": 4
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",

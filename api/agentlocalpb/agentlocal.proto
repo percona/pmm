@@ -33,6 +33,7 @@ message AgentInfo {
   // The current listen port of this Agent (exporter or vmagent).
   // Zero for other Agent types, or if unknown or not yet supported.
   uint32 listen_port = 4;
+  string process_exec_path = 5;
 }
 
 message StatusRequest {

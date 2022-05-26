@@ -2204,7 +2204,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "force": {
+                  "type": "boolean",
+                  "title": "Forces the cleanup process for connected PMM instances regardless of the Portal API response",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -2213,6 +2220,95 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type_url": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "type": "string",
+                        "format": "byte",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/Platform/GetContactInformation": {
+      "post": {
+        "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
+        "tags": [
+          "Platform"
+        ],
+        "summary": "GetContactInformation",
+        "operationId": "GetContactInformation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customer_success": {
+                  "description": "CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "email": {
+                      "type": "string",
+                      "x-order": 1
+                    }
+                  },
+                  "x-order": 0
+                },
+                "new_ticket_url": {
+                  "description": "URL to open a new support ticket.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {
@@ -4022,6 +4118,11 @@
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -4203,6 +4304,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -4477,6 +4583,25 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -4740,6 +4865,25 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -4907,6 +5051,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -5021,6 +5170,11 @@
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -5252,6 +5406,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -5468,6 +5641,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -5672,6 +5864,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -5891,6 +6088,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 12
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -6122,6 +6324,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 13
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6326,6 +6533,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -6520,6 +6732,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -6715,6 +6932,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -6901,6 +7123,11 @@
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -7077,6 +7304,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -7295,6 +7527,25 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -7520,6 +7771,25 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -7699,6 +7969,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
@@ -7898,6 +8173,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -8097,6 +8391,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -8277,6 +8590,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -8477,6 +8795,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 12
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -8683,6 +9006,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 13
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -8868,6 +9196,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -9048,6 +9381,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -9239,6 +9577,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -9345,6 +9688,11 @@
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -9377,6 +9725,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 2
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 1
@@ -9441,6 +9794,11 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
                     }
                   },
                   "x-order": 2
@@ -9551,6 +9909,25 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -9654,6 +10031,25 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -9738,6 +10134,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 5
@@ -9822,6 +10237,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 6
@@ -9907,6 +10341,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 12
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 7
@@ -9998,6 +10437,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 13
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
                     }
                   },
                   "x-order": 8
@@ -10063,6 +10507,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 9
@@ -10128,6 +10577,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 10
@@ -10198,6 +10652,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 11
@@ -10274,6 +10733,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 12
@@ -10335,6 +10799,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 13
@@ -10406,6 +10875,11 @@
                       "description": "True if the exporter operates in push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 14
@@ -10548,6 +11022,11 @@
                         "description": "True if Agent is running and connected to pmm-managed.",
                         "type": "boolean",
                         "x-order": 3
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 4
                       }
                     }
                   },
@@ -10583,6 +11062,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 2
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 3
                       }
                     }
                   },
@@ -10650,6 +11134,11 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 7
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 8
                       }
                     }
                   },
@@ -10763,6 +11252,25 @@
                         "description": "True if tablestats group collectors are currently disabled.",
                         "type": "boolean",
                         "x-order": 16
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 17
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 18
                       }
                     }
                   },
@@ -10869,6 +11377,25 @@
                         "description": "Enable All collectors.",
                         "type": "boolean",
                         "x-order": 14
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 15
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 16
                       }
                     }
                   },
@@ -10956,6 +11483,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },
@@ -11043,6 +11589,25 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 11
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 13
                       }
                     }
                   },
@@ -11131,6 +11696,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 12
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 13
                       }
                     }
                   },
@@ -11225,6 +11795,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 13
+                      },
+                      "process_exec_path": {
+                        "type": "string",
+                        "title": "mod tidy",
+                        "x-order": 14
                       }
                     }
                   },
@@ -11293,6 +11868,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 8
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 9
                       }
                     }
                   },
@@ -11361,6 +11941,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 8
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 9
                       }
                     }
                   },
@@ -11434,6 +12019,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 9
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -11513,6 +12103,11 @@
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 10
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
@@ -11577,6 +12172,11 @@
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
                         "x-order": 9
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -11651,6 +12251,11 @@
                         "description": "True if the exporter operates in push metrics mode.",
                         "type": "boolean",
                         "x-order": 9
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -20820,6 +21425,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -21151,6 +21761,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -21441,6 +22056,20 @@
                   "type": "boolean",
                   "title": "Enable all collectors",
                   "x-order": 28
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 29
                 }
               }
             }
@@ -21612,6 +22241,25 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 16
                     }
                   },
                   "x-order": 1
@@ -21677,6 +22325,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 2
@@ -21961,10 +22614,24 @@
                   "type": "string",
                   "x-order": 27
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 28
+                },
                 "defaults_file": {
                   "type": "string",
                   "title": "Path to .cnf file which contains user-name and password",
-                  "x-order": 28
+                  "x-order": 29
                 }
               }
             }
@@ -22143,6 +22810,25 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
                     }
                   },
                   "x-order": 1
@@ -22228,6 +22914,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 12
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 2
@@ -22319,6 +23010,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 13
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
                     }
                   },
                   "x-order": 3
@@ -22480,6 +23176,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "agent_password": {
+                  "description": "Custom password for exporter endpoint /metrics.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -22632,6 +23333,11 @@
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 2
@@ -22908,6 +23614,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 26
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 27
                 }
               }
             }
@@ -23065,6 +23785,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 1
@@ -23130,6 +23869,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 2
@@ -23200,6 +23944,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 3
@@ -23441,6 +24190,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 19
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 20
                 }
               }
             }
@@ -23593,6 +24356,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 1
@@ -23947,6 +24729,11 @@
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -24118,6 +24905,25 @@
                       "description": "True if tablestats group collectors are currently disabled.",
                       "type": "boolean",
                       "x-order": 16
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -24203,6 +25009,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 12
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -24359,6 +25170,25 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 11
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
                     }
                   },
                   "x-order": 7
@@ -24424,6 +25254,11 @@
                         "UNKNOWN"
                       ],
                       "x-order": 8
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     }
                   },
                   "x-order": 8

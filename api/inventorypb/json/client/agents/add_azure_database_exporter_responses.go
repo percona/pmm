@@ -468,6 +468,9 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// True if the exporter operates in push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add azure database exporter OK body azure database exporter

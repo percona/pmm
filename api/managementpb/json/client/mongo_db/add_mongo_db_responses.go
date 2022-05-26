@@ -217,6 +217,10 @@ type AddMongoDBBody struct {
 	// Enable all collectors
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -226,6 +230,10 @@ func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -278,6 +286,60 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMongoDbBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbBodyTypeLogLevelPropEnum = append(addMongoDbBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBBodyLogLevelAuto captures enum value "auto"
+	AddMongoDBBodyLogLevelAuto string = "auto"
+
+	// AddMongoDBBodyLogLevelFatal captures enum value "fatal"
+	AddMongoDBBodyLogLevelFatal string = "fatal"
+
+	// AddMongoDBBodyLogLevelError captures enum value "error"
+	AddMongoDBBodyLogLevelError string = "error"
+
+	// AddMongoDBBodyLogLevelWarn captures enum value "warn"
+	AddMongoDBBodyLogLevelWarn string = "warn"
+
+	// AddMongoDBBodyLogLevelInfo captures enum value "info"
+	AddMongoDBBodyLogLevelInfo string = "info"
+
+	// AddMongoDBBodyLogLevelDebug captures enum value "debug"
+	AddMongoDBBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -742,6 +804,13 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter
@@ -749,6 +818,10 @@ func (o *AddMongoDBOKBodyMongodbExporter) Validate(formats strfmt.Registry) erro
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -809,6 +882,60 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry
 
 	// value enum
 	if err := o.validateStatusEnum("addMongoDbOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum = append(addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	AddMongoDBOKBodyMongodbExporterLogLevelAuto string = "auto"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	AddMongoDBOKBodyMongodbExporterLogLevelFatal string = "fatal"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelError captures enum value "error"
+	AddMongoDBOKBodyMongodbExporterLogLevelError string = "error"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	AddMongoDBOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	AddMongoDBOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	AddMongoDBOKBodyMongodbExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMongoDbOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -877,6 +1004,9 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body QAN mongodb profiler

@@ -31,6 +31,8 @@ type PlatformClient interface {
 	SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error)
+	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+	GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error)
 	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
@@ -81,6 +83,15 @@ func (c *platformClient) SearchOrganizationEntitlements(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *platformClient) GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error) {
+	out := new(GetContactInformationResponse)
+	err := c.cc.Invoke(ctx, "/platform.Platform/GetContactInformation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *platformClient) ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error) {
 	out := new(ServerInfoResponse)
 	err := c.cc.Invoke(ctx, "/platform.Platform/ServerInfo", in, out, opts...)
@@ -111,6 +122,8 @@ type PlatformServer interface {
 	SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error)
 	// SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.
 	SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error)
+	// GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.
+	GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error)
 	// ServerInfo returns PMM server ID and name.
 	ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error)
 	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
@@ -133,6 +146,9 @@ func (UnimplementedPlatformServer) SearchOrganizationTickets(context.Context, *S
 }
 func (UnimplementedPlatformServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationEntitlements not implemented")
+}
+func (UnimplementedPlatformServer) GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetContactInformation not implemented")
 }
 func (UnimplementedPlatformServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
@@ -225,6 +241,24 @@ func _Platform_SearchOrganizationEntitlements_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Platform_GetContactInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetContactInformationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlatformServer).GetContactInformation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/platform.Platform/GetContactInformation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlatformServer).GetContactInformation(ctx, req.(*GetContactInformationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Platform_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ServerInfoRequest)
 	if err := dec(in); err != nil {
@@ -283,6 +317,10 @@ var Platform_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SearchOrganizationEntitlements",
 			Handler:    _Platform_SearchOrganizationEntitlements_Handler,
+		},
+		{
+			MethodName: "GetContactInformation",
+			Handler:    _Platform_GetContactInformation_Handler,
 		},
 		{
 			MethodName: "ServerInfo",

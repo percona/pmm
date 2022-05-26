@@ -208,6 +208,10 @@ type AddPostgreSQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -217,6 +221,10 @@ func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -269,6 +277,60 @@ func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateMetricsModeEnum("body"+"."+"metrics_mode", "body", *o.MetricsMode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgreSqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlBodyTypeLogLevelPropEnum = append(addPostgreSqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLBodyLogLevelAuto captures enum value "auto"
+	AddPostgreSQLBodyLogLevelAuto string = "auto"
+
+	// AddPostgreSQLBodyLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLBodyLogLevelFatal string = "fatal"
+
+	// AddPostgreSQLBodyLogLevelError captures enum value "error"
+	AddPostgreSQLBodyLogLevelError string = "error"
+
+	// AddPostgreSQLBodyLogLevelWarn captures enum value "warn"
+	AddPostgreSQLBodyLogLevelWarn string = "warn"
+
+	// AddPostgreSQLBodyLogLevelInfo captures enum value "info"
+	AddPostgreSQLBodyLogLevelInfo string = "info"
+
+	// AddPostgreSQLBodyLogLevelDebug captures enum value "debug"
+	AddPostgreSQLBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgreSQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -769,6 +831,13 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -776,6 +845,10 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) Validate(formats strfmt.Registry) 
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -836,6 +909,60 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatus(formats strfmt.Regi
 
 	// value enum
 	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum = append(addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelAuto string = "auto"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelFatal string = "fatal"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelError captures enum value "error"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelError string = "error"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addPostgreSqlOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -904,6 +1031,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatements agent
@@ -1042,6 +1172,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatmonitor agent

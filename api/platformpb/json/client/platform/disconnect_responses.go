@@ -114,6 +114,43 @@ func (o *DisconnectDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
+/*DisconnectBody disconnect body
+swagger:model DisconnectBody
+*/
+type DisconnectBody struct {
+
+	// Forces the cleanup process for connected PMM instances regardless of the Portal API response
+	Force bool `json:"force,omitempty"`
+}
+
+// Validate validates this disconnect body
+func (o *DisconnectBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this disconnect body based on context it is used
+func (o *DisconnectBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DisconnectBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DisconnectBody) UnmarshalBinary(b []byte) error {
+	var res DisconnectBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*DisconnectDefaultBody disconnect default body
 swagger:model DisconnectDefaultBody
 */
