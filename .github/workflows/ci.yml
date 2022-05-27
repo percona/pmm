@@ -233,7 +233,7 @@ jobs:
 
 
   workflow_success:
-    needs: [build]
+    needs: [test-agent]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -253,7 +253,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [build]
+    needs: [test-agent]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
