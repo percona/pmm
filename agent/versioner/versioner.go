@@ -48,7 +48,7 @@ type CombinedOutputer interface {
 	CombinedOutput() ([]byte, error)
 }
 
-//go:generate mockery -name=ExecFunctions -case=snake -inpkg -testonly
+//go:generate ../../bin/mockery -name=ExecFunctions -case=snake -inpkg -testonly
 
 // ExecFunctions is an interface for the LookPath() and CommandContext() functions.
 type ExecFunctions interface {

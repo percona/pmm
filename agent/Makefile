@@ -27,7 +27,6 @@ release:                        ## Build static pmm-agent release binary (Linux 
 
 gen:                            ## Generate files.
 	go generate ./...
-	make format
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
