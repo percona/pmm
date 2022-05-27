@@ -1677,6 +1677,7 @@ var (
 		(*wrapperspb.UInt32Value)(nil),                 // 26: google.protobuf.UInt32Value
 	}
 )
+
 var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	18, // 0: backup.v1beta1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	19, // 1: backup.v1beta1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.MySQLService

@@ -6920,6 +6920,7 @@ var (
 		(inventorypb.AgentType)(0),                                     // 90: inventory.AgentType
 	}
 )
+
 var file_agentpb_agent_proto_depIdxs = []int32{
 	38,  // 0: agent.TextFiles.files:type_name -> agent.TextFiles.FilesEntry
 	84,  // 1: agent.Pong.current_time:type_name -> google.protobuf.Timestamp

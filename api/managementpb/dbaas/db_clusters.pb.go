@@ -804,6 +804,7 @@ var (
 		(DBClusterType)(0),               // 12: dbaas.v1beta1.DBClusterType
 	}
 )
+
 var file_managementpb_dbaas_db_clusters_proto_depIdxs = []int32{
 	0,  // 0: dbaas.v1beta1.PSMDBCluster.state:type_name -> dbaas.v1beta1.DBClusterState
 	9,  // 1: dbaas.v1beta1.PSMDBCluster.operation:type_name -> dbaas.v1beta1.RunningOperation

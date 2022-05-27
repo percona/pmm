@@ -1404,6 +1404,7 @@ var (
 		(BooleanFlag)(0),                // 27: ia.v1beta1.BooleanFlag
 	}
 )
+
 var file_managementpb_ia_rules_proto_depIdxs = []int32{
 	0,  // 0: ia.v1beta1.Filter.type:type_name -> ia.v1beta1.FilterType
 	19, // 1: ia.v1beta1.ParamValue.type:type_name -> ia.v1beta1.ParamType

@@ -2848,6 +2848,7 @@ var (
 		nil,                                  // 36: inventory.AddExternalServiceRequest.CustomLabelsEntry
 	}
 )
+
 var file_inventorypb_services_proto_depIdxs = []int32{
 	25, // 0: inventory.MySQLService.custom_labels:type_name -> inventory.MySQLService.CustomLabelsEntry
 	26, // 1: inventory.MongoDBService.custom_labels:type_name -> inventory.MongoDBService.CustomLabelsEntry

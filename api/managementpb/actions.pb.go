@@ -2523,6 +2523,7 @@ var (
 		(*CancelActionResponse)(nil),                           // 30: management.CancelActionResponse
 	}
 )
+
 var file_managementpb_actions_proto_depIdxs = []int32{
 	1,  // 0: management.Actions.GetAction:input_type -> management.GetActionRequest
 	3,  // 1: management.Actions.StartMySQLExplainAction:input_type -> management.StartMySQLExplainActionRequest

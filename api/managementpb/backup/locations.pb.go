@@ -1081,6 +1081,7 @@ var (
 		(*TestLocationConfigResponse)(nil), // 13: backup.v1beta1.TestLocationConfigResponse
 	}
 )
+
 var file_managementpb_backup_locations_proto_depIdxs = []int32{
 	1,  // 0: backup.v1beta1.Location.pmm_client_config:type_name -> backup.v1beta1.PMMClientLocationConfig
 	0,  // 1: backup.v1beta1.Location.pmm_server_config:type_name -> backup.v1beta1.PMMServerLocationConfig

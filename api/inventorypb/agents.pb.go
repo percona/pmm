@@ -9131,6 +9131,7 @@ var (
 		(LogLevel)(0),                                         // 107: inventory.LogLevel
 	}
 )
+
 var file_inventorypb_agents_proto_depIdxs = []int32{
 	77,  // 0: inventory.PMMAgent.custom_labels:type_name -> inventory.PMMAgent.CustomLabelsEntry
 	106, // 1: inventory.VMAgent.status:type_name -> inventory.AgentStatus
