@@ -143,7 +143,7 @@ jobs:
 
     env:
       GOPATH: ${{ github.workspace }}
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm/agent
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -152,7 +152,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR }}
+        working-directory: ${{ env.WORKING_DIR }}/agent
 
     steps:
       - name: Check out code into the working directory under the GOPATH
