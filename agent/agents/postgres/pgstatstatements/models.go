@@ -19,7 +19,7 @@ import (
 	"fmt"
 )
 
-//go:generate reform
+//go:generate ../../../../bin/reform
 
 // pgStatDatabase represents a row in pg_stat_database view.
 //

@@ -15,7 +15,7 @@
 
 package perfschema
 
-//go:generate reform
+//go:generate ../../../../bin/reform
 
 // eventsStatementsSummaryByDigest represents a row in performance_schema.events_statements_summary_by_digest table.
 //
