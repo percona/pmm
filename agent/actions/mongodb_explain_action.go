@@ -22,13 +22,13 @@ import (
 	"strings"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/percona/pmm-agent/utils/templates"
+	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 type mongodbExplainAction struct {

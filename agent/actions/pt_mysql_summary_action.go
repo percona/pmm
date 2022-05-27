@@ -22,9 +22,10 @@ import (
 	"os/exec"
 	"strconv"
 
+	"golang.org/x/sys/unix"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"golang.org/x/sys/unix"
 )
 
 type ptMySQLSummaryAction struct {

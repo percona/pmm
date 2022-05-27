@@ -27,8 +27,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/sender"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/sender"
 )
 
 // New creates new Profiler

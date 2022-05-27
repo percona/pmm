@@ -18,9 +18,10 @@ package agents
 import (
 	"context"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Change represents built-in Agent status change and/or QAN collect request.

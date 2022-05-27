@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/percona/exporter_shared/helpers"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +35,8 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 type testServer struct {

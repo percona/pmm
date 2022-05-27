@@ -58,7 +58,6 @@ func NewAddMongoDBParamsWithHTTPClient(client *http.Client) *AddMongoDBParams {
    Typically these are written to a http.Request.
 */
 type AddMongoDBParams struct {
-
 	// Body.
 	Body AddMongoDBBody
 
@@ -128,7 +127,6 @@ func (o *AddMongoDBParams) SetBody(body AddMongoDBBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddMongoDBParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

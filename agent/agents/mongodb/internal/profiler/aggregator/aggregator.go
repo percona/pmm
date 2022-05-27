@@ -26,12 +26,12 @@ import (
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 var DefaultInterval = time.Duration(time.Minute)

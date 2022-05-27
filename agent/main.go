@@ -20,12 +20,12 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm-agent/commands"
-	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm/agent/commands"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/version"
 )
 
 func main() {

@@ -19,8 +19,9 @@ import (
 	"context"
 	"os/exec"
 
-	"github.com/percona/pmm/utils/pdeathsig"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 type processAction struct {

@@ -18,9 +18,10 @@ package agentlocal
 import (
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 //go:generate mockery -name=client -case=snake -inpkg -testonly

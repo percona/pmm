@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-agent/agents/cache"
+	"github.com/percona/pmm/agent/agents/cache"
 )
 
 // historyCache is a wrapper for cache.Cache to use only with historyMap type

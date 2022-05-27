@@ -59,12 +59,12 @@ type GetPSMDBClusterCredentialsOK struct {
 func (o *GetPSMDBClusterCredentialsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] getPsmdbClusterCredentialsOk  %+v", 200, o.Payload)
 }
+
 func (o *GetPSMDBClusterCredentialsOK) GetPayload() *GetPSMDBClusterCredentialsOKBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterCredentialsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetPSMDBClusterCredentialsOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetPSMDBClusterCredentialsDefault) Code() int {
 func (o *GetPSMDBClusterCredentialsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBClusters/GetCredentials][%d] GetPSMDBClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetPSMDBClusterCredentialsDefault) GetPayload() *GetPSMDBClusterCredentialsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterCredentialsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetPSMDBClusterCredentialsDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *GetPSMDBClusterCredentialsDefault) readResponse(response runtime.Client
 swagger:model GetPSMDBClusterCredentialsBody
 */
 type GetPSMDBClusterCredentialsBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -160,7 +159,6 @@ func (o *GetPSMDBClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterCredentialsDefaultBody
 */
 type GetPSMDBClusterCredentialsDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -229,9 +227,7 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) ContextValidate(ctx context.Cont
 }
 
 func (o *GetPSMDBClusterCredentialsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,7 +238,6 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) contextValidateDetails(ctx conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,7 +265,6 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error 
 swagger:model GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -311,7 +305,6 @@ func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b [
 swagger:model GetPSMDBClusterCredentialsOKBody
 */
 type GetPSMDBClusterCredentialsOKBody struct {
-
 	// connection credentials
 	ConnectionCredentials *GetPSMDBClusterCredentialsOKBodyConnectionCredentials `json:"connection_credentials,omitempty"`
 }
@@ -364,7 +357,6 @@ func (o *GetPSMDBClusterCredentialsOKBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *GetPSMDBClusterCredentialsOKBody) contextValidateConnectionCredentials(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ConnectionCredentials != nil {
 		if err := o.ConnectionCredentials.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -402,7 +394,6 @@ func (o *GetPSMDBClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterCredentialsOKBodyConnectionCredentials
 */
 type GetPSMDBClusterCredentialsOKBodyConnectionCredentials struct {
-
 	// MongoDB username.
 	Username string `json:"username,omitempty"`
 

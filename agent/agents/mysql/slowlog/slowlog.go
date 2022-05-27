@@ -31,17 +31,17 @@ import (
 	"github.com/percona/go-mysql/event"
 	"github.com/percona/go-mysql/log"
 	"github.com/percona/go-mysql/query"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents"
-	"github.com/percona/pmm-agent/agents/mysql/slowlog/parser"
-	"github.com/percona/pmm-agent/tlshelpers"
-	"github.com/percona/pmm-agent/utils/backoff"
-	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
+	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/backoff"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 const (

@@ -61,12 +61,12 @@ type ChangeProxySQLExporterOK struct {
 func (o *ChangeProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeProxySQLExporterOK) GetPayload() *ChangeProxySQLExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeProxySQLExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeProxySQLExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeProxySQLExporterDefault) Code() int {
 func (o *ChangeProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeProxySQLExporterDefault) GetPayload() *ChangeProxySQLExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeProxySQLExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeProxySQLExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeProxySQLExporterDefault) readResponse(response runtime.ClientResp
 swagger:model ChangeProxySQLExporterBody
 */
 type ChangeProxySQLExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeProxySQLExporterBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ChangeProxySQLExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,7 +213,6 @@ func (o *ChangeProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeProxySQLExporterDefaultBody
 */
 type ChangeProxySQLExporterDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -284,9 +281,7 @@ func (o *ChangeProxySQLExporterDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangeProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +292,6 @@ func (o *ChangeProxySQLExporterDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,7 +319,6 @@ func (o *ChangeProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeProxySQLExporterDefaultBodyDetailsItems0
 */
 type ChangeProxySQLExporterDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -366,7 +359,6 @@ func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 swagger:model ChangeProxySQLExporterOKBody
 */
 type ChangeProxySQLExporterOKBody struct {
-
 	// proxysql exporter
 	ProxysqlExporter *ChangeProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 }
@@ -419,7 +411,6 @@ func (o *ChangeProxySQLExporterOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeProxySQLExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +447,6 @@ func (o *ChangeProxySQLExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeProxySQLExporterOKBodyProxysqlExporter
 */
 type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -665,7 +655,6 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) UnmarshalBinary(b []byte)
 swagger:model ChangeProxySQLExporterParamsBodyCommon
 */
 type ChangeProxySQLExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

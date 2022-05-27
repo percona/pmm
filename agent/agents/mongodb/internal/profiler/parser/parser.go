@@ -23,7 +23,7 @@ import (
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 )
 
 func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Parser {

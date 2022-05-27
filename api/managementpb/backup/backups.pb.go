@@ -1645,36 +1645,38 @@ func file_managementpb_backup_backups_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_backups_proto_rawDescData
 }
 
-var file_managementpb_backup_backups_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_managementpb_backup_backups_proto_goTypes = []interface{}{
-	(*StartBackupRequest)(nil),                     // 0: backup.v1beta1.StartBackupRequest
-	(*StartBackupResponse)(nil),                    // 1: backup.v1beta1.StartBackupResponse
-	(*ListArtifactCompatibleServicesRequest)(nil),  // 2: backup.v1beta1.ListArtifactCompatibleServicesRequest
-	(*ListArtifactCompatibleServicesResponse)(nil), // 3: backup.v1beta1.ListArtifactCompatibleServicesResponse
-	(*RestoreBackupRequest)(nil),                   // 4: backup.v1beta1.RestoreBackupRequest
-	(*RestoreBackupResponse)(nil),                  // 5: backup.v1beta1.RestoreBackupResponse
-	(*ScheduledBackup)(nil),                        // 6: backup.v1beta1.ScheduledBackup
-	(*ScheduleBackupRequest)(nil),                  // 7: backup.v1beta1.ScheduleBackupRequest
-	(*ScheduleBackupResponse)(nil),                 // 8: backup.v1beta1.ScheduleBackupResponse
-	(*ListScheduledBackupsRequest)(nil),            // 9: backup.v1beta1.ListScheduledBackupsRequest
-	(*ListScheduledBackupsResponse)(nil),           // 10: backup.v1beta1.ListScheduledBackupsResponse
-	(*ChangeScheduledBackupRequest)(nil),           // 11: backup.v1beta1.ChangeScheduledBackupRequest
-	(*ChangeScheduledBackupResponse)(nil),          // 12: backup.v1beta1.ChangeScheduledBackupResponse
-	(*RemoveScheduledBackupRequest)(nil),           // 13: backup.v1beta1.RemoveScheduledBackupRequest
-	(*RemoveScheduledBackupResponse)(nil),          // 14: backup.v1beta1.RemoveScheduledBackupResponse
-	(*GetLogsRequest)(nil),                         // 15: backup.v1beta1.GetLogsRequest
-	(*GetLogsResponse)(nil),                        // 16: backup.v1beta1.GetLogsResponse
-	(*LogChunk)(nil),                               // 17: backup.v1beta1.LogChunk
-	(*durationpb.Duration)(nil),                    // 18: google.protobuf.Duration
-	(*inventorypb.MySQLService)(nil),               // 19: inventory.MySQLService
-	(*inventorypb.MongoDBService)(nil),             // 20: inventory.MongoDBService
-	(*timestamppb.Timestamp)(nil),                  // 21: google.protobuf.Timestamp
-	(DataModel)(0),                                 // 22: backup.v1beta1.DataModel
-	(BackupMode)(0),                                // 23: backup.v1beta1.BackupMode
-	(*wrapperspb.BoolValue)(nil),                   // 24: google.protobuf.BoolValue
-	(*wrapperspb.StringValue)(nil),                 // 25: google.protobuf.StringValue
-	(*wrapperspb.UInt32Value)(nil),                 // 26: google.protobuf.UInt32Value
-}
+var (
+	file_managementpb_backup_backups_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+	file_managementpb_backup_backups_proto_goTypes  = []interface{}{
+		(*StartBackupRequest)(nil),                     // 0: backup.v1beta1.StartBackupRequest
+		(*StartBackupResponse)(nil),                    // 1: backup.v1beta1.StartBackupResponse
+		(*ListArtifactCompatibleServicesRequest)(nil),  // 2: backup.v1beta1.ListArtifactCompatibleServicesRequest
+		(*ListArtifactCompatibleServicesResponse)(nil), // 3: backup.v1beta1.ListArtifactCompatibleServicesResponse
+		(*RestoreBackupRequest)(nil),                   // 4: backup.v1beta1.RestoreBackupRequest
+		(*RestoreBackupResponse)(nil),                  // 5: backup.v1beta1.RestoreBackupResponse
+		(*ScheduledBackup)(nil),                        // 6: backup.v1beta1.ScheduledBackup
+		(*ScheduleBackupRequest)(nil),                  // 7: backup.v1beta1.ScheduleBackupRequest
+		(*ScheduleBackupResponse)(nil),                 // 8: backup.v1beta1.ScheduleBackupResponse
+		(*ListScheduledBackupsRequest)(nil),            // 9: backup.v1beta1.ListScheduledBackupsRequest
+		(*ListScheduledBackupsResponse)(nil),           // 10: backup.v1beta1.ListScheduledBackupsResponse
+		(*ChangeScheduledBackupRequest)(nil),           // 11: backup.v1beta1.ChangeScheduledBackupRequest
+		(*ChangeScheduledBackupResponse)(nil),          // 12: backup.v1beta1.ChangeScheduledBackupResponse
+		(*RemoveScheduledBackupRequest)(nil),           // 13: backup.v1beta1.RemoveScheduledBackupRequest
+		(*RemoveScheduledBackupResponse)(nil),          // 14: backup.v1beta1.RemoveScheduledBackupResponse
+		(*GetLogsRequest)(nil),                         // 15: backup.v1beta1.GetLogsRequest
+		(*GetLogsResponse)(nil),                        // 16: backup.v1beta1.GetLogsResponse
+		(*LogChunk)(nil),                               // 17: backup.v1beta1.LogChunk
+		(*durationpb.Duration)(nil),                    // 18: google.protobuf.Duration
+		(*inventorypb.MySQLService)(nil),               // 19: inventory.MySQLService
+		(*inventorypb.MongoDBService)(nil),             // 20: inventory.MongoDBService
+		(*timestamppb.Timestamp)(nil),                  // 21: google.protobuf.Timestamp
+		(DataModel)(0),                                 // 22: backup.v1beta1.DataModel
+		(BackupMode)(0),                                // 23: backup.v1beta1.BackupMode
+		(*wrapperspb.BoolValue)(nil),                   // 24: google.protobuf.BoolValue
+		(*wrapperspb.StringValue)(nil),                 // 25: google.protobuf.StringValue
+		(*wrapperspb.UInt32Value)(nil),                 // 26: google.protobuf.UInt32Value
+	}
+)
 var file_managementpb_backup_backups_proto_depIdxs = []int32{
 	18, // 0: backup.v1beta1.StartBackupRequest.retry_interval:type_name -> google.protobuf.Duration
 	19, // 1: backup.v1beta1.ListArtifactCompatibleServicesResponse.mysql:type_name -> inventory.MySQLService

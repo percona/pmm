@@ -30,13 +30,13 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/agent/config"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/utils/tlsconfig"
-	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm-agent/config"
 )
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)

@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 )
 
 func TestNew(t *testing.T) {

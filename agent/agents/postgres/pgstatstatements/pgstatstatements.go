@@ -27,19 +27,19 @@ import (
 	"time"
 
 	_ "github.com/lib/pq" // register SQL driver
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-agent/agents"
-	"github.com/percona/pmm-agent/agents/cache"
-	"github.com/percona/pmm-agent/utils/truncate"
-	"github.com/percona/pmm-agent/utils/version"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 const (

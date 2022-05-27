@@ -28,17 +28,17 @@ import (
 	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"   //nolint:gci
 	_ "github.com/lib/pq" // register SQL driver.
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-agent/agents"
-	"github.com/percona/pmm-agent/utils/version"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/utils/version"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 const defaultWaitTime = 60 * time.Second

@@ -29,17 +29,17 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/percona/pmm-agent/config"
-	"github.com/percona/pmm-agent/tlshelpers"
-	"github.com/percona/pmm-agent/utils/templates"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // ConnectionChecker is a struct to check connection to services.

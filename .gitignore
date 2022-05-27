@@ -2,7 +2,24 @@
 /.vscode/
 
 /api/nginx/*.pem
-/bin
+/bin/
 
 # System Files
 .DS_Store
+
+cover.out
+crosscover.out
+
+agent/testdata/
+
+agent/agents/mysql/slowlog/parser/corpus/
+agent/agents/mysql/slowlog/parser/crashers/
+agent/agents/mysql/slowlog/parser/suppressions/
+agent/agents/mysql/slowlog/parser/parser-fuzz.zip
+
+fuzzing/
+*-fuzz.zip
+*.bench
+
+backoff.png
+pmm-agent-dev.yaml

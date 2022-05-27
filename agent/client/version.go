@@ -17,10 +17,10 @@
 package client
 
 import (
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-agent/versioner"
+	"github.com/percona/pmm/agent/versioner"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 func (c *Client) handleVersionsRequest(r *agentpb.GetVersionsRequest) []*agentpb.GetVersionsResponse_Version {

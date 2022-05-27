@@ -60,7 +60,6 @@ func NewPostSilencesParamsWithHTTPClient(client *http.Client) *PostSilencesParam
    Typically these are written to a http.Request.
 */
 type PostSilencesParams struct {
-
 	/* Silence.
 
 	   The silence to create
@@ -133,7 +132,6 @@ func (o *PostSilencesParams) SetSilence(silence *ammodels.PostableSilence) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *PostSilencesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

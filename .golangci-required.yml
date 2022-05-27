@@ -1,6 +1,4 @@
 ---
-# The most valuable linters; they are required to pass for PR to be merged.
-
 linters-settings:
   depguard:
     list-type: blacklist
@@ -8,8 +6,8 @@ linters-settings:
     packages:
       # use "github.com/pkg/errors" instead
       - errors
-      # we use "google.golang.org/protobuf/proto"
-      - github.com/golang/protobuf/proto
+      # use "github.com/golang/protobuf/proto" instead
+      - github.com/gogo/protobuf/proto
       - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
@@ -17,13 +15,13 @@ linters-settings:
       - gopkg.in/yaml.v2
 
   goimports:
-    local-prefixes: github.com/percona/pmm-agent
+    local-prefixes: github.com/percona/pmm
 
   gci:
     sections:
       - standard # Captures all standard packages if they do not match another section.
       - default # Contains all imports that could not be matched to another section type.
-      - prefix(github.com/percona/pmm-agent) # Groups all local imports.
+      - prefix(github.com/percona/pmm) # Groups all local imports.
 
 linters:
   disable-all: true
@@ -39,7 +37,7 @@ linters:
 
 run:
   skip-dirs:
-    - agents/mongodb/internal/
+    - agent/agents/mongodb/internal/
 
 issues:
   exclude-use-default: false

@@ -20,14 +20,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/api/agentlocalpb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 func TestServerStatus(t *testing.T) {

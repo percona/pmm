@@ -21,11 +21,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 // GetTestMongoDBDSN returns DNS for MongoDB test database.

@@ -23,15 +23,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm-agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/version"
 )
 
 func TestMongoDBExplain(t *testing.T) {

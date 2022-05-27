@@ -23,13 +23,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm-agent/utils/backoff"
-	"github.com/percona/pmm-agent/utils/templates"
+	"github.com/percona/pmm/agent/utils/backoff"
+	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (

@@ -25,12 +25,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/percona/pmm/utils/nodeinfo"
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm/utils/nodeinfo"
+	"github.com/percona/pmm/version"
 )
 
 const pathBaseDefault = "/usr/local/percona/pmm2"

@@ -23,12 +23,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm-agent/agentlocal"
-	"github.com/percona/pmm-agent/agents/supervisor"
-	"github.com/percona/pmm-agent/client"
-	"github.com/percona/pmm-agent/config"
-	"github.com/percona/pmm-agent/connectionchecker"
-	"github.com/percona/pmm-agent/versioner"
+	"github.com/percona/pmm/agent/agentlocal"
+	"github.com/percona/pmm/agent/agents/supervisor"
+	"github.com/percona/pmm/agent/client"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/versioner"
 )
 
 // Run implements `pmm-agent run` default command.

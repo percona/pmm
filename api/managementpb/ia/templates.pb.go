@@ -1142,34 +1142,36 @@ func file_managementpb_ia_templates_proto_rawDescGZIP() []byte {
 	return file_managementpb_ia_templates_proto_rawDescData
 }
 
-var file_managementpb_ia_templates_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_ia_templates_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
-var file_managementpb_ia_templates_proto_goTypes = []interface{}{
-	(TemplateSource)(0),             // 0: ia.v1beta1.TemplateSource
-	(*BoolParamDefinition)(nil),     // 1: ia.v1beta1.BoolParamDefinition
-	(*FloatParamDefinition)(nil),    // 2: ia.v1beta1.FloatParamDefinition
-	(*StringParamDefinition)(nil),   // 3: ia.v1beta1.StringParamDefinition
-	(*ParamDefinition)(nil),         // 4: ia.v1beta1.ParamDefinition
-	(*Template)(nil),                // 5: ia.v1beta1.Template
-	(*ListTemplatesRequest)(nil),    // 6: ia.v1beta1.ListTemplatesRequest
-	(*ListTemplatesResponse)(nil),   // 7: ia.v1beta1.ListTemplatesResponse
-	(*CreateTemplateRequest)(nil),   // 8: ia.v1beta1.CreateTemplateRequest
-	(*CreateTemplateResponse)(nil),  // 9: ia.v1beta1.CreateTemplateResponse
-	(*UpdateTemplateRequest)(nil),   // 10: ia.v1beta1.UpdateTemplateRequest
-	(*UpdateTemplateResponse)(nil),  // 11: ia.v1beta1.UpdateTemplateResponse
-	(*DeleteTemplateRequest)(nil),   // 12: ia.v1beta1.DeleteTemplateRequest
-	(*DeleteTemplateResponse)(nil),  // 13: ia.v1beta1.DeleteTemplateResponse
-	nil,                             // 14: ia.v1beta1.Template.LabelsEntry
-	nil,                             // 15: ia.v1beta1.Template.AnnotationsEntry
-	(BooleanFlag)(0),                // 16: ia.v1beta1.BooleanFlag
-	(ParamUnit)(0),                  // 17: ia.v1beta1.ParamUnit
-	(ParamType)(0),                  // 18: ia.v1beta1.ParamType
-	(*durationpb.Duration)(nil),     // 19: google.protobuf.Duration
-	(managementpb.Severity)(0),      // 20: management.Severity
-	(*timestamppb.Timestamp)(nil),   // 21: google.protobuf.Timestamp
-	(*managementpb.PageParams)(nil), // 22: management.PageParams
-	(*managementpb.PageTotals)(nil), // 23: management.PageTotals
-}
+var (
+	file_managementpb_ia_templates_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_ia_templates_proto_msgTypes  = make([]protoimpl.MessageInfo, 15)
+	file_managementpb_ia_templates_proto_goTypes   = []interface{}{
+		(TemplateSource)(0),             // 0: ia.v1beta1.TemplateSource
+		(*BoolParamDefinition)(nil),     // 1: ia.v1beta1.BoolParamDefinition
+		(*FloatParamDefinition)(nil),    // 2: ia.v1beta1.FloatParamDefinition
+		(*StringParamDefinition)(nil),   // 3: ia.v1beta1.StringParamDefinition
+		(*ParamDefinition)(nil),         // 4: ia.v1beta1.ParamDefinition
+		(*Template)(nil),                // 5: ia.v1beta1.Template
+		(*ListTemplatesRequest)(nil),    // 6: ia.v1beta1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),   // 7: ia.v1beta1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),   // 8: ia.v1beta1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil),  // 9: ia.v1beta1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),   // 10: ia.v1beta1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil),  // 11: ia.v1beta1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),   // 12: ia.v1beta1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil),  // 13: ia.v1beta1.DeleteTemplateResponse
+		nil,                             // 14: ia.v1beta1.Template.LabelsEntry
+		nil,                             // 15: ia.v1beta1.Template.AnnotationsEntry
+		(BooleanFlag)(0),                // 16: ia.v1beta1.BooleanFlag
+		(ParamUnit)(0),                  // 17: ia.v1beta1.ParamUnit
+		(ParamType)(0),                  // 18: ia.v1beta1.ParamType
+		(*durationpb.Duration)(nil),     // 19: google.protobuf.Duration
+		(managementpb.Severity)(0),      // 20: management.Severity
+		(*timestamppb.Timestamp)(nil),   // 21: google.protobuf.Timestamp
+		(*managementpb.PageParams)(nil), // 22: management.PageParams
+		(*managementpb.PageTotals)(nil), // 23: management.PageTotals
+	}
+)
 var file_managementpb_ia_templates_proto_depIdxs = []int32{
 	16, // 0: ia.v1beta1.BoolParamDefinition.default:type_name -> ia.v1beta1.BooleanFlag
 	17, // 1: ia.v1beta1.ParamDefinition.unit:type_name -> ia.v1beta1.ParamUnit

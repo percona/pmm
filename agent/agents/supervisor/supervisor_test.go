@@ -22,14 +22,14 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-agent/agents/process"
-	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm/agent/agents/process"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/api/agentlocalpb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // assertChanges checks expected changes in any order.

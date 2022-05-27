@@ -58,7 +58,6 @@ func NewAddExternalServiceParamsWithHTTPClient(client *http.Client) *AddExternal
    Typically these are written to a http.Request.
 */
 type AddExternalServiceParams struct {
-
 	// Body.
 	Body AddExternalServiceBody
 
@@ -128,7 +127,6 @@ func (o *AddExternalServiceParams) SetBody(body AddExternalServiceBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddExternalServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -59,12 +59,12 @@ type StartSecurityChecksOK struct {
 func (o *StartSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] startSecurityChecksOk  %+v", 200, o.Payload)
 }
+
 func (o *StartSecurityChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *StartSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *StartSecurityChecksDefault) Code() int {
 func (o *StartSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] StartSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartSecurityChecksDefault) GetPayload() *StartSecurityChecksDefaultBody {
 	return o.Payload
 }
 
 func (o *StartSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartSecurityChecksDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *StartSecurityChecksDefault) readResponse(response runtime.ClientRespons
 swagger:model StartSecurityChecksBody
 */
 type StartSecurityChecksBody struct {
-
 	// Names of the checks that should be started.
 	Names []string `json:"names"`
 }
@@ -155,7 +154,6 @@ func (o *StartSecurityChecksBody) UnmarshalBinary(b []byte) error {
 swagger:model StartSecurityChecksDefaultBody
 */
 type StartSecurityChecksDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -224,9 +222,7 @@ func (o *StartSecurityChecksDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *StartSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -237,7 +233,6 @@ func (o *StartSecurityChecksDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -265,7 +260,6 @@ func (o *StartSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartSecurityChecksDefaultBodyDetailsItems0
 */
 type StartSecurityChecksDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 

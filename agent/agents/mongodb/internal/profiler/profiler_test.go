@@ -25,19 +25,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm-agent/actions"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
-	"github.com/percona/pmm-agent/utils/templates"
-	"github.com/percona/pmm-agent/utils/tests"
+	"github.com/percona/pmm/agent/actions"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 type MongoVersion struct {

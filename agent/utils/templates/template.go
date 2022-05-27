@@ -23,8 +23,9 @@ import (
 	"regexp"
 	"text/template"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 // "_" at the begginging is reserved for possible extensions.

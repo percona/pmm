@@ -23,14 +23,14 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/objx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm-agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 func TestMongoDBActions(t *testing.T) {

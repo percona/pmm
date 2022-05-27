@@ -21,12 +21,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
 // Setup implements `pmm-agent setup` command.

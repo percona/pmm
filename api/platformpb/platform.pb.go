@@ -1363,30 +1363,32 @@ func file_platformpb_platform_proto_rawDescGZIP() []byte {
 	return file_platformpb_platform_proto_rawDescData
 }
 
-var file_platformpb_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_platformpb_platform_proto_goTypes = []interface{}{
-	(*ConnectRequest)(nil),                                // 0: platform.ConnectRequest
-	(*ConnectResponse)(nil),                               // 1: platform.ConnectResponse
-	(*DisconnectRequest)(nil),                             // 2: platform.DisconnectRequest
-	(*DisconnectResponse)(nil),                            // 3: platform.DisconnectResponse
-	(*SearchOrganizationTicketsRequest)(nil),              // 4: platform.SearchOrganizationTicketsRequest
-	(*SearchOrganizationTicketsResponse)(nil),             // 5: platform.SearchOrganizationTicketsResponse
-	(*OrganizationTicket)(nil),                            // 6: platform.OrganizationTicket
-	(*SearchOrganizationEntitlementsRequest)(nil),         // 7: platform.SearchOrganizationEntitlementsRequest
-	(*SearchOrganizationEntitlementsResponse)(nil),        // 8: platform.SearchOrganizationEntitlementsResponse
-	(*OrganizationEntitlement)(nil),                       // 9: platform.OrganizationEntitlement
-	(*GetContactInformationRequest)(nil),                  // 10: platform.GetContactInformationRequest
-	(*GetContactInformationResponse)(nil),                 // 11: platform.GetContactInformationResponse
-	(*ServerInfoRequest)(nil),                             // 12: platform.ServerInfoRequest
-	(*ServerInfoResponse)(nil),                            // 13: platform.ServerInfoResponse
-	(*UserStatusRequest)(nil),                             // 14: platform.UserStatusRequest
-	(*UserStatusResponse)(nil),                            // 15: platform.UserStatusResponse
-	(*OrganizationEntitlement_Platform)(nil),              // 16: platform.OrganizationEntitlement.Platform
-	(*GetContactInformationResponse_CustomerSuccess)(nil), // 17: platform.GetContactInformationResponse.CustomerSuccess
-	(*timestamppb.Timestamp)(nil),                         // 18: google.protobuf.Timestamp
-	(*wrapperspb.StringValue)(nil),                        // 19: google.protobuf.StringValue
-	(*wrapperspb.BoolValue)(nil),                          // 20: google.protobuf.BoolValue
-}
+var (
+	file_platformpb_platform_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+	file_platformpb_platform_proto_goTypes  = []interface{}{
+		(*ConnectRequest)(nil),                                // 0: platform.ConnectRequest
+		(*ConnectResponse)(nil),                               // 1: platform.ConnectResponse
+		(*DisconnectRequest)(nil),                             // 2: platform.DisconnectRequest
+		(*DisconnectResponse)(nil),                            // 3: platform.DisconnectResponse
+		(*SearchOrganizationTicketsRequest)(nil),              // 4: platform.SearchOrganizationTicketsRequest
+		(*SearchOrganizationTicketsResponse)(nil),             // 5: platform.SearchOrganizationTicketsResponse
+		(*OrganizationTicket)(nil),                            // 6: platform.OrganizationTicket
+		(*SearchOrganizationEntitlementsRequest)(nil),         // 7: platform.SearchOrganizationEntitlementsRequest
+		(*SearchOrganizationEntitlementsResponse)(nil),        // 8: platform.SearchOrganizationEntitlementsResponse
+		(*OrganizationEntitlement)(nil),                       // 9: platform.OrganizationEntitlement
+		(*GetContactInformationRequest)(nil),                  // 10: platform.GetContactInformationRequest
+		(*GetContactInformationResponse)(nil),                 // 11: platform.GetContactInformationResponse
+		(*ServerInfoRequest)(nil),                             // 12: platform.ServerInfoRequest
+		(*ServerInfoResponse)(nil),                            // 13: platform.ServerInfoResponse
+		(*UserStatusRequest)(nil),                             // 14: platform.UserStatusRequest
+		(*UserStatusResponse)(nil),                            // 15: platform.UserStatusResponse
+		(*OrganizationEntitlement_Platform)(nil),              // 16: platform.OrganizationEntitlement.Platform
+		(*GetContactInformationResponse_CustomerSuccess)(nil), // 17: platform.GetContactInformationResponse.CustomerSuccess
+		(*timestamppb.Timestamp)(nil),                         // 18: google.protobuf.Timestamp
+		(*wrapperspb.StringValue)(nil),                        // 19: google.protobuf.StringValue
+		(*wrapperspb.BoolValue)(nil),                          // 20: google.protobuf.BoolValue
+	}
+)
 var file_platformpb_platform_proto_depIdxs = []int32{
 	6,  // 0: platform.SearchOrganizationTicketsResponse.tickets:type_name -> platform.OrganizationTicket
 	18, // 1: platform.OrganizationTicket.create_time:type_name -> google.protobuf.Timestamp

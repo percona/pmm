@@ -453,17 +453,19 @@ func file_managementpb_proxysql_proto_rawDescGZIP() []byte {
 	return file_managementpb_proxysql_proto_rawDescData
 }
 
-var file_managementpb_proxysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_proxysql_proto_goTypes = []interface{}{
-	(*AddProxySQLRequest)(nil),           // 0: management.AddProxySQLRequest
-	(*AddProxySQLResponse)(nil),          // 1: management.AddProxySQLResponse
-	nil,                                  // 2: management.AddProxySQLRequest.CustomLabelsEntry
-	(*AddNodeParams)(nil),                // 3: management.AddNodeParams
-	(MetricsMode)(0),                     // 4: management.MetricsMode
-	(inventorypb.LogLevel)(0),            // 5: inventory.LogLevel
-	(*inventorypb.ProxySQLService)(nil),  // 6: inventory.ProxySQLService
-	(*inventorypb.ProxySQLExporter)(nil), // 7: inventory.ProxySQLExporter
-}
+var (
+	file_managementpb_proxysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_proxysql_proto_goTypes  = []interface{}{
+		(*AddProxySQLRequest)(nil),           // 0: management.AddProxySQLRequest
+		(*AddProxySQLResponse)(nil),          // 1: management.AddProxySQLResponse
+		nil,                                  // 2: management.AddProxySQLRequest.CustomLabelsEntry
+		(*AddNodeParams)(nil),                // 3: management.AddNodeParams
+		(MetricsMode)(0),                     // 4: management.MetricsMode
+		(inventorypb.LogLevel)(0),            // 5: inventory.LogLevel
+		(*inventorypb.ProxySQLService)(nil),  // 6: inventory.ProxySQLService
+		(*inventorypb.ProxySQLExporter)(nil), // 7: inventory.ProxySQLExporter
+	}
+)
 var file_managementpb_proxysql_proto_depIdxs = []int32{
 	3, // 0: management.AddProxySQLRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddProxySQLRequest.custom_labels:type_name -> management.AddProxySQLRequest.CustomLabelsEntry

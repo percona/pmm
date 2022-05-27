@@ -18,7 +18,6 @@ import (
 //
 // swagger:model silence
 type Silence struct {
-
 	// comment
 	// Required: true
 	Comment *string `json:"comment"`
@@ -73,7 +72,6 @@ func (m *Silence) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Silence) validateComment(formats strfmt.Registry) error {
-
 	if err := validate.Required("comment", "body", m.Comment); err != nil {
 		return err
 	}
@@ -82,7 +80,6 @@ func (m *Silence) validateComment(formats strfmt.Registry) error {
 }
 
 func (m *Silence) validateCreatedBy(formats strfmt.Registry) error {
-
 	if err := validate.Required("createdBy", "body", m.CreatedBy); err != nil {
 		return err
 	}
@@ -91,7 +88,6 @@ func (m *Silence) validateCreatedBy(formats strfmt.Registry) error {
 }
 
 func (m *Silence) validateEndsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("endsAt", "body", m.EndsAt); err != nil {
 		return err
 	}
@@ -104,7 +100,6 @@ func (m *Silence) validateEndsAt(formats strfmt.Registry) error {
 }
 
 func (m *Silence) validateMatchers(formats strfmt.Registry) error {
-
 	if err := validate.Required("matchers", "body", m.Matchers); err != nil {
 		return err
 	}
@@ -122,7 +117,6 @@ func (m *Silence) validateMatchers(formats strfmt.Registry) error {
 }
 
 func (m *Silence) validateStartsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("startsAt", "body", m.StartsAt); err != nil {
 		return err
 	}
@@ -149,7 +143,6 @@ func (m *Silence) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 }
 
 func (m *Silence) contextValidateMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Matchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("matchers")

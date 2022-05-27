@@ -19,9 +19,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
-
-	"github.com/percona/pmm-agent/tlshelpers"
 )
 
 type mysqlShowCreateTableAction struct {

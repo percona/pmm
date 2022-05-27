@@ -924,26 +924,28 @@ func file_managementpb_rds_proto_rawDescGZIP() []byte {
 	return file_managementpb_rds_proto_rawDescData
 }
 
-var file_managementpb_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_rds_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_managementpb_rds_proto_goTypes = []interface{}{
-	(DiscoverRDSEngine)(0),                             // 0: management.DiscoverRDSEngine
-	(*DiscoverRDSInstance)(nil),                        // 1: management.DiscoverRDSInstance
-	(*DiscoverRDSRequest)(nil),                         // 2: management.DiscoverRDSRequest
-	(*DiscoverRDSResponse)(nil),                        // 3: management.DiscoverRDSResponse
-	(*AddRDSRequest)(nil),                              // 4: management.AddRDSRequest
-	(*AddRDSResponse)(nil),                             // 5: management.AddRDSResponse
-	nil,                                                // 6: management.AddRDSRequest.CustomLabelsEntry
-	(MetricsMode)(0),                                   // 7: management.MetricsMode
-	(*inventorypb.RemoteRDSNode)(nil),                  // 8: inventory.RemoteRDSNode
-	(*inventorypb.RDSExporter)(nil),                    // 9: inventory.RDSExporter
-	(*inventorypb.MySQLService)(nil),                   // 10: inventory.MySQLService
-	(*inventorypb.MySQLdExporter)(nil),                 // 11: inventory.MySQLdExporter
-	(*inventorypb.QANMySQLPerfSchemaAgent)(nil),        // 12: inventory.QANMySQLPerfSchemaAgent
-	(*inventorypb.PostgreSQLService)(nil),              // 13: inventory.PostgreSQLService
-	(*inventorypb.PostgresExporter)(nil),               // 14: inventory.PostgresExporter
-	(*inventorypb.QANPostgreSQLPgStatementsAgent)(nil), // 15: inventory.QANPostgreSQLPgStatementsAgent
-}
+var (
+	file_managementpb_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
+	file_managementpb_rds_proto_goTypes   = []interface{}{
+		(DiscoverRDSEngine)(0),                             // 0: management.DiscoverRDSEngine
+		(*DiscoverRDSInstance)(nil),                        // 1: management.DiscoverRDSInstance
+		(*DiscoverRDSRequest)(nil),                         // 2: management.DiscoverRDSRequest
+		(*DiscoverRDSResponse)(nil),                        // 3: management.DiscoverRDSResponse
+		(*AddRDSRequest)(nil),                              // 4: management.AddRDSRequest
+		(*AddRDSResponse)(nil),                             // 5: management.AddRDSResponse
+		nil,                                                // 6: management.AddRDSRequest.CustomLabelsEntry
+		(MetricsMode)(0),                                   // 7: management.MetricsMode
+		(*inventorypb.RemoteRDSNode)(nil),                  // 8: inventory.RemoteRDSNode
+		(*inventorypb.RDSExporter)(nil),                    // 9: inventory.RDSExporter
+		(*inventorypb.MySQLService)(nil),                   // 10: inventory.MySQLService
+		(*inventorypb.MySQLdExporter)(nil),                 // 11: inventory.MySQLdExporter
+		(*inventorypb.QANMySQLPerfSchemaAgent)(nil),        // 12: inventory.QANMySQLPerfSchemaAgent
+		(*inventorypb.PostgreSQLService)(nil),              // 13: inventory.PostgreSQLService
+		(*inventorypb.PostgresExporter)(nil),               // 14: inventory.PostgresExporter
+		(*inventorypb.QANPostgreSQLPgStatementsAgent)(nil), // 15: inventory.QANPostgreSQLPgStatementsAgent
+	}
+)
 var file_managementpb_rds_proto_depIdxs = []int32{
 	0,  // 0: management.DiscoverRDSInstance.engine:type_name -> management.DiscoverRDSEngine
 	1,  // 1: management.DiscoverRDSResponse.rds_instances:type_name -> management.DiscoverRDSInstance

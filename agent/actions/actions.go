@@ -22,10 +22,10 @@ import (
 	"encoding/json"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-agent/tlshelpers"
+	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 // go-sumtype:decl Action

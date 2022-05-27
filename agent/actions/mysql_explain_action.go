@@ -24,10 +24,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-agent/tlshelpers"
+	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 type mysqlExplainAction struct {

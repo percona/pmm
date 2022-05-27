@@ -105,35 +105,35 @@ func TestImports(t *testing.T) {
 
 	// agents code should be independent
 	for _, a := range []string{
-		"github.com/percona/pmm-agent/agents/mongodb",
-		"github.com/percona/pmm-agent/agents/mysql/perfschema",
-		"github.com/percona/pmm-agent/agents/mysql/slowlog",
-		"github.com/percona/pmm-agent/agents/noop",
-		"github.com/percona/pmm-agent/agents/postgres/pgstatmonitor",
-		"github.com/percona/pmm-agent/agents/postgres/pgstatstatements",
-		"github.com/percona/pmm-agent/agents/process",
-		"github.com/percona/pmm-agent/agents/cache",
+		"github.com/percona/pmm/agent/agents/mongodb",
+		"github.com/percona/pmm/agent/agents/mysql/perfschema",
+		"github.com/percona/pmm/agent/agents/mysql/slowlog",
+		"github.com/percona/pmm/agent/agents/noop",
+		"github.com/percona/pmm/agent/agents/postgres/pgstatmonitor",
+		"github.com/percona/pmm/agent/agents/postgres/pgstatstatements",
+		"github.com/percona/pmm/agent/agents/process",
+		"github.com/percona/pmm/agent/agents/cache",
 	} {
 		c := constraint{
 			denyPrefixes: []string{
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
+				"github.com/percona/pmm/agent/agentlocal",
+				"github.com/percona/pmm/agent/agents/",
+				"github.com/percona/pmm/agent/client",
+				"github.com/percona/pmm/agent/config",
 			},
 		}
 
 		// TODO move parser to pgstatstatements/parser unless pgstatmonitor will actually use it
 		if strings.HasSuffix(a, "/pgstatstatements") {
 			c.allowPrefixes = []string{
-				"github.com/percona/pmm-agent/agents/postgres/parser",
+				"github.com/percona/pmm/agent/agents/postgres/parser",
 			}
 		}
 
 		// allows agents to use cache
 		for _, cachedAgent := range agentsUsingCache {
 			if strings.HasSuffix(a, cachedAgent) {
-				c.allowPrefixes = append(c.allowPrefixes, "github.com/percona/pmm-agent/agents/cache")
+				c.allowPrefixes = append(c.allowPrefixes, "github.com/percona/pmm/agent/agents/cache")
 			}
 		}
 
@@ -141,21 +141,21 @@ func TestImports(t *testing.T) {
 	}
 
 	// slowlog parser should be fully independent
-	constraints["github.com/percona/pmm-agent/agents/mysql/slowlog/parser"] = constraint{
+	constraints["github.com/percona/pmm/agent/agents/mysql/slowlog/parser"] = constraint{
 		denyPrefixes: []string{
-			"github.com/percona/pmm-agent",
+			"github.com/percona/pmm/agent",
 		},
 	}
 
 	// those packages should be independent from each other
 	packs := []string{
 		// TODO https://jira.percona.com/browse/PMM-7206
-		// "github.com/percona/pmm-agent/actions",
+		// "github.com/percona/pmm/agent/actions",
 
-		"github.com/percona/pmm-agent/agentlocal",
-		"github.com/percona/pmm-agent/agents/supervisor",
-		"github.com/percona/pmm-agent/client",
-		"github.com/percona/pmm-agent/connectionchecker",
+		"github.com/percona/pmm/agent/agentlocal",
+		"github.com/percona/pmm/agent/agents/supervisor",
+		"github.com/percona/pmm/agent/client",
+		"github.com/percona/pmm/agent/connectionchecker",
 	}
 	for _, p := range packs {
 		var c constraint
@@ -171,7 +171,7 @@ func TestImports(t *testing.T) {
 
 	// just to add them to packages.dot
 	for _, service := range []string{
-		"github.com/percona/pmm-agent/commands",
+		"github.com/percona/pmm/agent/commands",
 	} {
 		constraints[service] = constraint{}
 	}
@@ -240,7 +240,7 @@ func TestImports(t *testing.T) {
 		}
 		sort.Strings(imports)
 
-		p = strings.TrimPrefix(p, "github.com/percona/pmm-agent")
+		p = strings.TrimPrefix(p, "github.com/percona/pmm/agent")
 		if p == "" {
 			p = "/"
 		}
@@ -248,8 +248,8 @@ func TestImports(t *testing.T) {
 			if strings.Contains(i, "/utils/") {
 				continue
 			}
-			if strings.HasPrefix(i, "github.com/percona/pmm-agent") {
-				i = strings.TrimPrefix(i, "github.com/percona/pmm-agent")
+			if strings.HasPrefix(i, "github.com/percona/pmm/agent") {
+				i = strings.TrimPrefix(i, "github.com/percona/pmm/agent")
 				fmt.Fprintf(f, "\t%q -> %q;\n", p, i)
 			}
 		}

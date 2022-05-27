@@ -59,12 +59,12 @@ type RegisterKubernetesClusterOK struct {
 func (o *RegisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] registerKubernetesClusterOk  %+v", 200, o.Payload)
 }
+
 func (o *RegisterKubernetesClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RegisterKubernetesClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *RegisterKubernetesClusterDefault) Code() int {
 func (o *RegisterKubernetesClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] RegisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RegisterKubernetesClusterDefault) GetPayload() *RegisterKubernetesClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *RegisterKubernetesClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RegisterKubernetesClusterDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *RegisterKubernetesClusterDefault) readResponse(response runtime.ClientR
 swagger:model RegisterKubernetesClusterBody
 */
 type RegisterKubernetesClusterBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -180,7 +179,6 @@ func (o *RegisterKubernetesClusterBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *RegisterKubernetesClusterBody) contextValidateKubeAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.KubeAuth != nil {
 		if err := o.KubeAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -217,7 +215,6 @@ func (o *RegisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model RegisterKubernetesClusterDefaultBody
 */
 type RegisterKubernetesClusterDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -286,9 +283,7 @@ func (o *RegisterKubernetesClusterDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *RegisterKubernetesClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -299,7 +294,6 @@ func (o *RegisterKubernetesClusterDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -327,7 +321,6 @@ func (o *RegisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model RegisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type RegisterKubernetesClusterDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -368,7 +361,6 @@ func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []
 swagger:model RegisterKubernetesClusterParamsBodyKubeAuth
 */
 type RegisterKubernetesClusterParamsBodyKubeAuth struct {
-
 	// Kubeconfig file content.
 	Kubeconfig string `json:"kubeconfig,omitempty"`
 }

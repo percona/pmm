@@ -1,8 +1,32 @@
 # pmm-agent
 
-[![Build](https://github.com/percona/pmm-agent/actions/workflows/go.yml/badge.svg)](https://github.com/percona/pmm-agent/actions/workflows/go.yml)
-[![Code coverage](https://codecov.io/gh/percona/pmm-agent/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm-agent)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm-agent)](https://goreportcard.com/report/github.com/percona/pmm-agent)
-[![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm-agent)](https://cla-assistant.percona.com/percona/pmm-agent)
-
 pmm-agent for PMM 2.x.
+
+# Contributing notes
+
+## Pre-requirements:
+git, make, curl, go, gcc, docker, docker-compose, pmm-server
+
+## Local setup
+Install exporters:
+* node_exporter
+* mysqld_exporter
+* rds_exporter
+* postgres_exporter
+* mongodb_exporter
+* proxysql_exporter
+
+Run `make init` to install dependencies.
+
+#### To run pmm-agent
+Run [PMM-server](https://github.com/percona/pmm) docker container or [pmm-managed](https://github.com/percona/pmm-managed).  
+Run `make setup-dev` to configure pmm-agent
+Run `make run` to run pmm-agent
+
+
+## Testing
+Run `make env-up` to set-up environment.    
+Run `make test` to run tests.
+
+## Code style
+Before making PR, please run `make check-all` locally to run all checkers and linters.

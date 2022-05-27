@@ -24,7 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/tests"
 )
 
 func TestPGStatMonitorStructs(t *testing.T) {

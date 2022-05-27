@@ -25,9 +25,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/utils/tlsconfig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -38,11 +35,14 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm-agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
-	"github.com/percona/pmm-agent/client/channel"
-	"github.com/percona/pmm-agent/config"
-	"github.com/percona/pmm-agent/jobs"
-	"github.com/percona/pmm-agent/utils/backoff"
+	"github.com/percona/pmm/agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
+	"github.com/percona/pmm/agent/client/channel"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/jobs"
+	"github.com/percona/pmm/agent/utils/backoff"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/version"
 )
 
 const (

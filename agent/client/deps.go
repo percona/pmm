@@ -18,8 +18,9 @@ package client
 import (
 	"context"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 //go:generate mockery -name=connectionChecker -case=snake -inpkg -testonly

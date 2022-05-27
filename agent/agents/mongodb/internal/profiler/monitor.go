@@ -22,9 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/collector"
-	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/parser"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/collector"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/parser"
 )
 
 // NewMonitor creates new monitor.

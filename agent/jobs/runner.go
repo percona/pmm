@@ -21,12 +21,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm-agent/client/channel"
+	"github.com/percona/pmm/agent/client/channel"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 const jobsBufferSize = 32

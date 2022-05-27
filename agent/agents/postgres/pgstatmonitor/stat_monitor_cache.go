@@ -27,7 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/truncate"
 )
 
 // statMonitorCacheStats contains statMonitorCache statistics.

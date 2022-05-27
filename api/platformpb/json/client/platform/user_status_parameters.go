@@ -58,7 +58,6 @@ func NewUserStatusParamsWithHTTPClient(client *http.Client) *UserStatusParams {
    Typically these are written to a http.Request.
 */
 type UserStatusParams struct {
-
 	// Body.
 	Body interface{}
 
@@ -128,7 +127,6 @@ func (o *UserStatusParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *UserStatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

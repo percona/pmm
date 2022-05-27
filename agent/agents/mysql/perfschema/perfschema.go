@@ -26,20 +26,20 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	mysqlDialects "gopkg.in/reform.v1/dialects/mysql"
 
-	"github.com/percona/pmm-agent/agents"
-	"github.com/percona/pmm-agent/agents/cache"
-	"github.com/percona/pmm-agent/tlshelpers"
-	"github.com/percona/pmm-agent/utils/truncate"
-	"github.com/percona/pmm-agent/utils/version"
+	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/truncate"
+	"github.com/percona/pmm/agent/utils/version"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 type (

@@ -1,7 +1,4 @@
-BASE_PATH = $(shell pwd)
-BIN_PATH := $(BASE_PATH)/bin
-
-export PATH := $(BIN_PATH):$(PATH)
+default: help
 
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
@@ -9,7 +6,7 @@ help:                           ## Display this help message.
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 # `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= bin
+PMM_RELEASE_PATH ?= ../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
@@ -28,19 +25,15 @@ release:                        ## Build static pmm-agent release binary (Linux 
 	$(PMM_RELEASE_PATH)/pmm-agent --version
 	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
-init:                           ## Installs development tools
-	rm -rf ./bin
-	cd tools && go generate -x -tags=tools
-
 gen:                            ## Generate files.
 	go generate ./...
 	make format
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
-	go build -modfile=tools/go.mod -o $(BIN_PATH)/reform-db gopkg.in/reform.v1/reform-db
+	go build -modfile=tools/go.mod -o ../bin/reform-db gopkg.in/reform.v1/reform-db
 	mkdir tmp-mysql
-	$(BIN_PATH)/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
+	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-agent binary.
 	go install -ldflags "$(VERSION_FLAGS)" ./...
@@ -85,26 +78,10 @@ fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package.
 
 bench:                          ## Run benchmarks.
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
-	$(BIN_PATH)/benchstat slowlog_parser_old.bench slowlog_parser_new.bench
+	../bin/benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm-agent/agents/postgres/parser | tee postgres_parser_new.bench
-	$(BIN_PATH)/benchstat postgres_parser_old.bench postgres_parser_new.bench
-
-check:                          ## Run required checkers and linters.
-	go run .github/check-license.go
-	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml
-	$(BIN_PATH)/go-consistent -pedantic ./...
-
-check-all: check                ## Run golang ci linter to check new changes from main.
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
-
-FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-
-format:                         ## Format source code.
-	$(BIN_PATH)/gofumpt -l -w $(FILES)
-	$(BIN_PATH)/goimports -local github.com/percona/pmm-agent -l -w $(FILES)
-	$(BIN_PATH)/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm-agent)" $(FILES)
-	$(BIN_PATH)/goimports -local github.com/percona/pmm-agent -l -w $(FILES) # Temporary fix, gci has bug with sorting black imports.
+	../bin/benchstat postgres_parser_old.bench postgres_parser_new.bench
 
 RUN_FLAGS = --config-file=pmm-agent-dev.yaml
 
@@ -113,7 +90,7 @@ run: install _run               ## Run pmm-agent.
 run-race: install-race _run     ## Run pmm-agent with race detector.
 
 run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information.
-	go test -coverpkg="github.com/percona/pmm-agent/..." \
+	go test -coverpkg="github.com/percona/pmm/agent/..." \
 			-tags maincover \
 			-ldflags "$(VERSION_FLAGS)" \
 			-race -c -o bin/pmm-agent.test
@@ -159,7 +136,4 @@ env-sysbench-run:
 		--threads=4 --time=0 --rate=10 --report-interval=10 --percentile=99 \
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run
 
-ci-reviewdog:                   ## Runs reviewdog checks.
-	$(BIN_PATH)/golangci-lint run -c=.golangci-required.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	$(BIN_PATH)/golangci-lint run -c=.golangci.yml --out-format=line-number | $(BIN_PATH)/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
-	$(BIN_PATH)/go-consistent -pedantic -exclude "tests" ./... | $(BIN_PATH)/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
+

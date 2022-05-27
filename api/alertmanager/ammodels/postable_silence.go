@@ -17,7 +17,6 @@ import (
 //
 // swagger:model postableSilence
 type PostableSilence struct {
-
 	// id
 	ID string `json:"id,omitempty"`
 

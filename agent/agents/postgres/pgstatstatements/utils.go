@@ -22,9 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-agent/agents/cache"
-	"github.com/percona/pmm-agent/agents/postgres/parser"
-	"github.com/percona/pmm-agent/utils/truncate"
+	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/agents/postgres/parser"
+	"github.com/percona/pmm/agent/utils/truncate"
 )
 
 // statementsCache is a wrapper for cache.Cache to use only with statementsMap type

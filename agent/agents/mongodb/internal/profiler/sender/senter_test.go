@@ -19,12 +19,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 type testWriter struct {

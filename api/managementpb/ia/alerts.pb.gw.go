@@ -26,12 +26,15 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = descriptor.ForMessage
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = descriptor.ForMessage
+	_ = metadata.Join
+)
 
 func request_Alerts_ListAlerts_0(ctx context.Context, marshaler runtime.Marshaler, client AlertsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListAlertsRequest
@@ -47,7 +50,6 @@ func request_Alerts_ListAlerts_0(ctx context.Context, marshaler runtime.Marshale
 
 	msg, err := client.ListAlerts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Alerts_ListAlerts_0(ctx context.Context, marshaler runtime.Marshaler, server AlertsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,7 +66,6 @@ func local_request_Alerts_ListAlerts_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := server.ListAlerts(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.Marshaler, client AlertsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -81,7 +82,6 @@ func request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.ToggleAlerts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.Marshaler, server AlertsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,7 +98,6 @@ func local_request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.ToggleAlerts(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAlertsHandlerServer registers the http handlers for service Alerts to "mux".
@@ -106,7 +105,6 @@ func local_request_Alerts_ToggleAlerts_0(ctx context.Context, marshaler runtime.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAlertsHandlerFromEndpoint instead.
 func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AlertsServer) error {
-
 	mux.Handle("POST", pattern_Alerts_ListAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -127,7 +125,6 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		}
 
 		forward_Alerts_ListAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Alerts_ToggleAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -150,7 +147,6 @@ func RegisterAlertsHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		}
 
 		forward_Alerts_ToggleAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -193,7 +189,6 @@ func RegisterAlertsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grp
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AlertsClient" to call the correct interceptors.
 func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AlertsClient) error {
-
 	mux.Handle("POST", pattern_Alerts_ListAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -211,7 +206,6 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		}
 
 		forward_Alerts_ListAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Alerts_ToggleAlerts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -231,7 +225,6 @@ func RegisterAlertsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 		}
 
 		forward_Alerts_ToggleAlerts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

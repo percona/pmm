@@ -25,13 +25,13 @@ import (
 	"unicode/utf8"
 
 	"github.com/percona/go-mysql/event"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {

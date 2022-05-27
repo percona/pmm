@@ -31,9 +31,6 @@ import (
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -46,7 +43,10 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/api/agentlocalpb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/version"
 )
 
 const (

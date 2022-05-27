@@ -25,7 +25,7 @@ import (
 	_ "github.com/lib/pq" // register SQL driver
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-agent/utils/version"
+	"github.com/percona/pmm/agent/utils/version"
 )
 
 // GetTestPostgreSQLDSN returns DNS for PostgreSQL test database.

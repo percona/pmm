@@ -32,7 +32,7 @@ import (
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 
-	. "github.com/percona/pmm-agent/utils/backoff"
+	. "github.com/percona/pmm/agent/utils/backoff"
 )
 
 func main() {
