@@ -1,0 +1,194 @@
+[
+  {
+    "Offset": 176,
+    "OffsetEnd": 418,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT field FROM table_a WHERE some_other_field = 'yahoo' LIMIT 1",
+    "User": "bookblogs",
+    "Host": "localhost",
+    "Db": "dbnamea",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000038,
+      "Query_time": 0.321092
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 418,
+    "OffsetEnd": 595,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SET NAMES utf8",
+    "User": "bookblogs",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.253052
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 595,
+    "OffsetEnd": 794,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SET GLOBAL slow_query_log=ON",
+    "User": "percona-agent",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.31645
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 794,
+    "OffsetEnd": 982,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT @@SESSION.sql_mode",
+    "User": "bookblogs",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000037
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 982,
+    "OffsetEnd": 1218,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT field FROM table_b WHERE another_field = 'bazinga' AND site_id = 1",
+    "User": "bookblogs",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000141,
+      "Query_time": 0.000297
+    },
+    "NumberMetrics": {
+      "Rows_examined": 1,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1218,
+    "OffsetEnd": 1388,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "use `dbnameb`",
+    "User": "backup",
+    "Host": "localhost",
+    "Db": "dbnameb",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000558
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1388,
+    "OffsetEnd": 1572,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "select @@collation_database",
+    "User": "backup",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000204
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1572,
+    "OffsetEnd": 1817,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT another_field FROM table_c WHERE a_third_field = 'tiruriru' AND site_id = 1",
+    "User": "bookblogs",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000059,
+      "Query_time": 0.000164
+    },
+    "NumberMetrics": {
+      "Rows_examined": 1,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

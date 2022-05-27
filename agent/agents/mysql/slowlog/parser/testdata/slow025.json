@@ -1,0 +1,74 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 204,
+    "Ts": "2007-10-15T00:00:01Z",
+    "Admin": false,
+    "Query": "select c from t",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.1
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "query",
+    "RateLimit": 1000
+  },
+  {
+    "Offset": 204,
+    "OffsetEnd": 409,
+    "Ts": "2007-10-15T00:00:02Z",
+    "Admin": false,
+    "Query": "select c from t",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 20
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "query",
+    "RateLimit": 1000
+  },
+  {
+    "Offset": 409,
+    "OffsetEnd": 613,
+    "Ts": "2007-10-15T00:00:03Z",
+    "Admin": false,
+    "Query": "select c from t",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.2
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "query",
+    "RateLimit": 1000
+  }
+]
