@@ -98,7 +98,7 @@ gen-agent:
 gen-alertmanager:     # Generate Alertmanager client.
 	bin/swagger generate client --model-package=ammodels --client-package=amclient --spec=api/alertmanager/openapi.yaml --target=api/alertmanager
 
-	bin/gofumpt  -l -w ./api/alertmanager
+	make format
 	go install -v ./api/alertmanager/...
 
 clean_swagger:
