@@ -88,6 +88,7 @@ gen: clean         ## Generate files.
 	make clean_swagger
 	make gen-agent
 	make format
+	make format ## TODO: Second one formatting is not enough, figure out why.
 	bin/go-sumtype ./...
 	go install -v ./...
 
