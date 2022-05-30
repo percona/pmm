@@ -241,6 +241,10 @@ jobs:
           - version: 1.18.x
     runs-on: ubuntu-latest
 
+    env:
+      GOPATH: ${{ github.workspace }}
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}/admin
@@ -254,6 +258,8 @@ jobs:
       - name: Checkout code
         uses: percona-platform/checkout@v3
         with:
+          fetch-depth: 1
+          path: ${{ env.WORKING_DIR }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and install
