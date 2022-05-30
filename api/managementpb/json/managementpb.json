@@ -1783,6 +1783,11 @@
                       "type": "string",
                       "x-order": 6
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -2119,6 +2124,11 @@
                       "type": "string",
                       "x-order": 6
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
@@ -2379,6 +2389,20 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 29
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -2536,10 +2560,29 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 16
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 15
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -2618,6 +2661,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2889,6 +2937,20 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 28
+                },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
@@ -3044,10 +3106,29 @@
                       "format": "int64",
                       "x-order": 15
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -3145,6 +3226,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
@@ -3235,6 +3321,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "type": "string",
+                      "title": "mod tidy",
+                      "x-order": 14
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -3665,6 +3756,11 @@
                       },
                       "x-order": 2
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
+                    },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string",
@@ -3849,6 +3945,20 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 27
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -3992,10 +4102,29 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -4067,6 +4196,11 @@
                       "type": "string",
                       "x-order": 1
                     },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
+                    },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
@@ -4131,6 +4265,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -4407,6 +4546,20 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 20
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -4525,10 +4678,29 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -4964,10 +5136,29 @@
                       "format": "int64",
                       "x-order": 15
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 18
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 17
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5185,10 +5376,29 @@
                       "format": "int64",
                       "x-order": 11
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
@@ -5259,6 +5469,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 13
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
@@ -5344,6 +5559,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 9
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5435,6 +5655,11 @@
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
                       "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
