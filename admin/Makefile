@@ -25,10 +25,10 @@ release:                        ## Build pmm-admin release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
 
 install:                        ## Install pmm-admin binary.
-	go install $(LD_FLAGS) ./...
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin
 
 install-race:                   ## Install pmm-admin binary with race detector.
-	go install $(LD_FLAGS) -race ./...
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin
 
 TEST_FLAGS ?= -timeout=20s
 

@@ -243,7 +243,6 @@ jobs:
 
     env:
       GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 
     defaults:
@@ -292,7 +291,7 @@ jobs:
           git status
 
   workflow_success:
-    needs: [test-agent]
+    needs: [test-agent, test-admin]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -312,7 +311,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [test-agent]
+    needs: [test-agent, test-admin]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
