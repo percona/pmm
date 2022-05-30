@@ -208,6 +208,7 @@ jobs:
 
     env:
       GOPATH: ${{ github.workspace }}
+      GOBIN: ${{ github.workspace }}/bin
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
