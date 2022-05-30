@@ -55,11 +55,6 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
-      - name: Set GO_VERSION environment variable
-        run: |
-          go version
-          echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
-
       - name: Enable Go modules cache
         uses: percona-platform/cache@v2
         with:

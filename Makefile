@@ -137,6 +137,6 @@ descriptors:          ## Update API compatibility descriptors.
 
 ci-reviewdog:         ## Runs reviewdog checks.
 	# go run .github/check-license.go TODO: This repo has multiple licenses, fix checker
-	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
-	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
+	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-review -fail-on-error
+	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error
+	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review
