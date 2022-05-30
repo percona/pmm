@@ -250,17 +250,24 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}/admin
 
     steps:
+      - name: Check out code into the working directory under the GOPATH
+        uses: percona-platform/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ${{ env.WORKING_DIR }}
+
       - name: Set up Go release
         uses: percona-platform/setup-go@v2
         with:
           go-version: ${{ matrix.go.version }}
 
-      - name: Checkout code
-        uses: percona-platform/checkout@v3
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
         with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Build and install
         run: make install
@@ -273,6 +280,15 @@ jobs:
 
       - name: Test crosscover
         run: make test-crosscover
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
 
   workflow_success:
     needs: [test-agent]
