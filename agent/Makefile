@@ -34,11 +34,11 @@ gen-init:
 	mkdir tmp-mysql
 	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
-install:                        ## Install pmm-agent binary.
-	go install -ldflags "$(VERSION_FLAGS)" ./...
+install:                        ## Install pmm-admin binary.
+	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
 
-install-race:                   ## Install pmm-agent binary with race detector.
-	go install -ldflags "$(VERSION_FLAGS)" -race ./...
+install-race:                   ## Install pmm-admin binary with race detector.
+	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
 
 # TODO https://jira.percona.com/browse/PMM-4681
 # TEST_PARALLEL_PACKAGES ?= foo bar
@@ -134,5 +134,3 @@ env-sysbench-run:
 		--db-driver=pgsql --pgsql-host=postgres --pgsql-user=pmm-agent --pgsql-password=pmm-agent-password --pgsql-db=pmm-agent \
 		--threads=4 --time=0 --rate=10 --report-interval=10 --percentile=99 \
 		--tables=1 --scale=10  --use_fk=0 --enable_purge=yes run
-
-

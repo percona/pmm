@@ -14,16 +14,16 @@ on:
 jobs:
   check:
     name: Checks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go:
-          - version: 1.18.x
-            may-fail: false
-          - version: tip
-            may-fail: true
+        go-version: [1.18.x]
+        may-fail: [false]
+#        include:
+#          - go-version: tip
+#            may-fail: true
 
-    continue-on-error: ${{ matrix.go.may-fail }}
+    continue-on-error: ${{ matrix.may-fail }}
 
     env:
       GOPATH: ${{ github.workspace }}
@@ -41,13 +41,13 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
-        if: matrix.go.version != 'tip'
+        if: matrix.go-version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go.version }}
+          go-version: ${{ matrix.go-version }}
 
       - name: Set up Go tip
-        if: matrix.go.version == 'tip'
+        if: matrix.go-version == 'tip'
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
@@ -107,13 +107,15 @@ jobs:
 
   test-admin:
     name: Test pmm-admin
-
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        go:
-          - version: 1.18.x
-    runs-on: ubuntu-latest
+        go-version: [1.18.x]
+        may-fail: [false]
+#        include:
+#          - go-version: tip
+#            may-fail: true
 
     env:
       GOPATH: ${{ github.workspace }}
@@ -134,7 +136,7 @@ jobs:
       - name: Set up Go release
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go.version }}
+          go-version: ${{ matrix.go-version }}
 
       - name: Enable Go modules cache
         uses: percona-platform/cache@v2
@@ -143,6 +145,9 @@ jobs:
           key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
 
       - name: Build and install
         run: make install
@@ -167,14 +172,14 @@ jobs:
 
   test-agent:
     name: Test pmm-agent
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go:
-          - version: 1.18.x
-            may-fail: true
-          - version: tip
-            may-fail: true
+        go-version: [1.18.x]
+        may-fail: [false]
+#        include:
+#          - go-version: tip
+#            may-fail: true
 
         images:
           - { mysql: 'mysql:5.6', mongo: 'mongo:3.6', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
@@ -199,7 +204,7 @@ jobs:
           - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:3.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
           - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
 
-    continue-on-error: ${{ matrix.go.may-fail }}
+    continue-on-error: ${{ matrix.may-fail }}
 
     env:
       GOPATH: ${{ github.workspace }}
@@ -222,13 +227,13 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
-        if: matrix.go.version != 'tip'
+        if: matrix.go-version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go.version }}
+          go-version: ${{ matrix.go-version }}
 
       - name: Set up Go tip
-        if: matrix.go.version == 'tip'
+        if: matrix.go-version == 'tip'
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
@@ -249,13 +254,16 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Build and install
+        run: make install
+
       - name: Docker-compose
         env:
           ENV_UP_FLAGS: "--detach"
         run: make env-up
-
-      - name: Prepare
-        run: make install
 
       - name: Test race
         run: make test-race
@@ -294,7 +302,7 @@ jobs:
   workflow_success:
     needs: [test-agent, test-admin]
     name: Slack Notification success
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
@@ -314,7 +322,7 @@ jobs:
     if: ${{ failure() }}
     needs: [test-agent, test-admin]
     name: Slack Notification failure
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"

@@ -13,13 +13,8 @@ init:                 ## Install tools.
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
 	curl --create-dirs -L https://raw.githubusercontent.com/mwitkow/go-proto-validators/$(GO_PROTO_VALIDATOR)/validator.proto -o ../third_party/github.com/mwitkow/go-proto-validators/validator.proto
 
-release:
-	make release-agent
-
-release-agent:
+release:             ## Build release versions of
 	make -C agent release
-
-release-admin:
 	make -C admin release
 
 gen: clean         ## Generate files.
@@ -89,14 +84,11 @@ gen: clean         ## Generate files.
 	bin/swagger-order --output=api/swagger/swagger-dev-only.json api/swagger/swagger-dev-only.json
 
 	make clean_swagger
-	make gen-agent
+	make -C agent gen
 	make format
-	make format ## TODO: Second one formatting is not enough, figure out why.
+	make format ## TODO: One formatting run is not enough, figure out why.
 	bin/go-sumtype ./...
 	go install -v ./...
-
-gen-agent:
-	make -C agent gen
 
 gen-alertmanager:     # Generate Alertmanager client.
 	bin/swagger generate client --model-package=ammodels --client-package=amclient --spec=api/alertmanager/openapi.yaml --target=api/alertmanager
@@ -144,7 +136,7 @@ descriptors:          ## Update API compatibility descriptors.
 	bin/buf build -o descriptor.bin --as-file-descriptor-set api
 
 ci-reviewdog:         ## Runs reviewdog checks.
-	go run .github/check-license.go
+	# go run .github/check-license.go TODO: This repo has multiple licenses, fix checker
 	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
 	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-check
