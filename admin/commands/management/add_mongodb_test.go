@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/stretchr/testify/assert"
+
+	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 )
 
 func TestAddMongoDB(t *testing.T) {

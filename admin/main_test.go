@@ -62,7 +62,7 @@ func TestImports(t *testing.T) {
 	}
 
 	for path, c := range map[string]constraint{
-		// "github.com/percona/pmm-admin/commands": {
+		// "github.com/percona/pmm/admin/commands": {
 		// 	blacklist: []string{
 		// 		"gopkg.in/alecthomas/kingpin.v2",
 		// 	},

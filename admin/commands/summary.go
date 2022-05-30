@@ -32,16 +32,16 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm/admin/agentlocal"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/percona/pmm/version"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/alecthomas/kingpin.v2"
-
-	"github.com/percona/pmm-admin/agentlocal"
 )
 
 var summaryResultT = ParseTemplate(`

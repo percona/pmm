@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/api/inventorypb/types"
 )
 
 func TestListResultString(t *testing.T) {

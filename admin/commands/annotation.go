@@ -18,16 +18,16 @@ package commands
 import (
 	"strings"
 
+	"github.com/pkg/errors"
+	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
-	"github.com/pkg/errors"
-	"gopkg.in/alecthomas/kingpin.v2"
-
-	"github.com/percona/pmm-admin/agentlocal"
-	"github.com/percona/pmm-admin/helpers"
 )
 
 var annotationResultT = ParseTemplate(`

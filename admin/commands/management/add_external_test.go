@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	external "github.com/percona/pmm/api/managementpb/json/client/external"
 	"github.com/stretchr/testify/assert"
+
+	external "github.com/percona/pmm/api/managementpb/json/client/external"
 )
 
 func TestAddExternal(t *testing.T) {

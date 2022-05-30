@@ -28,7 +28,7 @@ linters-settings:
     tab-width: 4
 
   unused:
-    check-exported: false //TODO set true for agent
+    check-exported: false #TODO: set true for agent
 
   unparam:
     check-exported: true

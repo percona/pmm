@@ -19,13 +19,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm-admin/agentlocal"
-	"github.com/percona/pmm-admin/commands"
-	"github.com/percona/pmm-admin/helpers"
+	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/helpers"
+	"github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 )
 
 type unregisterCommand struct {

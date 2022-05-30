@@ -21,12 +21,12 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
-
-	"github.com/percona/pmm-admin/agentlocal"
-	"github.com/percona/pmm-admin/commands"
-	"github.com/percona/pmm-admin/helpers"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`

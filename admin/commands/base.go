@@ -35,14 +35,14 @@ import (
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/agentlocal"
 	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
 	serverpb "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm-admin/agentlocal"
 )
 
 var (

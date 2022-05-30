@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-admin/agentlocal"
+	"github.com/percona/pmm/admin/agentlocal"
 )
 
 func TestSummary(t *testing.T) {

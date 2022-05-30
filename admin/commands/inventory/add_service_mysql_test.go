@@ -18,8 +18,9 @@ package inventory
 import (
 	"testing"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
 func TestAddServiceMySQL(t *testing.T) {

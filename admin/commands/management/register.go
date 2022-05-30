@@ -21,12 +21,12 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/utils/nodeinfo"
-	"gopkg.in/alecthomas/kingpin.v2"
-
-	"github.com/percona/pmm-admin/commands"
 )
 
 var registerResultT = commands.ParseTemplate(`

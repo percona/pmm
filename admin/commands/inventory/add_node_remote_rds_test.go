@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 )
 
 func TestAddNodeRemoteRDS(t *testing.T) {

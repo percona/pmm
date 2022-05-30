@@ -26,9 +26,10 @@ import (
 
 	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/api/agentlocalpb/json/client"
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/sirupsen/logrus"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.

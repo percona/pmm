@@ -19,8 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/stretchr/testify/assert"
+
+	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
 )
 
 func TestAddMySQL(t *testing.T) {

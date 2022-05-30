@@ -19,11 +19,11 @@ package helpers
 import (
 	"fmt"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-admin/agentlocal"
+	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/version"
 )
 
 var errNoNode = errors.New("no node available")

@@ -20,8 +20,9 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 )
 
 func TestAddAgentMysqldExporter(t *testing.T) {
