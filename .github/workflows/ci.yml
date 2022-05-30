@@ -231,10 +231,6 @@ jobs:
           pwd
           git status
 
-
-
-
-
   test-admin:
     name: Test pmm-admin
 
@@ -244,6 +240,10 @@ jobs:
         go:
           - version: 1.18.x
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}/admin
 
     steps:
       - name: Set up Go release
@@ -259,11 +259,14 @@ jobs:
       - name: Build and install
         run: make install
 
-      - name: Run Tests
-        run: |
-          make test-cover
-          make test-crosscover
-          make test-race
+      - name: Test race
+        run: make test-race
+
+      - name: Test cover
+        run: make test-cover
+
+      - name: Test crosscover
+        run: make test-crosscover
 
   workflow_success:
     needs: [test-agent]
