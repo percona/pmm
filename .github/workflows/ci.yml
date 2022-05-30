@@ -176,7 +176,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.18.x]
-        may-fail: [false]
+        may-fail: [true]
 #        include:
 #          - go-version: tip
 #            may-fail: true
