@@ -117,7 +117,7 @@ test:                 ## Run tests
 	go test ./...
 
 check:                          ## Run required checkers and linters.
-	go run .github/check-license.go
+	#go run .github/check-license.go ## TODO: This repo has multiple licenses, fix checker
 	bin/golangci-lint run -c=.golangci-required.yml
 	bin/go-consistent -pedantic ./...
 
