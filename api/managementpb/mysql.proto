@@ -11,6 +11,7 @@ import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
+import "inventorypb/log_level.proto";
 
 // Add MySQL
 
@@ -95,6 +96,8 @@ message AddMySQLRequest {
   repeated string disable_collectors = 24;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 28;
+  // Exporter log level
+  inventory.LogLevel log_level = 29;
 }
 
 message AddMySQLResponse {
