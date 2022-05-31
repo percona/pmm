@@ -220,4 +220,25 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
+
+	t.Run("k8s env vars", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			`MONITORING_SERVICE_PORT=tcp://10.96.84.150:443`,
+			`MONITORING_SERVICE_PORT_443_TCP_PORT=443`,
+			`MONITORING_SERVICE_SERVICE_HOST=10.96.84.150`,
+			`KUBERNETES_PORT=tcp://10.96.0.1:443`,
+			`KUBERNETES_PORT_443_TCP_PORT=443`,
+			`KUBERNETES_SERVICE_HOST=10.96.0.1`,
+			`MONITORING_SERVICE_PORT_443_TCP=tcp://10.96.84.150:443`,
+			`KUBERNETES_PORT_443_TCP_PROTO=tcp`,
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, gotEnvVars, expectedEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
 }

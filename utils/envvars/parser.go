@@ -182,6 +182,16 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				continue
 			}
 
+			// skip kubernetes environment variables
+			if strings.HasPrefix(k, "KUBERNETES_") {
+				continue
+			}
+
+			// skip kubernetes monitoring environment variables
+			if strings.HasPrefix(k, "MONITORING_") {
+				continue
+			}
+
 			if !strings.HasPrefix(k, "PERCONA_TEST_") {
 				warns = append(warns, fmt.Sprintf("unknown environment variable %q", env))
 				continue
