@@ -13,7 +13,7 @@ init:                 ## Install tools.
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
 	curl --create-dirs -L https://raw.githubusercontent.com/mwitkow/go-proto-validators/$(GO_PROTO_VALIDATOR)/validator.proto -o ../third_party/github.com/mwitkow/go-proto-validators/validator.proto
 
-release:             ## Build release versions of
+release:             ## Build release versions of all components
 	make -C agent release
 	make -C admin release
 
@@ -123,7 +123,7 @@ FILES = $(shell find . -type f -name '*.go')
 
 format:                         ## Format source code.
 	bin/gofumpt -l -w $(FILES)
-	bin/goimports -local github.com/percona/pmm-agent -l -w $(FILES)
+	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
 	bin/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm)" $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting black imports.
 

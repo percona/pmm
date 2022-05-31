@@ -1,9 +1,5 @@
 # pmm-admin
 
-[![Build Status](https://travis-ci.com/percona/pmm-admin.svg?branch=main)](https://travis-ci.com/percona/pmm-admin)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm-admin)](https://goreportcard.com/report/github.com/percona/pmm-admin)
-[![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm-admin)](https://cla-assistant.percona.com/percona/pmm-admin)
-
 pmm-admin for PMM 2.x.
 
 # Contributing notes
@@ -16,7 +12,7 @@ Run `make init` to install dependencies.
 
 #### To run pmm-admin commands
 Run [PMM-server](https://github.com/percona/pmm) docker container or [pmm-managed](https://github.com/percona/pmm-managed).  
-Run [pmm-agent](https://github.com/percona/pmm-agent).  
+Run pmm-agent `cd ../agent`.
 Run pmm-admin commands.
 ```shell script
 go run main.go status

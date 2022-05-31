@@ -35,8 +35,8 @@ This project is built from several repositories:
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm-agent)
-* [percona/pmm-admin](https://github.com/percona/pmm-admin)
+* [percona/pmm-agent](https://github.com/percona/pmm/agent)
+* [percona/pmm-admin](https://github.com/percona/pmm/admin)
 * [percona/node_exporter](https://github.com/percona/node_exporter)
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
@@ -92,8 +92,8 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Client
 
-* Clone [pmm-agent repository](https://github.com/percona/pmm-agent) and [pmm-admin repository](https://github.com/percona/pmm-admin).
-* Navigate to the root folder of pmm-agent. 
+* Clone [pmm repository](https://github.com/percona/pmm).
+* Navigate to the `/agent` folder in the root of the repository. 
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
