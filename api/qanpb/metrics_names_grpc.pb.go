@@ -54,8 +54,7 @@ type MetricsNamesServer interface {
 }
 
 // UnimplementedMetricsNamesServer must be embedded to have forward compatible implementations.
-type UnimplementedMetricsNamesServer struct {
-}
+type UnimplementedMetricsNamesServer struct{}
 
 func (UnimplementedMetricsNamesServer) GetMetricsNames(context.Context, *MetricsNamesRequest) (*MetricsNamesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")

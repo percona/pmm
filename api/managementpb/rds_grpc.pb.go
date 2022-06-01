@@ -67,12 +67,12 @@ type RDSServer interface {
 }
 
 // UnimplementedRDSServer must be embedded to have forward compatible implementations.
-type UnimplementedRDSServer struct {
-}
+type UnimplementedRDSServer struct{}
 
 func (UnimplementedRDSServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
 }
+
 func (UnimplementedRDSServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
 }

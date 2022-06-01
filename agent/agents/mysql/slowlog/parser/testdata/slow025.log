@@ -1,0 +1,15 @@
+# Time: 071015 00:00:01
+# User@Host: root[root] @ localhost []
+# Query_time: 0.100000  Lock_time: 0  Rows_sent: 1  Rows_examined: 0
+# Log_slow_rate_type: query  Log_slow_rate_limit: 1000
+select c from t;
+# Time: 071015 00:00:02
+# User@Host: root[root] @ localhost []
+# Query_time: 20.000000  Lock_time: 0  Rows_sent: 1  Rows_examined: 0
+# Log_slow_rate_type: query  Log_slow_rate_limit: 1000
+select c from t;
+# Time: 071015 00:00:03
+# User@Host: root[root] @ localhost []
+# Query_time: 0.200000  Lock_time: 0  Rows_sent: 1  Rows_examined: 0
+# Log_slow_rate_type: query  Log_slow_rate_limit: 1000
+select c from t;

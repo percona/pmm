@@ -26,12 +26,15 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = descriptor.ForMessage
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = descriptor.ForMessage
+	_ = metadata.Join
+)
 
 func request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartBackupRequest
@@ -47,7 +50,6 @@ func request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.StartBackup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,7 +66,6 @@ func local_request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.StartBackup(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -81,7 +82,6 @@ func request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marsh
 
 	msg, err := client.ListArtifactCompatibleServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,7 +98,6 @@ func local_request_Backups_ListArtifactCompatibleServices_0(ctx context.Context,
 
 	msg, err := server.ListArtifactCompatibleServices(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -115,7 +114,6 @@ func request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.RestoreBackup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -132,7 +130,6 @@ func local_request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.RestoreBackup(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -149,7 +146,6 @@ func request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.ScheduleBackup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -166,7 +162,6 @@ func local_request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runti
 
 	msg, err := server.ScheduleBackup(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -183,7 +178,6 @@ func request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runti
 
 	msg, err := client.ListScheduledBackups(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -200,7 +194,6 @@ func local_request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler
 
 	msg, err := server.ListScheduledBackups(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -217,7 +210,6 @@ func request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runt
 
 	msg, err := client.ChangeScheduledBackup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -234,7 +226,6 @@ func local_request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshale
 
 	msg, err := server.ChangeScheduledBackup(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -251,7 +242,6 @@ func request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runt
 
 	msg, err := client.RemoveScheduledBackup(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -268,7 +258,6 @@ func local_request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshale
 
 	msg, err := server.RemoveScheduledBackup(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -285,7 +274,6 @@ func request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.GetLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -302,7 +290,6 @@ func local_request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.GetLogs(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterBackupsHandlerServer registers the http handlers for service Backups to "mux".
@@ -310,7 +297,6 @@ func local_request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Mars
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBackupsHandlerFromEndpoint instead.
 func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BackupsServer) error {
-
 	mux.Handle("POST", pattern_Backups_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -331,7 +317,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_StartBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -354,7 +339,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_ListArtifactCompatibleServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -377,7 +361,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_RestoreBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -400,7 +383,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_ScheduleBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -423,7 +405,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_ListScheduledBackups_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -446,7 +427,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_ChangeScheduledBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -469,7 +449,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_RemoveScheduledBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -492,7 +471,6 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Backups_GetLogs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -535,7 +513,6 @@ func RegisterBackupsHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "BackupsClient" to call the correct interceptors.
 func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BackupsClient) error {
-
 	mux.Handle("POST", pattern_Backups_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -553,7 +530,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_StartBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -573,7 +549,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_ListArtifactCompatibleServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -593,7 +568,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_RestoreBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -613,7 +587,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_ScheduleBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -633,7 +606,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_ListScheduledBackups_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -653,7 +625,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_ChangeScheduledBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -673,7 +644,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_RemoveScheduledBackup_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Backups_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -693,7 +663,6 @@ func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Backups_GetLogs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

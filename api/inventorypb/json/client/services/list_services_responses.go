@@ -61,12 +61,12 @@ type ListServicesOK struct {
 func (o *ListServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 	return o.Payload
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListServicesDefault) Code() int {
 func (o *ListServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model ListServicesBody
 */
 type ListServicesBody struct {
-
 	// Return only Services running on that Node.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -232,7 +231,6 @@ func (o *ListServicesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -301,9 +299,7 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -314,7 +310,6 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -342,7 +337,6 @@ func (o *ListServicesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -383,7 +377,6 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
-
 	// mysql
 	Mysql []*ListServicesOKBodyMysqlItems0 `json:"mysql"`
 
@@ -628,9 +621,7 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mysql); i++ {
-
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -641,16 +632,13 @@ func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mongodb); i++ {
-
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -661,16 +649,13 @@ func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Postgresql); i++ {
-
 		if o.Postgresql[i] != nil {
 			if err := o.Postgresql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -681,16 +666,13 @@ func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Proxysql); i++ {
-
 		if o.Proxysql[i] != nil {
 			if err := o.Proxysql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -701,16 +683,13 @@ func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Haproxy); i++ {
-
 		if o.Haproxy[i] != nil {
 			if err := o.Haproxy[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -721,16 +700,13 @@ func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.External); i++ {
-
 		if o.External[i] != nil {
 			if err := o.External[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -741,7 +717,6 @@ func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -769,7 +744,6 @@ func (o *ListServicesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyExternalItems0
 */
 type ListServicesOKBodyExternalItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -827,7 +801,6 @@ func (o *ListServicesOKBodyExternalItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyHaproxyItems0
 */
 type ListServicesOKBodyHaproxyItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -882,7 +855,6 @@ func (o *ListServicesOKBodyHaproxyItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyMongodbItems0
 */
 type ListServicesOKBodyMongodbItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -949,7 +921,6 @@ func (o *ListServicesOKBodyMongodbItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyMysqlItems0
 */
 type ListServicesOKBodyMysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1016,7 +987,6 @@ func (o *ListServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyPostgresqlItems0
 */
 type ListServicesOKBodyPostgresqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1086,7 +1056,6 @@ func (o *ListServicesOKBodyPostgresqlItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListServicesOKBodyProxysqlItems0
 */
 type ListServicesOKBodyProxysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

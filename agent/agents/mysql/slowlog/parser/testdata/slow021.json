@@ -1,0 +1,26 @@
+[
+  {
+    "Offset": 199,
+    "OffsetEnd": 358,
+    "Ts": "2007-10-15T21:43:52Z",
+    "Admin": false,
+    "Query": "select sleep(2) from n",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "test",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 2
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

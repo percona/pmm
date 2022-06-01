@@ -93,18 +93,20 @@ type PSMDBClustersServer interface {
 }
 
 // UnimplementedPSMDBClustersServer must be embedded to have forward compatible implementations.
-type UnimplementedPSMDBClustersServer struct {
-}
+type UnimplementedPSMDBClustersServer struct{}
 
 func (UnimplementedPSMDBClustersServer) GetPSMDBClusterCredentials(context.Context, *GetPSMDBClusterCredentialsRequest) (*GetPSMDBClusterCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPSMDBClusterCredentials not implemented")
 }
+
 func (UnimplementedPSMDBClustersServer) CreatePSMDBCluster(context.Context, *CreatePSMDBClusterRequest) (*CreatePSMDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePSMDBCluster not implemented")
 }
+
 func (UnimplementedPSMDBClustersServer) UpdatePSMDBCluster(context.Context, *UpdatePSMDBClusterRequest) (*UpdatePSMDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePSMDBCluster not implemented")
 }
+
 func (UnimplementedPSMDBClustersServer) GetPSMDBClusterResources(context.Context, *GetPSMDBClusterResourcesRequest) (*GetPSMDBClusterResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPSMDBClusterResources not implemented")
 }

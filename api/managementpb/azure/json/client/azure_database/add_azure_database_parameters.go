@@ -58,7 +58,6 @@ func NewAddAzureDatabaseParamsWithHTTPClient(client *http.Client) *AddAzureDatab
    Typically these are written to a http.Request.
 */
 type AddAzureDatabaseParams struct {
-
 	// Body.
 	Body AddAzureDatabaseBody
 
@@ -128,7 +127,6 @@ func (o *AddAzureDatabaseParams) SetBody(body AddAzureDatabaseBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddAzureDatabaseParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

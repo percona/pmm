@@ -1,0 +1,310 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 337,
+    "Ts": "2007-12-18T11:48:27Z",
+    "Admin": false,
+    "Query": "BEGIN",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000012
+    },
+    "NumberMetrics": {
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 337,
+    "OffsetEnd": 813,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "update db2.tuningdetail_21_265507 n\n      inner join db1.gonzo a using(gonzo)\n      set n.column1 = a.column1, n.word3 = a.word3",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "db1",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000091,
+      "Query_time": 0.726052
+    },
+    "NumberMetrics": {
+      "Merge_passes": 0,
+      "Rows_examined": 62951,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": true,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 813,
+    "OffsetEnd": 1332,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "INSERT INTO db3.vendor11gonzo (makef, bizzle)\nVALUES ('', 'Exact')",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000077,
+      "Query_time": 0.000512
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 24,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1332,
+    "OffsetEnd": 1862,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "UPDATE db4.vab3concept1upload\nSET    vab3concept1id = '91848182522'\nWHERE  vab3concept1upload='6994465'",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000028,
+      "Query_time": 0.033384
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 11,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1862,
+    "OffsetEnd": 2391,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "INSERT INTO db1.conch (word3, vid83)\nVALUES ('211', '18')",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000027,
+      "Query_time": 0.00053
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 18,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 2391,
+    "OffsetEnd": 2859,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "UPDATE foo.bar\nSET    biz = '91848182522'",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000027,
+      "Query_time": 0.00053
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 18,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 2859,
+    "OffsetEnd": 3372,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "UPDATE bizzle.bat\nSET    boop='bop: 899'\nWHERE  fillze='899'",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000027,
+      "Query_time": 0.00053
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 18,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 3372,
+    "OffsetEnd": 3840,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "UPDATE foo.bar\nSET    biz = '91848182522'",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000027,
+      "Query_time": 0.00053
+    },
+    "NumberMetrics": {
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 18,
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

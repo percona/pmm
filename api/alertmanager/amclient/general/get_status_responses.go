@@ -50,12 +50,12 @@ type GetStatusOK struct {
 func (o *GetStatusOK) Error() string {
 	return fmt.Sprintf("[GET /status][%d] getStatusOK  %+v", 200, o.Payload)
 }
+
 func (o *GetStatusOK) GetPayload() *ammodels.AlertmanagerStatus {
 	return o.Payload
 }
 
 func (o *GetStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ammodels.AlertmanagerStatus)
 
 	// response payload

@@ -61,12 +61,12 @@ type ListNodesOK struct {
 func (o *ListNodesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 	return o.Payload
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListNodesDefault) Code() int {
 func (o *ListNodesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consume
 swagger:model ListNodesBody
 */
 type ListNodesBody struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
@@ -223,7 +222,6 @@ func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -292,9 +290,7 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -305,7 +301,6 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -333,7 +328,6 @@ func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -374,7 +368,6 @@ func (o *ListNodesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
-
 	// generic
 	Generic []*ListNodesOKBodyGenericItems0 `json:"generic"`
 
@@ -582,9 +575,7 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Generic); i++ {
-
 		if o.Generic[i] != nil {
 			if err := o.Generic[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -595,16 +586,13 @@ func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Container); i++ {
-
 		if o.Container[i] != nil {
 			if err := o.Container[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -615,16 +603,13 @@ func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Remote); i++ {
-
 		if o.Remote[i] != nil {
 			if err := o.Remote[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -635,16 +620,13 @@ func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RemoteRDS); i++ {
-
 		if o.RemoteRDS[i] != nil {
 			if err := o.RemoteRDS[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -655,16 +637,13 @@ func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RemoteAzureDatabase); i++ {
-
 		if o.RemoteAzureDatabase[i] != nil {
 			if err := o.RemoteAzureDatabase[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -675,7 +654,6 @@ func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -703,7 +681,6 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesOKBodyContainerItems0
 */
 type ListNodesOKBodyContainerItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -767,7 +744,6 @@ func (o *ListNodesOKBodyContainerItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesOKBodyGenericItems0
 */
 type ListNodesOKBodyGenericItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -828,7 +804,6 @@ func (o *ListNodesOKBodyGenericItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesOKBodyRemoteAzureDatabaseItems0
 */
 type ListNodesOKBodyRemoteAzureDatabaseItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -883,7 +858,6 @@ func (o *ListNodesOKBodyRemoteAzureDatabaseItems0) UnmarshalBinary(b []byte) err
 swagger:model ListNodesOKBodyRemoteItems0
 */
 type ListNodesOKBodyRemoteItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -938,7 +912,6 @@ func (o *ListNodesOKBodyRemoteItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListNodesOKBodyRemoteRDSItems0
 */
 type ListNodesOKBodyRemoteRDSItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

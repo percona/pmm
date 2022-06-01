@@ -54,8 +54,7 @@ type AnnotationServer interface {
 }
 
 // UnimplementedAnnotationServer must be embedded to have forward compatible implementations.
-type UnimplementedAnnotationServer struct {
-}
+type UnimplementedAnnotationServer struct{}
 
 func (UnimplementedAnnotationServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")

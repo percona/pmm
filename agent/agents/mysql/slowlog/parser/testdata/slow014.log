@@ -1,0 +1,85 @@
+# User@Host: root[root] @ localhost []
+# Thread_id: 103375137  Schema: db1  Last_errno: 0  Killed: 0
+# Query_time: 0.000179  Lock_time: 0.000047  Rows_sent: 1  Rows_examined: 1  Rows_affected: 0  Rows_read: 1
+# Bytes_sent: 2004  Tmp_tables: 0  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# InnoDB_trx_id: 2552F3B37
+# QC_Hit: No  Full_scan: No  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+#   InnoDB_IO_r_ops: 0  InnoDB_IO_r_bytes: 0  InnoDB_IO_r_wait: 0.000000
+#   InnoDB_rec_lock_wait: 0.000000  InnoDB_queue_wait: 0.000000
+#   InnoDB_pages_distinct: 3
+SET timestamp=1398555955;
+SELECT * FROM cache
+ WHERE `cacheid` IN ('id15965');
+# User@Host: root[root] @ localhost []
+# Thread_id: 103375137  Schema: db1  Last_errno: 0  Killed: 0
+# Query_time: 0.000628  Lock_time: 0.000161  Rows_sent: 0  Rows_examined: 0  Rows_affected: 0  Rows_read: 0
+# Bytes_sent: 323  Tmp_tables: 1  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# InnoDB_trx_id: 2552F3B38
+# QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: Yes  Tmp_table_on_disk: No
+# Filesort: Yes  Filesort_on_disk: No  Merge_passes: 0
+#   InnoDB_IO_r_ops: 0  InnoDB_IO_r_bytes: 0  InnoDB_IO_r_wait: 0.000000
+#   InnoDB_rec_lock_wait: 0.000000  InnoDB_queue_wait: 0.000000
+#   InnoDB_pages_distinct: 3
+SET timestamp=1398555955;
+### Channels ###
+					SELECT sourcetable, IF(f.lastcontent = 0, f.lastupdate, f.lastcontent) AS lastactivity,
+					f.totalcount AS activity, type.class AS type,
+					(f.nodeoptions & 512) AS noUnsubscribe
+					FROM node AS f
+					INNER JOIN contenttype AS type ON type.contenttypeid = f.contenttypeid 
+
+					INNER JOIN subscribed AS sd ON sd.did = f.nodeid AND sd.userid = 15965
+ UNION  ALL 
+
+					### Users ###
+					SELECT f.name AS title, f.userid AS keyval, 'user' AS sourcetable, IFNULL(f.lastpost, f.joindate) AS lastactivity,
+					f.posts as activity, 'Member' AS type,
+					0 AS noUnsubscribe
+					FROM user AS f
+					INNER JOIN userlist AS ul ON ul.relationid = f.userid AND ul.userid = 15965
+					WHERE ul.type = 'f' AND ul.aq = 'yes'
+ ORDER BY title ASC LIMIT 100;
+# User@Host: root[root] @ localhost []
+# Thread_id: 103375137  Schema: db1  Last_errno: 0  Killed: 0
+# Query_time: 0.000420  Lock_time: 0.000116  Rows_sent: 1  Rows_examined: 0  Rows_affected: 0  Rows_read: 0
+# Bytes_sent: 60  Tmp_tables: 2  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# InnoDB_trx_id: 2552F3B39
+# QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: Yes  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+#   InnoDB_IO_r_ops: 0  InnoDB_IO_r_bytes: 0  InnoDB_IO_r_wait: 0.000000
+#   InnoDB_rec_lock_wait: 0.000000  InnoDB_queue_wait: 0.000000
+#   InnoDB_pages_distinct: 3
+SET timestamp=1398555955;
+SELECT COUNT(userfing.keyval) AS total
+			FROM
+			((### All Content ###
+					SELECT f.nodeid AS keyval
+					FROM node AS f
+					INNER JOIN subscribed AS sd ON sd.did = f.nodeid AND sd.userid = 15965) UNION ALL (
+					### Users ###
+					SELECT f.userid AS keyval
+					FROM user AS f
+					INNER JOIN userlist AS ul ON ul.relationid = f.userid AND ul.userid = 15965
+					WHERE ul.type = 'f' AND ul.aq = 'yes')
+) AS userfing;
+# User@Host: root[root] @ localhost []
+# Thread_id: 103375137  Schema: db1  Last_errno: 0  Killed: 0
+# Query_time: 0.000457  Lock_time: 0.000144  Rows_sent: 0  Rows_examined: 0  Rows_affected: 0  Rows_read: 0
+# Bytes_sent: 359  Tmp_tables: 1  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# InnoDB_trx_id: 2552F3B3A
+# QC_Hit: No  Full_scan: No  Full_join: No  Tmp_table: Yes  Tmp_table_on_disk: No
+# Filesort: Yes  Filesort_on_disk: No  Merge_passes: 0
+#   InnoDB_IO_r_ops: 0  InnoDB_IO_r_bytes: 0  InnoDB_IO_r_wait: 0.000000
+#   InnoDB_rec_lock_wait: 0.000000  InnoDB_queue_wait: 0.000000
+#   InnoDB_pages_distinct: 1
+SET timestamp=1398555955;
+SELECT u.userid, u.name AS name, u.usergroupid AS usergroupid, IFNULL(u.lastactivity, u.joindate) as lastactivity,
+				IFNULL((SELECT userid FROM userlist AS ul2 WHERE ul2.userid = 15965 AND ul2.relationid = u.userid AND ul2.type = 'f' AND ul2.aq = 'yes'), 0) as isFollowing,
+				IFNULL((SELECT userid FROM userlist AS ul2 WHERE ul2.userid = 15965 AND ul2.relationid = u.userid AND ul2.type = 'f' AND ul2.aq = 'pending'), 0) as isPending
+FROM user AS u
+				INNER JOIN userlist AS ul ON (u.userid = ul.userid AND ul.relationid = 15965)
+
+			WHERE ul.type = 'f' AND ul.aq = 'yes'
+ORDER BY name ASC
+LIMIT 0, 100;

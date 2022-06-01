@@ -17,8 +17,11 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *ServerInfo) Validate() error {
 	if this.Latency != nil {
@@ -33,12 +36,15 @@ func (this *ServerInfo) Validate() error {
 	}
 	return nil
 }
+
 func (this *AgentInfo) Validate() error {
 	return nil
 }
+
 func (this *StatusRequest) Validate() error {
 	return nil
 }
+
 func (this *StatusResponse) Validate() error {
 	if this.ServerInfo != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServerInfo); err != nil {
@@ -54,9 +60,11 @@ func (this *StatusResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ReloadRequest) Validate() error {
 	return nil
 }
+
 func (this *ReloadResponse) Validate() error {
 	return nil
 }

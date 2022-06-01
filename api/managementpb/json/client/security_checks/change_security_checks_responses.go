@@ -61,12 +61,12 @@ type ChangeSecurityChecksOK struct {
 func (o *ChangeSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeSecurityChecksOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangeSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *ChangeSecurityChecksDefault) Code() int {
 func (o *ChangeSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] ChangeSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeSecurityChecksDefault) GetPayload() *ChangeSecurityChecksDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeSecurityChecksDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientRespon
 swagger:model ChangeSecurityChecksBody
 */
 type ChangeSecurityChecksBody struct {
-
 	// params
 	Params []*ChangeSecurityChecksParamsBodyParamsItems0 `json:"params"`
 }
@@ -180,9 +179,7 @@ func (o *ChangeSecurityChecksBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ChangeSecurityChecksBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Params); i++ {
-
 		if o.Params[i] != nil {
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -193,7 +190,6 @@ func (o *ChangeSecurityChecksBody) contextValidateParams(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -221,7 +217,6 @@ func (o *ChangeSecurityChecksBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSecurityChecksDefaultBody
 */
 type ChangeSecurityChecksDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -290,9 +285,7 @@ func (o *ChangeSecurityChecksDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ChangeSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -303,7 +296,6 @@ func (o *ChangeSecurityChecksDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -331,7 +323,6 @@ func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSecurityChecksDefaultBodyDetailsItems0
 */
 type ChangeSecurityChecksDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -372,7 +363,6 @@ func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 swagger:model ChangeSecurityChecksParamsBodyParamsItems0
 */
 type ChangeSecurityChecksParamsBodyParamsItems0 struct {
-
 	// The name of the check to change.
 	Name string `json:"name,omitempty"`
 

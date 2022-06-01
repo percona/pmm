@@ -587,19 +587,22 @@ func file_managementpb_mysql_proto_rawDescGZIP() []byte {
 	return file_managementpb_mysql_proto_rawDescData
 }
 
-var file_managementpb_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_mysql_proto_goTypes = []interface{}{
-	(*AddMySQLRequest)(nil),                     // 0: management.AddMySQLRequest
-	(*AddMySQLResponse)(nil),                    // 1: management.AddMySQLResponse
-	nil,                                         // 2: management.AddMySQLRequest.CustomLabelsEntry
-	(*AddNodeParams)(nil),                       // 3: management.AddNodeParams
-	(MetricsMode)(0),                            // 4: management.MetricsMode
-	(inventorypb.LogLevel)(0),                   // 5: inventory.LogLevel
-	(*inventorypb.MySQLService)(nil),            // 6: inventory.MySQLService
-	(*inventorypb.MySQLdExporter)(nil),          // 7: inventory.MySQLdExporter
-	(*inventorypb.QANMySQLPerfSchemaAgent)(nil), // 8: inventory.QANMySQLPerfSchemaAgent
-	(*inventorypb.QANMySQLSlowlogAgent)(nil),    // 9: inventory.QANMySQLSlowlogAgent
-}
+var (
+	file_managementpb_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_mysql_proto_goTypes  = []interface{}{
+		(*AddMySQLRequest)(nil),                     // 0: management.AddMySQLRequest
+		(*AddMySQLResponse)(nil),                    // 1: management.AddMySQLResponse
+		nil,                                         // 2: management.AddMySQLRequest.CustomLabelsEntry
+		(*AddNodeParams)(nil),                       // 3: management.AddNodeParams
+		(MetricsMode)(0),                            // 4: management.MetricsMode
+		(inventorypb.LogLevel)(0),                   // 5: inventory.LogLevel
+		(*inventorypb.MySQLService)(nil),            // 6: inventory.MySQLService
+		(*inventorypb.MySQLdExporter)(nil),          // 7: inventory.MySQLdExporter
+		(*inventorypb.QANMySQLPerfSchemaAgent)(nil), // 8: inventory.QANMySQLPerfSchemaAgent
+		(*inventorypb.QANMySQLSlowlogAgent)(nil),    // 9: inventory.QANMySQLSlowlogAgent
+	}
+)
+
 var file_managementpb_mysql_proto_depIdxs = []int32{
 	3, // 0: management.AddMySQLRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddMySQLRequest.custom_labels:type_name -> management.AddMySQLRequest.CustomLabelsEntry

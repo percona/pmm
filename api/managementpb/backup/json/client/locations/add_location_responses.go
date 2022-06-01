@@ -59,12 +59,12 @@ type AddLocationOK struct {
 func (o *AddLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] addLocationOk  %+v", 200, o.Payload)
 }
+
 func (o *AddLocationOK) GetPayload() *AddLocationOKBody {
 	return o.Payload
 }
 
 func (o *AddLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddLocationOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddLocationDefault) Code() int {
 func (o *AddLocationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] AddLocation default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddLocationDefault) GetPayload() *AddLocationDefaultBody {
 	return o.Payload
 }
 
 func (o *AddLocationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddLocationDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddLocationDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model AddLocationBody
 */
 type AddLocationBody struct {
-
 	// Location name
 	Name string `json:"name,omitempty"`
 
@@ -239,7 +238,6 @@ func (o *AddLocationBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *AddLocationBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -255,7 +253,6 @@ func (o *AddLocationBody) contextValidatePMMClientConfig(ctx context.Context, fo
 }
 
 func (o *AddLocationBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -271,7 +268,6 @@ func (o *AddLocationBody) contextValidatePMMServerConfig(ctx context.Context, fo
 }
 
 func (o *AddLocationBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -308,7 +304,6 @@ func (o *AddLocationBody) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationDefaultBody
 */
 type AddLocationDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -377,9 +372,7 @@ func (o *AddLocationDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -390,7 +383,6 @@ func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -418,7 +410,6 @@ func (o *AddLocationDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationDefaultBodyDetailsItems0
 */
 type AddLocationDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -459,7 +450,6 @@ func (o *AddLocationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationOKBody
 */
 type AddLocationOKBody struct {
-
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 }
@@ -496,7 +486,6 @@ func (o *AddLocationOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationParamsBodyPMMClientConfig
 */
 type AddLocationParamsBodyPMMClientConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -533,7 +522,6 @@ func (o *AddLocationParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationParamsBodyPMMServerConfig
 */
 type AddLocationParamsBodyPMMServerConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -570,7 +558,6 @@ func (o *AddLocationParamsBodyPMMServerConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddLocationParamsBodyS3Config
 */
 type AddLocationParamsBodyS3Config struct {
-
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

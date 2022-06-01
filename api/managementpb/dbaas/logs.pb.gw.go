@@ -26,12 +26,15 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = descriptor.ForMessage
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = descriptor.ForMessage
+	_ = metadata.Join
+)
 
 func request_LogsAPI_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client LogsAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetLogsRequest
@@ -47,7 +50,6 @@ func request_LogsAPI_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.GetLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_LogsAPI_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server LogsAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,7 +66,6 @@ func local_request_LogsAPI_GetLogs_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.GetLogs(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterLogsAPIHandlerServer registers the http handlers for service LogsAPI to "mux".
@@ -72,7 +73,6 @@ func local_request_LogsAPI_GetLogs_0(ctx context.Context, marshaler runtime.Mars
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterLogsAPIHandlerFromEndpoint instead.
 func RegisterLogsAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server LogsAPIServer) error {
-
 	mux.Handle("POST", pattern_LogsAPI_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -93,7 +93,6 @@ func RegisterLogsAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_LogsAPI_GetLogs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -136,7 +135,6 @@ func RegisterLogsAPIHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "LogsAPIClient" to call the correct interceptors.
 func RegisterLogsAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client LogsAPIClient) error {
-
 	mux.Handle("POST", pattern_LogsAPI_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -154,16 +152,11 @@ func RegisterLogsAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_LogsAPI_GetLogs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
 }
 
-var (
-	pattern_LogsAPI_GetLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "DBaaS", "GetLogs"}, "", runtime.AssumeColonVerbOpt(true)))
-)
+var pattern_LogsAPI_GetLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "DBaaS", "GetLogs"}, "", runtime.AssumeColonVerbOpt(true)))
 
-var (
-	forward_LogsAPI_GetLogs_0 = runtime.ForwardResponseMessage
-)
+var forward_LogsAPI_GetLogs_0 = runtime.ForwardResponseMessage

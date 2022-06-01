@@ -80,15 +80,16 @@ type DBClustersServer interface {
 }
 
 // UnimplementedDBClustersServer must be embedded to have forward compatible implementations.
-type UnimplementedDBClustersServer struct {
-}
+type UnimplementedDBClustersServer struct{}
 
 func (UnimplementedDBClustersServer) ListDBClusters(context.Context, *ListDBClustersRequest) (*ListDBClustersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDBClusters not implemented")
 }
+
 func (UnimplementedDBClustersServer) RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestartDBCluster not implemented")
 }
+
 func (UnimplementedDBClustersServer) DeleteDBCluster(context.Context, *DeleteDBClusterRequest) (*DeleteDBClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDBCluster not implemented")
 }

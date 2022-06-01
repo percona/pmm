@@ -58,7 +58,6 @@ func NewRemoveScheduledBackupParamsWithHTTPClient(client *http.Client) *RemoveSc
    Typically these are written to a http.Request.
 */
 type RemoveScheduledBackupParams struct {
-
 	// Body.
 	Body RemoveScheduledBackupBody
 
@@ -128,7 +127,6 @@ func (o *RemoveScheduledBackupParams) SetBody(body RemoveScheduledBackupBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveScheduledBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -26,12 +26,15 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = descriptor.ForMessage
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = descriptor.ForMessage
+	_ = metadata.Join
+)
 
 func request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DiscoverAzureDatabaseRequest
@@ -47,7 +50,6 @@ func request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshale
 
 	msg, err := client.DiscoverAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,7 +66,6 @@ func local_request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, ma
 
 	msg, err := server.DiscoverAzureDatabase(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -81,7 +82,6 @@ func request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler run
 
 	msg, err := client.AddAzureDatabase(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,7 +98,6 @@ func local_request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshal
 
 	msg, err := server.AddAzureDatabase(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterAzureDatabaseHandlerServer registers the http handlers for service AzureDatabase to "mux".
@@ -106,7 +105,6 @@ func local_request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshal
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAzureDatabaseHandlerFromEndpoint instead.
 func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AzureDatabaseServer) error {
-
 	mux.Handle("POST", pattern_AzureDatabase_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -127,7 +125,6 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AzureDatabase_DiscoverAzureDatabase_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AzureDatabase_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -150,7 +147,6 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AzureDatabase_AddAzureDatabase_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -193,7 +189,6 @@ func RegisterAzureDatabaseHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AzureDatabaseClient" to call the correct interceptors.
 func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AzureDatabaseClient) error {
-
 	mux.Handle("POST", pattern_AzureDatabase_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -211,7 +206,6 @@ func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AzureDatabase_DiscoverAzureDatabase_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_AzureDatabase_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -231,7 +225,6 @@ func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AzureDatabase_AddAzureDatabase_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

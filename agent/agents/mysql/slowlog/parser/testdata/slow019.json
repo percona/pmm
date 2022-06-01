@@ -1,0 +1,177 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 641,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT TABLE_SCHEMA, TABLE_NAME, ROWS_READ, ROWS_CHANGED, ROWS_CHANGED_X_INDEXES FROM INFORMATION_SCHEMA.TABLE_STATISTICS",
+    "User": "percona-agent",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.0001,
+      "Query_time": 0.004599
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 70092,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 1473,
+      "Rows_read": 1473,
+      "Rows_sent": 1473,
+      "Thread_id": 37911936,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 1
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": true,
+      "QC_Hit": false,
+      "Tmp_table": true,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 641,
+    "OffsetEnd": 1273,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT cid, data, created, expire, serialized FROM cache_field WHERE cid IN ('field_info:bundle_extra:user:user')",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "cod7_plos15",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000022
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 1333,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 0,
+      "Rows_read": 0,
+      "Rows_sent": 0,
+      "Thread_id": 57434695,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 0
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": true,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 1273,
+    "OffsetEnd": 2005,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "UPDATE captcha_sessions SET timestamp='1413583348', solution='1'\nWHERE  (csid = '28439')",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "cod7_plos15",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000078,
+      "Query_time": 0.005241
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 52,
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 8,
+      "InnoDB_trx_id": 0,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 1,
+      "Rows_examined": 1,
+      "Rows_read": 1,
+      "Rows_sent": 0,
+      "Thread_id": 57434695,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 0
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 2005,
+    "OffsetEnd": 2621,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, ROWS_READ FROM INFORMATION_SCHEMA.INDEX_STATISTICS",
+    "User": "percona-agent",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000115,
+      "Query_time": 0.011565
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 102084,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 2146,
+      "Rows_read": 2146,
+      "Rows_sent": 2146,
+      "Thread_id": 37911936,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 1
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": true,
+      "QC_Hit": false,
+      "Tmp_table": true,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  }
+]
