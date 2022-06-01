@@ -627,6 +627,8 @@ message AddNodeExporterRequest {
   bool push_metrics = 3;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 4;
+  // Log level for exporter.
+  LogLevel log_level = 5;
 }
 
 message AddNodeExporterResponse {
