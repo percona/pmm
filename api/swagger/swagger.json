@@ -2453,6 +2453,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -5483,6 +5497,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -7308,6 +7336,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 2
@@ -8648,6 +8690,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 8
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 9
                       }
                     }
                   },

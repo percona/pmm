@@ -1705,6 +1705,10 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body node exporter
@@ -1712,6 +1716,10 @@ func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1772,6 +1780,60 @@ func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) err
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyNodeExporterTypeLogLevelPropEnum = append(getAgentOkBodyNodeExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyNodeExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyNodeExporterLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyNodeExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyNodeExporterLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyNodeExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyNodeExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyNodeExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyNodeExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyNodeExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyNodeExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyNodeExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyNodeExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"node_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
