@@ -61,12 +61,12 @@ type ScheduleBackupOK struct {
 func (o *ScheduleBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] scheduleBackupOk  %+v", 200, o.Payload)
 }
+
 func (o *ScheduleBackupOK) GetPayload() *ScheduleBackupOKBody {
 	return o.Payload
 }
 
 func (o *ScheduleBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ScheduleBackupOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ScheduleBackupDefault) Code() int {
 func (o *ScheduleBackupDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Schedule][%d] ScheduleBackup default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ScheduleBackupDefault) GetPayload() *ScheduleBackupDefaultBody {
 	return o.Payload
 }
 
 func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ScheduleBackupDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, co
 swagger:model ScheduleBackupBody
 */
 type ScheduleBackupBody struct {
-
 	// Service identifier where backup should be performed.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -264,7 +263,6 @@ func (o *ScheduleBackupBody) UnmarshalBinary(b []byte) error {
 swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -330,9 +328,7 @@ func (o *ScheduleBackupDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -343,7 +339,6 @@ func (o *ScheduleBackupDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -371,7 +366,6 @@ func (o *ScheduleBackupDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ScheduleBackupDefaultBodyDetailsItems0
 */
 type ScheduleBackupDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -408,7 +402,6 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {
-
 	// scheduled backup id
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 }

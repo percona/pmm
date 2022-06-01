@@ -61,12 +61,12 @@ type AddProxySQLExporterOK struct {
 func (o *AddProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] addProxySqlExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddProxySQLExporterOK) GetPayload() *AddProxySQLExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddProxySQLExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddProxySQLExporterDefault) Code() int {
 func (o *AddProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] AddProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddProxySQLExporterDefault) GetPayload() *AddProxySQLExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddProxySQLExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddProxySQLExporterDefault) readResponse(response runtime.ClientRespons
 swagger:model AddProxySQLExporterBody
 */
 type AddProxySQLExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -189,7 +188,6 @@ func (o *AddProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterDefaultBody
 */
 type AddProxySQLExporterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -255,9 +253,7 @@ func (o *AddProxySQLExporterDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -268,7 +264,6 @@ func (o *AddProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -296,7 +291,6 @@ func (o *AddProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterDefaultBodyDetailsItems0
 */
 type AddProxySQLExporterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -333,7 +327,6 @@ func (o *AddProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model AddProxySQLExporterOKBody
 */
 type AddProxySQLExporterOKBody struct {
-
 	// proxysql exporter
 	ProxysqlExporter *AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 }
@@ -386,7 +379,6 @@ func (o *AddProxySQLExporterOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddProxySQLExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -423,7 +415,6 @@ func (o *AddProxySQLExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterOKBodyProxysqlExporter
 */
 type AddProxySQLExporterOKBodyProxysqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

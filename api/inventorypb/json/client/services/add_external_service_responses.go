@@ -59,12 +59,12 @@ type AddExternalServiceOK struct {
 func (o *AddExternalServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddExternalService][%d] addExternalServiceOk  %+v", 200, o.Payload)
 }
+
 func (o *AddExternalServiceOK) GetPayload() *AddExternalServiceOKBody {
 	return o.Payload
 }
 
 func (o *AddExternalServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddExternalServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddExternalServiceDefault) Code() int {
 func (o *AddExternalServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddExternalService][%d] AddExternalService default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddExternalServiceDefault) GetPayload() *AddExternalServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *AddExternalServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddExternalServiceDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddExternalServiceDefault) readResponse(response runtime.ClientResponse
 swagger:model AddExternalServiceBody
 */
 type AddExternalServiceBody struct {
-
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -175,7 +174,6 @@ func (o *AddExternalServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalServiceDefaultBody
 */
 type AddExternalServiceDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -241,9 +239,7 @@ func (o *AddExternalServiceDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddExternalServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -254,7 +250,6 @@ func (o *AddExternalServiceDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -282,7 +277,6 @@ func (o *AddExternalServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalServiceDefaultBodyDetailsItems0
 */
 type AddExternalServiceDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -319,7 +313,6 @@ func (o *AddExternalServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model AddExternalServiceOKBody
 */
 type AddExternalServiceOKBody struct {
-
 	// external
 	External *AddExternalServiceOKBodyExternal `json:"external,omitempty"`
 }
@@ -372,7 +365,6 @@ func (o *AddExternalServiceOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddExternalServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.External != nil {
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -409,7 +401,6 @@ func (o *AddExternalServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalServiceOKBodyExternal
 */
 type AddExternalServiceOKBodyExternal struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

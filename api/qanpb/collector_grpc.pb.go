@@ -54,8 +54,7 @@ type CollectorServer interface {
 }
 
 // UnimplementedCollectorServer must be embedded to have forward compatible implementations.
-type UnimplementedCollectorServer struct {
-}
+type UnimplementedCollectorServer struct{}
 
 func (UnimplementedCollectorServer) Collect(context.Context, *CollectRequest) (*CollectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")

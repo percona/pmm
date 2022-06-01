@@ -25,11 +25,14 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Locations_ListLocations_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListLocationsRequest
@@ -45,7 +48,6 @@ func request_Locations_ListLocations_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.ListLocations(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Locations_ListLocations_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +64,6 @@ func local_request_Locations_ListLocations_0(ctx context.Context, marshaler runt
 
 	msg, err := server.ListLocations(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Locations_AddLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +80,6 @@ func request_Locations_AddLocation_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.AddLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Locations_AddLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +96,6 @@ func local_request_Locations_AddLocation_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.AddLocation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Locations_ChangeLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +112,6 @@ func request_Locations_ChangeLocation_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.ChangeLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Locations_ChangeLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +128,6 @@ func local_request_Locations_ChangeLocation_0(ctx context.Context, marshaler run
 
 	msg, err := server.ChangeLocation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Locations_RemoveLocation_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +144,6 @@ func request_Locations_RemoveLocation_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.RemoveLocation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Locations_RemoveLocation_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +160,6 @@ func local_request_Locations_RemoveLocation_0(ctx context.Context, marshaler run
 
 	msg, err := server.RemoveLocation(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Locations_TestLocationConfig_0(ctx context.Context, marshaler runtime.Marshaler, client LocationsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -181,7 +176,6 @@ func request_Locations_TestLocationConfig_0(ctx context.Context, marshaler runti
 
 	msg, err := client.TestLocationConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Locations_TestLocationConfig_0(ctx context.Context, marshaler runtime.Marshaler, server LocationsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -198,7 +192,6 @@ func local_request_Locations_TestLocationConfig_0(ctx context.Context, marshaler
 
 	msg, err := server.TestLocationConfig(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterLocationsHandlerServer registers the http handlers for service Locations to "mux".
@@ -206,7 +199,6 @@ func local_request_Locations_TestLocationConfig_0(ctx context.Context, marshaler
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterLocationsHandlerFromEndpoint instead.
 func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server LocationsServer) error {
-
 	mux.Handle("POST", pattern_Locations_ListLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -228,7 +220,6 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_ListLocations_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_AddLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -252,7 +243,6 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_AddLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_ChangeLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -276,7 +266,6 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_ChangeLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_RemoveLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -300,7 +289,6 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_RemoveLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_TestLocationConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -324,7 +312,6 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_TestLocationConfig_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -367,7 +354,6 @@ func RegisterLocationsHandler(ctx context.Context, mux *runtime.ServeMux, conn *
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "LocationsClient" to call the correct interceptors.
 func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client LocationsClient) error {
-
 	mux.Handle("POST", pattern_Locations_ListLocations_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -386,7 +372,6 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_ListLocations_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_AddLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -407,7 +392,6 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_AddLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_ChangeLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -428,7 +412,6 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_ChangeLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_RemoveLocation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -449,7 +432,6 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_RemoveLocation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Locations_TestLocationConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -470,7 +452,6 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 
 		forward_Locations_TestLocationConfig_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

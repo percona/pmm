@@ -18,7 +18,6 @@ import (
 //
 // swagger:model alert
 type Alert struct {
-
 	// generator URL
 	// Format: uri
 	GeneratorURL strfmt.URI `json:"generatorURL,omitempty"`
@@ -59,7 +58,6 @@ func (m *Alert) validateGeneratorURL(formats strfmt.Registry) error {
 }
 
 func (m *Alert) validateLabels(formats strfmt.Registry) error {
-
 	if err := validate.Required("labels", "body", m.Labels); err != nil {
 		return err
 	}
@@ -93,7 +91,6 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 }
 
 func (m *Alert) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")

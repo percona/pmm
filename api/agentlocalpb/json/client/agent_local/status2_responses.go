@@ -61,12 +61,12 @@ type Status2OK struct {
 func (o *Status2OK) Error() string {
 	return fmt.Sprintf("[GET /local/Status][%d] status2Ok  %+v", 200, o.Payload)
 }
+
 func (o *Status2OK) GetPayload() *Status2OKBody {
 	return o.Payload
 }
 
 func (o *Status2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(Status2OKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *Status2Default) Code() int {
 func (o *Status2Default) Error() string {
 	return fmt.Sprintf("[GET /local/Status][%d] Status2 default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *Status2Default) GetPayload() *Status2DefaultBody {
 	return o.Payload
 }
 
 func (o *Status2Default) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(Status2DefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *Status2Default) readResponse(response runtime.ClientResponse, consumer 
 swagger:model Status2DefaultBody
 */
 type Status2DefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -188,9 +187,7 @@ func (o *Status2DefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *Status2DefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,7 +198,6 @@ func (o *Status2DefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -229,7 +225,6 @@ func (o *Status2DefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model Status2DefaultBodyDetailsItems0
 */
 type Status2DefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -266,7 +261,6 @@ func (o *Status2DefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model Status2OKBody
 */
 type Status2OKBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -368,9 +362,7 @@ func (o *Status2OKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *Status2OKBody) contextValidateAgentsInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.AgentsInfo); i++ {
-
 		if o.AgentsInfo[i] != nil {
 			if err := o.AgentsInfo[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -381,14 +373,12 @@ func (o *Status2OKBody) contextValidateAgentsInfo(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *Status2OKBody) contextValidateServerInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ServerInfo != nil {
 		if err := o.ServerInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -425,7 +415,6 @@ func (o *Status2OKBody) UnmarshalBinary(b []byte) error {
 swagger:model Status2OKBodyAgentsInfoItems0
 */
 type Status2OKBodyAgentsInfoItems0 struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -638,7 +627,6 @@ func (o *Status2OKBodyAgentsInfoItems0) UnmarshalBinary(b []byte) error {
 swagger:model Status2OKBodyServerInfo
 */
 type Status2OKBodyServerInfo struct {
-
 	// PMM Server URL in a form https://HOST:PORT/.
 	URL string `json:"url,omitempty"`
 

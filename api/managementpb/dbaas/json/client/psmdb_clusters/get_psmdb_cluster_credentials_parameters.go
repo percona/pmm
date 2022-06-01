@@ -58,7 +58,6 @@ func NewGetPSMDBClusterCredentialsParamsWithHTTPClient(client *http.Client) *Get
    Typically these are written to a http.Request.
 */
 type GetPSMDBClusterCredentialsParams struct {
-
 	// Body.
 	Body GetPSMDBClusterCredentialsBody
 
@@ -128,7 +127,6 @@ func (o *GetPSMDBClusterCredentialsParams) SetBody(body GetPSMDBClusterCredentia
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetPSMDBClusterCredentialsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

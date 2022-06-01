@@ -25,11 +25,14 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_PXCClusters_GetPXCClusterCredentials_0(ctx context.Context, marshaler runtime.Marshaler, client PXCClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetPXCClusterCredentialsRequest
@@ -45,7 +48,6 @@ func request_PXCClusters_GetPXCClusterCredentials_0(ctx context.Context, marshal
 
 	msg, err := client.GetPXCClusterCredentials(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PXCClusters_GetPXCClusterCredentials_0(ctx context.Context, marshaler runtime.Marshaler, server PXCClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +64,6 @@ func local_request_PXCClusters_GetPXCClusterCredentials_0(ctx context.Context, m
 
 	msg, err := server.GetPXCClusterCredentials(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PXCClusters_CreatePXCCluster_0(ctx context.Context, marshaler runtime.Marshaler, client PXCClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +80,6 @@ func request_PXCClusters_CreatePXCCluster_0(ctx context.Context, marshaler runti
 
 	msg, err := client.CreatePXCCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PXCClusters_CreatePXCCluster_0(ctx context.Context, marshaler runtime.Marshaler, server PXCClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +96,6 @@ func local_request_PXCClusters_CreatePXCCluster_0(ctx context.Context, marshaler
 
 	msg, err := server.CreatePXCCluster(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PXCClusters_UpdatePXCCluster_0(ctx context.Context, marshaler runtime.Marshaler, client PXCClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +112,6 @@ func request_PXCClusters_UpdatePXCCluster_0(ctx context.Context, marshaler runti
 
 	msg, err := client.UpdatePXCCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PXCClusters_UpdatePXCCluster_0(ctx context.Context, marshaler runtime.Marshaler, server PXCClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +128,6 @@ func local_request_PXCClusters_UpdatePXCCluster_0(ctx context.Context, marshaler
 
 	msg, err := server.UpdatePXCCluster(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_PXCClusters_GetPXCClusterResources_0(ctx context.Context, marshaler runtime.Marshaler, client PXCClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +144,6 @@ func request_PXCClusters_GetPXCClusterResources_0(ctx context.Context, marshaler
 
 	msg, err := client.GetPXCClusterResources(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_PXCClusters_GetPXCClusterResources_0(ctx context.Context, marshaler runtime.Marshaler, server PXCClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +160,6 @@ func local_request_PXCClusters_GetPXCClusterResources_0(ctx context.Context, mar
 
 	msg, err := server.GetPXCClusterResources(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterPXCClustersHandlerServer registers the http handlers for service PXCClusters to "mux".
@@ -172,7 +167,6 @@ func local_request_PXCClusters_GetPXCClusterResources_0(ctx context.Context, mar
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPXCClustersHandlerFromEndpoint instead.
 func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PXCClustersServer) error {
-
 	mux.Handle("POST", pattern_PXCClusters_GetPXCClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -194,7 +188,6 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_GetPXCClusterCredentials_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_CreatePXCCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -218,7 +211,6 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_CreatePXCCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_UpdatePXCCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -242,7 +234,6 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_UpdatePXCCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_GetPXCClusterResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -266,7 +257,6 @@ func RegisterPXCClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_GetPXCClusterResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -309,7 +299,6 @@ func RegisterPXCClustersHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "PXCClustersClient" to call the correct interceptors.
 func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PXCClustersClient) error {
-
 	mux.Handle("POST", pattern_PXCClusters_GetPXCClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -328,7 +317,6 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_GetPXCClusterCredentials_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_CreatePXCCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -349,7 +337,6 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_CreatePXCCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_UpdatePXCCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -370,7 +357,6 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_UpdatePXCCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_PXCClusters_GetPXCClusterResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -391,7 +377,6 @@ func RegisterPXCClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_PXCClusters_GetPXCClusterResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

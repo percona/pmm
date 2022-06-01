@@ -67,12 +67,12 @@ type AgentLocalServer interface {
 }
 
 // UnimplementedAgentLocalServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentLocalServer struct {
-}
+type UnimplementedAgentLocalServer struct{}
 
 func (UnimplementedAgentLocalServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
+
 func (UnimplementedAgentLocalServer) Reload(context.Context, *ReloadRequest) (*ReloadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reload not implemented")
 }

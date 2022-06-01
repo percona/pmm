@@ -59,12 +59,12 @@ type GetServiceOK struct {
 func (o *GetServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
 }
+
 func (o *GetServiceOK) GetPayload() *GetServiceOKBody {
 	return o.Payload
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetServiceDefault) Code() int {
 func (o *GetServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetServiceDefault) GetPayload() *GetServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetServiceDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model GetServiceBody
 */
 type GetServiceBody struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 }
@@ -157,7 +156,6 @@ func (o *GetServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceDefaultBody
 */
 type GetServiceDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,9 +221,7 @@ func (o *GetServiceDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -236,7 +232,6 @@ func (o *GetServiceDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -264,7 +259,6 @@ func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceDefaultBodyDetailsItems0
 */
 type GetServiceDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -301,7 +295,6 @@ func (o *GetServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
-
 	// external
 	External *GetServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -504,7 +497,6 @@ func (o *GetServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *GetServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.External != nil {
 		if err := o.External.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -520,7 +512,6 @@ func (o *GetServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 }
 
 func (o *GetServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -536,7 +527,6 @@ func (o *GetServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 }
 
 func (o *GetServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mongodb != nil {
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -552,7 +542,6 @@ func (o *GetServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 }
 
 func (o *GetServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mysql != nil {
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -568,7 +557,6 @@ func (o *GetServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 }
 
 func (o *GetServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Postgresql != nil {
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -584,7 +572,6 @@ func (o *GetServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 }
 
 func (o *GetServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -621,7 +608,6 @@ func (o *GetServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyExternal
 */
 type GetServiceOKBodyExternal struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -679,7 +665,6 @@ func (o *GetServiceOKBodyExternal) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyHaproxy
 */
 type GetServiceOKBodyHaproxy struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -734,7 +719,6 @@ func (o *GetServiceOKBodyHaproxy) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyMongodb
 */
 type GetServiceOKBodyMongodb struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -801,7 +785,6 @@ func (o *GetServiceOKBodyMongodb) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyMysql
 */
 type GetServiceOKBodyMysql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -868,7 +851,6 @@ func (o *GetServiceOKBodyMysql) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyPostgresql
 */
 type GetServiceOKBodyPostgresql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -938,7 +920,6 @@ func (o *GetServiceOKBodyPostgresql) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceOKBodyProxysql
 */
 type GetServiceOKBodyProxysql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

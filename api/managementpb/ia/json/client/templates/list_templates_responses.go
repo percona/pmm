@@ -61,12 +61,12 @@ type ListTemplatesOK struct {
 func (o *ListTemplatesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/List][%d] listTemplatesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListTemplatesOK) GetPayload() *ListTemplatesOKBody {
 	return o.Payload
 }
 
 func (o *ListTemplatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListTemplatesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListTemplatesDefault) Code() int {
 func (o *ListTemplatesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/List][%d] ListTemplates default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListTemplatesDefault) GetPayload() *ListTemplatesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListTemplatesDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 swagger:model ListTemplatesBody
 */
 type ListTemplatesBody struct {
-
 	// If true, template files will be re-read from disk.
 	Reload bool `json:"reload,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ListTemplatesBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *ListTemplatesBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PageParams != nil {
 		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,7 +213,6 @@ func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesDefaultBody
 */
 type ListTemplatesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -281,9 +278,7 @@ func (o *ListTemplatesDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListTemplatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -294,7 +289,6 @@ func (o *ListTemplatesDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -322,7 +316,6 @@ func (o *ListTemplatesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesDefaultBodyDetailsItems0
 */
 type ListTemplatesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -359,7 +352,6 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 swagger:model ListTemplatesOKBody
 */
 type ListTemplatesOKBody struct {
-
 	// templates
 	Templates []*ListTemplatesOKBodyTemplatesItems0 `json:"templates"`
 
@@ -449,9 +441,7 @@ func (o *ListTemplatesOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Templates); i++ {
-
 		if o.Templates[i] != nil {
 			if err := o.Templates[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -462,14 +452,12 @@ func (o *ListTemplatesOKBody) contextValidateTemplates(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListTemplatesOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Totals != nil {
 		if err := o.Totals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -506,7 +494,6 @@ func (o *ListTemplatesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesOKBodyTemplatesItems0
 */
 type ListTemplatesOKBodyTemplatesItems0 struct {
-
 	// Machine-readable name (ID).
 	Name string `json:"name,omitempty"`
 
@@ -742,9 +729,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) ContextValidate(ctx context.Context
 }
 
 func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Params); i++ {
-
 		if o.Params[i] != nil {
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -755,7 +740,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0) contextValidateParams(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -783,7 +767,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
@@ -1015,7 +998,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) ContextValidate(ctx con
 }
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Bool != nil {
 		if err := o.Bool.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1031,7 +1013,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateBool(ctx
 }
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Float != nil {
 		if err := o.Float.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1047,7 +1028,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateFloat(ct
 }
 
 func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) contextValidateString(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.String != nil {
 		if err := o.String.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1084,7 +1064,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) UnmarshalBinary(b []byt
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
-
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.
 	//
@@ -1181,7 +1160,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) UnmarshalBinary(b [
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Float struct {
-
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
 
@@ -1233,7 +1211,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) UnmarshalBinary(b 
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0String
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0String struct {
-
 	// True if default value is set.
 	HasDefault bool `json:"has_default,omitempty"`
 
@@ -1273,7 +1250,6 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b
 swagger:model ListTemplatesOKBodyTotals
 */
 type ListTemplatesOKBodyTotals struct {
-
 	// Total number of results.
 	TotalItems int32 `json:"total_items,omitempty"`
 
@@ -1313,7 +1289,6 @@ func (o *ListTemplatesOKBodyTotals) UnmarshalBinary(b []byte) error {
 swagger:model ListTemplatesParamsBodyPageParams
 */
 type ListTemplatesParamsBodyPageParams struct {
-
 	// Maximum number of results per page.
 	PageSize int32 `json:"page_size,omitempty"`
 

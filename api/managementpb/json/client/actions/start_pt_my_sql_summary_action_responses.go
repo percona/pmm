@@ -59,12 +59,12 @@ type StartPTMySQLSummaryActionOK struct {
 func (o *StartPTMySQLSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTMySQLSummaryActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartPTMySQLSummaryActionDefault) Code() int {
 func (o *StartPTMySQLSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartPTMySQLSummaryActionDefault) GetPayload() *StartPTMySQLSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTMySQLSummaryActionDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientR
 swagger:model StartPTMySQLSummaryActionBody
 */
 type StartPTMySQLSummaryActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -160,7 +159,6 @@ func (o *StartPTMySQLSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTMySQLSummaryActionDefaultBody
 */
 type StartPTMySQLSummaryActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -226,9 +224,7 @@ func (o *StartPTMySQLSummaryActionDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *StartPTMySQLSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,7 +235,6 @@ func (o *StartPTMySQLSummaryActionDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -267,7 +262,6 @@ func (o *StartPTMySQLSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTMySQLSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMySQLSummaryActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,7 +298,6 @@ func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []
 swagger:model StartPTMySQLSummaryActionOKBody
 */
 type StartPTMySQLSummaryActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

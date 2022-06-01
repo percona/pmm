@@ -1,0 +1,74 @@
+[
+  {
+    "Offset": 196,
+    "OffsetEnd": 562,
+    "Ts": "2009-03-11T18:11:50Z",
+    "Admin": true,
+    "Query": "Refresh",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.01785
+    },
+    "NumberMetrics": {
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 0,
+      "Rows_read": 0,
+      "Rows_sent": 0,
+      "Thread_id": 47
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 562,
+    "OffsetEnd": 901,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": true,
+    "Query": "Quit",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000002
+    },
+    "NumberMetrics": {
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 0,
+      "Rows_read": 0,
+      "Rows_sent": 0,
+      "Thread_id": 47
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

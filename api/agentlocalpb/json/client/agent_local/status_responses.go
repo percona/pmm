@@ -61,12 +61,12 @@ type StatusOK struct {
 func (o *StatusOK) Error() string {
 	return fmt.Sprintf("[POST /local/Status][%d] statusOk  %+v", 200, o.Payload)
 }
+
 func (o *StatusOK) GetPayload() *StatusOKBody {
 	return o.Payload
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StatusOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StatusDefault) Code() int {
 func (o *StatusDefault) Error() string {
 	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StatusDefault) GetPayload() *StatusDefaultBody {
 	return o.Payload
 }
 
 func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StatusDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 swagger:model StatusBody
 */
 type StatusBody struct {
-
 	// Returns network info (latency and clock_drift) if true.
 	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
@@ -159,7 +158,6 @@ func (o *StatusBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -225,9 +223,7 @@ func (o *StatusDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,7 +234,6 @@ func (o *StatusDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -266,7 +261,6 @@ func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusDefaultBodyDetailsItems0
 */
 type StatusDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -303,7 +297,6 @@ func (o *StatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -405,9 +398,7 @@ func (o *StatusOKBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.AgentsInfo); i++ {
-
 		if o.AgentsInfo[i] != nil {
 			if err := o.AgentsInfo[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -418,14 +409,12 @@ func (o *StatusOKBody) contextValidateAgentsInfo(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *StatusOKBody) contextValidateServerInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ServerInfo != nil {
 		if err := o.ServerInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -462,7 +451,6 @@ func (o *StatusOKBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusOKBodyAgentsInfoItems0
 */
 type StatusOKBodyAgentsInfoItems0 struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -675,7 +663,6 @@ func (o *StatusOKBodyAgentsInfoItems0) UnmarshalBinary(b []byte) error {
 swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
-
 	// PMM Server URL in a form https://HOST:PORT/.
 	URL string `json:"url,omitempty"`
 

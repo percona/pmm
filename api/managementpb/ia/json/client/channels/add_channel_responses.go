@@ -59,12 +59,12 @@ type AddChannelOK struct {
 func (o *AddChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] addChannelOk  %+v", 200, o.Payload)
 }
+
 func (o *AddChannelOK) GetPayload() *AddChannelOKBody {
 	return o.Payload
 }
 
 func (o *AddChannelOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddChannelOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddChannelDefault) Code() int {
 func (o *AddChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] AddChannel default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddChannelDefault) GetPayload() *AddChannelDefaultBody {
 	return o.Payload
 }
 
 func (o *AddChannelDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddChannelDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddChannelDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model AddChannelBody
 */
 type AddChannelBody struct {
-
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
@@ -269,7 +268,6 @@ func (o *AddChannelBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddChannelBody) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -285,7 +283,6 @@ func (o *AddChannelBody) contextValidateEmailConfig(ctx context.Context, formats
 }
 
 func (o *AddChannelBody) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -301,7 +298,6 @@ func (o *AddChannelBody) contextValidatePagerdutyConfig(ctx context.Context, for
 }
 
 func (o *AddChannelBody) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -317,7 +313,6 @@ func (o *AddChannelBody) contextValidateSlackConfig(ctx context.Context, formats
 }
 
 func (o *AddChannelBody) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -354,7 +349,6 @@ func (o *AddChannelBody) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelDefaultBody
 */
 type AddChannelDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -420,9 +414,7 @@ func (o *AddChannelDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -433,7 +425,6 @@ func (o *AddChannelDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -461,7 +452,6 @@ func (o *AddChannelDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelDefaultBodyDetailsItems0
 */
 type AddChannelDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -498,7 +488,6 @@ func (o *AddChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelOKBody
 */
 type AddChannelOKBody struct {
-
 	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 }
@@ -535,7 +524,6 @@ func (o *AddChannelOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelParamsBodyEmailConfig
 */
 type AddChannelParamsBodyEmailConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -575,7 +563,6 @@ func (o *AddChannelParamsBodyEmailConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelParamsBodyPagerdutyConfig
 */
 type AddChannelParamsBodyPagerdutyConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -618,7 +605,6 @@ func (o *AddChannelParamsBodyPagerdutyConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelParamsBodySlackConfig
 */
 type AddChannelParamsBodySlackConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -658,7 +644,6 @@ func (o *AddChannelParamsBodySlackConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelParamsBodyWebhookConfig
 */
 type AddChannelParamsBodyWebhookConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -720,7 +705,6 @@ func (o *AddChannelParamsBodyWebhookConfig) ContextValidate(ctx context.Context,
 }
 
 func (o *AddChannelParamsBodyWebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -757,7 +741,6 @@ func (o *AddChannelParamsBodyWebhookConfig) UnmarshalBinary(b []byte) error {
 swagger:model AddChannelParamsBodyWebhookConfigHTTPConfig
 */
 type AddChannelParamsBodyWebhookConfigHTTPConfig struct {
-
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
 
@@ -849,7 +832,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) ContextValidate(ctx contex
 }
 
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -865,7 +847,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAuth(c
 }
 
 func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -902,7 +883,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfig) UnmarshalBinary(b []byte) 
 swagger:model AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth
 */
 type AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
-
 	// username
 	Username string `json:"username,omitempty"`
 
@@ -946,7 +926,6 @@ func (o *AddChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) UnmarshalBinary(b
 swagger:model AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
 */
 type AddChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
-
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
 	CaFile string `json:"ca_file,omitempty"`

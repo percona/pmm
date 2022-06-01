@@ -59,12 +59,12 @@ type GetNodeOK struct {
 func (o *GetNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
 	return o.Payload
 }
 
 func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetNodeOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetNodeDefault) Code() int {
 func (o *GetNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetNodeDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 }
@@ -157,7 +156,6 @@ func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,9 +221,7 @@ func (o *GetNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -236,7 +232,6 @@ func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -264,7 +259,6 @@ func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeDefaultBodyDetailsItems0
 */
 type GetNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -301,7 +295,6 @@ func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
-
 	// container
 	Container *GetNodeOKBodyContainer `json:"container,omitempty"`
 
@@ -474,7 +467,6 @@ func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Container != nil {
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -490,7 +482,6 @@ func (o *GetNodeOKBody) contextValidateContainer(ctx context.Context, formats st
 }
 
 func (o *GetNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Generic != nil {
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -506,7 +497,6 @@ func (o *GetNodeOKBody) contextValidateGeneric(ctx context.Context, formats strf
 }
 
 func (o *GetNodeOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Remote != nil {
 		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -522,7 +512,6 @@ func (o *GetNodeOKBody) contextValidateRemote(ctx context.Context, formats strfm
 }
 
 func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteAzureDatabase != nil {
 		if err := o.RemoteAzureDatabase.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -538,7 +527,6 @@ func (o *GetNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, 
 }
 
 func (o *GetNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -575,7 +563,6 @@ func (o *GetNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -639,7 +626,6 @@ func (o *GetNodeOKBodyContainer) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -700,7 +686,6 @@ func (o *GetNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -755,7 +740,6 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyRemoteAzureDatabase
 */
 type GetNodeOKBodyRemoteAzureDatabase struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -810,7 +794,6 @@ func (o *GetNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyRemoteRDS
 */
 type GetNodeOKBodyRemoteRDS struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

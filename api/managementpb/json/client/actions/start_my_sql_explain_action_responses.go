@@ -59,12 +59,12 @@ type StartMySQLExplainActionOK struct {
 func (o *StartMySQLExplainActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartMySQLExplainActionOK) GetPayload() *StartMySQLExplainActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMySQLExplainActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLExplainActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 func (o *StartMySQLExplainActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartMySQLExplainActionDefault) GetPayload() *StartMySQLExplainActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLExplainActionDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientRes
 swagger:model StartMySQLExplainActionBody
 */
 type StartMySQLExplainActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -166,7 +165,6 @@ func (o *StartMySQLExplainActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartMySQLExplainActionDefaultBody
 */
 type StartMySQLExplainActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -232,9 +230,7 @@ func (o *StartMySQLExplainActionDefaultBody) ContextValidate(ctx context.Context
 }
 
 func (o *StartMySQLExplainActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -245,7 +241,6 @@ func (o *StartMySQLExplainActionDefaultBody) contextValidateDetails(ctx context.
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -273,7 +268,6 @@ func (o *StartMySQLExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartMySQLExplainActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,7 +304,6 @@ func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 swagger:model StartMySQLExplainActionOKBody
 */
 type StartMySQLExplainActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

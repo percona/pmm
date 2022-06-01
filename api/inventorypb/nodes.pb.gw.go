@@ -25,11 +25,14 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+
+var (
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodesRequest
@@ -45,7 +48,6 @@ func request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.ListNodes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +64,6 @@ func local_request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.ListNodes(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +80,6 @@ func request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, c
 
 	msg, err := client.GetNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +96,6 @@ func local_request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := server.GetNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +112,6 @@ func request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.AddGenericNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +128,6 @@ func local_request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.AddGenericNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +144,6 @@ func request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.AddContainerNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +160,6 @@ func local_request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runti
 
 	msg, err := server.AddContainerNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -181,7 +176,6 @@ func request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.AddRemoteNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -198,7 +192,6 @@ func local_request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.AddRemoteNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -215,7 +208,6 @@ func request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.AddRemoteRDSNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -232,7 +224,6 @@ func local_request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runti
 
 	msg, err := server.AddRemoteRDSNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -249,7 +240,6 @@ func request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler r
 
 	msg, err := client.AddRemoteAzureDatabaseNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -266,7 +256,6 @@ func local_request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marsh
 
 	msg, err := server.AddRemoteAzureDatabaseNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -283,7 +272,6 @@ func request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler
 
 	msg, err := client.RemoveNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -300,7 +288,6 @@ func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := server.RemoveNode(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterNodesHandlerServer registers the http handlers for service Nodes to "mux".
@@ -308,7 +295,6 @@ func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Mar
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodesHandlerFromEndpoint instead.
 func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodesServer) error {
-
 	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -330,7 +316,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_ListNodes_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -354,7 +339,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_GetNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -378,7 +362,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_AddGenericNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -402,7 +385,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_AddContainerNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -426,7 +408,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_AddRemoteNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -450,7 +431,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_AddRemoteRDSNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -474,7 +454,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_AddRemoteAzureDatabaseNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -498,7 +477,6 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_Nodes_RemoveNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -541,7 +519,6 @@ func RegisterNodesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "NodesClient" to call the correct interceptors.
 func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodesClient) error {
-
 	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -560,7 +537,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_ListNodes_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -581,7 +557,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_GetNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -602,7 +577,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_AddGenericNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -623,7 +597,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_AddContainerNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -644,7 +617,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_AddRemoteNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -665,7 +637,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_AddRemoteRDSNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -686,7 +657,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_AddRemoteAzureDatabaseNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Nodes_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -707,7 +677,6 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_Nodes_RemoveNode_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

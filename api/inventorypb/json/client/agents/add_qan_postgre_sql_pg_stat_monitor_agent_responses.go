@@ -61,12 +61,12 @@ type AddQANPostgreSQLPgStatMonitorAgentOK struct {
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] addQanPostgreSqlPgStatMonitorAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) GetPayload() *AddQANPostgreSQLPgStatMonitorAgentOKBody {
 	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddQANPostgreSQLPgStatMonitorAgentOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Code() int {
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] AddQANPostgreSQLPgStatMonitorAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) GetPayload() *AddQANPostgreSQLPgStatMonitorAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddQANPostgreSQLPgStatMonitorAgentDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtim
 swagger:model AddQANPostgreSQLPgStatMonitorAgentBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -192,7 +191,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentBody) UnmarshalBinary(b []byte) error
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,9 +256,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) ContextValidate(ctx cont
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -271,7 +267,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) contextValidateDetails(c
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -299,7 +294,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []byte
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -336,7 +330,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) UnmarshalBi
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBody struct {
-
 	// qan postgresql pgstatmonitor agent
 	QANPostgresqlPgstatmonitorAgent *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 }
@@ -389,7 +382,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) ContextValidate(ctx context.C
 }
 
 func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -426,7 +418,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) UnmarshalBinary(b []byte) err
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

@@ -59,12 +59,12 @@ type AddHAProxyServiceOK struct {
 func (o *AddHAProxyServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddHAProxyService][%d] addHaProxyServiceOk  %+v", 200, o.Payload)
 }
+
 func (o *AddHAProxyServiceOK) GetPayload() *AddHAProxyServiceOKBody {
 	return o.Payload
 }
 
 func (o *AddHAProxyServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddHAProxyServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddHAProxyServiceDefault) Code() int {
 func (o *AddHAProxyServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddHAProxyService][%d] AddHAProxyService default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddHAProxyServiceDefault) GetPayload() *AddHAProxyServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *AddHAProxyServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddHAProxyServiceDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddHAProxyServiceDefault) readResponse(response runtime.ClientResponse,
 swagger:model AddHAProxyServiceBody
 */
 type AddHAProxyServiceBody struct {
-
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -172,7 +171,6 @@ func (o *AddHAProxyServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyServiceDefaultBody
 */
 type AddHAProxyServiceDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -238,9 +236,7 @@ func (o *AddHAProxyServiceDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddHAProxyServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -251,7 +247,6 @@ func (o *AddHAProxyServiceDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -279,7 +274,6 @@ func (o *AddHAProxyServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyServiceDefaultBodyDetailsItems0
 */
 type AddHAProxyServiceDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -316,7 +310,6 @@ func (o *AddHAProxyServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 swagger:model AddHAProxyServiceOKBody
 */
 type AddHAProxyServiceOKBody struct {
-
 	// haproxy
 	Haproxy *AddHAProxyServiceOKBodyHaproxy `json:"haproxy,omitempty"`
 }
@@ -369,7 +362,6 @@ func (o *AddHAProxyServiceOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *AddHAProxyServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -406,7 +398,6 @@ func (o *AddHAProxyServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyServiceOKBodyHaproxy
 */
 type AddHAProxyServiceOKBodyHaproxy struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

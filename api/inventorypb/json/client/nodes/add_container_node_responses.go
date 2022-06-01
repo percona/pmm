@@ -59,12 +59,12 @@ type AddContainerNodeOK struct {
 func (o *AddContainerNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *AddContainerNodeOK) GetPayload() *AddContainerNodeOKBody {
 	return o.Payload
 }
 
 func (o *AddContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddContainerNodeOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddContainerNodeDefault) Code() int {
 func (o *AddContainerNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddContainerNodeDefault) GetPayload() *AddContainerNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddContainerNodeDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, 
 swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -181,7 +180,6 @@ func (o *AddContainerNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddContainerNodeDefaultBody
 */
 type AddContainerNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -247,9 +245,7 @@ func (o *AddContainerNodeDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddContainerNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -260,7 +256,6 @@ func (o *AddContainerNodeDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -288,7 +283,6 @@ func (o *AddContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddContainerNodeDefaultBodyDetailsItems0
 */
 type AddContainerNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -325,7 +319,6 @@ func (o *AddContainerNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 swagger:model AddContainerNodeOKBody
 */
 type AddContainerNodeOKBody struct {
-
 	// container
 	Container *AddContainerNodeOKBodyContainer `json:"container,omitempty"`
 }
@@ -378,7 +371,6 @@ func (o *AddContainerNodeOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddContainerNodeOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Container != nil {
 		if err := o.Container.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -415,7 +407,6 @@ func (o *AddContainerNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddContainerNodeOKBodyContainer
 */
 type AddContainerNodeOKBodyContainer struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

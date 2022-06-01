@@ -59,12 +59,12 @@ type ListArtifactCompatibleServicesOK struct {
 func (o *ListArtifactCompatibleServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
 	return o.Payload
 }
 
 func (o *ListArtifactCompatibleServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListArtifactCompatibleServicesOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListArtifactCompatibleServicesDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.Cl
 swagger:model ListArtifactCompatibleServicesBody
 */
 type ListArtifactCompatibleServicesBody struct {
-
 	// Artifact id used to determine restore compatibility.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
@@ -157,7 +156,6 @@ func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
 swagger:model ListArtifactCompatibleServicesDefaultBody
 */
 type ListArtifactCompatibleServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,9 +221,7 @@ func (o *ListArtifactCompatibleServicesDefaultBody) ContextValidate(ctx context.
 }
 
 func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -236,7 +232,6 @@ func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx c
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -264,7 +259,6 @@ func (o *ListArtifactCompatibleServicesDefaultBody) UnmarshalBinary(b []byte) er
 swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
 */
 type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -301,7 +295,6 @@ func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) UnmarshalBinary
 swagger:model ListArtifactCompatibleServicesOKBody
 */
 type ListArtifactCompatibleServicesOKBody struct {
-
 	// mysql
 	Mysql []*ListArtifactCompatibleServicesOKBodyMysqlItems0 `json:"mysql"`
 
@@ -398,9 +391,7 @@ func (o *ListArtifactCompatibleServicesOKBody) ContextValidate(ctx context.Conte
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mysql); i++ {
-
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -411,16 +402,13 @@ func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mongodb); i++ {
-
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -431,7 +419,6 @@ func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -459,7 +446,6 @@ func (o *ListArtifactCompatibleServicesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListArtifactCompatibleServicesOKBodyMongodbItems0
 */
 type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -526,7 +512,6 @@ func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) UnmarshalBinary(b []
 swagger:model ListArtifactCompatibleServicesOKBodyMysqlItems0
 */
 type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

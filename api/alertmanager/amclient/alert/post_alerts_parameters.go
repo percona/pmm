@@ -60,7 +60,6 @@ func NewPostAlertsParamsWithHTTPClient(client *http.Client) *PostAlertsParams {
    Typically these are written to a http.Request.
 */
 type PostAlertsParams struct {
-
 	/* Alerts.
 
 	   The alerts to create
@@ -133,7 +132,6 @@ func (o *PostAlertsParams) SetAlerts(alerts ammodels.PostableAlerts) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *PostAlertsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

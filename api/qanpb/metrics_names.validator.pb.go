@@ -13,12 +13,16 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *MetricsNamesRequest) Validate() error {
 	return nil
 }
+
 func (this *MetricsNamesReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

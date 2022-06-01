@@ -59,7 +59,6 @@ func NewGetAlertGroupsParamsWithHTTPClient(client *http.Client) *GetAlertGroupsP
    Typically these are written to a http.Request.
 */
 type GetAlertGroupsParams struct {
-
 	/* Active.
 
 	   Show active alerts
@@ -223,7 +222,6 @@ func (o *GetAlertGroupsParams) SetSilenced(silenced *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -239,7 +237,6 @@ func (o *GetAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 		qActive := swag.FormatBool(qrActive)
 		if qActive != "" {
-
 			if err := r.SetQueryParam("active", qActive); err != nil {
 				return err
 			}
@@ -267,7 +264,6 @@ func (o *GetAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 		qInhibited := swag.FormatBool(qrInhibited)
 		if qInhibited != "" {
-
 			if err := r.SetQueryParam("inhibited", qInhibited); err != nil {
 				return err
 			}
@@ -284,7 +280,6 @@ func (o *GetAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 		qReceiver := qrReceiver
 		if qReceiver != "" {
-
 			if err := r.SetQueryParam("receiver", qReceiver); err != nil {
 				return err
 			}
@@ -301,7 +296,6 @@ func (o *GetAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		}
 		qSilenced := swag.FormatBool(qrSilenced)
 		if qSilenced != "" {
-
 			if err := r.SetQueryParam("silenced", qSilenced); err != nil {
 				return err
 			}
