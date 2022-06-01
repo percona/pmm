@@ -35,8 +35,8 @@ This project is built from several repositories:
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/agent)
-* [percona/pmm-admin](https://github.com/percona/pmm/admin)
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent)
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona/node_exporter](https://github.com/percona/node_exporter)
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
