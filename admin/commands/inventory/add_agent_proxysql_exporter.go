@@ -78,6 +78,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:            &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -111,4 +112,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
 	AddAgentProxysqlExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentProxysqlExporter.DisableCollectors)
+	addExporterGlobalFlags(AddAgentProxysqlExporterC)
 }

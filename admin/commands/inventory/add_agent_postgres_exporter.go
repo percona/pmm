@@ -105,6 +105,7 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 			TLSCa:         tlsCa,
 			TLSCert:       tlsCert,
 			TLSKey:        tlsKey,
+			LogLevel:      &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -142,4 +143,5 @@ func init() {
 	AddAgentPostgresExporterC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentPostgresExporter.TLSCAFile)
 	AddAgentPostgresExporterC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentPostgresExporter.TLSCertFile)
 	AddAgentPostgresExporterC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentPostgresExporter.TLSKeyFile)
+	addExporterGlobalFlags(AddAgentPostgresExporterC)
 }

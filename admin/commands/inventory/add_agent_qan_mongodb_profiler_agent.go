@@ -89,6 +89,7 @@ func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error
 			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 			TLSCa:                         tlsCa,
 			AuthenticationMechanism:       cmd.AuthenticationMechanism,
+			LogLevel:                      &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -122,4 +123,5 @@ func init() {
 	AddAgentQANMongoDBProfilerAgentC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCaFile)
 	AddAgentQANMongoDBProfilerAgentC.Flag("authentication-mechanism", "Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates").
 		StringVar(&AddAgentQANMongoDBProfilerAgent.AuthenticationMechanism)
+	addExporterGlobalFlags(AddAgentQANMongoDBProfilerAgentC)
 }
