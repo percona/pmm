@@ -1061,6 +1061,20 @@
                   },
                   "x-order": 3
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 4
+                },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",

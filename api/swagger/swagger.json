@@ -2363,6 +2363,20 @@
                     "type": "string"
                   },
                   "x-order": 3
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 4
                 }
               }
             }

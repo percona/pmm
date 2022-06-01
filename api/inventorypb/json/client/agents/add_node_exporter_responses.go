@@ -133,10 +133,77 @@ type AddNodeExporterBody struct {
 
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add node exporter body
 func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addNodeExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addNodeExporterBodyTypeLogLevelPropEnum = append(addNodeExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddNodeExporterBodyLogLevelAuto captures enum value "auto"
+	AddNodeExporterBodyLogLevelAuto string = "auto"
+
+	// AddNodeExporterBodyLogLevelFatal captures enum value "fatal"
+	AddNodeExporterBodyLogLevelFatal string = "fatal"
+
+	// AddNodeExporterBodyLogLevelError captures enum value "error"
+	AddNodeExporterBodyLogLevelError string = "error"
+
+	// AddNodeExporterBodyLogLevelWarn captures enum value "warn"
+	AddNodeExporterBodyLogLevelWarn string = "warn"
+
+	// AddNodeExporterBodyLogLevelInfo captures enum value "info"
+	AddNodeExporterBodyLogLevelInfo string = "info"
+
+	// AddNodeExporterBodyLogLevelDebug captures enum value "debug"
+	AddNodeExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddNodeExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addNodeExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddNodeExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 
