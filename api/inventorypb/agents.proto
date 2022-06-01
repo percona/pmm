@@ -287,6 +287,8 @@ message QANMySQLPerfSchemaAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -325,6 +327,8 @@ message QANMySQLSlowlogAgent {
   AgentStatus status = 11;
   //  mod tidy
   string process_exec_path = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -356,6 +360,8 @@ message QANMongoDBProfilerAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -384,6 +390,8 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
   // Path to exec process.
   string process_exec_path = 10;
+  // Log level for exporter.
+  LogLevel log_level = 11;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -414,6 +422,8 @@ message QANPostgreSQLPgStatMonitorAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -450,6 +460,8 @@ message RDSExporter {
   bool push_metrics_enabled = 11;
   // Path to exec process.
   string process_exec_path = 12;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -506,6 +518,8 @@ message AzureDatabaseExporter {
   bool push_metrics_enabled = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
