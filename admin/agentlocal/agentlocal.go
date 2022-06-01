@@ -50,7 +50,7 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 type NetworkInfo bool
 
 const (
-	RequestNetworkInfo        NetworkInfo = true //nolint
+	RequestNetworkInfo        NetworkInfo = true
 	DoNotRequestNetworkInfo   NetworkInfo = false
 	Localhost                             = "127.0.0.1"
 	DefaultPMMAgentListenPort             = 7777
