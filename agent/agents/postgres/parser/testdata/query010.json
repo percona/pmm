@@ -1,0 +1,7 @@
+{
+  "tables": [
+    "pg_database",
+    "pg_locks"
+  ],
+  "error": ""
+}

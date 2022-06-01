@@ -61,12 +61,12 @@ type AddRDSExporterOK struct {
 func (o *AddRDSExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddRDSExporterOK) GetPayload() *AddRDSExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRDSExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddRDSExporterDefault) Code() int {
 func (o *AddRDSExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddRDSExporterDefault) GetPayload() *AddRDSExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRDSExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, co
 swagger:model AddRDSExporterBody
 */
 type AddRDSExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -183,7 +182,6 @@ func (o *AddRDSExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSExporterDefaultBody
 */
 type AddRDSExporterDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -252,9 +250,7 @@ func (o *AddRDSExporterDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddRDSExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -265,7 +261,6 @@ func (o *AddRDSExporterDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -293,7 +288,6 @@ func (o *AddRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSExporterDefaultBodyDetailsItems0
 */
 type AddRDSExporterDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -334,7 +328,6 @@ func (o *AddRDSExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model AddRDSExporterOKBody
 */
 type AddRDSExporterOKBody struct {
-
 	// rds exporter
 	RDSExporter *AddRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -387,7 +380,6 @@ func (o *AddRDSExporterOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *AddRDSExporterOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -424,7 +416,6 @@ func (o *AddRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSExporterOKBodyRDSExporter
 */
 type AddRDSExporterOKBodyRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

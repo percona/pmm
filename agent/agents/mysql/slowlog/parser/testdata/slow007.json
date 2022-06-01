@@ -1,0 +1,27 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 193,
+    "Ts": "2007-12-18T11:48:27Z",
+    "Admin": false,
+    "Query": "SELECT fruit FROM trees",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "db2",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000012
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 3
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

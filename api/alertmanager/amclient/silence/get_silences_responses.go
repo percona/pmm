@@ -56,12 +56,12 @@ type GetSilencesOK struct {
 func (o *GetSilencesOK) Error() string {
 	return fmt.Sprintf("[GET /silences][%d] getSilencesOK  %+v", 200, o.Payload)
 }
+
 func (o *GetSilencesOK) GetPayload() ammodels.GettableSilences {
 	return o.Payload
 }
 
 func (o *GetSilencesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type GetSilencesInternalServerError struct {
 func (o *GetSilencesInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /silences][%d] getSilencesInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *GetSilencesInternalServerError) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetSilencesInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

@@ -374,17 +374,20 @@ func file_managementpb_node_proto_rawDescGZIP() []byte {
 	return file_managementpb_node_proto_rawDescData
 }
 
-var file_managementpb_node_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_node_proto_goTypes = []interface{}{
-	(*RegisterNodeRequest)(nil),       // 0: management.RegisterNodeRequest
-	(*RegisterNodeResponse)(nil),      // 1: management.RegisterNodeResponse
-	nil,                               // 2: management.RegisterNodeRequest.CustomLabelsEntry
-	(inventorypb.NodeType)(0),         // 3: inventory.NodeType
-	(MetricsMode)(0),                  // 4: management.MetricsMode
-	(*inventorypb.GenericNode)(nil),   // 5: inventory.GenericNode
-	(*inventorypb.ContainerNode)(nil), // 6: inventory.ContainerNode
-	(*inventorypb.PMMAgent)(nil),      // 7: inventory.PMMAgent
-}
+var (
+	file_managementpb_node_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_node_proto_goTypes  = []interface{}{
+		(*RegisterNodeRequest)(nil),       // 0: management.RegisterNodeRequest
+		(*RegisterNodeResponse)(nil),      // 1: management.RegisterNodeResponse
+		nil,                               // 2: management.RegisterNodeRequest.CustomLabelsEntry
+		(inventorypb.NodeType)(0),         // 3: inventory.NodeType
+		(MetricsMode)(0),                  // 4: management.MetricsMode
+		(*inventorypb.GenericNode)(nil),   // 5: inventory.GenericNode
+		(*inventorypb.ContainerNode)(nil), // 6: inventory.ContainerNode
+		(*inventorypb.PMMAgent)(nil),      // 7: inventory.PMMAgent
+	}
+)
+
 var file_managementpb_node_proto_depIdxs = []int32{
 	3, // 0: management.RegisterNodeRequest.node_type:type_name -> inventory.NodeType
 	2, // 1: management.RegisterNodeRequest.custom_labels:type_name -> management.RegisterNodeRequest.CustomLabelsEntry

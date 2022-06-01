@@ -58,7 +58,6 @@ func NewListAlertRulesParamsWithHTTPClient(client *http.Client) *ListAlertRulesP
    Typically these are written to a http.Request.
 */
 type ListAlertRulesParams struct {
-
 	// Body.
 	Body ListAlertRulesBody
 
@@ -128,7 +127,6 @@ func (o *ListAlertRulesParams) SetBody(body ListAlertRulesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListAlertRulesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

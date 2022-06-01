@@ -54,8 +54,7 @@ type LogsAPIServer interface {
 }
 
 // UnimplementedLogsAPIServer must be embedded to have forward compatible implementations.
-type UnimplementedLogsAPIServer struct {
-}
+type UnimplementedLogsAPIServer struct{}
 
 func (UnimplementedLogsAPIServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")

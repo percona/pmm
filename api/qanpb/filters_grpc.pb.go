@@ -54,8 +54,7 @@ type FiltersServer interface {
 }
 
 // UnimplementedFiltersServer must be embedded to have forward compatible implementations.
-type UnimplementedFiltersServer struct {
-}
+type UnimplementedFiltersServer struct{}
 
 func (UnimplementedFiltersServer) Get(context.Context, *FiltersRequest) (*FiltersReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")

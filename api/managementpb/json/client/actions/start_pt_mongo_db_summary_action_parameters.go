@@ -58,7 +58,6 @@ func NewStartPTMongoDBSummaryActionParamsWithHTTPClient(client *http.Client) *St
    Typically these are written to a http.Request.
 */
 type StartPTMongoDBSummaryActionParams struct {
-
 	// Body.
 	Body StartPTMongoDBSummaryActionBody
 
@@ -128,7 +127,6 @@ func (o *StartPTMongoDBSummaryActionParams) SetBody(body StartPTMongoDBSummaryAc
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartPTMongoDBSummaryActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

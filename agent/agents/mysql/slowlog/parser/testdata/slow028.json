@@ -1,0 +1,30 @@
+[
+  {
+    "Offset": 205,
+    "OffsetEnd": 630,
+    "Ts": "2018-02-14T16:18:07Z",
+    "Admin": false,
+    "Query": "SELECT 1",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000277
+    },
+    "NumberMetrics": {
+      "Rows_affected": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 1,
+      "Thread_id": 8
+    },
+    "BoolMetrics": {
+      "QC_hit": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

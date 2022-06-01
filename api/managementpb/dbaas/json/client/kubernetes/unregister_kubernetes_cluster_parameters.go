@@ -58,7 +58,6 @@ func NewUnregisterKubernetesClusterParamsWithHTTPClient(client *http.Client) *Un
    Typically these are written to a http.Request.
 */
 type UnregisterKubernetesClusterParams struct {
-
 	// Body.
 	Body UnregisterKubernetesClusterBody
 
@@ -128,7 +127,6 @@ func (o *UnregisterKubernetesClusterParams) SetBody(body UnregisterKubernetesClu
 
 // WriteToRequest writes these params to a swagger request
 func (o *UnregisterKubernetesClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

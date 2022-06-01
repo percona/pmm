@@ -106,21 +106,24 @@ type ObjectDetailsServer interface {
 }
 
 // UnimplementedObjectDetailsServer must be embedded to have forward compatible implementations.
-type UnimplementedObjectDetailsServer struct {
-}
+type UnimplementedObjectDetailsServer struct{}
 
 func (UnimplementedObjectDetailsServer) GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetQueryExample(context.Context, *QueryExampleRequest) (*QueryExampleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetLabels(context.Context, *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "Offset": 199,
+    "OffsetEnd": 385,
+    "Ts": "2007-10-15T21:43:52Z",
+    "Admin": false,
+    "Query": "select 12_13_foo from (select 12foo from 123_bar) as 123baz",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 2
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

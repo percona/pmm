@@ -58,7 +58,6 @@ func NewToggleAlertsParamsWithHTTPClient(client *http.Client) *ToggleAlertsParam
    Typically these are written to a http.Request.
 */
 type ToggleAlertsParams struct {
-
 	// Body.
 	Body ToggleAlertsBody
 
@@ -128,7 +127,6 @@ func (o *ToggleAlertsParams) SetBody(body ToggleAlertsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ToggleAlertsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

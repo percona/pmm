@@ -50,12 +50,12 @@ type GetReceiversOK struct {
 func (o *GetReceiversOK) Error() string {
 	return fmt.Sprintf("[GET /receivers][%d] getReceiversOK  %+v", 200, o.Payload)
 }
+
 func (o *GetReceiversOK) GetPayload() []*ammodels.Receiver {
 	return o.Payload
 }
 
 func (o *GetReceiversOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

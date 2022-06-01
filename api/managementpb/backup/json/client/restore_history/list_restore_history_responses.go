@@ -61,12 +61,12 @@ type ListRestoreHistoryOK struct {
 func (o *ListRestoreHistoryOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] listRestoreHistoryOk  %+v", 200, o.Payload)
 }
+
 func (o *ListRestoreHistoryOK) GetPayload() *ListRestoreHistoryOKBody {
 	return o.Payload
 }
 
 func (o *ListRestoreHistoryOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListRestoreHistoryOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListRestoreHistoryDefault) Code() int {
 func (o *ListRestoreHistoryDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] ListRestoreHistory default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListRestoreHistoryDefault) GetPayload() *ListRestoreHistoryDefaultBody {
 	return o.Payload
 }
 
 func (o *ListRestoreHistoryDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListRestoreHistoryDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ListRestoreHistoryDefault) readResponse(response runtime.ClientResponse
 swagger:model ListRestoreHistoryDefaultBody
 */
 type ListRestoreHistoryDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -191,9 +190,7 @@ func (o *ListRestoreHistoryDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListRestoreHistoryDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -204,7 +201,6 @@ func (o *ListRestoreHistoryDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -232,7 +228,6 @@ func (o *ListRestoreHistoryDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListRestoreHistoryDefaultBodyDetailsItems0
 */
 type ListRestoreHistoryDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -273,7 +268,6 @@ func (o *ListRestoreHistoryDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model ListRestoreHistoryOKBody
 */
 type ListRestoreHistoryOKBody struct {
-
 	// items
 	Items []*ListRestoreHistoryOKBodyItemsItems0 `json:"items"`
 }
@@ -333,9 +327,7 @@ func (o *ListRestoreHistoryOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListRestoreHistoryOKBody) contextValidateItems(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Items); i++ {
-
 		if o.Items[i] != nil {
 			if err := o.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -346,7 +338,6 @@ func (o *ListRestoreHistoryOKBody) contextValidateItems(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -374,7 +365,6 @@ func (o *ListRestoreHistoryOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListRestoreHistoryOKBodyItemsItems0
 */
 type ListRestoreHistoryOKBodyItemsItems0 struct {
-
 	// Machine-readable restore id.
 	RestoreID string `json:"restore_id,omitempty"`
 
