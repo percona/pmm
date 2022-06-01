@@ -252,7 +252,8 @@ func TestListAlerts(t *testing.T) {
 	const alertsCount = 25
 	mockAlert := &mockAlertManager{}
 	var mockedAlerts []*ammodels.GettableAlert
-	for i := 0; i < alertsCount; i++ {
+
+	for i := 0; i < alertsCount-1; i++ {
 		mockedAlerts = append(mockedAlerts, &ammodels.GettableAlert{
 			Alert: ammodels.Alert{
 				Labels: map[string]string{
@@ -268,6 +269,23 @@ func TestListAlerts(t *testing.T) {
 			UpdatedAt: &now,
 		})
 	}
+
+	// This additional alert emulates the one created by user directly, without IA UI.
+	// Since user added "ia" label, he wants to see alert in IA UI. We want to be sure he will.
+	mockedAlerts = append(mockedAlerts, &ammodels.GettableAlert{
+		Alert: ammodels.Alert{
+			Labels: map[string]string{
+				"ia": "1",
+			},
+		},
+		Fingerprint: pointer.ToString(strconv.Itoa(alertsCount - 1)),
+		Status: &ammodels.AlertStatus{
+			State: pointer.ToString("active"),
+		},
+		StartsAt:  &now,
+		UpdatedAt: &now,
+	})
+
 	mockAlert.On("GetAlerts", ctx, mock.Anything).Return(mockedAlerts, nil)
 
 	tmplSvc, err := NewTemplatesService(db)

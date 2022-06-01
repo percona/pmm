@@ -132,13 +132,16 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 				return nil, errors.Wrapf(err, "failed to convert alert rule")
 			}
 		}
-		pass, err := satisfiesFilters(alert, rule.Filters)
-		if err != nil {
-			return nil, err
-		}
 
-		if !pass {
-			continue
+		if rule != nil && len(rule.Filters) != 0 {
+			pass, err := satisfiesFilters(alert, rule.Filters)
+			if err != nil {
+				return nil, err
+			}
+
+			if !pass {
+				continue
+			}
 		}
 
 		res = append(res, &iav1beta1.Alert{
