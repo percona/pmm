@@ -58,7 +58,6 @@ func NewChangeNodeExporterParamsWithHTTPClient(client *http.Client) *ChangeNodeE
    Typically these are written to a http.Request.
 */
 type ChangeNodeExporterParams struct {
-
 	// Body.
 	Body ChangeNodeExporterBody
 
@@ -128,7 +127,6 @@ func (o *ChangeNodeExporterParams) SetBody(body ChangeNodeExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeNodeExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

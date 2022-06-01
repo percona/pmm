@@ -59,12 +59,12 @@ type StartUpdateOK struct {
 func (o *StartUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] startUpdateOk  %+v", 200, o.Payload)
 }
+
 func (o *StartUpdateOK) GetPayload() *StartUpdateOKBody {
 	return o.Payload
 }
 
 func (o *StartUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartUpdateOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartUpdateDefault) Code() int {
 func (o *StartUpdateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Start][%d] StartUpdate default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartUpdateDefault) GetPayload() *StartUpdateDefaultBody {
 	return o.Payload
 }
 
 func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartUpdateDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *StartUpdateDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model StartUpdateDefaultBody
 */
 type StartUpdateDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -189,9 +188,7 @@ func (o *StartUpdateDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -202,7 +199,6 @@ func (o *StartUpdateDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -230,7 +226,6 @@ func (o *StartUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartUpdateDefaultBodyDetailsItems0
 */
 type StartUpdateDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -271,7 +266,6 @@ func (o *StartUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model StartUpdateOKBody
 */
 type StartUpdateOKBody struct {
-
 	// Authentication token for getting update statuses.
 	AuthToken string `json:"auth_token,omitempty"`
 

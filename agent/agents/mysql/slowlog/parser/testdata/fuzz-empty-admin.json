@@ -1,0 +1,74 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 185,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "select * from mysql.user",
+    "User": "msandbox",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000086,
+      "Query_time": 0.000214
+    },
+    "NumberMetrics": {
+      "Rows_examined": 2,
+      "Rows_sent": 2
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 185,
+    "OffsetEnd": 369,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": true,
+    "Query": "",
+    "User": "msandbox",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000016
+    },
+    "NumberMetrics": {
+      "Rows_examined": 2,
+      "Rows_sent": 2
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 369,
+    "OffsetEnd": 603,
+    "Ts": "2014-04-13T19:34:13Z",
+    "Admin": false,
+    "Query": "SELECT @@max_allowed_packet",
+    "User": "msandbox",
+    "Host": "localhost",
+    "Db": "dev_pct",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000127
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 1
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

@@ -1,0 +1,118 @@
+// pmm-agent
+// Copyright 2019 Percona LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package version
+
+import (
+	"context"
+	"testing"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/assert"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
+)
+
+func TestGetMySQLVersion(t *testing.T) {
+	sqlDB, mock, err := sqlmock.New()
+	if err != nil {
+		t.Log("error creating mock database")
+		return
+	}
+	defer sqlDB.Close() //nolint:errcheck
+
+	type mockedVariables struct {
+		variable string
+		value    string
+	}
+
+	type testingCase struct {
+		name        string
+		mockedData  []mockedVariables
+		wantVendor  string
+		wantVersion string
+	}
+
+	testCases := []*testingCase{
+		{
+			name: "Percona Server",
+			mockedData: []mockedVariables{
+				{
+					variable: "version",
+					value:    "8.0.26-17",
+				},
+				{
+					variable: "version_comment",
+					value:    "Percona Server (GPL), Release 17, Revision d7119cd",
+				},
+			},
+			wantVendor:  "percona",
+			wantVersion: "8.0",
+		},
+		{
+			name: "MySQL",
+			mockedData: []mockedVariables{
+				{
+					variable: "version",
+					value:    "8.0.28",
+				},
+				{
+					variable: "version_comment",
+					value:    "MySQL Community Server - GPL",
+				},
+			},
+			wantVendor:  "oracle",
+			wantVersion: "8.0",
+		},
+		{
+			name: "MariaDB",
+			mockedData: []mockedVariables{
+				{
+					variable: "version",
+					value:    "10.2.43-MariaDB-1:10.2.43+maria~bionic",
+				},
+				{
+					variable: "version_comment",
+					value:    "mariadb.org binary distribution",
+				},
+			},
+			wantVendor:  "mariadb",
+			wantVersion: "10.2",
+		},
+	}
+
+	//nolint:paralleltest
+	for _, testCase := range testCases {
+		tc := testCase //nolint:varnamelen
+		t.Run(tc.name, func(t *testing.T) {
+			// Don't run in parallel. If this is ran in parallel, there is no way to know
+			// in which case we are.
+			columns := []string{"variable_name", "value"}
+			for _, mockedVar := range tc.mockedData {
+				mock.ExpectQuery("SHOW").
+					WillReturnRows(sqlmock.NewRows(columns).AddRow(mockedVar.variable, mockedVar.value))
+			}
+
+			db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			q := db.WithContext(context.Background())
+
+			version, vendor, err := GetMySQLVersion(q)
+			assert.Equal(t, tc.wantVersion, version)
+			assert.Equal(t, tc.wantVendor, vendor)
+			assert.NoError(t, err)
+		})
+	}
+}

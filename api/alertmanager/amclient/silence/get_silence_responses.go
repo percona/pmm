@@ -62,12 +62,12 @@ type GetSilenceOK struct {
 func (o *GetSilenceOK) Error() string {
 	return fmt.Sprintf("[GET /silence/{silenceID}][%d] getSilenceOK  %+v", 200, o.Payload)
 }
+
 func (o *GetSilenceOK) GetPayload() *ammodels.GettableSilence {
 	return o.Payload
 }
 
 func (o *GetSilenceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ammodels.GettableSilence)
 
 	// response payload
@@ -87,15 +87,13 @@ func NewGetSilenceNotFound() *GetSilenceNotFound {
 
 A silence with the specified ID was not found
 */
-type GetSilenceNotFound struct {
-}
+type GetSilenceNotFound struct{}
 
 func (o *GetSilenceNotFound) Error() string {
 	return fmt.Sprintf("[GET /silence/{silenceID}][%d] getSilenceNotFound ", 404)
 }
 
 func (o *GetSilenceNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	return nil
 }
 
@@ -115,12 +113,12 @@ type GetSilenceInternalServerError struct {
 func (o *GetSilenceInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /silence/{silenceID}][%d] getSilenceInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *GetSilenceInternalServerError) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetSilenceInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

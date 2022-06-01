@@ -59,7 +59,6 @@ func NewGetSilencesParamsWithHTTPClient(client *http.Client) *GetSilencesParams 
    Typically these are written to a http.Request.
 */
 type GetSilencesParams struct {
-
 	/* Filter.
 
 	   A list of matchers to filter silences by
@@ -132,7 +131,6 @@ func (o *GetSilencesParams) SetFilter(filter []string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetSilencesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

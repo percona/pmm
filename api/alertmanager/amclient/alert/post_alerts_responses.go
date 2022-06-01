@@ -53,15 +53,13 @@ func NewPostAlertsOK() *PostAlertsOK {
 
 Create alerts response
 */
-type PostAlertsOK struct {
-}
+type PostAlertsOK struct{}
 
 func (o *PostAlertsOK) Error() string {
 	return fmt.Sprintf("[POST /alerts][%d] postAlertsOK ", 200)
 }
 
 func (o *PostAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	return nil
 }
 
@@ -81,12 +79,12 @@ type PostAlertsBadRequest struct {
 func (o *PostAlertsBadRequest) Error() string {
 	return fmt.Sprintf("[POST /alerts][%d] postAlertsBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *PostAlertsBadRequest) GetPayload() string {
 	return o.Payload
 }
 
 func (o *PostAlertsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -111,12 +109,12 @@ type PostAlertsInternalServerError struct {
 func (o *PostAlertsInternalServerError) Error() string {
 	return fmt.Sprintf("[POST /alerts][%d] postAlertsInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *PostAlertsInternalServerError) GetPayload() string {
 	return o.Payload
 }
 
 func (o *PostAlertsInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

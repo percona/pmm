@@ -58,8 +58,7 @@ type HAProxyServer interface {
 }
 
 // UnimplementedHAProxyServer must be embedded to have forward compatible implementations.
-type UnimplementedHAProxyServer struct {
-}
+type UnimplementedHAProxyServer struct{}
 
 func (UnimplementedHAProxyServer) AddHAProxy(context.Context, *AddHAProxyRequest) (*AddHAProxyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxy not implemented")

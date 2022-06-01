@@ -62,12 +62,12 @@ type GetAlertGroupsOK struct {
 func (o *GetAlertGroupsOK) Error() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsOK  %+v", 200, o.Payload)
 }
+
 func (o *GetAlertGroupsOK) GetPayload() ammodels.AlertGroups {
 	return o.Payload
 }
 
 func (o *GetAlertGroupsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -92,12 +92,12 @@ type GetAlertGroupsBadRequest struct {
 func (o *GetAlertGroupsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *GetAlertGroupsBadRequest) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetAlertGroupsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -122,12 +122,12 @@ type GetAlertGroupsInternalServerError struct {
 func (o *GetAlertGroupsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *GetAlertGroupsInternalServerError) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetAlertGroupsInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

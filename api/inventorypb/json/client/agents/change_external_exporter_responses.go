@@ -59,12 +59,12 @@ type ChangeExternalExporterOK struct {
 func (o *ChangeExternalExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] changeExternalExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeExternalExporterOK) GetPayload() *ChangeExternalExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeExternalExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeExternalExporterOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *ChangeExternalExporterDefault) Code() int {
 func (o *ChangeExternalExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeExternalExporter][%d] ChangeExternalExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeExternalExporterDefault) GetPayload() *ChangeExternalExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeExternalExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeExternalExporterDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *ChangeExternalExporterDefault) readResponse(response runtime.ClientResp
 swagger:model ChangeExternalExporterBody
 */
 type ChangeExternalExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -176,7 +175,6 @@ func (o *ChangeExternalExporterBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ChangeExternalExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -213,7 +211,6 @@ func (o *ChangeExternalExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeExternalExporterDefaultBody
 */
 type ChangeExternalExporterDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -282,9 +279,7 @@ func (o *ChangeExternalExporterDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangeExternalExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -295,7 +290,6 @@ func (o *ChangeExternalExporterDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -323,7 +317,6 @@ func (o *ChangeExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeExternalExporterDefaultBodyDetailsItems0
 */
 type ChangeExternalExporterDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -364,7 +357,6 @@ func (o *ChangeExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 swagger:model ChangeExternalExporterOKBody
 */
 type ChangeExternalExporterOKBody struct {
-
 	// external exporter
 	ExternalExporter *ChangeExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
 }
@@ -417,7 +409,6 @@ func (o *ChangeExternalExporterOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeExternalExporterOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -454,7 +445,6 @@ func (o *ChangeExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeExternalExporterOKBodyExternalExporter
 */
 type ChangeExternalExporterOKBodyExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -521,7 +511,6 @@ func (o *ChangeExternalExporterOKBodyExternalExporter) UnmarshalBinary(b []byte)
 swagger:model ChangeExternalExporterParamsBodyCommon
 */
 type ChangeExternalExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

@@ -61,12 +61,12 @@ type AddHAProxyOK struct {
 func (o *AddHAProxyOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
 }
+
 func (o *AddHAProxyOK) GetPayload() *AddHAProxyOKBody {
 	return o.Payload
 }
 
 func (o *AddHAProxyOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddHAProxyOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddHAProxyDefault) Code() int {
 func (o *AddHAProxyDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddHAProxyDefault) GetPayload() *AddHAProxyDefaultBody {
 	return o.Payload
 }
 
 func (o *AddHAProxyDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddHAProxyDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddHAProxyDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model AddHAProxyBody
 */
 type AddHAProxyBody struct {
-
 	// Node identifier on which an external exporter is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -274,7 +273,6 @@ func (o *AddHAProxyBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddHAProxyBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -311,7 +309,6 @@ func (o *AddHAProxyBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyDefaultBody
 */
 type AddHAProxyDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -380,9 +377,7 @@ func (o *AddHAProxyDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddHAProxyDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -393,7 +388,6 @@ func (o *AddHAProxyDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -421,7 +415,6 @@ func (o *AddHAProxyDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyDefaultBodyDetailsItems0
 */
 type AddHAProxyDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -462,7 +455,6 @@ func (o *AddHAProxyDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyOKBody
 */
 type AddHAProxyOKBody struct {
-
 	// external exporter
 	ExternalExporter *AddHAProxyOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
@@ -545,7 +537,6 @@ func (o *AddHAProxyOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddHAProxyOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -561,7 +552,6 @@ func (o *AddHAProxyOKBody) contextValidateExternalExporter(ctx context.Context, 
 }
 
 func (o *AddHAProxyOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -598,7 +588,6 @@ func (o *AddHAProxyOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyOKBodyExternalExporter
 */
 type AddHAProxyOKBodyExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -665,7 +654,6 @@ func (o *AddHAProxyOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyOKBodyService
 */
 type AddHAProxyOKBodyService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -720,7 +708,6 @@ func (o *AddHAProxyOKBodyService) UnmarshalBinary(b []byte) error {
 swagger:model AddHAProxyParamsBodyAddNode
 */
 type AddHAProxyParamsBodyAddNode struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
