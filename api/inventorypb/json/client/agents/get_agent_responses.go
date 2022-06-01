@@ -1062,6 +1062,10 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body azure database exporter
@@ -1069,6 +1073,10 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) 
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1129,6 +1137,60 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Regi
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"azure_database_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -2368,6 +2430,10 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mongodb profiler agent
@@ -2375,6 +2441,10 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) Validate(formats strfmt.Registry
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2435,6 +2505,60 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Re
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mongodb_profiler_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelError captures enum value "error"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelError string = "error"
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelInfo captures enum value "info"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelInfo string = "info"
+
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_mongodb_profiler_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -2517,6 +2641,10 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql perfschema agent
@@ -2524,6 +2652,10 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2584,6 +2716,60 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Re
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelError captures enum value "error"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelError string = "error"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo captures enum value "info"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo string = "info"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -2669,6 +2855,10 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN mysql slowlog agent
@@ -2676,6 +2866,10 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registry) e
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2736,6 +2930,60 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Regis
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelError captures enum value "error"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelError string = "error"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo captures enum value "info"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo string = "info"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -2806,6 +3054,10 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN postgresql pgstatements agent
@@ -2813,6 +3065,10 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfmt.R
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2873,6 +3129,60 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats st
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError captures enum value "error"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError string = "error"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo captures enum value "info"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo string = "info"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -2946,6 +3256,10 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body QAN postgresql pgstatmonitor agent
@@ -2953,6 +3267,10 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -3013,6 +3331,60 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats s
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum = append(getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError captures enum value "error"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError string = "error"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo captures enum value "info"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo string = "info"
+
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -3089,6 +3461,10 @@ type GetAgentOKBodyRDSExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this get agent OK body RDS exporter
@@ -3096,6 +3472,10 @@ func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -3156,6 +3536,60 @@ func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) erro
 
 	// value enum
 	if err := o.validateStatusEnum("getAgentOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyRdsExporterTypeLogLevelPropEnum = append(getAgentOkBodyRdsExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyRDSExporterLogLevelAuto captures enum value "auto"
+	GetAgentOKBodyRDSExporterLogLevelAuto string = "auto"
+
+	// GetAgentOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
+	GetAgentOKBodyRDSExporterLogLevelFatal string = "fatal"
+
+	// GetAgentOKBodyRDSExporterLogLevelError captures enum value "error"
+	GetAgentOKBodyRDSExporterLogLevelError string = "error"
+
+	// GetAgentOKBodyRDSExporterLogLevelWarn captures enum value "warn"
+	GetAgentOKBodyRDSExporterLogLevelWarn string = "warn"
+
+	// GetAgentOKBodyRDSExporterLogLevelInfo captures enum value "info"
+	GetAgentOKBodyRDSExporterLogLevelInfo string = "info"
+
+	// GetAgentOKBodyRDSExporterLogLevelDebug captures enum value "debug"
+	GetAgentOKBodyRDSExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"rds_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
