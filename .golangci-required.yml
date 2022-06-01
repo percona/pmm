@@ -8,7 +8,6 @@ linters-settings:
       - errors
       # use "github.com/golang/protobuf/proto" instead
       - github.com/gogo/protobuf/proto
-      - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
       # use "gopkg.in/yaml.v3" instead

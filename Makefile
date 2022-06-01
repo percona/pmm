@@ -125,7 +125,7 @@ format:                         ## Format source code.
 	bin/gofumpt -l -w $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
 	bin/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm)" $(FILES)
-	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting black imports.
+	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
 	# http://127.0.0.1:8080/swagger-ui.html
