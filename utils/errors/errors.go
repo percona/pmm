@@ -97,7 +97,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 
 func handleForwardResponseServerMetadata(w http.ResponseWriter, mux *runtime.ServeMux, md runtime.ServerMetadata) {
 	for k, vs := range md.HeaderMD {
-		if h, ok := DefaultHeaderMatcher(k); ok {
+		if h, ok := runtime.DefaultHeaderMatcher(k); ok {
 			for _, v := range vs {
 				w.Header().Add(h, v)
 			}
@@ -124,52 +124,4 @@ func handleForwardResponseTrailer(w http.ResponseWriter, md runtime.ServerMetada
 			w.Header().Add(tKey, v)
 		}
 	}
-}
-
-// DefaultHeaderMatcher is used to pass http request headers to/from gRPC context. This adds permanent HTTP header
-// keys (as specified by the IANA) to gRPC context with grpcgateway- prefix. HTTP headers that start with
-// 'Grpc-Metadata-' are mapped to gRPC metadata after removing prefix 'Grpc-Metadata-'.
-func DefaultHeaderMatcher(key string) (string, bool) {
-	key = textproto.CanonicalMIMEHeaderKey(key)
-	if isPermanentHTTPHeader(key) {
-		return runtime.MetadataPrefix + key, true
-	} else if strings.HasPrefix(key, runtime.MetadataHeaderPrefix) {
-		return key[len(runtime.MetadataHeaderPrefix):], true
-	}
-	return "", false
-}
-
-// isPermanentHTTPHeader checks whether hdr belongs to the list of
-// permanent request headers maintained by IANA.
-// http://www.iana.org/assignments/message-headers/message-headers.xml
-func isPermanentHTTPHeader(hdr string) bool {
-	switch hdr {
-	case
-		"Accept",
-		"Accept-Charset",
-		"Accept-Language",
-		"Accept-Ranges",
-		"Authorization",
-		"Cache-Control",
-		"Content-Type",
-		"Cookie",
-		"Date",
-		"Expect",
-		"From",
-		"Host",
-		"If-Match",
-		"If-Modified-Since",
-		"If-None-Match",
-		"If-Schedule-Tag-Match",
-		"If-Unmodified-Since",
-		"Max-Forwards",
-		"Origin",
-		"Pragma",
-		"Referer",
-		"User-Agent",
-		"Via",
-		"Warning":
-		return true
-	}
-	return false
 }
