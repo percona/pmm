@@ -58,6 +58,7 @@ func NewListDBClustersParamsWithHTTPClient(client *http.Client) *ListDBClustersP
    Typically these are written to a http.Request.
 */
 type ListDBClustersParams struct {
+
 	// Body.
 	Body ListDBClustersBody
 
@@ -127,6 +128,7 @@ func (o *ListDBClustersParams) SetBody(body ListDBClustersBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListDBClustersParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

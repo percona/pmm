@@ -61,12 +61,12 @@ type DiscoverRDSOK struct {
 func (o *DiscoverRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] discoverRdsOk  %+v", 200, o.Payload)
 }
-
 func (o *DiscoverRDSOK) GetPayload() *DiscoverRDSOKBody {
 	return o.Payload
 }
 
 func (o *DiscoverRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverRDSOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *DiscoverRDSDefault) Code() int {
 func (o *DiscoverRDSDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *DiscoverRDSDefault) GetPayload() *DiscoverRDSDefaultBody {
 	return o.Payload
 }
 
 func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DiscoverRDSDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model DiscoverRDSBody
 */
 type DiscoverRDSBody struct {
+
 	// AWS Access key. Optional.
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
@@ -161,6 +162,7 @@ func (o *DiscoverRDSBody) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -229,7 +231,9 @@ func (o *DiscoverRDSDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,6 +244,7 @@ func (o *DiscoverRDSDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ func (o *DiscoverRDSDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverRDSDefaultBodyDetailsItems0
 */
 type DiscoverRDSDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -307,6 +313,7 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
+
 	// rds instances
 	RDSInstances []*DiscoverRDSOKBodyRDSInstancesItems0 `json:"rds_instances"`
 }
@@ -366,7 +373,9 @@ func (o *DiscoverRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.RDSInstances); i++ {
+
 		if o.RDSInstances[i] != nil {
 			if err := o.RDSInstances[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -377,6 +386,7 @@ func (o *DiscoverRDSOKBody) contextValidateRDSInstances(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -404,6 +414,7 @@ func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
 swagger:model DiscoverRDSOKBodyRDSInstancesItems0
 */
 type DiscoverRDSOKBodyRDSInstancesItems0 struct {
+
 	// AWS region.
 	Region string `json:"region,omitempty"`
 

@@ -61,12 +61,12 @@ type AddAzureDatabaseExporterOK struct {
 func (o *AddAzureDatabaseExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddAzureDatabaseExporter][%d] addAzureDatabaseExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddAzureDatabaseExporterOK) GetPayload() *AddAzureDatabaseExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddAzureDatabaseExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAzureDatabaseExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddAzureDatabaseExporterDefault) Code() int {
 func (o *AddAzureDatabaseExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddAzureDatabaseExporter][%d] AddAzureDatabaseExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddAzureDatabaseExporterDefault) GetPayload() *AddAzureDatabaseExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddAzureDatabaseExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAzureDatabaseExporterDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *AddAzureDatabaseExporterDefault) readResponse(response runtime.ClientRe
 swagger:model AddAzureDatabaseExporterBody
 */
 type AddAzureDatabaseExporterBody struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -188,6 +189,7 @@ func (o *AddAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterDefaultBody
 */
 type AddAzureDatabaseExporterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -256,7 +258,9 @@ func (o *AddAzureDatabaseExporterDefaultBody) ContextValidate(ctx context.Contex
 }
 
 func (o *AddAzureDatabaseExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -267,6 +271,7 @@ func (o *AddAzureDatabaseExporterDefaultBody) contextValidateDetails(ctx context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -294,6 +299,7 @@ func (o *AddAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -334,6 +340,7 @@ func (o *AddAzureDatabaseExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 swagger:model AddAzureDatabaseExporterOKBody
 */
 type AddAzureDatabaseExporterOKBody struct {
+
 	// azure database exporter
 	AzureDatabaseExporter *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 }
@@ -386,6 +393,7 @@ func (o *AddAzureDatabaseExporterOKBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddAzureDatabaseExporterOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -422,6 +430,7 @@ func (o *AddAzureDatabaseExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterOKBodyAzureDatabaseExporter
 */
 type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

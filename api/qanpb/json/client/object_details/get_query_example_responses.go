@@ -61,12 +61,12 @@ type GetQueryExampleOK struct {
 func (o *GetQueryExampleOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
 }
-
 func (o *GetQueryExampleOK) GetPayload() *GetQueryExampleOKBody {
 	return o.Payload
 }
 
 func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryExampleOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetQueryExampleDefault) Code() int {
 func (o *GetQueryExampleDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetQueryExampleDefault) GetPayload() *GetQueryExampleDefaultBody {
 	return o.Payload
 }
 
 func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryExampleDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 swagger:model GetQueryExampleBody
 */
 type GetQueryExampleBody struct {
+
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -231,7 +232,9 @@ func (o *GetQueryExampleBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Labels); i++ {
+
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,6 +245,7 @@ func (o *GetQueryExampleBody) contextValidateLabels(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -269,6 +273,7 @@ func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -337,7 +342,9 @@ func (o *GetQueryExampleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -348,6 +355,7 @@ func (o *GetQueryExampleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -375,6 +383,7 @@ func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryExampleDefaultBodyDetailsItems0
 */
 type GetQueryExampleDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -415,6 +424,7 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {
+
 	// query examples
 	QueryExamples []*GetQueryExampleOKBodyQueryExamplesItems0 `json:"query_examples"`
 }
@@ -474,7 +484,9 @@ func (o *GetQueryExampleOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QueryExamples); i++ {
+
 		if o.QueryExamples[i] != nil {
 			if err := o.QueryExamples[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -485,6 +497,7 @@ func (o *GetQueryExampleOKBody) contextValidateQueryExamples(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -512,6 +525,7 @@ func (o *GetQueryExampleOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryExampleOKBodyQueryExamplesItems0
 */
 type GetQueryExampleOKBodyQueryExamplesItems0 struct {
+
 	// example
 	Example string `json:"example,omitempty"`
 
@@ -685,6 +699,7 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) UnmarshalBinary(b []byte) err
 swagger:model GetQueryExampleParamsBodyLabelsItems0
 */
 type GetQueryExampleParamsBodyLabelsItems0 struct {
+
 	// key
 	Key string `json:"key,omitempty"`
 

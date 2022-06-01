@@ -58,6 +58,7 @@ func NewGetLabelsParamsWithHTTPClient(client *http.Client) *GetLabelsParams {
    Typically these are written to a http.Request.
 */
 type GetLabelsParams struct {
+
 	// Body.
 	Body GetLabelsBody
 
@@ -127,6 +128,7 @@ func (o *GetLabelsParams) SetBody(body GetLabelsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetLabelsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

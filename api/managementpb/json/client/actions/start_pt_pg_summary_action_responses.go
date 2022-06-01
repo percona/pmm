@@ -59,12 +59,12 @@ type StartPTPgSummaryActionOK struct {
 func (o *StartPTPgSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] startPtPgSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTPgSummaryActionOK) GetPayload() *StartPTPgSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTPgSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTPgSummaryActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartPTPgSummaryActionDefault) Code() int {
 func (o *StartPTPgSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTPgSummary][%d] StartPTPgSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTPgSummaryActionDefault) GetPayload() *StartPTPgSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTPgSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTPgSummaryActionDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *StartPTPgSummaryActionDefault) readResponse(response runtime.ClientResp
 swagger:model StartPTPgSummaryActionBody
 */
 type StartPTPgSummaryActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -159,6 +160,7 @@ func (o *StartPTPgSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTPgSummaryActionDefaultBody
 */
 type StartPTPgSummaryActionDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -227,7 +229,9 @@ func (o *StartPTPgSummaryActionDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *StartPTPgSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,6 +242,7 @@ func (o *StartPTPgSummaryActionDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -265,6 +270,7 @@ func (o *StartPTPgSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTPgSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTPgSummaryActionDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -305,6 +311,7 @@ func (o *StartPTPgSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 swagger:model StartPTPgSummaryActionOKBody
 */
 type StartPTPgSummaryActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

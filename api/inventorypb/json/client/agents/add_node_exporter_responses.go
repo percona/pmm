@@ -61,12 +61,12 @@ type AddNodeExporterOK struct {
 func (o *AddNodeExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddNodeExporterOK) GetPayload() *AddNodeExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddNodeExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddNodeExporterDefault) Code() int {
 func (o *AddNodeExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] AddNodeExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddNodeExporterDefault) GetPayload() *AddNodeExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddNodeExporterDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, c
 swagger:model AddNodeExporterBody
 */
 type AddNodeExporterBody struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -167,6 +168,7 @@ func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddNodeExporterDefaultBody
 */
 type AddNodeExporterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -235,7 +237,9 @@ func (o *AddNodeExporterDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddNodeExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -246,6 +250,7 @@ func (o *AddNodeExporterDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -273,6 +278,7 @@ func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddNodeExporterDefaultBodyDetailsItems0
 */
 type AddNodeExporterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -313,6 +319,7 @@ func (o *AddNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model AddNodeExporterOKBody
 */
 type AddNodeExporterOKBody struct {
+
 	// node exporter
 	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
 }
@@ -365,6 +372,7 @@ func (o *AddNodeExporterOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddNodeExporterOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -401,6 +409,7 @@ func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddNodeExporterOKBodyNodeExporter
 */
 type AddNodeExporterOKBodyNodeExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

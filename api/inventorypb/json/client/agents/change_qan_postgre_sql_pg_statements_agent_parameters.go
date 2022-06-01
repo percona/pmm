@@ -58,6 +58,7 @@ func NewChangeQANPostgreSQLPgStatementsAgentParamsWithHTTPClient(client *http.Cl
    Typically these are written to a http.Request.
 */
 type ChangeQANPostgreSQLPgStatementsAgentParams struct {
+
 	// Body.
 	Body ChangeQANPostgreSQLPgStatementsAgentBody
 
@@ -127,6 +128,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentParams) SetBody(body ChangeQANPostg
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeQANPostgreSQLPgStatementsAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

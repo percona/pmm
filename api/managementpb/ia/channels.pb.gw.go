@@ -26,15 +26,12 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-
-var (
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = descriptor.ForMessage
-	_ = metadata.Join
-)
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = descriptor.ForMessage
+var _ = metadata.Join
 
 func request_Channels_ListChannels_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListChannelsRequest
@@ -50,6 +47,7 @@ func request_Channels_ListChannels_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.ListChannels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Channels_ListChannels_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -66,6 +64,7 @@ func local_request_Channels_ListChannels_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.ListChannels(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -82,6 +81,7 @@ func request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.AddChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,6 +98,7 @@ func local_request_Channels_AddChannel_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.AddChannel(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Channels_ChangeChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -114,6 +115,7 @@ func request_Channels_ChangeChannel_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.ChangeChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Channels_ChangeChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,6 +132,7 @@ func local_request_Channels_ChangeChannel_0(ctx context.Context, marshaler runti
 
 	msg, err := server.ChangeChannel(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Channels_RemoveChannel_0(ctx context.Context, marshaler runtime.Marshaler, client ChannelsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -146,6 +149,7 @@ func request_Channels_RemoveChannel_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.RemoveChannel(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Channels_RemoveChannel_0(ctx context.Context, marshaler runtime.Marshaler, server ChannelsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -162,6 +166,7 @@ func local_request_Channels_RemoveChannel_0(ctx context.Context, marshaler runti
 
 	msg, err := server.RemoveChannel(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterChannelsHandlerServer registers the http handlers for service Channels to "mux".
@@ -169,6 +174,7 @@ func local_request_Channels_RemoveChannel_0(ctx context.Context, marshaler runti
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterChannelsHandlerFromEndpoint instead.
 func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ChannelsServer) error {
+
 	mux.Handle("POST", pattern_Channels_ListChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -189,6 +195,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Channels_ListChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_AddChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -211,6 +218,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Channels_AddChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_ChangeChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -233,6 +241,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Channels_ChangeChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_RemoveChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -255,6 +264,7 @@ func RegisterChannelsHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Channels_RemoveChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -297,6 +307,7 @@ func RegisterChannelsHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ChannelsClient" to call the correct interceptors.
 func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ChannelsClient) error {
+
 	mux.Handle("POST", pattern_Channels_ListChannels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -314,6 +325,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Channels_ListChannels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_AddChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -333,6 +345,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Channels_AddChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_ChangeChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -352,6 +365,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Channels_ChangeChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Channels_RemoveChannel_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -371,6 +385,7 @@ func RegisterChannelsHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Channels_RemoveChannel_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

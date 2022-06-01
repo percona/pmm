@@ -61,12 +61,12 @@ type AddRDSOK struct {
 func (o *AddRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] addRdsOk  %+v", 200, o.Payload)
 }
-
 func (o *AddRDSOK) GetPayload() *AddRDSOKBody {
 	return o.Payload
 }
 
 func (o *AddRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddRDSOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddRDSDefault) Code() int {
 func (o *AddRDSDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] AddRDS default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddRDSDefault) GetPayload() *AddRDSDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddRDSDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer r
 swagger:model AddRDSBody
 */
 type AddRDSBody struct {
+
 	// AWS region.
 	Region string `json:"region,omitempty"`
 
@@ -350,6 +351,7 @@ func (o *AddRDSBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSDefaultBody
 */
 type AddRDSDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -418,7 +420,9 @@ func (o *AddRDSDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -429,6 +433,7 @@ func (o *AddRDSDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -456,6 +461,7 @@ func (o *AddRDSDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSDefaultBodyDetailsItems0
 */
 type AddRDSDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -496,6 +502,7 @@ func (o *AddRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBody
 */
 type AddRDSOKBody struct {
+
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -761,6 +768,7 @@ func (o *AddRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *AddRDSOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mysql != nil {
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -776,6 +784,7 @@ func (o *AddRDSOKBody) contextValidateMysql(ctx context.Context, formats strfmt.
 }
 
 func (o *AddRDSOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -791,6 +800,7 @@ func (o *AddRDSOKBody) contextValidateMysqldExporter(ctx context.Context, format
 }
 
 func (o *AddRDSOKBody) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Node != nil {
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -806,6 +816,7 @@ func (o *AddRDSOKBody) contextValidateNode(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddRDSOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Postgresql != nil {
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -821,6 +832,7 @@ func (o *AddRDSOKBody) contextValidatePostgresql(ctx context.Context, formats st
 }
 
 func (o *AddRDSOKBody) contextValidatePostgresqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresqlExporter != nil {
 		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -836,6 +848,7 @@ func (o *AddRDSOKBody) contextValidatePostgresqlExporter(ctx context.Context, fo
 }
 
 func (o *AddRDSOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -851,6 +864,7 @@ func (o *AddRDSOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, fo
 }
 
 func (o *AddRDSOKBody) contextValidateQANPostgresqlPgstatements(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatements != nil {
 		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -866,6 +880,7 @@ func (o *AddRDSOKBody) contextValidateQANPostgresqlPgstatements(ctx context.Cont
 }
 
 func (o *AddRDSOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -902,6 +917,7 @@ func (o *AddRDSOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyMysql
 */
 type AddRDSOKBodyMysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -968,6 +984,7 @@ func (o *AddRDSOKBodyMysql) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyMysqldExporter
 */
 type AddRDSOKBodyMysqldExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1193,6 +1210,7 @@ func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyNode
 */
 type AddRDSOKBodyNode struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1247,6 +1265,7 @@ func (o *AddRDSOKBodyNode) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyPostgresql
 */
 type AddRDSOKBodyPostgresql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1316,6 +1335,7 @@ func (o *AddRDSOKBodyPostgresql) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyPostgresqlExporter
 */
 type AddRDSOKBodyPostgresqlExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1524,6 +1544,7 @@ func (o *AddRDSOKBodyPostgresqlExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyQANMysqlPerfschema
 */
 type AddRDSOKBodyQANMysqlPerfschema struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1673,6 +1694,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyQANPostgresqlPgstatements
 */
 type AddRDSOKBodyQANPostgresqlPgstatements struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1810,6 +1832,7 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) UnmarshalBinary(b []byte) error 
 swagger:model AddRDSOKBodyRDSExporter
 */
 type AddRDSOKBodyRDSExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

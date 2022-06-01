@@ -58,6 +58,7 @@ func NewChangeQANMySQLSlowlogAgentParamsWithHTTPClient(client *http.Client) *Cha
    Typically these are written to a http.Request.
 */
 type ChangeQANMySQLSlowlogAgentParams struct {
+
 	// Body.
 	Body ChangeQANMySQLSlowlogAgentBody
 
@@ -127,6 +128,7 @@ func (o *ChangeQANMySQLSlowlogAgentParams) SetBody(body ChangeQANMySQLSlowlogAge
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeQANMySQLSlowlogAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -59,12 +59,12 @@ type AddGenericNodeOK struct {
 func (o *AddGenericNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *AddGenericNodeOK) GetPayload() *AddGenericNodeOKBody {
 	return o.Payload
 }
 
 func (o *AddGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddGenericNodeOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddGenericNodeDefault) Code() int {
 func (o *AddGenericNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddGenericNodeDefault) GetPayload() *AddGenericNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddGenericNodeDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, co
 swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
+
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -177,6 +178,7 @@ func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddGenericNodeDefaultBody
 */
 type AddGenericNodeDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -245,7 +247,9 @@ func (o *AddGenericNodeDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddGenericNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -256,6 +260,7 @@ func (o *AddGenericNodeDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -283,6 +288,7 @@ func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddGenericNodeDefaultBodyDetailsItems0
 */
 type AddGenericNodeDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -323,6 +329,7 @@ func (o *AddGenericNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model AddGenericNodeOKBody
 */
 type AddGenericNodeOKBody struct {
+
 	// generic
 	Generic *AddGenericNodeOKBodyGeneric `json:"generic,omitempty"`
 }
@@ -375,6 +382,7 @@ func (o *AddGenericNodeOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *AddGenericNodeOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Generic != nil {
 		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -411,6 +419,7 @@ func (o *AddGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

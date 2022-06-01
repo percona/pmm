@@ -58,6 +58,7 @@ func NewGetPXCClusterResourcesParamsWithHTTPClient(client *http.Client) *GetPXCC
    Typically these are written to a http.Request.
 */
 type GetPXCClusterResourcesParams struct {
+
 	// Body.
 	Body GetPXCClusterResourcesBody
 
@@ -127,6 +128,7 @@ func (o *GetPXCClusterResourcesParams) SetBody(body GetPXCClusterResourcesBody) 
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetPXCClusterResourcesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

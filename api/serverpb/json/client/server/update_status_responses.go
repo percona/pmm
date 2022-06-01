@@ -59,12 +59,12 @@ type UpdateStatusOK struct {
 func (o *UpdateStatusOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] updateStatusOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdateStatusOK) GetPayload() *UpdateStatusOKBody {
 	return o.Payload
 }
 
 func (o *UpdateStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateStatusOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *UpdateStatusDefault) Code() int {
 func (o *UpdateStatusDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Status][%d] UpdateStatus default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdateStatusDefault) GetPayload() *UpdateStatusDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateStatusDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
+
 	// Authentication token.
 	AuthToken string `json:"auth_token,omitempty"`
 
@@ -159,6 +160,7 @@ func (o *UpdateStatusBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateStatusDefaultBody
 */
 type UpdateStatusDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -227,7 +229,9 @@ func (o *UpdateStatusDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *UpdateStatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,6 +242,7 @@ func (o *UpdateStatusDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -265,6 +270,7 @@ func (o *UpdateStatusDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateStatusDefaultBodyDetailsItems0
 */
 type UpdateStatusDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -305,6 +311,7 @@ func (o *UpdateStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
+
 	// Progress log lines.
 	LogLines []string `json:"log_lines"`
 

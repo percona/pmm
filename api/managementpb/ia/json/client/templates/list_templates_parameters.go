@@ -58,6 +58,7 @@ func NewListTemplatesParamsWithHTTPClient(client *http.Client) *ListTemplatesPar
    Typically these are written to a http.Request.
 */
 type ListTemplatesParams struct {
+
 	// Body.
 	Body ListTemplatesBody
 
@@ -127,6 +128,7 @@ func (o *ListTemplatesParams) SetBody(body ListTemplatesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListTemplatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

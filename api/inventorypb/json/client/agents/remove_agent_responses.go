@@ -59,12 +59,12 @@ type RemoveAgentOK struct {
 func (o *RemoveAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *RemoveAgentOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *RemoveAgentDefault) Code() int {
 func (o *RemoveAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RemoveAgentDefault) GetPayload() *RemoveAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RemoveAgentDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
+
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -157,6 +158,7 @@ func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveAgentDefaultBody
 */
 type RemoveAgentDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -225,7 +227,9 @@ func (o *RemoveAgentDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *RemoveAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -236,6 +240,7 @@ func (o *RemoveAgentDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -263,6 +268,7 @@ func (o *RemoveAgentDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveAgentDefaultBodyDetailsItems0
 */
 type RemoveAgentDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 

@@ -58,6 +58,7 @@ func NewDiscoverRDSParamsWithHTTPClient(client *http.Client) *DiscoverRDSParams 
    Typically these are written to a http.Request.
 */
 type DiscoverRDSParams struct {
+
 	// Body.
 	Body DiscoverRDSBody
 
@@ -127,6 +128,7 @@ func (o *DiscoverRDSParams) SetBody(body DiscoverRDSBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DiscoverRDSParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

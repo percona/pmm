@@ -58,6 +58,7 @@ func NewGetNodeParamsWithHTTPClient(client *http.Client) *GetNodeParams {
    Typically these are written to a http.Request.
 */
 type GetNodeParams struct {
+
 	// Body.
 	Body GetNodeBody
 
@@ -127,6 +128,7 @@ func (o *GetNodeParams) SetBody(body GetNodeBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

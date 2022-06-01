@@ -61,12 +61,12 @@ type VersionOK struct {
 func (o *VersionOK) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] versionOk  %+v", 200, o.Payload)
 }
-
 func (o *VersionOK) GetPayload() *VersionOKBody {
 	return o.Payload
 }
 
 func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(VersionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *VersionDefault) Code() int {
 func (o *VersionDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/version][%d] Version default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *VersionDefault) GetPayload() *VersionDefaultBody {
 	return o.Payload
 }
 
 func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(VersionDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *VersionDefault) readResponse(response runtime.ClientResponse, consumer 
 swagger:model VersionDefaultBody
 */
 type VersionDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -190,7 +191,9 @@ func (o *VersionDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,6 +204,7 @@ func (o *VersionDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -228,6 +232,7 @@ func (o *VersionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model VersionDefaultBodyDetailsItems0
 */
 type VersionDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -268,6 +273,7 @@ func (o *VersionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model VersionOKBody
 */
 type VersionOKBody struct {
+
 	// PMM Server version.
 	Version string `json:"version,omitempty"`
 
@@ -415,6 +421,7 @@ func (o *VersionOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Managed != nil {
 		if err := o.Managed.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -430,6 +437,7 @@ func (o *VersionOKBody) contextValidateManaged(ctx context.Context, formats strf
 }
 
 func (o *VersionOKBody) contextValidateServer(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Server != nil {
 		if err := o.Server.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -466,6 +474,7 @@ func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
 swagger:model VersionOKBodyManaged
 */
 type VersionOKBodyManaged struct {
+
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 
@@ -530,6 +539,7 @@ func (o *VersionOKBodyManaged) UnmarshalBinary(b []byte) error {
 swagger:model VersionOKBodyServer
 */
 type VersionOKBodyServer struct {
+
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 

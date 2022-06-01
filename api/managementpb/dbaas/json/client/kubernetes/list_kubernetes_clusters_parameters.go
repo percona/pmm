@@ -58,6 +58,7 @@ func NewListKubernetesClustersParamsWithHTTPClient(client *http.Client) *ListKub
    Typically these are written to a http.Request.
 */
 type ListKubernetesClustersParams struct {
+
 	// Body.
 	Body interface{}
 
@@ -127,6 +128,7 @@ func (o *ListKubernetesClustersParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListKubernetesClustersParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

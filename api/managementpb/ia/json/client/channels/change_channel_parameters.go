@@ -58,6 +58,7 @@ func NewChangeChannelParamsWithHTTPClient(client *http.Client) *ChangeChannelPar
    Typically these are written to a http.Request.
 */
 type ChangeChannelParams struct {
+
 	// Body.
 	Body ChangeChannelBody
 
@@ -127,6 +128,7 @@ func (o *ChangeChannelParams) SetBody(body ChangeChannelBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeChannelParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -61,12 +61,12 @@ type ListAgentsOK struct {
 func (o *ListAgentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListAgentsOK) GetPayload() *ListAgentsOKBody {
 	return o.Payload
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListAgentsDefault) Code() int {
 func (o *ListAgentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListAgentsDefault) GetPayload() *ListAgentsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
+
 	// Return only Agents started by this pmm-agent.
 	// Exactly one of these parameters should be present: pmm_agent_id, node_id, service_id.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -264,6 +265,7 @@ func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -332,7 +334,9 @@ func (o *ListAgentsDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -343,6 +347,7 @@ func (o *ListAgentsDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -370,6 +375,7 @@ func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsDefaultBodyDetailsItems0
 */
 type ListAgentsDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -410,6 +416,7 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
+
 	// pmm agent
 	PMMAgent []*ListAgentsOKBodyPMMAgentItems0 `json:"pmm_agent"`
 
@@ -987,7 +994,9 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *ListAgentsOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.PMMAgent); i++ {
+
 		if o.PMMAgent[i] != nil {
 			if err := o.PMMAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -998,13 +1007,16 @@ func (o *ListAgentsOKBody) contextValidatePMMAgent(ctx context.Context, formats 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateVMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.VMAgent); i++ {
+
 		if o.VMAgent[i] != nil {
 			if err := o.VMAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1015,13 +1027,16 @@ func (o *ListAgentsOKBody) contextValidateVMAgent(ctx context.Context, formats s
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.NodeExporter); i++ {
+
 		if o.NodeExporter[i] != nil {
 			if err := o.NodeExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1032,13 +1047,16 @@ func (o *ListAgentsOKBody) contextValidateNodeExporter(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.MysqldExporter); i++ {
+
 		if o.MysqldExporter[i] != nil {
 			if err := o.MysqldExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1049,13 +1067,16 @@ func (o *ListAgentsOKBody) contextValidateMysqldExporter(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.MongodbExporter); i++ {
+
 		if o.MongodbExporter[i] != nil {
 			if err := o.MongodbExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1066,13 +1087,16 @@ func (o *ListAgentsOKBody) contextValidateMongodbExporter(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.PostgresExporter); i++ {
+
 		if o.PostgresExporter[i] != nil {
 			if err := o.PostgresExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1083,13 +1107,16 @@ func (o *ListAgentsOKBody) contextValidatePostgresExporter(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.ProxysqlExporter); i++ {
+
 		if o.ProxysqlExporter[i] != nil {
 			if err := o.ProxysqlExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1100,13 +1127,16 @@ func (o *ListAgentsOKBody) contextValidateProxysqlExporter(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QANMysqlPerfschemaAgent); i++ {
+
 		if o.QANMysqlPerfschemaAgent[i] != nil {
 			if err := o.QANMysqlPerfschemaAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1117,13 +1147,16 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QANMysqlSlowlogAgent); i++ {
+
 		if o.QANMysqlSlowlogAgent[i] != nil {
 			if err := o.QANMysqlSlowlogAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1134,13 +1167,16 @@ func (o *ListAgentsOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QANMongodbProfilerAgent); i++ {
+
 		if o.QANMongodbProfilerAgent[i] != nil {
 			if err := o.QANMongodbProfilerAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1151,13 +1187,16 @@ func (o *ListAgentsOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QANPostgresqlPgstatementsAgent); i++ {
+
 		if o.QANPostgresqlPgstatementsAgent[i] != nil {
 			if err := o.QANPostgresqlPgstatementsAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1168,13 +1207,16 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx con
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.QANPostgresqlPgstatmonitorAgent); i++ {
+
 		if o.QANPostgresqlPgstatmonitorAgent[i] != nil {
 			if err := o.QANPostgresqlPgstatmonitorAgent[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1185,13 +1227,16 @@ func (o *ListAgentsOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx co
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.RDSExporter); i++ {
+
 		if o.RDSExporter[i] != nil {
 			if err := o.RDSExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1202,13 +1247,16 @@ func (o *ListAgentsOKBody) contextValidateRDSExporter(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.ExternalExporter); i++ {
+
 		if o.ExternalExporter[i] != nil {
 			if err := o.ExternalExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1219,13 +1267,16 @@ func (o *ListAgentsOKBody) contextValidateExternalExporter(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListAgentsOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.AzureDatabaseExporter); i++ {
+
 		if o.AzureDatabaseExporter[i] != nil {
 			if err := o.AzureDatabaseExporter[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -1236,6 +1287,7 @@ func (o *ListAgentsOKBody) contextValidateAzureDatabaseExporter(ctx context.Cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -1263,6 +1315,7 @@ func (o *ListAgentsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBodyAzureDatabaseExporterItems0
 */
 type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1403,6 +1456,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) UnmarshalBinary(b []byte) 
 swagger:model ListAgentsOKBodyExternalExporterItems0
 */
 type ListAgentsOKBodyExternalExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1469,6 +1523,7 @@ func (o *ListAgentsOKBodyExternalExporterItems0) UnmarshalBinary(b []byte) error
 swagger:model ListAgentsOKBodyMongodbExporterItems0
 */
 type ListAgentsOKBodyMongodbExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1687,6 +1742,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) UnmarshalBinary(b []byte) error 
 swagger:model ListAgentsOKBodyMysqldExporterItems0
 */
 type ListAgentsOKBodyMysqldExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1912,6 +1968,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBodyNodeExporterItems0
 */
 type ListAgentsOKBodyNodeExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2046,6 +2103,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBodyPMMAgentItems0
 */
 type ListAgentsOKBodyPMMAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2094,6 +2152,7 @@ func (o *ListAgentsOKBodyPMMAgentItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBodyPostgresExporterItems0
 */
 type ListAgentsOKBodyPostgresExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2302,6 +2361,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) UnmarshalBinary(b []byte) error
 swagger:model ListAgentsOKBodyProxysqlExporterItems0
 */
 type ListAgentsOKBodyProxysqlExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2510,6 +2570,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) UnmarshalBinary(b []byte) error
 swagger:model ListAgentsOKBodyQANMongodbProfilerAgentItems0
 */
 type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2647,6 +2708,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) UnmarshalBinary(b []byte
 swagger:model ListAgentsOKBodyQANMysqlPerfschemaAgentItems0
 */
 type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2796,6 +2858,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) UnmarshalBinary(b []byte
 swagger:model ListAgentsOKBodyQANMysqlSlowlogAgentItems0
 */
 type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2948,6 +3011,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) UnmarshalBinary(b []byte) e
 swagger:model ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0
 */
 type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3085,6 +3149,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b
 swagger:model ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0
 */
 type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3225,6 +3290,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) UnmarshalBinary(
 swagger:model ListAgentsOKBodyRDSExporterItems0
 */
 type ListAgentsOKBodyRDSExporterItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3370,6 +3436,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsOKBodyVMAgentItems0
 */
 type ListAgentsOKBodyVMAgentItems0 struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

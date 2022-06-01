@@ -58,6 +58,7 @@ func NewDeleteAlertRuleParamsWithHTTPClient(client *http.Client) *DeleteAlertRul
    Typically these are written to a http.Request.
 */
 type DeleteAlertRuleParams struct {
+
 	// Body.
 	Body DeleteAlertRuleBody
 
@@ -127,6 +128,7 @@ func (o *DeleteAlertRuleParams) SetBody(body DeleteAlertRuleBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteAlertRuleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -58,6 +58,7 @@ func NewRemoveNodeParamsWithHTTPClient(client *http.Client) *RemoveNodeParams {
    Typically these are written to a http.Request.
 */
 type RemoveNodeParams struct {
+
 	// Body.
 	Body RemoveNodeBody
 
@@ -127,6 +128,7 @@ func (o *RemoveNodeParams) SetBody(body RemoveNodeBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

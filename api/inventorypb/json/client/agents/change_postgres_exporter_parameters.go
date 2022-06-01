@@ -58,6 +58,7 @@ func NewChangePostgresExporterParamsWithHTTPClient(client *http.Client) *ChangeP
    Typically these are written to a http.Request.
 */
 type ChangePostgresExporterParams struct {
+
 	// Body.
 	Body ChangePostgresExporterBody
 
@@ -127,6 +128,7 @@ func (o *ChangePostgresExporterParams) SetBody(body ChangePostgresExporterBody) 
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangePostgresExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

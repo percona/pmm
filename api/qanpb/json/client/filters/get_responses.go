@@ -60,12 +60,12 @@ type GetOK struct {
 func (o *GetOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
-
 func (o *GetOK) GetPayload() *GetOKBody {
 	return o.Payload
 }
 
 func (o *GetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetOKBody)
 
 	// response payload
@@ -101,12 +101,12 @@ func (o *GetDefault) Code() int {
 func (o *GetDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetDefault) GetPayload() *GetDefaultBody {
 	return o.Payload
 }
 
 func (o *GetDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ func (o *GetDefault) readResponse(response runtime.ClientResponse, consumer runt
 swagger:model GetBody
 */
 type GetBody struct {
+
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -223,7 +224,9 @@ func (o *GetBody) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 }
 
 func (o *GetBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Labels); i++ {
+
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -234,6 +237,7 @@ func (o *GetBody) contextValidateLabels(ctx context.Context, formats strfmt.Regi
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -261,6 +265,7 @@ func (o *GetBody) UnmarshalBinary(b []byte) error {
 swagger:model GetDefaultBody
 */
 type GetDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -329,7 +334,9 @@ func (o *GetDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *GetDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -340,6 +347,7 @@ func (o *GetDefaultBody) contextValidateDetails(ctx context.Context, formats str
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -367,6 +375,7 @@ func (o *GetDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetDefaultBodyDetailsItems0
 */
 type GetDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -408,6 +417,7 @@ func (o *GetDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetOKBody
 */
 type GetOKBody struct {
+
 	// labels
 	Labels map[string]GetOKBodyLabelsAnon `json:"labels,omitempty"`
 }
@@ -467,12 +477,15 @@ func (o *GetOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (o *GetOKBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Labels {
+
 		if val, ok := o.Labels[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -500,6 +513,7 @@ func (o *GetOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetOKBodyLabelsAnon
 */
 type GetOKBodyLabelsAnon struct {
+
 	// name
 	Name []*GetOKBodyLabelsAnonNameItems0 `json:"name"`
 }
@@ -559,7 +573,9 @@ func (o *GetOKBodyLabelsAnon) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetOKBodyLabelsAnon) contextValidateName(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Name); i++ {
+
 		if o.Name[i] != nil {
 			if err := o.Name[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -570,6 +586,7 @@ func (o *GetOKBodyLabelsAnon) contextValidateName(ctx context.Context, formats s
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -597,6 +614,7 @@ func (o *GetOKBodyLabelsAnon) UnmarshalBinary(b []byte) error {
 swagger:model GetOKBodyLabelsAnonNameItems0
 */
 type GetOKBodyLabelsAnonNameItems0 struct {
+
 	// value
 	Value string `json:"value,omitempty"`
 
@@ -639,6 +657,7 @@ func (o *GetOKBodyLabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetParamsBodyLabelsItems0
 */
 type GetParamsBodyLabelsItems0 struct {
+
 	// key
 	Key string `json:"key,omitempty"`
 

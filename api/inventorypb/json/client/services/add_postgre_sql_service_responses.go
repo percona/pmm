@@ -59,12 +59,12 @@ type AddPostgreSQLServiceOK struct {
 func (o *AddPostgreSQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] addPostgreSqlServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *AddPostgreSQLServiceOK) GetPayload() *AddPostgreSQLServiceOKBody {
 	return o.Payload
 }
 
 func (o *AddPostgreSQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPostgreSQLServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddPostgreSQLServiceDefault) Code() int {
 func (o *AddPostgreSQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] AddPostgreSQLService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddPostgreSQLServiceDefault) GetPayload() *AddPostgreSQLServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *AddPostgreSQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPostgreSQLServiceDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *AddPostgreSQLServiceDefault) readResponse(response runtime.ClientRespon
 swagger:model AddPostgreSQLServiceBody
 */
 type AddPostgreSQLServiceBody struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -183,6 +184,7 @@ func (o *AddPostgreSQLServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLServiceDefaultBody
 */
 type AddPostgreSQLServiceDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -251,7 +253,9 @@ func (o *AddPostgreSQLServiceDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *AddPostgreSQLServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -262,6 +266,7 @@ func (o *AddPostgreSQLServiceDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -289,6 +294,7 @@ func (o *AddPostgreSQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLServiceDefaultBodyDetailsItems0
 */
 type AddPostgreSQLServiceDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -329,6 +335,7 @@ func (o *AddPostgreSQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 swagger:model AddPostgreSQLServiceOKBody
 */
 type AddPostgreSQLServiceOKBody struct {
+
 	// postgresql
 	Postgresql *AddPostgreSQLServiceOKBodyPostgresql `json:"postgresql,omitempty"`
 }
@@ -381,6 +388,7 @@ func (o *AddPostgreSQLServiceOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddPostgreSQLServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Postgresql != nil {
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -417,6 +425,7 @@ func (o *AddPostgreSQLServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLServiceOKBodyPostgresql
 */
 type AddPostgreSQLServiceOKBodyPostgresql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

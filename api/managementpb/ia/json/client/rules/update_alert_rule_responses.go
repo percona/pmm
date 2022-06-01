@@ -61,12 +61,12 @@ type UpdateAlertRuleOK struct {
 func (o *UpdateAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] updateAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *UpdateAlertRuleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UpdateAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *UpdateAlertRuleDefault) Code() int {
 func (o *UpdateAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] UpdateAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UpdateAlertRuleDefault) GetPayload() *UpdateAlertRuleDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateAlertRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UpdateAlertRuleDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *UpdateAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 swagger:model UpdateAlertRuleBody
 */
 type UpdateAlertRuleBody struct {
+
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
@@ -305,7 +306,9 @@ func (o *UpdateAlertRuleBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *UpdateAlertRuleBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Params); i++ {
+
 		if o.Params[i] != nil {
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -316,13 +319,16 @@ func (o *UpdateAlertRuleBody) contextValidateParams(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *UpdateAlertRuleBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Filters); i++ {
+
 		if o.Filters[i] != nil {
 			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -333,6 +339,7 @@ func (o *UpdateAlertRuleBody) contextValidateFilters(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -360,6 +367,7 @@ func (o *UpdateAlertRuleBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateAlertRuleDefaultBody
 */
 type UpdateAlertRuleDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -428,7 +436,9 @@ func (o *UpdateAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *UpdateAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -439,6 +449,7 @@ func (o *UpdateAlertRuleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -466,6 +477,7 @@ func (o *UpdateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateAlertRuleDefaultBodyDetailsItems0
 */
 type UpdateAlertRuleDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -506,6 +518,7 @@ func (o *UpdateAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model UpdateAlertRuleParamsBodyFiltersItems0
 */
 type UpdateAlertRuleParamsBodyFiltersItems0 struct {
+
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
@@ -606,6 +619,7 @@ func (o *UpdateAlertRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error
 swagger:model UpdateAlertRuleParamsBodyParamsItems0
 */
 type UpdateAlertRuleParamsBodyParamsItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

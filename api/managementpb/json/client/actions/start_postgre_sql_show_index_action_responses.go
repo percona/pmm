@@ -59,12 +59,12 @@ type StartPostgreSQLShowIndexActionOK struct {
 func (o *StartPostgreSQLShowIndexActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] startPostgreSqlShowIndexActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPostgreSQLShowIndexActionOK) GetPayload() *StartPostgreSQLShowIndexActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPostgreSQLShowIndexActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPostgreSQLShowIndexActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartPostgreSQLShowIndexActionDefault) Code() int {
 func (o *StartPostgreSQLShowIndexActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowIndex][%d] StartPostgreSQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPostgreSQLShowIndexActionDefault) GetPayload() *StartPostgreSQLShowIndexActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPostgreSQLShowIndexActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPostgreSQLShowIndexActionDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *StartPostgreSQLShowIndexActionDefault) readResponse(response runtime.Cl
 swagger:model StartPostgreSQLShowIndexActionBody
 */
 type StartPostgreSQLShowIndexActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -165,6 +166,7 @@ func (o *StartPostgreSQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPostgreSQLShowIndexActionDefaultBody
 */
 type StartPostgreSQLShowIndexActionDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -233,7 +235,9 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) ContextValidate(ctx context.
 }
 
 func (o *StartPostgreSQLShowIndexActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -244,6 +248,7 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) contextValidateDetails(ctx c
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -271,6 +276,7 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) er
 swagger:model StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0
 */
 type StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -311,6 +317,7 @@ func (o *StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0) UnmarshalBinary
 swagger:model StartPostgreSQLShowIndexActionOKBody
 */
 type StartPostgreSQLShowIndexActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

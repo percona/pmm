@@ -59,12 +59,12 @@ type GetPSMDBComponentsOK struct {
 func (o *GetPSMDBComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetPSMDBComponentsOK) GetPayload() *GetPSMDBComponentsOKBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBComponentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPSMDBComponentsOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetPSMDBComponentsDefault) Code() int {
 func (o *GetPSMDBComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetPSMDBComponentsDefault) GetPayload() *GetPSMDBComponentsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBComponentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetPSMDBComponentsDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *GetPSMDBComponentsDefault) readResponse(response runtime.ClientResponse
 swagger:model GetPSMDBComponentsBody
 */
 type GetPSMDBComponentsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -159,6 +160,7 @@ func (o *GetPSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBComponentsDefaultBody
 */
 type GetPSMDBComponentsDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -227,7 +229,9 @@ func (o *GetPSMDBComponentsDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetPSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,6 +242,7 @@ func (o *GetPSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -265,6 +270,7 @@ func (o *GetPSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBComponentsDefaultBodyDetailsItems0
 */
 type GetPSMDBComponentsDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -305,6 +311,7 @@ func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model GetPSMDBComponentsOKBody
 */
 type GetPSMDBComponentsOKBody struct {
+
 	// versions
 	Versions []*GetPSMDBComponentsOKBodyVersionsItems0 `json:"versions"`
 }
@@ -364,7 +371,9 @@ func (o *GetPSMDBComponentsOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *GetPSMDBComponentsOKBody) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -375,6 +384,7 @@ func (o *GetPSMDBComponentsOKBody) contextValidateVersions(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -402,6 +412,7 @@ func (o *GetPSMDBComponentsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0
 */
 type GetPSMDBComponentsOKBodyVersionsItems0 struct {
+
 	// product
 	Product string `json:"product,omitempty"`
 
@@ -460,6 +471,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0) ContextValidate(ctx context.Con
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0) contextValidateMatrix(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Matrix != nil {
 		if err := o.Matrix.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -496,6 +508,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0) UnmarshalBinary(b []byte) error
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0Matrix
 */
 type GetPSMDBComponentsOKBodyVersionsItems0Matrix struct {
+
 	// mongod
 	Mongod map[string]GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon `json:"mongod,omitempty"`
 
@@ -814,96 +827,120 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx conte
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateMongod(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Mongod {
+
 		if val, ok := o.Mongod[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.PXC {
+
 		if val, ok := o.PXC[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidatePMM(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.PMM {
+
 		if val, ok := o.PMM[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Proxysql {
+
 		if val, ok := o.Proxysql[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Haproxy {
+
 		if val, ok := o.Haproxy[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateBackup(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Backup {
+
 		if val, ok := o.Backup[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateOperator(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.Operator {
+
 		if val, ok := o.Operator[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) contextValidateLogCollector(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.LogCollector {
+
 		if val, ok := o.LogCollector[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -931,6 +968,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) UnmarshalBinary(b []byte)
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -982,6 +1020,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) UnmarshalBinary
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1033,6 +1072,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) UnmarshalBinar
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1084,6 +1124,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) Unmarshal
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1135,6 +1176,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) UnmarshalBinary
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1186,6 +1228,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) UnmarshalBina
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1237,6 +1280,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) UnmarshalBinary(b 
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 
@@ -1288,6 +1332,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) UnmarshalBinary(b 
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon struct {
+
 	// image path
 	ImagePath string `json:"image_path,omitempty"`
 

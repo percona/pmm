@@ -61,12 +61,12 @@ type ChangeMongoDBExporterOK struct {
 func (o *ChangeMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeMongoDBExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 func (o *ChangeMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeMongoDBExporterDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientRespo
 swagger:model ChangeMongoDBExporterBody
 */
 type ChangeMongoDBExporterBody struct {
+
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -177,6 +178,7 @@ func (o *ChangeMongoDBExporterBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeMongoDBExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -213,6 +215,7 @@ func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterDefaultBody
 */
 type ChangeMongoDBExporterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -281,7 +284,9 @@ func (o *ChangeMongoDBExporterDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangeMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -292,6 +297,7 @@ func (o *ChangeMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -319,6 +325,7 @@ func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterDefaultBodyDetailsItems0
 */
 type ChangeMongoDBExporterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -359,6 +366,7 @@ func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 swagger:model ChangeMongoDBExporterOKBody
 */
 type ChangeMongoDBExporterOKBody struct {
+
 	// mongodb exporter
 	MongodbExporter *ChangeMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 }
@@ -411,6 +419,7 @@ func (o *ChangeMongoDBExporterOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ChangeMongoDBExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -447,6 +456,7 @@ func (o *ChangeMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterOKBodyMongodbExporter
 */
 type ChangeMongoDBExporterOKBodyMongodbExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -665,6 +675,7 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) e
 swagger:model ChangeMongoDBExporterParamsBodyCommon
 */
 type ChangeMongoDBExporterParamsBodyCommon struct {
+
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

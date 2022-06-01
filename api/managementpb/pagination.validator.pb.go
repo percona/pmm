@@ -5,20 +5,16 @@ package managementpb
 
 import (
 	fmt "fmt"
-	math "math"
-
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-
-var (
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *PageParams) Validate() error {
 	if !(this.PageSize > 0) {
@@ -29,7 +25,6 @@ func (this *PageParams) Validate() error {
 	}
 	return nil
 }
-
 func (this *PageTotals) Validate() error {
 	return nil
 }

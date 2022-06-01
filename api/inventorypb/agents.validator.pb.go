@@ -5,106 +5,85 @@ package inventorypb
 
 import (
 	fmt "fmt"
-	math "math"
-
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-
-var (
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *PMMAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *VMAgent) Validate() error {
 	return nil
 }
-
 func (this *NodeExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *MySQLdExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *MongoDBExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *PostgresExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ProxySQLExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *QANMySQLPerfSchemaAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *QANMySQLSlowlogAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *QANMongoDBProfilerAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *QANPostgreSQLPgStatementsAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *QANPostgreSQLPgStatMonitorAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *RDSExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ExternalExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AzureDatabaseExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ChangeCommonAgentParams) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ListAgentsRequest) Validate() error {
 	return nil
 }
-
 func (this *ListAgentsResponse) Validate() error {
 	for _, item := range this.PmmAgent {
 		if item != nil {
@@ -213,14 +192,12 @@ func (this *ListAgentsResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *GetAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	return nil
 }
-
 func (this *GetAgentResponse) Validate() error {
 	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_PmmAgent); ok {
 		if oneOfNester.PmmAgent != nil {
@@ -329,7 +306,6 @@ func (this *GetAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddPMMAgentRequest) Validate() error {
 	if this.RunsOnNodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
@@ -337,7 +313,6 @@ func (this *AddPMMAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddPMMAgentResponse) Validate() error {
 	if this.PmmAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmAgent); err != nil {
@@ -346,7 +321,6 @@ func (this *AddPMMAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddNodeExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -354,7 +328,6 @@ func (this *AddNodeExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddNodeExporterResponse) Validate() error {
 	if this.NodeExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeExporter); err != nil {
@@ -363,7 +336,6 @@ func (this *AddNodeExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeNodeExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -375,7 +347,6 @@ func (this *ChangeNodeExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeNodeExporterResponse) Validate() error {
 	if this.NodeExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeExporter); err != nil {
@@ -384,7 +355,6 @@ func (this *ChangeNodeExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddMySQLdExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -398,7 +368,6 @@ func (this *AddMySQLdExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddMySQLdExporterResponse) Validate() error {
 	if this.MysqldExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MysqldExporter); err != nil {
@@ -407,7 +376,6 @@ func (this *AddMySQLdExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeMySQLdExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -419,7 +387,6 @@ func (this *ChangeMySQLdExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeMySQLdExporterResponse) Validate() error {
 	if this.MysqldExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MysqldExporter); err != nil {
@@ -428,7 +395,6 @@ func (this *ChangeMySQLdExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddMongoDBExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -439,7 +405,6 @@ func (this *AddMongoDBExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddMongoDBExporterResponse) Validate() error {
 	if this.MongodbExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongodbExporter); err != nil {
@@ -448,7 +413,6 @@ func (this *AddMongoDBExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeMongoDBExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -460,7 +424,6 @@ func (this *ChangeMongoDBExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeMongoDBExporterResponse) Validate() error {
 	if this.MongodbExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongodbExporter); err != nil {
@@ -469,7 +432,6 @@ func (this *ChangeMongoDBExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddPostgresExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -483,7 +445,6 @@ func (this *AddPostgresExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddPostgresExporterResponse) Validate() error {
 	if this.PostgresExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresExporter); err != nil {
@@ -492,7 +453,6 @@ func (this *AddPostgresExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangePostgresExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -504,7 +464,6 @@ func (this *ChangePostgresExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangePostgresExporterResponse) Validate() error {
 	if this.PostgresExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresExporter); err != nil {
@@ -513,7 +472,6 @@ func (this *ChangePostgresExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddProxySQLExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -527,7 +485,6 @@ func (this *AddProxySQLExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddProxySQLExporterResponse) Validate() error {
 	if this.ProxysqlExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ProxysqlExporter); err != nil {
@@ -536,7 +493,6 @@ func (this *AddProxySQLExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeProxySQLExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -548,7 +504,6 @@ func (this *ChangeProxySQLExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeProxySQLExporterResponse) Validate() error {
 	if this.ProxysqlExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ProxysqlExporter); err != nil {
@@ -557,7 +512,6 @@ func (this *ChangeProxySQLExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -571,7 +525,6 @@ func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {
 	if this.QanMysqlPerfschemaAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
@@ -580,7 +533,6 @@ func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMySQLPerfSchemaAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -592,7 +544,6 @@ func (this *ChangeQANMySQLPerfSchemaAgentRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
 	if this.QanMysqlPerfschemaAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
@@ -601,7 +552,6 @@ func (this *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddQANMySQLSlowlogAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -615,7 +565,6 @@ func (this *AddQANMySQLSlowlogAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddQANMySQLSlowlogAgentResponse) Validate() error {
 	if this.QanMysqlSlowlogAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlSlowlogAgent); err != nil {
@@ -624,7 +573,6 @@ func (this *AddQANMySQLSlowlogAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMySQLSlowlogAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -636,7 +584,6 @@ func (this *ChangeQANMySQLSlowlogAgentRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMySQLSlowlogAgentResponse) Validate() error {
 	if this.QanMysqlSlowlogAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlSlowlogAgent); err != nil {
@@ -645,7 +592,6 @@ func (this *ChangeQANMySQLSlowlogAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddQANMongoDBProfilerAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -656,7 +602,6 @@ func (this *AddQANMongoDBProfilerAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddQANMongoDBProfilerAgentResponse) Validate() error {
 	if this.QanMongodbProfilerAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongodbProfilerAgent); err != nil {
@@ -665,7 +610,6 @@ func (this *AddQANMongoDBProfilerAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMongoDBProfilerAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -677,7 +621,6 @@ func (this *ChangeQANMongoDBProfilerAgentRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANMongoDBProfilerAgentResponse) Validate() error {
 	if this.QanMongodbProfilerAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongodbProfilerAgent); err != nil {
@@ -686,7 +629,6 @@ func (this *ChangeQANMongoDBProfilerAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddQANPostgreSQLPgStatementsAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -700,7 +642,6 @@ func (this *AddQANPostgreSQLPgStatementsAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatementsAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatementsAgent); err != nil {
@@ -709,7 +650,6 @@ func (this *AddQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANPostgreSQLPgStatementsAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -721,7 +661,6 @@ func (this *ChangeQANPostgreSQLPgStatementsAgentRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatementsAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatementsAgent); err != nil {
@@ -730,7 +669,6 @@ func (this *ChangeQANPostgreSQLPgStatementsAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -744,7 +682,6 @@ func (this *AddQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatmonitorAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitorAgent); err != nil {
@@ -753,7 +690,6 @@ func (this *AddQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -765,7 +701,6 @@ func (this *ChangeQANPostgreSQLPgStatMonitorAgentRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
 	if this.QanPostgresqlPgstatmonitorAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanPostgresqlPgstatmonitorAgent); err != nil {
@@ -774,7 +709,6 @@ func (this *ChangeQANPostgreSQLPgStatMonitorAgentResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddRDSExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -785,7 +719,6 @@ func (this *AddRDSExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddRDSExporterResponse) Validate() error {
 	if this.RdsExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
@@ -794,7 +727,6 @@ func (this *AddRDSExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeRDSExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -806,7 +738,6 @@ func (this *ChangeRDSExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeRDSExporterResponse) Validate() error {
 	if this.RdsExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
@@ -815,7 +746,6 @@ func (this *ChangeRDSExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddExternalExporterRequest) Validate() error {
 	if this.RunsOnNodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
@@ -829,7 +759,6 @@ func (this *AddExternalExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddExternalExporterResponse) Validate() error {
 	if this.ExternalExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
@@ -838,7 +767,6 @@ func (this *AddExternalExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeExternalExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -850,7 +778,6 @@ func (this *ChangeExternalExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeExternalExporterResponse) Validate() error {
 	if this.ExternalExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
@@ -859,7 +786,6 @@ func (this *ChangeExternalExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *AddAzureDatabaseExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -873,7 +799,6 @@ func (this *AddAzureDatabaseExporterRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *AddAzureDatabaseExporterResponse) Validate() error {
 	if this.AzureDatabaseExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureDatabaseExporter); err != nil {
@@ -882,7 +807,6 @@ func (this *AddAzureDatabaseExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeAzureDatabaseExporterRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
@@ -894,7 +818,6 @@ func (this *ChangeAzureDatabaseExporterRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ChangeAzureDatabaseExporterResponse) Validate() error {
 	if this.AzureDatabaseExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AzureDatabaseExporter); err != nil {
@@ -903,14 +826,18 @@ func (this *ChangeAzureDatabaseExporterResponse) Validate() error {
 	}
 	return nil
 }
-
 func (this *RemoveAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	return nil
 }
-
 func (this *RemoveAgentResponse) Validate() error {
+	return nil
+}
+func (this *AgentLogsRequest) Validate() error {
+	return nil
+}
+func (this *AgentLogsResponse) Validate() error {
 	return nil
 }

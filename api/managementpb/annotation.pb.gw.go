@@ -26,15 +26,12 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-
-var (
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = descriptor.ForMessage
-	_ = metadata.Join
-)
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = descriptor.ForMessage
+var _ = metadata.Join
 
 func request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client AnnotationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
@@ -50,6 +47,7 @@ func request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.AddAnnotation(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server AnnotationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -66,6 +64,7 @@ func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler run
 
 	msg, err := server.AddAnnotation(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterAnnotationHandlerServer registers the http handlers for service Annotation to "mux".
@@ -73,6 +72,7 @@ func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler run
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAnnotationHandlerFromEndpoint instead.
 func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AnnotationServer) error {
+
 	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -93,6 +93,7 @@ func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Annotation_AddAnnotation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -135,6 +136,7 @@ func RegisterAnnotationHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AnnotationClient" to call the correct interceptors.
 func RegisterAnnotationHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AnnotationClient) error {
+
 	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -152,11 +154,16 @@ func RegisterAnnotationHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Annotation_AddAnnotation_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
 }
 
-var pattern_Annotation_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
+var (
+	pattern_Annotation_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, "", runtime.AssumeColonVerbOpt(true)))
+)
 
-var forward_Annotation_AddAnnotation_0 = runtime.ForwardResponseMessage
+var (
+	forward_Annotation_AddAnnotation_0 = runtime.ForwardResponseMessage
+)

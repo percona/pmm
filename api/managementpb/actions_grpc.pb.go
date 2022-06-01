@@ -8,7 +8,6 @@ package managementpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -236,64 +235,51 @@ type ActionsServer interface {
 }
 
 // UnimplementedActionsServer must be embedded to have forward compatible implementations.
-type UnimplementedActionsServer struct{}
+type UnimplementedActionsServer struct {
+}
 
 func (UnimplementedActionsServer) GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainJSONAction(context.Context, *StartMySQLExplainJSONActionRequest) (*StartMySQLExplainJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainJSONAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainTraditionalJSONAction(context.Context, *StartMySQLExplainTraditionalJSONActionRequest) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainTraditionalJSONAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowCreateTableAction(context.Context, *StartMySQLShowCreateTableActionRequest) (*StartMySQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowCreateTableAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowTableStatusAction(context.Context, *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowTableStatusAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowIndexAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowCreateTableAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPostgreSQLShowIndexAction(context.Context, *StartPostgreSQLShowIndexActionRequest) (*StartPostgreSQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowIndexAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMongoDBExplainAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTPgSummaryAction(context.Context, *StartPTPgSummaryActionRequest) (*StartPTPgSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTPgSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTMongoDBSummaryAction(context.Context, *StartPTMongoDBSummaryActionRequest) (*StartPTMongoDBSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMongoDBSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }

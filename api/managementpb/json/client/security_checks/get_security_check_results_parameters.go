@@ -58,6 +58,7 @@ func NewGetSecurityCheckResultsParamsWithHTTPClient(client *http.Client) *GetSec
    Typically these are written to a http.Request.
 */
 type GetSecurityCheckResultsParams struct {
+
 	// Body.
 	Body interface{}
 
@@ -127,6 +128,7 @@ func (o *GetSecurityCheckResultsParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetSecurityCheckResultsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -61,12 +61,12 @@ type AddMySQLdExporterOK struct {
 func (o *AddMySQLdExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySQLdExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMySQLdExporterOK) GetPayload() *AddMySQLdExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddMySQLdExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLdExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddMySQLdExporterDefault) Code() int {
 func (o *AddMySQLdExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMySQLdExporterDefault) GetPayload() *AddMySQLdExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMySQLdExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLdExporterDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *AddMySQLdExporterDefault) readResponse(response runtime.ClientResponse,
 swagger:model AddMySQLdExporterBody
 */
 type AddMySQLdExporterBody struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -202,6 +203,7 @@ func (o *AddMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLdExporterDefaultBody
 */
 type AddMySQLdExporterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -270,7 +272,9 @@ func (o *AddMySQLdExporterDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -281,6 +285,7 @@ func (o *AddMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -308,6 +313,7 @@ func (o *AddMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLdExporterDefaultBodyDetailsItems0
 */
 type AddMySQLdExporterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -348,6 +354,7 @@ func (o *AddMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 swagger:model AddMySQLdExporterOKBody
 */
 type AddMySQLdExporterOKBody struct {
+
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -403,6 +410,7 @@ func (o *AddMySQLdExporterOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *AddMySQLdExporterOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -439,6 +447,7 @@ func (o *AddMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLdExporterOKBodyMysqldExporter
 */
 type AddMySQLdExporterOKBodyMysqldExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

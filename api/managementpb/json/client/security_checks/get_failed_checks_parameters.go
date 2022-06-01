@@ -58,6 +58,7 @@ func NewGetFailedChecksParamsWithHTTPClient(client *http.Client) *GetFailedCheck
    Typically these are written to a http.Request.
 */
 type GetFailedChecksParams struct {
+
 	// Body.
 	Body GetFailedChecksBody
 
@@ -127,6 +128,7 @@ func (o *GetFailedChecksParams) SetBody(body GetFailedChecksBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetFailedChecksParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -61,12 +61,12 @@ type DeleteDBClusterOK struct {
 func (o *DeleteDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Delete][%d] deleteDbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *DeleteDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *DeleteDBClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *DeleteDBClusterDefault) Code() int {
 func (o *DeleteDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Delete][%d] DeleteDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *DeleteDBClusterDefault) GetPayload() *DeleteDBClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *DeleteDBClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DeleteDBClusterDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *DeleteDBClusterDefault) readResponse(response runtime.ClientResponse, c
 swagger:model DeleteDBClusterBody
 */
 type DeleteDBClusterBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -221,6 +222,7 @@ func (o *DeleteDBClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model DeleteDBClusterDefaultBody
 */
 type DeleteDBClusterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -289,7 +291,9 @@ func (o *DeleteDBClusterDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *DeleteDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -300,6 +304,7 @@ func (o *DeleteDBClusterDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -327,6 +332,7 @@ func (o *DeleteDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model DeleteDBClusterDefaultBodyDetailsItems0
 */
 type DeleteDBClusterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 

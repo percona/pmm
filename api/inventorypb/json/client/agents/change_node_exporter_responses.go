@@ -61,12 +61,12 @@ type ChangeNodeExporterOK struct {
 func (o *ChangeNodeExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] changeNodeExporterOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeNodeExporterOK) GetPayload() *ChangeNodeExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeNodeExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeNodeExporterDefault) Code() int {
 func (o *ChangeNodeExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeNodeExporter][%d] ChangeNodeExporter default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeNodeExporterDefault) GetPayload() *ChangeNodeExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeNodeExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeNodeExporterDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *ChangeNodeExporterDefault) readResponse(response runtime.ClientResponse
 swagger:model ChangeNodeExporterBody
 */
 type ChangeNodeExporterBody struct {
+
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -177,6 +178,7 @@ func (o *ChangeNodeExporterBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *ChangeNodeExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -213,6 +215,7 @@ func (o *ChangeNodeExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeNodeExporterDefaultBody
 */
 type ChangeNodeExporterDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -281,7 +284,9 @@ func (o *ChangeNodeExporterDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ChangeNodeExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -292,6 +297,7 @@ func (o *ChangeNodeExporterDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -319,6 +325,7 @@ func (o *ChangeNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeNodeExporterDefaultBodyDetailsItems0
 */
 type ChangeNodeExporterDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -359,6 +366,7 @@ func (o *ChangeNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model ChangeNodeExporterOKBody
 */
 type ChangeNodeExporterOKBody struct {
+
 	// node exporter
 	NodeExporter *ChangeNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
 }
@@ -411,6 +419,7 @@ func (o *ChangeNodeExporterOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ChangeNodeExporterOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -447,6 +456,7 @@ func (o *ChangeNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeNodeExporterOKBodyNodeExporter
 */
 type ChangeNodeExporterOKBodyNodeExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -581,6 +591,7 @@ func (o *ChangeNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 swagger:model ChangeNodeExporterParamsBodyCommon
 */
 type ChangeNodeExporterParamsBodyCommon struct {
+
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

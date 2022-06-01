@@ -59,12 +59,12 @@ type AddMySQLServiceOK struct {
 func (o *AddMySQLServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMySQLServiceOK) GetPayload() *AddMySQLServiceOKBody {
 	return o.Payload
 }
 
 func (o *AddMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddMySQLServiceDefault) Code() int {
 func (o *AddMySQLServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMySQLServiceDefault) GetPayload() *AddMySQLServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLServiceDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *AddMySQLServiceDefault) readResponse(response runtime.ClientResponse, c
 swagger:model AddMySQLServiceBody
 */
 type AddMySQLServiceBody struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -183,6 +184,7 @@ func (o *AddMySQLServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLServiceDefaultBody
 */
 type AddMySQLServiceDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -251,7 +253,9 @@ func (o *AddMySQLServiceDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddMySQLServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -262,6 +266,7 @@ func (o *AddMySQLServiceDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -289,6 +294,7 @@ func (o *AddMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLServiceDefaultBodyDetailsItems0
 */
 type AddMySQLServiceDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -329,6 +335,7 @@ func (o *AddMySQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model AddMySQLServiceOKBody
 */
 type AddMySQLServiceOKBody struct {
+
 	// mysql
 	Mysql *AddMySQLServiceOKBodyMysql `json:"mysql,omitempty"`
 }
@@ -381,6 +388,7 @@ func (o *AddMySQLServiceOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddMySQLServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mysql != nil {
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -417,6 +425,7 @@ func (o *AddMySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLServiceOKBodyMysql
 */
 type AddMySQLServiceOKBodyMysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
