@@ -1400,7 +1400,6 @@ var (
 		(*managementpb.PageTotals)(nil), // 17: management.PageTotals
 	}
 )
-
 var file_managementpb_ia_channels_proto_depIdxs = []int32{
 	0,  // 0: ia.v1beta1.HTTPConfig.basic_auth:type_name -> ia.v1beta1.BasicAuth
 	1,  // 1: ia.v1beta1.HTTPConfig.tls_config:type_name -> ia.v1beta1.TLSConfig

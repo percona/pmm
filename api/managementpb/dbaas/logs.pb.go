@@ -267,7 +267,6 @@ var (
 		(*GetLogsResponse)(nil), // 2: dbaas.v1beta1.GetLogsResponse
 	}
 )
-
 var file_managementpb_dbaas_logs_proto_depIdxs = []int32{
 	0, // 0: dbaas.v1beta1.GetLogsResponse.logs:type_name -> dbaas.v1beta1.Logs
 	1, // 1: dbaas.v1beta1.LogsAPI.GetLogs:input_type -> dbaas.v1beta1.GetLogsRequest

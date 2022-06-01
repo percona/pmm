@@ -1554,7 +1554,6 @@ var (
 		(*PageTotals)(nil),                      // 24: management.PageTotals
 	}
 )
-
 var file_managementpb_checks_proto_depIdxs = []int32{
 	22, // 0: management.SecurityCheckResult.severity:type_name -> management.Severity
 	20, // 1: management.SecurityCheckResult.labels:type_name -> management.SecurityCheckResult.LabelsEntry

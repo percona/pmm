@@ -1389,7 +1389,6 @@ var (
 		(*wrapperspb.BoolValue)(nil),                          // 20: google.protobuf.BoolValue
 	}
 )
-
 var file_platformpb_platform_proto_depIdxs = []int32{
 	6,  // 0: platform.SearchOrganizationTicketsResponse.tickets:type_name -> platform.OrganizationTicket
 	18, // 1: platform.OrganizationTicket.create_time:type_name -> google.protobuf.Timestamp

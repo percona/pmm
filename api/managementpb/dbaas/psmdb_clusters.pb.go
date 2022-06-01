@@ -1007,7 +1007,6 @@ var (
 		(*ComputeResources)(nil),                                              // 14: dbaas.v1beta1.ComputeResources
 	}
 )
-
 var file_managementpb_dbaas_psmdb_clusters_proto_depIdxs = []int32{
 	9,  // 0: dbaas.v1beta1.PSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
 	10, // 1: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials

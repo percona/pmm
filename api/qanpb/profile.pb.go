@@ -665,7 +665,6 @@ var (
 		(*Point)(nil),                 // 8: qan.v1beta1.Point
 	}
 )
-
 var file_qanpb_profile_proto_depIdxs = []int32{
 	7, // 0: qan.v1beta1.ReportRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	7, // 1: qan.v1beta1.ReportRequest.period_start_to:type_name -> google.protobuf.Timestamp

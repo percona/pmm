@@ -1470,7 +1470,6 @@ var (
 		(OperatorsStatus)(0),                     // 29: dbaas.v1beta1.OperatorsStatus
 	}
 )
-
 var file_managementpb_dbaas_components_proto_depIdxs = []int32{
 	18, // 0: dbaas.v1beta1.Matrix.mongod:type_name -> dbaas.v1beta1.Matrix.MongodEntry
 	19, // 1: dbaas.v1beta1.Matrix.pxc:type_name -> dbaas.v1beta1.Matrix.PxcEntry

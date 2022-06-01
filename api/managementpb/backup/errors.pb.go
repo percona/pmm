@@ -187,7 +187,6 @@ var (
 		(*Error)(nil),  // 1: backup.v1beta1.Error
 	}
 )
-
 var file_managementpb_backup_errors_proto_depIdxs = []int32{
 	0, // 0: backup.v1beta1.Error.code:type_name -> backup.v1beta1.ErrorCode
 	1, // [1:1] is the sub-list for method output_type

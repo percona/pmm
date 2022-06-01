@@ -537,7 +537,6 @@ var (
 		(BackupMode)(0),                // 8: backup.v1beta1.BackupMode
 	}
 )
-
 var file_managementpb_backup_artifacts_proto_depIdxs = []int32{
 	6, // 0: backup.v1beta1.Artifact.data_model:type_name -> backup.v1beta1.DataModel
 	0, // 1: backup.v1beta1.Artifact.status:type_name -> backup.v1beta1.BackupStatus

@@ -205,7 +205,6 @@ var (
 		(*AddAnnotationResponse)(nil), // 1: management.AddAnnotationResponse
 	}
 )
-
 var file_managementpb_annotation_proto_depIdxs = []int32{
 	0, // 0: management.Annotation.AddAnnotation:input_type -> management.AddAnnotationRequest
 	1, // 1: management.Annotation.AddAnnotation:output_type -> management.AddAnnotationResponse

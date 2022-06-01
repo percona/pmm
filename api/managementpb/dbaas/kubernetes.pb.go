@@ -1020,7 +1020,6 @@ var (
 		(*Resources)(nil),                              // 16: dbaas.v1beta1.Resources
 	}
 )
-
 var file_managementpb_dbaas_kubernetes_proto_depIdxs = []int32{
 	15, // 0: dbaas.v1beta1.Operator.status:type_name -> dbaas.v1beta1.OperatorsStatus
 	2,  // 1: dbaas.v1beta1.Operators.pxc:type_name -> dbaas.v1beta1.Operator

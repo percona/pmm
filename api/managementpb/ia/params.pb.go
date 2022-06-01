@@ -173,7 +173,6 @@ var (
 		(ParamType)(0), // 1: ia.v1beta1.ParamType
 	}
 )
-
 var file_managementpb_ia_params_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
