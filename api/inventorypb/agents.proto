@@ -90,6 +90,8 @@ message NodeExporter {
   uint32 listen_port = 6;
   // Path to exec process.
   string process_exec_path = 9;
+  // Log level for exporter.
+  LogLevel log_level = 10;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
