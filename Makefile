@@ -119,7 +119,7 @@ check:                          ## Run required checkers and linters.
 check-all: check                ## Run golang ci linter to check new changes from main.
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=main
 
-FILES = $(shell find . -type f -name '*.go')
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
 	bin/gofumpt -l -w $(FILES)

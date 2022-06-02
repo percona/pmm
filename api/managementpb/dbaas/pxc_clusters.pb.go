@@ -1370,6 +1370,7 @@ var (
 		(*ComputeResources)(nil),                                        // 19: dbaas.v1beta1.ComputeResources
 	}
 )
+
 var file_managementpb_dbaas_pxc_clusters_proto_depIdxs = []int32{
 	11, // 0: dbaas.v1beta1.PXCClusterParams.pxc:type_name -> dbaas.v1beta1.PXCClusterParams.PXC
 	12, // 1: dbaas.v1beta1.PXCClusterParams.proxysql:type_name -> dbaas.v1beta1.PXCClusterParams.ProxySQL

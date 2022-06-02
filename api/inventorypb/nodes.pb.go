@@ -2258,6 +2258,7 @@ var (
 		nil,                                        // 31: inventory.AddRemoteAzureDatabaseNodeRequest.CustomLabelsEntry
 	}
 )
+
 var file_inventorypb_nodes_proto_depIdxs = []int32{
 	22, // 0: inventory.GenericNode.custom_labels:type_name -> inventory.GenericNode.CustomLabelsEntry
 	23, // 1: inventory.ContainerNode.custom_labels:type_name -> inventory.ContainerNode.CustomLabelsEntry

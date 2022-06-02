@@ -2298,6 +2298,7 @@ var (
 		(*durationpb.Duration)(nil),               // 26: google.protobuf.Duration
 	}
 )
+
 var file_serverpb_server_proto_depIdxs = []int32{
 	25, // 0: server.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.VersionResponse.server:type_name -> server.VersionInfo

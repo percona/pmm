@@ -1172,6 +1172,7 @@ var (
 		(*managementpb.PageTotals)(nil), // 23: management.PageTotals
 	}
 )
+
 var file_managementpb_ia_templates_proto_depIdxs = []int32{
 	16, // 0: ia.v1beta1.BoolParamDefinition.default:type_name -> ia.v1beta1.BooleanFlag
 	17, // 1: ia.v1beta1.ParamDefinition.unit:type_name -> ia.v1beta1.ParamUnit

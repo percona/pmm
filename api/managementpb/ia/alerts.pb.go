@@ -470,6 +470,7 @@ var (
 		(BooleanFlag)(0),                // 12: ia.v1beta1.BooleanFlag
 	}
 )
+
 var file_managementpb_ia_alerts_proto_depIdxs = []int32{
 	6,  // 0: ia.v1beta1.Alert.severity:type_name -> management.Severity
 	7,  // 1: ia.v1beta1.Alert.status:type_name -> ia.v1beta1.Status
