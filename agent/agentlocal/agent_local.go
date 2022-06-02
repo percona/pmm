@@ -18,12 +18,12 @@ package agentlocal
 import (
 	"bytes"
 	"context"
-	_ "expvar"
+	_ "expvar" // register /debug/vars
 	"html/template"
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" // register /debug/pprof
 	"os"
 	"strconv"
 	"strings"
@@ -41,8 +41,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-
-	// register /debug/vars
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 
