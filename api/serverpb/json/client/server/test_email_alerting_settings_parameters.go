@@ -58,7 +58,6 @@ func NewTestEmailAlertingSettingsParamsWithHTTPClient(client *http.Client) *Test
    Typically these are written to a http.Request.
 */
 type TestEmailAlertingSettingsParams struct {
-
 	// Body.
 	Body TestEmailAlertingSettingsBody
 
@@ -128,7 +127,6 @@ func (o *TestEmailAlertingSettingsParams) SetBody(body TestEmailAlertingSettings
 
 // WriteToRequest writes these params to a swagger request
 func (o *TestEmailAlertingSettingsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -61,12 +61,12 @@ type ChangeQANMySQLSlowlogAgentOK struct {
 func (o *ChangeQANMySQLSlowlogAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] changeQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeQANMySQLSlowlogAgentOK) GetPayload() *ChangeQANMySQLSlowlogAgentOKBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMySQLSlowlogAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANMySQLSlowlogAgentOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) Code() int {
 func (o *ChangeQANMySQLSlowlogAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeQANMySQLSlowlogAgentDefault) GetPayload() *ChangeQANMySQLSlowlogAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANMySQLSlowlogAgentDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.Client
 swagger:model ChangeQANMySQLSlowlogAgentBody
 */
 type ChangeQANMySQLSlowlogAgentBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeQANMySQLSlowlogAgentBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *ChangeQANMySQLSlowlogAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,7 +213,6 @@ func (o *ChangeQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBody
 */
 type ChangeQANMySQLSlowlogAgentDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -284,9 +281,7 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) ContextValidate(ctx context.Cont
 }
 
 func (o *ChangeQANMySQLSlowlogAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +292,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) contextValidateDetails(ctx conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,7 +319,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error 
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -366,7 +359,6 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 swagger:model ChangeQANMySQLSlowlogAgentOKBody
 */
 type ChangeQANMySQLSlowlogAgentOKBody struct {
-
 	// qan mysql slowlog agent
 	QANMysqlSlowlogAgent *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
 }
@@ -419,7 +411,6 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangeQANMySQLSlowlogAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +447,6 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 */
 type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -609,7 +599,6 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b
 swagger:model ChangeQANMySQLSlowlogAgentParamsBodyCommon
 */
 type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

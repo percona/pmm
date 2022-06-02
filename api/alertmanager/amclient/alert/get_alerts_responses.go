@@ -62,12 +62,12 @@ type GetAlertsOK struct {
 func (o *GetAlertsOK) Error() string {
 	return fmt.Sprintf("[GET /alerts][%d] getAlertsOK  %+v", 200, o.Payload)
 }
+
 func (o *GetAlertsOK) GetPayload() ammodels.GettableAlerts {
 	return o.Payload
 }
 
 func (o *GetAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -92,12 +92,12 @@ type GetAlertsBadRequest struct {
 func (o *GetAlertsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /alerts][%d] getAlertsBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *GetAlertsBadRequest) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetAlertsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -122,12 +122,12 @@ type GetAlertsInternalServerError struct {
 func (o *GetAlertsInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /alerts][%d] getAlertsInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *GetAlertsInternalServerError) GetPayload() string {
 	return o.Payload
 }
 
 func (o *GetAlertsInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

@@ -20,7 +20,6 @@ import (
 //
 // swagger:model clusterStatus
 type ClusterStatus struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -110,7 +109,6 @@ func (m *ClusterStatus) validateStatusEnum(path, location string, value string) 
 }
 
 func (m *ClusterStatus) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -138,9 +136,7 @@ func (m *ClusterStatus) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *ClusterStatus) contextValidatePeers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Peers); i++ {
-
 		if m.Peers[i] != nil {
 			if err := m.Peers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -151,7 +147,6 @@ func (m *ClusterStatus) contextValidatePeers(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil

@@ -67,12 +67,12 @@ type ArtifactsServer interface {
 }
 
 // UnimplementedArtifactsServer must be embedded to have forward compatible implementations.
-type UnimplementedArtifactsServer struct {
-}
+type UnimplementedArtifactsServer struct{}
 
 func (UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
+
 func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }

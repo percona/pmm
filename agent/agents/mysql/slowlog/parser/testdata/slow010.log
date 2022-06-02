@@ -1,0 +1,108 @@
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.003512  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.001242  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.123212  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.023212  Lock_time: 0.000000  Rows_sent: 3
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.007312  Lock_time: 0.000000  Rows_sent: 5
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.140012  Lock_time: 0.000000  Rows_sent: 5
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.098232  Lock_time: 0.000000  Rows_sent: 6
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.555012  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.180012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.085712  Lock_time: 0.000000  Rows_sent: 2
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.120912  Lock_time: 0.000000  Rows_sent: 2
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.993022  Lock_time: 0.000000  Rows_sent: 3
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.000012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 2.000012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 3.034012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.012012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.066712  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.099012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.111112  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 2.034012  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 2.030012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.999912  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.043612  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.009032  Lock_time: 0.000000  Rows_sent: 4
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.932812  Lock_time: 0.000000  Rows_sent: 3
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.999999  Lock_time: 0.000000  Rows_sent: 99
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.004012  Lock_time: 0.000000  Rows_sent: 5
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.124012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.210012  Lock_time: 0.000000  Rows_sent: 3
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.010112  Lock_time: 0.000000  Rows_sent: 4
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.101012  Lock_time: 0.000000  Rows_sent: 3
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 1.100012  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.000002  Lock_time: 0.000000  Rows_sent: 0
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.320012  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.938012  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;
+# Time: 071218 11:48:27 # User@Host: [SQL_SLAVE] @  []
+# Query_time: 0.192812  Lock_time: 0.000000  Rows_sent: 1
+SELECT c FROM t WHERE id=1;

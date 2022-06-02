@@ -8,15 +8,18 @@ import (
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *KubeAuth) Validate() error {
 	if this.Kubeconfig == "" {
@@ -24,9 +27,11 @@ func (this *KubeAuth) Validate() error {
 	}
 	return nil
 }
+
 func (this *Operator) Validate() error {
 	return nil
 }
+
 func (this *Operators) Validate() error {
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
@@ -40,9 +45,11 @@ func (this *Operators) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListKubernetesClustersRequest) Validate() error {
 	return nil
 }
+
 func (this *ListKubernetesClustersResponse) Validate() error {
 	for _, item := range this.KubernetesClusters {
 		if item != nil {
@@ -53,6 +60,7 @@ func (this *ListKubernetesClustersResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListKubernetesClustersResponse_Cluster) Validate() error {
 	if this.Operators != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operators); err != nil {
@@ -61,6 +69,7 @@ func (this *ListKubernetesClustersResponse_Cluster) Validate() error {
 	}
 	return nil
 }
+
 func (this *RegisterKubernetesClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -75,24 +84,29 @@ func (this *RegisterKubernetesClusterRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *RegisterKubernetesClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *UnregisterKubernetesClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	return nil
 }
+
 func (this *UnregisterKubernetesClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *GetKubernetesClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	return nil
 }
+
 func (this *GetKubernetesClusterResponse) Validate() error {
 	if this.KubeAuth != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.KubeAuth); err != nil {
@@ -101,12 +115,14 @@ func (this *GetKubernetesClusterResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetResourcesRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
 	return nil
 }
+
 func (this *GetResourcesResponse) Validate() error {
 	if this.All != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.All); err != nil {

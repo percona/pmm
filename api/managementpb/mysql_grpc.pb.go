@@ -60,8 +60,7 @@ type MySQLServer interface {
 }
 
 // UnimplementedMySQLServer must be embedded to have forward compatible implementations.
-type UnimplementedMySQLServer struct {
-}
+type UnimplementedMySQLServer struct{}
 
 func (UnimplementedMySQLServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")

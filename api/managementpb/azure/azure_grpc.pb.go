@@ -67,12 +67,12 @@ type AzureDatabaseServer interface {
 }
 
 // UnimplementedAzureDatabaseServer must be embedded to have forward compatible implementations.
-type UnimplementedAzureDatabaseServer struct {
-}
+type UnimplementedAzureDatabaseServer struct{}
 
 func (UnimplementedAzureDatabaseServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
 }
+
 func (UnimplementedAzureDatabaseServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }

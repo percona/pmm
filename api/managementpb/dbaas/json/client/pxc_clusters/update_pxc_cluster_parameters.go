@@ -58,7 +58,6 @@ func NewUpdatePXCClusterParamsWithHTTPClient(client *http.Client) *UpdatePXCClus
    Typically these are written to a http.Request.
 */
 type UpdatePXCClusterParams struct {
-
 	// Body.
 	Body UpdatePXCClusterBody
 
@@ -128,7 +127,6 @@ func (o *UpdatePXCClusterParams) SetBody(body UpdatePXCClusterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *UpdatePXCClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

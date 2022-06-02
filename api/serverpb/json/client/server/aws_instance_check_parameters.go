@@ -58,7 +58,6 @@ func NewAWSInstanceCheckParamsWithHTTPClient(client *http.Client) *AWSInstanceCh
    Typically these are written to a http.Request.
 */
 type AWSInstanceCheckParams struct {
-
 	// Body.
 	Body AWSInstanceCheckBody
 
@@ -128,7 +127,6 @@ func (o *AWSInstanceCheckParams) SetBody(body AWSInstanceCheckBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AWSInstanceCheckParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

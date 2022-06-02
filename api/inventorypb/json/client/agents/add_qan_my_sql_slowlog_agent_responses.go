@@ -61,12 +61,12 @@ type AddQANMySQLSlowlogAgentOK struct {
 func (o *AddQANMySQLSlowlogAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *AddQANMySQLSlowlogAgentOK) GetPayload() *AddQANMySQLSlowlogAgentOKBody {
 	return o.Payload
 }
 
 func (o *AddQANMySQLSlowlogAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddQANMySQLSlowlogAgentOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddQANMySQLSlowlogAgentDefault) Code() int {
 func (o *AddQANMySQLSlowlogAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddQANMySQLSlowlogAgentDefault) GetPayload() *AddQANMySQLSlowlogAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *AddQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddQANMySQLSlowlogAgentDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddQANMySQLSlowlogAgentDefault) readResponse(response runtime.ClientRes
 swagger:model AddQANMySQLSlowlogAgentBody
 */
 type AddQANMySQLSlowlogAgentBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -196,7 +195,6 @@ func (o *AddQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLSlowlogAgentDefaultBody
 */
 type AddQANMySQLSlowlogAgentDefaultBody struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -265,9 +263,7 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) ContextValidate(ctx context.Context
 }
 
 func (o *AddQANMySQLSlowlogAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -278,7 +274,6 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) contextValidateDetails(ctx context.
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -306,7 +301,6 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
-
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 
@@ -347,7 +341,6 @@ func (o *AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 swagger:model AddQANMySQLSlowlogAgentOKBody
 */
 type AddQANMySQLSlowlogAgentOKBody struct {
-
 	// qan mysql slowlog agent
 	QANMysqlSlowlogAgent *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
 }
@@ -400,7 +393,6 @@ func (o *AddQANMySQLSlowlogAgentOKBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddQANMySQLSlowlogAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlSlowlogAgent != nil {
 		if err := o.QANMysqlSlowlogAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -437,7 +429,6 @@ func (o *AddQANMySQLSlowlogAgentOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 */
 type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

@@ -58,7 +58,6 @@ func NewDeleteDBClusterParamsWithHTTPClient(client *http.Client) *DeleteDBCluste
    Typically these are written to a http.Request.
 */
 type DeleteDBClusterParams struct {
-
 	// Body.
 	Body DeleteDBClusterBody
 
@@ -128,7 +127,6 @@ func (o *DeleteDBClusterParams) SetBody(body DeleteDBClusterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteDBClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
