@@ -17,6 +17,8 @@ package commands
 
 import (
 	"context"
+	_ "embed"
+	"github.com/percona/pmm/utils/rsa_encryptor"
 	"os"
 	"os/signal"
 
@@ -31,10 +33,19 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 )
 
+//go:embed default-key
+var privateKey []byte
+
+const privateKeyID = "k1"
+
 // Run implements `pmm-agent run` default command.
 func Run() {
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx, err := rsa_encryptor.InjectEncryptorIfNotPresent(ctx, privateKey, privateKeyID)
+	if err != nil {
+		l.Fatalf("Failed to inject encryptor: %s.", err)
+	}
 	defer l.Info("Done.")
 
 	// handle termination signals

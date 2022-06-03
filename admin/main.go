@@ -17,8 +17,10 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"fmt"
+	"github.com/percona/pmm/utils/rsa_encryptor"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -34,6 +36,11 @@ import (
 	"github.com/percona/pmm/admin/logger"
 	"github.com/percona/pmm/version"
 )
+
+//go:embed default-key.pub
+var publicKey []byte
+
+const publicKeyID = "k1"
 
 func main() {
 	kingpin.CommandLine.Name = "pmm-admin"
@@ -75,6 +82,10 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx, errEnc := rsa_encryptor.InjectEncryptorIfNotPresent(ctx, publicKey, publicKeyID)
+	if errEnc != nil {
+		logrus.Panicf("Failed to inject encryptor: %v", errEnc)
+	}
 
 	// handle termination signals
 	signals := make(chan os.Signal, 1)

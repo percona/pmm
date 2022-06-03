@@ -2,6 +2,7 @@ package rsa_encryptor
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -290,4 +291,23 @@ func (s *Service) DecryptDsn(dsn string) (string, error) {
 	}
 
 	return dsn, nil
+}
+
+const EncryptorKey = "encryptor"
+
+func GetEncryptor(ctx context.Context) *Service {
+	return ctx.Value(EncryptorKey).(*Service)
+}
+
+func InjectEncryptorIfNotPresent(ctx context.Context, key []byte, keyID string) (context.Context, error) {
+	encryptor := ctx.Value(EncryptorKey)
+	if encryptor == nil {
+		encryptor, err := NewFromPublicKey(keyID, key)
+		if err != nil {
+			return nil, err
+		}
+		return context.WithValue(ctx, EncryptorKey, encryptor), nil
+	}
+
+	return ctx, nil
 }
