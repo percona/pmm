@@ -83,7 +83,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	pgMonitorVersion, _, err := getPGMonitorVersion(q)
+	pgMonitorVersion, prerelease, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return
@@ -92,10 +92,11 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 
 	row, view := NewPgStatMonitorStructs(pgMonitorVersion)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
-	if pgMonitorVersion >= pgStatMonitorVersion09 {
-		// only pg_stat_monitor 0.9.0 and above supports state_code. It tells what is the query's current state.
+	if pgMonitorVersion >= pgStatMonitorVersion09 && pgMonitorVersion <= pgStatMonitorVersion10PG14 && prerelease != "" {
+		// only pg_stat_monitor 0.9.0, 1.0.0-beta-2, 1.0.0-rc.1, 1.0.0-rc.2 supports state_code. It tells what is the query's current state.
 		// To have correct data in QAN, we have to get only queries that are either 'FINISHED' or 'FINISHED WITH ERROR'.
 		conditions += " AND (state_code = 3 OR state_code = 4)"
+		ssc.l.Debug("PGSM version with state and state_code")
 	}
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {

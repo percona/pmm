@@ -92,7 +92,7 @@ const (
 	commandTypeUpdate       = "UPDATE"
 	commandTypeInsert       = "INSERT"
 	commandTypeDelete       = "DELETE"
-	commandTypeUtiity       = "UTILITY"
+	commandTypeUtility      = "UTILITY"
 )
 
 var commandTypeToText = []string{
@@ -101,7 +101,7 @@ var commandTypeToText = []string{
 	commandTypeUpdate,
 	commandTypeInsert,
 	commandTypeDelete,
-	commandTypeUtiity,
+	commandTypeUtility,
 	commandTextNotAvailable,
 }
 

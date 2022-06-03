@@ -92,7 +92,7 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 func TestVersion(t *testing.T) {
 	pgsmVersion, err := ver.NewVersion("1.0.0-beta-2")
 	require.NoError(t, err)
-	require.True(t, pgsmVersion.GreaterThanOrEqual(v10))
+	require.True(t, pgsmVersion.LessThan(v10))
 }
 
 func TestPGStatMonitorSchema(t *testing.T) {
