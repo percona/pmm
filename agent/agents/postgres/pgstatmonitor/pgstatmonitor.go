@@ -224,6 +224,13 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 		m.l.Warning(err)
 	}
 
+	if waitTime != defaultWaitTime {
+		m.l.Error("Non default bucket time value is not supported, agent is done")
+		m.dbCloser.Close() //nolint:errcheck
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		close(m.changes)
+	}
+
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
