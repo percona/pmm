@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
-	github.com/daixiang0/gci v0.3.3
+	github.com/daixiang0/gci v0.3.4
 	github.com/go-delve/delve v1.8.3
 	github.com/golangci/golangci-lint v1.46.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
@@ -199,6 +199,9 @@ require (
 	gitlab.com/bosi/decorder v0.2.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.starlark.net v0.0.0-20211203141949-70c0e40ae128 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/build v0.0.0-20220125175651-da4f1d2313e4 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
