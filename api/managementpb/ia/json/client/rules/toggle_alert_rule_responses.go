@@ -141,7 +141,7 @@ func (o *ToggleAlertRuleBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -240,7 +240,7 @@ func (o *ToggleAlertRuleDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -280,7 +280,7 @@ func (o *ToggleAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

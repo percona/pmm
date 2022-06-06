@@ -143,7 +143,7 @@ func (o *GetSecurityCheckResultsDefaultBody) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -183,7 +183,7 @@ func (o *GetSecurityCheckResultsDefaultBody) ContextValidate(ctx context.Context
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -280,7 +280,7 @@ func (o *GetSecurityCheckResultsOKBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -320,7 +320,7 @@ func (o *GetSecurityCheckResultsOKBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -393,7 +393,7 @@ func (o *GetSecurityCheckResultsOKBodyResultsItems0) Validate(formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

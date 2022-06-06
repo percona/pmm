@@ -161,7 +161,7 @@ func (o *GetMetricsBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -225,7 +225,7 @@ func (o *GetMetricsBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -291,7 +291,7 @@ func (o *GetMetricsDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -331,7 +331,7 @@ func (o *GetMetricsDefaultBody) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -448,7 +448,7 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -548,7 +548,7 @@ func (o *GetMetricsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

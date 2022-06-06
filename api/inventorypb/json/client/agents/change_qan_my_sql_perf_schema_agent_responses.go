@@ -137,7 +137,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -170,7 +170,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) ContextValidate(ctx context.Context,
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -234,7 +234,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -274,7 +274,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) ContextValidate(ctx context.C
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -371,7 +371,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBody) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -404,7 +404,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBody) ContextValidate(ctx context.Contex
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -506,7 +506,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(fo
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

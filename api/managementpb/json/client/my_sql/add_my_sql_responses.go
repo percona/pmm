@@ -238,7 +238,7 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -370,7 +370,7 @@ func (o *AddMySQLBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -434,7 +434,7 @@ func (o *AddMySQLDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -474,7 +474,7 @@ func (o *AddMySQLDefaultBody) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -595,7 +595,7 @@ func (o *AddMySQLOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -697,7 +697,7 @@ func (o *AddMySQLOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -866,7 +866,7 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1069,7 +1069,7 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1221,7 +1221,7 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1417,7 +1417,7 @@ func (o *AddMySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

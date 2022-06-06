@@ -223,7 +223,7 @@ func (o *AddMySQLdExporterDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -263,7 +263,7 @@ func (o *AddMySQLdExporterDefaultBody) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -363,7 +363,7 @@ func (o *AddMySQLdExporterOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -396,7 +396,7 @@ func (o *AddMySQLdExporterOKBody) ContextValidate(ctx context.Context, formats s
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -520,7 +520,7 @@ func (o *AddMySQLdExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

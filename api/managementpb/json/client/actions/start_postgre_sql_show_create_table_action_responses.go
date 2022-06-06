@@ -186,7 +186,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) Validate(formats strfm
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -226,7 +226,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) ContextValidate(ctx co
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

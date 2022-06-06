@@ -143,7 +143,7 @@ func (o *ListKubernetesClustersDefaultBody) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -183,7 +183,7 @@ func (o *ListKubernetesClustersDefaultBody) ContextValidate(ctx context.Context,
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -280,7 +280,7 @@ func (o *ListKubernetesClustersOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -320,7 +320,7 @@ func (o *ListKubernetesClustersOKBody) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -393,7 +393,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) Validate(formats 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -471,7 +471,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) ContextValidate(c
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -533,7 +533,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Validate
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -589,7 +589,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) ContextV
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -668,7 +668,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB) Val
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -770,7 +770,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC) Valid
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

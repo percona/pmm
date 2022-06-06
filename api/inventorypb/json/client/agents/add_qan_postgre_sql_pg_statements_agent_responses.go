@@ -209,7 +209,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -249,7 +249,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) ContextValidate(ctx conte
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -346,7 +346,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBody) Validate(formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -379,7 +379,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBody) ContextValidate(ctx context.Co
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -469,7 +469,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent) 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

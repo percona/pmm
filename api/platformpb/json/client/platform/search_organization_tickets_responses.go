@@ -142,7 +142,7 @@ func (o *SearchOrganizationTicketsDefaultBody) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -182,7 +182,7 @@ func (o *SearchOrganizationTicketsDefaultBody) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -279,7 +279,7 @@ func (o *SearchOrganizationTicketsOKBody) Validate(formats strfmt.Registry) erro
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -319,7 +319,7 @@ func (o *SearchOrganizationTicketsOKBody) ContextValidate(ctx context.Context, f
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -401,7 +401,7 @@ func (o *SearchOrganizationTicketsOKBodyTicketsItems0) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

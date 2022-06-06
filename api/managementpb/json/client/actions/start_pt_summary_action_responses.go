@@ -180,7 +180,7 @@ func (o *StartPTSummaryActionDefaultBody) Validate(formats strfmt.Registry) erro
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -220,7 +220,7 @@ func (o *StartPTSummaryActionDefaultBody) ContextValidate(ctx context.Context, f
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

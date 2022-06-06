@@ -143,7 +143,7 @@ func (o *ListScheduledBackupsDefaultBody) Validate(formats strfmt.Registry) erro
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -183,7 +183,7 @@ func (o *ListScheduledBackupsDefaultBody) ContextValidate(ctx context.Context, f
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -280,7 +280,7 @@ func (o *ListScheduledBackupsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -320,7 +320,7 @@ func (o *ListScheduledBackupsOKBody) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -449,7 +449,7 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) Validate(formats strf
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

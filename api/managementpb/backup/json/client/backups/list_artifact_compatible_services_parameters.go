@@ -135,7 +135,7 @@ func (o *ListArtifactCompatibleServicesParams) WriteToRequest(r runtime.ClientRe
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

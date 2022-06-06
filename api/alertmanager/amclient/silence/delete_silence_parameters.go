@@ -142,7 +142,7 @@ func (o *DeleteSilenceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

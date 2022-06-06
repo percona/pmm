@@ -48,7 +48,7 @@ func (m Matchers) Validate(formats strfmt.Registry) error {
 
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -71,7 +71,7 @@ func (m Matchers) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 		}
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

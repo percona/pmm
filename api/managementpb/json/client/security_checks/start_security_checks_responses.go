@@ -175,7 +175,7 @@ func (o *StartSecurityChecksDefaultBody) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -215,7 +215,7 @@ func (o *StartSecurityChecksDefaultBody) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

@@ -135,7 +135,7 @@ func (o *DiscoverAzureDatabaseParams) WriteToRequest(r runtime.ClientRequest, re
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

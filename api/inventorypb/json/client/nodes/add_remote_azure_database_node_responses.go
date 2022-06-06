@@ -192,7 +192,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -232,7 +232,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -329,7 +329,7 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -362,7 +362,7 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

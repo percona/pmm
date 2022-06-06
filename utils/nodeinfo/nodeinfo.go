@@ -46,7 +46,7 @@ func readMachineID() string {
 		"/var/lib/dbus/machine-id",
 	} {
 		b, _ := ioutil.ReadFile(name) //nolint:gosec
-		if len(b) > 0 {
+		if len(b) != 0 {
 			return strings.TrimSpace(string(b))
 		}
 	}

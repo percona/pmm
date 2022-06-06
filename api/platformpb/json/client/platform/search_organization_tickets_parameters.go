@@ -137,7 +137,7 @@ func (o *SearchOrganizationTicketsParams) WriteToRequest(r runtime.ClientRequest
 		}
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

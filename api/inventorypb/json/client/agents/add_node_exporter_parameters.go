@@ -135,7 +135,7 @@ func (o *AddNodeExporterParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

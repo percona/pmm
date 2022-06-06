@@ -137,7 +137,7 @@ func (o *SearchOrganizationEntitlementsParams) WriteToRequest(r runtime.ClientRe
 		}
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

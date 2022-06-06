@@ -142,7 +142,7 @@ func (o *SearchOrganizationEntitlementsDefaultBody) Validate(formats strfmt.Regi
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -182,7 +182,7 @@ func (o *SearchOrganizationEntitlementsDefaultBody) ContextValidate(ctx context.
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -279,7 +279,7 @@ func (o *SearchOrganizationEntitlementsOKBody) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -319,7 +319,7 @@ func (o *SearchOrganizationEntitlementsOKBody) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -418,7 +418,7 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) Validate(format
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -475,7 +475,7 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) ContextValidate
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

@@ -135,7 +135,7 @@ func (o *AddMongoDBServiceParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

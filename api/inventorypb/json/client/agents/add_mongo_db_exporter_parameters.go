@@ -135,7 +135,7 @@ func (o *AddMongoDBExporterParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

@@ -139,7 +139,7 @@ func (c *Cache) Stats() Stats {
 
 	oldest := time.Unix(0, 0)
 	newest := time.Unix(0, 0)
-	if len(c.items) > 0 {
+	if len(c.items) != 0 {
 		oldest = c.itemsList.Front().Value.(*cacheItem).added
 		newest = c.itemsList.Back().Value.(*cacheItem).added
 	}

@@ -135,7 +135,7 @@ func (o *ChangePostgresExporterParams) WriteToRequest(r runtime.ClientRequest, r
 		return err
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

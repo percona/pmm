@@ -142,7 +142,7 @@ func (o *CreatePSMDBClusterBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -175,7 +175,7 @@ func (o *CreatePSMDBClusterBody) ContextValidate(ctx context.Context, formats st
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -239,7 +239,7 @@ func (o *CreatePSMDBClusterDefaultBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -279,7 +279,7 @@ func (o *CreatePSMDBClusterDefaultBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -382,7 +382,7 @@ func (o *CreatePSMDBClusterParamsBodyParams) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -415,7 +415,7 @@ func (o *CreatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -474,7 +474,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -507,7 +507,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) ContextValidate(ctx conte
 		res = append(res, err)
 	}
 
-	if len(res) > 0 {
+	if len(res) != 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
