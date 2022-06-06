@@ -19,7 +19,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.0.14
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.25
+	github.com/aws/aws-sdk-go v1.44.27
 	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.13.0
