@@ -23,7 +23,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -101,6 +100,8 @@ func TestCredentials(t *testing.T) {
 }
 
 func TestParseRenderTemplate(t *testing.T) {
+	t.Parallel()
+
 	var stderr bytes.Buffer
 	logrus.SetOutput(&stderr)
 	defer logrus.SetOutput(os.Stderr)
@@ -122,31 +123,41 @@ Please report this bug.
 }
 
 func TestParseCustomLabel(t *testing.T) {
-	errWrongFormat := errors.New("wrong custom label format")
-	for _, v := range []struct {
+	t.Parallel()
+	errWrongFormat := "wrong custom label format"
+	for _, tt := range []struct {
 		name     string
 		input    string
 		expected map[string]string
-		expErr   error
+		expErr   string
 	}{
-		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, nil},
-		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, nil},
+		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, ""},
+		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, ""},
 		{"no value", "foo=", nil, errWrongFormat},
 		{"no key", "=foo", nil, errWrongFormat},
 		{"wrong format", "foo=bar,bar+foo", nil, errWrongFormat},
-		{"empty value", "", make(map[string]string), nil},
-		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, nil},
+		{"empty value", "", make(map[string]string), ""},
+		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, ""},
 	} {
-		t.Run(v.name, func(t *testing.T) {
-			customLabels, err := ParseCustomLabels(v.input)
-			assert.Equal(t, v.expected, customLabels)
-			assert.Equal(t, v.expErr, err)
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			customLabels, err := ParseCustomLabels(tt.input)
+			assert.Equal(t, tt.expected, customLabels)
+			if tt.expErr != "" {
+				assert.EqualError(t, err, tt.expErr)
+			}
 		})
 	}
 }
 
 func TestReadFile(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
+
 		cert, err := ioutil.TempFile("", "cert")
 		require.NoError(t, err)
 		defer func() {
@@ -164,6 +175,8 @@ func TestReadFile(t *testing.T) {
 	})
 
 	t.Run("WrongPath", func(t *testing.T) {
+		t.Parallel()
+
 		filepath := "not-existed-file"
 		certificate, err := ReadFile(filepath)
 		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
@@ -171,6 +184,8 @@ func TestReadFile(t *testing.T) {
 	})
 
 	t.Run("EmptyFilePath", func(t *testing.T) {
+		t.Parallel()
+
 		certificate, err := ReadFile("")
 		require.NoError(t, err)
 		require.Empty(t, certificate)
