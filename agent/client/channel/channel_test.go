@@ -110,7 +110,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
 	query, _ := truncate.Query(invalidQuery)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.Equal(t, uint32(1), msg.Id)
@@ -157,7 +157,7 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
@@ -221,7 +221,7 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
 			err := stream.Send(&agentpb.ServerMessage{
 				Id:      i,
@@ -295,7 +295,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,
 			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
@@ -323,7 +323,7 @@ func TestAgentClosesStream(t *testing.T) {
 func TestAgentClosesConnection(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		defer wg.Done()
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,
@@ -359,7 +359,7 @@ func TestAgentClosesConnection(t *testing.T) {
 
 func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	unexpectedIDSent := make(chan struct{})
-	connect := func(stream agentpb.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream agentpb.Agent_ConnectServer) error {
 		// This message triggers no error, we ignore message ids that have no subscriber.
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      111,

@@ -31,6 +31,7 @@ import (
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -194,7 +195,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 		var err error
 		for {
 			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
-			if err == nil || err == grpc.ErrServerStopped {
+			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
 				break
 			}
 		}
@@ -297,7 +298,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 	go func() {
 		l.Info("Started.")
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Stopped.")

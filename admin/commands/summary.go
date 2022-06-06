@@ -202,7 +202,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close()
+			defer res.Body.Close() //nolint:errcheck
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -359,7 +359,7 @@ func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
 
 // register command
 var (
-	Summary     = new(summaryCommand)
+	Summary     summaryCommand
 	SummaryC    = kingpin.Command("summary", "Fetch system data for diagnostics")
 	hostname, _ = os.Hostname()
 	filename    = fmt.Sprintf("summary_%s_%s.zip",

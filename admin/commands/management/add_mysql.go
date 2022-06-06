@@ -256,7 +256,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddMySQL  = new(addMySQLCommand)
+	AddMySQL  addMySQLCommand
 	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring")
 )
 

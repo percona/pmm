@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -97,7 +98,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		structs = append(structs, str)
 	}
-	if err == reform.ErrNoRows {
+	if errors.Is(err, reform.ErrNoRows) {
 		err = nil
 	}
 	require.NoError(t, err)

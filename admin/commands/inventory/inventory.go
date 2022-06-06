@@ -35,7 +35,7 @@ var (
 )
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.
-// Values comparision is case-insensitive.
+// Values comparison is case-insensitive.
 func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {
 	if input == "" {
 		return nil, nil

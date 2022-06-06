@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 
@@ -45,12 +46,9 @@ func Setup() {
 
 	l := logrus.WithField("component", "setup")
 	cfg, configFilepath, err := config.Get(l)
-	if _, ok := err.(config.ErrConfigFileDoesNotExist); ok {
-		err = nil
-	}
-	if err != nil {
-		fmt.Printf("Failed to load configuration: %s.\n", err)
-		os.Exit(1)
+	var e *config.ConfigFileDoesNotExistError
+	if err != nil && !errors.As(err, &e) {
+		l.Fatalf("Failed to load configuration: %s.\n", err)
 	}
 
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
@@ -58,8 +56,7 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
-		os.Exit(1)
+		l.Fatalf("Can't skip registration: pmm-agent ID is empty.\n")
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
@@ -148,7 +145,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 				msg += "\nPlease check username and password"
 			}
 		}
-		if _, ok := err.(errFromNginx); ok {
+		if _, ok := err.(nginxError); ok {
 			msg += ".\nPlease check pmm-managed logs."
 		}
 

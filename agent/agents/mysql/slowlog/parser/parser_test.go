@@ -33,6 +33,8 @@ import (
 var updateF = flag.Bool("update", false, "update golden .json files")
 
 func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
+	t.Helper()
+
 	r, err := NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {

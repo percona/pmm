@@ -171,16 +171,16 @@ func (cmd *annotationCommand) Run() (Result, error) {
 		return nil, err
 	}
 
-	return new(annotationResult), nil
+	return &annotationResult{}, nil
 }
 
 // register command
 var (
-	Annotation  = new(annotationCommand)
+	Annotation  annotationCommand
 	AnnotationC = kingpin.Command("annotate", "Add an annotation to Grafana charts")
 )
 
-func init() {
+func init() { //nolint:gochecknoinits
 	AnnotationC.Arg("text", "Text of annotation").Required().StringVar(&Annotation.Text)
 	AnnotationC.Flag("tags", "Tags to filter annotations. Multiple tags are separated by a comma").StringVar(&Annotation.Tags)
 	AnnotationC.Flag("node", "Annotate current node").BoolVar(&Annotation.Node)

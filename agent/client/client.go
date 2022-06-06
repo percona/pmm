@@ -388,10 +388,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtPgSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgParams(params.PtPgSummaryParams))
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, params.PtMysqlSummaryParams)
+				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 
 			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
@@ -593,7 +593,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		host, _, _ := net.SplitHostPort(cfg.Server.Address)
 		tlsConfig := tlsconfig.Get()
 		tlsConfig.ServerName = host
-		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS //nolint:gosec
+		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 
@@ -610,7 +610,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		msg := err.Error()
 
 		// improve error message in that particular case
-		if err == context.DeadlineExceeded {
+		if errors.Is(err, context.DeadlineExceeded) {
 			msg = "timeout"
 		}
 
@@ -808,7 +808,7 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	if pParams.Host != "" {
-		var hostPortStr string = pParams.Host
+		hostPortStr := pParams.Host
 
 		// If valid port attaches ':' and the port number after address
 		if pParams.Port > 0 && pParams.Port <= 65535 {

@@ -218,7 +218,7 @@ func (cmd *listCommand) Run() (Result, error) {
 
 		return "pull"
 	}
-	pmmAgentIDs := map[string]struct{}{}
+	pmmAgentIDs := make(map[string]struct{})
 	var agentsList []listResultAgent
 	for _, a := range agentsRes.Payload.PMMAgent {
 		if a.RunsOnNodeID == cmd.NodeID {
@@ -398,10 +398,10 @@ func (cmd *listCommand) Run() (Result, error) {
 
 // register command
 var (
-	List  = new(listCommand)
+	List  listCommand
 	ListC = kingpin.Command("list", "Show Services and Agents running on this Node")
 )
 
-func init() {
+func init() { //nolint:gochecknoinits
 	ListC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&List.NodeID)
 }

@@ -30,7 +30,7 @@ func Get() *NodeInfo {
 
 func checkContainer() bool {
 	// https://stackoverflow.com/a/20012536
-	b, _ := ioutil.ReadFile("/proc/1/cgroup") //nolint:gosec
+	b, _ := ioutil.ReadFile("/proc/1/cgroup")
 	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
 }
 
@@ -46,7 +46,7 @@ func readMachineID() string {
 		"/var/lib/dbus/machine-id",
 	} {
 		b, _ := ioutil.ReadFile(name) //nolint:gosec
-		if len(b) != 0 {
+		if len(b) > 0 {
 			return strings.TrimSpace(string(b))
 		}
 	}

@@ -154,11 +154,11 @@ func (cmd *configCommand) Run() (Result, error) {
 
 // register command
 var (
-	Config  = new(configCommand)
+	Config  configCommand
 	ConfigC = kingpin.Command("config", "Configure local pmm-agent")
 )
 
-func init() {
+func init() { //nolint:gochecknoinits
 	nodeinfo := nodeinfo.Get()
 	if nodeinfo.PublicAddress == "" {
 		ConfigC.Arg("node-address", "Node address").Required().StringVar(&Config.NodeAddress)

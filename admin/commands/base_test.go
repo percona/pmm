@@ -23,6 +23,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,7 +32,7 @@ import (
 )
 
 func init() {
-	logrus.SetFormatter(new(logger.TextFormatter))
+	logrus.SetFormatter(&logger.TextFormatter{})
 }
 
 func CreateDummyCredentialsSource(data string, p string, exec bool) (string, error) {
@@ -121,7 +122,7 @@ Please report this bug.
 }
 
 func TestParseCustomLabel(t *testing.T) {
-	errWrongFormat := fmt.Errorf("wrong custom label format")
+	errWrongFormat := errors.New("wrong custom label format")
 	for _, v := range []struct {
 		name     string
 		input    string
@@ -133,7 +134,7 @@ func TestParseCustomLabel(t *testing.T) {
 		{"no value", "foo=", nil, errWrongFormat},
 		{"no key", "=foo", nil, errWrongFormat},
 		{"wrong format", "foo=bar,bar+foo", nil, errWrongFormat},
-		{"empty value", "", map[string]string{}, nil},
+		{"empty value", "", make(map[string]string), nil},
 		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, nil},
 	} {
 		t.Run(v.name, func(t *testing.T) {

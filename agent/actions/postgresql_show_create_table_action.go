@@ -160,12 +160,12 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	  AND pg_catalog.pg_table_is_visible(c.oid) %s
 	ORDER BY nspname, relname;`, namespaceQuery), args...)
 	if err := row.Scan(&tableID, &schema, &relname); err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return "", errors.Wrap(err, "Table not found")
 		}
 		return "", errors.WithStack(err)
 	}
-	fmt.Fprintf(w, "Table \"%s.%s\"\n", schema, relname) //nolint:errcheck
+	fmt.Fprintf(w, "Table \"%s.%s\"\n", schema, relname)
 	return tableID, nil
 }
 
@@ -198,11 +198,11 @@ ORDER BY a.attnum;`, tableID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription") //nolint:errcheck
+	fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription")
 
 	for rows.Next() {
 		var ci columnInfo
@@ -263,13 +263,13 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Indexes:") //nolint:errcheck
+	fmt.Fprintln(bw, "Indexes:")
 
 	for rows.Next() {
 		info := indexInfo{}
@@ -290,19 +290,19 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		fmt.Fprintf(bw, "\t%q", info.Relname) //nolint:errcheck
+		fmt.Fprintf(bw, "\t%q", info.Relname)
 
 		if pointer.GetString(info.Contype) == "x" {
-			fmt.Fprintf(bw, " %s", pointer.GetString(info.PgGetConstraintDef)) //nolint:errcheck
+			fmt.Fprintf(bw, " %s", pointer.GetString(info.PgGetConstraintDef))
 		} else {
 			// Label as primary key or unique (but not both).
 			if info.IsPrimary {
-				fmt.Fprintf(bw, " PRIMARY KEY,") //nolint:errcheck
+				fmt.Fprintf(bw, " PRIMARY KEY,")
 			} else if info.IsUnique {
 				if pointer.GetString(info.Contype) == "u" {
-					fmt.Fprintf(bw, " UNIQUE CONSTRAINT,") //nolint:errcheck
+					fmt.Fprintf(bw, " UNIQUE CONSTRAINT,")
 				} else {
-					fmt.Fprintf(bw, " UNIQUE,") //nolint:errcheck
+					fmt.Fprintf(bw, " UNIQUE,")
 				}
 			}
 
@@ -312,19 +312,18 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 			if usingPos != -1 {
 				indexDef = indexDef[usingPos+7:]
 			}
-			fmt.Fprintf(bw, " %s", indexDef) //nolint:errcheck
-
+			fmt.Fprintf(bw, " %s", indexDef)
 			// Need these for deferrable PK/UNIQUE indexes.
 			if pointer.GetBool(info.Condeferrable) {
-				fmt.Fprintf(bw, " DEFERRABLE") //nolint:errcheck
+				fmt.Fprintf(bw, " DEFERRABLE")
 			}
 
 			if pointer.GetBool(info.Condeferred) {
-				fmt.Fprintf(bw, " INITIALLY DEFERRED") //nolint:errcheck
+				fmt.Fprintf(bw, " INITIALLY DEFERRED")
 			}
 		}
 
-		fmt.Fprintf(bw, "\n") //nolint:errcheck
+		fmt.Fprintf(bw, "\n")
 		if err = bw.Flush(); err != nil {
 			return errors.WithStack(err)
 		}
@@ -347,13 +346,13 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Foreign-key constraints:") //nolint:errcheck
+	fmt.Fprintln(bw, "Foreign-key constraints:")
 
 	for rows.Next() {
 		var conname, condef string
@@ -388,7 +387,7 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
@@ -429,7 +428,7 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.

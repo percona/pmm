@@ -219,7 +219,7 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
-	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	var path string
 	row := db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_file")
 	if err := row.Scan(&path); err != nil {
@@ -330,7 +330,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 				continue
 			}
 
-			if err := parser.Err(); err != io.EOF {
+			if err := parser.Err(); !errors.Is(err, io.EOF) {
 				s.l.Warnf("Parser error: %v.", err)
 			}
 			close(events)

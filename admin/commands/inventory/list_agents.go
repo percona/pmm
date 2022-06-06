@@ -258,7 +258,7 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	ListAgents  = new(listAgentsCommand)
+	ListAgents  listAgentsCommand
 	ListAgentsC = inventoryListC.Command("agents", "Show agents in inventory").Hide(hide)
 )
 

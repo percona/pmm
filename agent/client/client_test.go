@@ -315,7 +315,7 @@ func TestArgListFromPgParams(t *testing.T) {
 		tc := tc
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
 			actual := argListFromPgParams(tc.req)
-			fmt.Printf("\n%+v\n", actual)
+			t.Logf("\n%+v\n", actual)
 			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}

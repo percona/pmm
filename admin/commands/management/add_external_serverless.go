@@ -211,7 +211,7 @@ or even you can specify --address instead of host and port as individual paramet
 
 // register command.
 var (
-	AddExternalServerless  = new(addExternalServerlessCommand)
+	AddExternalServerless  addExternalServerlessCommand
 	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
 )
 

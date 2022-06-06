@@ -133,7 +133,7 @@ func nodeIDFromNodeName(nodeName string) (string, error) {
 
 // unregister command
 var (
-	Unregister  = new(unregisterCommand)
+	Unregister  unregisterCommand
 	UnregisterC = kingpin.Command("unregister", "Unregister current Node from PMM Server")
 )
 
