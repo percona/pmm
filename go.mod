@@ -17,7 +17,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9
-	google.golang.org/grpc v1.45.0
+	google.golang.org/grpc v1.47.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
