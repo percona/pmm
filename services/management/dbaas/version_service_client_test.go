@@ -202,11 +202,12 @@ func TestOperatorVersionGetting(t *testing.T) {
 				Product:        "pmm-server",
 				Matrix: matrix{
 					PXCOperator: map[string]componentVersion{
-						onePointEight: {},
+						onePointEight: {Status: "recommended"},
 						onePointSeven: {},
 					},
 					PSMDBOperator: map[string]componentVersion{
-						onePointNine:  {},
+						onePointTen:   {Status: "available"},
+						onePointNine:  {Status: "recommended"},
 						onePointEight: {},
 						onePointSeven: {},
 					},

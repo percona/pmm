@@ -496,6 +496,7 @@ func TestFilteringOutOfUnsupportedVersions(t *testing.T) {
 }
 
 const (
+	onePointTen         = "1.10.0"
 	onePointNine        = "1.9.0"
 	onePointEight       = "1.8.0"
 	onePointSeven       = "1.7.0"
@@ -688,11 +689,11 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 				Product:        "pmm-server",
 				Matrix: matrix{
 					PSMDBOperator: map[string]componentVersion{
-						onePointEight: {},
+						onePointEight: {Status: "recommended"},
 						onePointSeven: {},
 					},
 					PXCOperator: map[string]componentVersion{
-						onePointEight: {},
+						onePointEight: {Status: "recommended"},
 						onePointSeven: {},
 					},
 				},

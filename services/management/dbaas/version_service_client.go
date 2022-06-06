@@ -208,24 +208,24 @@ func (c *VersionServiceClient) IsOperatorVersionSupported(ctx context.Context, o
 	return false, nil
 }
 
-func latest(m map[string]componentVersion) (*goversion.Version, error) {
+func latestRecommended(m map[string]componentVersion) (*goversion.Version, error) {
 	if len(m) == 0 {
 		return nil, errNoVersionsFound
 	}
 	latest := goversion.Must(goversion.NewVersion("0.0.0"))
-	for version := range m {
+	for version, component := range m {
 		parsedVersion, err := goversion.NewVersion(version)
 		if err != nil {
 			return nil, err
 		}
-		if parsedVersion.GreaterThan(latest) {
+		if parsedVersion.GreaterThan(latest) && component.Status == "recommended" {
 			latest = parsedVersion
 		}
 	}
 	return latest, nil
 }
 
-// LatestOperatorVersion return latest PXC and PSMDB operators for given PMM version.
+// LatestOperatorVersion return latest recommended PXC and PSMDB operators for given PMM version.
 func (c *VersionServiceClient) LatestOperatorVersion(ctx context.Context, pmmVersion string) (*goversion.Version, *goversion.Version, error) {
 	if pmmVersion == "" {
 		return nil, nil, errors.New("given PMM version is empty")
@@ -242,11 +242,11 @@ func (c *VersionServiceClient) LatestOperatorVersion(ctx context.Context, pmmVer
 		return nil, nil, nil // no deps for the PMM version passed to c.Matrix
 	}
 	pmmVersionDeps := resp.Versions[0]
-	latestPSMDBOperator, err := latest(pmmVersionDeps.Matrix.PSMDBOperator)
+	latestPSMDBOperator, err := latestRecommended(pmmVersionDeps.Matrix.PSMDBOperator)
 	if err != nil {
 		return nil, nil, err
 	}
-	latestPXCOperator, err := latest(pmmVersionDeps.Matrix.PXCOperator)
+	latestPXCOperator, err := latestRecommended(pmmVersionDeps.Matrix.PXCOperator)
 	return latestPXCOperator, latestPSMDBOperator, err
 }
 
