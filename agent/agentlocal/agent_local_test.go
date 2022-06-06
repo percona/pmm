@@ -16,7 +16,13 @@
 package agentlocal
 
 import (
+	"archive/zip"
+	"bufio"
+	"bytes"
 	"context"
+	"fmt"
+	"github.com/percona/pmm/agent/storelogs"
+	"log"
 	"testing"
 	"time"
 
@@ -61,7 +67,8 @@ func TestServerStatus(t *testing.T) {
 		agentInfo, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
-		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml")
+		ringLog := storelogs.New(500)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
 
 		// without network info
 		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
@@ -87,7 +94,8 @@ func TestServerStatus(t *testing.T) {
 		client.On("GetNetworkInformation").Return(latency, clockDrift, nil)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
-		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml")
+		ringLog := storelogs.New(500)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
 
 		// with network info
 		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: true})
@@ -107,4 +115,62 @@ func TestServerStatus(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	})
+}
+
+// generateTestZip generate test zip file.
+func generateTestZip(s *Server) ([]byte, error) {
+	agentLogs := make(map[string][]string)
+	agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
+		"logs1",
+		"logs2",
+	}
+	buf := &bytes.Buffer{}
+	writer := zip.NewWriter(buf)
+	b := &bytes.Buffer{}
+	for _, serverLog := range s.ringLogs.GetLogs() {
+		_, err := b.WriteString(serverLog)
+		if err != nil {
+			return nil, err
+		}
+	}
+	addData(writer, "pmm-agent.txt", b.Bytes())
+
+	for id, logs := range agentLogs {
+		b := &bytes.Buffer{}
+		for _, l := range logs {
+			_, err := b.WriteString(l + "\n")
+			if err != nil {
+				return nil, err
+			}
+		}
+		addData(writer, fmt.Sprintf("%s.txt", id), b.Bytes())
+	}
+	err := writer.Close()
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+// deepCompare compare two zip files.
+func deepCompare(t *testing.T, file1, file2 *zip.File) bool {
+	sf, err := file1.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	df, err := file2.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sscan := bufio.NewScanner(sf)
+	dscan := bufio.NewScanner(df)
+
+	for sscan.Scan() {
+		dscan.Scan()
+		assert.Equal(t, sscan.Bytes(), dscan.Bytes())
+	}
+
+	return false
 }

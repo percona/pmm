@@ -17,6 +17,7 @@ package commands
 
 import (
 	"context"
+	"github.com/percona/pmm/agent/storelogs"
 	"os"
 	"os/signal"
 
@@ -31,6 +32,8 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 )
 
+const maxServerLogs = 500 // max number logs can store server
+
 // Run implements `pmm-agent run` default command.
 func Run() {
 	l := logrus.WithField("component", "main")
@@ -40,6 +43,7 @@ func Run() {
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	ringLog := storelogs.New(maxServerLogs)
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
@@ -55,7 +59,7 @@ func Run() {
 		config.ConfigureLogger(cfg)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
-		run(ctx, cfg, configFilepath)
+		run(ctx, cfg, configFilepath, ringLog)
 
 		if ctx.Err() != nil {
 			return
@@ -65,7 +69,7 @@ func Run() {
 
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
 // See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string) {
+func run(ctx context.Context, cfg *config.Config, configFilepath string, ringLog *storelogs.LogsStore) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
@@ -77,7 +81,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	v := versioner.New(&versioner.RealExecFunctions{})
 	client := client.New(cfg, supervisor, connectionChecker, v)
-	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
+	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, ringLog)
 
 	go func() {
 		_ = client.Run(ctx)
