@@ -17,16 +17,16 @@ jobs:
       - uses: percona-platform/checkout@v3
 
       - name: Sync GA API to Readme
-        uses: percona-platform/rdme@7.0.3
+        uses: percona-platform/rdme@7.2.0
         with:
           rdme: openapi ./api/swagger/swagger.json --id=61deab764c98639400162c1b --key=${{ secrets.README_TOKEN }}
 
       - name: Sync non-GA API to Readme
-        uses: percona-platform/rdme@7.0.3
+        uses: percona-platform/rdme@7.2.0
         with:
           rdme: openapi ./api/swagger/swagger-dev-only.json --id=6248ad743930240056ce27b6 --key=${{ secrets.README_TOKEN }}
 
       - name: Upload markdown content
-        uses: percona-platform/rdme@7.0.3
+        uses: percona-platform/rdme@7.2.0
         with:
           rdme: docs markdown --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}
