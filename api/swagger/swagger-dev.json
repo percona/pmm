@@ -9352,6 +9352,12 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 3
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
                     }
                   },
                   "x-order": 1
@@ -10681,6 +10687,12 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 3
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
                       }
                     }
                   },

@@ -3141,6 +3141,9 @@ type GetAgentOKBodyVmagent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this get agent OK body vmagent
