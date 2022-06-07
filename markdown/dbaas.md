@@ -300,7 +300,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |disk_size                              |Max disk size for the PXC instance              |Default: 25 GB                                                       |
 |proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
 |proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
-|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 Gb                                                         |
+|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 GB                                                         |
 |proxysql.disk_size                     |Max disk size for ProxySQL                      |Default: empty, use operator's default                               |
 |haproxyimage                           |Docker image for HA Proxy                       |Default: empty, use operator's default                               |
 |haproxy.compute_resources.cpu_m        |CPU resources millis                            |Default: 1000                                                        |
