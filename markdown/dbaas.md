@@ -313,7 +313,7 @@ Memory bytes are strings because the parameter accepts the unit, like *1 Gi*
 
 #### Minimum request example
 
-Since the API has the defaults mentioned above, the HTTP request can have the kubernetes cluster name as the only parameter.
+Since the API has the defaults mentioned above, the HTTP request can have the Kubernetes cluster name as the only parameter.
 
 Example:
 
