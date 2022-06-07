@@ -156,9 +156,6 @@ func (o *GetActionBody) UnmarshalBinary(b []byte) error {
 swagger:model GetActionDefaultBody
 */
 type GetActionDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,12 +259,8 @@ func (o *GetActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetActionDefaultBodyDetailsItems0
 */
 type GetActionDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get action default body details items0

@@ -109,7 +109,7 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	case *agent_local.StatusDefault:
 		msg := fmt.Sprintf("HTTP code %d", err.Code())
 		if err.Payload != nil {
-			msg = fmt.Sprintf("%s (gRPC code %d, HTTP code %d)", err.Payload.Error, err.Payload.Code, err.Code())
+			msg = fmt.Sprintf("%s (gRPC code %d, HTTP code %d)", err.Payload.Message, err.Payload.Code, err.Code())
 		}
 		fmt.Printf("pmm-agent is running, but status check failed: %s.\n", msg)
 		os.Exit(1)
@@ -140,7 +140,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	if err != nil {
 		msg := err.Error()
 		if e, _ := err.(*node.RegisterNodeDefault); e != nil {
-			msg = e.Payload.Error + ""
+			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
 				msg += " If you want override node, use --force option"
@@ -167,7 +167,7 @@ func reload(l *logrus.Entry) {
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
 	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
-		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Error)
+		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Message)
 		os.Exit(1)
 	}
 
