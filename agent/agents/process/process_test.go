@@ -161,7 +161,7 @@ func TestProcess(t *testing.T) {
 
 		logger := newProcessLogger(l, 2, nil)
 
-		pCmd := exec.CommandContext(ctx, f.Name())
+		pCmd := exec.CommandContext(ctx, f.Name()) //nolint:gosec
 		pCmd.Stdout = logger
 		err = pCmd.Start()
 		require.NoError(t, err)

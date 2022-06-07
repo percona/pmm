@@ -74,4 +74,3 @@ issues:
         - gomnd            # tests are full of magic numbers
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-        - gosec            # tests are using weak random number generators

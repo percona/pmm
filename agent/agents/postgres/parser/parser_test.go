@@ -38,12 +38,12 @@ func TestExtractTables(t *testing.T) {
 	for _, file := range files {
 		file := file
 		t.Run(filepath.Base(file), func(t *testing.T) {
-			d, err := os.ReadFile(file)
+			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
 			query := string(d)
 
 			goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
-			d, err = os.ReadFile(goldenFile)
+			d, err = os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)

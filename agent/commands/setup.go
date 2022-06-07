@@ -48,7 +48,7 @@ func Setup() {
 	cfg, configFilepath, err := config.Get(l)
 	var e *config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
-		fmt.Printf("Failed to load configuration: %s.\n", err)
+		fmt.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
 		os.Exit(1)
 	}
 
@@ -57,7 +57,7 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
 		os.Exit(1)
 
 	}
@@ -78,7 +78,7 @@ func Setup() {
 	fmt.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
 
 	if !running {
-		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)
+		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath) //nolint:forbidigo
 		return
 	}
 

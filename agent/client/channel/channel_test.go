@@ -52,9 +52,9 @@ var _ agentpb.AgentServer = (*testServer)(nil)
 
 //nolint:nakedret
 func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
-	// logrus.SetLevel(logrus.DebugLevel)
+	t.Helper()
 
-	t.Parallel()
+	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
