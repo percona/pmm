@@ -386,6 +386,7 @@ func (cmd *listCommand) Run() (Result, error) {
 				AgentID:     a.AgentID,
 				Status:      getStatus(a.Status),
 				MetricsMode: getMetricsMode(true),
+				Port:        a.ListenPort,
 			})
 		}
 	}
