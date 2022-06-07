@@ -59,7 +59,6 @@ func Setup() {
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
 		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
 		os.Exit(1)
-
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
