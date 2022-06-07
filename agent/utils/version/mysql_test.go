@@ -91,6 +91,21 @@ func TestGetMySQLVersion(t *testing.T) {
 			wantVendor:  "mariadb",
 			wantVersion: "10.2",
 		},
+		{
+			name: "MariaDB-Debian",
+			mockedData: []mockedVariables{
+				{
+					variable: "version",
+					value:    "10.1.48-MariaDB-0+deb9u2",
+				},
+				{
+					variable: "version_comment",
+					value:    "Debian 9.13",
+				},
+			},
+			wantVendor:  "mariadb",
+			wantVersion: "10.1",
+		},
 	}
 
 	//nolint:paralleltest
