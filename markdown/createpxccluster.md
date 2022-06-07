@@ -67,7 +67,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |expose                                 |Make it available outside the Kubernetes cluster|Default: false                                                       |
 
 **Note:** 
-Only one of ProxySQL or HAProxy should be specified in the request.
+Either ProxySQL or HAProxy should be specified in the request.
 
 #### Minimum request example
 
