@@ -35,7 +35,7 @@ The PSMDB Create endpoint receives this structure:
 | expose                                    | Expose outside the Kubernetes cluster | Default: false                                               |
 
 
-Since the endpoint can set defaults, creating a PSMDB cluster can be made with a minimum request like this:
+Since the endpoint can set defaults, you can create a PSMDB cluster with a minimum request like this:
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
