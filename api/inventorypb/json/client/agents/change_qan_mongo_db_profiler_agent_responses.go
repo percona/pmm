@@ -213,9 +213,6 @@ func (o *ChangeQANMongoDBProfilerAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMongoDBProfilerAgentDefaultBody
 */
 type ChangeQANMongoDBProfilerAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -319,12 +316,8 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) UnmarshalBinary(b []byte) err
 swagger:model ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN mongo DB profiler agent default body details items0

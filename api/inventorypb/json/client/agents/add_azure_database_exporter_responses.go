@@ -188,9 +188,6 @@ func (o *AddAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterDefaultBody
 */
 type AddAzureDatabaseExporterDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -294,12 +291,8 @@ func (o *AddAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add azure database exporter default body details items0

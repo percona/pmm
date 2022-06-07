@@ -158,9 +158,6 @@ func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,12 +261,8 @@ func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetAgentDefaultBodyDetailsItems0
 */
 type GetAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get agent default body details items0
@@ -3148,6 +3141,9 @@ type GetAgentOKBodyVmagent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this get agent OK body vmagent
