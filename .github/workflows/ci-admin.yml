@@ -1,0 +1,80 @@
+name: pmm-admin CI
+
+on:
+  push:
+    paths:
+      - "admin/**"
+    branches:
+      - main
+      - release-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+    paths:
+      - "admin/**"
+
+jobs:
+  test-admin:
+    name: Test pmm-admin
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: [ 1.18.x ]
+        may-fail: [ false ]
+    #        include:
+    #          - go-version: tip
+    #            may-fail: true
+
+    env:
+      GOPATH: ${{ github.workspace }}
+      GOBIN: ${{ github.workspace }}/bin
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}/admin
+
+    steps:
+      - name: Check out code into the working directory under the GOPATH
+        uses: percona-platform/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ${{ env.WORKING_DIR }}
+
+      - name: Set up Go release
+        uses: percona-platform/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Build and install
+        run: make install
+
+      - name: Test race
+        run: make test-race
+
+      - name: Test cover
+        run: make test-cover
+
+      - name: Test crosscover
+        run: make test-crosscover
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
