@@ -239,7 +239,7 @@ func TestPerfSchema(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag) //nolint:gosec
+	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
 	_, err := db.Exec(updateQuery + "performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_statements_history'")
 	require.NoError(t, err, "failed to enable events_statements_history consumer")
 

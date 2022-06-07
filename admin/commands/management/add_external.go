@@ -153,7 +153,7 @@ var (
 	AddExternalC = AddC.Command("external", "Add External source of data (like a custom exporter running on a port) to the monitoring")
 )
 
-func init() {
+func init() { //nolint:gochecknoinits
 	hostname, _ := os.Hostname()
 	defaultServiceName := hostname + defaultServiceNameSuffix
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", defaultServiceName)

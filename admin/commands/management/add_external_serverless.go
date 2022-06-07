@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
@@ -164,7 +165,7 @@ func (cmd *addExternalServerlessCommand) processURLFlags() (scheme, metricsPath,
 	case cmd.URL != "":
 		uri, err := url.Parse(cmd.URL)
 		if err != nil {
-			return "", "", "", 0, fmt.Errorf("couldn't parse URL %s : %s", cmd.URL, err)
+			return "", "", "", 0, errors.Wrapf(err, "couldn't parse URL: %s", cmd.URL)
 		}
 		scheme = uri.Scheme
 		address = uri.Hostname()
@@ -215,7 +216,7 @@ var (
 	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
 )
 
-func init() {
+func init() { //nolint:gochecknoinits
 	AddExternalServerlessC.Flag("external-name", "Service name").StringVar(&AddExternalServerless.Name)
 
 	AddExternalServerlessC.Flag("url", "Full URL to exporter metrics endpoints").StringVar(&AddExternalServerless.URL)

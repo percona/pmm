@@ -47,6 +47,8 @@ func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 var _ agentpb.AgentServer = (*testServer)(nil)
 
 func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port uint16, teardown func()) {
+	t.Helper()
+
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler

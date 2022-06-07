@@ -362,7 +362,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		fmt.Fprintf(bw, "\t%q %s\n", conname, condef) //nolint:errcheck
+		fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
 
 		if err = bw.Flush(); err != nil {
 			return errors.WithStack(err)
@@ -393,7 +393,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Referenced by:") //nolint:errcheck
+	fmt.Fprintln(bw, "Referenced by:")
 
 	for rows.Next() {
 		var conname, conrelid, condef string
@@ -404,7 +404,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		fmt.Fprintf(bw, "\tTABLE %q CONSTRAINT %q %s\n", conrelid, conname, condef) //nolint:errcheck
+		fmt.Fprintf(bw, "\tTABLE %q CONSTRAINT %q %s\n", conrelid, conname, condef)
 
 		if err = bw.Flush(); err != nil {
 			return errors.WithStack(err)
@@ -434,7 +434,7 @@ ORDER BY conname`, tableID)
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	fmt.Fprintln(bw, "Check constraints:") //nolint:errcheck
+	fmt.Fprintln(bw, "Check constraints:")
 
 	for rows.Next() {
 		var conname, condef string
@@ -444,7 +444,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		fmt.Fprintf(bw, "\t%q %s\n", conname, condef) //nolint:errcheck
+		fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
 
 		if err = bw.Flush(); err != nil {
 			return errors.WithStack(err)

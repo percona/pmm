@@ -120,7 +120,6 @@ func (c *Cache) Set(current interface{}) error {
 				delete(c.items, c.itemsList.Remove(c.itemsList.Front()).(*cacheItem).key)
 				c.removedN++
 				wasTrimmed = true
-
 			}
 		}
 	}

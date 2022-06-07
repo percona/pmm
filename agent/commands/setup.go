@@ -60,7 +60,7 @@ func Setup() {
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
-		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
+		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}
 
@@ -69,10 +69,10 @@ func Setup() {
 	}
 
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
-		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
+		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}
-	fmt.Printf("Configuration file %s updated.\n", configFilepath)
+	fmt.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
 
 	if !running {
 		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)

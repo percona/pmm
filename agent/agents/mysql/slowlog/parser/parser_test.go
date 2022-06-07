@@ -56,6 +56,8 @@ func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 }
 
 func TestParserGolden(t *testing.T) {
+	t.Parallel()
+
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.log"))
 	require.NoError(t, err)
 	for _, file := range files {
@@ -72,12 +74,12 @@ func TestParserGolden(t *testing.T) {
 				b, err := json.MarshalIndent(actual, "", "  ")
 				require.NoError(t, err)
 				b = append(b, '\n')
-				err = os.WriteFile(goldenFile, b, 0o666) //nolint:gosec
+				err = os.WriteFile(goldenFile, b, 0o666)
 				require.NoError(t, err)
 				t.Skipf("%s updated.", goldenFile)
 			}
 
-			b, err := os.ReadFile(goldenFile) //nolint:gosec
+			b, err := os.ReadFile(goldenFile)
 			require.NoError(t, err)
 			var expected []log.Event
 			err = json.Unmarshal(b, &expected)
@@ -89,7 +91,11 @@ func TestParserGolden(t *testing.T) {
 }
 
 func TestParserSpecial(t *testing.T) {
+	t.Parallel()
+
 	t.Run("slow009/FilterAdminCommands", func(t *testing.T) {
+		t.Parallel()
+
 		opts := log.Options{
 			DefaultLocation: time.UTC,
 			FilterAdminCommand: map[string]bool{
@@ -132,6 +138,8 @@ func TestParserSpecial(t *testing.T) {
 	})
 
 	t.Run("slow023", func(t *testing.T) {
+		t.Parallel()
+
 		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {

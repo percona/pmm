@@ -181,7 +181,7 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 		}
 		submatches := customLabelRE.FindStringSubmatch(part)
 		if submatches == nil {
-			return nil, fmt.Errorf("wrong custom label format")
+			return nil, errors.New("wrong custom label format")
 		}
 		result[submatches[1]] = submatches[2]
 	}
@@ -309,7 +309,7 @@ var (
 	_ fmt.GoStringer = nginxError("")
 )
 
-// Default kingping's usage template with tweaks:
+// UsageTemplate is default kingping's usage template with tweaks:
 // * FormatAllCommands is a copy of FormatCommands that ignores hidden flag;
 // * subcommands are shown with FormatAllCommands.
 var UsageTemplate = `{{define "FormatCommand"}}\

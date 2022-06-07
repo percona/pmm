@@ -17,9 +17,9 @@
 package inventory
 
 import (
-	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -49,5 +49,5 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 			}
 		}
 	}
-	return nil, fmt.Errorf("unexpected type value %q", input)
+	return nil, errors.Errorf("unexpected type value %q", input)
 }
