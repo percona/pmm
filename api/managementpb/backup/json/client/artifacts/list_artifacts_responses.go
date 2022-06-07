@@ -122,9 +122,6 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 swagger:model ListArtifactsDefaultBody
 */
 type ListArtifactsDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,12 +225,8 @@ func (o *ListArtifactsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListArtifactsDefaultBodyDetailsItems0
 */
 type ListArtifactsDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this list artifacts default body details items0

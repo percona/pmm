@@ -156,9 +156,6 @@ func (o *GetServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceDefaultBody
 */
 type GetServiceDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,12 +259,8 @@ func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetServiceDefaultBodyDetailsItems0
 */
 type GetServiceDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get service default body details items0
