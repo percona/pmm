@@ -205,7 +205,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 	if cmd.CredentialsSource != "" {
 		if err := cmd.GetCredentials(); err != nil {
-			return nil, errors.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
+			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
 		}
 	}
 
