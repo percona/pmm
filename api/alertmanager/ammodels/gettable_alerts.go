@@ -41,7 +41,7 @@ func (m GettableAlerts) Validate(formats strfmt.Registry) error {
 
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -64,7 +64,7 @@ func (m GettableAlerts) ContextValidate(ctx context.Context, formats strfmt.Regi
 		}
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

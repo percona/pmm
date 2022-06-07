@@ -41,7 +41,7 @@ func (m AlertGroups) Validate(formats strfmt.Registry) error {
 
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -64,7 +64,7 @@ func (m AlertGroups) ContextValidate(ctx context.Context, formats strfmt.Registr
 		}
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

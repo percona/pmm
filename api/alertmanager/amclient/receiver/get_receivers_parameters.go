@@ -118,7 +118,7 @@ func (o *GetReceiversParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

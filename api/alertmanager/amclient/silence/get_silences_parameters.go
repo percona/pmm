@@ -147,7 +147,7 @@ func (o *GetSilencesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		}
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
