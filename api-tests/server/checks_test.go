@@ -162,7 +162,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 			}
 
 			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown value \"\\\"unknown_interval\\\"\" for enum management.SecurityCheckInterval")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid value for enum type: \"unknown_interval\"")
 
 			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 			require.NoError(t, err)

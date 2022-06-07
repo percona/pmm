@@ -557,7 +557,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`bad Duration: time: missing unit in duration "1"`)
+					`invalid google.protobuf.Duration value "1"`)
 				assert.Empty(t, res)
 			})
 
@@ -605,7 +605,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`bad Duration: time: missing unit in duration "1"`)
+					`invalid google.protobuf.Duration value "1"`)
 				assert.Empty(t, res)
 			})
 
@@ -651,7 +651,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`bad Duration: time: missing unit in duration "1"`)
+					`invalid google.protobuf.Duration value "1"`)
 				assert.Empty(t, res)
 			})
 
@@ -679,7 +679,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: data_retention: should be a natural number of days.`)
+					`invalid google.protobuf.Duration value "36h"`)
 				assert.Empty(t, res)
 			})
 
@@ -723,9 +723,9 @@ func TestSettings(t *testing.T) {
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "2s",
 							Mr: "15s",
-							Lr: "2m",
+							Lr: "120s", // 2 minutes
 						},
-						DataRetention: "240h",
+						DataRetention: "864000s",                           // 240 hours
 						AWSPartitions: []string{"aws-cn", "aws", "aws-cn"}, // duplicates are ok
 					},
 					Context: pmmapitests.Context,
@@ -790,8 +790,8 @@ func TestSettings(t *testing.T) {
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
-							RareInterval:     "8h",
-							StandardInterval: "30m",
+							RareInterval:     "28800s", // 8 hours
+							StandardInterval: "1800s",  // 30 minutes
 							FrequentInterval: "20s",
 						},
 					},
@@ -956,8 +956,8 @@ groups:
 					"60s": "60s",
 					"61s": "61s",
 					"61":  "", // no suffix => error
-					"2m":  "120s",
-					"1h":  "3600s",
+					"2m":  "", // m suffix => error
+					"1h":  "", // h suffix => error
 					"1d":  "", // d suffix => error
 					"1w":  "", // w suffix => error
 				} {

@@ -54,7 +54,7 @@ func TestReadyz(t *testing.T) {
 			b, err := ioutil.ReadAll(resp.Body)
 			require.NoError(t, err)
 			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-			assert.Equal(t, "{\n\n}", string(b))
+			assert.Equal(t, "{}", string(b))
 		})
 	}
 }

@@ -131,7 +131,7 @@ func TestSetup(t *testing.T) {
 			"swagger/":    301,
 
 			"v1/readyz":           200,
-			"v1/AWSInstanceCheck": 405, // only POST is expected
+			"v1/AWSInstanceCheck": 501, // only POST is expected, other request methods are seen as unimplemented
 			"v1/version":          401, // Grafana authentication required
 		}
 		for path, code := range paths {
@@ -173,7 +173,7 @@ func TestSetup(t *testing.T) {
 
 		resp, b := doRequest(t, client, req)
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-		assert.Equal(t, "{\n\n}", string(b), "response:\n%s", b)
+		assert.Equal(t, "{}", string(b), "response:\n%s", b)
 	})
 }
 
