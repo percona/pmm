@@ -51,7 +51,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |Parameter                              |Description                                     |Notes                                                                |
 |---------------------------------------|------------------------------------------------|---------------------------------------------------------------------|
 |kubernetes_cluster_name                |Kubernetes cluster name                         |Required                                                             |
-|name                                   |PXC cluster name to create                      |Default: pxc + DB version + 5 chars random string                    |
+|name                                   |PXC cluster name to be created                      |Default: pxc + DB version + 5 chars random string                    |
 |cluster_size                           |Cluster size                                    |Default: 3                                                           |
 |image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
 |compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
