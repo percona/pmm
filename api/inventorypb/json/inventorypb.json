@@ -6904,6 +6904,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -8279,6 +8285,12 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
