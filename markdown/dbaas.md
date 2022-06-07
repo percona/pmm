@@ -445,7 +445,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
 
 ### Delete DB Cluster
 
-If we don’t need DB Cluster anymore we can delete it using request below.
+If you don’t need the database cluster you can delete it using the request below.
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \ 
      -H "accept: application/json" \
