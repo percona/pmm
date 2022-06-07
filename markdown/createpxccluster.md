@@ -71,7 +71,7 @@ Either ProxySQL or HAProxy should be specified in the request.
 
 #### Minimum request example
 
-Since the API has the defaults mentioned above, the HTTP request can have the kubernetes cluster name as the only parameter.
+Since the API has the defaults mentioned above, the HTTP request can have the Kubernetes cluster name as the only parameter.
 
 Example:
 
