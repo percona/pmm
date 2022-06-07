@@ -401,7 +401,7 @@ API endpoint used in this step: [GetPXCClusterCredentials](ref:getpxcclustercred
 
 ### Create a PSMDB Cluster
 
-The PSMDB Create endpoint can also set defaults so, creating a PSMDB cluster can be made with a request like this:
+The PSMDB `Create` endpoint can also set defaults, so creating a PSMDB cluster can be made with a request like this:
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
