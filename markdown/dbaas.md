@@ -296,7 +296,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |cluster_size                           |Cluster size                                    |Default: 3                                                           |
 |image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
 |compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
-|compute_resources.memory_bytes         |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|compute_resources.memory_bytes         |Max memory size in bytes                        |Default: 2 GB                                                        |
 |disk_size                              |Max disk size for the PXC instance              |Default: 25 Gb                                                       |
 |proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
 |proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
