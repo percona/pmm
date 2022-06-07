@@ -1,6 +1,6 @@
 ### Create PXC Cluster
 
-Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster, the values for parameters are recomended by Percona:
+Once you register the Kubernetes cluster, you can use its name to create database clusters. Here is an example for the PXC cluster. Percona recommends the following the values for the parameters: 
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
