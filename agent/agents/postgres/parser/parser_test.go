@@ -81,11 +81,11 @@ func BenchmarkExtractTables(b *testing.B) {
 		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		b.Run(name, func(b *testing.B) {
-			d, err := os.ReadFile(file)
+			d, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(b, err)
 			query := string(d)
 
-			d, err = os.ReadFile(goldenFile)
+			d, err = os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(b, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)

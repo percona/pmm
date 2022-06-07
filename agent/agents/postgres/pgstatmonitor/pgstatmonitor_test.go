@@ -439,7 +439,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix()))
+		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (

@@ -74,12 +74,12 @@ func TestParserGolden(t *testing.T) {
 				b, err := json.MarshalIndent(actual, "", "  ")
 				require.NoError(t, err)
 				b = append(b, '\n')
-				err = os.WriteFile(goldenFile, b, 0o666)
+				err = os.WriteFile(goldenFile, b, 0o666) //nolint:gosec
 				require.NoError(t, err)
 				t.Skipf("%s updated.", goldenFile)
 			}
 
-			b, err := os.ReadFile(goldenFile)
+			b, err := os.ReadFile(goldenFile) //nolint:gosec
 			require.NoError(t, err)
 			var expected []log.Event
 			err = json.Unmarshal(b, &expected)
