@@ -48,7 +48,8 @@ func Setup() {
 	cfg, configFilepath, err := config.Get(l)
 	var e *config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
-		l.Fatalf("Failed to load configuration: %s.\n", err)
+		fmt.Printf("Failed to load configuration: %s.\n", err)
+		os.Exit(1)
 	}
 
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
@@ -56,7 +57,9 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		l.Fatalf("Can't skip registration: pmm-agent ID is empty.\n")
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
+		os.Exit(1)
+
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
