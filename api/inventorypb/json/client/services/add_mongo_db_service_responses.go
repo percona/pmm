@@ -59,12 +59,12 @@ type AddMongoDBServiceOK struct {
 func (o *AddMongoDBServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
+
 func (o *AddMongoDBServiceOK) GetPayload() *AddMongoDBServiceOKBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBServiceOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddMongoDBServiceDefault) Code() int {
 func (o *AddMongoDBServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddMongoDBServiceDefault) GetPayload() *AddMongoDBServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBServiceDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse,
 swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
-
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -184,10 +183,6 @@ func (o *AddMongoDBServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBServiceDefaultBody
 */
 type AddMongoDBServiceDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -253,9 +248,7 @@ func (o *AddMongoDBServiceDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddMongoDBServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -266,7 +259,6 @@ func (o *AddMongoDBServiceDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -294,13 +286,8 @@ func (o *AddMongoDBServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBServiceDefaultBodyDetailsItems0
 */
 type AddMongoDBServiceDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add mongo DB service default body details items0
@@ -335,7 +322,6 @@ func (o *AddMongoDBServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 swagger:model AddMongoDBServiceOKBody
 */
 type AddMongoDBServiceOKBody struct {
-
 	// mongodb
 	Mongodb *AddMongoDBServiceOKBodyMongodb `json:"mongodb,omitempty"`
 }
@@ -388,7 +374,6 @@ func (o *AddMongoDBServiceOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *AddMongoDBServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mongodb != nil {
 		if err := o.Mongodb.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -425,7 +410,6 @@ func (o *AddMongoDBServiceOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBServiceOKBodyMongodb
 */
 type AddMongoDBServiceOKBodyMongodb struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

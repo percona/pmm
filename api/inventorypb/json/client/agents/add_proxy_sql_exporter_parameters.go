@@ -58,7 +58,6 @@ func NewAddProxySQLExporterParamsWithHTTPClient(client *http.Client) *AddProxySQ
    Typically these are written to a http.Request.
 */
 type AddProxySQLExporterParams struct {
-
 	// Body.
 	Body AddProxySQLExporterBody
 
@@ -128,7 +127,6 @@ func (o *AddProxySQLExporterParams) SetBody(body AddProxySQLExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddProxySQLExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

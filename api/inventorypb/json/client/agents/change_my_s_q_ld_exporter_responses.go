@@ -61,12 +61,12 @@ type ChangeMySQLdExporterOK struct {
 func (o *ChangeMySQLdExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeMySQLdExporterOK) GetPayload() *ChangeMySQLdExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeMySQLdExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeMySQLdExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeMySQLdExporterDefault) Code() int {
 func (o *ChangeMySQLdExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeMySQLdExporterDefault) GetPayload() *ChangeMySQLdExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeMySQLdExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeMySQLdExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeMySQLdExporterDefault) readResponse(response runtime.ClientRespon
 swagger:model ChangeMySQLdExporterBody
 */
 type ChangeMySQLdExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeMySQLdExporterBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ChangeMySQLdExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,10 +213,6 @@ func (o *ChangeMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMySQLdExporterDefaultBody
 */
 type ChangeMySQLdExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,9 +278,7 @@ func (o *ChangeMySQLdExporterDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ChangeMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +289,6 @@ func (o *ChangeMySQLdExporterDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,13 +316,8 @@ func (o *ChangeMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMySQLdExporterDefaultBodyDetailsItems0
 */
 type ChangeMySQLdExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change my s q ld exporter default body details items0
@@ -366,7 +352,6 @@ func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 swagger:model ChangeMySQLdExporterOKBody
 */
 type ChangeMySQLdExporterOKBody struct {
-
 	// mysqld exporter
 	MysqldExporter *ChangeMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 }
@@ -419,7 +404,6 @@ func (o *ChangeMySQLdExporterOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ChangeMySQLdExporterOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +440,6 @@ func (o *ChangeMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMySQLdExporterOKBodyMysqldExporter
 */
 type ChangeMySQLdExporterOKBodyMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -682,7 +665,6 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) err
 swagger:model ChangeMySQLdExporterParamsBodyCommon
 */
 type ChangeMySQLdExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

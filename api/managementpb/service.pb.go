@@ -353,15 +353,18 @@ func file_managementpb_service_proto_rawDescGZIP() []byte {
 	return file_managementpb_service_proto_rawDescData
 }
 
-var file_managementpb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_managementpb_service_proto_goTypes = []interface{}{
-	(*AddNodeParams)(nil),         // 0: management.AddNodeParams
-	(*RemoveServiceRequest)(nil),  // 1: management.RemoveServiceRequest
-	(*RemoveServiceResponse)(nil), // 2: management.RemoveServiceResponse
-	nil,                           // 3: management.AddNodeParams.CustomLabelsEntry
-	(inventorypb.NodeType)(0),     // 4: inventory.NodeType
-	(inventorypb.ServiceType)(0),  // 5: inventory.ServiceType
-}
+var (
+	file_managementpb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_managementpb_service_proto_goTypes  = []interface{}{
+		(*AddNodeParams)(nil),         // 0: management.AddNodeParams
+		(*RemoveServiceRequest)(nil),  // 1: management.RemoveServiceRequest
+		(*RemoveServiceResponse)(nil), // 2: management.RemoveServiceResponse
+		nil,                           // 3: management.AddNodeParams.CustomLabelsEntry
+		(inventorypb.NodeType)(0),     // 4: inventory.NodeType
+		(inventorypb.ServiceType)(0),  // 5: inventory.ServiceType
+	}
+)
+
 var file_managementpb_service_proto_depIdxs = []int32{
 	4, // 0: management.AddNodeParams.node_type:type_name -> inventory.NodeType
 	3, // 1: management.AddNodeParams.custom_labels:type_name -> management.AddNodeParams.CustomLabelsEntry

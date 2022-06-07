@@ -19,7 +19,6 @@ import (
 //
 // swagger:model silenceStatus
 type SilenceStatus struct {
-
 	// state
 	// Required: true
 	// Enum: [expired active pending]
@@ -73,7 +72,6 @@ func (m *SilenceStatus) validateStateEnum(path, location string, value string) e
 }
 
 func (m *SilenceStatus) validateState(formats strfmt.Registry) error {
-
 	if err := validate.Required("state", "body", m.State); err != nil {
 		return err
 	}

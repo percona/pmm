@@ -59,12 +59,12 @@ type CreatePXCClusterOK struct {
 func (o *CreatePXCClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Create][%d] createPxcClusterOk  %+v", 200, o.Payload)
 }
+
 func (o *CreatePXCClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *CreatePXCClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *CreatePXCClusterDefault) Code() int {
 func (o *CreatePXCClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Create][%d] CreatePXCCluster default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *CreatePXCClusterDefault) GetPayload() *CreatePXCClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *CreatePXCClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreatePXCClusterDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *CreatePXCClusterDefault) readResponse(response runtime.ClientResponse, 
 swagger:model CreatePXCClusterBody
 */
 type CreatePXCClusterBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -183,7 +182,6 @@ func (o *CreatePXCClusterBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *CreatePXCClusterBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -220,10 +218,6 @@ func (o *CreatePXCClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model CreatePXCClusterDefaultBody
 */
 type CreatePXCClusterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -289,9 +283,7 @@ func (o *CreatePXCClusterDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *CreatePXCClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -302,7 +294,6 @@ func (o *CreatePXCClusterDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -330,13 +321,8 @@ func (o *CreatePXCClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model CreatePXCClusterDefaultBodyDetailsItems0
 */
 type CreatePXCClusterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this create PXC cluster default body details items0
@@ -371,7 +357,6 @@ func (o *CreatePXCClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 swagger:model CreatePXCClusterParamsBodyParams
 */
 type CreatePXCClusterParamsBodyParams struct {
-
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -487,7 +472,6 @@ func (o *CreatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, 
 }
 
 func (o *CreatePXCClusterParamsBodyParams) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -503,7 +487,6 @@ func (o *CreatePXCClusterParamsBodyParams) contextValidateHaproxy(ctx context.Co
 }
 
 func (o *CreatePXCClusterParamsBodyParams) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -519,7 +502,6 @@ func (o *CreatePXCClusterParamsBodyParams) contextValidateProxysql(ctx context.C
 }
 
 func (o *CreatePXCClusterParamsBodyParams) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -557,7 +539,6 @@ func (o *CreatePXCClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 swagger:model CreatePXCClusterParamsBodyParamsHaproxy
 */
 type CreatePXCClusterParamsBodyParamsHaproxy struct {
-
 	// Docker image used for HAProxy.
 	Image string `json:"image,omitempty"`
 
@@ -613,7 +594,6 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) ContextValidate(ctx context.Co
 }
 
 func (o *CreatePXCClusterParamsBodyParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -650,7 +630,6 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) erro
 swagger:model CreatePXCClusterParamsBodyParamsHaproxyComputeResources
 */
 type CreatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -691,7 +670,6 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinar
 swagger:model CreatePXCClusterParamsBodyParamsPXC
 */
 type CreatePXCClusterParamsBodyParamsPXC struct {
-
 	// Docker image used for PXC.
 	Image string `json:"image,omitempty"`
 
@@ -750,7 +728,6 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) ContextValidate(ctx context.Contex
 }
 
 func (o *CreatePXCClusterParamsBodyParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -787,7 +764,6 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) UnmarshalBinary(b []byte) error {
 swagger:model CreatePXCClusterParamsBodyParamsPXCComputeResources
 */
 type CreatePXCClusterParamsBodyParamsPXCComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 
@@ -828,7 +804,6 @@ func (o *CreatePXCClusterParamsBodyParamsPXCComputeResources) UnmarshalBinary(b 
 swagger:model CreatePXCClusterParamsBodyParamsProxysql
 */
 type CreatePXCClusterParamsBodyParamsProxysql struct {
-
 	// Docker image used for ProxySQL.
 	Image string `json:"image,omitempty"`
 
@@ -887,7 +862,6 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) ContextValidate(ctx context.C
 }
 
 func (o *CreatePXCClusterParamsBodyParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -924,7 +898,6 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) err
 swagger:model CreatePXCClusterParamsBodyParamsProxysqlComputeResources
 */
 type CreatePXCClusterParamsBodyParamsProxysqlComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

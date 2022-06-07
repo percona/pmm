@@ -59,12 +59,12 @@ type StartMySQLShowTableStatusActionOK struct {
 func (o *StartMySQLShowTableStatusActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] startMySqlShowTableStatusActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartMySQLShowTableStatusActionOK) GetPayload() *StartMySQLShowTableStatusActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowTableStatusActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLShowTableStatusActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartMySQLShowTableStatusActionDefault) Code() int {
 func (o *StartMySQLShowTableStatusActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowTableStatus][%d] StartMySQLShowTableStatusAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartMySQLShowTableStatusActionDefault) GetPayload() *StartMySQLShowTableStatusActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowTableStatusActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLShowTableStatusActionDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *StartMySQLShowTableStatusActionDefault) readResponse(response runtime.C
 swagger:model StartMySQLShowTableStatusActionBody
 */
 type StartMySQLShowTableStatusActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -166,10 +165,6 @@ func (o *StartMySQLShowTableStatusActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartMySQLShowTableStatusActionDefaultBody
 */
 type StartMySQLShowTableStatusActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -235,9 +230,7 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) ContextValidate(ctx context
 }
 
 func (o *StartMySQLShowTableStatusActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -248,7 +241,6 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) contextValidateDetails(ctx 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -276,13 +268,8 @@ func (o *StartMySQLShowTableStatusActionDefaultBody) UnmarshalBinary(b []byte) e
 swagger:model StartMySQLShowTableStatusActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowTableStatusActionDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start my SQL show table status action default body details items0
@@ -317,7 +304,6 @@ func (o *StartMySQLShowTableStatusActionDefaultBodyDetailsItems0) UnmarshalBinar
 swagger:model StartMySQLShowTableStatusActionOKBody
 */
 type StartMySQLShowTableStatusActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

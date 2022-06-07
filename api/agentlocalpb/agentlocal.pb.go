@@ -517,18 +517,21 @@ func file_agentlocalpb_agentlocal_proto_rawDescGZIP() []byte {
 	return file_agentlocalpb_agentlocal_proto_rawDescData
 }
 
-var file_agentlocalpb_agentlocal_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_agentlocalpb_agentlocal_proto_goTypes = []interface{}{
-	(*ServerInfo)(nil),           // 0: agentlocal.ServerInfo
-	(*AgentInfo)(nil),            // 1: agentlocal.AgentInfo
-	(*StatusRequest)(nil),        // 2: agentlocal.StatusRequest
-	(*StatusResponse)(nil),       // 3: agentlocal.StatusResponse
-	(*ReloadRequest)(nil),        // 4: agentlocal.ReloadRequest
-	(*ReloadResponse)(nil),       // 5: agentlocal.ReloadResponse
-	(*durationpb.Duration)(nil),  // 6: google.protobuf.Duration
-	(inventorypb.AgentType)(0),   // 7: inventory.AgentType
-	(inventorypb.AgentStatus)(0), // 8: inventory.AgentStatus
-}
+var (
+	file_agentlocalpb_agentlocal_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_agentlocalpb_agentlocal_proto_goTypes  = []interface{}{
+		(*ServerInfo)(nil),           // 0: agentlocal.ServerInfo
+		(*AgentInfo)(nil),            // 1: agentlocal.AgentInfo
+		(*StatusRequest)(nil),        // 2: agentlocal.StatusRequest
+		(*StatusResponse)(nil),       // 3: agentlocal.StatusResponse
+		(*ReloadRequest)(nil),        // 4: agentlocal.ReloadRequest
+		(*ReloadResponse)(nil),       // 5: agentlocal.ReloadResponse
+		(*durationpb.Duration)(nil),  // 6: google.protobuf.Duration
+		(inventorypb.AgentType)(0),   // 7: inventory.AgentType
+		(inventorypb.AgentStatus)(0), // 8: inventory.AgentStatus
+	}
+)
+
 var file_agentlocalpb_agentlocal_proto_depIdxs = []int32{
 	6, // 0: agentlocal.ServerInfo.latency:type_name -> google.protobuf.Duration
 	6, // 1: agentlocal.ServerInfo.clock_drift:type_name -> google.protobuf.Duration

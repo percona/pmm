@@ -59,12 +59,12 @@ type GetActionOK struct {
 func (o *GetActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] getActionOk  %+v", 200, o.Payload)
 }
+
 func (o *GetActionOK) GetPayload() *GetActionOKBody {
 	return o.Payload
 }
 
 func (o *GetActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetActionDefault) Code() int {
 func (o *GetActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Get][%d] GetAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetActionDefault) GetPayload() *GetActionDefaultBody {
 	return o.Payload
 }
 
 func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetActionDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consume
 swagger:model GetActionBody
 */
 type GetActionBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 }
@@ -157,10 +156,6 @@ func (o *GetActionBody) UnmarshalBinary(b []byte) error {
 swagger:model GetActionDefaultBody
 */
 type GetActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -226,9 +221,7 @@ func (o *GetActionDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *GetActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,7 +232,6 @@ func (o *GetActionDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -267,13 +259,8 @@ func (o *GetActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetActionDefaultBodyDetailsItems0
 */
 type GetActionDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get action default body details items0
@@ -308,7 +295,6 @@ func (o *GetActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetActionOKBody
 */
 type GetActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

@@ -58,7 +58,6 @@ func NewRemoveLocationParamsWithHTTPClient(client *http.Client) *RemoveLocationP
    Typically these are written to a http.Request.
 */
 type RemoveLocationParams struct {
-
 	// Body.
 	Body RemoveLocationBody
 
@@ -128,7 +127,6 @@ func (o *RemoveLocationParams) SetBody(body RemoveLocationBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

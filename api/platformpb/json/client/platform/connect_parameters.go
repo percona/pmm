@@ -58,7 +58,6 @@ func NewConnectParamsWithHTTPClient(client *http.Client) *ConnectParams {
    Typically these are written to a http.Request.
 */
 type ConnectParams struct {
-
 	// Body.
 	Body ConnectBody
 
@@ -128,7 +127,6 @@ func (o *ConnectParams) SetBody(body ConnectBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ConnectParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -114,10 +114,13 @@ func file_inventorypb_log_level_proto_rawDescGZIP() []byte {
 	return file_inventorypb_log_level_proto_rawDescData
 }
 
-var file_inventorypb_log_level_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_inventorypb_log_level_proto_goTypes = []interface{}{
-	(LogLevel)(0), // 0: inventory.LogLevel
-}
+var (
+	file_inventorypb_log_level_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_inventorypb_log_level_proto_goTypes   = []interface{}{
+		(LogLevel)(0), // 0: inventory.LogLevel
+	}
+)
+
 var file_inventorypb_log_level_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

@@ -1,0 +1,20 @@
+{
+    "ns": "sbtest.people",
+    "op": "command",
+    "command": {
+        "findandmodify": "people",
+        "query": {
+            "name": "Andy"
+        },
+        "sort": {
+            "rating": 1
+        },
+        "update": {
+            "$inc": {
+                "score": 1
+            }
+        },
+        "upsert": true,
+        "$db": "sbtest"
+    }
+}

@@ -61,12 +61,12 @@ type ListKubernetesClustersOK struct {
 func (o *ListKubernetesClustersOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] listKubernetesClustersOk  %+v", 200, o.Payload)
 }
+
 func (o *ListKubernetesClustersOK) GetPayload() *ListKubernetesClustersOKBody {
 	return o.Payload
 }
 
 func (o *ListKubernetesClustersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListKubernetesClustersOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListKubernetesClustersDefault) Code() int {
 func (o *ListKubernetesClustersDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] ListKubernetesClusters default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListKubernetesClustersDefault) GetPayload() *ListKubernetesClustersDefaultBody {
 	return o.Payload
 }
 
 func (o *ListKubernetesClustersDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListKubernetesClustersDefaultBody)
 
 	// response payload
@@ -122,10 +122,6 @@ func (o *ListKubernetesClustersDefault) readResponse(response runtime.ClientResp
 swagger:model ListKubernetesClustersDefaultBody
 */
 type ListKubernetesClustersDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -191,9 +187,7 @@ func (o *ListKubernetesClustersDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ListKubernetesClustersDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -204,7 +198,6 @@ func (o *ListKubernetesClustersDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -232,13 +225,8 @@ func (o *ListKubernetesClustersDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListKubernetesClustersDefaultBodyDetailsItems0
 */
 type ListKubernetesClustersDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this list kubernetes clusters default body details items0
@@ -273,7 +261,6 @@ func (o *ListKubernetesClustersDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 swagger:model ListKubernetesClustersOKBody
 */
 type ListKubernetesClustersOKBody struct {
-
 	// Kubernetes clusters.
 	KubernetesClusters []*ListKubernetesClustersOKBodyKubernetesClustersItems0 `json:"kubernetes_clusters"`
 }
@@ -333,9 +320,7 @@ func (o *ListKubernetesClustersOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListKubernetesClustersOKBody) contextValidateKubernetesClusters(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.KubernetesClusters); i++ {
-
 		if o.KubernetesClusters[i] != nil {
 			if err := o.KubernetesClusters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -346,7 +331,6 @@ func (o *ListKubernetesClustersOKBody) contextValidateKubernetesClusters(ctx con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -375,7 +359,6 @@ func (o *ListKubernetesClustersOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0 struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -488,7 +471,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) ContextValidate(c
 }
 
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) contextValidateOperators(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Operators != nil {
 		if err := o.Operators.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -525,7 +507,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) UnmarshalBinary(b
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0Operators
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0Operators struct {
-
 	// psmdb
 	PSMDB *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB `json:"psmdb,omitempty"`
 
@@ -608,7 +589,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) ContextV
 }
 
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextValidatePSMDB(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PSMDB != nil {
 		if err := o.PSMDB.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -624,7 +604,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextV
 }
 
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -661,7 +640,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Unmarsha
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB struct {
-
 	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
 	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
@@ -764,7 +742,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB) Unm
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC struct {
-
 	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
 	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.

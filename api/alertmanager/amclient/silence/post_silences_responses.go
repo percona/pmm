@@ -62,12 +62,12 @@ type PostSilencesOK struct {
 func (o *PostSilencesOK) Error() string {
 	return fmt.Sprintf("[POST /silences][%d] postSilencesOK  %+v", 200, o.Payload)
 }
+
 func (o *PostSilencesOK) GetPayload() *PostSilencesOKBody {
 	return o.Payload
 }
 
 func (o *PostSilencesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(PostSilencesOKBody)
 
 	// response payload
@@ -94,12 +94,12 @@ type PostSilencesBadRequest struct {
 func (o *PostSilencesBadRequest) Error() string {
 	return fmt.Sprintf("[POST /silences][%d] postSilencesBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *PostSilencesBadRequest) GetPayload() string {
 	return o.Payload
 }
 
 func (o *PostSilencesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -124,12 +124,12 @@ type PostSilencesNotFound struct {
 func (o *PostSilencesNotFound) Error() string {
 	return fmt.Sprintf("[POST /silences][%d] postSilencesNotFound  %+v", 404, o.Payload)
 }
+
 func (o *PostSilencesNotFound) GetPayload() string {
 	return o.Payload
 }
 
 func (o *PostSilencesNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -142,7 +142,6 @@ func (o *PostSilencesNotFound) readResponse(response runtime.ClientResponse, con
 swagger:model PostSilencesOKBody
 */
 type PostSilencesOKBody struct {
-
 	// silence ID
 	SilenceID string `json:"silenceID,omitempty"`
 }
