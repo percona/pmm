@@ -142,7 +142,7 @@ func (o *CreatePXCClusterBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -175,7 +175,7 @@ func (o *CreatePXCClusterBody) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -239,7 +239,7 @@ func (o *CreatePXCClusterDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -279,7 +279,7 @@ func (o *CreatePXCClusterDefaultBody) ContextValidate(ctx context.Context, forma
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -393,7 +393,7 @@ func (o *CreatePXCClusterParamsBodyParams) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -472,7 +472,7 @@ func (o *CreatePXCClusterParamsBodyParams) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -561,7 +561,7 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) Validate(formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -594,7 +594,7 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) ContextValidate(ctx context.Co
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -695,7 +695,7 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -728,7 +728,7 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) ContextValidate(ctx context.Contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -829,7 +829,7 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -862,7 +862,7 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) ContextValidate(ctx context.C
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

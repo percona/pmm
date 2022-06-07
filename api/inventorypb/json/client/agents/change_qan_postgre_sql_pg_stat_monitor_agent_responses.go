@@ -137,7 +137,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) Validate(formats strfmt.Regi
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -170,7 +170,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) ContextValidate(ctx context.
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -234,7 +234,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) Validate(formats strf
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -274,7 +274,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) ContextValidate(ctx c
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -371,7 +371,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) Validate(formats strfmt.Re
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -404,7 +404,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) ContextValidate(ctx contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -497,7 +497,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAg
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

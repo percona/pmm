@@ -217,7 +217,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBody) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -257,7 +257,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBody) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -354,7 +354,7 @@ func (o *AddQANMongoDBProfilerAgentOKBody) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -387,7 +387,7 @@ func (o *AddQANMongoDBProfilerAgentOKBody) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -477,7 +477,7 @@ func (o *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) Validate(forma
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

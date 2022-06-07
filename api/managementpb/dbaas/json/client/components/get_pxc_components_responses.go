@@ -180,7 +180,7 @@ func (o *GetPXCComponentsDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -220,7 +220,7 @@ func (o *GetPXCComponentsDefaultBody) ContextValidate(ctx context.Context, forma
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -317,7 +317,7 @@ func (o *GetPXCComponentsOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -357,7 +357,7 @@ func (o *GetPXCComponentsOKBody) ContextValidate(ctx context.Context, formats st
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -420,7 +420,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -453,7 +453,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -557,7 +557,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) Validate(formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -807,7 +807,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) ContextValidate(ctx context
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

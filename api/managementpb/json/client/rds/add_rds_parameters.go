@@ -135,7 +135,7 @@ func (o *AddRDSParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 		return err
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

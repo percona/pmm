@@ -143,7 +143,7 @@ func (o *VersionDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -183,7 +183,7 @@ func (o *VersionDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -298,7 +298,7 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -408,7 +408,7 @@ func (o *VersionOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -485,7 +485,7 @@ func (o *VersionOKBodyManaged) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -549,7 +549,7 @@ func (o *VersionOKBodyServer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

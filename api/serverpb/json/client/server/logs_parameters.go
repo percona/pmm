@@ -118,7 +118,7 @@ func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry
 	}
 	var res []error
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

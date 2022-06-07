@@ -141,7 +141,7 @@ func (o *ListFailedServicesDefaultBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -181,7 +181,7 @@ func (o *ListFailedServicesDefaultBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -278,7 +278,7 @@ func (o *ListFailedServicesOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -318,7 +318,7 @@ func (o *ListFailedServicesOKBody) ContextValidate(ctx context.Context, formats 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

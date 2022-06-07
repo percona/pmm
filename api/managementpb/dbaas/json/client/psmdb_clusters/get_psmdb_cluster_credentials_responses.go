@@ -180,7 +180,7 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -220,7 +220,7 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -317,7 +317,7 @@ func (o *GetPSMDBClusterCredentialsOKBody) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -350,7 +350,7 @@ func (o *GetPSMDBClusterCredentialsOKBody) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

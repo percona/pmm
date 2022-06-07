@@ -180,7 +180,7 @@ func (o *GetPXCClusterCredentialsDefaultBody) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -220,7 +220,7 @@ func (o *GetPXCClusterCredentialsDefaultBody) ContextValidate(ctx context.Contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -317,7 +317,7 @@ func (o *GetPXCClusterCredentialsOKBody) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -350,7 +350,7 @@ func (o *GetPXCClusterCredentialsOKBody) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

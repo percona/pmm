@@ -179,7 +179,7 @@ func (o *ListDBClustersDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -219,7 +219,7 @@ func (o *ListDBClustersDefaultBody) ContextValidate(ctx context.Context, formats
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -323,7 +323,7 @@ func (o *ListDBClustersOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -393,7 +393,7 @@ func (o *ListDBClustersOKBody) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -504,7 +504,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) Validate(formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -617,7 +617,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) ContextValidate(ctx context.Co
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -735,7 +735,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) Validate(formats strfmt.
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -768,7 +768,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) ContextValidate(ctx cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -827,7 +827,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) Validate(forma
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -860,7 +860,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) ContextValidat
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -991,7 +991,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1104,7 +1104,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1233,7 +1233,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) Validate(formats strfmt.Re
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1312,7 +1312,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) ContextValidate(ctx contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1401,7 +1401,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) Validate(formats st
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1434,7 +1434,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) ContextValidate(ctx
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1535,7 +1535,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) Validate(formats strfmt
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1568,7 +1568,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) ContextValidate(ctx con
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1669,7 +1669,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) Validate(formats s
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1702,7 +1702,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) ContextValidate(ct
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

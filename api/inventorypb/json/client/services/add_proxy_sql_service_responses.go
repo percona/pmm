@@ -204,7 +204,7 @@ func (o *AddProxySQLServiceDefaultBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -244,7 +244,7 @@ func (o *AddProxySQLServiceDefaultBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -341,7 +341,7 @@ func (o *AddProxySQLServiceOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -374,7 +374,7 @@ func (o *AddProxySQLServiceOKBody) ContextValidate(ctx context.Context, formats 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

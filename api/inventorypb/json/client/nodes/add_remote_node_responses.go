@@ -192,7 +192,7 @@ func (o *AddRemoteNodeDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -232,7 +232,7 @@ func (o *AddRemoteNodeDefaultBody) ContextValidate(ctx context.Context, formats 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -329,7 +329,7 @@ func (o *AddRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -362,7 +362,7 @@ func (o *AddRemoteNodeOKBody) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

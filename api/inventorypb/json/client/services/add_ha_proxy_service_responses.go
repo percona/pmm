@@ -192,7 +192,7 @@ func (o *AddHAProxyServiceDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -232,7 +232,7 @@ func (o *AddHAProxyServiceDefaultBody) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -329,7 +329,7 @@ func (o *AddHAProxyServiceOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -362,7 +362,7 @@ func (o *AddHAProxyServiceOKBody) ContextValidate(ctx context.Context, formats s
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

@@ -165,7 +165,7 @@ func (o *UpdateAlertRuleBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -298,7 +298,7 @@ func (o *UpdateAlertRuleBody) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -381,7 +381,7 @@ func (o *UpdateAlertRuleDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -421,7 +421,7 @@ func (o *UpdateAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -528,7 +528,7 @@ func (o *UpdateAlertRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registr
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -631,7 +631,7 @@ func (o *UpdateAlertRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

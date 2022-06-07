@@ -133,7 +133,7 @@ func (o *ChangePSMDBComponentsBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -166,7 +166,7 @@ func (o *ChangePSMDBComponentsBody) ContextValidate(ctx context.Context, formats
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -230,7 +230,7 @@ func (o *ChangePSMDBComponentsDefaultBody) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -270,7 +270,7 @@ func (o *ChangePSMDBComponentsDefaultBody) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -370,7 +370,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -410,7 +410,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

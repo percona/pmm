@@ -137,7 +137,7 @@ func (o *GetFailedChecksBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -170,7 +170,7 @@ func (o *GetFailedChecksBody) ContextValidate(ctx context.Context, formats strfm
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -234,7 +234,7 @@ func (o *GetFailedChecksDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -274,7 +274,7 @@ func (o *GetFailedChecksDefaultBody) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -378,7 +378,7 @@ func (o *GetFailedChecksOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -441,7 +441,7 @@ func (o *GetFailedChecksOKBody) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -580,7 +580,7 @@ func (o *GetFailedChecksOKBodyResultsItems0) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

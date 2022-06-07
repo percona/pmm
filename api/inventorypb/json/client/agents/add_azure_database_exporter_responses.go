@@ -209,7 +209,7 @@ func (o *AddAzureDatabaseExporterDefaultBody) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -249,7 +249,7 @@ func (o *AddAzureDatabaseExporterDefaultBody) ContextValidate(ctx context.Contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -346,7 +346,7 @@ func (o *AddAzureDatabaseExporterOKBody) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -379,7 +379,7 @@ func (o *AddAzureDatabaseExporterOKBody) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -472,7 +472,7 @@ func (o *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter) Validate(formats s
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

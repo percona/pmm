@@ -137,7 +137,7 @@ func (o *ChangePostgresExporterBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -170,7 +170,7 @@ func (o *ChangePostgresExporterBody) ContextValidate(ctx context.Context, format
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -234,7 +234,7 @@ func (o *ChangePostgresExporterDefaultBody) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -274,7 +274,7 @@ func (o *ChangePostgresExporterDefaultBody) ContextValidate(ctx context.Context,
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -371,7 +371,7 @@ func (o *ChangePostgresExporterOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -404,7 +404,7 @@ func (o *ChangePostgresExporterOKBody) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -511,7 +511,7 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

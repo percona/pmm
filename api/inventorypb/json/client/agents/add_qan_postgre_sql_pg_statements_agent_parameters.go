@@ -135,7 +135,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentParams) WriteToRequest(r runtime.Clien
 		return err
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

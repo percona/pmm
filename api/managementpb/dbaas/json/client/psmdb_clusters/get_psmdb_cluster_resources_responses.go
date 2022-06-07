@@ -132,7 +132,7 @@ func (o *GetPSMDBClusterResourcesBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -165,7 +165,7 @@ func (o *GetPSMDBClusterResourcesBody) ContextValidate(ctx context.Context, form
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -229,7 +229,7 @@ func (o *GetPSMDBClusterResourcesDefaultBody) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -269,7 +269,7 @@ func (o *GetPSMDBClusterResourcesDefaultBody) ContextValidate(ctx context.Contex
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -366,7 +366,7 @@ func (o *GetPSMDBClusterResourcesOKBody) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -399,7 +399,7 @@ func (o *GetPSMDBClusterResourcesOKBody) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -503,7 +503,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -536,7 +536,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) ContextValidate(ctx context.C
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -595,7 +595,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) Validate(formats st
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -628,7 +628,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) ContextValidate(ctx
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

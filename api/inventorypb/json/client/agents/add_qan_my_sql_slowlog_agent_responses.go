@@ -216,7 +216,7 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -256,7 +256,7 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) ContextValidate(ctx context.Context
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -353,7 +353,7 @@ func (o *AddQANMySQLSlowlogAgentOKBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -386,7 +386,7 @@ func (o *AddQANMySQLSlowlogAgentOKBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -491,7 +491,7 @@ func (o *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) Validate(formats str
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

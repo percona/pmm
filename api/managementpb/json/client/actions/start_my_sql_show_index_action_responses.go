@@ -186,7 +186,7 @@ func (o *StartMySQLShowIndexActionDefaultBody) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -226,7 +226,7 @@ func (o *StartMySQLShowIndexActionDefaultBody) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

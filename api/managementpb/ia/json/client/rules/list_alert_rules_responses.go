@@ -134,7 +134,7 @@ func (o *ListAlertRulesBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -167,7 +167,7 @@ func (o *ListAlertRulesBody) ContextValidate(ctx context.Context, formats strfmt
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -231,7 +231,7 @@ func (o *ListAlertRulesDefaultBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -271,7 +271,7 @@ func (o *ListAlertRulesDefaultBody) ContextValidate(ctx context.Context, formats
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -375,7 +375,7 @@ func (o *ListAlertRulesOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -438,7 +438,7 @@ func (o *ListAlertRulesOKBody) ContextValidate(ctx context.Context, formats strf
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -591,7 +591,7 @@ func (o *ListAlertRulesOKBodyRulesItems0) Validate(formats strfmt.Registry) erro
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -859,7 +859,7 @@ func (o *ListAlertRulesOKBodyRulesItems0) ContextValidate(ctx context.Context, f
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -997,7 +997,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0) Validate(formats strfmt.
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1099,7 +1099,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0) ContextValidate(ctx cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1328,7 +1328,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig) Validate(fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1361,7 +1361,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig) ContextVali
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1432,7 +1432,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig) V
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1488,7 +1488,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig) C
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1674,7 +1674,7 @@ func (o *ListAlertRulesOKBodyRulesItems0FiltersItems0) Validate(formats strfmt.R
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1804,7 +1804,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0) Validate(format
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -1976,7 +1976,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0) ContextValidate
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -2067,7 +2067,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool) Validate(fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -2260,7 +2260,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsValuesItems0) Validate(formats str
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

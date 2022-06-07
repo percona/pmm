@@ -139,7 +139,7 @@ func (o *RegisterKubernetesClusterBody) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -172,7 +172,7 @@ func (o *RegisterKubernetesClusterBody) ContextValidate(ctx context.Context, for
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -236,7 +236,7 @@ func (o *RegisterKubernetesClusterDefaultBody) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -276,7 +276,7 @@ func (o *RegisterKubernetesClusterDefaultBody) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

@@ -186,7 +186,7 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) Validate(formats strfmt.Regi
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -226,7 +226,7 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) ContextValidate(ctx context.
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

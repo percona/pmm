@@ -137,7 +137,7 @@ func (o *GetMetricsNamesParams) WriteToRequest(r runtime.ClientRequest, reg strf
 		}
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil

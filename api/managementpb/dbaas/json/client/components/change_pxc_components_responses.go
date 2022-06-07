@@ -147,7 +147,7 @@ func (o *ChangePXCComponentsBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -226,7 +226,7 @@ func (o *ChangePXCComponentsBody) ContextValidate(ctx context.Context, formats s
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -320,7 +320,7 @@ func (o *ChangePXCComponentsDefaultBody) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -360,7 +360,7 @@ func (o *ChangePXCComponentsDefaultBody) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -460,7 +460,7 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) Validate(formats strfmt.Registry)
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -500,7 +500,7 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -602,7 +602,7 @@ func (o *ChangePXCComponentsParamsBodyPXC) Validate(formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -642,7 +642,7 @@ func (o *ChangePXCComponentsParamsBodyPXC) ContextValidate(ctx context.Context, 
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -744,7 +744,7 @@ func (o *ChangePXCComponentsParamsBodyProxysql) Validate(formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
@@ -784,7 +784,7 @@ func (o *ChangePXCComponentsParamsBodyProxysql) ContextValidate(ctx context.Cont
 		res = append(res, err)
 	}
 
-	if len(res) != 0 {
+	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
