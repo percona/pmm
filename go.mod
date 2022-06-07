@@ -31,7 +31,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
-	github.com/hashicorp/go-version v1.4.0
+	github.com/hashicorp/go-version v1.5.0
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.27
 	github.com/percona-platform/dbaas-api v0.0.0-20220110092915-5aacd784d472
