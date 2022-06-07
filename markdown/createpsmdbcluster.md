@@ -30,7 +30,7 @@ The PSMDB Create endpoint receives this structure:
 | cluster_size                              | Cluster size                          | Default: 3                                                   |
 | replicaset.compute_resources.cpu_m        | CPU resources millis                  | Default: 1000                                                |
 | replicaset.compute_resources.memory_bytes | Max memory size in bytes              | Default: 2 GB                                                |
-| disk_size                                 | Max disk size                         | Default: 25 Gb                                               |
+| disk_size                                 | Max disk size                         | Default: 25 GB                                               |
 | image                                     | PSMDB Docker image                    | Default is the recommended version from the Percona's version service |
 | expose                                    | Expose outside the Kubernetes cluster | Default: false                                               |
 
