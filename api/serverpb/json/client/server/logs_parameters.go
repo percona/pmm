@@ -59,7 +59,6 @@ func NewLogsParamsWithHTTPClient(client *http.Client) *LogsParams {
    Typically these are written to a http.Request.
 */
 type LogsParams struct {
-
 	/* Pprof.
 
 	   Include performance profiling data,
@@ -149,7 +148,6 @@ func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry
 		}
 		qPprof := swag.FormatInt32(qrPprof)
 		if qPprof != "" {
-
 			if err := r.SetQueryParam("pprof", qPprof); err != nil {
 				return err
 			}
