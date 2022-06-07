@@ -37,6 +37,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
@@ -263,7 +264,10 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	sources := map[string]string{
 		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, GlobalFlags.PMMAgentListenPort),
 	}
-	if !skipServer {
+
+	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
+
+	if !skipServer && isRunOnPmmServer {
 		sources["server/pprof/pmm-managed"] = fmt.Sprintf("http://%s:7773/debug/pprof", agentlocal.Localhost)
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
 	}
@@ -283,7 +287,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 				logrus.Infof("Getting %s ...", url)
 				data, err := getURL(ctx, url)
 				if err != nil {
-					logrus.Debugf("%s", err)
+					logrus.Warnf("%s", err)
 					return
 				}
 
