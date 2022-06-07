@@ -26,7 +26,6 @@ require (
 	github.com/go-openapi/validate v0.21.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/hashicorp/go-version v1.5.0
 	github.com/lib/pq v1.10.5
