@@ -225,7 +225,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 
 	if waitTime != defaultWaitTime {
-		m.l.Error("Non default bucket time value is not supported, agent is done")
+		m.l.Error("non default bucket time value is not supported, status changed to DONE")
 		m.dbCloser.Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
