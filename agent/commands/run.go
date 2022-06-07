@@ -19,6 +19,8 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -29,6 +31,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/versioner"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -55,10 +58,29 @@ func Run() {
 		config.ConfigureLogger(cfg)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
+		cleanupTmp(cfg.Paths.TempDir, l)
+
 		run(ctx, cfg, configFilepath)
+
+		cleanupTmp(cfg.Paths.TempDir, l)
 
 		if ctx.Err() != nil {
 			return
+		}
+	}
+}
+
+func cleanupTmp(tmpRoot string, l *logrus.Entry) {
+	for k := range inventorypb.AgentType_name {
+		agentType := inventorypb.AgentType(k)
+		if agentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+			continue
+		}
+
+		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			l.Warnf("Failed to cleanup tmp")
 		}
 	}
 }
