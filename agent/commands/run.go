@@ -80,7 +80,8 @@ func cleanupTmp(tmpRoot string, l *logrus.Entry) {
 		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
-			l.Warnf("Failed to cleanup tmp")
+
+			l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
 }
