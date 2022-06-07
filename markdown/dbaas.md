@@ -308,7 +308,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |expose                                 |Make it available outside the Kubernetes cluster|Default: false                                                       |
 
 **Notes:** 
-Only one of ProxySQL or HAProxy should be specified in the request.
+Either ProxySQL or HAProxy should be specified in the request.
 Memory bytes are strings because the parameter accepts the unit, like *1 Gi*
 
 #### Minimum request example
