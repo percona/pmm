@@ -70,7 +70,7 @@ func Run() {
 	}
 }
 
-func cleanupTmp(tmpRoot string, l *logrus.Entry) {
+func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 	for k := range inventorypb.AgentType_name {
 		agentType := inventorypb.AgentType(k)
 		if agentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
@@ -80,7 +80,7 @@ func cleanupTmp(tmpRoot string, l *logrus.Entry) {
 		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
-			l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
 }
