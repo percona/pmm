@@ -223,12 +223,9 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Warning(err)
 	}
-
 	if waitTime != defaultWaitTime {
-		m.l.Error("non default bucket time value is not supported, status changed to DONE")
-		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
-		close(m.changes)
+		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 	}
 
 	// query pg_stat_monitor every waitTime seconds
@@ -260,6 +257,17 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Errorf(err.Error())
 				running = false
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				continue
+			}
+
+			waitTime, err := settings.getWaitTime()
+			if err != nil {
+				m.l.Warning(err)
+			}
+			if waitTime != defaultWaitTime {
+				m.l.Error("non default bucket time value is not supported, status changed to WAITING")
+				m.dbCloser.Close() //nolint:errcheck
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				continue
 			}
