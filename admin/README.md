@@ -8,15 +8,13 @@ pmm-admin for PMM 2.x.
 git, make, curl, go, gcc, pmm-server, pmm-agent
 
 ## Local setup
-Run `make init` to install dependencies.
-
-#### To run pmm-admin commands
-Run [PMM-server](https://github.com/percona/pmm) docker container or [pmm-managed](https://github.com/percona/pmm-managed).  
-Run pmm-agent `cd ../agent`.
-Run pmm-admin commands.
-```shell script
-go run main.go status
-```
+### To run pmm-admin commands
+- Run [pmm-server](https://hub.docker.com/r/percona/pmm-server) docker container or [pmm-managed](https://github.com/percona/pmm-managed).  
+- Run pmm-agent `cd ../agent`.
+- Run pmm-admin commands.
+    ```shell script
+    go run main.go status
+    ```
 
 You should see something like this
  ```shell script
