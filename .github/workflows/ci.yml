@@ -104,7 +104,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@main
+        uses: percona-platform/merge-gatekeeper@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
