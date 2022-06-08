@@ -205,6 +205,8 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		checkCity := func(t *testing.T) {
+			t.Helper()
+
 			var count int
 			err := db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)

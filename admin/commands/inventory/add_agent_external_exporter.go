@@ -96,7 +96,7 @@ func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentExternalExporter  = new(addAgentExternalExporterCommand)
+	AddAgentExternalExporter  addAgentExternalExporterCommand
 	AddAgentExternalExporterC = addAgentC.Command("external", "Add external exporter to inventory").Hide(hide)
 )
 
