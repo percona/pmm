@@ -50,12 +50,12 @@ func (cmd *removeServiceCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return new(removeServiceResult), nil
+	return &removeServiceResult{}, nil
 }
 
 // register command
 var (
-	RemoveService  = new(removeServiceCommand)
+	RemoveService  removeServiceCommand
 	RemoveServiceC = inventoryRemoveC.Command("service", "Remove service from inventory").Hide(hide)
 )
 

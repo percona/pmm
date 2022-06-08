@@ -83,7 +83,7 @@ func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddExternalService  = new(addExternalServiceCommand)
+	AddExternalService  addExternalServiceCommand
 	AddExternalServiceC = addServiceC.Command("external", "Add an external service to inventory").Hide(hide)
 )
 

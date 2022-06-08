@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+
+	"github.com/pkg/errors"
 )
 
 var (
@@ -25,7 +27,7 @@ type Parsed struct {
 func Parse(s string) (*Parsed, error) {
 	m := versionRE.FindStringSubmatch(s)
 	if len(m) != 5 {
-		return nil, fmt.Errorf("failed to parse %q", s)
+		return nil, errors.Errorf("failed to parse %q", s)
 	}
 
 	res := &Parsed{Rest: m[4]}

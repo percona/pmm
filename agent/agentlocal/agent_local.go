@@ -31,6 +31,7 @@ import (
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -164,8 +165,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	_, _, err := config.Get(s.l)
-	if err != nil {
+	if _, _, err := config.Get(s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -196,7 +196,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 		var err error
 		for {
 			err = gRPCServer.Serve(listener) // listener will be closed when this method returns
-			if err == nil || err == grpc.ErrServerStopped {
+			if err == nil || errors.Is(err, grpc.ErrServerStopped) {
 				break
 			}
 		}
@@ -305,7 +305,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 	go func() {
 		l.Info("Started.")
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Stopped.")
