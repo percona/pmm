@@ -11,8 +11,9 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	info := Get()
+	t.Parallel()
 
+	info := Get()
 	require.False(t, info.Container, "not expected to be run inside a container")
 	assert.Equal(t, runtime.GOOS, info.Distro)
 

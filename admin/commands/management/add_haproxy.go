@@ -135,7 +135,7 @@ func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddHAProxy  = new(addHAProxyCommand)
+	AddHAProxy  addHAProxyCommand
 	AddHAProxyC = AddC.Command("haproxy", "Add HAProxy to monitoring")
 )
 

@@ -264,9 +264,6 @@ func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -370,12 +367,8 @@ func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListAgentsDefaultBodyDetailsItems0
 */
 type ListAgentsDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this list agents default body details items0
@@ -3389,6 +3382,9 @@ type ListAgentsOKBodyVMAgentItems0 struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this list agents OK body VM agent items0

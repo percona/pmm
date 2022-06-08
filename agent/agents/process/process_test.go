@@ -53,7 +53,7 @@ func build(t *testing.T, tag string, fileName string, outputFile string) *exec.C
 		args = append(args, "-tags", tag)
 	}
 	args = append(args, "-o", outputFile, fileName)
-	cmd := exec.Command("go", args...) //nolint:gosec
+	cmd := exec.Command("go", args...)
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 	require.NoError(t, cmd.Run(), "failed to build %s", fileName)

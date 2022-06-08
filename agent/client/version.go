@@ -38,7 +38,7 @@ func (c *Client) handleVersionsRequest(r *agentpb.GetVersionsRequest) []*agentpb
 		case *agentpb.GetVersionsRequest_Software_Qpress:
 			version, err = c.softwareVersioner.Qpress()
 		default:
-			err = errors.Errorf("unknown software type %T.", s.Software)
+			err = errors.Errorf("unknown software type %T", s.Software)
 		}
 
 		if err != nil && !errors.Is(err, versioner.ErrNotFound) {

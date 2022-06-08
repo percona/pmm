@@ -91,7 +91,7 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddServiceMongoDB  = new(addServiceMongoDBCommand)
+	AddServiceMongoDB  addServiceMongoDBCommand
 	AddServiceMongoDBC = addServiceC.Command("mongodb", "Add MongoDB service to inventory").Hide(hide)
 )
 

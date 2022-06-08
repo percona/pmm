@@ -338,8 +338,7 @@ func (c *Channel) subscribe(id uint32) chan Response {
 		return ch
 	}
 
-	_, ok := c.responses[id]
-	if ok {
+	if _, ok := c.responses[id]; ok {
 		// it is possible only on lastSentRequestID wrap around, and we can't recover from that
 		c.l.Panicf("Already have subscriber for ID %d.", id)
 	}
