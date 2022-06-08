@@ -165,8 +165,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	_, _, err := config.Get(s.l)
-	if err != nil {
+	if _, _, err := config.Get(s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 

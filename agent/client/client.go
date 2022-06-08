@@ -457,8 +457,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 }
 
 func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
-	err := p.Timeout.CheckValid()
-	if err != nil {
+	if err := p.Timeout.CheckValid(); err != nil {
 		return err
 	}
 	timeout := p.Timeout.AsDuration()
@@ -733,7 +732,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return
 	}
 
-	latency, clockDrift, err = getNetworkInformation(c.channel)
+	latency, clockDrift, err = getNetworkInformation(channel)
 	return
 }
 
