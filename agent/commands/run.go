@@ -17,7 +17,6 @@ package commands
 
 import (
 	"context"
-	"github.com/percona/pmm/agent/storelogs"
 	"os"
 	"os/signal"
 
@@ -29,6 +28,7 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/agent/versioner"
 )
 

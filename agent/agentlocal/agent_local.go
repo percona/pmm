@@ -21,13 +21,12 @@ import (
 	"context"
 	_ "expvar" // register /debug/vars
 	"fmt"
-	"github.com/percona/pmm/agent/storelogs"
 	"html/template"
 	"io"
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof"
 	"os"
 	"strconv"
 	"strings"
@@ -48,6 +47,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/version"

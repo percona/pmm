@@ -25,6 +25,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"time"
 
 	"github.com/sirupsen/logrus"

@@ -19,7 +19,6 @@ package supervisor
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/agent/storelogs"
 	"path/filepath"
 	"regexp"
 	"runtime/pprof"
@@ -41,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/agents/postgres/pgstatstatements"
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"

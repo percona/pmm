@@ -21,8 +21,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/percona/pmm/agent/storelogs"
+	"io/ioutil"
 	"log"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -31,6 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -114,6 +116,73 @@ func TestServerStatus(t *testing.T) {
 			ConfigFilepath: "/some/dir/pmm-agent.yaml",
 		}
 		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestGetZipFile(t *testing.T) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+		agentInfo := []*agentlocalpb.AgentInfo{{
+			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
+			AgentType: inventorypb.AgentType_NODE_EXPORTER,
+			Status:    inventorypb.AgentStatus_RUNNING,
+		}}
+		var supervisor mockSupervisor
+		supervisor.Test(t)
+		supervisor.On("AgentsList").Return(agentInfo)
+		agentLogs := make(map[string][]string)
+		agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
+			"logs1",
+			"logs2",
+		}
+		supervisor.On("AgentsLogs").Return(agentLogs)
+		var client mockClient
+		client.Test(t)
+		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
+			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+			ServerVersion:     "2.0.0-dev",
+		})
+		cfg := &config.Config{
+			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			Server: config.Server{
+				Address:  "127.0.0.1:8443",
+				Username: "username",
+				Password: "password",
+			},
+		}
+		return agentInfo, &supervisor, &client, cfg
+	}
+
+	t.Run("test zip file", func(t *testing.T) {
+		_, supervisor, client, cfg := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+		ringLog := storelogs.New(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
+		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/logs.zip", nil)
+		s.Zip(rec, req)
+		existFile, err := ioutil.ReadAll(rec.Body)
+		require.NoError(t, err)
+
+		expectedFile, err := generateTestZip(s)
+		require.NoError(t, err)
+		bufExp := bytes.NewReader(expectedFile)
+		bufExs := bytes.NewReader(existFile)
+
+		zipExp, err := zip.NewReader(bufExp, bufExp.Size())
+		require.NoError(t, err)
+		zipExs, err := zip.NewReader(bufExp, bufExs.Size())
+		require.NoError(t, err)
+
+		for i, ex := range zipExp.File {
+			assert.Equal(t, ex.Name, zipExs.File[i].Name)
+			deepCompare(t, ex, zipExs.File[i])
+		}
+		require.NoError(t, err)
+		assert.Equal(t, expectedFile, existFile)
 	})
 }
 
