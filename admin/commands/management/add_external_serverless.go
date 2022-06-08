@@ -216,7 +216,7 @@ var (
 	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	AddExternalServerlessC.Flag("external-name", "Service name").StringVar(&AddExternalServerless.Name)
 
 	AddExternalServerlessC.Flag("url", "Full URL to exporter metrics endpoints").StringVar(&AddExternalServerless.URL)

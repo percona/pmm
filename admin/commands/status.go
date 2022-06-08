@@ -127,6 +127,6 @@ var (
 	StatusC = kingpin.Command("status", "Show information about local pmm-agent")
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	StatusC.Flag("wait", "Time to wait for a successful response from pmm-agent").DurationVar(&Status.timeout)
 }

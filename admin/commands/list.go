@@ -403,6 +403,6 @@ var (
 	ListC = kingpin.Command("list", "Show Services and Agents running on this Node")
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	ListC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&List.NodeID)
 }

@@ -158,7 +158,7 @@ var (
 	ConfigC = kingpin.Command("config", "Configure local pmm-agent")
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	nodeinfo := nodeinfo.Get()
 	if nodeinfo.PublicAddress == "" {
 		ConfigC.Arg("node-address", "Node address").Required().StringVar(&Config.NodeAddress)

@@ -180,7 +180,7 @@ var (
 	AnnotationC = kingpin.Command("annotate", "Add an annotation to Grafana charts")
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	AnnotationC.Arg("text", "Text of annotation").Required().StringVar(&Annotation.Text)
 	AnnotationC.Flag("tags", "Tags to filter annotations. Multiple tags are separated by a comma").StringVar(&Annotation.Tags)
 	AnnotationC.Flag("node", "Annotate current node").BoolVar(&Annotation.Node)

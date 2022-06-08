@@ -139,7 +139,7 @@ var (
 	AddHAProxyC = AddC.Command("haproxy", "Add HAProxy to monitoring")
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	hostname, _ := os.Hostname()
 	defaultServiceName := hostname + "-haproxy"
 	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", defaultServiceName)

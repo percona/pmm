@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/admin/logger"
 )
 
-func init() { //nolint:gochecknoinits
+func init() {
 	logrus.SetFormatter(&logger.TextFormatter{})
 }
 

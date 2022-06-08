@@ -39,6 +39,7 @@ linters:
     - exhaustivestruct  # too annoying
     - funlen            # useless
     - gochecknoglobals  # mostly useless
+    - gochecknoinits    # we use init functions
     - gomnd             # we are using numbers in many cases
     - gomoddirectives   # we use replace directives
     - gomodguard        # we are not using modules
