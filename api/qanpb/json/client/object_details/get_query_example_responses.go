@@ -269,9 +269,6 @@ func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -375,12 +372,8 @@ func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryExampleDefaultBodyDetailsItems0
 */
 type GetQueryExampleDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get query example default body details items0

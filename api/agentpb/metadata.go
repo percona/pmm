@@ -44,8 +44,7 @@ func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) cont
 	return metadata.AppendToOutgoingContext(ctx,
 		mdAgentID, md.ID,
 		mdAgentVersion, md.Version,
-		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10),
-	)
+		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10))
 }
 
 // ReceiveAgentConnectMetadata receives pmm-agent's metadata. Used by pmm-managed.
@@ -78,8 +77,7 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetadata) error {
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
-		mdServerVersion, md.ServerVersion,
-	)
+		mdServerVersion, md.ServerVersion)
 
 	// always return gRPC error or nil
 	err := stream.SendHeader(header)

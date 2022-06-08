@@ -48,6 +48,8 @@ func GetMySQLVersion(q *reform.Querier) (string, string, error) {
 		vendor = "percona"
 	case strings.Contains(strings.ToLower(ven), "mariadb"):
 		vendor = "mariadb"
+	case strings.Contains(strings.ToLower(ven), "debian") && strings.Contains(strings.ToLower(ver), "mariadb"):
+		vendor = "mariadb"
 	default:
 		vendor = "oracle"
 	}

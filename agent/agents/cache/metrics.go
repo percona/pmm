@@ -15,9 +15,7 @@
 
 package cache
 
-import (
-	"github.com/prometheus/client_golang/prometheus"
-)
+import "github.com/prometheus/client_golang/prometheus"
 
 // MetricsFromStats builds Prometheus metrics from cache.Stats.
 func MetricsFromStats(stats Stats, agentID string, cacheType string) []prometheus.Metric {

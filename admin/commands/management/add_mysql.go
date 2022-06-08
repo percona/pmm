@@ -23,6 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -153,7 +154,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	}
 
 	if cmd.CreateUser {
-		return nil, fmt.Errorf("Unrecognized option. To create a user, see " +
+		return nil, errors.New("Unrecognized option. To create a user, see " +
 			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
 	}
 
@@ -196,7 +197,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
-			return nil, fmt.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
+			return nil, errors.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
 		}
 
 		tablestatsGroupTableLimit = -1
@@ -204,7 +205,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 	if cmd.CredentialsSource != "" {
 		if err := cmd.GetCredentials(); err != nil {
-			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
+			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
 		}
 	}
 
@@ -256,7 +257,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddMySQL  = new(addMySQLCommand)
+	AddMySQL  addMySQLCommand
 	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring")
 )
 
