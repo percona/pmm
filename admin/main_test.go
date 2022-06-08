@@ -27,7 +27,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "-h") //nolint:gosec
+	cmd := exec.Command("pmm-admin", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -37,7 +37,7 @@ func TestPackages(t *testing.T) {
 }
 
 func TestVersionPlain(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "--version") //nolint:gosec
+	cmd := exec.Command("pmm-admin", "--version")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -46,7 +46,7 @@ func TestVersionPlain(t *testing.T) {
 }
 
 func TestVersionJson(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "--version", "--json") //nolint:gosec
+	cmd := exec.Command("pmm-admin", "--version", "--json")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -71,7 +71,7 @@ func TestImports(t *testing.T) {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)
 
-		allImports := map[string]struct{}{}
+		allImports := make(map[string]struct{})
 		for _, i := range p.Imports {
 			allImports[i] = struct{}{}
 		}

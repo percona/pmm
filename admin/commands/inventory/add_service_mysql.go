@@ -91,7 +91,7 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddServiceMySQL  = new(addServiceMySQLCommand)
+	AddServiceMySQL  addServiceMySQLCommand
 	AddServiceMySQLC = addServiceC.Command("mysql", "Add MySQL service to inventory").Hide(hide)
 )
 

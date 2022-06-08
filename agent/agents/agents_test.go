@@ -15,9 +15,7 @@
 
 package agents
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestAgents(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage
