@@ -18,7 +18,6 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -35,7 +34,7 @@ func init() {
 }
 
 func CreateDummyCredentialsSource(data string, p string, exec bool) (string, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "CreateDummyCredentialsSource.*"+p)
+	tmpFile, err := os.CreateTemp(os.TempDir(), "CreateDummyCredentialsSource.*"+p)
 	if err != nil {
 		return "", fmt.Errorf("%w", err)
 	}
@@ -158,7 +157,7 @@ func TestReadFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		cert, err := ioutil.TempFile("", "cert")
+		cert, err := os.CreateTemp("", "cert")
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()

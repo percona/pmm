@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -89,7 +88,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 	if err != nil {
 		// use error instead of file data
 		logrus.Debugf("%s", err)
-		r = ioutil.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
+		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
 	defer r.Close() //nolint:errcheck
 
@@ -236,7 +235,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)
 	}
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot read response body")
 	}

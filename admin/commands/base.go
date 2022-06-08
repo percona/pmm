@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -210,7 +209,7 @@ func ReadFile(filePath string) (string, error) {
 		return "", nil
 	}
 
-	content, err := ioutil.ReadFile(filepath.Clean(filePath))
+	content, err := os.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		return "", errors.Wrapf(err, "cannot load file in path %q", filePath)
 	}
@@ -278,7 +277,7 @@ func SetupClients(ctx context.Context, serverURL string) {
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
+		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
