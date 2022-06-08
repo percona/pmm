@@ -8,7 +8,7 @@ pmm-agent for PMM 2.x.
 git, make, curl, go, gcc, docker, docker-compose, pmm-server
 
 ## Local setup
-Install exporters:
+Install one or more exporters:
 * node_exporter
 * mysqld_exporter
 * rds_exporter
@@ -16,12 +16,10 @@ Install exporters:
 * mongodb_exporter
 * proxysql_exporter
 
-Run `make init` to install dependencies.
-
 #### To run pmm-agent
-Run [PMM-server](https://github.com/percona/pmm) docker container or [pmm-managed](https://github.com/percona/pmm-managed).  
-Run `make setup-dev` to configure pmm-agent
-Run `make run` to run pmm-agent
+- Run [pmm-server docker container](https://hub.docker.com/r/percona/pmm-server) or [pmm-managed](https://github.com/percona/pmm-managed).  
+- Run `make setup-dev` to configure pmm-agent
+- Run `make run` to run pmm-agent
 
 
 ## Testing
