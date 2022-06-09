@@ -27,6 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// LogTable logs passed structures.
 func LogTable(t *testing.T, structs []reform.Struct) {
 	t.Helper()
 

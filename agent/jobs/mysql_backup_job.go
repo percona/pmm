@@ -208,26 +208,28 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 		}
 	}()
 
-	if xbcloudCmd != nil {
-		xbcloudCmd.Stdin = xtrabackupStdout
-		xbcloudCmd.Stdout = &outBuffer
-		xbcloudCmd.Stderr = &errCloudBuffer
-		if err := xbcloudCmd.Start(); err != nil {
-			cancel()
-			return wrapError(err)
-		}
-
-		defer func() {
-			if err := xbcloudCmd.Wait(); err != nil {
-				cancel()
-				if rerr != nil {
-					rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
-				} else {
-					rerr = wrapError(err)
-				}
-			}
-		}()
+	if xbcloudCmd == nil {
+		return nil
 	}
+
+	xbcloudCmd.Stdin = xtrabackupStdout
+	xbcloudCmd.Stdout = &outBuffer
+	xbcloudCmd.Stderr = &errCloudBuffer
+	if err := xbcloudCmd.Start(); err != nil {
+		cancel()
+		return wrapError(err)
+	}
+
+	defer func() {
+		if err := xbcloudCmd.Wait(); err != nil {
+			cancel()
+			if rerr != nil {
+				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
+			} else {
+				rerr = wrapError(err)
+			}
+		}
+	}()
 
 	return nil
 }

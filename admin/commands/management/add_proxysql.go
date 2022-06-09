@@ -162,7 +162,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddProxySQL  = new(addProxySQLCommand)
+	AddProxySQL  addProxySQLCommand
 	AddProxySQLC = AddC.Command("proxysql", "Add ProxySQL to monitoring")
 )
 

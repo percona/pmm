@@ -17,9 +17,9 @@
 package inventory
 
 import (
-	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -35,7 +35,7 @@ var (
 )
 
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.
-// Values comparision is case-insensitive.
+// Values comparison is case-insensitive.
 func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {
 	if input == "" {
 		return nil, nil
@@ -49,5 +49,5 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 			}
 		}
 	}
-	return nil, fmt.Errorf("unexpected type value %q", input)
+	return nil, errors.Errorf("unexpected type value %q", input)
 }
