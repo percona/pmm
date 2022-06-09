@@ -122,6 +122,7 @@ func TestServerStatus(t *testing.T) {
 
 func TestGetZipFile(t *testing.T) {
 	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
 			AgentType: inventorypb.AgentType_NODE_EXPORTER,
@@ -224,6 +225,7 @@ func generateTestZip(s *Server) ([]byte, error) {
 
 // deepCompare compare two zip files.
 func deepCompare(t *testing.T, file1, file2 *zip.File) bool {
+	t.Helper()
 	sf, err := file1.Open()
 	if err != nil {
 		log.Fatal(err)

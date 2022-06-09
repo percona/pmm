@@ -26,7 +26,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
+	_ "net/http/pprof" // register /debug/pprof
 	"os"
 	"strconv"
 	"strings"
