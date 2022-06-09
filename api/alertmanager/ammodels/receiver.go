@@ -18,7 +18,6 @@ import (
 //
 // swagger:model receiver
 type Receiver struct {
-
 	// name
 	// Required: true
 	Name *string `json:"name"`
@@ -39,7 +38,6 @@ func (m *Receiver) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Receiver) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}

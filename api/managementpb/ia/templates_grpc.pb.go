@@ -93,18 +93,20 @@ type TemplatesServer interface {
 }
 
 // UnimplementedTemplatesServer must be embedded to have forward compatible implementations.
-type UnimplementedTemplatesServer struct {
-}
+type UnimplementedTemplatesServer struct{}
 
 func (UnimplementedTemplatesServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTemplates not implemented")
 }
+
 func (UnimplementedTemplatesServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTemplate not implemented")
 }
+
 func (UnimplementedTemplatesServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTemplate not implemented")
 }
+
 func (UnimplementedTemplatesServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplate not implemented")
 }

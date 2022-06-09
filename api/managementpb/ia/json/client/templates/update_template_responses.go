@@ -59,12 +59,12 @@ type UpdateTemplateOK struct {
 func (o *UpdateTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
 }
+
 func (o *UpdateTemplateOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *UpdateTemplateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *UpdateTemplateDefault) Code() int {
 func (o *UpdateTemplateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *UpdateTemplateDefault) GetPayload() *UpdateTemplateDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateTemplateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateTemplateDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *UpdateTemplateDefault) readResponse(response runtime.ClientResponse, co
 swagger:model UpdateTemplateBody
 */
 type UpdateTemplateBody struct {
-
 	// Machine-readable name (ID).
 	Name string `json:"name,omitempty"`
 
@@ -158,10 +157,6 @@ func (o *UpdateTemplateBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateTemplateDefaultBody
 */
 type UpdateTemplateDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +222,7 @@ func (o *UpdateTemplateDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *UpdateTemplateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +233,6 @@ func (o *UpdateTemplateDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -268,13 +260,8 @@ func (o *UpdateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model UpdateTemplateDefaultBodyDetailsItems0
 */
 type UpdateTemplateDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this update template default body details items0

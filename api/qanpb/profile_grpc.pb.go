@@ -54,8 +54,7 @@ type ProfileServer interface {
 }
 
 // UnimplementedProfileServer must be embedded to have forward compatible implementations.
-type UnimplementedProfileServer struct {
-}
+type UnimplementedProfileServer struct{}
 
 func (UnimplementedProfileServer) GetReport(context.Context, *ReportRequest) (*ReportReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReport not implemented")

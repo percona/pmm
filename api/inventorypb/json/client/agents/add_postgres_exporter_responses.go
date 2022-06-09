@@ -61,12 +61,12 @@ type AddPostgresExporterOK struct {
 func (o *AddPostgresExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddPostgresExporterOK) GetPayload() *AddPostgresExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddPostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddPostgresExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddPostgresExporterDefault) Code() int {
 func (o *AddPostgresExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddPostgresExporterDefault) GetPayload() *AddPostgresExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddPostgresExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientRespons
 swagger:model AddPostgresExporterBody
 */
 type AddPostgresExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -198,10 +197,6 @@ func (o *AddPostgresExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterDefaultBody
 */
 type AddPostgresExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -267,9 +262,7 @@ func (o *AddPostgresExporterDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddPostgresExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -280,7 +273,6 @@ func (o *AddPostgresExporterDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -308,13 +300,8 @@ func (o *AddPostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterDefaultBodyDetailsItems0
 */
 type AddPostgresExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add postgres exporter default body details items0
@@ -349,7 +336,6 @@ func (o *AddPostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model AddPostgresExporterOKBody
 */
 type AddPostgresExporterOKBody struct {
-
 	// postgres exporter
 	PostgresExporter *AddPostgresExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 }
@@ -402,7 +388,6 @@ func (o *AddPostgresExporterOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddPostgresExporterOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -439,7 +424,6 @@ func (o *AddPostgresExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterOKBodyPostgresExporter
 */
 type AddPostgresExporterOKBodyPostgresExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

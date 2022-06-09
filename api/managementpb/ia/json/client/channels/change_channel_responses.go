@@ -59,12 +59,12 @@ type ChangeChannelOK struct {
 func (o *ChangeChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] changeChannelOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeChannelOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangeChannelOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *ChangeChannelDefault) Code() int {
 func (o *ChangeChannelDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Change][%d] ChangeChannel default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeChannelDefault) GetPayload() *ChangeChannelDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeChannelDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeChannelDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *ChangeChannelDefault) readResponse(response runtime.ClientResponse, con
 swagger:model ChangeChannelBody
 */
 type ChangeChannelBody struct {
-
 	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 
@@ -270,7 +269,6 @@ func (o *ChangeChannelBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *ChangeChannelBody) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -286,7 +284,6 @@ func (o *ChangeChannelBody) contextValidateEmailConfig(ctx context.Context, form
 }
 
 func (o *ChangeChannelBody) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -302,7 +299,6 @@ func (o *ChangeChannelBody) contextValidatePagerdutyConfig(ctx context.Context, 
 }
 
 func (o *ChangeChannelBody) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -318,7 +314,6 @@ func (o *ChangeChannelBody) contextValidateSlackConfig(ctx context.Context, form
 }
 
 func (o *ChangeChannelBody) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -355,10 +350,6 @@ func (o *ChangeChannelBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeChannelDefaultBody
 */
 type ChangeChannelDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -424,9 +415,7 @@ func (o *ChangeChannelDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ChangeChannelDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -437,7 +426,6 @@ func (o *ChangeChannelDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -465,13 +453,8 @@ func (o *ChangeChannelDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeChannelDefaultBodyDetailsItems0
 */
 type ChangeChannelDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change channel default body details items0
@@ -506,7 +489,6 @@ func (o *ChangeChannelDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 swagger:model ChangeChannelParamsBodyEmailConfig
 */
 type ChangeChannelParamsBodyEmailConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -546,7 +528,6 @@ func (o *ChangeChannelParamsBodyEmailConfig) UnmarshalBinary(b []byte) error {
 swagger:model ChangeChannelParamsBodyPagerdutyConfig
 */
 type ChangeChannelParamsBodyPagerdutyConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -589,7 +570,6 @@ func (o *ChangeChannelParamsBodyPagerdutyConfig) UnmarshalBinary(b []byte) error
 swagger:model ChangeChannelParamsBodySlackConfig
 */
 type ChangeChannelParamsBodySlackConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -629,7 +609,6 @@ func (o *ChangeChannelParamsBodySlackConfig) UnmarshalBinary(b []byte) error {
 swagger:model ChangeChannelParamsBodyWebhookConfig
 */
 type ChangeChannelParamsBodyWebhookConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -691,7 +670,6 @@ func (o *ChangeChannelParamsBodyWebhookConfig) ContextValidate(ctx context.Conte
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -728,7 +706,6 @@ func (o *ChangeChannelParamsBodyWebhookConfig) UnmarshalBinary(b []byte) error {
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfig
 */
 type ChangeChannelParamsBodyWebhookConfigHTTPConfig struct {
-
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
 
@@ -820,7 +797,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) ContextValidate(ctx con
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -836,7 +812,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) contextValidateBasicAut
 }
 
 func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -873,7 +848,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfig) UnmarshalBinary(b []byt
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth
 */
 type ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth struct {
-
 	// username
 	Username string `json:"username,omitempty"`
 
@@ -917,7 +891,6 @@ func (o *ChangeChannelParamsBodyWebhookConfigHTTPConfigBasicAuth) UnmarshalBinar
 swagger:model ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig
 */
 type ChangeChannelParamsBodyWebhookConfigHTTPConfigTLSConfig struct {
-
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
 	CaFile string `json:"ca_file,omitempty"`

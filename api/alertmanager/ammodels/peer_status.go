@@ -18,7 +18,6 @@ import (
 //
 // swagger:model peerStatus
 type PeerStatus struct {
-
 	// address
 	// Required: true
 	Address *string `json:"address"`
@@ -47,7 +46,6 @@ func (m *PeerStatus) Validate(formats strfmt.Registry) error {
 }
 
 func (m *PeerStatus) validateAddress(formats strfmt.Registry) error {
-
 	if err := validate.Required("address", "body", m.Address); err != nil {
 		return err
 	}
@@ -56,7 +54,6 @@ func (m *PeerStatus) validateAddress(formats strfmt.Registry) error {
 }
 
 func (m *PeerStatus) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}

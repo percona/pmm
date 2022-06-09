@@ -67,12 +67,12 @@ type AlertsServer interface {
 }
 
 // UnimplementedAlertsServer must be embedded to have forward compatible implementations.
-type UnimplementedAlertsServer struct {
-}
+type UnimplementedAlertsServer struct{}
 
 func (UnimplementedAlertsServer) ListAlerts(context.Context, *ListAlertsRequest) (*ListAlertsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAlerts not implemented")
 }
+
 func (UnimplementedAlertsServer) ToggleAlerts(context.Context, *ToggleAlertsRequest) (*ToggleAlertsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ToggleAlerts not implemented")
 }

@@ -262,7 +262,7 @@ var (
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
-	sealedAgentParams() //nolint:unused
+	sealedAgentParams()
 }
 
 func (*SetStateRequest_AgentProcess) sealedAgentParams() {}

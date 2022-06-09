@@ -18,7 +18,6 @@ import (
 //
 // swagger:model alertmanagerConfig
 type AlertmanagerConfig struct {
-
 	// original
 	// Required: true
 	Original *string `json:"original"`
@@ -39,7 +38,6 @@ func (m *AlertmanagerConfig) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AlertmanagerConfig) validateOriginal(formats strfmt.Registry) error {
-
 	if err := validate.Required("original", "body", m.Original); err != nil {
 		return err
 	}

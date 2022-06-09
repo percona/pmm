@@ -59,12 +59,12 @@ type AddAnnotationOK struct {
 func (o *AddAnnotationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
+
 func (o *AddAnnotationOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AddAnnotationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *AddAnnotationDefault) Code() int {
 func (o *AddAnnotationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddAnnotationDefault) GetPayload() *AddAnnotationDefaultBody {
 	return o.Payload
 }
 
 func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddAnnotationDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, con
 swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
-
 	// An annotation description. Required.
 	Text string `json:"text,omitempty"`
 
@@ -164,10 +163,6 @@ func (o *AddAnnotationBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -233,9 +228,7 @@ func (o *AddAnnotationDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -246,7 +239,6 @@ func (o *AddAnnotationDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -274,13 +266,8 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add annotation default body details items0

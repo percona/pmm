@@ -9,15 +9,18 @@ import (
 	regexp "regexp"
 
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *PXCClusterParams) Validate() error {
 	if !(this.ClusterSize > 0) {
@@ -43,6 +46,7 @@ func (this *PXCClusterParams) Validate() error {
 	}
 	return nil
 }
+
 func (this *PXCClusterParams_PXC) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -54,6 +58,7 @@ func (this *PXCClusterParams_PXC) Validate() error {
 	}
 	return nil
 }
+
 func (this *PXCClusterParams_ProxySQL) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -65,6 +70,7 @@ func (this *PXCClusterParams_ProxySQL) Validate() error {
 	}
 	return nil
 }
+
 func (this *PXCClusterParams_HAProxy) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -73,6 +79,7 @@ func (this *PXCClusterParams_HAProxy) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPXCClusterCredentialsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -82,9 +89,11 @@ func (this *GetPXCClusterCredentialsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *PXCClusterConnectionCredentials) Validate() error {
 	return nil
 }
+
 func (this *GetPXCClusterCredentialsResponse) Validate() error {
 	if this.ConnectionCredentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ConnectionCredentials); err != nil {
@@ -113,9 +122,11 @@ func (this *CreatePXCClusterRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreatePXCClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *UpdatePXCClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -130,6 +141,7 @@ func (this *UpdatePXCClusterRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams) Validate() error {
 	if this.Pxc != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pxc); err != nil {
@@ -148,6 +160,7 @@ func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams) Validate() error {
 	}
 	return nil
 }
+
 func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -156,6 +169,7 @@ func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) Validate() error
 	}
 	return nil
 }
+
 func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -164,6 +178,7 @@ func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) Validate() 
 	}
 	return nil
 }
+
 func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -172,9 +187,11 @@ func (this *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) Validate() e
 	}
 	return nil
 }
+
 func (this *UpdatePXCClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *GetPXCClusterResourcesRequest) Validate() error {
 	if nil == this.Params {
 		return github_com_mwitkow_go_proto_validators.FieldError("Params", fmt.Errorf("message must exist"))
@@ -186,6 +203,7 @@ func (this *GetPXCClusterResourcesRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPXCClusterResourcesResponse) Validate() error {
 	if this.Expected != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Expected); err != nil {

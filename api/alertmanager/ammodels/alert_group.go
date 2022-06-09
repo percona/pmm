@@ -19,7 +19,6 @@ import (
 //
 // swagger:model alertGroup
 type AlertGroup struct {
-
 	// alerts
 	// Required: true
 	Alerts []*GettableAlert `json:"alerts"`
@@ -56,7 +55,6 @@ func (m *AlertGroup) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AlertGroup) validateAlerts(formats strfmt.Registry) error {
-
 	if err := validate.Required("alerts", "body", m.Alerts); err != nil {
 		return err
 	}
@@ -83,7 +81,6 @@ func (m *AlertGroup) validateAlerts(formats strfmt.Registry) error {
 }
 
 func (m *AlertGroup) validateLabels(formats strfmt.Registry) error {
-
 	if err := validate.Required("labels", "body", m.Labels); err != nil {
 		return err
 	}
@@ -103,7 +100,6 @@ func (m *AlertGroup) validateLabels(formats strfmt.Registry) error {
 }
 
 func (m *AlertGroup) validateReceiver(formats strfmt.Registry) error {
-
 	if err := validate.Required("receiver", "body", m.Receiver); err != nil {
 		return err
 	}
@@ -145,9 +141,7 @@ func (m *AlertGroup) ContextValidate(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *AlertGroup) contextValidateAlerts(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Alerts); i++ {
-
 		if m.Alerts[i] != nil {
 			if err := m.Alerts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -158,14 +152,12 @@ func (m *AlertGroup) contextValidateAlerts(ctx context.Context, formats strfmt.R
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *AlertGroup) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")
@@ -179,7 +171,6 @@ func (m *AlertGroup) contextValidateLabels(ctx context.Context, formats strfmt.R
 }
 
 func (m *AlertGroup) contextValidateReceiver(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Receiver != nil {
 		if err := m.Receiver.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

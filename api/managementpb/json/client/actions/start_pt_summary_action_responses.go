@@ -59,12 +59,12 @@ type StartPTSummaryActionOK struct {
 func (o *StartPTSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartPTSummaryActionOK) GetPayload() *StartPTSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTSummaryActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartPTSummaryActionDefault) Code() int {
 func (o *StartPTSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] StartPTSummaryAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartPTSummaryActionDefault) GetPayload() *StartPTSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTSummaryActionDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientRespon
 swagger:model StartPTSummaryActionBody
 */
 type StartPTSummaryActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -160,10 +159,6 @@ func (o *StartPTSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -229,9 +224,7 @@ func (o *StartPTSummaryActionDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,7 +235,6 @@ func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,13 +262,8 @@ func (o *StartPTSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start PT summary action default body details items0
@@ -311,7 +298,6 @@ func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 swagger:model StartPTSummaryActionOKBody
 */
 type StartPTSummaryActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

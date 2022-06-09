@@ -8,6 +8,10 @@ linters-settings:
       - errors
       # use "github.com/golang/protobuf/proto" instead
       - github.com/gogo/protobuf/proto
+      # use only forked parser
+      - github.com/percona/go-mysql/log/slow
+      # use "gopkg.in/yaml.v3" instead
+      - gopkg.in/yaml.v2
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -23,22 +27,34 @@ linters-settings:
     tab-width: 4
 
   unused:
-    check-exported: false
+    check-exported: false #TODO: set true for agent
 
   unparam:
     check-exported: true
 
 linters:
-  disable-all: true
-  enable:
+  enable-all: true
+  disable:
     # keep sorted
-    - depguard
-    - goimports
-    - govet
-    - ineffassign
-    - nolintlint
-    - staticcheck
-    - gci
+    - exhaustivestruct  # too annoying
+    - funlen            # useless
+    - gochecknoglobals  # mostly useless
+    - gochecknoinits    # we use init functions
+    - gomnd             # we are using numbers in many cases
+    - gomoddirectives   # we use replace directives
+    - gomodguard        # we are not using modules
+    - ifshort           # a lot of false positives
+    - interfacer        # deprecated
+    - maligned          # deprecated
+    - nlreturn          # too annoying
+    - scopelint         # too many false positives
+    - varnamelen        # useless
+    - wrapcheck         # we do not use wrapping everywhere
+    - wsl               # too annoying
+
+run:
+  skip-dirs:
+    - agent/agents/mongodb/internal/
 
 issues:
   exclude-use-default: false
@@ -50,3 +66,11 @@ issues:
     - 'comment on exported method `.+` should be of the form `.+ ...`'
     # golint: We have to return unexported types due to oneof implementation
     - 'exported method .+ returns unexported type .+, which can be annoying to use'
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        # keep sorted
+        - exhaustivestruct # very annoying
+        - funlen           # tests may be long
+        - gomnd            # tests are full of magic numbers
+        - testpackage      # senseless

@@ -9,8 +9,8 @@ import (
 
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 
 	_ "github.com/percona/pmm/api/inventorypb"
@@ -18,15 +18,20 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *DiscoverRDSInstance) Validate() error {
 	return nil
 }
+
 func (this *DiscoverRDSRequest) Validate() error {
 	return nil
 }
+
 func (this *DiscoverRDSResponse) Validate() error {
 	for _, item := range this.RdsInstances {
 		if item != nil {
@@ -37,6 +42,7 @@ func (this *DiscoverRDSResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddRDSRequest) Validate() error {
 	if this.Region == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
@@ -56,6 +62,7 @@ func (this *AddRDSRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddRDSResponse) Validate() error {
 	if this.Node != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
