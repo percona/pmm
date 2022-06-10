@@ -293,7 +293,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 }
 
 func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
-	var start = time.Now()
+	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
 	t.Reset(waitTime)
 }
