@@ -223,10 +223,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Warning(err)
 	}
-	if waitTime != defaultWaitTime {
-		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
-	}
+	running = m.checkDefaultWaitTime(waitTime)
 
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
@@ -265,19 +262,16 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Warning(err)
 			}
-			if waitTime != defaultWaitTime {
-				m.l.Error("non default bucket time value is not supported, status changed to WAITING")
-				m.dbCloser.Close() //nolint:errcheck
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+			running = m.checkDefaultWaitTime(waitTime)
+			if !running {
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 
 			lengthS := uint32(waitTime.Seconds())
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
 
-			start = time.Now()
-			m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
-			t.Reset(waitTime)
+			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
@@ -294,6 +288,23 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			m.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
+}
+
+func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
+	var start = time.Now()
+	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
+	t.Reset(waitTime)
+}
+
+func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
+	if waitTime != defaultWaitTime {
+		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		return false
+	}
+
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	return true
 }
 
 type settings map[string]*pgStatMonitorSettingsTextValue
