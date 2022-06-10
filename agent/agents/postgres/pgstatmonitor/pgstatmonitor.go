@@ -248,6 +248,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.Errorf(err.Error())
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
@@ -255,6 +256,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.l.Errorf(err.Error())
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.resetWaitTime(t, waitTime)
 				continue
 			}
 
