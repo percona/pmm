@@ -36,45 +36,37 @@ func NewCollector(driver, dbName string, db *sql.DB) *Collector {
 		maxOpenConnections: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "max_open"),
 			"Maximum number of open connections to the database.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 
 		openConnections: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "open"),
 			"The number of established connections both in use and idle.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 		inUse: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "in_use"),
 			"The number of connections currently in use.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 		idle: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "idle"),
 			"The number of idle connections.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 
 		waitCount: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "wait_count"),
 			"The total number of connections waited for.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 		waitDuration: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "wait_duration_seconds"),
 			"The total time blocked waiting for a new connection.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 		maxIdleClosed: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "max_idle_closed"),
 			"The total number of connections closed due to SetMaxIdleConns.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 		maxLifetimeClosed: prom.NewDesc(
 			prom.BuildFQName("go_sql", "connections", "max_lifetime_closed"),
 			"The total number of connections closed due to SetConnMaxLifetime.",
-			nil, constLabels,
-		),
+			nil, constLabels),
 	}
 }
 
@@ -97,45 +89,37 @@ func (c *Collector) Collect(ch chan<- prom.Metric) {
 	ch <- prom.MustNewConstMetric(
 		c.maxOpenConnections,
 		prom.GaugeValue,
-		float64(stats.MaxOpenConnections),
-	)
+		float64(stats.MaxOpenConnections))
 
 	ch <- prom.MustNewConstMetric(
 		c.openConnections,
 		prom.GaugeValue,
-		float64(stats.OpenConnections),
-	)
+		float64(stats.OpenConnections))
 	ch <- prom.MustNewConstMetric(
 		c.inUse,
 		prom.GaugeValue,
-		float64(stats.InUse),
-	)
+		float64(stats.InUse))
 	ch <- prom.MustNewConstMetric(
 		c.idle,
 		prom.GaugeValue,
-		float64(stats.Idle),
-	)
+		float64(stats.Idle))
 
 	ch <- prom.MustNewConstMetric(
 		c.waitCount,
 		prom.CounterValue,
-		float64(stats.WaitCount),
-	)
+		float64(stats.WaitCount))
 	ch <- prom.MustNewConstMetric(
 		c.waitDuration,
 		prom.CounterValue,
-		stats.WaitDuration.Seconds(),
-	)
+		stats.WaitDuration.Seconds())
 	ch <- prom.MustNewConstMetric(
 		c.maxIdleClosed,
 		prom.CounterValue,
-		float64(stats.MaxIdleClosed),
-	)
+		float64(stats.MaxIdleClosed))
 	ch <- prom.MustNewConstMetric(
 		c.maxLifetimeClosed,
 		prom.CounterValue,
-		float64(stats.MaxLifetimeClosed),
-	)
+		float64(stats.MaxLifetimeClosed))
 }
 
 // check interfaces

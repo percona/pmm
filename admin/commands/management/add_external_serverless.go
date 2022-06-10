@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
@@ -164,7 +165,7 @@ func (cmd *addExternalServerlessCommand) processURLFlags() (scheme, metricsPath,
 	case cmd.URL != "":
 		uri, err := url.Parse(cmd.URL)
 		if err != nil {
-			return "", "", "", 0, fmt.Errorf("couldn't parse URL %s : %s", cmd.URL, err)
+			return "", "", "", 0, errors.Wrapf(err, "couldn't parse URL: %s", cmd.URL)
 		}
 		scheme = uri.Scheme
 		address = uri.Hostname()
@@ -211,7 +212,7 @@ or even you can specify --address instead of host and port as individual paramet
 
 // register command.
 var (
-	AddExternalServerless  = new(addExternalServerlessCommand)
+	AddExternalServerless  addExternalServerlessCommand
 	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
 )
 

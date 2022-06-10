@@ -64,7 +64,7 @@ func getSummaries(q *reform.Querier) (summaryMap, error) {
 
 		res[*ess.Digest] = &ess
 	}
-	if err != reform.ErrNoRows {
+	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_summary_by_digest")
 	}
 	return res, nil

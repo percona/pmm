@@ -41,7 +41,7 @@ import (
 func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
-	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
@@ -329,7 +329,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", ")) //nolint:gosec
+		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
@@ -450,7 +450,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) // nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -491,7 +491,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 			require.NoError(t, err)
 			buckets = filter(buckets)
 			t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
-			if len(buckets) > 0 {
+			if len(buckets) != 0 {
 				break
 			}
 			time.Sleep(100 * time.Millisecond)

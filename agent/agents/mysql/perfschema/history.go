@@ -74,7 +74,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		}
 		res[*esh.Digest] = &esh
 	}
-	if err != reform.ErrNoRows {
+	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_history")
 	}
 	return res, nil

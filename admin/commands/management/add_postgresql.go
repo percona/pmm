@@ -211,7 +211,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddPostgreSQL  = new(addPostgreSQLCommand)
+	AddPostgreSQL  addPostgreSQLCommand
 	AddPostgreSQLC = AddC.Command("postgresql", "Add PostgreSQL to monitoring")
 )
 
