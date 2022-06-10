@@ -305,7 +305,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/debug/", http.DefaultServeMux)
 	mux.Handle("/debug", debugPageHandler)
 	mux.Handle("/", proxyMux)
-	mux.HandleFunc("/logs.zip", s.Zip)
+	mux.HandleFunc("/logs.zip", s.zip)
 
 	server := &http.Server{
 		Addr:     address,
@@ -348,7 +348,7 @@ func addData(zipW *zip.Writer, name string, data []byte) {
 	}
 }
 
-func (s *Server) Zip(w http.ResponseWriter, r *http.Request) {
+func (s *Server) zip(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	writer := zip.NewWriter(buf)
 	b := &bytes.Buffer{}
