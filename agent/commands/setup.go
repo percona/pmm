@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 
@@ -45,11 +46,9 @@ func Setup() {
 
 	l := logrus.WithField("component", "setup")
 	cfg, configFilepath, err := config.Get(l)
-	if _, ok := err.(config.ErrConfigFileDoesNotExist); ok {
-		err = nil
-	}
-	if err != nil {
-		fmt.Printf("Failed to load configuration: %s.\n", err)
+	var e *config.ConfigFileDoesNotExistError
+	if err != nil && !errors.As(err, &e) {
+		fmt.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
 		os.Exit(1)
 	}
 
@@ -58,12 +57,12 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
 		os.Exit(1)
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
-		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
+		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}
 
@@ -72,13 +71,13 @@ func Setup() {
 	}
 
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
-		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
+		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
 		os.Exit(1)
 	}
-	fmt.Printf("Configuration file %s updated.\n", configFilepath)
+	fmt.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
 
 	if !running {
-		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)
+		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath) //nolint:forbidigo
 		return
 	}
 
@@ -148,7 +147,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 				msg += "\nPlease check username and password"
 			}
 		}
-		if _, ok := err.(errFromNginx); ok {
+		if _, ok := err.(nginxError); ok {
 			msg += ".\nPlease check pmm-managed logs."
 		}
 

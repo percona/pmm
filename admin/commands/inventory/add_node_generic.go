@@ -88,7 +88,7 @@ func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddNodeGeneric  = new(addNodeGenericCommand)
+	AddNodeGeneric  addNodeGenericCommand
 	AddNodeGenericC = addNodeC.Command("generic", "Add generic node to inventory").Hide(hide)
 )
 

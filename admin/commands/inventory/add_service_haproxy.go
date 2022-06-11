@@ -86,7 +86,7 @@ func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddHAProxyService  = new(addHAProxyServiceCommand)
+	AddHAProxyService  addHAProxyServiceCommand
 	AddHAProxyServiceC = addServiceC.Command("haproxy", "Add an haproxy service to the inventory").Hide(hide)
 )
 

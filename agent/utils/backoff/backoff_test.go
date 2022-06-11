@@ -15,9 +15,7 @@
 
 package backoff
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestBackoff(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage

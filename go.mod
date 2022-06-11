@@ -28,7 +28,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
 	github.com/hashicorp/go-version v1.5.0
-	github.com/lib/pq v1.10.5
+	github.com/lib/pq v1.10.6
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20200630114833-b77f37c0bfa2
@@ -46,6 +46,7 @@ require (
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	gopkg.in/ini.v1 v1.66.6
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )

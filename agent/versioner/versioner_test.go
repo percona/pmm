@@ -28,7 +28,7 @@ type mockedExec struct {
 	Output []byte
 }
 
-func (m *mockedExec) CombinedOutput() ([]byte, error) { //nolint:unparam
+func (m *mockedExec) CombinedOutput() ([]byte, error) {
 	return m.Output, nil
 }
 

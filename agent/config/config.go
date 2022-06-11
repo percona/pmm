@@ -79,7 +79,7 @@ func (s *Server) FilteredURL() string {
 	}
 
 	// unescape ***; url.unescape and url.encodeUserPassword are not exported, so use strings.Replace
-	return strings.Replace(u.String(), ":%2A%2A%2A@", ":***@", -1)
+	return strings.ReplaceAll(u.String(), ":%2A%2A%2A@", ":***@")
 }
 
 // Paths represents binaries paths configuration.
@@ -99,8 +99,8 @@ type Paths struct {
 	TempDir string `yaml:"tempdir"`
 
 	PTSummary        string `yaml:"pt_summary"`
-	PTPgSummary      string `yaml:"pt_pg_summary"`
-	PTMySqlSummary   string `yaml:"pt_mysql_summary"`
+	PTPGSummary      string `yaml:"pt_pg_summary"`
+	PTMySQLSummary   string `yaml:"pt_mysql_summary"`
 	PTMongoDBSummary string `yaml:"pt_mongodb_summary"`
 
 	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
@@ -155,18 +155,18 @@ type Config struct {
 	Setup Setup `yaml:"-"`
 }
 
-// ErrConfigFileDoesNotExist error is returned from Get method if configuration file is expected,
+// ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
 // but does not exist.
-type ErrConfigFileDoesNotExist string
+type ConfigFileDoesNotExistError string
 
-func (e ErrConfigFileDoesNotExist) Error() string {
+func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
 }
 
 // Get parses command-line flags, environment variables and configuration file
 // (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
 // It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
-// and any encountered error. That error may be ErrConfigFileDoesNotExist if configuration file path is not empty,
+// and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
 func Get(l *logrus.Entry) (*Config, string, error) {
@@ -205,9 +205,9 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			&cfg.Paths.VMAgent:          "vmagent",
 			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
-			&cfg.Paths.PTPgSummary:      "tools/pt-pg-summary",
+			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySqlSummary:   "tools/pt-mysql-summary",
+			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
 		} {
 			if *sp == "" {
 				*sp = v
@@ -231,14 +231,14 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {
 			cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
 		}
-		if !filepath.IsAbs(cfg.Paths.PTPgSummary) {
-			cfg.Paths.PTPgSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPgSummary)
+		if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
+			cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
 		}
 		if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
 			cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
 		}
-		if !filepath.IsAbs(cfg.Paths.PTMySqlSummary) {
-			cfg.Paths.PTMySqlSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySqlSummary)
+		if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
+			cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
 		}
 
 		for _, sp := range []*string{
@@ -355,11 +355,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("paths-pt-summary", "Path to pt summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").StringVar(&cfg.Paths.PTSummary)
 	app.Flag("paths-pt-pg-summary", "Path to pt-pg-summary to use [PMM_AGENT_PATHS_PT_PG_SUMMARY]").
-		Envar("PMM_AGENT_PATHS_PT_PG_SUMMARY").StringVar(&cfg.Paths.PTPgSummary)
+		Envar("PMM_AGENT_PATHS_PT_PG_SUMMARY").StringVar(&cfg.Paths.PTPGSummary)
 	app.Flag("paths-pt-mongodb-summary", "Path to pt mongodb summary to use [PMM_AGENT_PATHS_PT_MONGODB_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MONGODB_SUMMARY").StringVar(&cfg.Paths.PTMongoDBSummary)
 	app.Flag("paths-pt-mysql-summary", "Path to pt my sql summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
-		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySqlSummary)
+		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").StringVar(&cfg.Paths.PTMySQLSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
@@ -382,7 +382,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJson())
+			fmt.Println(version.FullInfoJSON())
 		} else {
 			fmt.Println(version.FullInfo())
 		}
@@ -455,12 +455,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 }
 
 // loadFromFile loads configuration from file.
-// As a special case, if file does not exist, it returns ErrConfigFileDoesNotExist.
+// As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string) (*Config, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, ErrConfigFileDoesNotExist(path)
+		return nil, ConfigFileDoesNotExistError(path)
 	}
 
 	b, err := os.ReadFile(path) //nolint:gosec

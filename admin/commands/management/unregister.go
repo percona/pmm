@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -128,12 +129,12 @@ func nodeIDFromNodeName(nodeName string) (string, error) {
 			return node.NodeID, nil
 		}
 	}
-	return "", fmt.Errorf("Node %s is not found", nodeName)
+	return "", errors.Errorf("node %s is not found", nodeName)
 }
 
 // unregister command
 var (
-	Unregister  = new(unregisterCommand)
+	Unregister  unregisterCommand
 	UnregisterC = kingpin.Command("unregister", "Unregister current Node from PMM Server")
 )
 
