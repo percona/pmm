@@ -21765,6 +21765,11 @@
                     "debug"
                   ],
                   "x-order": 28
+                },
+                "defaults_file": {
+                  "type": "string",
+                  "title": "Path to .cnf file which contains user-name and password",
+                  "x-order": 29
                 }
               }
             }
