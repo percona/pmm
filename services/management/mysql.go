@@ -18,10 +18,13 @@ package management
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
@@ -39,15 +42,17 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
+	dfp   defaultsFileParser
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, dfp defaultsFileParser) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
 		vc:    vc,
+		dfp:   dfp,
 	}
 }
 
@@ -78,6 +83,35 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
+
+		if req.DefaultsFile != "" {
+			result, err := s.dfp.ParseDefaultsFile(ctx, req.PmmAgentId, req.DefaultsFile, models.MySQLServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Defaults file error: %s.", err))
+			}
+
+			// set username and password from parsed defaults file by agent
+			if req.Username == "" && result.Username != "" {
+				req.Username = result.Username
+			}
+
+			if req.Password == "" && result.Password != "" {
+				req.Password = result.Password
+			}
+
+			if req.Address == "" && result.Host != "" {
+				req.Address = result.Host
+			}
+
+			if req.Port == 0 && result.Port > 0 {
+				req.Port = result.Port
+			}
+
+			if req.Socket == "" && result.Socket != "" {
+				req.Socket = result.Socket
+			}
+		}
+
 		service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    req.ServiceName,
 			NodeID:         nodeID,
