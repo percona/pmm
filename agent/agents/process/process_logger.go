@@ -78,7 +78,22 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			line = pl.replacer.Replace(line)
 		}
 		if pl.l != nil {
-			pl.l.Infoln(line)
+			switch {
+			case strings.Contains(line, " level=trace "):
+				pl.l.Traceln(line)
+			case strings.Contains(line, " level=debug "):
+				pl.l.Debugln(line)
+			case strings.Contains(line, " level=info "):
+				pl.l.Infoln(line)
+			case strings.Contains(line, " level=warning "):
+				pl.l.Warnln(line)
+			case strings.Contains(line, " level=error "),
+				strings.Contains(line, " level=fatal "),
+				strings.Contains(line, " level=panic "):
+				pl.l.Errorln(line)
+			default:
+				pl.l.Infoln(line)
+			}
 		}
 		pl.data[pl.i] = pointer.ToString(line)
 		pl.i = (pl.i + 1) % len(pl.data)
