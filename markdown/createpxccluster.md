@@ -1,6 +1,6 @@
 ### Create PXC Cluster
 
-Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster, the values for parameters are recomended by Percona:
+Once you register the Kubernetes cluster, you can use its name to create database clusters. Here is an example for the PXC cluster. Percona recommends the following the values for the parameters: 
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
@@ -51,27 +51,27 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |Parameter                              |Description                                     |Notes                                                                |
 |---------------------------------------|------------------------------------------------|---------------------------------------------------------------------|
 |kubernetes_cluster_name                |Kubernetes cluster name                         |Required                                                             |
-|name                                   |PXC cluster name to create                      |Default: pxc + DB version + 5 chars random string                    |
+|name                                   |PXC cluster name to be created                      |Default: pxc + DB version + 5 chars random string                    |
 |cluster_size                           |Cluster size                                    |Default: 3                                                           |
 |image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
 |compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
-|mcompute_resources.memory_bytes        |Max memory size in bytes                        |Default: 2 Gb                                                        |
-|disk_size                              |Max disk size for the PXC instance              |Default: 25 Gb                                                       |
+|mcompute_resources.memory_bytes        |Max memory size in bytes                        |Default: 2 GB                                                       |
+|disk_size                              |Max disk size for the PXC instance              |Default: 25 GB                                                       |
 |proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
 |proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
-|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 Gb                                                         |
+|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 GB                                                        |
 |proxysql.disk_size                     |Max disk size for ProxySQL                      |Default: empty, use operator's default                               |
 |haproxyimage                           |Docker image for HA Proxy                       |Default: empty, use operator's default                               |
 |haproxy.compute_resources.cpu_m        |CPU resources millis                            |Default: 1000                                                        |
-|haproxy.compute_resources.memory_bytes |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|haproxy.compute_resources.memory_bytes |Max memory size in bytes                        |Default: 2 GB                                                        |
 |expose                                 |Make it available outside the Kubernetes cluster|Default: false                                                       |
 
 **Note:** 
-Only one of ProxySQL or HAProxy should be specified in the request.
+Either ProxySQL or HAProxy should be specified in the request.
 
 #### Minimum request example
 
-Since the API has the defaults mentioned above, the HTTP request can have the kubernetes cluster name as the only parameter.
+Since the API has the defaults mentioned above, the HTTP request can have the Kubernetes cluster name as the only parameter.
 
 Example:
 

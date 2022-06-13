@@ -296,24 +296,24 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 |cluster_size                           |Cluster size                                    |Default: 3                                                           |
 |image                                  |Docker image name                               |Default is the recommended version from the Percona's version service|
 |compute_resources.cpu_m                |CPU resources millis                            |Default: 1000                                                        |
-|compute_resources.memory_bytes         |Max memory size in bytes                        |Default: 2 Gb                                                        |
-|disk_size                              |Max disk size for the PXC instance              |Default: 25 Gb                                                       |
+|compute_resources.memory_bytes         |Max memory size in bytes                        |Default: 2 GB                                                        |
+|disk_size                              |Max disk size for the PXC instance              |Default: 25 GB                                                       |
 |proxysql.image                         |Docker image for ProxySQL                       |Default: empty. (Use operator's default)                             |
 |proxysql.compute_resources.cpu_m       |CPU resources millis                            |Default: 1000                                                        |
-|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 Gb                                                         |
+|proxysql.compute_resources.memory_bytes|Max memory size in bytes                        |Default 2 GB                                                         |
 |proxysql.disk_size                     |Max disk size for ProxySQL                      |Default: empty, use operator's default                               |
 |haproxyimage                           |Docker image for HA Proxy                       |Default: empty, use operator's default                               |
 |haproxy.compute_resources.cpu_m        |CPU resources millis                            |Default: 1000                                                        |
-|haproxy.compute_resources.memory_bytes |Max memory size in bytes                        |Default: 2 Gb                                                        |
+|haproxy.compute_resources.memory_bytes |Max memory size in bytes                        |Default: 2 GB                                                        |
 |expose                                 |Make it available outside the Kubernetes cluster|Default: false                                                       |
 
 **Notes:** 
-Only one of ProxySQL or HAProxy should be specified in the request.
+Either ProxySQL or HAProxy should be specified in the request.
 Memory bytes are strings because the parameter accepts the unit, like *1 Gi*
 
 #### Minimum request example
 
-Since the API has the defaults mentioned above, the HTTP request can have the kubernetes cluster name as the only parameter.
+Since the API has the defaults mentioned above, the HTTP request can have the Kubernetes cluster name as the only parameter.
 
 Example:
 
@@ -401,7 +401,7 @@ API endpoint used in this step: [GetPXCClusterCredentials](ref:getpxcclustercred
 
 ### Create a PSMDB Cluster
 
-The PSMDB Create endpoint can also set defaults so, creating a PSMDB cluster can be made with a request like this:
+The PSMDB `Create` endpoint can also set defaults, so creating a PSMDB cluster can be made with a request like this:
 
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
@@ -438,14 +438,14 @@ curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
 | name                                      | PSMDB cluster name                    | Default: `psmdb`+DB version+5 chars random string            |
 | cluster_size                              | Cluster size                          | Default: 3                                                   |
 | replicaset.compute_resources.cpu_m        | CPU resources millis                  | Default: 1000                                                |
-| replicaset.compute_resources.memory_bytes | Max memory size in bytes              | Default: 2 Gb                                                |
+| replicaset.compute_resources.memory_bytes | Max memory size in bytes              | Default: 2 GB                                                |
 | disk_size                                 | Max disk size                         | Default: 25 Gb                                               |
 | image                                     | PSMDB Docker image                    | Default is the recommended version from the Percona's version service |
 | expose                                    | Expose outside the Kubernetes cluster | Default: false                                               |
 
 ### Delete DB Cluster
 
-If we don’t need DB Cluster anymore we can delete it using request below.
+If you don’t need the database cluster you can delete it using the request below.
 ```bash
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \ 
      -H "accept: application/json" \
