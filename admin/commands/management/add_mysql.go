@@ -94,6 +94,7 @@ type addMySQLCommand struct {
 	ServiceName       string
 	Username          string
 	Password          string
+	DefaultsFile      string
 	AgentPassword     string
 	CredentialsSource string
 	Environment       string
@@ -127,7 +128,15 @@ func (cmd *addMySQLCommand) GetAddress() string {
 }
 
 func (cmd *addMySQLCommand) GetDefaultAddress() string {
+	if cmd.DefaultsFile != "" {
+		// address might be specified in defaults file
+		return ""
+	}
 	return "127.0.0.1:3306"
+}
+
+func (cmd *addMySQLCommand) GetDefaultUsername() string {
+	return "root"
 }
 
 func (cmd *addMySQLCommand) GetSocket() string {
@@ -194,6 +203,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
+	username := defaultsFileUsernameCheck(cmd)
+
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
@@ -220,7 +231,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
+			Username:       username,
 			Password:       cmd.Password,
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
@@ -273,8 +284,9 @@ func init() {
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
 
-	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("username", "MySQL username").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
+	AddMySQLC.Flag("defaults-file", "Path to defaults file").StringVar(&AddMySQL.DefaultsFile)
 	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
 	AddMySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddMySQL.CredentialsSource)
 
@@ -306,4 +318,18 @@ func init() {
 		EnumVar(&AddMySQL.MetricsMode, metricsModes...)
 	AddMySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMySQL.DisableCollectors)
 	addGlobalFlags(AddMySQLC)
+}
+
+func defaultsFileUsernameCheck(cmd *addMySQLCommand) string {
+	// defaults file specified, but passed username has higher priority
+	if cmd.Username != "" && cmd.DefaultsFile != "" {
+		return cmd.Username
+	}
+
+	// username not specified, but can be in defaults files
+	if cmd.Username == "" && cmd.DefaultsFile != "" {
+		return ""
+	}
+
+	return cmd.GetDefaultUsername()
 }
