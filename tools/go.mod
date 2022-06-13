@@ -9,7 +9,7 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/bufbuild/buf v1.5.0
 	github.com/daixiang0/gci v0.3.4
-	github.com/go-openapi/runtime v0.24.0
+	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/golangci/golangci-lint v1.46.2
