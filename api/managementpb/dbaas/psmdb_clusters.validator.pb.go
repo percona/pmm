@@ -61,6 +61,7 @@ func (this *GetPSMDBClusterCredentialsResponse) Validate() error {
 func (this *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) Validate() error {
 	return nil
 }
+
 func (this *CreatePSMDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
