@@ -62,10 +62,8 @@ type LogsParams struct {
 	/* Pprof.
 
 	   Include performance profiling data,
-
-	   Format: int32
 	*/
-	Pprof *int32
+	Pprof *bool
 
 	timeout    time.Duration
 	Context    context.Context
@@ -121,13 +119,13 @@ func (o *LogsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithPprof adds the pprof to the logs params
-func (o *LogsParams) WithPprof(pprof *int32) *LogsParams {
+func (o *LogsParams) WithPprof(pprof *bool) *LogsParams {
 	o.SetPprof(pprof)
 	return o
 }
 
 // SetPprof adds the pprof to the logs params
-func (o *LogsParams) SetPprof(pprof *int32) {
+func (o *LogsParams) SetPprof(pprof *bool) {
 	o.Pprof = pprof
 }
 
@@ -141,12 +139,12 @@ func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry
 	if o.Pprof != nil {
 
 		// query param pprof
-		var qrPprof int32
+		var qrPprof bool
 
 		if o.Pprof != nil {
 			qrPprof = *o.Pprof
 		}
-		qPprof := swag.FormatInt32(qrPprof)
+		qPprof := swag.FormatBool(qrPprof)
 		if qPprof != "" {
 			if err := r.SetQueryParam("pprof", qPprof); err != nil {
 				return err

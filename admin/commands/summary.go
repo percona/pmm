@@ -154,13 +154,8 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 // addServerData adds logs.zip from PMM Server to zip file.
 func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
-	var pprof int32
-	if usePprof {
-		pprof = 1
-	}
-
 	var buf bytes.Buffer
-	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &pprof, HTTPClient: nil}, &buf)
+	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof, HTTPClient: nil}, &buf)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return

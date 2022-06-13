@@ -19,8 +19,7 @@
         "operationId": "Logs",
         "parameters": [
           {
-            "type": "integer",
-            "format": "int32",
+            "type": "boolean",
             "description": "Include performance profiling data,",
             "name": "pprof",
             "in": "query"
