@@ -218,6 +218,9 @@ type AddMySQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path to .cnf file which contains user-name and password
+	DefaultsFile string `json:"defaults_file,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
