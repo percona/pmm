@@ -58,6 +58,7 @@ import (
 
 const (
 	shutdownTimeout = 1 * time.Second
+	serverZipFile   = "pmm-agent.txt"
 )
 
 // Server represents local pmm-agent API server.
@@ -305,7 +306,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/debug/", http.DefaultServeMux)
 	mux.Handle("/debug", debugPageHandler)
 	mux.Handle("/", proxyMux)
-	mux.HandleFunc("/logs.zip", s.zip)
+	mux.HandleFunc("/logs.zip", s.Zip)
 
 	server := &http.Server{
 		Addr:     address,
@@ -348,7 +349,7 @@ func addData(zipW *zip.Writer, name string, data []byte) {
 	}
 }
 
-func (s *Server) zip(w http.ResponseWriter, r *http.Request) {
+func (s *Server) Zip(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
 	writer := zip.NewWriter(buf)
 	b := &bytes.Buffer{}
@@ -358,7 +359,7 @@ func (s *Server) zip(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
-	addData(writer, "pmm-agent.txt", b.Bytes())
+	addData(writer, serverZipFile, b.Bytes())
 
 	for id, logs := range s.supervisor.AgentsLogs() {
 		b := &bytes.Buffer{}

@@ -17,12 +17,9 @@ package agentlocal
 
 import (
 	"archive/zip"
-	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -169,80 +166,20 @@ func TestGetZipFile(t *testing.T) {
 		existFile, err := ioutil.ReadAll(rec.Body)
 		require.NoError(t, err)
 
-		expectedFile, err := generateTestZip(s)
-		require.NoError(t, err)
-		bufExp := bytes.NewReader(expectedFile)
 		bufExs := bytes.NewReader(existFile)
-
-		zipExp, err := zip.NewReader(bufExp, bufExp.Size())
-		require.NoError(t, err)
-		zipExs, err := zip.NewReader(bufExp, bufExs.Size())
+		zipExs, err := zip.NewReader(bufExs, bufExs.Size())
 		require.NoError(t, err)
 
-		for i, ex := range zipExp.File {
-			assert.Equal(t, ex.Name, zipExs.File[i].Name)
-			deepCompare(t, ex, zipExs.File[i])
-		}
-		require.NoError(t, err)
-		assert.Equal(t, expectedFile, existFile)
-	})
-}
-
-// generateTestZip generate test zip file.
-func generateTestZip(s *Server) ([]byte, error) {
-	agentLogs := make(map[string][]string)
-	agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
-		"logs1",
-		"logs2",
-	}
-	buf := &bytes.Buffer{}
-	writer := zip.NewWriter(buf)
-	b := &bytes.Buffer{}
-	for _, serverLog := range s.ringLogs.GetLogs() {
-		_, err := b.WriteString(serverLog)
-		if err != nil {
-			return nil, err
-		}
-	}
-	addData(writer, "pmm-agent.txt", b.Bytes())
-
-	for id, logs := range agentLogs {
-		b := &bytes.Buffer{}
-		for _, l := range logs {
-			_, err := b.WriteString(l + "\n")
-			if err != nil {
-				return nil, err
+		for _, ex := range zipExs.File {
+			file, err := ex.Open()
+			require.NoError(t, err)
+			if contents, err := ioutil.ReadAll(file); err == nil {
+				if ex.Name == serverZipFile {
+					assert.Empty(t, contents)
+				} else {
+					assert.NotEmpty(t, contents)
+				}
 			}
 		}
-		addData(writer, fmt.Sprintf("%s.txt", id), b.Bytes())
-	}
-	err := writer.Close()
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
-// deepCompare compare two zip files.
-func deepCompare(t *testing.T, file1, file2 *zip.File) bool {
-	t.Helper()
-	sf, err := file1.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	df, err := file2.Open()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sscan := bufio.NewScanner(sf)
-	dscan := bufio.NewScanner(df)
-
-	for sscan.Scan() {
-		dscan.Scan()
-		assert.Equal(t, sscan.Bytes(), dscan.Bytes())
-	}
-
-	return false
+	})
 }
