@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -162,7 +161,7 @@ type globalFlagsValues struct {
 }
 
 // GlobalFlags contains pmm-admin core flags values.
-var GlobalFlags = new(globalFlagsValues)
+var GlobalFlags globalFlagsValues
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 
@@ -172,7 +171,7 @@ var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 // E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
-	result := map[string]string{}
+	result := make(map[string]string)
 	parts := strings.Split(labels, ",")
 	for _, part := range parts {
 		part = strings.TrimSpace(part)
@@ -181,7 +180,7 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 		}
 		submatches := customLabelRE.FindStringSubmatch(part)
 		if submatches == nil {
-			return nil, fmt.Errorf("wrong custom label format")
+			return nil, errors.New("wrong custom label format")
 		}
 		result[submatches[1]] = submatches[2]
 	}
@@ -210,7 +209,7 @@ func ReadFile(filePath string) (string, error) {
 		return "", nil
 	}
 
-	content, err := ioutil.ReadFile(filepath.Clean(filePath))
+	content, err := os.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		return "", errors.Wrapf(err, "cannot load file in path %q", filePath)
 	}
@@ -218,14 +217,14 @@ func ReadFile(filePath string) (string, error) {
 	return string(content), nil
 }
 
-type errFromNginx string
+type nginxError string
 
-func (e errFromNginx) Error() string {
+func (e nginxError) Error() string {
 	return "response from nginx: " + string(e)
 }
 
-func (e errFromNginx) GoString() string {
-	return fmt.Sprintf("errFromNginx(%q)", string(e))
+func (e nginxError) GoString() string {
+	return fmt.Sprintf("nginxError(%q)", string(e))
 }
 
 // SetupClients configures local and PMM Server API clients.
@@ -278,8 +277,8 @@ func SetupClients(ctx context.Context, serverURL string) {
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
-		return errFromNginx(string(b))
+		b, _ := io.ReadAll(reader)
+		return nginxError(string(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
@@ -291,7 +290,7 @@ func SetupClients(ctx context.Context, serverURL string) {
 
 	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if GlobalFlags.ServerURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
 		httpTransport.TLSClientConfig.ServerName = GlobalFlags.ServerURL.Hostname()
@@ -305,11 +304,11 @@ func SetupClients(ctx context.Context, serverURL string) {
 
 // check interfaces
 var (
-	_ error          = errFromNginx("")
-	_ fmt.GoStringer = errFromNginx("")
+	_ error          = nginxError("")
+	_ fmt.GoStringer = nginxError("")
 )
 
-// Default kingping's usage template with tweaks:
+// UsageTemplate is default kingping's usage template with tweaks:
 // * FormatAllCommands is a copy of FormatCommands that ignores hidden flag;
 // * subcommands are shown with FormatAllCommands.
 var UsageTemplate = `{{define "FormatCommand"}}\

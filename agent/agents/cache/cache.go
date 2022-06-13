@@ -120,7 +120,6 @@ func (c *Cache) Set(current interface{}) error {
 				delete(c.items, c.itemsList.Remove(c.itemsList.Front()).(*cacheItem).key)
 				c.removedN++
 				wasTrimmed = true
-
 			}
 		}
 	}
@@ -139,7 +138,7 @@ func (c *Cache) Stats() Stats {
 
 	oldest := time.Unix(0, 0)
 	newest := time.Unix(0, 0)
-	if len(c.items) > 0 {
+	if len(c.items) != 0 {
 		oldest = c.itemsList.Front().Value.(*cacheItem).added
 		newest = c.itemsList.Back().Value.(*cacheItem).added
 	}

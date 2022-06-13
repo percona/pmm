@@ -116,7 +116,7 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentMongodbExporter  = new(addAgentMongodbExporterCommand)
+	AddAgentMongodbExporter  addAgentMongodbExporterCommand
 	AddAgentMongodbExporterC = addAgentC.Command("mongodb-exporter", "Add mongodb_exporter to inventory").Hide(hide)
 )
 
