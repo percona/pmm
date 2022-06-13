@@ -58,7 +58,6 @@ func NewChangeRDSExporterParamsWithHTTPClient(client *http.Client) *ChangeRDSExp
    Typically these are written to a http.Request.
 */
 type ChangeRDSExporterParams struct {
-
 	// Body.
 	Body ChangeRDSExporterBody
 
@@ -128,7 +127,6 @@ func (o *ChangeRDSExporterParams) SetBody(body ChangeRDSExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeRDSExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

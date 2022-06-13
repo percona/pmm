@@ -61,12 +61,12 @@ type InstallOperatorOK struct {
 func (o *InstallOperatorOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] installOperatorOk  %+v", 200, o.Payload)
 }
+
 func (o *InstallOperatorOK) GetPayload() *InstallOperatorOKBody {
 	return o.Payload
 }
 
 func (o *InstallOperatorOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(InstallOperatorOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *InstallOperatorDefault) Code() int {
 func (o *InstallOperatorDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] InstallOperator default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *InstallOperatorDefault) GetPayload() *InstallOperatorDefaultBody {
 	return o.Payload
 }
 
 func (o *InstallOperatorDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(InstallOperatorDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *InstallOperatorDefault) readResponse(response runtime.ClientResponse, c
 swagger:model InstallOperatorBody
 */
 type InstallOperatorBody struct {
-
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -165,10 +164,6 @@ func (o *InstallOperatorBody) UnmarshalBinary(b []byte) error {
 swagger:model InstallOperatorDefaultBody
 */
 type InstallOperatorDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -234,9 +229,7 @@ func (o *InstallOperatorDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *InstallOperatorDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -247,7 +240,6 @@ func (o *InstallOperatorDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -275,13 +267,8 @@ func (o *InstallOperatorDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model InstallOperatorDefaultBodyDetailsItems0
 */
 type InstallOperatorDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this install operator default body details items0
@@ -316,7 +303,6 @@ func (o *InstallOperatorDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model InstallOperatorOKBody
 */
 type InstallOperatorOKBody struct {
-
 	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
 	//
 	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.

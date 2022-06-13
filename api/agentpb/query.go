@@ -208,7 +208,7 @@ func makeInterface(value *QueryActionValue) (interface{}, error) {
 	var err error
 	switch v := value.Kind.(type) {
 	case *QueryActionValue_Nil:
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	case *QueryActionValue_Bool:
 		return v.Bool, nil
 	case *QueryActionValue_Int64:

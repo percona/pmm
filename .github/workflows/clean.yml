@@ -12,12 +12,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version:
-          - 1.18.x
-          - tip
-        os: [ubuntu-latest]
+        go:
+          - version: 1.18.x
+            may-fail: false
+          - version: tip
+            may-fail: true
 
-    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.go.may-fail }}
+    runs-on: ubuntu-20.04
 
     env:
       GOFLAGS: -v -mod=readonly
@@ -30,16 +32,16 @@ jobs:
         run: git config --global url."https://percona-platform-robot:${ROBOT_TOKEN}@github.com".insteadOf "https://github.com"
 
       - name: Set up Go release
-        if: matrix.go-version != 'tip'
+        if: matrix.go.version != 'tip'
         env:
           # to avoid error due to `go version` accepting -v flag with an argument since 1.15
           GOFLAGS: ""
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ matrix.go.version }}
 
       - name: Set up Go tip
-        if: matrix.go-version == 'tip'
+        if: matrix.go.version == 'tip'
         env:
           # to avoid error due to `go version` accepting -v flag with an argument since 1.15
           GOFLAGS: ""
@@ -58,17 +60,17 @@ jobs:
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          key: ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+            ${{ matrix.os }}-go-${{ matrix.go.version }}-modules-
       - name: Enable Go build cache
         uses: percona-platform/cache@v2
         with:
           path: ~/.cache/go-build
-          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-${{ hashFiles('**') }}
+          key: ${{ matrix.os }}-go-${{ matrix.go.version }}-build-${{ github.ref }}-${{ hashFiles('**') }}
           restore-keys: |
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-build-
+            ${{ matrix.os }}-go-${{ matrix.go.version }}-build-${{ github.ref }}-
+            ${{ matrix.os }}-go-${{ matrix.go.version }}-build-
       - name: Clean Go modules cache
         run: go clean -modcache
 

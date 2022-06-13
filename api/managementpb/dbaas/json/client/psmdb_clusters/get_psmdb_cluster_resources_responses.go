@@ -59,12 +59,12 @@ type GetPSMDBClusterResourcesOK struct {
 func (o *GetPSMDBClusterResourcesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] getPsmdbClusterResourcesOk  %+v", 200, o.Payload)
 }
+
 func (o *GetPSMDBClusterResourcesOK) GetPayload() *GetPSMDBClusterResourcesOKBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterResourcesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetPSMDBClusterResourcesOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetPSMDBClusterResourcesDefault) Code() int {
 func (o *GetPSMDBClusterResourcesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] GetPSMDBClusterResources default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetPSMDBClusterResourcesDefault) GetPayload() *GetPSMDBClusterResourcesDefaultBody {
 	return o.Payload
 }
 
 func (o *GetPSMDBClusterResourcesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetPSMDBClusterResourcesDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *GetPSMDBClusterResourcesDefault) readResponse(response runtime.ClientRe
 swagger:model GetPSMDBClusterResourcesBody
 */
 type GetPSMDBClusterResourcesBody struct {
-
 	// params
 	Params *GetPSMDBClusterResourcesParamsBodyParams `json:"params,omitempty"`
 }
@@ -173,7 +172,6 @@ func (o *GetPSMDBClusterResourcesBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *GetPSMDBClusterResourcesBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -210,10 +208,6 @@ func (o *GetPSMDBClusterResourcesBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterResourcesDefaultBody
 */
 type GetPSMDBClusterResourcesDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -279,9 +273,7 @@ func (o *GetPSMDBClusterResourcesDefaultBody) ContextValidate(ctx context.Contex
 }
 
 func (o *GetPSMDBClusterResourcesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -292,7 +284,6 @@ func (o *GetPSMDBClusterResourcesDefaultBody) contextValidateDetails(ctx context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -320,13 +311,8 @@ func (o *GetPSMDBClusterResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterResourcesDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterResourcesDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster resources default body details items0
@@ -361,7 +347,6 @@ func (o *GetPSMDBClusterResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 swagger:model GetPSMDBClusterResourcesOKBody
 */
 type GetPSMDBClusterResourcesOKBody struct {
-
 	// expected
 	Expected *GetPSMDBClusterResourcesOKBodyExpected `json:"expected,omitempty"`
 }
@@ -414,7 +399,6 @@ func (o *GetPSMDBClusterResourcesOKBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetPSMDBClusterResourcesOKBody) contextValidateExpected(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Expected != nil {
 		if err := o.Expected.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -451,7 +435,6 @@ func (o *GetPSMDBClusterResourcesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterResourcesOKBodyExpected
 */
 type GetPSMDBClusterResourcesOKBodyExpected struct {
-
 	// Memory in bytes.
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 
@@ -495,7 +478,6 @@ func (o *GetPSMDBClusterResourcesOKBodyExpected) UnmarshalBinary(b []byte) error
 swagger:model GetPSMDBClusterResourcesParamsBodyParams
 */
 type GetPSMDBClusterResourcesParamsBodyParams struct {
-
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -554,7 +536,6 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) ContextValidate(ctx context.C
 }
 
 func (o *GetPSMDBClusterResourcesParamsBodyParams) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Replicaset != nil {
 		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -592,7 +573,6 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) UnmarshalBinary(b []byte) err
 swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicaset
 */
 type GetPSMDBClusterResourcesParamsBodyParamsReplicaset struct {
-
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -648,7 +628,6 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) ContextValidate(ctx
 }
 
 func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -685,7 +664,6 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) UnmarshalBinary(b [
 swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources
 */
 type GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources struct {
-
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

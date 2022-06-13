@@ -61,12 +61,12 @@ type ToggleAlertsOK struct {
 func (o *ToggleAlertsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] toggleAlertsOk  %+v", 200, o.Payload)
 }
+
 func (o *ToggleAlertsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ToggleAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *ToggleAlertsDefault) Code() int {
 func (o *ToggleAlertsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Alerts/Toggle][%d] ToggleAlerts default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ToggleAlertsDefault) GetPayload() *ToggleAlertsDefaultBody {
 	return o.Payload
 }
 
 func (o *ToggleAlertsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ToggleAlertsDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *ToggleAlertsDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model ToggleAlertsBody
 */
 type ToggleAlertsBody struct {
-
 	// List of alerts that silence state should be switched. If provided array is empty than all
 	// existing alerts are switched.
 	AlertIds []string `json:"alert_ids"`
@@ -221,10 +220,6 @@ func (o *ToggleAlertsBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleAlertsDefaultBody
 */
 type ToggleAlertsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -290,9 +285,7 @@ func (o *ToggleAlertsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ToggleAlertsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -303,7 +296,6 @@ func (o *ToggleAlertsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -331,13 +323,8 @@ func (o *ToggleAlertsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleAlertsDefaultBodyDetailsItems0
 */
 type ToggleAlertsDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this toggle alerts default body details items0

@@ -81,8 +81,8 @@ func FullInfo() string {
 	return strings.Join(res, "\n")
 }
 
-// FullInfoJson returns version information in JSON format.
-func FullInfoJson() string {
+// FullInfoJSON returns version information in JSON format.
+func FullInfoJSON() string {
 	resMap := map[string]string{
 		"ProjectName": ProjectName,
 		"Version":     Version,
@@ -94,9 +94,9 @@ func FullInfoJson() string {
 		resMap["Branch"] = Branch
 	}
 
-	resJson, err := json.Marshal(resMap)
+	bytes, err := json.Marshal(resMap)
 	if err != nil {
 		panic(err)
 	}
-	return string(resJson)
+	return string(bytes)
 }

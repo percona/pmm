@@ -18,8 +18,11 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *Alert) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
@@ -40,6 +43,7 @@ func (this *Alert) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertsRequest) Validate() error {
 	if this.PageParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
@@ -48,6 +52,7 @@ func (this *ListAlertsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertsResponse) Validate() error {
 	for _, item := range this.Alerts {
 		if item != nil {
@@ -63,9 +68,11 @@ func (this *ListAlertsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ToggleAlertsRequest) Validate() error {
 	return nil
 }
+
 func (this *ToggleAlertsResponse) Validate() error {
 	return nil
 }

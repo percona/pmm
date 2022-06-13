@@ -8,19 +8,23 @@ import (
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *Component) Validate() error {
 	return nil
 }
+
 func (this *Matrix) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
@@ -32,6 +36,7 @@ func (this *Matrix) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *OperatorVersion) Validate() error {
 	if this.Matrix != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Matrix); err != nil {
@@ -40,9 +45,11 @@ func (this *OperatorVersion) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPSMDBComponentsRequest) Validate() error {
 	return nil
 }
+
 func (this *GetPSMDBComponentsResponse) Validate() error {
 	for _, item := range this.Versions {
 		if item != nil {
@@ -53,9 +60,11 @@ func (this *GetPSMDBComponentsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPXCComponentsRequest) Validate() error {
 	return nil
 }
+
 func (this *GetPXCComponentsResponse) Validate() error {
 	for _, item := range this.Versions {
 		if item != nil {
@@ -66,6 +75,7 @@ func (this *GetPXCComponentsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeComponent) Validate() error {
 	for _, item := range this.Versions {
 		if item != nil {
@@ -76,12 +86,14 @@ func (this *ChangeComponent) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeComponent_ComponentVersion) Validate() error {
 	if this.Version == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Version", fmt.Errorf(`value '%v' must not be an empty string`, this.Version))
 	}
 	return nil
 }
+
 func (this *ChangePSMDBComponentsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -93,9 +105,11 @@ func (this *ChangePSMDBComponentsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangePSMDBComponentsResponse) Validate() error {
 	return nil
 }
+
 func (this *ChangePXCComponentsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -117,9 +131,11 @@ func (this *ChangePXCComponentsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangePXCComponentsResponse) Validate() error {
 	return nil
 }
+
 func (this *InstallOperatorRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -132,19 +148,24 @@ func (this *InstallOperatorRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *InstallOperatorResponse) Validate() error {
 	return nil
 }
+
 func (this *CheckForOperatorUpdateRequest) Validate() error {
 	return nil
 }
+
 func (this *ComponentUpdateInformation) Validate() error {
 	return nil
 }
+
 func (this *ComponentsUpdateInformation) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *CheckForOperatorUpdateResponse) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil

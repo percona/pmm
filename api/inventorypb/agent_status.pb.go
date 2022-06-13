@@ -126,10 +126,13 @@ func file_inventorypb_agent_status_proto_rawDescGZIP() []byte {
 	return file_inventorypb_agent_status_proto_rawDescData
 }
 
-var file_inventorypb_agent_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_inventorypb_agent_status_proto_goTypes = []interface{}{
-	(AgentStatus)(0), // 0: inventory.AgentStatus
-}
+var (
+	file_inventorypb_agent_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_inventorypb_agent_status_proto_goTypes   = []interface{}{
+		(AgentStatus)(0), // 0: inventory.AgentStatus
+	}
+)
+
 var file_inventorypb_agent_status_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

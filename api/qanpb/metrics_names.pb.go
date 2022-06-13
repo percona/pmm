@@ -162,12 +162,15 @@ func file_qanpb_metrics_names_proto_rawDescGZIP() []byte {
 	return file_qanpb_metrics_names_proto_rawDescData
 }
 
-var file_qanpb_metrics_names_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_qanpb_metrics_names_proto_goTypes = []interface{}{
-	(*MetricsNamesRequest)(nil), // 0: qan.v1beta1.MetricsNamesRequest
-	(*MetricsNamesReply)(nil),   // 1: qan.v1beta1.MetricsNamesReply
-	nil,                         // 2: qan.v1beta1.MetricsNamesReply.DataEntry
-}
+var (
+	file_qanpb_metrics_names_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_qanpb_metrics_names_proto_goTypes  = []interface{}{
+		(*MetricsNamesRequest)(nil), // 0: qan.v1beta1.MetricsNamesRequest
+		(*MetricsNamesReply)(nil),   // 1: qan.v1beta1.MetricsNamesReply
+		nil,                         // 2: qan.v1beta1.MetricsNamesReply.DataEntry
+	}
+)
+
 var file_qanpb_metrics_names_proto_depIdxs = []int32{
 	2, // 0: qan.v1beta1.MetricsNamesReply.data:type_name -> qan.v1beta1.MetricsNamesReply.DataEntry
 	0, // 1: qan.v1beta1.MetricsNames.GetMetricsNames:input_type -> qan.v1beta1.MetricsNamesRequest

@@ -15,8 +15,11 @@ import (
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *FiltersRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
@@ -38,10 +41,12 @@ func (this *FiltersRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *FiltersReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *ListLabels) Validate() error {
 	for _, item := range this.Name {
 		if item != nil {
@@ -52,6 +57,7 @@ func (this *ListLabels) Validate() error {
 	}
 	return nil
 }
+
 func (this *Values) Validate() error {
 	return nil
 }

@@ -8,15 +8,18 @@ import (
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+
+var (
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *PSMDBClusterParams) Validate() error {
 	if this.Replicaset != nil {
@@ -26,6 +29,7 @@ func (this *PSMDBClusterParams) Validate() error {
 	}
 	return nil
 }
+
 func (this *PSMDBClusterParams_ReplicaSet) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -34,6 +38,7 @@ func (this *PSMDBClusterParams_ReplicaSet) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPSMDBClusterCredentialsRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -43,6 +48,7 @@ func (this *GetPSMDBClusterCredentialsRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPSMDBClusterCredentialsResponse) Validate() error {
 	if this.ConnectionCredentials != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ConnectionCredentials); err != nil {
@@ -51,6 +57,7 @@ func (this *GetPSMDBClusterCredentialsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPSMDBClusterCredentialsResponse_PSMDBCredentials) Validate() error {
 	return nil
 }
@@ -65,9 +72,11 @@ func (this *CreatePSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreatePSMDBClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *UpdatePSMDBClusterRequest) Validate() error {
 	if this.KubernetesClusterName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
@@ -82,6 +91,7 @@ func (this *UpdatePSMDBClusterRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) Validate() error {
 	if this.Replicaset != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Replicaset); err != nil {
@@ -90,6 +100,7 @@ func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) Validate() error
 	}
 	return nil
 }
+
 func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) Validate() error {
 	if this.ComputeResources != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ComputeResources); err != nil {
@@ -98,9 +109,11 @@ func (this *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) Valid
 	}
 	return nil
 }
+
 func (this *UpdatePSMDBClusterResponse) Validate() error {
 	return nil
 }
+
 func (this *GetPSMDBClusterResourcesRequest) Validate() error {
 	if this.Params != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
@@ -109,6 +122,7 @@ func (this *GetPSMDBClusterResourcesRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetPSMDBClusterResourcesResponse) Validate() error {
 	if this.Expected != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Expected); err != nil {

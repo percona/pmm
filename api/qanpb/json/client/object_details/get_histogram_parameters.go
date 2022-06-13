@@ -58,7 +58,6 @@ func NewGetHistogramParamsWithHTTPClient(client *http.Client) *GetHistogramParam
    Typically these are written to a http.Request.
 */
 type GetHistogramParams struct {
-
 	// Body.
 	Body GetHistogramBody
 
@@ -128,7 +127,6 @@ func (o *GetHistogramParams) SetBody(body GetHistogramBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetHistogramParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

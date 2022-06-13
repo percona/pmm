@@ -58,7 +58,6 @@ func NewServerInfoParamsWithHTTPClient(client *http.Client) *ServerInfoParams {
    Typically these are written to a http.Request.
 */
 type ServerInfoParams struct {
-
 	// Body.
 	Body interface{}
 
@@ -128,7 +127,6 @@ func (o *ServerInfoParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ServerInfoParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

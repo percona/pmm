@@ -61,12 +61,12 @@ type ChangeQANPostgreSQLPgStatMonitorAgentOK struct {
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent][%d] changeQanPostgreSqlPgStatMonitorAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentOK) GetPayload() *ChangeQANPostgreSQLPgStatMonitorAgentOKBody {
 	return o.Payload
 }
 
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANPostgreSQLPgStatMonitorAgentOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) Code() int {
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent][%d] ChangeQANPostgreSQLPgStatMonitorAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) GetPayload() *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response run
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) ContextValidate(ctx context.
 }
 
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,10 +213,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) UnmarshalBinary(b []byte) er
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,9 +278,7 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) ContextValidate(ctx c
 }
 
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +289,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) contextValidateDetail
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,13 +316,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []b
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg stat monitor agent default body details items0
@@ -366,7 +352,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) Unmarsha
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBody struct {
-
 	// qan postgresql pgstatmonitor agent
 	QANPostgresqlPgstatmonitorAgent *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 }
@@ -419,7 +404,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) ContextValidate(ctx contex
 }
 
 func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 		if err := o.QANPostgresqlPgstatmonitorAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +440,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) UnmarshalBinary(b []byte) 
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -597,7 +580,6 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAg
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 
