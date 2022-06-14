@@ -71,7 +71,7 @@ The [PMM Client Docker image] is a convenient way to run PMM Client as a preconf
     -e PMM_AGENT_SERVER_PASSWORD=admin \
     -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
     -e PMM_AGENT_SETUP=1 \
-    -e PMM_AGENT_CONFIG_FILE=pmm-agent.yml \
+    -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
     --volumes-from pmm-client-data \
     percona/pmm-client:2
     ```
