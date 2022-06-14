@@ -369,7 +369,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 	}
 
 	t.Run("All", func(t *testing.T) {
-		cs := &componentsService{}
+		cs := &ComponentsService{}
 		m := cs.matrix(input, nil, nil)
 
 		expected := map[string]*dbaasv1beta1.Component{
@@ -391,7 +391,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 	})
 
 	t.Run("Disabled and Default Components", func(t *testing.T) {
-		cs := &componentsService{}
+		cs := &ComponentsService{}
 
 		m := cs.matrix(input, nil, &models.Component{
 			DisabledVersions: []string{"8.0.20-11.2", "8.0.20-11.1"},
@@ -417,7 +417,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 	})
 
 	t.Run("Skip unsupported Components", func(t *testing.T) {
-		cs := &componentsService{}
+		cs := &ComponentsService{}
 
 		minimumSupportedVersion, err := goversion.NewVersion("8.0.0")
 		require.NoError(t, err)
@@ -437,7 +437,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 	})
 
 	t.Run("EmptyMatrix", func(t *testing.T) {
-		cs := &componentsService{}
+		cs := &ComponentsService{}
 		m := cs.matrix(make(map[string]componentVersion), nil, nil)
 		assert.Equal(t, make(map[string]*dbaasv1beta1.Component), m)
 	})
@@ -445,7 +445,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 
 func TestFilteringOutOfUnsupportedVersions(t *testing.T) {
 	t.Parallel()
-	c := &componentsService{
+	c := &ComponentsService{
 		l:                    logrus.WithField("component", "components_service"),
 		versionServiceClient: NewVersionServiceClient(versionServiceURL),
 	}

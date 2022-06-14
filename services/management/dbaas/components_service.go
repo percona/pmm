@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm-managed/utils/stringset"
 )
 
-type componentsService struct {
+type ComponentsService struct {
 	l                    *logrus.Entry
 	db                   *reform.DB
 	dbaasClient          dbaasClient
@@ -51,9 +51,9 @@ type installedComponentsVersion struct {
 }
 
 // NewComponentsService creates Components Service.
-func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) dbaasv1beta1.ComponentsServer {
+func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
-	return &componentsService{
+	return &ComponentsService{
 		l:                    l,
 		db:                   db,
 		dbaasClient:          dbaasClient,
@@ -62,7 +62,7 @@ func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionService
 }
 
 // Enabled returns if service is enabled and can be used.
-func (c *componentsService) Enabled() bool {
+func (c *ComponentsService) Enabled() bool {
 	settings, err := models.GetSettings(c.db)
 	if err != nil {
 		c.l.WithError(err).Error("can't get settings")
@@ -71,7 +71,7 @@ func (c *componentsService) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
-func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
+func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
 		product:   psmdbOperator,
@@ -99,7 +99,7 @@ func (c componentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 	return &dbaasv1beta1.GetPSMDBComponentsResponse{Versions: versions}, nil
 }
 
-func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error) {
+func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
 		product:   pxcOperator,
@@ -127,7 +127,7 @@ func (c componentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
-func (c componentsService) ChangePSMDBComponents(ctx context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
+func (c ComponentsService) ChangePSMDBComponents(ctx context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
 		if e != nil {
@@ -156,7 +156,7 @@ func (c componentsService) ChangePSMDBComponents(ctx context.Context, req *dbaas
 	return &dbaasv1beta1.ChangePSMDBComponentsResponse{}, nil
 }
 
-func (c componentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
+func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
 		if e != nil {
@@ -200,7 +200,7 @@ func (c componentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 	return &dbaasv1beta1.ChangePXCComponentsResponse{}, nil
 }
 
-func (c componentsService) installedOperatorsVersion(ctx context.Context, wg *sync.WaitGroup, responseCh chan installedComponentsVersion, kuberentesCluster *models.KubernetesCluster) {
+func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sync.WaitGroup, responseCh chan installedComponentsVersion, kuberentesCluster *models.KubernetesCluster) {
 	defer wg.Done()
 	resp, err := c.dbaasClient.CheckKubernetesClusterConnection(ctx, kuberentesCluster.KubeConfig)
 	if err != nil {
@@ -217,7 +217,7 @@ func (c componentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	}
 }
 
-func (c componentsService) CheckForOperatorUpdate(ctx context.Context, req *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error) {
+func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, req *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error) {
 	if pmmversion.PMMVersion == "" {
 		return nil, status.Error(codes.Internal, "failed to get current PMM version")
 	}
@@ -293,7 +293,7 @@ func (c componentsService) CheckForOperatorUpdate(ctx context.Context, req *dbaa
 	return resp, nil
 }
 
-func (c componentsService) versions(ctx context.Context, params componentsParams, cluster *models.KubernetesCluster) ([]*dbaasv1beta1.OperatorVersion, error) {
+func (c ComponentsService) versions(ctx context.Context, params componentsParams, cluster *models.KubernetesCluster) ([]*dbaasv1beta1.OperatorVersion, error) {
 	components, err := c.versionServiceClient.Matrix(ctx, params)
 	if err != nil {
 		return nil, err
@@ -331,7 +331,7 @@ func (c componentsService) versions(ctx context.Context, params componentsParams
 	return versions, nil
 }
 
-func (c componentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.Component) map[string]*dbaasv1beta1.Component {
+func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.Component) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
@@ -405,7 +405,7 @@ func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*mode
 	return kc, nil
 }
 
-func (c componentsService) InstallOperator(ctx context.Context, req *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error) {
+func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -457,4 +457,25 @@ func (c componentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	}
 
 	return &dbaasv1beta1.InstallOperatorResponse{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK}, nil
+}
+
+// DefaultComponent returns the component marked as default in the components list.
+func DefaultComponent(m map[string]*dbaasv1beta1.Component) (*dbaasv1beta1.Component, error) {
+	if len(m) == 0 {
+		return nil, errNoVersionsFound
+	}
+
+	for _, component := range m {
+		if component.Default {
+			return &dbaasv1beta1.Component{
+					ImagePath: component.ImagePath,
+					ImageHash: component.ImageHash,
+					Status:    component.Status,
+					Critical:  component.Critical,
+				},
+				nil
+		}
+	}
+
+	return nil, errors.New("cannot find a default version in the components list")
 }

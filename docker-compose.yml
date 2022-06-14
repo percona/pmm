@@ -5,6 +5,8 @@ services:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
     container_name: pmm-managed-server
     hostname: pmm-managed-server
+    networks:
+      - ${NETWORK:-default}
     environment:
       - PATH=/root/go/bin:$PATH
       - GO_VERSION=${GO_VERSION:-1.18.x}
@@ -54,3 +56,8 @@ services:
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
 volumes:
   go-modules:
+
+networks:
+  minikube:
+    external:
+      name: minikube

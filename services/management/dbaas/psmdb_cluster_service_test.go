@@ -72,7 +72,9 @@ const psmdbKubeconfTest = `
 const psmdbKubernetesClusterNameTest = "test-k8s-cluster-name"
 
 func TestPSMDBClusterService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ctx context.Context, db *reform.DB, dbaasClient *mockDbaasClient, grafanaClient *mockGrafanaClient,
+		componentsService *mockComponentsService, teardown func(t *testing.T),
+	) {
 		t.Helper()
 
 		ctx = logger.Set(context.Background(), t.Name())
@@ -82,6 +84,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		dbaasClient = &mockDbaasClient{}
 		grafanaClient = &mockGrafanaClient{}
+		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
 			uuid.SetRand(nil)
@@ -92,7 +95,7 @@ func TestPSMDBClusterService(t *testing.T) {
 		return
 	}
 
-	ctx, db, dbaasClient, grafanaClient, teardown := setup(t)
+	ctx, db, dbaasClient, grafanaClient, componentsService, teardown := setup(t)
 	defer teardown(t)
 
 	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient(versionServiceURL))
@@ -115,7 +118,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: psmdbKubeconfTest,
@@ -131,6 +134,7 @@ func TestPSMDBClusterService(t *testing.T) {
 					DiskSize: 1024 * 1024 * 1024,
 				},
 				VersionServiceUrl: versionService.GetVersionServiceURL(),
+				Image:             "path",
 			},
 		}
 
@@ -148,7 +152,60 @@ func TestPSMDBClusterService(t *testing.T) {
 					},
 					DiskSize: 1024 * 1024 * 1024,
 				},
+				Image: "path",
 			},
+		}
+
+		_, err := s.CreatePSMDBCluster(ctx, &in)
+		assert.NoError(t, err)
+	})
+
+	// Pass the minimum parameters to use the defaults set by the fillDefaults function
+	t.Run("CreatePSMDBClustersMinimumParams", func(t *testing.T) {
+		dbaasClient.On("CreatePSMDBCluster", ctx, mock.Anything).Return(&controllerv1beta1.CreatePSMDBClusterResponse{}, nil)
+
+		psmdbComponents := &dbaasv1beta1.GetPSMDBComponentsResponse{
+			Versions: []*dbaasv1beta1.OperatorVersion{
+				{
+					Product:  "psmdb-operator",
+					Operator: "1.11.0",
+					Matrix: &dbaasv1beta1.Matrix{
+						Mongod: map[string]*dbaasv1beta1.Component{
+							"4.2.11-12": {
+								ImagePath: "percona/percona-server-mongodb:4.2.11-12",
+								ImageHash: "1909cb7a6ecea9bf0535b54aa86b9ae74ba2fa303c55cf4a1a54262fb0edbd3c",
+								Status:    "available",
+								Critical:  false,
+								Default:   false,
+								Disabled:  false,
+							},
+							"4.2.12-13": {
+								ImagePath: "percona/percona-server-mongodb:4.2.12-13",
+								ImageHash: "dda89e647ea5aa1266055ef465d66a139722d9e3f78a839a90a9f081b09ce26d",
+								Status:    "available",
+								Critical:  false,
+								Default:   false,
+								Disabled:  false,
+							},
+							"4.2.17-17": {
+								ImagePath: "percona/percona-server-mongodb:4.2.17-17",
+								ImageHash: "dde894b50568e088b28767ff18cfbdfe6b2496f12eddb14743d3d33c105e3f01",
+								Status:    "recommended",
+								Critical:  false,
+								Default:   true,
+								Disabled:  false,
+							},
+						},
+					},
+				},
+			},
+		}
+		componentsService.On("GetPSMDBComponents", ctx, mock.Anything).Return(psmdbComponents, nil)
+
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+
+		in := dbaasv1beta1.CreatePSMDBClusterRequest{
+			KubernetesClusterName: psmdbKubernetesClusterNameTest,
 		}
 
 		_, err := s.CreatePSMDBCluster(ctx, &in)
@@ -157,7 +214,7 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicUpdatePSMDBCluster", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 		mockReq := controllerv1beta1.UpdatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: psmdbKubeconfTest,
@@ -195,7 +252,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentials", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -226,7 +283,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterCredentialsWithHost", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 		name := "another-third-psmdb-test"
 
 		mockReq := controllerv1beta1.GetPSMDBClusterCredentialsRequest{
@@ -255,7 +312,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicGetPSMDBClusterResources", func(t *testing.T) {
-		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
 
 		in := dbaasv1beta1.GetPSMDBClusterResourcesRequest{
 			Params: &dbaasv1beta1.PSMDBClusterParams{

@@ -22,12 +22,14 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"google.golang.org/grpc"
 )
 
 //go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
 //go:generate mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
@@ -95,4 +97,13 @@ type grafanaClient interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
 	DeleteAPIKeysWithPrefix(ctx context.Context, name string) error
 	DeleteAPIKeyByID(ctx context.Context, id int64) error
+}
+
+type componentsService interface {
+	GetPSMDBComponents(context.Context, *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error)
+	GetPXCComponents(context.Context, *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error)
+	ChangePSMDBComponents(context.Context, *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error)
+	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
+	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
+	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }

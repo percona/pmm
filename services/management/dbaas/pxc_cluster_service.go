@@ -21,6 +21,8 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"regexp"
+	"strings"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -33,26 +35,41 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+const (
+	pxcDefaultClusterSize   = 3
+	pxcDefaultCPUM          = 1000
+	pxcDefaultMemoryBytes   = 2000000000
+	pxcDefaultDiskSize      = 25000000000
+	proxyDefaultCpuM        = 1000
+	proxyDefaultMemoryBytes = 2000000000
+)
+
+var errInvalidClusterName = errors.New("invalid cluster name. It must start with a letter and have only letters, numbers and -")
+
 // PXCClustersService implements PXCClusterServer methods.
 type PXCClustersService struct {
-	db                   *reform.DB
-	l                    *logrus.Entry
-	controllerClient     dbaasClient
-	grafanaClient        grafanaClient
-	versionServiceClient versionService
+	db                *reform.DB
+	l                 *logrus.Entry
+	controllerClient  dbaasClient
+	grafanaClient     grafanaClient
+	componentsService componentsService
+	versionServiceURL string
 
 	dbaasv1beta1.UnimplementedPXCClustersServer
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient, versionServiceClient versionService) dbaasv1beta1.PXCClustersServer {
+func NewPXCClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient,
+	componentsService componentsService, versionServiceURL string,
+) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
 	return &PXCClustersService{
-		db:                   db,
-		l:                    l,
-		controllerClient:     controllerClient,
-		grafanaClient:        grafanaClient,
-		versionServiceClient: versionServiceClient,
+		db:                db,
+		l:                 l,
+		controllerClient:  controllerClient,
+		grafanaClient:     grafanaClient,
+		versionServiceURL: versionServiceURL,
+		componentsService: componentsService,
 	}
 }
 
@@ -93,17 +110,24 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1beta1.CreatePXCClusterRequest) (*dbaasv1beta1.CreatePXCClusterResponse, error) {
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
-		return nil, err
+		return nil, errInvalidClusterName
 	}
 
+	if req.Params == nil {
+		req.Params = &dbaasv1beta1.PXCClusterParams{}
+	}
 	// Check if one and only one of proxies is set.
-	if (req.Params.Proxysql != nil) == (req.Params.Haproxy != nil) {
+	if req.Params.Proxysql != nil && req.Params.Haproxy != nil {
 		return nil, errors.New("pxc cluster must have one and only one proxy type defined")
 	}
 
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
+	}
+
+	if err := s.fillDefaults(ctx, kubernetesCluster, req); err != nil {
+		return nil, errors.Wrap(err, "cannot create pxc cluster")
 	}
 
 	var pmmParams *dbaascontrollerv1beta1.PMMParams
@@ -135,10 +159,11 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{},
 				DiskSize:         req.Params.Pxc.DiskSize,
 			},
-			VersionServiceUrl: s.versionServiceClient.GetVersionServiceURL(),
+			VersionServiceUrl: s.versionServiceURL,
 		},
 		Expose: req.Expose,
 	}
+
 	if req.Params.Proxysql != nil {
 		in.Params.Proxysql = &dbaascontrollerv1beta1.PXCClusterParams_ProxySQL{
 			Image:            req.Params.Proxysql.Image,
@@ -183,6 +208,117 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	}
 
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
+}
+
+func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster *models.KubernetesCluster,
+	req *dbaasv1beta1.CreatePXCClusterRequest,
+) error {
+	if req.Name != "" {
+		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
+		if !r.MatchString(req.Name) {
+			return errInvalidClusterName
+		}
+	}
+	if req.Params == nil {
+		req.Params = &dbaasv1beta1.PXCClusterParams{}
+	}
+
+	if req.Params.ClusterSize < 1 {
+		req.Params.ClusterSize = pxcDefaultClusterSize
+	}
+
+	if req.Params.Pxc == nil {
+		req.Params.Pxc = &dbaasv1beta1.PXCClusterParams_PXC{}
+	}
+
+	if req.Params.Pxc.DiskSize == 0 {
+		req.Params.Pxc.DiskSize = pxcDefaultDiskSize
+	}
+
+	if req.Params.Pxc.ComputeResources == nil {
+		req.Params.Pxc.ComputeResources = &dbaasv1beta1.ComputeResources{
+			CpuM:        pxcDefaultCPUM,
+			MemoryBytes: pxcDefaultMemoryBytes,
+		}
+	}
+	if req.Params.Pxc.ComputeResources.CpuM == 0 {
+		req.Params.Pxc.ComputeResources.CpuM = pxcDefaultCPUM
+	}
+	if req.Params.Pxc.ComputeResources.MemoryBytes == 0 {
+		req.Params.Pxc.ComputeResources.MemoryBytes = pxcDefaultMemoryBytes
+	}
+
+	// If none of them was specified, use HAProxy by default.
+	if req.Params.Proxysql == nil && req.Params.Haproxy == nil {
+		req.Params.Haproxy = &dbaasv1beta1.PXCClusterParams_HAProxy{
+			ComputeResources: &dbaasv1beta1.ComputeResources{
+				CpuM:        proxyDefaultCpuM,
+				MemoryBytes: proxyDefaultMemoryBytes,
+			},
+		}
+	}
+
+	if req.Params.Haproxy != nil {
+		if req.Params.Haproxy.ComputeResources == nil {
+			req.Params.Haproxy.ComputeResources = &dbaasv1beta1.ComputeResources{
+				CpuM:        proxyDefaultCpuM,
+				MemoryBytes: proxyDefaultMemoryBytes,
+			}
+		}
+		if req.Params.Haproxy.ComputeResources.CpuM == 0 {
+			req.Params.Haproxy.ComputeResources.CpuM = proxyDefaultCpuM
+		}
+		if req.Params.Haproxy.ComputeResources.MemoryBytes == 0 {
+			req.Params.Haproxy.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
+		}
+	}
+
+	if req.Params.Proxysql != nil {
+		if req.Params.Proxysql.ComputeResources == nil {
+			req.Params.Proxysql.ComputeResources = &dbaasv1beta1.ComputeResources{
+				CpuM:        proxyDefaultCpuM,
+				MemoryBytes: proxyDefaultMemoryBytes,
+			}
+		}
+		if req.Params.Proxysql.ComputeResources.CpuM == 0 {
+			req.Params.Proxysql.ComputeResources.CpuM = proxyDefaultCpuM
+		}
+		if req.Params.Proxysql.ComputeResources.MemoryBytes == 0 {
+			req.Params.Proxysql.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
+		}
+	}
+
+	// Only call the version service if it is really needed.
+	if req.Name == "" || req.Params.Pxc.Image == "" {
+		pxcComponents, err := s.componentsService.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
+			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+		})
+		if err != nil {
+			return errors.New("cannot get the list of PXC components")
+		}
+
+		component, err := DefaultComponent(pxcComponents.Versions[0].Matrix.Pxc)
+		if err != nil {
+			return errors.Wrap(err, "cannot get the recommended PXC image name")
+		}
+
+		if req.Params.Pxc.Image == "" {
+			req.Params.Pxc.Image = component.ImagePath
+		}
+
+		if req.Name == "" {
+			// Image is a string like this: percona/percona-server-mongodb:4.2.12-13
+			// We need only the version part to build the cluster name.
+			parts := strings.Split(req.Params.Pxc.Image, ":")
+			req.Name = fmt.Sprintf("pxc-%s-%04d", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), rand.Int63n(9999))
+			if len(req.Name) > 22 { // Kubernetes limitation
+				req.Name = req.Name[:21]
+			}
+		}
+
+	}
+
+	return nil
 }
 
 // UpdatePXCCluster updates PXC cluster.

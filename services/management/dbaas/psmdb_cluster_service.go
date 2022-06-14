@@ -20,9 +20,13 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"regexp"
+	"strings"
 
+	"github.com/google/uuid"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,26 +35,37 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+const (
+	psmdbDefaultClusterSize = 3
+	psmdbDefaultCPUM        = 1000
+	psmdbDefaultMemoryBytes = 2000000000
+	psmdbDefaultDiskSize    = 25000000000
+)
+
 // PSMDBClusterService implements PSMDBClusterServer methods.
 type PSMDBClusterService struct {
-	db                   *reform.DB
-	l                    *logrus.Entry
-	controllerClient     dbaasClient
-	grafanaClient        grafanaClient
-	versionServiceClient versionService
+	db                *reform.DB
+	l                 *logrus.Entry
+	controllerClient  dbaasClient
+	grafanaClient     grafanaClient
+	componentsService componentsService
+	versionServiceURL string
 
 	dbaasv1beta1.UnimplementedPSMDBClustersServer
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionServiceClient versionService) dbaasv1beta1.PSMDBClustersServer {
+func NewPSMDBClusterService(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient,
+	componentsService componentsService, versionServiceURL string,
+) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
 	return &PSMDBClusterService{
-		db:                   db,
-		l:                    l,
-		controllerClient:     dbaasClient,
-		grafanaClient:        grafanaClient,
-		versionServiceClient: versionServiceClient,
+		db:                db,
+		l:                 l,
+		controllerClient:  dbaasClient,
+		grafanaClient:     grafanaClient,
+		componentsService: componentsService,
+		versionServiceURL: versionServiceURL,
 	}
 }
 
@@ -109,6 +124,10 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
+	if err := s.fillDefaults(ctx, kubernetesCluster, req); err != nil {
+		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
+	}
+
 	var pmmParams *dbaascontrollerv1beta1.PMMParams
 	var apiKeyID int64
 	if settings.PMMPublicAddress != "" {
@@ -140,7 +159,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 				},
 				DiskSize: req.Params.Replicaset.DiskSize,
 			},
-			VersionServiceUrl: s.versionServiceClient.GetVersionServiceURL(),
+			VersionServiceUrl: s.versionServiceURL,
 		},
 		Pmm:    pmmParams,
 		Expose: req.Expose,
@@ -160,8 +179,82 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
 }
 
+func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster *models.KubernetesCluster,
+	req *dbaasv1beta1.CreatePSMDBClusterRequest,
+) error {
+	if req.Name != "" {
+		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
+		if !r.MatchString(req.Name) {
+			return errInvalidClusterName
+		}
+	}
+	if req.Params == nil {
+		req.Params = &dbaasv1beta1.PSMDBClusterParams{}
+	}
+
+	if req.Params.ClusterSize < 1 {
+		req.Params.ClusterSize = psmdbDefaultClusterSize
+	}
+
+	if req.Params.Replicaset == nil {
+		req.Params.Replicaset = &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{}
+	}
+
+	if req.Params.Replicaset.DiskSize == 0 {
+		req.Params.Replicaset.DiskSize = psmdbDefaultDiskSize
+	}
+
+	if req.Params.Replicaset.ComputeResources == nil {
+		req.Params.Replicaset.ComputeResources = &dbaasv1beta1.ComputeResources{
+			CpuM:        psmdbDefaultCPUM,
+			MemoryBytes: psmdbDefaultMemoryBytes,
+		}
+	}
+	if req.Params.Replicaset.ComputeResources.CpuM == 0 {
+		req.Params.Replicaset.ComputeResources.CpuM = psmdbDefaultCPUM
+	}
+	if req.Params.Replicaset.ComputeResources.MemoryBytes == 0 {
+		req.Params.Replicaset.ComputeResources.MemoryBytes = psmdbDefaultMemoryBytes
+	}
+
+	// Only call the version service if it is really needed.
+	if req.Name == "" || req.Params.Image == "" {
+		psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
+			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+		})
+		if err != nil {
+			return errors.New("cannot get the list of PXC components")
+		}
+
+		component, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
+		if err != nil {
+			return errors.Wrap(err, "cannot get the recommended MongoDB image name")
+		}
+
+		if req.Params.Image == "" {
+			req.Params.Image = component.ImagePath
+		}
+
+		if req.Name == "" {
+			// Image is a string like this: percona/percona-server-mongodb:4.2.12-13
+			// We need only the version part to build the cluster name.
+			parts := strings.Split(req.Params.Image, ":")
+
+			// This is to generate an unique name.
+			uuids := strings.Replace(uuid.New().String(), "-", "", -1)
+			uuids = uuids[len(uuids)-5:]
+
+			req.Name = fmt.Sprintf("psmdb-%s-%s", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), uuids)
+			if len(req.Name) > 22 { // Kubernetes limitation
+				req.Name = req.Name[:21]
+			}
+		}
+	}
+
+	return nil
+}
+
 // UpdatePSMDBCluster updates PSMDB cluster.
-//nolint:dupl
 func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv1beta1.UpdatePSMDBClusterRequest) (*dbaasv1beta1.UpdatePSMDBClusterResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
 	if err != nil {
