@@ -16,11 +16,6 @@
 package management
 
 import (
-	"fmt"
-	"strings"
-
-	"gopkg.in/alecthomas/kingpin.v2"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
@@ -38,13 +33,7 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceGenericResultT, res)
 }
 
-type removeMySQLCommand struct {
-	ServiceType string
-	ServiceName string
-	ServiceID   string
-}
-
-func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
+func (cmd *RemoveCmd) RunCmd() (commands.Result, error) {
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
 			ServiceID:   cmd.ServiceID,
@@ -61,23 +50,9 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	return &removeServiceResult{}, nil
 }
 
-func (cmd *removeMySQLCommand) serviceType() *string {
+func (cmd *RemoveCmd) serviceType() *string {
 	if val, ok := allServiceTypes[cmd.ServiceType]; ok {
 		return &val
 	}
 	return nil
-}
-
-// register command
-var (
-	Remove  removeMySQLCommand
-	RemoveC = kingpin.Command("remove", "Remove Service from monitoring")
-)
-
-func init() {
-	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(allServiceTypesKeys, ", "))
-	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, allServiceTypesKeys...)
-	RemoveC.Arg("service-name", "Service name").StringVar(&Remove.ServiceName)
-
-	RemoveC.Flag("service-id", "Service ID").StringVar(&Remove.ServiceID)
 }

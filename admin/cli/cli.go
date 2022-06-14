@@ -46,8 +46,15 @@ type CLIGlobalFlags struct {
 type CLIFlags struct {
 	CLIGlobalFlags
 
-	Status  commands.StatusCmd  `cmd:"" help:"Show information about local pmm-agent"`
-	Summary commands.SummaryCmd `cmd:"" help:"Fetch system data for diagnostics"`
+	Status     commands.StatusCmd       `cmd:"" help:"Show information about local pmm-agent"`
+	Summary    commands.SummaryCmd      `cmd:"" help:"Fetch system data for diagnostics"`
+	List       commands.ListCmd         `cmd:"" help:"Show Services and Agents running on this Node"`
+	Config     commands.ConfigCmd       `cmd:"" help:"Configure local pmm-agent"`
+	Annotate   commands.AnnotateCmd     `cmd:"" help:"Add an annotation to Grafana charts"`
+	Unregister management.UnregisterCmd `cmd:"" help:"Unregister current Node from PMM Server"`
+	Remove     management.RemoveCmd     `cmd:"" help:"Remove Service from monitoring"`
+	Register   management.RegisterCmd   `cmd:"" help:"Register current Node with PMM Server"`
+	Add        management.AddCmd        `cmd:"" help:"Add Service to monitoring"`
 }
 
 func (c *CLIFlags) Run(ctx *kong.Context) error {

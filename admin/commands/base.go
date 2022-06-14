@@ -72,7 +72,7 @@ type Result interface {
 //  * use logrus.Print, logrus.Info and higher levels except:
 //    * summary command (for progress output).
 type Command interface {
-	Run() (Result, error)
+	RunCmd() (Result, error)
 }
 
 // TODO remove Command above, rename CommandWithContext to Command

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
@@ -29,11 +30,39 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/logger"
+	"github.com/percona/pmm/utils/nodeinfo"
 	"github.com/percona/pmm/version"
 )
 
 func main() {
+	// Detect defaults
+	nodeinfo := nodeinfo.Get()
+	nodeTypeDefault := "generic"
+	if nodeinfo.Container {
+		nodeTypeDefault = "container"
+	}
+
+	hostname, _ := os.Hostname()
+
+	var defaultMachineID string
+	if nodeinfo.MachineID != "" {
+		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+	}
+
+	mysqlQuerySources := []string{
+		management.MysqlQuerySourceSlowLog,
+		management.MysqlQuerySourcePerfSchema,
+		management.MysqlQuerySourceNone,
+	}
+
+	mongoDbQuerySources := []string{
+		management.MongodbQuerySourceProfiler,
+		management.MongodbQuerySourceNone,
+	}
+
+	// Configure CLI
 	var opts cli.CLIFlags
 	kongCtx := kong.Parse(&opts,
 		kong.Name("pmm-admin"),
@@ -44,7 +73,20 @@ func main() {
 		}),
 		kong.Bind(&cli.CLI),
 		kong.Vars{
-			"defaultListenPort": fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"nodeIp":                       nodeinfo.PublicAddress,
+			"nodeTypeDefault":              nodeTypeDefault,
+			"hostname":                     hostname,
+			"serviceTypesEnum":             strings.Join(management.AllServiceTypesKeys, ","),
+			"defaultMachineID":             defaultMachineID,
+			"distro":                       nodeinfo.Distro,
+			"metricsModesEnum":             strings.Join(management.MetricsModes, ","),
+			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ","),
+			"mysqlQuerySourceDefault":      mysqlQuerySources[0],
+			"mongoDbQuerySourcesEnum":      strings.Join(mongoDbQuerySources, ","),
+			"mongoDbQuerySourceDefault":    mongoDbQuerySources[0],
+			"externalDefaultServiceName":   management.DefaultServiceNameSuffix,
+			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,
 		})
 
 	if opts.Version {

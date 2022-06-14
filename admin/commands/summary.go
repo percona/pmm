@@ -96,7 +96,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 // addClientCommand adds cmd.Run() results to zip file with given name.
 func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 	var b []byte
-	res, err := cmd.Run()
+	res, err := cmd.RunCmd()
 	if res != nil {
 		b = append([]byte(res.String()), "\n\n"...)
 	}
@@ -142,7 +142,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
 	}
 
-	addClientCommand(zipW, "client/list.txt", &listCommand{NodeID: status.RunsOnNodeID})
+	addClientCommand(zipW, "client/list.txt", &ListCmd{NodeID: status.RunsOnNodeID})
 }
 
 // addServerData adds logs.zip from PMM Server to zip file.

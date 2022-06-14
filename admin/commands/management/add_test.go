@@ -112,16 +112,18 @@ func TestManagementGlobalFlags(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.testName, func(t *testing.T) {
-			cmd := &addMongoDBCommand{
+			cmd := &AddMongoDbCmd{
 				ServiceName: test.nameArg,
 				Address:     test.addressArg,
 				Socket:      test.socketFlag,
+				addCommonFlags: addCommonFlags{
+					addServiceNameFlag: test.serviceNameFlag,
+					addHostFlag:        test.hostFlag,
+					addPortFlag:        test.portFlag,
+				},
 			}
-			addServiceNameFlag = test.serviceNameFlag
-			addHostFlag = test.hostFlag
-			addPortFlag = test.portFlag
 
-			serviceName, socket, address, port, err := processGlobalAddFlagsWithSocket(cmd)
+			serviceName, socket, address, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.addCommonFlags)
 
 			assert.NoError(t, err)
 			assert.Equal(t, serviceName, test.wantServiceName)

@@ -18,27 +18,7 @@ package management
 import (
 	"net"
 	"strconv"
-
-	"gopkg.in/alecthomas/kingpin.v2"
 )
-
-// register command
-var (
-	AddC = kingpin.Command("add", "Add Service to monitoring")
-
-	addServiceNameFlag string
-	addHostFlag        string
-	addPortFlag        uint16
-	addLogLevel        string
-)
-
-func addGlobalFlags(cmd *kingpin.CmdClause) {
-	// Add command global flags
-	cmd.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").StringVar(&addServiceNameFlag)
-	cmd.Flag("host", "Service hostname or IP address (overrides positional argument)").StringVar(&addHostFlag)
-	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
-	cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
-}
 
 type connectionGetter interface {
 	GetServiceName() string
@@ -53,10 +33,10 @@ type connectionGetter interface {
 // - addPostgreSQLCommand
 // - addMongoDBCommand
 // Returns service name, socket, host, port, error.
-func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, socket string, host string, port uint16, err error) {
+func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts addCommonFlags) (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
-	if addServiceNameFlag != "" {
-		serviceName = addServiceNameFlag
+	if opts.addServiceNameFlag != "" {
+		serviceName = opts.addServiceNameFlag
 	}
 
 	socket = cmd.GetSocket()
@@ -80,12 +60,12 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, 
 		}
 	}
 
-	if addHostFlag != "" {
-		host = addHostFlag
+	if opts.addHostFlag != "" {
+		host = opts.addHostFlag
 	}
 
-	if addPortFlag != 0 {
-		portI = int(addPortFlag)
+	if opts.addPortFlag != 0 {
+		portI = int(opts.addPortFlag)
 	}
 
 	return serviceName, socket, host, uint16(portI), nil

@@ -17,12 +17,10 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/alecthomas/units"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -32,9 +30,9 @@ import (
 )
 
 const (
-	mysqlQuerySourceSlowLog    = "slowlog"
-	mysqlQuerySourcePerfSchema = "perfschema"
-	mysqlQuerySourceNone       = "none"
+	MysqlQuerySourceSlowLog    = "slowlog"
+	MysqlQuerySourcePerfSchema = "perfschema"
+	MysqlQuerySourceNone       = "none"
 )
 
 var addMySQLResultT = commands.ParseTemplate(`
@@ -86,48 +84,15 @@ func (res *addMySQLResult) TablestatStatus() string {
 	return s
 }
 
-type addMySQLCommand struct {
-	Address           string
-	Socket            string
-	NodeID            string
-	PMMAgentID        string
-	ServiceName       string
-	Username          string
-	Password          string
-	DefaultsFile      string
-	AgentPassword     string
-	CredentialsSource string
-	Environment       string
-	Cluster           string
-	ReplicationSet    string
-	CustomLabels      string
-	MetricsMode       string
-	DisableCollectors string
-
-	QuerySource string
-
-	SkipConnectionCheck    bool
-	DisableQueryExamples   bool
-	MaxSlowlogFileSize     units.Base2Bytes
-	TLS                    bool
-	TLSSkipVerify          bool
-	TLSCaFile              string
-	TLSCertFile            string
-	TLSKeyFile             string
-	DisableTablestats      bool
-	DisableTablestatsLimit uint16
-	CreateUser             bool
-}
-
-func (cmd *addMySQLCommand) GetServiceName() string {
+func (cmd *AddMySqlCmd) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *addMySQLCommand) GetAddress() string {
+func (cmd *AddMySqlCmd) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *addMySQLCommand) GetDefaultAddress() string {
+func (cmd *AddMySqlCmd) GetDefaultAddress() string {
 	if cmd.DefaultsFile != "" {
 		// address might be specified in defaults file
 		return ""
@@ -135,15 +100,15 @@ func (cmd *addMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
-func (cmd *addMySQLCommand) GetDefaultUsername() string {
+func (cmd *AddMySqlCmd) GetDefaultUsername() string {
 	return "root"
 }
 
-func (cmd *addMySQLCommand) GetSocket() string {
+func (cmd *AddMySqlCmd) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *addMySQLCommand) GetCredentials() error {
+func (cmd *AddMySqlCmd) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -156,7 +121,7 @@ func (cmd *addMySQLCommand) GetCredentials() error {
 	return nil
 }
 
-func (cmd *addMySQLCommand) Run() (commands.Result, error) {
+func (cmd *AddMySqlCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -198,7 +163,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.addCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -236,8 +201,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
 
-			QANMysqlSlowlog:    cmd.QuerySource == mysqlQuerySourceSlowLog,
-			QANMysqlPerfschema: cmd.QuerySource == mysqlQuerySourcePerfSchema,
+			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
+			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:       cmd.SkipConnectionCheck,
 			DisableQueryExamples:      cmd.DisableQueryExamples,
@@ -250,7 +215,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &addLogLevel,
+			LogLevel:                  &cmd.addLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -266,61 +231,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 	}, nil
 }
 
-// register command
-var (
-	AddMySQL  addMySQLCommand
-	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring")
-)
-
-func init() {
-	hostname, _ := os.Hostname()
-	serviceName := hostname + "-mysql"
-	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
-	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
-
-	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").StringVar(&AddMySQL.Address)
-	AddMySQLC.Flag("socket", "Path to MySQL socket").StringVar(&AddMySQL.Socket)
-
-	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
-	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
-
-	AddMySQLC.Flag("username", "MySQL username").StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("defaults-file", "Path to defaults file").StringVar(&AddMySQL.DefaultsFile)
-	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
-	AddMySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddMySQL.CredentialsSource)
-
-	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
-	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
-	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
-	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
-	AddMySQLC.Flag("size-slow-logs", `Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB`).
-		BytesVar(&AddMySQL.MaxSlowlogFileSize)
-	AddMySQLC.Flag("disable-tablestats", "Disable table statistics collection").BoolVar(&AddMySQL.DisableTablestats)
-	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)").
-		Uint16Var(&AddMySQL.DisableTablestatsLimit)
-
-	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
-	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)
-	AddMySQLC.Flag("replication-set", "Replication set name").StringVar(&AddMySQL.ReplicationSet)
-	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMySQL.CustomLabels)
-
-	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
-	AddMySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMySQL.TLS)
-	AddMySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMySQL.TLSSkipVerify)
-	AddMySQLC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddMySQL.TLSCaFile)
-	AddMySQLC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddMySQL.TLSCertFile)
-	AddMySQLC.Flag("tls-key", "Path to client key file").StringVar(&AddMySQL.TLSKeyFile)
-	AddMySQLC.Flag("create-user", "Create pmm user").Hidden().BoolVar(&AddMySQL.CreateUser)
-	AddMySQLC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").
-		Default("auto").
-		EnumVar(&AddMySQL.MetricsMode, metricsModes...)
-	AddMySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMySQL.DisableCollectors)
-	addGlobalFlags(AddMySQLC)
-}
-
-func defaultsFileUsernameCheck(cmd *addMySQLCommand) string {
+func defaultsFileUsernameCheck(cmd *AddMySqlCmd) string {
 	// defaults file specified, but passed username has higher priority
 	if cmd.Username != "" && cmd.DefaultsFile != "" {
 		return cmd.Username
