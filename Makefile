@@ -87,7 +87,6 @@ gen: clean         ## Generate files.
 	make -C agent gen
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
-	bin/go-sumtype ./...
 	go install -v ./...
 
 gen-alertmanager:     # Generate Alertmanager client.
