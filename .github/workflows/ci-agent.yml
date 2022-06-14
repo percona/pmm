@@ -2,16 +2,14 @@ name: pmm-agent CI
 
 on:
   push:
-    paths:
-      - "agent/**"
     branches:
       - main
       - release-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
-    paths:
-      - "agent/**"
+    paths-ignore:
+      - "admin/**"
 
 jobs:
   test-agent:

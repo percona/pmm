@@ -2,16 +2,14 @@ name: pmm-admin CI
 
 on:
   push:
-    paths:
-      - "admin/**"
     branches:
       - main
       - release-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
-    paths:
-      - "admin/**"
+    paths-ignore:
+      - "agent/**"
 
 jobs:
   test-admin:

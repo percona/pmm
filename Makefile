@@ -108,8 +108,11 @@ clean: clean_swagger  ## Remove generated files.
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
-test:                 ## Run tests
+test:                 ## Run tests from all packages
 	go test ./...
+
+test-common: 		  ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
+	go test $(shell go list ./... | grep -v -e admin -e agent)
 
 check:                          ## Run required checkers and linters.
 	#go run .github/check-license.go ## TODO: This repo has multiple licenses, fix checker

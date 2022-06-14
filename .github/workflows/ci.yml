@@ -91,6 +91,9 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make ci-reviewdog
 
+      - name: Test common API
+        run: make test-common
+
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
@@ -101,10 +104,10 @@ jobs:
           git status
 
   merge-gatekeeper:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: percona-platform/merge-gatekeeper@main
+        uses: percona-platform/merge-gatekeeper@v1.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
