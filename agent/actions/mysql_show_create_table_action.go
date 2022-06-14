@@ -64,5 +64,3 @@ func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	return []byte(tableDef), nil
 }
-
-func (a *mysqlShowCreateTableAction) sealed() {}

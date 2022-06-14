@@ -33,6 +33,7 @@ linters:
     - ineffassign
     - nolintlint
     - staticcheck
+    - exhaustive
 
 run:
   skip-dirs:
