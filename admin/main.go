@@ -27,9 +27,9 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/logger"
-	"github.com/percona/pmm/cli"
 	"github.com/percona/pmm/version"
 )
 
@@ -42,6 +42,7 @@ func main() {
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact: true,
 		}),
+		kong.Bind(&cli.CLI),
 		kong.Vars{
 			"defaultListenPort": fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
 		})
@@ -83,10 +84,8 @@ func main() {
 
 	agentlocal.SetTransport(ctx, opts.Debug || opts.Trace, opts.PMMAgentListenPort)
 
-	command := kongCtx.Command()
-
 	// pmm-admin status command don't connect to PMM Server.
-	if command != "status" {
+	if cli.CLI.SetupClients {
 		commands.SetupClients(ctx, opts.ServerURL)
 	}
 

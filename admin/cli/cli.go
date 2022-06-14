@@ -16,7 +16,6 @@
 package cli
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -24,16 +23,15 @@ import (
 	"reflect"
 
 	"github.com/alecthomas/kong"
+	"github.com/percona/pmm/admin/cli/opts"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/sirupsen/logrus"
 )
 
-type CLIOpts struct {
-	Ctx context.Context
+var CLI = opts.Opts{
+	SetupClients: true,
 }
-
-var CLI = CLIOpts{}
 
 type CLIGlobalFlags struct {
 	ServerURL          string `name:"server-url" placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`

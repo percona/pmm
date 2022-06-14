@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli/opts"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/version"
 )
@@ -82,6 +83,11 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 		PMMAgentStatus: status,
 		PMMVersion:     pmmVersion,
 	}
+}
+
+func (cmd *StatusCmd) BeforeApply(opts *opts.Opts) error {
+	opts.SetupClients = false
+	return nil
 }
 
 func (cmd *StatusCmd) RunCmd() (Result, error) {
