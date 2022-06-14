@@ -17,6 +17,7 @@ replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_que
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/alecthomas/kong v0.6.0
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-openapi/errors v0.20.2
@@ -39,7 +40,7 @@ require (
 	github.com/prometheus/common v0.34.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/objx v0.4.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.2
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 	google.golang.org/genproto v0.0.0-20220414192740-2d67ff6cf2b4
@@ -48,7 +49,7 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.66.6
 	gopkg.in/reform.v1 v1.5.1
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

@@ -40,10 +40,10 @@ func TestSummary(t *testing.T) {
 	assert.NoError(t, f.Close())
 
 	t.Run("Summary default", func(t *testing.T) {
-		cmd := &summaryCommand{
+		cmd := &SummaryCmd{
 			Filename: filename,
 		}
-		res, err := cmd.Run()
+		res, err := cmd.RunCmdWithContext(context.TODO())
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -52,11 +52,11 @@ func TestSummary(t *testing.T) {
 	})
 
 	t.Run("Summary skip server", func(t *testing.T) {
-		cmd := &summaryCommand{
+		cmd := &SummaryCmd{
 			Filename:   filename,
 			SkipServer: true,
 		}
-		res, err := cmd.Run()
+		res, err := cmd.RunCmdWithContext(context.TODO())
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -69,12 +69,12 @@ func TestSummary(t *testing.T) {
 			t.Skip("can be tested only inside devcontainer")
 		}
 
-		cmd := &summaryCommand{
+		cmd := &SummaryCmd{
 			Filename:   filename,
 			SkipServer: true,
 			Pprof:      true,
 		}
-		res, err := cmd.Run()
+		res, err := cmd.RunCmdWithContext(context.TODO())
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,

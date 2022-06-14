@@ -33,7 +33,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
@@ -56,12 +55,6 @@ func (res *summaryResult) Result() {}
 
 func (res *summaryResult) String() string {
 	return RenderTemplate(summaryResultT, res)
-}
-
-type summaryCommand struct {
-	Filename   string
-	SkipServer bool
-	Pprof      bool
 }
 
 // addData adds data from io.Reader to zip file with given name and time.
@@ -311,7 +304,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 }
 
-func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
+func (cmd *SummaryCmd) makeArchive(ctx context.Context) (err error) {
 	var f *os.File
 
 	if f, err = os.Create(cmd.Filename); err != nil {
@@ -346,12 +339,7 @@ func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
 	return //nolint:nakedret
 }
 
-// TODO remove
-func (cmd *summaryCommand) Run() (Result, error) {
-	return cmd.RunWithContext(context.TODO())
-}
-
-func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
+func (cmd *SummaryCmd) RunCmdWithContext(ctx context.Context) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename
 	}
@@ -367,15 +355,7 @@ func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
 
 // register command
 var (
-	Summary     summaryCommand
-	SummaryC    = kingpin.Command("summary", "Fetch system data for diagnostics")
 	hostname, _ = os.Hostname()
 	filename    = fmt.Sprintf("summary_%s_%s.zip",
 		strings.ReplaceAll(hostname, ".", "_"), time.Now().Format("2006_01_02_15_04_05"))
 )
-
-func init() {
-	SummaryC.Flag("filename", "Summary archive filename").Default(filename).StringVar(&Summary.Filename)
-	SummaryC.Flag("skip-server", "Skip fetching logs.zip from PMM Server").BoolVar(&Summary.SkipServer)
-	SummaryC.Flag("pprof", "Include performance profiling data").BoolVar(&Summary.Pprof)
-}
