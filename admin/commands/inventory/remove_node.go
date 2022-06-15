@@ -33,12 +33,7 @@ func (res *removeNodeResult) String() string {
 	return commands.RenderTemplate(removeNodeGenericResultT, res)
 }
 
-type removeNodeCommand struct {
-	NodeID string
-	Force  bool
-}
-
-func (cmd *removeNodeCommand) Run() (commands.Result, error) {
+func (cmd *RemoveNodeCmd) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{
 			NodeID: cmd.NodeID,
@@ -51,15 +46,4 @@ func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 	return &removeNodeResult{}, nil
-}
-
-// register command
-var (
-	RemoveNode  removeNodeCommand
-	RemoveNodeC = inventoryRemoveC.Command("node", "Remove node from inventory").Hide(hide)
-)
-
-func init() {
-	RemoveNodeC.Arg("node-id", "Node ID").StringVar(&RemoveNode.NodeID)
-	RemoveNodeC.Flag("force", "Remove node with all dependencies").BoolVar(&RemoveNode.Force)
 }

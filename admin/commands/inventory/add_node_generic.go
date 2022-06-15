@@ -46,18 +46,7 @@ func (res *addNodeGenericResult) String() string {
 	return commands.RenderTemplate(addNodeGenericResultT, res)
 }
 
-type addNodeGenericCommand struct {
-	NodeName     string
-	MachineID    string
-	Distro       string
-	Address      string
-	CustomLabels string
-	Region       string
-	Az           string
-	NodeModel    string
-}
-
-func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
+func (cmd *AddNodeGenericCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -84,23 +73,4 @@ func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
 	return &addNodeGenericResult{
 		Node: resp.Payload.Generic,
 	}, nil
-}
-
-// register command
-var (
-	AddNodeGeneric  addNodeGenericCommand
-	AddNodeGenericC = addNodeC.Command("generic", "Add generic node to inventory").Hide(hide)
-)
-
-func init() {
-	AddNodeGenericC.Arg("name", "Node name").StringVar(&AddNodeGeneric.NodeName)
-
-	AddNodeGenericC.Flag("machine-id", "Linux machine-id").StringVar(&AddNodeGeneric.MachineID)
-	AddNodeGenericC.Flag("distro", "Linux distribution (if any)").StringVar(&AddNodeGeneric.Distro)
-	AddNodeGenericC.Flag("address", "Address").StringVar(&AddNodeGeneric.Address)
-	AddNodeGenericC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeGeneric.CustomLabels)
-
-	AddNodeGenericC.Flag("region", "Node region").StringVar(&AddNodeGeneric.Region)
-	AddNodeGenericC.Flag("az", "Node availability zone").StringVar(&AddNodeGeneric.Az)
-	AddNodeGenericC.Flag("node-model", "Node model").StringVar(&AddNodeGeneric.NodeModel)
 }

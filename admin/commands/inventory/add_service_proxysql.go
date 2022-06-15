@@ -48,19 +48,7 @@ func (res *addServiceProxySQLResult) String() string {
 	return commands.RenderTemplate(addServiceProxySQLResultT, res)
 }
 
-type addServiceProxySQLCommand struct {
-	ServiceName    string
-	NodeID         string
-	Address        string
-	Port           int64
-	Socket         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-}
-
-func (cmd *addServiceProxySQLCommand) Run() (commands.Result, error) {
+func (cmd *AddServiceProxySQLCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -87,23 +75,4 @@ func (cmd *addServiceProxySQLCommand) Run() (commands.Result, error) {
 	return &addServiceProxySQLResult{
 		Service: resp.Payload.Proxysql,
 	}, nil
-}
-
-// register command
-var (
-	AddServiceProxySQL  addServiceProxySQLCommand
-	AddServiceProxySQLC = addServiceC.Command("proxysql", "Add ProxySQL service to inventory").Hide(hide)
-)
-
-func init() {
-	AddServiceProxySQLC.Arg("name", "Service name").StringVar(&AddServiceProxySQL.ServiceName)
-	AddServiceProxySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceProxySQL.NodeID)
-	AddServiceProxySQLC.Arg("address", "Address").StringVar(&AddServiceProxySQL.Address)
-	AddServiceProxySQLC.Arg("port", "Port").Int64Var(&AddServiceProxySQL.Port)
-	AddServiceProxySQLC.Flag("socket", "Path to ProxySQL socket").StringVar(&AddServiceProxySQL.Socket)
-
-	AddServiceProxySQLC.Flag("environment", "Environment name").StringVar(&AddServiceProxySQL.Environment)
-	AddServiceProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceProxySQL.Cluster)
-	AddServiceProxySQLC.Flag("replication-set", "Replication set name").StringVar(&AddServiceProxySQL.ReplicationSet)
-	AddServiceProxySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServiceProxySQL.CustomLabels)
 }

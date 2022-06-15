@@ -45,22 +45,7 @@ func (res *addAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANPostgreSQLPgStatementsAgentResultT, res)
 }
 
-type addAgentQANPostgreSQLPgStatementsAgentCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	CustomLabels        string
-	SkipConnectionCheck bool
-
-	TLS           bool
-	TLSSkipVerify bool
-	TLSCAFile     string
-	TLSCertFile   string
-	TLSKeyFile    string
-}
-
-func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result, error) {
+func (cmd *AddQANPostgreSQLPgStatementsAgentCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -109,25 +94,4 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 	return &addAgentQANPostgreSQLPgStatementsAgentResult{
 		Agent: resp.Payload.QANPostgresqlPgstatementsAgent,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentQANPostgreSQLPgStatementsAgent  addAgentQANPostgreSQLPgStatementsAgentCommand
-	AddAgentQANPostgreSQLPgStatementsAgentC = addAgentC.Command("qan-postgresql-pgstatements-agent", "Add QAN PostgreSQL Stat Statements Agent to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.PMMAgentID)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.ServiceID)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Arg("username", "PostgreSQL username for QAN agent").Default("postgres").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Username)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("password", "PostgreSQL password for QAN agent").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.Password)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.CustomLabels)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.SkipConnectionCheck)
-
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLS)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSSkipVerify)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCAFile)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCertFile)
-	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSKeyFile)
 }

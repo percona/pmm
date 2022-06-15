@@ -83,11 +83,6 @@ func (res *listAgentsResult) String() string {
 	return commands.RenderTemplate(listAgentsResultT, res)
 }
 
-type listAgentsCommand struct {
-	filters   agents.ListAgentsBody
-	agentType string
-}
-
 // This is used in the json output. By convention, statuses must be in uppercase
 func getAgentStatus(status *string) string {
 	res := pointer.GetString(status)
@@ -97,16 +92,21 @@ func getAgentStatus(status *string) string {
 	return res
 }
 
-func (cmd *listAgentsCommand) Run() (commands.Result, error) {
-	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.agentType)
+func (cmd *ListAgentsCmd) RunCmd() (commands.Result, error) {
+	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.AgentType)
 	if err != nil {
 		return nil, err
 	}
 
-	cmd.filters.AgentType = agentType
+	filters := agents.ListAgentsBody{
+		PMMAgentID: cmd.PMMAgentId,
+		ServiceID:  cmd.ServiceID,
+		NodeID:     cmd.NodeID,
+		AgentType:  agentType,
+	}
 
 	params := &agents.ListAgentsParams{
-		Body:    cmd.filters,
+		Body:    filters,
 		Context: commands.Ctx,
 	}
 	agentsRes, err := client.Default.Agents.ListAgents(params)
@@ -254,17 +254,4 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 	return &listAgentsResult{
 		Agents: agentsList,
 	}, nil
-}
-
-// register command
-var (
-	ListAgents  listAgentsCommand
-	ListAgentsC = inventoryListC.Command("agents", "Show agents in inventory").Hide(hide)
-)
-
-func init() {
-	ListAgentsC.Flag("pmm-agent-id", "Filter by pmm-agent identifier").StringVar(&ListAgents.filters.PMMAgentID)
-	ListAgentsC.Flag("service-id", "Filter by Service identifier").StringVar(&ListAgents.filters.ServiceID)
-	ListAgentsC.Flag("node-id", "Filter by Node identifier").StringVar(&ListAgents.filters.NodeID)
-	ListAgentsC.Flag("agent-type", "Filter by Agent type").StringVar(&ListAgents.agentType)
 }

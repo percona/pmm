@@ -25,6 +25,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/percona/pmm/admin/cli/opts"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/sirupsen/logrus"
 )
@@ -55,6 +56,7 @@ type CLIFlags struct {
 	Remove     management.RemoveCmd     `cmd:"" help:"Remove Service from monitoring"`
 	Register   management.RegisterCmd   `cmd:"" help:"Register current Node with PMM Server"`
 	Add        management.AddCmd        `cmd:"" help:"Add Service to monitoring"`
+	Inventory  inventory.InventoryCmd   `cmd:"" hidden:"" help:"Inventory commands"`
 }
 
 func (c *CLIFlags) Run(ctx *kong.Context) error {

@@ -48,19 +48,7 @@ func (res *addAgentExternalExporterResult) String() string {
 	return commands.RenderTemplate(addAgentExternalExporterResultT, res)
 }
 
-type addAgentExternalExporterCommand struct {
-	RunsOnNodeID string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
-	Scheme       string
-	MetricsPath  string
-	ListenPort   int64
-	PushMetrics  bool
-}
-
-func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
+func (cmd *ExternalExporterCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -92,23 +80,4 @@ func (cmd *addAgentExternalExporterCommand) Run() (commands.Result, error) {
 	return &addAgentExternalExporterResult{
 		Agent: resp.Payload.ExternalExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentExternalExporter  addAgentExternalExporterCommand
-	AddAgentExternalExporterC = addAgentC.Command("external", "Add external exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentExternalExporterC.Flag("runs-on-node-id", "Node identifier where this instance runs").Required().StringVar(&AddAgentExternalExporter.RunsOnNodeID)
-	AddAgentExternalExporterC.Flag("service-id", "Service identifier").Required().StringVar(&AddAgentExternalExporter.ServiceID)
-	AddAgentExternalExporterC.Flag("username", "HTTP Basic auth username for scraping metrics").StringVar(&AddAgentExternalExporter.Username)
-	AddAgentExternalExporterC.Flag("password", "HTTP Basic auth password for scraping metrics").StringVar(&AddAgentExternalExporter.Password)
-	AddAgentExternalExporterC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints (http, https)").StringVar(&AddAgentExternalExporter.Scheme)
-	AddAgentExternalExporterC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI").StringVar(&AddAgentExternalExporter.MetricsPath)
-	AddAgentExternalExporterC.Flag("listen-port", "Listen port for scraping metrics").Required().Int64Var(&AddAgentExternalExporter.ListenPort)
-	AddAgentExternalExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentExternalExporter.CustomLabels)
-	AddAgentExternalExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentExternalExporter.PushMetrics)
 }

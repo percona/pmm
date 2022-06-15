@@ -45,22 +45,7 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBProfilerAgentResultT, res)
 }
 
-type addAgentQANMongoDBProfilerAgentCommand struct {
-	PMMAgentID                    string
-	ServiceID                     string
-	Username                      string
-	Password                      string
-	CustomLabels                  string
-	SkipConnectionCheck           bool
-	TLS                           bool
-	TLSSkipVerify                 bool
-	TLSCertificateKeyFile         string
-	TLSCertificateKeyFilePassword string
-	TLSCaFile                     string
-	AuthenticationMechanism       string
-}
-
-func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error) {
+func (cmd *AddQANMongoDBProfilerAgentCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -100,26 +85,4 @@ func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error
 	return &addAgentQANMongoDBProfilerAgentResult{
 		Agent: resp.Payload.QANMongodbProfilerAgent,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentQANMongoDBProfilerAgent  addAgentQANMongoDBProfilerAgentCommand
-	AddAgentQANMongoDBProfilerAgentC = addAgentC.Command("qan-mongodb-profiler-agent", "add QAN MongoDB profiler agent to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentQANMongoDBProfilerAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMongoDBProfilerAgent.PMMAgentID)
-	AddAgentQANMongoDBProfilerAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMongoDBProfilerAgent.ServiceID)
-	AddAgentQANMongoDBProfilerAgentC.Arg("username", "MongoDB username for scraping metrics").StringVar(&AddAgentQANMongoDBProfilerAgent.Username)
-	AddAgentQANMongoDBProfilerAgentC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentQANMongoDBProfilerAgent.Password)
-	AddAgentQANMongoDBProfilerAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMongoDBProfilerAgent.CustomLabels)
-	AddAgentQANMongoDBProfilerAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMongoDBProfilerAgent.SkipConnectionCheck)
-	AddAgentQANMongoDBProfilerAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANMongoDBProfilerAgent.TLS)
-	AddAgentQANMongoDBProfilerAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANMongoDBProfilerAgent.TLSSkipVerify)
-	AddAgentQANMongoDBProfilerAgentC.Flag("tls-certificate-key-file", "Path to TLS certificate PEM file").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCertificateKeyFile)
-	AddAgentQANMongoDBProfilerAgentC.Flag("tls-certificate-key-file-password", "Password for certificate").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCertificateKeyFilePassword)
-	AddAgentQANMongoDBProfilerAgentC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentQANMongoDBProfilerAgent.TLSCaFile)
-	AddAgentQANMongoDBProfilerAgentC.Flag("authentication-mechanism", "Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates").
-		StringVar(&AddAgentQANMongoDBProfilerAgent.AuthenticationMechanism)
 }

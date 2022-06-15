@@ -18,8 +18,6 @@ package inventory
 import (
 	"strconv"
 
-	"github.com/alecthomas/units"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
@@ -63,23 +61,7 @@ func (res *addAgentQANMySQLSlowlogAgentResult) SlowlogRotation() string {
 	return res.Agent.MaxSlowlogFileSize
 }
 
-type addAgentQANMySQLSlowlogAgentCommand struct {
-	PMMAgentID           string
-	ServiceID            string
-	Username             string
-	Password             string
-	CustomLabels         string
-	SkipConnectionCheck  bool
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   units.Base2Bytes
-	TLS                  bool
-	TLSSkipVerify        bool
-	TLSCaFile            string
-	TLSCertFile          string
-	TLSKeyFile           string
-}
-
-func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
+func (cmd *AddQANMySQLSlowlogAgentCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -87,7 +69,7 @@ func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
 
 	var tlsCa, tlsCert, tlsKey string
 	if cmd.TLS {
-		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
+		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {
 			return nil, err
 		}
@@ -129,27 +111,4 @@ func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
 	return &addAgentQANMySQLSlowlogAgentResult{
 		Agent: resp.Payload.QANMysqlSlowlogAgent,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentQANMySQLSlowlogAgent  addAgentQANMySQLSlowlogAgentCommand
-	AddAgentQANMySQLSlowlogAgentC = addAgentC.Command("qan-mysql-slowlog-agent", "add QAN MySQL slowlog agent to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentQANMySQLSlowlogAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMySQLSlowlogAgent.PMMAgentID)
-	AddAgentQANMySQLSlowlogAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMySQLSlowlogAgent.ServiceID)
-	AddAgentQANMySQLSlowlogAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLSlowlogAgent.Username)
-	AddAgentQANMySQLSlowlogAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLSlowlogAgent.Password)
-	AddAgentQANMySQLSlowlogAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLSlowlogAgent.CustomLabels)
-	AddAgentQANMySQLSlowlogAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLSlowlogAgent.SkipConnectionCheck)
-	AddAgentQANMySQLSlowlogAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANMySQLSlowlogAgent.DisableQueryExamples)
-	AddAgentQANMySQLSlowlogAgentC.Flag("size-slow-logs", "Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB").
-		BytesVar(&AddAgentQANMySQLSlowlogAgent.MaxSlowlogFileSize)
-	AddAgentQANMySQLSlowlogAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANMySQLSlowlogAgent.TLS)
-	AddAgentQANMySQLSlowlogAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANMySQLSlowlogAgent.TLSSkipVerify)
-	AddAgentQANMySQLSlowlogAgentC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSCaFile)
-	AddAgentQANMySQLSlowlogAgentC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSCertFile)
-	AddAgentQANMySQLSlowlogAgentC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSKeyFile)
 }

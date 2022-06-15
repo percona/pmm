@@ -46,19 +46,7 @@ func (res *addNodeContainerResult) String() string {
 	return commands.RenderTemplate(addNodeContainerResultT, res)
 }
 
-type addNodeContainerCommand struct {
-	NodeName      string
-	MachineID     string
-	ContainerID   string
-	ContainerName string
-	Address       string
-	CustomLabels  string
-	Region        string
-	Az            string
-	NodeModel     string
-}
-
-func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
+func (cmd *AddNodeContainerCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -86,25 +74,4 @@ func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
 	return &addNodeContainerResult{
 		Node: resp.Payload.Container,
 	}, nil
-}
-
-// register command
-var (
-	AddNodeContainer  addNodeContainerCommand
-	AddNodeContainerC = addNodeC.Command("container", "Add container node to inventory").Hide(hide)
-)
-
-func init() {
-	AddNodeContainerC.Arg("name", "Node name").StringVar(&AddNodeContainer.NodeName)
-
-	AddNodeContainerC.Flag("machine-id", "Linux machine-id").StringVar(&AddNodeContainer.MachineID)
-	AddNodeContainerC.Flag("container-id", "Container identifier; if specified, must be a unique Docker container identifier").
-		StringVar(&AddNodeContainer.ContainerID)
-	AddNodeContainerC.Flag("container-name", "Container name").StringVar(&AddNodeContainer.ContainerName)
-	AddNodeContainerC.Flag("address", "Address").StringVar(&AddNodeContainer.Address)
-	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeContainer.CustomLabels)
-
-	AddNodeContainerC.Flag("region", "Node region").StringVar(&AddNodeContainer.Region)
-	AddNodeContainerC.Flag("az", "Node availability zone").StringVar(&AddNodeContainer.Az)
-	AddNodeContainerC.Flag("node-model", "Node model").StringVar(&AddNodeContainer.NodeModel)
 }

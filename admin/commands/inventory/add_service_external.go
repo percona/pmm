@@ -43,17 +43,7 @@ func (res *addExternalServiceResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
-type addExternalServiceCommand struct {
-	ServiceName    string
-	NodeID         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-	Group          string
-}
-
-func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
+func (cmd *AddServiceExternalCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -79,20 +69,4 @@ func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
 	return &addExternalServiceResult{
 		Service: resp.Payload.External,
 	}, nil
-}
-
-// register command
-var (
-	AddExternalService  addExternalServiceCommand
-	AddExternalServiceC = addServiceC.Command("external", "Add an external service to inventory").Hide(hide)
-)
-
-func init() {
-	AddExternalServiceC.Flag("name", "External service name. Required").Required().StringVar(&AddExternalService.ServiceName)
-	AddExternalServiceC.Flag("node-id", "External service node ID. Required").Required().StringVar(&AddExternalService.NodeID)
-	AddExternalServiceC.Flag("environment", "Environment name").StringVar(&AddExternalService.Environment)
-	AddExternalServiceC.Flag("cluster", "Cluster name").StringVar(&AddExternalService.Cluster)
-	AddExternalServiceC.Flag("replication-set", "Replication set name").StringVar(&AddExternalService.ReplicationSet)
-	AddExternalServiceC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternalService.CustomLabels)
-	AddExternalServiceC.Flag("group", "Group name of external service").StringVar(&AddExternalService.Group)
 }

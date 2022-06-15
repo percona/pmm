@@ -43,15 +43,7 @@ func (res *addNodeRemoteResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteResultT, res)
 }
 
-type addNodeRemoteCommand struct {
-	NodeName     string
-	Address      string
-	CustomLabels string
-	Region       string
-	Az           string
-}
-
-func (cmd *addNodeRemoteCommand) Run() (commands.Result, error) {
+func (cmd *AddNodeRemoteCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -75,20 +67,4 @@ func (cmd *addNodeRemoteCommand) Run() (commands.Result, error) {
 	return &addNodeRemoteResult{
 		Node: resp.Payload.Remote,
 	}, nil
-}
-
-// register command
-var (
-	AddNodeRemote  addNodeRemoteCommand
-	AddNodeRemoteC = addNodeC.Command("remote", "Add Remote node to inventory").Hide(hide)
-)
-
-func init() {
-	AddNodeRemoteC.Arg("name", "Node name").StringVar(&AddNodeRemote.NodeName)
-
-	AddNodeRemoteC.Flag("address", "Address").StringVar(&AddNodeRemote.Address)
-	AddNodeRemoteC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeRemote.CustomLabels)
-
-	AddNodeRemoteC.Flag("region", "Node region").StringVar(&AddNodeRemote.Region)
-	AddNodeRemoteC.Flag("az", "Node availability zone").StringVar(&AddNodeRemote.Az)
 }

@@ -45,19 +45,7 @@ func (res *addAgentRDSExporterResult) String() string {
 	return commands.RenderTemplate(addAgentRDSExporterResultT, res)
 }
 
-type addAgentRDSExporterCommand struct {
-	PMMAgentID             string
-	NodeID                 string
-	AWSAccessKey           string
-	AWSSecretKey           string
-	CustomLabels           string
-	SkipConnectionCheck    bool
-	DisableBasicMetrics    bool
-	DisableEnhancedMetrics bool
-	PushMetrics            bool
-}
-
-func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
+func (cmd *AddAgentRDSExporterCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -85,23 +73,4 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 	return &addAgentRDSExporterResult{
 		Agent: resp.Payload.RDSExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentRDSExporter  addAgentRDSExporterCommand
-	AddAgentRDSExporterC = addAgentC.Command("rds-exporter", "Add rds_exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentRDSExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentRDSExporter.PMMAgentID)
-	AddAgentRDSExporterC.Arg("node-id", "Node identifier").Required().StringVar(&AddAgentRDSExporter.NodeID)
-	AddAgentRDSExporterC.Flag("aws-access-key", "AWS Access Key ID").StringVar(&AddAgentRDSExporter.AWSAccessKey)
-	AddAgentRDSExporterC.Flag("aws-secret-key", "AWS Secret Access Key").StringVar(&AddAgentRDSExporter.AWSSecretKey)
-	AddAgentRDSExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentRDSExporter.CustomLabels)
-	AddAgentRDSExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentRDSExporter.SkipConnectionCheck)
-	AddAgentRDSExporterC.Flag("disable-basic-metrics", "Disable basic metrics").BoolVar(&AddAgentRDSExporter.DisableBasicMetrics)
-	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
-	AddAgentRDSExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentRDSExporter.PushMetrics)
 }

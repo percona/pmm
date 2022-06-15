@@ -72,21 +72,20 @@ func (res *listServicesResult) String() string {
 	return commands.RenderTemplate(listServicesResultT, res)
 }
 
-type listServicesCommand struct {
-	filters     services.ListServicesBody
-	ServiceType string
-}
-
-func (cmd *listServicesCommand) Run() (commands.Result, error) {
+func (cmd *ListServicesCmd) RunCmd() (commands.Result, error) {
 	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
 	if err != nil {
 		return nil, err
 	}
 
-	cmd.filters.ServiceType = serviceType
+	filters := services.ListServicesBody{
+		ExternalGroup: cmd.ExternalGroup,
+		NodeID:        cmd.NodeID,
+		ServiceType:   serviceType,
+	}
 
 	params := &services.ListServicesParams{
-		Body:    cmd.filters,
+		Body:    filters,
 		Context: commands.Ctx,
 	}
 	result, err := client.Default.Services.ListServices(params)
@@ -153,16 +152,4 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 	return &listServicesResult{
 		Services: servicesList,
 	}, nil
-}
-
-// register command
-var (
-	ListServices  listServicesCommand
-	ListServicesC = inventoryListC.Command("services", "Show services in inventory").Hide(hide)
-)
-
-func init() {
-	ListServicesC.Flag("node-id", "Filter by Node identifier").StringVar(&ListServices.filters.NodeID)
-	ListServicesC.Flag("service-type", "Filter by Service type").StringVar(&ListServices.ServiceType)
-	ListServicesC.Flag("external-group", "Filter by external group").StringVar(&ListServices.filters.ExternalGroup)
 }

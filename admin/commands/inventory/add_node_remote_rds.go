@@ -44,16 +44,7 @@ func (res *addNodeRemoteRDSResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteRDSResultT, res)
 }
 
-type addNodeRemoteRDSCommand struct {
-	NodeName     string
-	Address      string
-	NodeModel    string
-	Region       string
-	Az           string
-	CustomLabels string
-}
-
-func (cmd *addNodeRemoteRDSCommand) Run() (commands.Result, error) {
+func (cmd *AddNodeRemoteRDSCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -77,20 +68,4 @@ func (cmd *addNodeRemoteRDSCommand) Run() (commands.Result, error) {
 	return &addNodeRemoteRDSResult{
 		Node: resp.Payload.RemoteRDS,
 	}, nil
-}
-
-// register command
-var (
-	AddNodeRemoteRDS  addNodeRemoteRDSCommand
-	AddNodeRemoteRDSC = addNodeC.Command("remote-rds", "Add Remote RDS node to inventory").Hide(hide)
-)
-
-func init() {
-	AddNodeRemoteRDSC.Arg("name", "Node name").StringVar(&AddNodeRemoteRDS.NodeName)
-
-	AddNodeRemoteRDSC.Flag("address", "Address").StringVar(&AddNodeRemoteRDS.Address)
-	AddNodeRemoteRDSC.Flag("node-model", "Node model").StringVar(&AddNodeRemoteRDS.NodeModel)
-	AddNodeRemoteRDSC.Flag("region", "Node region").StringVar(&AddNodeRemoteRDS.Region)
-	AddNodeRemoteRDSC.Flag("az", "Node availability zone").StringVar(&AddNodeRemoteRDS.Az)
-	AddNodeRemoteRDSC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeRemoteRDS.CustomLabels)
 }

@@ -33,12 +33,7 @@ func (res *removeAgentResult) String() string {
 	return commands.RenderTemplate(removeAgentResultT, res)
 }
 
-type removeAgentCommand struct {
-	AgentID string
-	Force   bool
-}
-
-func (cmd *removeAgentCommand) Run() (commands.Result, error) {
+func (cmd *RemoveAgentCmd) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{
 			AgentID: cmd.AgentID,
@@ -51,15 +46,4 @@ func (cmd *removeAgentCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 	return &removeAgentResult{}, nil
-}
-
-// register command
-var (
-	RemoveAgent  removeAgentCommand
-	RemoveAgentC = inventoryRemoveC.Command("agent", "Remove agent from inventory").Hide(hide)
-)
-
-func init() {
-	RemoveAgentC.Arg("agent-id", "Agent ID").StringVar(&RemoveAgent.AgentID)
-	RemoveAgentC.Flag("force", "Remove agent with all dependencies").BoolVar(&RemoveAgent.Force)
 }

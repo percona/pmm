@@ -33,12 +33,7 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceResultT, res)
 }
 
-type removeServiceCommand struct {
-	ServiceID string
-	Force     bool
-}
-
-func (cmd *removeServiceCommand) Run() (commands.Result, error) {
+func (cmd *RemoveServiceCmd) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
 		Body: services.RemoveServiceBody{
 			ServiceID: cmd.ServiceID,
@@ -51,15 +46,4 @@ func (cmd *removeServiceCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 	return &removeServiceResult{}, nil
-}
-
-// register command
-var (
-	RemoveService  removeServiceCommand
-	RemoveServiceC = inventoryRemoveC.Command("service", "Remove service from inventory").Hide(hide)
-)
-
-func init() {
-	RemoveServiceC.Arg("service-id", "Service ID").StringVar(&RemoveService.ServiceID)
-	RemoveServiceC.Flag("force", "Remove service with all dependencies").BoolVar(&RemoveService.Force)
 }

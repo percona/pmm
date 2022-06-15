@@ -43,16 +43,7 @@ func (res *addHAProxyServiceResult) String() string {
 	return commands.RenderTemplate(addHAProxyServiceResultT, res)
 }
 
-type addHAProxyServiceCommand struct {
-	ServiceName    string
-	NodeID         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-}
-
-func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
+func (cmd *AddServiceHAProxyCmd) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err
@@ -82,22 +73,4 @@ func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
 	return &addHAProxyServiceResult{
 		Service: resp.Payload.Haproxy,
 	}, nil
-}
-
-// register command
-var (
-	AddHAProxyService  addHAProxyServiceCommand
-	AddHAProxyServiceC = addServiceC.Command("haproxy", "Add an haproxy service to the inventory").Hide(hide)
-)
-
-func init() {
-	AddHAProxyServiceC.Arg("name", "HAProxy service name").StringVar(&AddHAProxyService.ServiceName)
-	AddHAProxyServiceC.Arg("node-id", "HAProxy service node ID").StringVar(&AddHAProxyService.NodeID)
-	AddHAProxyServiceC.Flag("environment", "Environment name like 'production' or 'qa'").
-		PlaceHolder("prod").StringVar(&AddHAProxyService.Environment)
-	AddHAProxyServiceC.Flag("cluster", "Cluster name").
-		PlaceHolder("east-cluster").StringVar(&AddHAProxyService.Cluster)
-	AddHAProxyServiceC.Flag("replication-set", "Replication set name").
-		PlaceHolder("rs1").StringVar(&AddHAProxyService.ReplicationSet)
-	AddHAProxyServiceC.Flag("custom-labels", "Custom user-assigned labels. Example: region=east,app=app1").StringVar(&AddHAProxyService.CustomLabels)
 }
