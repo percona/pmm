@@ -91,6 +91,9 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make ci-reviewdog
 
+      - name: Test common API
+        run: make test-common
+
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
@@ -100,203 +103,16 @@ jobs:
           pwd
           git status
 
-  test-admin:
-    name: Test pmm-admin
+  merge-gatekeeper:
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        go-version: [1.18.x]
-        may-fail: [false]
-#        include:
-#          - go-version: tip
-#            may-fail: true
-
-    env:
-      GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}/admin
-
     steps:
-      - name: Check out code into the working directory under the GOPATH
-        uses: percona-platform/checkout@v3
+      - name: Run Merge Gatekeeper
+        uses: percona-platform/merge-gatekeeper@v1.0.2
         with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
-
-      - name: Set up Go release
-        uses: percona-platform/setup-go@v2
-        with:
-          go-version: ${{ matrix.go-version }}
-
-      - name: Enable Go modules cache
-        uses: percona-platform/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
-
-      - name: Download Go modules
-        run: go mod download
-
-      - name: Build and install
-        run: make install
-
-      - name: Test race
-        run: make test-race
-
-      - name: Test cover
-        run: make test-cover
-
-      - name: Test crosscover
-        run: make test-crosscover
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env
-          go version
-          go env
-          pwd
-          git status
-
-  test-agent:
-    name: Test pmm-agent
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        go-version: [1.18.x]
-        may-fail: [true]
-#        include:
-#          - go-version: tip
-#            may-fail: true
-
-        images:
-          - { mysql: 'mysql:5.6', mongo: 'mongo:3.6', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
-          - { mysql: 'mysql:5.7', mongo: 'mongo:4.0', postgres: 'postgres:11', pmm_server: 'percona/pmm-server:2.0.1' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.2', postgres: 'postgres:12', pmm_server: 'percona/pmm-server:2.1.0' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:13', pmm_server: 'percona/pmm-server:2.2.0' }
-
-          # Percona + latest PMM Server release
-          - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:3.6', postgres: 'perconalab/percona-distribution-postgresql:11', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.0', postgres: 'perconalab/percona-distribution-postgresql:12.8-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:13.5-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-
-          # MariaDB (only 3 latest GA versions)
-          #   + older supported MongoDB versions
-          #   + older supported PostgreSQL versions
-          #   + dev-latest PMM Server
-          # - MYSQL_IMAGE=mariadb:5.5
-          # - MYSQL_IMAGE=mariadb:10.0
-          # - MYSQL_IMAGE=mariadb:10.1
-
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:3.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:3.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
-
-    continue-on-error: ${{ matrix.may-fail }}
-
-    env:
-      GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-      MYSQL_IMAGE: ${{ matrix.images.mysql }}
-      MONGO_IMAGE: ${{ matrix.images.mongo }}
-      POSTGRES_IMAGE: ${{ matrix.images.postgres }}
-      PMM_SERVER_IMAGE: ${{ matrix.images.pmm_server }}
-      PG_PRELOADED_LIBS: ${{ matrix.images.pg_libs }}
-
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}/agent
-
-    steps:
-      - name: Check out code into the working directory under the GOPATH
-        uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
-
-      - name: Set up Go release
-        if: matrix.go-version != 'tip'
-        uses: percona-platform/setup-go@v2
-        with:
-          go-version: ${{ matrix.go-version }}
-
-      - name: Set up Go tip
-        if: matrix.go-version == 'tip'
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
-
-      - name: Set GO_VERSION environment variable
-        run: |
-          go version
-          echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
-
-      - name: Enable Go modules cache
-        uses: percona-platform/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
-
-      - name: Download Go modules
-        run: go mod download
-
-      - name: Build and install
-        run: make install
-
-      - name: Docker-compose
-        env:
-          ENV_UP_FLAGS: "--detach"
-        run: make env-up
-
-      - name: Test race
-        run: make test-race
-
-      - name: Test cover
-        run: make test-cover
-
-      - name: Test crosscover
-        run: make test-crosscover
-
-      - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
-        with:
-          file: cover.out
-          flags: cover
-          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-
-      - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
-        with:
-          file: crosscover.out
-          flags: crosscover
-          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env
-          go version
-          go env
-          pwd
-          git status
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   workflow_success:
-    needs: [test-agent, test-admin]
+    needs: [merge-gatekeeper]
     name: Slack Notification success
     runs-on: ubuntu-22.04
     env:
@@ -310,13 +126,13 @@ jobs:
 
     steps:
       - uses: percona-platform/checkout@v3
-      - uses: percona-platform/setup-node@v3
+      - uses: percona-platform/setup-node@v2
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [test-agent, test-admin]
+    needs: [merge-gatekeeper]
     name: Slack Notification failure
     runs-on: ubuntu-22.04
     env:
