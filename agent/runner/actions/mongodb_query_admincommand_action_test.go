@@ -71,7 +71,7 @@ func TestMongoDBActions(t *testing.T) {
 func TestMongoDBActionsWithSSL(t *testing.T) {
 	t.Parallel()
 
-	dsn, files := tests.GetTestMongoDBWithSSLDSN(t, "../")
+	dsn, files := tests.GetTestMongoDBWithSSLDSN(t, "../../")
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
@@ -142,7 +142,7 @@ func TestMongoDBActionsReplNoAuth(t *testing.T) {
 func TestMongoDBActionsReplWithSSL(t *testing.T) {
 	t.Parallel()
 
-	dsn, files := tests.GetTestMongoDBReplicatedWithSSLDSN(t, "../")
+	dsn, files := tests.GetTestMongoDBReplicatedWithSSLDSN(t, "../../")
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
