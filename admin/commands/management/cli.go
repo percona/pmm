@@ -33,7 +33,7 @@ type RegisterCmd struct {
 
 type AddCmd struct {
 	ProxySql           AddProxySqlCmd           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
-	PostgreSql         AddProxySqlCmd           `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
+	PostgreSql         AddPostgreSqlCmd         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
 	MySql              AddMySqlCmd              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
 	MongoDb            AddMongoDbCmd            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`
 	HAProxy            AddHAProxyCmd            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`
