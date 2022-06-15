@@ -162,7 +162,7 @@ func TestGetZipFile(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/logs.zip", nil)
-		s.Zip(rec, req)
+		s.ZipLogs(rec, req)
 		existFile, err := ioutil.ReadAll(rec.Body)
 		require.NoError(t, err)
 

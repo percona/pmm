@@ -268,7 +268,7 @@ func downloadFile(zipW *zip.Writer, url, fileName string) error {
 
 	zipR, err := zip.NewReader(bufR, bufR.Size())
 	if err != nil {
-		return errors.Wrap(err, "cannot create Zip reader")
+		return errors.Wrap(err, "cannot create ZipLogs reader")
 	}
 
 	for _, rf := range zipR.File {
