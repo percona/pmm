@@ -111,7 +111,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
-          ref: ${{ github.ref }}
+          ref: ${{ github.sha }}
 
   workflow_success:
     needs: [merge-gatekeeper]
