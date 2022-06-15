@@ -172,12 +172,12 @@ func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentSta
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
-	switch status {
-	case inventorypb.AgentStatus_DONE:
+	if status == inventorypb.AgentStatus_DONE {
 		delete(s.lastStatuses, agentID)
-	default:
-		s.lastStatuses[agentID] = status
+		return
 	}
+
+	s.lastStatuses[agentID] = status
 }
 
 // setAgentProcesses starts/restarts/stops Agent processes.
@@ -402,7 +402,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		dsn = builtinAgent.Dsn
 	}
 
-	switch builtinAgent.Type {
+	switch builtinAgent.Type { //nolint:exhaustive
 	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
 			DSN:                  dsn,
@@ -501,7 +501,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}
-	switch agentProcess.Type {
+	switch agentProcess.Type { //nolint:exhaustive
 	case inventorypb.AgentType_NODE_EXPORTER:
 		templateParams["paths_base"] = s.paths.PathsBase
 		processParams.Path = s.paths.NodeExporter

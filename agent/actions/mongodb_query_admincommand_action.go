@@ -94,5 +94,3 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	data := []map[string]interface{}{doc}
 	return agentpb.MarshalActionQueryDocsResult(data)
 }
-
-func (a *mongodbQueryAdmincommandAction) sealed() {}
