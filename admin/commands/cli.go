@@ -1,8 +1,6 @@
 package commands
 
-import (
-	"time"
-)
+import "time"
 
 type StatusCmd struct {
 	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
