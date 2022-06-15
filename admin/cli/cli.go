@@ -23,12 +23,13 @@ import (
 	"reflect"
 
 	"github.com/alecthomas/kong"
+	"github.com/sirupsen/logrus"
+
 	"github.com/percona/pmm/admin/cli/opts"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/version"
-	"github.com/sirupsen/logrus"
 )
 
 var (
