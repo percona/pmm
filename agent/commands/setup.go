@@ -46,7 +46,7 @@ func Setup() {
 
 	l := logrus.WithField("component", "setup")
 	cfg, configFilepath, err := config.Get(l)
-	var e *config.ConfigFileDoesNotExistError
+	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
 		fmt.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
 		os.Exit(1)
