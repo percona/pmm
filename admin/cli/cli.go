@@ -27,21 +27,45 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 )
 
-var CLI = opts.Opts{
-	SetupClients: true,
-}
+var (
+	isJSON = false
+	CLI    = opts.Opts{
+		SetupClients: true,
+	}
+)
 
 type CLIGlobalFlags struct {
-	ServerURL          string `name:"server-url" placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
-	ServerInsecureTls  bool   `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
-	Debug              bool   `name:"debug" help:"Enable debug logging"`
-	Trace              bool   `name:"trace" help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort uint32 `name:"pmm-agent-listen-port" default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
-	JSON               bool   `name:"json" help:"Enable JSON output"`
-	Version            bool   `name:"version" short:"v" help:"Show application version"`
+	ServerURL          string      `name:"server-url" placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
+	ServerInsecureTls  bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
+	Debug              bool        `name:"debug" help:"Enable debug logging"`
+	Trace              bool        `name:"trace" help:"Enable trace logging (implies debug)"`
+	PMMAgentListenPort uint32      `name:"pmm-agent-listen-port" default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
+	JSON               jsonFlag    `name:"json" help:"Enable JSON output"`
+	Version            versionFlag `name:"version" short:"v" help:"Show application version"`
+}
+
+type versionFlag bool
+
+func (v versionFlag) BeforeApply(app *kong.Kong, ctx *kong.Context) error {
+	if isJSON {
+		fmt.Println(version.FullInfoJSON())
+	} else {
+		fmt.Println(version.FullInfo())
+	}
+	os.Exit(0)
+
+	return nil
+}
+
+type jsonFlag bool
+
+func (v jsonFlag) BeforeApply() error {
+	isJSON = true
+	return nil
 }
 
 type CLIFlags struct {

@@ -46,7 +46,7 @@ func TestVersionPlain(t *testing.T) {
 }
 
 func TestVersionJson(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "--version", "--json")
+	cmd := exec.Command("pmm-admin", "--json", "--version")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
