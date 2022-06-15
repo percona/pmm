@@ -78,20 +78,27 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			line = pl.replacer.Replace(line)
 		}
 		if pl.l != nil {
-			switch {
-			case strings.Contains(line, " level=trace "):
-				pl.l.Traceln(line)
-			case strings.Contains(line, " level=debug "):
-				pl.l.Debugln(line)
-			case strings.Contains(line, " level=info "):
-				pl.l.Infoln(line)
-			case strings.Contains(line, " level=warning "):
-				pl.l.Warnln(line)
-			case strings.Contains(line, " level=error "),
-				strings.Contains(line, " level=fatal "),
-				strings.Contains(line, " level=panic "):
-				pl.l.Errorln(line)
-			default:
+			levelIndex := strings.Index(line, "level=")
+			if levelIndex != -1 {
+				ll := line[levelIndex:]
+
+				switch {
+				case strings.HasPrefix(ll, "level=trace"):
+					pl.l.Traceln(line)
+				case strings.HasPrefix(ll, "level=debug"):
+					pl.l.Debugln(line)
+				case strings.HasPrefix(ll, "level=info"):
+					pl.l.Infoln(line)
+				case strings.HasPrefix(ll, "level=warn"):
+					pl.l.Warnln(line)
+				case strings.HasPrefix(ll, "level=error"),
+					strings.HasPrefix(ll, "level=fatal"),
+					strings.HasPrefix(ll, "level=panic"):
+					pl.l.Errorln(line)
+				default:
+					pl.l.Infoln(line)
+				}
+			} else {
 				pl.l.Infoln(line)
 			}
 		}
