@@ -88,5 +88,3 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
-
-func (a *postgresqlQuerySelectAction) sealed() {}
