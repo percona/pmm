@@ -76,8 +76,10 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
 	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
+	case inventorypb.ServiceType_SERVICE_TYPE_INVALID:
+		panic("invalid service type")
 	default:
-		panic(fmt.Sprintf("unhandled service type: %v", msg.Type))
+		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
 	}
 }
 
