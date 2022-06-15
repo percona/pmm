@@ -102,6 +102,7 @@ jobs:
           git status
 
   merge-gatekeeper:
+    needs: [check]
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
