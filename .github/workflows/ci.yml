@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    paths-ignore:
-      - "api-tests/**"
     branches:
       - main
       - release-*
@@ -103,18 +101,8 @@ jobs:
           pwd
           git status
 
-  merge-gatekeeper:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Run Merge Gatekeeper
-        uses: percona-platform/merge-gatekeeper@v1.0.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          interval: 45
-          timeout: 1200
-
   workflow_success:
-    needs: [merge-gatekeeper]
+    needs: [merge]
     name: Slack Notification success
     runs-on: ubuntu-22.04
     env:
@@ -134,7 +122,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [merge-gatekeeper]
+    needs: [merge]
     name: Slack Notification failure
     runs-on: ubuntu-22.04
     env:
