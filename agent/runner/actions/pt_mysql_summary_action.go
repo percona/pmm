@@ -50,8 +50,8 @@ func NewPTMySQLSummaryAction(id string, timeout time.Duration, cmd string, param
 }
 
 // ID returns an Action ID.
-func (p *ptMySQLSummaryAction) ID() string {
-	return p.id
+func (a *ptMySQLSummaryAction) ID() string {
+	return a.id
 }
 
 // Timeout returns Action timeout.
@@ -60,13 +60,13 @@ func (a *ptMySQLSummaryAction) Timeout() time.Duration {
 }
 
 // Type returns an Action type.
-func (p *ptMySQLSummaryAction) Type() string {
-	return p.command
+func (a *ptMySQLSummaryAction) Type() string {
+	return a.command
 }
 
 // Run runs an Action and returns output and error.
-func (p *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, p.command, p.ListFromMySQLParams()...) //nolint:gosec
+func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, a.command, a.ListFromMySQLParams()...) //nolint:gosec
 	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
@@ -75,29 +75,29 @@ func (p *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 }
 
 // Creates an array of strings from parameters.
-func (p *ptMySQLSummaryAction) ListFromMySQLParams() []string {
-	if p.params == nil {
+func (a *ptMySQLSummaryAction) ListFromMySQLParams() []string {
+	if a.params == nil {
 		return []string{}
 	}
 
 	var args []string
-	if p.params.Socket != "" {
-		args = append(args, "--socket", p.params.Socket)
+	if a.params.Socket != "" {
+		args = append(args, "--socket", a.params.Socket)
 	} else {
-		if p.params.Host != "" {
-			args = append(args, "--host", p.params.Host)
+		if a.params.Host != "" {
+			args = append(args, "--host", a.params.Host)
 		}
-		if p.params.Port > 0 && p.params.Port <= 65535 {
-			args = append(args, "--port", strconv.FormatUint(uint64(p.params.Port), 10))
+		if a.params.Port > 0 && a.params.Port <= 65535 {
+			args = append(args, "--port", strconv.FormatUint(uint64(a.params.Port), 10))
 		}
 	}
 
-	if p.params.Username != "" {
-		args = append(args, "--user", p.params.Username)
+	if a.params.Username != "" {
+		args = append(args, "--user", a.params.Username)
 	}
 
-	if p.params.Password != "" {
-		args = append(args, "--password", p.params.Password)
+	if a.params.Password != "" {
+		args = append(args, "--password", a.params.Password)
 	}
 
 	return args

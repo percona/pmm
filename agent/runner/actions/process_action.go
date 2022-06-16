@@ -46,8 +46,8 @@ func NewProcessAction(id string, timeout time.Duration, cmd string, arg []string
 }
 
 // ID returns an Action ID.
-func (p *processAction) ID() string {
-	return p.id
+func (a *processAction) ID() string {
+	return a.id
 }
 
 // Timeout returns Action timeout.
@@ -56,13 +56,13 @@ func (a *processAction) Timeout() time.Duration {
 }
 
 // Type returns an Action type.
-func (p *processAction) Type() string {
-	return p.command
+func (a *processAction) Type() string {
+	return a.command
 }
 
 // Run runs an Action and returns output and error.
-func (p *processAction) Run(ctx context.Context) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, p.command, p.arg...) //nolint:gosec
+func (a *processAction) Run(ctx context.Context) ([]byte, error) {
+	cmd := exec.CommandContext(ctx, a.command, a.arg...) //nolint:gosec
 
 	// restrict process
 	cmd.Env = []string{} // do not inherit environment
