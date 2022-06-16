@@ -30,6 +30,7 @@ linters:
   enable:
     # keep sorted
     - depguard
+    - exhaustive
     - gci
     - goimports
     - govet
