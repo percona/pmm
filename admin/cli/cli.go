@@ -53,9 +53,9 @@ type versionFlag bool
 
 func (v versionFlag) BeforeApply(app *kong.Kong, ctx *kong.Context) error {
 	if isJSON {
-		fmt.Println(version.FullInfoJSON())
+		fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
 	} else {
-		fmt.Println(version.FullInfo())
+		fmt.Println(version.FullInfo()) //nolint:forbidigo
 	}
 	os.Exit(0)
 
