@@ -18,6 +18,7 @@ package process
 import (
 	"bytes"
 	"io"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -78,29 +79,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			line = pl.replacer.Replace(line)
 		}
 		if pl.l != nil {
-			levelIndex := strings.Index(line, "level=")
-			if levelIndex != -1 {
-				ll := line[levelIndex:]
-
-				switch {
-				case strings.HasPrefix(ll, "level=info"):
-					pl.l.Infoln(line)
-				case strings.HasPrefix(ll, "level=warn"):
-					pl.l.Warnln(line)
-				case strings.HasPrefix(ll, "level=error"),
-					strings.HasPrefix(ll, "level=fatal"),
-					strings.HasPrefix(ll, "level=panic"):
-					pl.l.Errorln(line)
-				case strings.HasPrefix(ll, "level=trace"):
-					pl.l.Traceln(line)
-				case strings.HasPrefix(ll, "level=debug"):
-					pl.l.Debugln(line)
-				default:
-					pl.l.Infoln(line)
-				}
-			} else {
-				pl.l.Infoln(line)
-			}
+			pl.l.Logln(matchLogLevel(line), line)
 		}
 		pl.data[pl.i] = pointer.ToString(line)
 		pl.i = (pl.i + 1) % len(pl.data)
@@ -136,6 +115,27 @@ func replacer(redactWords []string) *strings.Replacer {
 		r = append(r, w, "***")
 	}
 	return strings.NewReplacer(r...)
+}
+
+var matchLogLevelRegex = regexp.MustCompile("level=(\\w+)")
+
+func matchLogLevel(line string) logrus.Level {
+	matches := matchLogLevelRegex.FindStringSubmatch(line)
+	if len(matches) < 2 {
+		return logrus.InfoLevel
+	}
+
+	result, err := logrus.ParseLevel(matches[1])
+	if err != nil {
+		// unreachable
+		return logrus.ErrorLevel
+	}
+
+	if result < logrus.ErrorLevel {
+		return logrus.ErrorLevel
+	}
+
+	return result
 }
 
 // check interfaces
