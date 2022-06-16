@@ -90,17 +90,6 @@ func main() {
 			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,
 		})
 
-	if opts.Version {
-		if opts.JSON {
-			fmt.Println(version.FullInfoJSON())
-		} else {
-			fmt.Println(version.FullInfo())
-		}
-		os.Exit(0)
-
-		return
-	}
-
 	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
 	if opts.JSON {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
