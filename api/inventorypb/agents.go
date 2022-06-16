@@ -1,7 +1,5 @@
 package inventorypb
 
-//go-sumtype:decl Agent
-
 // Agent is a common interface for all types of Agents.
 type Agent interface {
 	sealedAgent()

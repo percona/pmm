@@ -1,7 +1,5 @@
 package inventorypb
 
-//go-sumtype:decl Service
-
 // Service is a common interface for all types of Services.
 type Service interface {
 	sealedService()
