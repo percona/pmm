@@ -43,23 +43,23 @@ func (res *addPostgreSQLResult) String() string {
 	return commands.RenderTemplate(addPostgreSQLResultT, res)
 }
 
-func (cmd *AddPostgreSqlCmd) GetServiceName() string {
+func (cmd *AddPostgreSQLCmd) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *AddPostgreSqlCmd) GetAddress() string {
+func (cmd *AddPostgreSQLCmd) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *AddPostgreSqlCmd) GetDefaultAddress() string {
+func (cmd *AddPostgreSQLCmd) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
-func (cmd *AddPostgreSqlCmd) GetSocket() string {
+func (cmd *AddPostgreSQLCmd) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *AddPostgreSqlCmd) GetCredentials() error {
+func (cmd *AddPostgreSQLCmd) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -72,7 +72,7 @@ func (cmd *AddPostgreSqlCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddPostgreSqlCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddPostgreSQLCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

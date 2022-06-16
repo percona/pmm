@@ -150,7 +150,7 @@ Table statistics collection disabled (always).
 
 func TestRun(t *testing.T) {
 	t.Run("CreateUser", func(t *testing.T) {
-		cmd := &AddMySqlCmd{
+		cmd := &AddMySQLCmd{
 			CreateUser: true,
 		}
 		_, err := cmd.RunCmd()

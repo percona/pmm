@@ -35,10 +35,10 @@ type AddCmd struct {
 	External           AddExternalCmd           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
 	ExternalServerless AddExternalServerlessCmd `cmd:"" help:"Add External Service on Remote node to monitoring."`
 	HAProxy            AddHAProxyCmd            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`
-	MongoDb            AddMongoDbCmd            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`
-	MySql              AddMySqlCmd              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
-	PostgreSql         AddPostgreSqlCmd         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
-	ProxySql           AddProxySqlCmd           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
+	MongoDB            AddMongoDBCmd            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`
+	MySQL              AddMySQLCmd              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
+	PostgreSQL         AddPostgreSQLCmd         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
+	ProxySQL           AddProxySQLCmd           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
 }
 
 type AddCommonFlags struct {
@@ -48,7 +48,7 @@ type AddCommonFlags struct {
 	AddLogLevel        string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
 }
 
-type AddProxySqlCmd struct {
+type AddProxySQLCmd struct {
 	ServiceName         string `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
 	Address             string `arg:"" default:"127.0.0.1:6032" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
 	Socket              string `help:"Path to ProxySQL socket"`
@@ -71,7 +71,7 @@ type AddProxySqlCmd struct {
 	AddCommonFlags
 }
 
-type AddPostgreSqlCmd struct {
+type AddPostgreSQLCmd struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
 	Address           string `arg:"" default:"127.0.0.1:5432" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
 	Socket            string `help:"Path to socket"`
@@ -101,7 +101,7 @@ type AddPostgreSqlCmd struct {
 	AddCommonFlags
 }
 
-type AddMySqlCmd struct {
+type AddMySQLCmd struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
 	Address           string `arg:"" default:"127.0.0.1:3306" help:"MySQL address and port (default: 127.0.0.1:3306)"`
 	Socket            string `help:"Path to MySQL socket"`
@@ -136,7 +136,7 @@ type AddMySqlCmd struct {
 	AddCommonFlags
 }
 
-type AddMongoDbCmd struct {
+type AddMongoDBCmd struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
 	Address           string `arg:"" default:"127.0.0.1:27017" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
 	Socket            string `help:"Path to socket"`

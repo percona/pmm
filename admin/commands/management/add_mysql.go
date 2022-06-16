@@ -84,15 +84,15 @@ func (res *addMySQLResult) TablestatStatus() string {
 	return s
 }
 
-func (cmd *AddMySqlCmd) GetServiceName() string {
+func (cmd *AddMySQLCmd) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *AddMySqlCmd) GetAddress() string {
+func (cmd *AddMySQLCmd) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *AddMySqlCmd) GetDefaultAddress() string {
+func (cmd *AddMySQLCmd) GetDefaultAddress() string {
 	if cmd.DefaultsFile != "" {
 		// address might be specified in defaults file
 		return ""
@@ -100,15 +100,15 @@ func (cmd *AddMySqlCmd) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
-func (cmd *AddMySqlCmd) GetDefaultUsername() string {
+func (cmd *AddMySQLCmd) GetDefaultUsername() string {
 	return "root"
 }
 
-func (cmd *AddMySqlCmd) GetSocket() string {
+func (cmd *AddMySQLCmd) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *AddMySqlCmd) GetCredentials() error {
+func (cmd *AddMySQLCmd) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -121,7 +121,7 @@ func (cmd *AddMySqlCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddMySqlCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddMySQLCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -231,7 +231,7 @@ func (cmd *AddMySqlCmd) RunCmd() (commands.Result, error) {
 	}, nil
 }
 
-func defaultsFileUsernameCheck(cmd *AddMySqlCmd) string {
+func defaultsFileUsernameCheck(cmd *AddMySQLCmd) string {
 	// defaults file specified, but passed username has higher priority
 	if cmd.Username != "" && cmd.DefaultsFile != "" {
 		return cmd.Username
