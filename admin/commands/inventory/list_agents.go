@@ -99,7 +99,7 @@ func (cmd *ListAgentsCmd) RunCmd() (commands.Result, error) {
 	}
 
 	filters := agents.ListAgentsBody{
-		PMMAgentID: cmd.PMMAgentId,
+		PMMAgentID: cmd.PMMAgentID,
 		ServiceID:  cmd.ServiceID,
 		NodeID:     cmd.NodeID,
 		AgentType:  agentType,

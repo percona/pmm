@@ -40,7 +40,7 @@ type ListNodesCmd struct {
 }
 
 type ListAgentsCmd struct {
-	PMMAgentId string `help:"Filter by pmm-agent identifier"`
+	PMMAgentID string `help:"Filter by pmm-agent identifier"`
 	ServiceID  string `help:"Filter by Service identifier"`
 	NodeID     string `help:"Filter by Node identifier"`
 	AgentType  string `help:"Filter by Agent type"`
