@@ -402,7 +402,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		dsn = builtinAgent.Dsn
 	}
 
-	switch builtinAgent.Type { //nolint:exhaustive
+	switch builtinAgent.Type {
 	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
 			DSN:                  dsn,
@@ -501,7 +501,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	templateParams := map[string]interface{}{
 		"listen_port": port,
 	}
-	switch agentProcess.Type { //nolint:exhaustive
+	switch agentProcess.Type {
 	case inventorypb.AgentType_NODE_EXPORTER:
 		templateParams["paths_base"] = s.paths.PathsBase
 		processParams.Path = s.paths.NodeExporter
