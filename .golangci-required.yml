@@ -22,18 +22,21 @@ linters-settings:
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm) # Groups all local imports.
 
+  exhaustive:
+    default-signifies-exhaustive: true
+
 linters:
   disable-all: true
   enable:
     # keep sorted
     - depguard
+    - exhaustive
     - gci
     - goimports
     - govet
     - ineffassign
     - nolintlint
     - staticcheck
-    - exhaustive
 
 run:
   skip-dirs:

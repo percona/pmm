@@ -177,6 +177,8 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	return tableID, nil
 }
 
+func (a *postgresqlShowCreateTableAction) sealed() {}
+
 func (a *postgresqlShowCreateTableAction) printColumnsInfo(ctx context.Context, w io.Writer, db *sql.DB, tableID string) error {
 	rows, err := db.QueryContext(ctx, `SELECT /* pmm-agent */ a.attname,
        pg_catalog.format_type(a.atttypid, a.atttypmod),

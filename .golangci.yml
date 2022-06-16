@@ -32,6 +32,9 @@ linters-settings:
   unparam:
     check-exported: true
 
+  exhaustive:
+    default-signifies-exhaustive: true
+
 linters:
   enable-all: true
   disable:
