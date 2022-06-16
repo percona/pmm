@@ -60,6 +60,7 @@ func TestConcurrentRunnerRun(t *testing.T) {
 		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n")},
 	}
 	assertActionResults(t, cr, expected...)
+	cr.wg.Wait()
 	assert.Empty(t, cr.rCancel)
 }
 
