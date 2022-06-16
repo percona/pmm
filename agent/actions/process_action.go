@@ -63,3 +63,5 @@ func (p *processAction) Run(ctx context.Context) ([]byte, error) {
 
 	return cmd.CombinedOutput()
 }
+
+func (*processAction) sealed() {}

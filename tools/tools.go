@@ -3,6 +3,7 @@
 package tools
 
 import (
+	_ "github.com/BurntSushi/go-sumtype"
 	_ "github.com/Percona-Lab/swagger-order"
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/daixiang0/gci"
@@ -29,6 +30,7 @@ import (
 //go:generate go build -o ../bin/buf github.com/bufbuild/buf/cmd/buf
 //go:generate go build -o ../bin/gci github.com/daixiang0/gci
 //go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
+//go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
 //go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
 //go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
 //go:generate go build -o ../bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint

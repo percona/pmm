@@ -3,26 +3,40 @@ package agentpb
 
 import "google.golang.org/protobuf/proto"
 
+//go-sumtype:decl isAgentMessage_Payload
+//go-sumtype:decl isServerMessage_Payload
+
+//go-sumtype:decl AgentRequestPayload
+//go-sumtype:decl AgentResponsePayload
+//go-sumtype:decl ServerResponsePayload
+//go-sumtype:decl ServerRequestPayload
+
+//go-sumtype:decl isStartActionRequest_Params
+
 // code below uses the same order as payload types at AgentMessage / ServerMessage
 
 // AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {
 	AgentMessageRequestPayload() isAgentMessage_Payload
+	sealed()
 }
 
 // AgentResponsePayload represents agent's response payload.
 type AgentResponsePayload interface {
 	AgentMessageResponsePayload() isAgentMessage_Payload
+	sealed()
 }
 
 // ServerResponsePayload represents server's response payload.
 type ServerResponsePayload interface {
 	ServerMessageResponsePayload() isServerMessage_Payload
+	sealed()
 }
 
 // ServerRequestPayload represents server's request payload.
 type ServerRequestPayload interface {
 	ServerMessageRequestPayload() isServerMessage_Payload
+	sealed()
 }
 
 // A list of AgentMessage request payloads.
@@ -169,6 +183,38 @@ func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage
 	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
 
+// in alphabetical order
+func (*ActionResultRequest) sealed()       {}
+func (*ActionResultResponse) sealed()      {}
+func (*CheckConnectionRequest) sealed()    {}
+func (*CheckConnectionResponse) sealed()   {}
+func (*JobProgress) sealed()               {}
+func (*JobResult) sealed()                 {}
+func (*JobStatusRequest) sealed()          {}
+func (*JobStatusResponse) sealed()         {}
+func (*ParseDefaultsFileRequest) sealed()  {}
+func (*ParseDefaultsFileResponse) sealed() {}
+func (*Ping) sealed()                      {}
+func (*Pong) sealed()                      {}
+func (*QANCollectRequest) sealed()         {}
+func (*QANCollectResponse) sealed()        {}
+func (*SetStateRequest) sealed()           {}
+func (*SetStateResponse) sealed()          {}
+func (*StartActionRequest) sealed()        {}
+func (*StartActionResponse) sealed()       {}
+func (*StartJobRequest) sealed()           {}
+func (*StartJobResponse) sealed()          {}
+func (*StateChangedRequest) sealed()       {}
+func (*StateChangedResponse) sealed()      {}
+func (*StopActionRequest) sealed()         {}
+func (*StopActionResponse) sealed()        {}
+func (*StopJobRequest) sealed()            {}
+func (*StopJobResponse) sealed()           {}
+func (*GetVersionsRequest) sealed()        {}
+func (*GetVersionsResponse) sealed()       {}
+func (*PBMSwitchPITRRequest) sealed()      {}
+func (*PBMSwitchPITRResponse) sealed()     {}
+
 // check interfaces
 var (
 	// A list of AgentMessage request payloads.
@@ -211,7 +257,13 @@ var (
 	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 )
 
+//go-sumtype:decl AgentParams
+
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
+	sealedAgentParams()
 }
+
+func (*SetStateRequest_AgentProcess) sealedAgentParams() {}
+func (*SetStateRequest_BuiltinAgent) sealedAgentParams() {}
