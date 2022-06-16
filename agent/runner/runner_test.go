@@ -136,6 +136,7 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	err = cr.StartAction(a2)
 	require.NoError(t, err)
 
+	time.Sleep(time.Second) // To let actions to actually start
 	cancel()
 
 	// Unlike other tests, there we mostly see "context canceled", but "signal: killed" still happens.
