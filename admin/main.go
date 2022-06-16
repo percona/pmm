@@ -69,7 +69,8 @@ func main() {
 		kong.Description(fmt.Sprintf("Version %s", version.Version)),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
-			Compact: true,
+			Compact:             true,
+			NoExpandSubcommands: true,
 		}),
 		kong.Bind(&cli.CLI),
 		kong.Vars{

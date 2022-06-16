@@ -91,7 +91,7 @@ func (cmd *AddPostgreSqlCmd) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.addCommonFlags)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (cmd *AddPostgreSqlCmd) RunCmd() (commands.Result, error) {
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:             &cmd.addLogLevel,
+			LogLevel:             &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}

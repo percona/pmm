@@ -18,8 +18,8 @@ type ListCmd struct {
 
 type ConfigCmd struct {
 	NodeAddress       string `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
-	NodeType          string `name:"node-type" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
-	NodeName          string `name:"node-name" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	NodeType          string `name:"node-type" arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
+	NodeName          string `name:"node-name" arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
 	NodeModel         string `name:"node-model" help:"Node model"`
 	Region            string `name:"region" help:"Node region"`
 	Az                string `name:"az" help:"Node availability zone"`

@@ -9,9 +9,9 @@ type InventoryCmd struct {
 }
 
 type ListCmd struct {
-	Services ListServicesCmd `cmd:"" hidden:"" help:"Show services in inventory"`
-	Nodes    ListNodesCmd    `cmd:"" hidden:"" help:"Show nodes in inventory"`
-	Agents   ListAgentsCmd   `cmd:"" hidden:"" help:"Show agents in inventory"`
+	Agents   ListAgentsCmd   `cmd:"" help:"Show agents in inventory"`
+	Nodes    ListNodesCmd    `cmd:"" help:"Show nodes in inventory"`
+	Services ListServicesCmd `cmd:"" help:"Show services in inventory"`
 }
 
 type ListServicesCmd struct {
@@ -32,25 +32,25 @@ type ListAgentsCmd struct {
 }
 
 type AddCmd struct {
-	Service AddServiceCmd `cmd:"" hidden:"" help:"Add service to inventory"`
-	Node    AddNodeCmd    `cmd:"" hidden:"" help:"Add node to inventory"`
-	Agent   AddAgentCmd   `cmd:"" hidden:"" help:"Add agent to inventory"`
+	Agent   AddAgentCmd   `cmd:"" help:"Add agent to inventory"`
+	Node    AddNodeCmd    `cmd:"" help:"Add node to inventory"`
+	Service AddServiceCmd `cmd:"" help:"Add service to inventory"`
 }
 
 type AddServiceCmd struct {
-	ProxySQL   AddServiceProxySQLCmd   `cmd:"" hidden:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
-	PostgreSQL AddServicePostgreSQLCmd `cmd:"" hidden:"" name:"postgresql" help:"Add PostgreSQL service to inventory"`
-	MySQL      AddServiceMySQLCmd      `cmd:"" hidden:"" name:"mysql" help:"Add MySQL service to inventory"`
-	MongoDB    AddServiceMongoDBCmd    `cmd:"" hidden:"" name:"mongodb" help:"Add MongoDB service to inventory"`
-	HAProxy    AddServiceHAProxyCmd    `cmd:"" hidden:"" name:"haproxy" help:"Add HAProxy service to inventory"`
-	External   AddServiceExternalCmd   `cmd:"" hidden:"" name:"haproxy" help:"Add an external service to inventory"`
+	External   AddServiceExternalCmd   `cmd:"" help:"Add an external service to inventory"`
+	HAProxy    AddServiceHAProxyCmd    `cmd:"" name:"haproxy" help:"Add HAProxy service to inventory"`
+	MongoDB    AddServiceMongoDBCmd    `cmd:"" name:"mongodb" help:"Add MongoDB service to inventory"`
+	MySQL      AddServiceMySQLCmd      `cmd:"" name:"mysql" help:"Add MySQL service to inventory"`
+	PostgreSQL AddServicePostgreSQLCmd `cmd:"" name:"postgresql" help:"Add PostgreSQL service to inventory"`
+	ProxySQL   AddServiceProxySQLCmd   `cmd:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
 }
 
 type AddServiceProxySQLCmd struct {
-	ServiceName    string `arg:"" name:"name" help:"Service name"`
-	NodeID         string `arg:"" help:"Node ID"`
-	Address        string `arg:"" help:"Address"`
-	Port           int64  `arg:"" help:"Port"`
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
 	Socket         string `help:"Path to ProxySQL socket"`
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
@@ -59,10 +59,10 @@ type AddServiceProxySQLCmd struct {
 }
 
 type AddServicePostgreSQLCmd struct {
-	ServiceName    string `arg:"" name:"name" help:"Service name"`
-	NodeID         string `arg:"" help:"Node ID"`
-	Address        string `arg:"" help:"Address"`
-	Port           int64  `arg:"" help:"Port"`
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
 	Socket         string `help:"Path to PostgreSQL socket"`
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
@@ -71,10 +71,10 @@ type AddServicePostgreSQLCmd struct {
 }
 
 type AddServiceMySQLCmd struct {
-	ServiceName    string `arg:"" name:"name" help:"Service name"`
-	NodeID         string `arg:"" help:"Node ID"`
-	Address        string `arg:"" help:"Address"`
-	Port           int64  `arg:"" help:"Port"`
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
 	Socket         string `help:"Path to MySQL socket"`
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
@@ -83,10 +83,10 @@ type AddServiceMySQLCmd struct {
 }
 
 type AddServiceMongoDBCmd struct {
-	ServiceName    string `arg:"" name:"name" help:"Service name"`
-	NodeID         string `arg:"" help:"Node ID"`
-	Address        string `arg:"" help:"Address"`
-	Port           int64  `arg:"" help:"Port"`
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
 	Socket         string `help:"Path to socket"`
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
@@ -95,8 +95,8 @@ type AddServiceMongoDBCmd struct {
 }
 
 type AddServiceHAProxyCmd struct {
-	ServiceName    string `arg:"" name:"name" help:"HAProxy service name"`
-	NodeID         string `arg:"" help:"HAProxy service node ID"`
+	ServiceName    string `arg:"" optional:"" name:"name" help:"HAProxy service name"`
+	NodeID         string `arg:"" optional:"" help:"HAProxy service node ID"`
 	Environment    string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster        string `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet string `placeholder:"rs1" help:"Replication set name"`
@@ -114,14 +114,14 @@ type AddServiceExternalCmd struct {
 }
 
 type AddNodeCmd struct {
-	Remote    AddNodeRemoteCmd    `cmd:"" hidden:"" help:"Add Remote node to inventory"`
-	RemoteRDS AddNodeRemoteRDSCmd `cmd:"" hidden:"" help:"Add Remote RDS node to inventory"`
-	Generic   AddNodeGenericCmd   `cmd:"" hidden:"" help:"Add generic node to inventory"`
-	Container AddNodeContainerCmd `cmd:"" hidden:"" help:"Add container node to inventory"`
+	Container AddNodeContainerCmd `cmd:"" help:"Add container node to inventory"`
+	Generic   AddNodeGenericCmd   `cmd:"" help:"Add generic node to inventory"`
+	Remote    AddNodeRemoteCmd    `cmd:"" help:"Add Remote node to inventory"`
+	RemoteRDS AddNodeRemoteRDSCmd `cmd:"" help:"Add Remote RDS node to inventory"`
 }
 
 type AddNodeRemoteCmd struct {
-	NodeName     string `arg:"" name:"name" help:"Node name"`
+	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string `help:"Address"`
 	CustomLabels string `help:"Custom user-assigned labels"`
 	Region       string `help:"Node region"`
@@ -129,27 +129,27 @@ type AddNodeRemoteCmd struct {
 }
 
 type AddNodeRemoteRDSCmd struct {
-	NodeName     string `arg:"" name:"name" help:"Node name"`
+	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string `help:"Address"`
-	NodeModel    string `name:"name" help:"Node mddel"`
+	NodeModel    string `help:"Node mddel"`
 	Region       string `help:"Node region"`
 	Az           string `help:"Node availability zone"`
 	CustomLabels string `help:"Custom user-assigned labels"`
 }
 
 type AddNodeGenericCmd struct {
-	NodeName     string `arg:"" name:"name" help:"Node name"`
+	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	MachineID    string `help:"Linux machine-id"`
 	Distro       string `help:"Linux distribution (if any)"`
 	Address      string `help:"Address"`
 	CustomLabels string `help:"Custom user-assigned labels"`
 	Region       string `help:"Node region"`
 	Az           string `help:"Node availability zone"`
-	NodeModel    string `name:"name" help:"Node mddel"`
+	NodeModel    string `help:"Node mddel"`
 }
 
 type AddNodeContainerCmd struct {
-	NodeName      string `arg:"" name:"name" help:"Node name"`
+	NodeName      string `arg:"" optional:"" name:"name" help:"Node name"`
 	MachineID     string `help:"Linux machine-id"`
 	ContainerID   string `help:"Container identifier; if specified, must be a unique Docker container identifier"`
 	ContainerName string `help:"Container name"`
@@ -157,24 +157,25 @@ type AddNodeContainerCmd struct {
 	CustomLabels  string `help:"Custom user-assigned labels"`
 	Region        string `help:"Node region"`
 	Az            string `help:"Node availability zone"`
-	NodeModel     string `name:"name" help:"Node mddel"`
+	NodeModel     string `help:"Node model"`
 }
 
 type AddAgentCmd struct {
-	RDSExporter AddAgentRDSExporterCmd `cmd:"" hidden:"" help:"Add rds_exporter to inventory"`
+	ExternalExporter ExternalExporterCmd `cmd:"" name:"external" help:"Add external exporter to inventory"`
+	MongodbExporter  MongoDBExporterCmd  `cmd:"" help:"Add mongodb_exporter to inventory"`
+	MysqldExporter   MysqldExporterCmd   `cmd:"" help:"Add mysqld_exporter to inventory"`
+	NodeExporter     NodeExporterCmd     `cmd:"" help:"Add Node exporter to inventory"`
+	PMMAgent         PMMAgentCmd         `cmd:"" help:"Add PMM agent to inventory"`
+	PostgresExporter PostgresExporterCmd `cmd:"" help:"Add postgres_exporter to inventory"`
+	ProxysqlExporter ProxysqlExporterCmd `cmd:"" help:"Add proxysql_exporter to inventory"`
 
-	QANPostgreSQLPgStatMonitorAgent AddQANPostgreSQLPgStatMonitorAgentCmd `cmd:"" hidden:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
-	QANPostgreSQLPgStatementsAgent  AddQANPostgreSQLPgStatementsAgentCmd  `cmd:"" hidden:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
-	QANMySQLSlowlogAgent            AddQANMySQLSlowlogAgentCmd            `cmd:"" hidden:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
-	QANMySQLPerfSchemaAgent         AddQANMySQLPerfSchemaAgentCmd         `cmd:"" hidden:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
-	QANMongoDBProfilerAgent         AddQANMongoDBProfilerAgentCmd         `cmd:"" hidden:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
+	QANMongoDBProfilerAgent         AddQANMongoDBProfilerAgentCmd         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
+	QANMySQLPerfSchemaAgent         AddQANMySQLPerfSchemaAgentCmd         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
+	QANMySQLSlowlogAgent            AddQANMySQLSlowlogAgentCmd            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
+	QANPostgreSQLPgStatementsAgent  AddQANPostgreSQLPgStatementsAgentCmd  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
+	QANPostgreSQLPgStatMonitorAgent AddQANPostgreSQLPgStatMonitorAgentCmd `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
 
-	PostgresExporter PostgresExporterCmd `cmd:"" hidden:"" help:"Add postgres_exporter to inventory"`
-	PMMAgent         PMMAgentCmd         `cmd:"" hidden:"" help:"Add PMM agent to inventory"`
-	NodeExporter     NodeExporterCmd     `cmd:"" hidden:"" help:"Add Node exporter to inventory"`
-	MysqldExporter   MysqldExporterCmd   `cmd:"" hidden:"" help:"Add mysqld_exporter to inventory"`
-	MongodbExporter  MongoDBExporterCmd  `cmd:"" hidden:"" help:"Add mongodb_exporter to inventory"`
-	ExternalExporter ExternalExporterCmd `cmd:"" hidden:"" help:"Add external exporter to inventory"`
+	RDSExporter AddAgentRDSExporterCmd `cmd:"" help:"Add rds_exporter to inventory"`
 }
 
 type AddAgentRDSExporterCmd struct {
@@ -192,14 +193,14 @@ type AddAgentRDSExporterCmd struct {
 type AddQANPostgreSQLPgStatMonitorAgentCmd struct {
 	PMMAgentID            string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID             string `arg:"" help:"Service identifier"`
-	Username              string `arg:"" help:"PostgreSQL username for QAN agent"`
+	Username              string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
 	Password              string `help:"PostgreSQL password for QAN agent"`
 	CustomLabels          string `help:"Custom user-assigned labels"`
 	SkipConnectionCheck   bool   `help:"Skip connection check"`
 	QueryExamplesDisabled bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                   bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify         bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile             string `help:"TLS CA certificate file"`
+	TLSCAFile             string `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile           string `help:"TLS certificate file"`
 	TLSKeyFile            string `help:"TLS certificate key file"`
 }
@@ -207,13 +208,13 @@ type AddQANPostgreSQLPgStatMonitorAgentCmd struct {
 type AddQANPostgreSQLPgStatementsAgentCmd struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
-	Username            string `arg:"" help:"PostgreSQL username for QAN agent"`
+	Username            string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
 	Password            string `help:"PostgreSQL password for QAN agent"`
 	CustomLabels        string `help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 	TLS                 bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile           string `help:"TLS CA certificate file"`
+	TLSCAFile           string `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile         string `help:"TLS certificate file"`
 	TLSKeyFile          string `help:"TLS certificate key file"`
 }
@@ -221,38 +222,38 @@ type AddQANPostgreSQLPgStatementsAgentCmd struct {
 type AddQANMySQLSlowlogAgentCmd struct {
 	PMMAgentID           string           `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string           `arg:"" help:"Service identifier"`
-	Username             string           `arg:"" help:"MySQL username for scraping metrics"`
+	Username             string           `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string           `help:"MySQL password for scraping metrics"`
 	CustomLabels         string           `help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool             `help:"Skip connection check"`
 	DisableQueryExamples bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	MaxSlowlogFileSize   units.Base2Bytes `name:"size-slow-logs" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
+	MaxSlowlogFileSize   units.Base2Bytes `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
 	TLS                  bool             `help:"Use TLS to connect to the database"`
 	TLSSkipVerify        bool             `help:"Skip TLS certificates validation"`
-	TLSCAFile            string           `help:"TLS CA certificate file"`
-	TLSCertFile          string           `help:"TLS certificate file"`
-	TLSKeyFile           string           `help:"TLS certificate key file"`
+	TLSCAFile            string           `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile          string           `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile           string           `name:"tls-key" help:"Path to client key file"`
 }
 
 type AddQANMySQLPerfSchemaAgentCmd struct {
 	PMMAgentID           string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string `arg:"" help:"Service identifier"`
-	Username             string `arg:"" help:"MySQL username for scraping metrics"`
+	Username             string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string `help:"MySQL password for scraping metrics"`
 	CustomLabels         string `help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool   `help:"Skip connection check"`
 	DisableQueryExamples bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify        bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile            string `help:"TLS CA certificate file"`
-	TLSCertFile          string `help:"TLS certificate file"`
-	TLSKeyFile           string `help:"TLS certificate key file"`
+	TLSCAFile            string `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile          string `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile           string `name:"tls-key" help:"Path to client key file"`
 }
 
 type AddQANMongoDBProfilerAgentCmd struct {
 	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string `arg:"" help:"Service identifier"`
-	Username                      string `arg:"" help:"MongoDB username for scraping metrics"`
+	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string `help:"MongoDB password for scraping metrics"`
 	CustomLabels                  string `help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool   `help:"Skip connection check"`
@@ -268,7 +269,7 @@ type AddQANMongoDBProfilerAgentCmd struct {
 type ProxysqlExporterCmd struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
-	Username            string `arg:"" help:"ProxySQL username for scraping metrics"`
+	Username            string `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
 	Password            string `help:"ProxySQL password for scraping metrics"`
 	AgentPassword       string `help:"Custom password for /metrics endpoint"`
 	CustomLabels        string `help:"Custom user-assigned labels"`
@@ -282,7 +283,7 @@ type ProxysqlExporterCmd struct {
 type PostgresExporterCmd struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
-	Username            string `arg:"" help:"PostgreSQL username for scraping metrics"`
+	Username            string `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
 	Password            string `help:"PostgreSQL password for scraping metrics"`
 	AgentPassword       string `help:"Custom password for /metrics endpoint"`
 	CustomLabels        string `help:"Custom user-assigned labels"`
@@ -311,7 +312,7 @@ type NodeExporterCmd struct {
 type MysqldExporterCmd struct {
 	PMMAgentID                string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                 string `arg:"" help:"Service identifier"`
-	Username                  string `arg:"" help:"MySQL username for scraping metrics"`
+	Username                  string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password                  string `help:"MySQL password for scraping metrics"`
 	AgentPassword             string `help:"Custom password for /metrics endpoint"`
 	CustomLabels              string `help:"Custom user-assigned labels"`
@@ -321,7 +322,7 @@ type MysqldExporterCmd struct {
 	TLSCAFile                 string `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile               string `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile                string `name:"tls-key" help:"Path to client key file"`
-	TablestatsGroupTableLimit int32  `help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
+	TablestatsGroupTableLimit int32  `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
 	PushMetrics               bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors         string `help:"Comma-separated list of collector names to exclude from exporter"`
 }
@@ -329,7 +330,7 @@ type MysqldExporterCmd struct {
 type MongoDBExporterCmd struct {
 	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string `arg:"" help:"Service identifier"`
-	Username                      string `arg:"" help:"MongoDB username for scraping metrics"`
+	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string `help:"MongoDB password for scraping metrics"`
 	AgentPassword                 string `help:"Custom password for /metrics endpoint"`
 	CustomLabels                  string `help:"Custom user-assigned labels"`
@@ -343,7 +344,7 @@ type MongoDBExporterCmd struct {
 	PushMetrics                   bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors             string `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              string `help:"Collections for collstats & indexstats"`
-	CollectionsLimit              int32  `name:"max-collections-limit" help:"Disable collstats & indexstats if there are more than <n> collections"`
+	CollectionsLimit              int32  `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 }
 
 type ExternalExporterCmd struct {
@@ -353,28 +354,28 @@ type ExternalExporterCmd struct {
 	Password     string `help:"HTTP Basic auth password for scraping metrics"`
 	Scheme       string `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
 	MetricsPath  string `help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort   int64  `required:"" help:"Listen port for scraping metrics"`
+	ListenPort   int64  `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
 	CustomLabels string `help:"Custom user-assigned labels"`
 	PushMetrics  bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
 type RemoveCmd struct {
-	Service RemoveServiceCmd `cmd:"" hidden:"" help:"Remove service from inventory"`
-	Node    RemoveNodeCmd    `cmd:"" hidden:"" help:"Remove node from inventory"`
-	Agent   RemoveAgentCmd   `cmd:"" hidden:"" help:"Remove agent from inventory"`
+	Agent   RemoveAgentCmd   `cmd:"" help:"Remove agent from inventory"`
+	Node    RemoveNodeCmd    `cmd:"" help:"Remove node from inventory"`
+	Service RemoveServiceCmd `cmd:"" help:"Remove service from inventory"`
 }
 
 type RemoveServiceCmd struct {
-	ServiceID string `help:"Service ID"`
+	ServiceID string `arg:"" optional:"" help:"Service ID"`
 	Force     bool   `help:"Remove service with all dependencies"`
 }
 
 type RemoveNodeCmd struct {
-	NodeID string `help:"Node ID"`
+	NodeID string `arg:"" optional:"" help:"Node ID"`
 	Force  bool   `help:"Remove node with all dependencies"`
 }
 
 type RemoveAgentCmd struct {
-	AgentID string `help:"Agent ID"`
+	AgentID string `arg:"" optional:"" help:"Agent ID"`
 	Force   bool   `help:"Remove agent with all dependencies"`
 }

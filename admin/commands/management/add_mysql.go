@@ -163,7 +163,7 @@ func (cmd *AddMySqlCmd) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.addCommonFlags)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (cmd *AddMySqlCmd) RunCmd() (commands.Result, error) {
 			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &cmd.addLogLevel,
+			LogLevel:                  &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}

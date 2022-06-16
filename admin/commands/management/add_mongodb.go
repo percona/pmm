@@ -105,7 +105,7 @@ func (cmd *AddMongoDbCmd) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.addCommonFlags)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (cmd *AddMongoDbCmd) RunCmd() (commands.Result, error) {
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 			StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 			CollectionsLimit:    cmd.CollectionsLimit,
-			LogLevel:            &cmd.addLogLevel,
+			LogLevel:            &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}
