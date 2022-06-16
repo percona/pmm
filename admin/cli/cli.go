@@ -107,7 +107,7 @@ func PrintResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 
 	switch err := err.(type) {
 	case nil:
-		if (*opts).JSON {
+		if opts.JSON {
 			b, jErr := json.Marshal(res)
 			if jErr != nil {
 				logrus.Infof("Result: %#v.", res)
@@ -123,7 +123,7 @@ func PrintResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 	case commands.ErrorResponse:
 		e := commands.GetError(err)
 
-		if (*opts).JSON {
+		if opts.JSON {
 			b, jErr := json.Marshal(e)
 			if jErr != nil {
 				logrus.Infof("Error response: %#v.", e)
@@ -141,7 +141,7 @@ func PrintResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		if (*opts).JSON {
+		if opts.JSON {
 			b, jErr := json.Marshal(res)
 			if jErr != nil {
 				logrus.Infof("Result: %#v.", res)
