@@ -117,7 +117,7 @@ func replacer(redactWords []string) *strings.Replacer {
 	return strings.NewReplacer(r...)
 }
 
-var matchLogLevelRegex = regexp.MustCompile("level=(\\w+)")
+var matchLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 
 func matchLogLevel(line string) logrus.Level {
 	matches := matchLogLevelRegex.FindStringSubmatch(line)
