@@ -104,9 +104,10 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 		var table map[string]interface{}
-		if mySQLVendor == tests.MariaDBMySQL {
+		switch mySQLVendor {
+		case tests.MariaDBMySQL:
 			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
-		} else {
+		default:
 			table = m.Get("query_block.ordering_operation.table").MSI()
 		}
 

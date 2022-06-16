@@ -94,3 +94,5 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// We need it because result
 	return []byte(result.String()), nil
 }
+
+func (a *mongodbExplainAction) sealed() {}
