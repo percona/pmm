@@ -172,12 +172,12 @@ func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentSta
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
-	switch status {
-	case inventorypb.AgentStatus_DONE:
+	if status == inventorypb.AgentStatus_DONE {
 		delete(s.lastStatuses, agentID)
-	default:
-		s.lastStatuses[agentID] = status
+		return
 	}
+
+	s.lastStatuses[agentID] = status
 }
 
 // setAgentProcesses starts/restarts/stops Agent processes.
