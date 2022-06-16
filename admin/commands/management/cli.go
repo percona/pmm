@@ -128,9 +128,8 @@ type AddMySQLCmd struct {
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
 	// TODO add "auto", make it default
-	QuerySource          string `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
-	DisableQueryExamples bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	// TODO check if works
+	QuerySource            string           `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
+	DisableQueryExamples   bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
 	DisableTablestats      bool             `help:"Disable table statistics collection"`
 	DisableTablestatsLimit uint16           `help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
