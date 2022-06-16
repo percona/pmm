@@ -1,4 +1,4 @@
-name: CI
+name: API CI
 
 on:
   push:
@@ -96,53 +96,3 @@ jobs:
           go env
           pwd
           git status
-
-  merge-gatekeeper:
-    needs: [check]
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Run Merge Gatekeeper
-        uses: percona-platform/merge-gatekeeper@v1.0.2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          interval: 45
-          timeout: 1200
-          ref: ${{ github.sha }}
-
-  workflow_success:
-    needs: [merge-gatekeeper]
-    name: Slack Notification success
-    runs-on: ubuntu-22.04
-    env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-      SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
-      SLACK_COLOR: "#00FF00"
-      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-
-    steps:
-      - uses: percona-platform/checkout@v3
-      - uses: percona-platform/setup-node@v2
-      - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
-
-  workflow_failure:
-    if: ${{ failure() }}
-    needs: [merge-gatekeeper]
-    name: Slack Notification failure
-    runs-on: ubuntu-22.04
-    env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-      SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
-      SLACK_COLOR: "#FF0000"
-      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-
-    steps:
-      - uses: percona-platform/checkout@v3
-      - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
