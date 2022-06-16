@@ -40,13 +40,13 @@ var (
 )
 
 type CLIGlobalFlags struct {
-	ServerURL          string      `name:"server-url" placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
-	ServerInsecureTls  bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
-	Debug              bool        `name:"debug" help:"Enable debug logging"`
-	Trace              bool        `name:"trace" help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort uint32      `name:"pmm-agent-listen-port" default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
-	JSON               jsonFlag    `name:"json" help:"Enable JSON output"`
-	Version            versionFlag `name:"version" short:"v" help:"Show application version"`
+	ServerURL          string      `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
+	ServerInsecureTls  bool        `help:"Skip PMM Server TLS certificate validation"`
+	Debug              bool        `help:"Enable debug logging"`
+	Trace              bool        `help:"Enable trace logging (implies debug)"`
+	PMMAgentListenPort uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
+	JSON               jsonFlag    `help:"Enable JSON output"`
+	Version            versionFlag `short:"v" help:"Show application version"`
 }
 
 type versionFlag bool
