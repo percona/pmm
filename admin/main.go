@@ -57,7 +57,7 @@ func main() {
 		management.MysqlQuerySourceNone,
 	}
 
-	mongoDbQuerySources := []string{
+	mongoDBQuerySources := []string{
 		management.MongodbQuerySourceProfiler,
 		management.MongodbQuerySourceNone,
 	}
@@ -84,8 +84,8 @@ func main() {
 			"metricsModesEnum":             strings.Join(management.MetricsModes, ","),
 			"mysqlQuerySourcesEnum":        strings.Join(mysqlQuerySources, ","),
 			"mysqlQuerySourceDefault":      mysqlQuerySources[0],
-			"mongoDbQuerySourcesEnum":      strings.Join(mongoDbQuerySources, ","),
-			"mongoDbQuerySourceDefault":    mongoDbQuerySources[0],
+			"mongoDbQuerySourcesEnum":      strings.Join(mongoDBQuerySources, ","),
+			"mongoDbQuerySourceDefault":    mongoDBQuerySources[0],
 			"externalDefaultServiceName":   management.DefaultServiceNameSuffix,
 			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,
 		})
