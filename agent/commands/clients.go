@@ -30,6 +30,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
@@ -86,14 +87,14 @@ func localReload() error {
 	return err
 }
 
-type errFromNginx string
+type nginxError string
 
-func (e errFromNginx) Error() string {
+func (e nginxError) Error() string {
 	return "response from nginx: " + string(e)
 }
 
-func (e errFromNginx) GoString() string {
-	return fmt.Sprintf("errFromNginx(%q)", string(e))
+func (e nginxError) GoString() string {
+	return fmt.Sprintf("nginxError(%q)", string(e))
 }
 
 // setServerTransport configures transport for accessing PMM Server API.
@@ -113,7 +114,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
 		b, _ := io.ReadAll(reader)
-		return errFromNginx(string(b))
+		return nginxError(string(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
@@ -149,7 +150,7 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 		}
 		submatches := customLabelRE.FindStringSubmatch(part)
 		if submatches == nil {
-			return nil, fmt.Errorf("wrong custom label format")
+			return nil, errors.New("wrong custom label format")
 		}
 		result[submatches[1]] = submatches[2]
 	}
@@ -207,6 +208,6 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 
 // check interfaces
 var (
-	_ error          = errFromNginx("")
-	_ fmt.GoStringer = errFromNginx("")
+	_ error          = nginxError("")
+	_ fmt.GoStringer = nginxError("")
 )

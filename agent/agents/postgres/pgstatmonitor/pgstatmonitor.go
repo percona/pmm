@@ -586,6 +586,4 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
 }
 
 // check interfaces
-var (
-	_ prometheus.Collector = (*PGStatMonitorQAN)(nil)
-)
+var _ prometheus.Collector = (*PGStatMonitorQAN)(nil)

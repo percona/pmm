@@ -37,10 +37,7 @@ type mongodbExplainAction struct {
 	tempDir string
 }
 
-var (
-	errCannotExplain     = fmt.Errorf("cannot explain this type of query")
-	errInvalidInputQuery = fmt.Errorf("invalid input query for explain")
-)
+var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
@@ -97,5 +94,3 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// We need it because result
 	return []byte(result.String()), nil
 }
-
-func (a *mongodbExplainAction) sealed() {}

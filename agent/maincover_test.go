@@ -18,9 +18,7 @@
 
 package main
 
-import (
-	"testing"
-)
+import "testing"
 
 // FIXME Does not currently work due to kingpin/flags clash.
 // https://jira.percona.com/browse/PMM-3484

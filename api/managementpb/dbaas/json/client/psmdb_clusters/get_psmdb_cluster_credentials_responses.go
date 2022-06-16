@@ -159,9 +159,6 @@ func (o *GetPSMDBClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 swagger:model GetPSMDBClusterCredentialsDefaultBody
 */
 type GetPSMDBClusterCredentialsDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -265,12 +262,8 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error 
 swagger:model GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get PSMDB cluster credentials default body details items0

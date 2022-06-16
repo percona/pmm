@@ -15,9 +15,7 @@
 
 package report
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestReport(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage

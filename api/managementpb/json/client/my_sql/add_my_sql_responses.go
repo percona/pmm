@@ -218,6 +218,9 @@ type AddMySQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Path to .cnf file which contains user-name and password
+	DefaultsFile string `json:"defaults_file,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -413,9 +416,6 @@ func (o *AddMySQLBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLDefaultBody
 */
 type AddMySQLDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -519,12 +519,8 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLDefaultBodyDetailsItems0
 */
 type AddMySQLDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add my SQL default body details items0

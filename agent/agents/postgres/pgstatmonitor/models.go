@@ -15,9 +15,7 @@
 
 package pgstatmonitor
 
-import (
-	"fmt"
-)
+import "fmt"
 
 //go:generate ../../../../bin/reform
 

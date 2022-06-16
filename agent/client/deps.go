@@ -25,6 +25,7 @@ import (
 
 //go:generate ../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
 //go:generate ../../bin/mockery -name=supervisor -case=snake -inpkg -testonly
+//go:generate ../../bin/mockery -name=defaultsFileParser -case=snake -inpkg -testonly
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -48,4 +49,7 @@ type supervisor interface {
 	SetState(*agentpb.SetStateRequest)
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
+}
+type defaultsFileParser interface {
+	ParseDefaultsFile(req *agentpb.ParseDefaultsFileRequest) *agentpb.ParseDefaultsFileResponse
 }
