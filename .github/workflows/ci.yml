@@ -110,6 +110,8 @@ jobs:
         uses: percona-platform/merge-gatekeeper@v1.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          interval: 45
+          timeout: 1200
 
   workflow_success:
     needs: [merge-gatekeeper]
