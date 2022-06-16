@@ -275,6 +275,8 @@ func TestFilter(t *testing.T) {
 
 func TestSupervisorProcessParams(t *testing.T) {
 	setup := func(t *testing.T) (*Supervisor, func()) {
+		t.Helper()
+
 		temp, err := os.MkdirTemp("", "pmm-agent-")
 		require.NoError(t, err)
 

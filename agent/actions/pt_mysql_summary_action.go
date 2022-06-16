@@ -94,5 +94,3 @@ func (p *ptMySQLSummaryAction) ListFromMySQLParams() []string {
 
 	return args
 }
-
-func (*ptMySQLSummaryAction) sealed() {}

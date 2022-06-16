@@ -163,9 +163,6 @@ func (o *AddAnnotationBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -269,12 +266,8 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add annotation default body details items0

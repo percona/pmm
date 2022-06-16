@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
 )
 
@@ -75,8 +76,9 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
+	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v)
+	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 	go func() {

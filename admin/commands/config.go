@@ -154,7 +154,7 @@ func (cmd *configCommand) Run() (Result, error) {
 
 // register command
 var (
-	Config  = new(configCommand)
+	Config  configCommand
 	ConfigC = kingpin.Command("config", "Configure local pmm-agent")
 )
 

@@ -183,9 +183,6 @@ func (o *AddMySQLServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLServiceDefaultBody
 */
 type AddMySQLServiceDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -289,12 +286,8 @@ func (o *AddMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLServiceDefaultBodyDetailsItems0
 */
 type AddMySQLServiceDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add my SQL service default body details items0

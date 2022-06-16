@@ -81,7 +81,7 @@ func (cmd *addNodeRemoteRDSCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddNodeRemoteRDS  = new(addNodeRemoteRDSCommand)
+	AddNodeRemoteRDS  addNodeRemoteRDSCommand
 	AddNodeRemoteRDSC = addNodeC.Command("remote-rds", "Add Remote RDS node to inventory").Hide(hide)
 )
 
