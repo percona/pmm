@@ -26,7 +26,7 @@ require (
 	github.com/go-openapi/validate v0.21.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
 	github.com/hashicorp/go-version v1.5.0
 	github.com/lib/pq v1.10.6
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -42,7 +42,7 @@ require (
 	github.com/stretchr/testify v1.7.2
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
-	google.golang.org/genproto v0.0.0-20220414192740-2d67ff6cf2b4
+	google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
