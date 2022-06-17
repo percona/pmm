@@ -305,8 +305,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-	)
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(5 * 1024 * 1024)),

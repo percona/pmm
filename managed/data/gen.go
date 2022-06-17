@@ -17,9 +17,7 @@
 // Package data provides access to embedded data.
 package data
 
-import (
-	"embed"
-)
+import "embed"
 
 // IATemplates holds IA template files in the struct of type embed.FS which implements the io/fs package's FS interface.
 //go:embed iatemplates/*

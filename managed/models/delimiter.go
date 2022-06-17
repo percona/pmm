@@ -16,9 +16,7 @@
 
 package models
 
-import (
-	"strings"
-)
+import "strings"
 
 // DelimiterPair contains a pair of safe template delimiters.
 type DelimiterPair struct {

@@ -16,9 +16,7 @@
 
 package backup
 
-import (
-	"github.com/hashicorp/go-version"
-)
+import "github.com/hashicorp/go-version"
 
 type compatibility struct {
 	dbMinVersion         *version.Version
