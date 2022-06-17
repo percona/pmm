@@ -122,7 +122,7 @@ func TestStarlarkSandbox(t *testing.T) {
 				QueriesResults: [][]byte{result},
 			}
 
-			cmd := exec.Command("./../../bin/pmm-managed-starlark")
+			cmd := exec.Command("./../../../bin/pmm-managed-starlark")
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin
