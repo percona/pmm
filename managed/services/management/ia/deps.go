@@ -20,7 +20,6 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
-
 	"github.com/percona/pmm/managed/services"
 )
 
