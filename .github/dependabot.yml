@@ -14,10 +14,7 @@ updates:
     schedule:
       interval: "weekly"
 
-  - package-ecosystem: "gomod"
-    directory: "/managed"
-    schedule:
-      interval: "weekly"
+
   - package-ecosystem: "gomod"
     directory: "/managed/tools"
     schedule:
