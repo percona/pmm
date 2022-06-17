@@ -2,6 +2,8 @@ name: API CI
 
 on:
   push:
+    paths-ignore:
+      - 'managed/api-tests/**'
     branches:
       - main
       - release-*

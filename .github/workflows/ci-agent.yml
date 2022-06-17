@@ -2,6 +2,8 @@ name: pmm-agent CI
 
 on:
   push:
+    paths-ignore:
+      - 'managed/api-tests/**'
     branches:
       - main
       - release-*
@@ -10,6 +12,7 @@ on:
   pull_request:
     paths-ignore:
       - "admin/**"
+      - "managed/**"
 
 jobs:
   test-agent:

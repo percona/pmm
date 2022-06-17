@@ -13,3 +13,20 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  - package-ecosystem: "gomod"
+    directory: "/managed"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/managed/tools"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/managed/api-tests/tools"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directory: "/managed"
+    schedule:
+      interval: "weekly"
