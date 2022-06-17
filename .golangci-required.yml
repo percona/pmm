@@ -29,7 +29,6 @@ linters-settings:
 
   gomoddirectives:
     replace-allow-list:
-      - github.com/percona/pmm
       - github.com/percona-platform/dbaas-api 
 
 linters:
