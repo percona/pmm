@@ -150,3 +150,5 @@ require (
 	google.golang.org/appengine v1.6.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+replace golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
