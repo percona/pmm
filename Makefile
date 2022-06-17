@@ -113,7 +113,7 @@ test:                 ## Run tests from all packages
 	go test ./...
 
 test-common: 		  ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
-	go test $(shell go list ./... | grep -v -e admin -e agent)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e managed)
 
 check:                          ## Run required checkers and linters.
 	#go run .github/check-license.go ## TODO: This repo has multiple licenses, fix checker
@@ -145,8 +145,7 @@ ci-reviewdog:         ## Runs reviewdog checks.
 	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error
 	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review
 
-
-managed-env-up:       ## Start pmm-managed docker container.
+managed-env-up:       ## Start pmm-managed docker container. Use 'NETWORK=minikube make managed-env-up' to start dev container in minikube network.
 	cd managed; make env-up
 
 managed-env-down:     ## Stop pmm-managed docker container.
