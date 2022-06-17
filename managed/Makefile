@@ -1,27 +1,68 @@
-# Host Makefile.
+default: help
 
-include Makefile.include
+help:                           ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:"
+	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
+		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+	@echo
+	@echo "To test DBaaS components with minikube:"
+	@echo "Start minikube: minikube start --cpus=2 --nodes=3 --kubernetes-version=v1.20.0"
+	@echo "ENABLE_DBAAS=1 NETWORK=minikube make env-up"
 
-env-up: env-compose-up env-devcontainer     ## Start devcontainer.
+# `cut` is used to remove first `v` from `git describe` output
+PMM_RELEASE_PATH ?= ../bin
+PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
+PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
+PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
-env-compose-up:
-	docker-compose pull
-	docker-compose up --detach --renew-anon-volumes --remove-orphans
+PMM_LD_FLAGS = -ldflags " \
+			-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' \
+			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+			"
 
-env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server .devcontainer/setup.py
+release:                        ## Build pmm-managed release binaries.
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
+	$(PMM_RELEASE_PATH)/pmm-managed --version
 
-env-down:                                   ## Stop devcontainer.
-	docker-compose down --remove-orphans
+release-dev:
+	go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
+	go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
+	go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-starlark ./cmd/pmm-managed-starlark
 
-env-remove:
-	docker-compose down --volumes --remove-orphans
+PMM_TEST_PACKAGES ?= $(shell go list ./...)
+PMM_TEST_FLAGS ?= -timeout=90s
+PMM_TEST_RUN_UPDATE ?= 0
 
+test:                           ## Run tests.
+	go test $(PMM_TEST_FLAGS) -p 1 $(PMM_TEST_PACKAGES)
 
-TARGET ?= _bash
+test-race:                      ## Run tests with race detector.
+	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_PACKAGES)
 
-env:                                        ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make $(TARGET)
+test-cover:                     ## Run tests and collect per-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count $(PMM_TEST_PACKAGES)
 
-env-ci:                                     ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-	docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make $(TARGET)
+test-crosscover:                ## Run tests and collect cross-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(PMM_TEST_PACKAGES)
+
+test-race-crosscover:           ## Run tests with race detector and collect cross-package coverage information.
+	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(PMM_TEST_PACKAGES)
+
+test-all: test-race test-cover test-crosscover
+	env PMM_TEST_FLAGS='-timeout=180s -v' \
+		PMM_TEST_PACKAGES=./services/supervisord \
+		PMM_TEST_RUN_UPDATE=1 \
+		make test-race-crosscover
+
+fuzz-grafana:                   ## Run fuzzer for services/grafana package.
+	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
+	mkdir -p managed/services/grafana/fuzzdata/corpus
+	cd managed/services/grafana && go-fuzz-build
+	cd managed/services/grafana && go-fuzz -workdir=fuzzdata

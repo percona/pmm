@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.

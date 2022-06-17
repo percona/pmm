@@ -27,10 +27,10 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
 
-//go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
