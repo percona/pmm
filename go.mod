@@ -14,7 +14,7 @@ replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-
 
 replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_query_go v1.0.3-percona
 
-replace golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
+replace golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
 
 require (
 	github.com/AlekSi/pointer v1.2.0
