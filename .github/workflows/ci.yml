@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    paths-ignore:
-      - "api-tests/**"
     branches:
       - main
       - release-*
@@ -66,30 +64,8 @@ jobs:
       - name: Download Go modules
         run: go mod download
 
-      - name: Install development tools
-        run: make init
-
-      - name: Generate files
-        run: make gen gen-alertmanager
-
-      - name: Check differences
-        run: |
-          git status
-          git diff --exit-code
-
-      - name: Update API compatibility descriptors.
-        run: |
-          # log if descriptors changed, useful for "update descriptors" PRs
-          make descriptors
-          git diff --text
-
       - name: Check build
         run: make release
-
-      - name: Run linters
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make ci-reviewdog
 
       - name: Test common API
         run: make test-common
@@ -104,6 +80,7 @@ jobs:
           git status
 
   merge-gatekeeper:
+    needs: [check]
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
@@ -112,6 +89,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
+          ref: ${{ github.event.pull_request.head.sha || github.event.push.head.sha }}
 
   workflow_success:
     needs: [merge-gatekeeper]
