@@ -64,6 +64,9 @@ jobs:
       - name: Download Go modules
         run: go mod download
 
+      - name: Install development tools
+        run: make init
+
       - name: Check build
         run: make release
 
