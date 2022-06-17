@@ -14,6 +14,8 @@ replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-
 
 replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_query_go v1.0.3-percona
 
+replace golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
+
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/Azure/azure-sdk-for-go v65.0.0+incompatible
@@ -150,5 +152,3 @@ require (
 	google.golang.org/appengine v1.6.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000 => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
