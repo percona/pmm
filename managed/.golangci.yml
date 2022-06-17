@@ -1,0 +1,74 @@
+---
+linters-settings:
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages:
+      # use "github.com/pkg/errors" instead
+      - errors
+      # we use "github.com/golang/protobuf/proto" for now
+      - github.com/gogo/protobuf/proto
+      - google.golang.org/protobuf/proto
+      # use "github.com/percona-platform/saas" instead
+      - github.com/percona-platform/platform
+      # use "gopkg.in/yaml.v3" instead
+      - gopkg.in/yaml.v2
+
+  godot:
+    capital: true
+
+  goimports:
+    local-prefixes: github.com/percona/pmm-managed
+
+  gci:
+    sections:
+      - standard # Captures all standard packages if they do not match another section.
+      - default # Contains all imports that could not be matched to another section type.
+      - prefix(github.com/percona/pmm-managed) # Groups all local imports.
+
+  lll:
+    line-length: 170
+    tab-width: 4
+
+  unused:
+    check-exported: true
+
+  unparam:
+    check-exported: true
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+      - github.com/percona-platform/dbaas-api
+
+linters:
+  enable-all: true
+  disable:
+    # we don't use Go 1.13 errors wrapping yet
+    - errorlint
+    - goerr113
+    - wrapcheck
+
+    - exhaustivestruct  # useless
+    - gochecknoglobals  # mostly useless
+    - gomnd             # we are using numbers in many cases
+    - gomodguard        # we are not using modules
+    - interfacer        # deprecated
+    - maligned          # deprecated
+    - nlreturn          # too annoying
+    - scopelint         # too many false positives
+    - wsl               # too annoying
+    - varnamelen        # useless
+    - funlen            # useless
+
+issues:
+  exclude-use-default: false
+  exclude:
+    - 'G104: Errors unhandled'                   # gas: duplicated errcheck checks
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - funlen         # tests may be long
+        - gocognit       # triggered by subtests
+        - testpackage    # senseless
+        - unused         # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
