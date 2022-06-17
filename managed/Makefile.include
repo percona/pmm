@@ -22,6 +22,7 @@ BIN_PATH := $(BASE_PATH)/bin
 export PATH := $(BIN_PATH):$(PATH)
 
 init:                           ## Install development tools
+	pwd
 	rm -rf ./bin
 	cd tools && go generate -x -tags=tools
 

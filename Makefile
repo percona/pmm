@@ -1,3 +1,4 @@
+.PHONY: default init release gen test clean all
 default: help
 
 help:                 ## Display this help message.
@@ -143,3 +144,15 @@ ci-reviewdog:         ## Runs reviewdog checks.
 	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-review -fail-on-error
 	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error
 	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review
+
+managed-env-up:       ## Start pmm-managed docker container. Use 'NETWORK=minikube make managed-env-up' to start dev container in minikube network.
+	cd managed; make env-up
+
+managed-env-down:     ## Stop pmm-managed docker container.
+	cd managed; make env-down
+
+managed-env:          ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
+	cd managed; make env
+
+managed-env-ci:       ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
+	cd managed; make env-ci
