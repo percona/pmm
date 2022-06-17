@@ -67,6 +67,28 @@
 #      - name: Check build
 #        run: make release
 #
+#      - name: Run required checks/linters
+#        env:
+#          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: |
+#          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker
+#          bin/go-sumtype ./...
+#          # use GITHUB_TOKEN because only it has access to GitHub Checks API
+#          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
+#
+#          # run it like this until it will be added to golangci-lint:
+#          # * https://github.com/golangci/golangci-lint/issues/288
+#          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
+#
+#      - name: Run optional checks/linters
+#        run: |
+#          # use ROBOT_TOKEN for better reviewer's name
+#          if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
+#            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
+#          else
+#            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
+#          fi
+#
 #      - name: Test common API
 #        run: make test-common
 #

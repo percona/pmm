@@ -147,12 +147,6 @@ descriptors:          ## Update API compatibility descriptors.
 	#./prototool break descriptor-set . -o api/api.descriptor
 	bin/buf build -o descriptor.bin --as-file-descriptor-set api
 
-ci-reviewdog:         ## Runs reviewdog checks.
-	# go run .github/check-license.go TODO: This repo has multiple licenses, fix checker
-	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-review -fail-on-error
-	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error
-	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review
-
 #managed-env-up:       ## Start pmm-managed docker container. Use 'NETWORK=minikube make managed-env-up' to start dev container in minikube network.
 #	cd managed; make env-up
 #
