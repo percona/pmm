@@ -85,9 +85,6 @@ jobs:
       - name: Check build
         run: make release
 
-      - name: Test common API
-        run: make test-common
-
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |

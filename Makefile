@@ -117,7 +117,7 @@ test:                 ## Run tests from all packages
 	go test ./...
 
 test-common: 		  ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests)
 
 api-test:                       ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.yaml make api-test` to run tests for DBaaS.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
