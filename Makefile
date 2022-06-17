@@ -91,7 +91,6 @@ gen: clean         ## Generate files.
 	go generate ./...
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
-	bin/go-sumtype ./...
 	go install -v ./...
 
 gen-alertmanager:     # Generate Alertmanager client.
@@ -126,6 +125,7 @@ api-test:                       ## Run API tests on dev env. Use `PMM_KUBECONFIG
 check:                          ## Run required checkers and linters.
 	#go run .github/check-license.go ## TODO: This repo has multiple licenses, fix checker
 	bin/golangci-lint run -c=.golangci-required.yml
+	bin/go-sumtype ./...
 	bin/go-consistent -pedantic ./...
 
 check-all: check                ## Run golang ci linter to check new changes from main.
@@ -146,20 +146,6 @@ serve:                ## Serve API documentation with nginx.
 descriptors:          ## Update API compatibility descriptors.
 	#./prototool break descriptor-set . -o api/api.descriptor
 	bin/buf build -o descriptor.bin --as-file-descriptor-set api
-
-#managed-env-up:       ## Start pmm-managed docker container. Use 'NETWORK=minikube make managed-env-up' to start dev container in minikube network.
-#	cd managed; make env-up
-#
-#managed-env-down:     ## Stop pmm-managed docker container.
-#	cd managed; make env-down
-#
-#managed-env:          ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-#	cd managed; make env
-#
-#managed-env-ci:       ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-#	cd managed; make env-ci
-
-
 
 
 env-up: env-compose-up env-devcontainer     ## Start devcontainer.
