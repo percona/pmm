@@ -24,7 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // SoftwareName represents software name.
 type SoftwareName string

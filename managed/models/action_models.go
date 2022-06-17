@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // ActionResult describes an action result which is storing in persistent storage.
 //reform:action_results

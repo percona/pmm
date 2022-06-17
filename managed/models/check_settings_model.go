@@ -16,7 +16,7 @@
 
 package models
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // Interval represents check execution interval.
 type Interval string

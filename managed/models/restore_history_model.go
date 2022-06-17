@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // RestoreStatus shows current status of restore.
 type RestoreStatus string

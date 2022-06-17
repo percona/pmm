@@ -85,6 +85,8 @@ gen: clean         ## Generate files.
 
 	make clean_swagger
 	make -C agent gen
+
+	go generate ./...
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
 	bin/go-sumtype ./...
@@ -102,6 +104,8 @@ clean_swagger:
 clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
+	find managed -name *_reform.go -print -delete
+	find . -name mock_*.go -print -delete
 
 	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \

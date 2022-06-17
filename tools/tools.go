@@ -7,6 +7,7 @@ import (
 	_ "github.com/Percona-Lab/swagger-order"
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/daixiang0/gci"
+	_ "github.com/go-delve/delve/cmd/dlv"
 	_ "github.com/go-openapi/runtime/client"
 	_ "github.com/go-openapi/spec"
 	_ "github.com/go-swagger/go-swagger/cmd/swagger"
@@ -19,6 +20,7 @@ import (
 	_ "github.com/vektra/mockery/cmd/mockery"
 	_ "golang.org/x/perf/cmd/benchstat"
 	_ "golang.org/x/tools/cmd/goimports"
+	_ "golang.org/x/tools/gopls"
 	_ "google.golang.org/grpc/cmd/protoc-gen-go-grpc"
 	_ "google.golang.org/protobuf/cmd/protoc-gen-go"
 	_ "gopkg.in/reform.v1/reform"
@@ -28,12 +30,14 @@ import (
 
 //go:generate go build -o ../bin/benchstat golang.org/x/perf/cmd/benchstat
 //go:generate go build -o ../bin/buf github.com/bufbuild/buf/cmd/buf
+//go:generate go build -o ../bin/dlv github.com/go-delve/delve/cmd/dlv
 //go:generate go build -o ../bin/gci github.com/daixiang0/gci
 //go:generate go build -o ../bin/go-consistent github.com/quasilyte/go-consistent
 //go:generate go build -o ../bin/go-sumtype github.com/BurntSushi/go-sumtype
 //go:generate go build -o ../bin/gofumpt mvdan.cc/gofumpt
 //go:generate go build -o ../bin/goimports golang.org/x/tools/cmd/goimports
 //go:generate go build -o ../bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+//go:generate go build -o ../bin/gopls golang.org/x/tools/gopls
 //go:generate go build -o ../bin/mockery github.com/vektra/mockery/cmd/mockery
 //go:generate go build -o ../bin/protoc-gen-go google.golang.org/protobuf/cmd/protoc-gen-go
 //go:generate go build -o ../bin/protoc-gen-go-grpc google.golang.org/grpc/cmd/protoc-gen-go-grpc

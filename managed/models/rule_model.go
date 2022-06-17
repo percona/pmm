@@ -24,7 +24,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate ../../bin/reform
 
 // Rule represents alert rule configuration.
 //reform:ia_rules

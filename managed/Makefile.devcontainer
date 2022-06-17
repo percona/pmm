@@ -7,10 +7,7 @@ _bash:
 	/bin/bash
 
 gen:                            ## Generate files.
-	rm -f models/*_reform.go
-	find . -name mock_*.go -delete
-	go generate ./...
-	make format
+
 
 
 install:                        ## Install pmm-managed binaries.
