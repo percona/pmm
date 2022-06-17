@@ -63,12 +63,27 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-build-${{ github.ref }}-
             ${{ matrix.os }}-go-${{ matrix.go-version }}-build-
 
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
+
       - name: Initialize CI environment
         run: make env-compose-up
 
       - name: Restore Go build cache
         continue-on-error: true
         run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+
+      - name: Restore Go modules cache
+        continue-on-error: true
+        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Setup dev-container
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
