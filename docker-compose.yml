@@ -52,7 +52,7 @@ services:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
-      - /root/go/src/github.com/percona/pmm/bin
+      - /root/go/src/github.com/percona/pmm/bin # Let to have different binaries in devcontainer and on local machine
 volumes:
   go-modules:
 
