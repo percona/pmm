@@ -19,7 +19,7 @@ package platform
 import (
 	"context"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // supervisordService is a subset of methods of supervisord.Service used by this package.

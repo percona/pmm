@@ -23,8 +23,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -32,9 +30,11 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents/channel"
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents/channel"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 const (

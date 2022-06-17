@@ -20,8 +20,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/version"
 )
 
 func requireNoDuplicateFlags(t *testing.T, flags []string) {

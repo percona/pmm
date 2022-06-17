@@ -30,13 +30,13 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAuth(t *testing.T) {

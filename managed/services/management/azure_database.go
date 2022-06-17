@@ -25,14 +25,14 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/resourcegraph/mgmt/2019-04-01/resourcegraph"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
-	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
+	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 const (

@@ -35,6 +35,9 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
+
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
@@ -44,8 +47,6 @@ import (
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/unix"
 )
 
 //nolint:gochecknoglobals

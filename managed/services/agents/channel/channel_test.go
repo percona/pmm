@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,8 +32,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm-managed/utils/interceptors"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/utils/interceptors"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 type testServer struct {

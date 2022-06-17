@@ -20,8 +20,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 //go:generate mockery -name=jobsService -case=snake -inpkg -testonly

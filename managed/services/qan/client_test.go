@@ -23,9 +23,6 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -34,9 +31,12 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestClient(t *testing.T) {

@@ -30,7 +30,6 @@ import (
 	"github.com/google/uuid"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
-	"github.com/percona/pmm/api/serverpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -38,8 +37,9 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/saasreq"
+	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/saasreq"
 )
 
 const (

@@ -21,11 +21,11 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
 )
 
 // ToAPINode converts Node database model to API model.

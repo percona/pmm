@@ -22,14 +22,14 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/percona/pmm/api/serverpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 // AWSInstanceChecker checks AWS EC2 instance ID for AMI.

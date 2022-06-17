@@ -22,8 +22,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -32,10 +30,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/services/backup"
-	"github.com/percona/pmm-managed/services/scheduler"
+	"github.com/percona/pmm/api/inventorypb"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/backup"
+	"github.com/percona/pmm/managed/services/scheduler"
 )
 
 // BackupsService represents backups API.

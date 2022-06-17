@@ -17,7 +17,7 @@
 package vmalert
 
 import (
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 //nolint:gochecknoinits

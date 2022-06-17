@@ -22,7 +22,6 @@ import (
 
 	"github.com/google/uuid"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -31,10 +30,11 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestKubernetesServer(t *testing.T) {

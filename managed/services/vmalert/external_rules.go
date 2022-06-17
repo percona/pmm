@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/utils/validators"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 const externalRulesFile = "/srv/prometheus/rules/pmm.rules.yml"

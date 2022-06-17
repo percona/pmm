@@ -18,8 +18,7 @@ package grpc
 
 import (
 	"github.com/percona/pmm/api/agentpb"
-
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 // AgentServer provides methods for pmm-agent <-> pmm-managed interactions.

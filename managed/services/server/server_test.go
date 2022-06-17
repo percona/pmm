@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/serverpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,9 +30,10 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestServer(t *testing.T) {

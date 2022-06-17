@@ -39,9 +39,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/dir"
-	"github.com/percona/pmm-managed/utils/stringset"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/managed/utils/stringset"
 )
 
 const (

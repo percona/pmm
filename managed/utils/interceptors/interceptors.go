@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {

@@ -31,7 +31,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-managed/utils/irt"
+	"github.com/percona/pmm/managed/utils/irt"
 )
 
 const (

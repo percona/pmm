@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // HAProxyService HAProxy Management Service.

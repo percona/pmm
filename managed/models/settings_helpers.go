@@ -27,7 +27,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/utils/validators"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 // GetSettings returns current PMM Server settings.

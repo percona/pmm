@@ -20,14 +20,14 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func restoreSettingsDefaults(t *testing.T) {

@@ -35,9 +35,9 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/grafana"
-	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/grafana"
+	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 const rollbackFailed = "Failed to rollback:"

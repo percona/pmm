@@ -19,9 +19,9 @@ package backup
 import (
 	"context"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/backup"
-	"github.com/percona/pmm-managed/services/scheduler"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/backup"
+	"github.com/percona/pmm/managed/services/scheduler"
 )
 
 //go:generate mockery -name=awsS3 -case=snake -inpkg -testonly

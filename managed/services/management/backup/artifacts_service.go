@@ -20,13 +20,13 @@ package backup
 import (
 	"context"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
 )
 
 // ArtifactsService represents artifacts API.

@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // ChannelsService represents integrated alerting channels API.

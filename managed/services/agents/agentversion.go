@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.

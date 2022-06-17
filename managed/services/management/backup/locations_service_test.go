@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -31,9 +30,10 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestCreateBackupLocation(t *testing.T) {

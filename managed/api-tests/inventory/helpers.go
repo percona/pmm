@@ -17,14 +17,14 @@
 package inventory
 
 import (
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {

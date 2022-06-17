@@ -35,9 +35,6 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
-	"github.com/percona/pmm/api/serverpb"
-	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -47,8 +44,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/version"
 )
 
 // Server represents service for checking PMM Server status and changing settings.

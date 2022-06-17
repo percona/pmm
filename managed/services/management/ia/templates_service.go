@@ -45,12 +45,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/data"
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/dir"
-	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/saasreq"
-	"github.com/percona/pmm-managed/utils/signatures"
+	"github.com/percona/pmm/managed/data"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/signatures"
 )
 
 const (

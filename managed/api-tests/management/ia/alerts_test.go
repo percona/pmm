@@ -19,11 +19,11 @@ package ia
 import (
 	"testing"
 
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
 	"github.com/stretchr/testify/require"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/alerts"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAlertsAPI(t *testing.T) {

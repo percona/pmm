@@ -26,8 +26,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/services/platform"
-	"github.com/percona/pmm-managed/services/telemetry"
+	"github.com/percona/pmm/managed/services/platform"
+	"github.com/percona/pmm/managed/services/telemetry"
 )
 
 const (

@@ -20,6 +20,10 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
@@ -28,11 +32,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddHAProxy(t *testing.T) {

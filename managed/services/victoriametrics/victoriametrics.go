@@ -29,7 +29,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/utils/pdeathsig"
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -39,8 +38,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/dir"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (

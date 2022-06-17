@@ -23,15 +23,15 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/stringset"
+	"github.com/percona/pmm/api/agentpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/stringset"
 )
 
 // Client represents qan-api client for data collection.

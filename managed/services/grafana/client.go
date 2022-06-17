@@ -38,7 +38,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/utils/irt"
+	"github.com/percona/pmm/managed/utils/irt"
 )
 
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.

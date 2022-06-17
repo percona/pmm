@@ -23,8 +23,8 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly

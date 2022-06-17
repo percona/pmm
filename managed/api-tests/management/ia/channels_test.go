@@ -21,13 +21,13 @@ import (
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results
