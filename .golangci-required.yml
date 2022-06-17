@@ -12,6 +12,8 @@ linters-settings:
       - github.com/percona/go-mysql/log/slow
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
+      # use "github.com/percona-platform/saas" instead
+      - github.com/percona-platform/platform
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -24,6 +26,11 @@ linters-settings:
 
   exhaustive:
     default-signifies-exhaustive: true
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+      - github.com/percona-platform/dbaas-api 
 
 linters:
   disable-all: true

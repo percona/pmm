@@ -10,8 +10,13 @@ linters-settings:
       - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
+      # use "github.com/percona-platform/saas" instead
+      - github.com/percona-platform/platform
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
+
+  godot:
+    capital: true
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -34,6 +39,11 @@ linters-settings:
 
   exhaustive:
     default-signifies-exhaustive: true
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona/pmm
+      - github.com/percona-platform/dbaas-api
 
 linters:
   enable-all: true
@@ -75,5 +85,8 @@ issues:
         # keep sorted
         - exhaustivestruct # very annoying
         - funlen           # tests may be long
+        - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
         - testpackage      # senseless
+        - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+
