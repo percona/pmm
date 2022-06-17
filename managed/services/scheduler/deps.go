@@ -19,7 +19,7 @@ package scheduler
 import (
 	"context"
 
-	"github.com/percona/pmm-managed/services/backup"
+	"github.com/percona/pmm/managed/services/backup"
 )
 
 //go:generate mockery -name=backupService -case=snake -inpkg -testonly

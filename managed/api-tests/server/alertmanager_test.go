@@ -20,12 +20,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/alertmanager/amclient"
-	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	"github.com/percona/pmm/api/alertmanager/amclient"
+	"github.com/percona/pmm/api/alertmanager/amclient/alert"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAlertManager(t *testing.T) {

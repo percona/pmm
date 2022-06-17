@@ -27,7 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/envvars"
 )
 
 // ServiceConfig telemetry config.

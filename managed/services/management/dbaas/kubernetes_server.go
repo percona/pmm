@@ -26,8 +26,6 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	pmmversion "github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -35,7 +33,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
+	pmmversion "github.com/percona/pmm/version"
 )
 
 var (

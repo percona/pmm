@@ -26,8 +26,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 var (

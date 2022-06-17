@@ -20,8 +20,7 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
-
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm/managed/services"
 )
 
 //go:generate mockery -name=alertManager -case=snake -inpkg -testonly

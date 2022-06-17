@@ -36,9 +36,6 @@ import (
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -48,11 +45,14 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/saasreq"
-	"github.com/percona/pmm-managed/utils/signatures"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/signatures"
+	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/version"
 )
 
 const (

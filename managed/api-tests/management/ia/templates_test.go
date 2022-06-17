@@ -26,15 +26,15 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/alert"
-	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/yaml.v3"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results

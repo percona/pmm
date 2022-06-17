@@ -20,14 +20,14 @@ import (
 	"context"
 
 	"github.com/minio/minio-go/v7"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
 )
 
 // LocationsService represents backup locations API.

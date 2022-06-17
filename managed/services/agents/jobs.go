@@ -22,13 +22,13 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-version"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 var (

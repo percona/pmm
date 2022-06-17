@@ -26,14 +26,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 // TODO move tests to other files and remove this one.

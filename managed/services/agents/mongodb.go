@@ -23,12 +23,12 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
-
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 type collectorArgs struct {

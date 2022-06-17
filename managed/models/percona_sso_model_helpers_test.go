@@ -27,8 +27,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func setupDB(t *testing.T) (*reform.DB, func()) {
@@ -93,7 +93,7 @@ func TestPerconaSSODetails(t *testing.T) {
 		ssoDetails, err = models.GetPerconaSSODetails(ctx, db.Querier)
 		assert.Error(t, err)
 		assert.Nil(t, ssoDetails)
-		// See https://github.com/percona/pmm-managed/pull/852#discussion_r738178192
+		// See https://github.com/percona/pmm/managed/pull/852#discussion_r738178192
 		ssoDetails, err = models.GetPerconaSSODetails(ctx, db.Querier)
 		assert.Error(t, err)
 		assert.Nil(t, ssoDetails)

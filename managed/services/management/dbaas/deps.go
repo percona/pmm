@@ -22,8 +22,9 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"google.golang.org/grpc"
+
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
 
 //go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly

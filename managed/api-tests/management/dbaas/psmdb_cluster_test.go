@@ -19,14 +19,14 @@ package dbaas
 import (
 	"testing"
 
-	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	dbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
-	psmdbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	dbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
+	psmdbclusters "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 const (

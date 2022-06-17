@@ -20,8 +20,7 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/managementpb"
-
-	"github.com/percona/pmm-managed/services/management"
+	"github.com/percona/pmm/managed/services/management"
 )
 
 // TODO merge into ../postgresql.go

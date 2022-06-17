@@ -21,12 +21,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestRunExplain(t *testing.T) {

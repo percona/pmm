@@ -30,7 +30,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestNextPrefix(t *testing.T) {

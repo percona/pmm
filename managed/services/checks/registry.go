@@ -25,10 +25,10 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/prometheus/common/model"
 
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/managed/services"
 )
 
 // registry stores alerts and delay information by IDs.

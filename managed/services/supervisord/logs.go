@@ -33,11 +33,11 @@ import (
 	"sort"
 	"time"
 
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (

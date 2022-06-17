@@ -19,8 +19,9 @@ package qan
 import (
 	"context"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"google.golang.org/grpc"
+
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 //go:generate mockery -name=qanCollectorClient  -case=snake -inpkg -testonly

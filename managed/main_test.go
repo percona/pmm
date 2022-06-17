@@ -47,29 +47,29 @@ func TestImports(t *testing.T) {
 	constraints := make(map[string]constraint)
 
 	// models should not import services or APIs.
-	constraints["github.com/percona/pmm-managed/models"] = constraint{
+	constraints["github.com/percona/pmm/managed/models"] = constraint{
 		blacklistPrefixes: []string{
-			"github.com/percona/pmm-managed/services",
+			"github.com/percona/pmm/managed/services",
 			"github.com/percona/pmm/api",
 		},
 	}
 
 	// services should be independent
 	for _, service := range []string{
-		"github.com/percona/pmm-managed/services/agents",
-		"github.com/percona/pmm-managed/services/alertmanager",
-		"github.com/percona/pmm-managed/services/checks",
-		"github.com/percona/pmm-managed/services/grafana",
-		"github.com/percona/pmm-managed/services/qan",
-		"github.com/percona/pmm-managed/services/server",
-		"github.com/percona/pmm-managed/services/supervisord",
-		"github.com/percona/pmm-managed/services/telemetry",
-		"github.com/percona/pmm-managed/services/victoriametrics",
-		"github.com/percona/pmm-managed/services/vmalert",
+		"github.com/percona/pmm/managed/services/agents",
+		"github.com/percona/pmm/managed/services/alertmanager",
+		"github.com/percona/pmm/managed/services/checks",
+		"github.com/percona/pmm/managed/services/grafana",
+		"github.com/percona/pmm/managed/services/qan",
+		"github.com/percona/pmm/managed/services/server",
+		"github.com/percona/pmm/managed/services/supervisord",
+		"github.com/percona/pmm/managed/services/telemetry",
+		"github.com/percona/pmm/managed/services/victoriametrics",
+		"github.com/percona/pmm/managed/services/vmalert",
 	} {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services",
+				"github.com/percona/pmm/managed/services",
 			},
 		}
 	}
@@ -77,21 +77,21 @@ func TestImports(t *testing.T) {
 	for _, service := range []string{
 		// those services should be independent too, but has some common code
 		// as converters, errors, ...
-		"github.com/percona/pmm-managed/services/inventory",
-		"github.com/percona/pmm-managed/services/management",
-		"github.com/percona/pmm-managed/services/server",
-		"github.com/percona/pmm-managed/services/checks",
-		"github.com/percona/pmm-managed/services/alertmanager",
+		"github.com/percona/pmm/managed/services/inventory",
+		"github.com/percona/pmm/managed/services/management",
+		"github.com/percona/pmm/managed/services/server",
+		"github.com/percona/pmm/managed/services/checks",
+		"github.com/percona/pmm/managed/services/alertmanager",
 	} {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
-				"github.com/percona/pmm-managed/services/",
+				"github.com/percona/pmm/managed/services/",
 			},
 		}
 	}
 
 	// validators should not import gRPC stack, including errors
-	constraints["github.com/percona/pmm-managed/utils/validators"] = constraint{
+	constraints["github.com/percona/pmm/managed/utils/validators"] = constraint{
 		blacklistPrefixes: []string{
 			"google.golang.org/grpc",
 		},
@@ -99,12 +99,12 @@ func TestImports(t *testing.T) {
 
 	// just to add them to packages.dot
 	for _, service := range []string{
-		"github.com/percona/pmm-managed",
-		"github.com/percona/pmm-managed/cmd/pmm-managed-init",
-		"github.com/percona/pmm-managed/cmd/pmm-managed-starlark",
-		"github.com/percona/pmm-managed/services/agents/grpc",
-		"github.com/percona/pmm-managed/services/inventory/grpc",
-		"github.com/percona/pmm-managed/services/management/grpc",
+		"github.com/percona/pmm/managed",
+		"github.com/percona/pmm/managed/cmd/pmm-managed-init",
+		"github.com/percona/pmm/managed/cmd/pmm-managed-starlark",
+		"github.com/percona/pmm/managed/services/agents/grpc",
+		"github.com/percona/pmm/managed/services/inventory/grpc",
+		"github.com/percona/pmm/managed/services/management/grpc",
 	} {
 		constraints[service] = constraint{}
 	}
@@ -161,7 +161,7 @@ func TestImports(t *testing.T) {
 		}
 		sort.Strings(imports)
 
-		p = strings.TrimPrefix(p, "github.com/percona/pmm-managed")
+		p = strings.TrimPrefix(p, "github.com/percona/pmm/managed")
 		if p == "" {
 			p = "/"
 		}
@@ -169,8 +169,8 @@ func TestImports(t *testing.T) {
 			if strings.Contains(i, "/utils/") {
 				continue
 			}
-			if strings.HasPrefix(i, "github.com/percona/pmm-managed") {
-				i = strings.TrimPrefix(i, "github.com/percona/pmm-managed")
+			if strings.HasPrefix(i, "github.com/percona/pmm/managed") {
+				i = strings.TrimPrefix(i, "github.com/percona/pmm/managed")
 				fmt.Fprintf(f, "\t%q -> %q;\n", p, i)
 			}
 		}

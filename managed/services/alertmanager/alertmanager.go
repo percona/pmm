@@ -35,11 +35,6 @@ import (
 	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/percona/pmm/api/alertmanager/amclient"
-	"github.com/percona/pmm/api/alertmanager/amclient/alert"
-	"github.com/percona/pmm/api/alertmanager/amclient/silence"
-	"github.com/percona/pmm/api/alertmanager/ammodels"
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/promconfig"
 	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
@@ -48,9 +43,14 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/dir"
+	"github.com/percona/pmm/api/alertmanager/amclient"
+	"github.com/percona/pmm/api/alertmanager/amclient/alert"
+	"github.com/percona/pmm/api/alertmanager/amclient/silence"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (

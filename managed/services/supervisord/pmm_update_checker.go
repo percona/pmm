@@ -25,11 +25,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/version"
 )
 
 const (

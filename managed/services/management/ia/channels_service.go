@@ -19,13 +19,13 @@ package ia
 import (
 	"context"
 
-	"github.com/percona/pmm/api/managementpb"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/managementpb"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/pmm/managed/models"
 )
 
 // ChannelsService represents integrated alerting channels API.

@@ -20,11 +20,11 @@ import (
 	"context"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 // LogsService implements dbaasv1beta1.LogsAPIServer methods.

@@ -25,14 +25,14 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {

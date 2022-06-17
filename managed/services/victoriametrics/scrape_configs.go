@@ -26,11 +26,11 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/version"
 	config "github.com/percona/promconfig"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/collectors"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/collectors"
+	"github.com/percona/pmm/version"
 )
 
 // ScrapeTimeout - wraps scrapeTimeout and makes it public for victoriametrics package.

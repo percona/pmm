@@ -20,12 +20,12 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/version"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 type PostgresExporterConfigTestSuite struct {

@@ -20,16 +20,16 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/managementpb"
-	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/version"
 )
 
 type actionsServer struct {

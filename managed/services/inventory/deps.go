@@ -21,7 +21,7 @@ import (
 
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 //go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly

@@ -34,8 +34,6 @@ import (
 	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona/pmm/api/managementpb"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -45,12 +43,14 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/data"
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/dir"
-	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/saasreq"
-	"github.com/percona/pmm-managed/utils/signatures"
+	"github.com/percona/pmm/api/managementpb"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/pmm/managed/data"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/signatures"
 )
 
 const (

@@ -20,7 +20,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // TestMain entry point for all tests execution. Used for tests global configuration.
