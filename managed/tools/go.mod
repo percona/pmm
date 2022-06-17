@@ -1,4 +1,4 @@
-module github.com/percona/pmm-managed/tools
+module github.com/percona/pmm/managed/tools
 
 go 1.18
 
