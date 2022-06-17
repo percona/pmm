@@ -49,7 +49,7 @@ services:
       - ${PMM_PORT_CH_TCP:-11000}:9000
       - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
-      - ../:/root/go/src/github.com/percona/pmm
+      - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/managed/Makefile:ro
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
 volumes:
