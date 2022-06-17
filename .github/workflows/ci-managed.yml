@@ -75,6 +75,11 @@ jobs:
         run: |
           docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
+      - name: Debug Makefile
+        run: |
+          docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server cat Makefile
+          docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server cat Makefile.devcontainer
+
       - name: Setup dev-container
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server .devcontainer/setup.py
 
