@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
@@ -31,7 +32,6 @@ import (
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddMySQL(t *testing.T) {

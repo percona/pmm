@@ -28,11 +28,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results

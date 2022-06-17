@@ -27,9 +27,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestCheckUpdates(t *testing.T) {

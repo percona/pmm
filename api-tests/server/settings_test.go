@@ -32,11 +32,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestSettings(t *testing.T) {

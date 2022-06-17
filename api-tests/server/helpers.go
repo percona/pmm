@@ -23,11 +23,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func restoreSettingsDefaults(t *testing.T) {

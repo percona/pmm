@@ -25,11 +25,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	"github.com/percona/pmm/api/platformpb/json/client/platform"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestPlatform(t *testing.T) {

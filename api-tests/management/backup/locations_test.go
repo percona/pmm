@@ -25,9 +25,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
+	pmmapitests "github.com/percona/pmm/api-tests"
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
-	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddLocation(t *testing.T) {
