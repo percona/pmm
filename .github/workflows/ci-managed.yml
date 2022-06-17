@@ -197,7 +197,7 @@ jobs:
           docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Setup dev-container
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server .devcontainer/setup.py
 
       - name: Run required checks/linters
         env:
