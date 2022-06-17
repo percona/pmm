@@ -30,7 +30,7 @@ import (
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // Emailer is responsible for sending emails using alertmanger Email notifier.

@@ -36,15 +36,15 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/version"
 )
 
 const (

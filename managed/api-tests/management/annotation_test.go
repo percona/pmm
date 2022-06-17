@@ -19,16 +19,16 @@ package management
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddAnnotation(t *testing.T) {

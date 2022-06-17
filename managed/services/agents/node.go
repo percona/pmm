@@ -20,12 +20,12 @@ import (
 	"sort"
 
 	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
-
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/collectors"
 )
 
 // The node exporter prior 2.28 use exporter_shared and gets basic auth config from env.

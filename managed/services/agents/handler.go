@@ -22,17 +22,17 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents/channel"
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents/channel"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 // Handler handles agent requests.

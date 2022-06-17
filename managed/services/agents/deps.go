@@ -19,8 +19,9 @@ package agents
 import (
 	"context"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.

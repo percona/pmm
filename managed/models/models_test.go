@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestLabels(t *testing.T) {

@@ -22,14 +22,14 @@ import (
 	"strings"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 type DBClusterService struct {

@@ -22,8 +22,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/backup"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/backup"
 )
 
 // Task represents task which will be run inside scheduler.

@@ -34,9 +34,9 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 var htmlTemplate = `|

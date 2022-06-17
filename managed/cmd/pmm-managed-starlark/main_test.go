@@ -23,11 +23,11 @@ import (
 	"testing"
 
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-managed/services/checks"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/services/checks"
 )
 
 const (

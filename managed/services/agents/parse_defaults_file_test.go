@@ -21,7 +21,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestCreateRequest(t *testing.T) {

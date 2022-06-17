@@ -26,7 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // Service is wrapper around minio client.

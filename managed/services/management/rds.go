@@ -29,8 +29,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -38,9 +36,11 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 const (

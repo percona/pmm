@@ -21,13 +21,13 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddLocation(t *testing.T) {

@@ -23,10 +23,11 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 // InvalidAlertingRuleError represents "normal" alerting rule validation error.

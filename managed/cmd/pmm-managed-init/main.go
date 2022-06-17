@@ -22,9 +22,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/envvars"
-	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/logger"
 )
 
 func main() {

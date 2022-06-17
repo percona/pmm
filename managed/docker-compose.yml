@@ -52,7 +52,7 @@ services:
       - .:/root/go/src/github.com/percona/pmm-managed
       # for local test
       # - ../pmm:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm-managed/Makefile:ro
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/managed/Makefile:ro
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
 volumes:
   go-modules:

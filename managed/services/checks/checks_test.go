@@ -26,8 +26,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona/pmm/api/alertmanager/ammodels"
-	"github.com/percona/pmm/version"
 	promtest "github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
@@ -36,9 +34,11 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/version"
 )
 
 const (

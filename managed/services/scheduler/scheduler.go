@@ -30,7 +30,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // Service is responsible for executing tasks and storing them to DB.

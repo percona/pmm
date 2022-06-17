@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -29,8 +28,9 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestAgents(t *testing.T) {

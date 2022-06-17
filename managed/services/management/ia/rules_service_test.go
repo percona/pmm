@@ -25,8 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/percona/pmm/api/managementpb"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -35,10 +33,12 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/dir"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/managementpb"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestCreateAlertRule(t *testing.T) {

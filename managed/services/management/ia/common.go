@@ -22,8 +22,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
-	"github.com/percona/pmm/api/managementpb"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -31,7 +29,9 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/managementpb"
+	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	"github.com/percona/pmm/managed/models"
 )
 
 const (

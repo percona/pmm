@@ -21,9 +21,8 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
-
-	"github.com/percona/pmm-managed/models"
 )
 
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly

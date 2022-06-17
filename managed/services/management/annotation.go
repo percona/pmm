@@ -21,10 +21,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona/pmm/api/managementpb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 // AnnotationService Annotation Service.

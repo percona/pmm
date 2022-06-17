@@ -19,13 +19,13 @@ package management
 
 import (
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.AddNodeParams, address string) (string, error) {

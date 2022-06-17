@@ -23,7 +23,6 @@ import (
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -31,8 +30,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/services"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestStartSecurityChecks(t *testing.T) {

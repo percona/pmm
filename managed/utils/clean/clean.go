@@ -24,7 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
 )
 
 // CleanResults has unexported fields for the results cleanup function.

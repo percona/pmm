@@ -21,17 +21,17 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/percona/pmm/api/managementpb"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/percona/pmm-managed/utils/testdb"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func setup(t *testing.T) (*MySQLService, func(t *testing.T), context.Context) {

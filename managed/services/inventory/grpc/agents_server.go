@@ -21,9 +21,8 @@ import (
 	"fmt"
 
 	"github.com/percona/pmm/api/inventorypb"
-
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/inventory"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/inventory"
 )
 
 type agentsServer struct {

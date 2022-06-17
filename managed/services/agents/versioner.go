@@ -18,8 +18,9 @@ package agents
 
 import (
 	"github.com/hashicorp/go-version"
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
+
+	"github.com/percona/pmm/api/agentpb"
 )
 
 var pmmAgentMinVersionForSoftwareVersions = version.Must(version.NewVersion("2.22"))

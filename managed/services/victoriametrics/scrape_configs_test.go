@@ -22,14 +22,14 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/version"
 	config "github.com/percona/promconfig"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 func TestScrapeConfig(t *testing.T) {

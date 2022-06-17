@@ -20,10 +20,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/managed/models"
 )
 
 var (

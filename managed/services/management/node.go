@@ -20,14 +20,14 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // NodeService represents service for working with nodes.

@@ -21,9 +21,10 @@ import (
 	"strconv"
 
 	"github.com/percona-platform/saas/pkg/starlark"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/version"
 )
 
 var privateNetworks []*net.IPNet

@@ -20,6 +20,10 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
@@ -27,11 +31,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
 )
 
 func TestAddPostgreSQL(t *testing.T) {

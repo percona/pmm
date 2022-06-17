@@ -21,18 +21,18 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-
-	pmmapitests "github.com/percona/pmm-managed/api-tests"
-	"github.com/percona/pmm-managed/api-tests/management"
+	pmmapitests "github.com/percona/pmm/managed/api-tests"
+	"github.com/percona/pmm/managed/api-tests/management"
 )
 
 func TestScheduleBackup(t *testing.T) {
