@@ -1,8 +1,5 @@
 all: build
 
-init:           ## Installs development tools
-	cd tools && go generate -x -tags=tools
-
 build:
 	go install -v ./...
 	go test -c -v ./inventory

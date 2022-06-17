@@ -21,12 +21,8 @@ BIN_PATH := $(BASE_PATH)/bin
 
 export PATH := $(BIN_PATH):$(PATH)
 
-init:                           ## Install development tools
-	rm -rf ./bin
-	cd tools && go generate -x -tags=tools
 
-api-test:                       ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.yaml make api-test` to run tests for DBaaS.
-	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
+
 
 release:                        ## Build pmm-managed release binaries.
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
