@@ -76,7 +76,7 @@ jobs:
           docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Setup dev-container
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server .devcontainer/setup.py
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server .devcontainer/setup.py
 
       - name: Ensure that generated files are not changed
         run: |
