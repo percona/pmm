@@ -1,5 +1,4 @@
----
-name: pmm-managed CI
+name: Managed
 on:
   schedule:
     # run every Sunday to re-populate caches after they are cleaned on Saturday

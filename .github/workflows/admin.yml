@@ -1,4 +1,4 @@
-name: pmm-admin CI
+name: Admin
 
 on:
   push:

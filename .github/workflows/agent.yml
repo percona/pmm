@@ -1,4 +1,4 @@
-name: pmm-agent CI
+name: Agent
 
 on:
   push:
