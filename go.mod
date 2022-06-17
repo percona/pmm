@@ -2,12 +2,6 @@ module github.com/percona/pmm
 
 go 1.18
 
-// Use for local development, but do not commit:
-// replace github.com/percona/pmm => ../pmm
-
-// Update depedencies with:
-// go get -v github.com/percona/pmm@main
-
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percona
 
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
