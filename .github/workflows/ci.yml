@@ -1,152 +1,152 @@
-#name: CI
-#
-#on:
-#  push:
-#    branches:
-#      - main
-#      - release-*
-#    tags:
-#      - v[0-9]+.[0-9]+.[0-9]+*
-#  pull_request:
-#
-#jobs:
-#  check:
-#    name: Checks
-#    runs-on: ubuntu-22.04
-#    strategy:
-#      matrix:
-#        go-version: [1.18.x]
-#        may-fail: [false]
-##        include:
-##          - go-version: tip
-##            may-fail: true
-#
-#    continue-on-error: ${{ matrix.may-fail }}
-#
-#    env:
-#      GOPATH: ${{ github.workspace }}
-#      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-#
-#    defaults:
-#      run:
-#        working-directory: ${{ env.WORKING_DIR }}
-#
-#    steps:
-#      - name: Check out code into the working directory under the GOPATH
-#        uses: percona-platform/checkout@v3
-#        with:
-#          fetch-depth: 1
-#          path: ${{ env.WORKING_DIR }}
-#
-#      - name: Set up Go release
-#        if: matrix.go-version != 'tip'
-#        uses: percona-platform/setup-go@v2
-#        with:
-#          go-version: ${{ matrix.go-version }}
-#
-#      - name: Set up Go tip
-#        if: matrix.go-version == 'tip'
-#        run: |
-#          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-#          cd $HOME/gotip/src
-#          ./make.bash
-#          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-#          echo "$HOME/gotip/bin" >> $GITHUB_PATH
-#
-#      - name: Enable Go modules cache
-#        uses: percona-platform/cache@v2
-#        with:
-#          path: ~/go/pkg/mod
-#          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
-#          restore-keys: |
-#            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
-#
-#      - name: Download Go modules
-#        run: go mod download
-#
-#      - name: Check build
-#        run: make release
-#
-#      - name: Run required checks/linters
-#        env:
-#          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: |
-#          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker
-#          bin/go-sumtype ./...
-#          # use GITHUB_TOKEN because only it has access to GitHub Checks API
-#          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
-#
-#          # run it like this until it will be added to golangci-lint:
-#          # * https://github.com/golangci/golangci-lint/issues/288
-#          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
-#
-#      - name: Run optional checks/linters
-#        run: |
-#          # use ROBOT_TOKEN for better reviewer's name
-#          if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
-#            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
-#          else
-#            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
-#          fi
-#
-#      - name: Test common API
-#        run: make test-common
-#
-#      - name: Run debug commands on failure
-#        if: ${{ failure() }}
-#        run: |
-#          env
-#          go version
-#          go env
-#          pwd
-#          git status
-#
-#  merge-gatekeeper:
-#    needs: [check]
-#    runs-on: ubuntu-22.04
-#    steps:
-#      - name: Run Merge Gatekeeper
-#        uses: percona-platform/merge-gatekeeper@v1.0.2
-#        with:
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          interval: 45
-#          timeout: 1200
-#          ref: ${{ github.event.pull_request.head.sha || github.event.push.head.sha }}
-#
-#  workflow_success:
-#    needs: [merge-gatekeeper]
-#    name: Slack Notification success
-#    runs-on: ubuntu-22.04
-#    env:
-#      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-#      SLACK_CHANNEL: "pmm-ci"
-#      SLACK_USERNAME: "PR pipelines bot"
-#      SLACK_ICON_EMOJI: ":chestnut:"
-#      SLACK_COLOR: "#00FF00"
-#      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-#      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-#
-#    steps:
-#      - uses: percona-platform/checkout@v3
-#      - uses: percona-platform/setup-node@v2
-#      - name: Slack Notification
-#        uses: percona-platform/action-slack-notify@v2
-#
-#  workflow_failure:
-#    if: ${{ failure() }}
-#    needs: [merge-gatekeeper]
-#    name: Slack Notification failure
-#    runs-on: ubuntu-22.04
-#    env:
-#      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-#      SLACK_CHANNEL: "pmm-ci"
-#      SLACK_USERNAME: "PR pipelines bot"
-#      SLACK_ICON_EMOJI: ":chestnut:"
-#      SLACK_COLOR: "#FF0000"
-#      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-#      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-#
-#    steps:
-#      - uses: percona-platform/checkout@v3
-#      - name: Slack Notification
-#        uses: percona-platform/action-slack-notify@v2
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        go-version: [1.18.x]
+        may-fail: [false]
+#        include:
+#          - go-version: tip
+#            may-fail: true
+
+    continue-on-error: ${{ matrix.may-fail }}
+
+    env:
+      GOPATH: ${{ github.workspace }}
+      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - name: Check out code into the working directory under the GOPATH
+        uses: percona-platform/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ${{ env.WORKING_DIR }}
+
+      - name: Set up Go release
+        if: matrix.go-version != 'tip'
+        uses: percona-platform/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Set up Go tip
+        if: matrix.go-version == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+
+      - name: Enable Go modules cache
+        uses: percona-platform/cache@v2
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Check build
+        run: make release
+
+      - name: Run required checks/linters
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker
+          bin/go-sumtype ./...
+          # use GITHUB_TOKEN because only it has access to GitHub Checks API
+          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
+
+          # run it like this until it will be added to golangci-lint:
+          # * https://github.com/golangci/golangci-lint/issues/288
+          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
+
+      - name: Run optional checks/linters
+        run: |
+          # use ROBOT_TOKEN for better reviewer's name
+          if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
+          else
+            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
+          fi
+
+      - name: Test common API
+        run: make test-common
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
+
+  merge-gatekeeper:
+    needs: [check]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Run Merge Gatekeeper
+        uses: percona-platform/merge-gatekeeper@v1.0.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          interval: 45
+          timeout: 1200
+          ref: ${{ github.event.pull_request.head.sha || github.event.push.head.sha }}
+
+  workflow_success:
+    needs: [merge-gatekeeper]
+    name: Slack Notification success
+    runs-on: ubuntu-22.04
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#00FF00"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+
+    steps:
+      - uses: percona-platform/checkout@v3
+      - uses: percona-platform/setup-node@v2
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
+
+  workflow_failure:
+    if: ${{ failure() }}
+    needs: [merge-gatekeeper]
+    name: Slack Notification failure
+    runs-on: ubuntu-22.04
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#FF0000"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+
+    steps:
+      - uses: percona-platform/checkout@v3
+      - name: Slack Notification
+        uses: percona-platform/action-slack-notify@v2
