@@ -11,6 +11,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+//go-sumtype:decl isQueryActionValue_Kind
+
 func makeValue(value interface{}) (*QueryActionValue, error) {
 	// In the future, we may decide to:
 	// * dereference pointers;
@@ -95,7 +97,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 
 	// use reflection for slices (except []byte) and maps
 	v := reflect.ValueOf(value)
-	switch v.Kind() { //nolint:exhaustive
+	switch v.Kind() {
 	case reflect.Slice:
 		size := v.Len()
 		s := make([]*QueryActionValue, size)
