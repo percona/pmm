@@ -55,3 +55,5 @@ type AnnotateCmd struct {
 	Service     bool   `help:"Annotate services of current node"`
 	ServiceName string `help:"Name of service to annotate"`
 }
+
+type VersionCmd struct{}

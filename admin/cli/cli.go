@@ -47,6 +47,17 @@ type CLIGlobalFlags struct {
 type versionFlag bool
 
 func (v versionFlag) BeforeApply(app *kong.Kong, ctx *kong.Context) error {
+	// For backwards compatibility we scan for "--json" flag.
+	// Kong parses the flags from left to right which breaks compatibility
+	// if the --json flag is after --version flag.
+	if !isJSON {
+		for _, arg := range os.Args[1:] {
+			if arg == "--json" {
+				isJSON = true
+			}
+		}
+	}
+
 	if isJSON {
 		fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
 	} else {
@@ -77,6 +88,7 @@ type CLIFlags struct {
 	Register   management.RegisterCmd   `cmd:"" help:"Register current Node with PMM Server"`
 	Add        management.AddCmd        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCmd   `cmd:"" hidden:"" help:"Inventory commands"`
+	Version    commands.VersionCmd      `cmd:"" help:"Print version"`
 }
 
 func (c *CLIFlags) Run(ctx *kong.Context) error {
