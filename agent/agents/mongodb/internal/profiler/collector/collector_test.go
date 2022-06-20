@@ -32,7 +32,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm-agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
 const (
