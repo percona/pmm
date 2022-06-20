@@ -1,4 +1,4 @@
-package rsa_encryptor
+package encryption
 
 import (
 	"bytes"

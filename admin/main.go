@@ -20,7 +20,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"github.com/percona/pmm/utils/rsa_encryptor"
+	"github.com/percona/pmm/utils/encryption"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -82,7 +82,7 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx, errEnc := rsa_encryptor.InjectEncryptorIfNotPresent(ctx, publicKey, publicKeyID)
+	ctx, errEnc := encryption.InjectEncryptorIfNotPresent(ctx, publicKey, publicKeyID)
 	if errEnc != nil {
 		logrus.Panicf("Failed to inject encryptor: %v", errEnc)
 	}

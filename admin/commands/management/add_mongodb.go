@@ -18,7 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/utils/rsa_encryptor"
+	"github.com/percona/pmm/utils/encryption"
 	"github.com/sirupsen/logrus"
 	"os"
 	"strings"
@@ -157,7 +157,7 @@ func (cmd *addMongoDBCommand) RunWithContext(ctx context.Context) (commands.Resu
 		}
 	}
 
-	encryptor := rsa_encryptor.GetEncryptor(ctx)
+	encryptor := encryption.GetEncryptor(ctx)
 	password, err := encryptor.EncryptAsBlock(cmd.Password)
 	if err != nil {
 		logrus.Warnf("Failed to encrypt password: %s", err)

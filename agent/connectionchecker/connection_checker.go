@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/percona/pmm/utils/rsa_encryptor"
+	"github.com/percona/pmm/utils/encryption"
 	"io"
 	"math"
 	"net/http"
@@ -66,7 +66,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 		defer cancel()
 	}
 
-	encryptor := rsa_encryptor.GetEncryptor(ctx)
+	encryptor := encryption.GetEncryptor(ctx)
 	dsn, err := encryptor.DecryptDSN(msg.Dsn)
 	if err != nil {
 		cc.l.Debugf("Failed to decrypt DSN: %s", err)

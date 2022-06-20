@@ -18,7 +18,7 @@ package commands
 import (
 	"context"
 	_ "embed"
-	"github.com/percona/pmm/utils/rsa_encryptor"
+	"github.com/percona/pmm/utils/encryption"
 	"os"
 	"os/signal"
 
@@ -43,7 +43,7 @@ const privateKeyID = "k1"
 func Run() {
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx, err := rsa_encryptor.InjectEncryptorIfNotPresent(ctx, privateKey, privateKeyID)
+	ctx, err := encryption.InjectEncryptorIfNotPresent(ctx, privateKey, privateKeyID)
 	if err != nil {
 		l.Fatalf("Failed to inject encryptor: %s.", err)
 	}
