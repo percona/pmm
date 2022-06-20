@@ -120,22 +120,26 @@ func replacer(redactWords []string) *strings.Replacer {
 var matchLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 
 func matchLogLevel(line string) logrus.Level {
+	const defaultLogLevel = logrus.InfoLevel
+
 	matches := matchLogLevelRegex.FindStringSubmatch(line)
-	if len(matches) < 2 {
-		return logrus.InfoLevel
+
+	noMatches := len(matches) < 2
+	if noMatches {
+		return defaultLogLevel
 	}
 
-	result, err := logrus.ParseLevel(matches[1])
+	lineLogLevel, err := logrus.ParseLevel(matches[1])
 	if err != nil {
 		// unreachable
 		return logrus.ErrorLevel
 	}
 
-	if result < logrus.ErrorLevel {
+	if lineLogLevel < logrus.ErrorLevel {
 		return logrus.ErrorLevel
 	}
 
-	return result
+	return lineLogLevel
 }
 
 // check interfaces

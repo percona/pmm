@@ -191,44 +191,28 @@ func TestProcess(t *testing.T) {
 }
 
 func TestMatchLogLevel(t *testing.T) {
-	const (
-		msgInfo  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info msg="Starting mysqld_exporter"`
-		msgWarn  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter"`
-		msgError = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=error msg="Starting mysqld_exporter"`
-		msgPanic = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=panic msg="Starting mysqld_exporter"`
-		msgFatal = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=fatal msg="Starting mysqld_exporter"`
-		msgTrace = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=trace msg="Starting mysqld_exporter"`
-		msgDebug = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=debug msg="Starting mysqld_exporter"`
-
-		msgDuplicate = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`
-
-		msgNone   = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`
-		msgEmpty  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`
-		msgNumber = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=123 msg="Starting mysqld_exporter"`
-		msgSymbol = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=* msg="Starting mysqld_exporter"`
-	)
-
-	var assertLogLevel = func(t *testing.T, line string, expected logrus.Level) {
-		t.Helper()
-
-		require.Equal(t, expected, matchLogLevel(line))
+	tests := []struct {
+		testName string
+		line     string
+		expected logrus.Level
+	}{
+		{"info", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info msg="Starting mysqld_exporter"`, logrus.InfoLevel},
+		{"warn", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter"`, logrus.WarnLevel},
+		{"error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=error msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
+		{"panic to error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=panic msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
+		{"fatal to error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=fatal msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
+		{"trace", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=trace msg="Starting mysqld_exporter"`, logrus.TraceLevel},
+		{"debug", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=debug msg="Starting mysqld_exporter"`, logrus.DebugLevel},
+		{"duplicate level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`, logrus.WarnLevel},
+		{"missing level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`, logrus.InfoLevel},
+		{"level key with empty value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`, logrus.InfoLevel},
+		{"level key with incorrect value number", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=123 msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
+		{"level key with incorrect value symbol", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=* msg="Starting mysqld_exporter"`, logrus.InfoLevel},
 	}
 
-	assertLogLevel(t, msgInfo, logrus.InfoLevel)
-	assertLogLevel(t, msgWarn, logrus.WarnLevel)
-
-	assertLogLevel(t, msgError, logrus.ErrorLevel)
-	assertLogLevel(t, msgPanic, logrus.ErrorLevel)
-	assertLogLevel(t, msgFatal, logrus.ErrorLevel)
-
-	assertLogLevel(t, msgTrace, logrus.TraceLevel)
-	assertLogLevel(t, msgDebug, logrus.DebugLevel)
-
-	assertLogLevel(t, msgDuplicate, logrus.WarnLevel)
-
-	assertLogLevel(t, msgNone, logrus.InfoLevel)
-	assertLogLevel(t, msgEmpty, logrus.InfoLevel)
-
-	assertLogLevel(t, msgNumber, logrus.ErrorLevel)
-	assertLogLevel(t, msgSymbol, logrus.InfoLevel)
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			require.Equal(t, tt.expected, matchLogLevel(tt.line))
+		})
+	}
 }
