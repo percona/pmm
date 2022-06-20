@@ -67,7 +67,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	encryptor := rsa_encryptor.GetEncryptor(ctx)
-	dsn, err := encryptor.DecryptDsn(msg.Dsn)
+	dsn, err := encryptor.DecryptDSN(msg.Dsn)
 	if err != nil {
 		cc.l.Debugf("Failed to decrypt DSN: %s", err)
 	} else {

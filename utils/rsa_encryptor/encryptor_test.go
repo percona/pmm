@@ -43,8 +43,8 @@ func TestDecodeCipherBlock(t *testing.T) {
 	sut, _ := NewFromPrivateKey(key, privateKey)
 
 	t.Run("Happy path", func(t *testing.T) {
-		block := EncryptedTextBlockStart + EncryptedTextBlockParamsDelimiter + key + EncryptedTextBlockCipherStart +
-			ciphertext + EncryptedTextBlockCipherEnd
+		block := encryptedTextBlockStart + encryptedTextBlockParamsDelimiter + key + encryptedTextBlockCipherStart +
+			ciphertext + encryptedTextBlockCipherEnd
 		text, err := sut.DecodeCipherBlock(block)
 		assert.Nil(t, err)
 		assert.NotNil(t, text)
@@ -53,8 +53,8 @@ func TestDecodeCipherBlock(t *testing.T) {
 	})
 
 	t.Run("Invalid prefix", func(t *testing.T) {
-		invalidBlock := "x123" + EncryptedTextBlockParamsDelimiter + key + EncryptedTextBlockCipherStart +
-			ciphertext + EncryptedTextBlockCipherEnd
+		invalidBlock := "x123" + encryptedTextBlockParamsDelimiter + key + encryptedTextBlockCipherStart +
+			ciphertext + encryptedTextBlockCipherEnd
 		_, err := sut.DecodeCipherBlock(invalidBlock)
 		assert.NotNil(t, err)
 	})
@@ -65,8 +65,8 @@ func TestEncodeCipherBlock(t *testing.T) {
 	sut, _ := NewFromPrivateKey(key, privateKey)
 
 	ciphertext := "xyz123"
-	expectedCipherBlock := EncryptedTextBlockStart + EncryptedTextBlockParamsDelimiter +
-		key + EncryptedTextBlockCipherStart + ciphertext + EncryptedTextBlockCipherEnd
+	expectedCipherBlock := encryptedTextBlockStart + encryptedTextBlockParamsDelimiter +
+		key + encryptedTextBlockCipherStart + ciphertext + encryptedTextBlockCipherEnd
 
 	t.Run("Happy path", func(t *testing.T) {
 		cipherBlock, err := sut.EncodeCipherBlock([]byte(ciphertext))
@@ -74,7 +74,7 @@ func TestEncodeCipherBlock(t *testing.T) {
 		assert.Equal(t, cipherBlock, expectedCipherBlock)
 	})
 	t.Run("Should not allow EncryptedTextBlockStart", func(t *testing.T) {
-		_, err := sut.EncodeCipherBlock([]byte(EncryptedTextBlockStart))
+		_, err := sut.EncodeCipherBlock([]byte(encryptedTextBlockStart))
 		assert.NotNil(t, err)
 	})
 }
