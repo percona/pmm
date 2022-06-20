@@ -86,7 +86,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 
 				pl.l.Infoln(line)
 			} else if found {
-				if logrus.ErrorLevel < level {
+				if level < logrus.ErrorLevel {
 					level = logrus.ErrorLevel
 				}
 
