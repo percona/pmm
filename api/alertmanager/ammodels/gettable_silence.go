@@ -18,7 +18,6 @@ import (
 //
 // swagger:model gettableSilence
 type GettableSilence struct {
-
 	// id
 	// Required: true
 	ID *string `json:"id"`
@@ -125,7 +124,6 @@ func (m *GettableSilence) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateID(formats strfmt.Registry) error {
-
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
 	}
@@ -134,7 +132,6 @@ func (m *GettableSilence) validateID(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -154,7 +151,6 @@ func (m *GettableSilence) validateStatus(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
@@ -186,7 +182,6 @@ func (m *GettableSilence) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *GettableSilence) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Status != nil {
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

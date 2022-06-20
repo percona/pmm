@@ -1,9 +1,7 @@
-name: build
+name: CI
 
 on:
   push:
-    paths-ignore:
-      - "api-tests/**"
     branches:
       - main
       - release-*
@@ -12,21 +10,18 @@ on:
   pull_request:
 
 jobs:
-  build:
-    name: Build
-
+  check:
+    name: Checks
+    runs-on: ubuntu-22.04
     strategy:
-      fail-fast: false
       matrix:
-        go:
-          - version: 1.18.x
-            may-fail: false
-          - version: tip
-            may-fail: true
+        go-version: [1.18.x]
+        may-fail: [false]
+#        include:
+#          - go-version: tip
+#            may-fail: true
 
-    continue-on-error: ${{ matrix.go.may-fail }}
-
-    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.may-fail }}
 
     env:
       GOPATH: ${{ github.workspace }}
@@ -37,20 +32,20 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      - name: Checkout code
+      - name: Check out code into the working directory under the GOPATH
         uses: percona-platform/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
           path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
-        if: matrix.go.version != 'tip'
+        if: matrix.go-version != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go.version }}
+          go-version: ${{ matrix.go-version }}
 
       - name: Set up Go tip
-        if: matrix.go.version == 'tip'
+        if: matrix.go-version == 'tip'
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
@@ -69,32 +64,37 @@ jobs:
       - name: Download Go modules
         run: go mod download
 
-      - name: API make Init
-        run: make init
+      - name: Check build
+        run: make release
 
-      - name: API Prepare
+      - name: Test common API
+        run: make test-common
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
         run: |
-          # Ensure that generated files are not changed
-          make gen gen-alertmanager
+          env
+          go version
+          go env
+          pwd
           git status
-          git diff --exit-code
 
-      - name: Update API compatibility descriptors.
-        run: |
-          # log if descriptors changed, useful for "update descriptors" PRs
-          make descriptors
-          git diff --text
-
-      - name: Run tests
-        run: make test
-
-      - name: Clean Testcache
-        run: go clean -testcache
+  merge-gatekeeper:
+    needs: [check]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Run Merge Gatekeeper
+        uses: percona-platform/merge-gatekeeper@v1.0.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          interval: 45
+          timeout: 1200
+          ref: ${{ github.event.pull_request.head.sha || github.event.push.head.sha }}
 
   workflow_success:
-    needs: [build]
+    needs: [merge-gatekeeper]
     name: Slack Notification success
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
@@ -112,9 +112,9 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [build]
+    needs: [merge-gatekeeper]
     name: Slack Notification failure
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"

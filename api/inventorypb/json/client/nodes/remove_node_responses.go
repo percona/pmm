@@ -59,12 +59,12 @@ type RemoveNodeOK struct {
 func (o *RemoveNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *RemoveNodeOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *RemoveNodeDefault) Code() int {
 func (o *RemoveNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RemoveNodeDefault) GetPayload() *RemoveNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RemoveNodeDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model RemoveNodeBody
 */
 type RemoveNodeBody struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -158,10 +157,6 @@ func (o *RemoveNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveNodeDefaultBody
 */
 type RemoveNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +222,7 @@ func (o *RemoveNodeDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *RemoveNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +233,6 @@ func (o *RemoveNodeDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -268,13 +260,8 @@ func (o *RemoveNodeDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoveNodeDefaultBodyDetailsItems0
 */
 type RemoveNodeDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this remove node default body details items0

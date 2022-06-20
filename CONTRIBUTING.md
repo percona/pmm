@@ -35,8 +35,8 @@ This project is built from several repositories:
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm-agent)
-* [percona/pmm-admin](https://github.com/percona/pmm-admin)
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent)
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona/node_exporter](https://github.com/percona/node_exporter)
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
@@ -58,9 +58,39 @@ This project is built from several repositories:
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [percona/pmm-doc](https://github.com/percona/pmm-doc)
 
-## API documentation
+## API Reference Documentation
 
-See API definitions [here](https://percona-pmm.readme.io/reference/introduction).
+You can review the PMM API definition [here](https://percona-pmm.readme.io/).
+
+It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
+documentation source files which are located in the `markdown` directory. The
+content and structure of these is formatted using [Markdown markup
+language](https://www.markdownguide.org/) and published on the
+[ReadMe.com](https://readme.com/) service.
+
+You can edit the content using your favorite editor (ideally one that supports
+previewing MarkDown content, e.g. Microsoft Visual Studio Code).
+
+If you need to create a new file, copy one of the existing `*.md` documents in
+the folder to maintain the overall structure and format.
+
+When choosing a file name, make sure that it reflects the topic or the theme you
+are talking about and follow the format of `my-topic.md` (no spaces, only
+letters and dashes).
+
+Make sure to create a unique `slug` for your file, for example: `slug:
+authentication`. 
+
+**Header rules**: in Markdown, the level of a header line is defined by the
+number of hash signs, example: `###` would be equivalent to an H3 header. Please
+avoid using H1 headers. Your first-level header must be H2. The rest of the
+headers can by anything between H3 and H6.
+
+Once you're done, please submit your proposed changes via a GitHub pull request
+as outlined below.
+
+After the PR has been merged, make sure you can see your contribution live at
+https://percona-pmm.readme.io/
 
 ## Prerequisites
 
@@ -92,8 +122,8 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Client
 
-* Clone [pmm-agent repository](https://github.com/percona/pmm-agent) and [pmm-admin repository](https://github.com/percona/pmm-admin).
-* Navigate to the root folder of pmm-agent. 
+* Clone [pmm repository](https://github.com/percona/pmm).
+* Navigate to the `/agent` folder in the root of the repository. 
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.

@@ -1,0 +1,142 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 353,
+    "Ts": "2014-02-24T22:39:34Z",
+    "Admin": false,
+    "Query": "select 950,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db950.txt'",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "db950",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.002991,
+      "Query_time": 21.876617
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 14,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Rows_affected": 1605306,
+      "Rows_examined": 1605306,
+      "Rows_sent": 1605306
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 353,
+    "OffsetEnd": 6138,
+    "Ts": "2014-02-24T22:39:59Z",
+    "Admin": false,
+    "Query": "select 961,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db961.txt'",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "db961",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.103324,
+      "Query_time": 20.304536
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 14,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Rows_affected": 1197472,
+      "Rows_examined": 1197472,
+      "Rows_sent": 1197472
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 6138,
+    "OffsetEnd": 6666,
+    "Ts": "2014-03-11T16:07:40Z",
+    "Admin": false,
+    "Query": "select count(*) into @discard from `information_schema`.`PARTITIONS`",
+    "User": "debian-sys-maint",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000174,
+      "Query_time": 94.38144
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 11,
+      "Killed": 0,
+      "Last_errno": 1146,
+      "Rows_affected": 1,
+      "Rows_examined": 17799,
+      "Rows_sent": 0
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 6666,
+    "OffsetEnd": 7014,
+    "Ts": "2014-03-12T20:28:40Z",
+    "Admin": false,
+    "Query": "select 1,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db1.txt'",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "db1",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.122377,
+      "Query_time": 407.540262
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 19,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Rows_affected": 34621308,
+      "Rows_examined": 34621308,
+      "Rows_sent": 34621308
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 7014,
+    "OffsetEnd": 7370,
+    "Ts": "2014-03-12T20:29:40Z",
+    "Admin": false,
+    "Query": "select 1006,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db1006.txt'",
+    "User": "root",
+    "Host": "localhost",
+    "Db": "db1006",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.002719,
+      "Query_time": 60.507698
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 14,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Rows_affected": 4937738,
+      "Rows_examined": 4937738,
+      "Rows_sent": 4937738
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

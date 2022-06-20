@@ -1,0 +1,47 @@
+slow000 is empty
+
+slow001 is a most basic basic, normal slow log--nothing exotic.
+
+slow002 is a basic slow log like slow001 but with more metrics, multi-line queries, etc.
+
+slow003 starts with a blank line.  I guess this once messed up SlowLogParser.pm?
+
+I don't know what's special about this slow004.
+
+slow005 has a multi-line query with tabs in it.  A pathological case that
+would probably break the parser is a query like:
+  SELECT * FROM foo WHERE col = "Hello
+  # Query_time: 10
+  " LIMIT 1;
+There's no easy way to detect that "# Query_time" is part of the query and
+not part of the next event's header.
+
+slow006 has the Schema: db metric _or_ use db; lines before the queries.
+Schema value should be used for log.Event.Db is no use db; line is present.
+
+slow007 has Schema: db1 _and_ use db2;.  db2 should be used.
+
+slow008 has 4 interesting things (which makes it a poor test case since we're
+testing many things at once):
+  1) an admin command, e.g.: # administrator command: Quit;
+  2) a SET NAMES query; SET <certain vars> are ignored
+  3) No Time metrics
+  4) IPs in the host metric, but we don't currently support these
+
+slow011 contains rate limit
+
+slow013 - Stack overflow bug due to meta lines.
+
+slow014 - query line looks like header line.
+
+slow015 - Line > bufio.MaxScanTokenSize = 64KiB https://jira.percona.com/browse/PCT-552
+
+slow016 - Start in header
+
+slow017 - Start in query
+
+slow023 - Test db is not inherited and multiple "use" commands.
+
+slow024 - Test header with invalid # Time or invalid # User lines
+
+slow028 mariadb 10.1.20 with explain https://jira.percona.com/browse/PMM-1834

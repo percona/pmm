@@ -58,8 +58,7 @@ type ExternalServer interface {
 }
 
 // UnimplementedExternalServer must be embedded to have forward compatible implementations.
-type UnimplementedExternalServer struct {
-}
+type UnimplementedExternalServer struct{}
 
 func (UnimplementedExternalServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")

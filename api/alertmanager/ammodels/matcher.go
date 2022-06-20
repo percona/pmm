@@ -18,7 +18,6 @@ import (
 //
 // swagger:model matcher
 type Matcher struct {
-
 	// is regex
 	// Required: true
 	IsRegex *bool `json:"isRegex"`
@@ -55,7 +54,6 @@ func (m *Matcher) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Matcher) validateIsRegex(formats strfmt.Registry) error {
-
 	if err := validate.Required("isRegex", "body", m.IsRegex); err != nil {
 		return err
 	}
@@ -64,7 +62,6 @@ func (m *Matcher) validateIsRegex(formats strfmt.Registry) error {
 }
 
 func (m *Matcher) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
@@ -73,7 +70,6 @@ func (m *Matcher) validateName(formats strfmt.Registry) error {
 }
 
 func (m *Matcher) validateValue(formats strfmt.Registry) error {
-
 	if err := validate.Required("value", "body", m.Value); err != nil {
 		return err
 	}

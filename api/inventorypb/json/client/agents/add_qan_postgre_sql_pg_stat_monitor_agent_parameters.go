@@ -58,7 +58,6 @@ func NewAddQANPostgreSQLPgStatMonitorAgentParamsWithHTTPClient(client *http.Clie
    Typically these are written to a http.Request.
 */
 type AddQANPostgreSQLPgStatMonitorAgentParams struct {
-
 	// Body.
 	Body AddQANPostgreSQLPgStatMonitorAgentBody
 
@@ -128,7 +127,6 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentParams) SetBody(body AddQANPostgreSQL
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddQANPostgreSQLPgStatMonitorAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

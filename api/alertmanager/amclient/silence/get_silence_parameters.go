@@ -58,7 +58,6 @@ func NewGetSilenceParamsWithHTTPClient(client *http.Client) *GetSilenceParams {
    Typically these are written to a http.Request.
 */
 type GetSilenceParams struct {
-
 	/* SilenceID.
 
 	   ID of the silence to get
@@ -133,7 +132,6 @@ func (o *GetSilenceParams) SetSilenceID(silenceID strfmt.UUID) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetSilenceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

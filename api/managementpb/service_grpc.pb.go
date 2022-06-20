@@ -54,8 +54,7 @@ type ServiceServer interface {
 }
 
 // UnimplementedServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedServiceServer struct {
-}
+type UnimplementedServiceServer struct{}
 
 func (UnimplementedServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")

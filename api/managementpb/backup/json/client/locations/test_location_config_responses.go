@@ -59,12 +59,12 @@ type TestLocationConfigOK struct {
 func (o *TestLocationConfigOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
 }
+
 func (o *TestLocationConfigOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *TestLocationConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *TestLocationConfigDefault) Code() int {
 func (o *TestLocationConfigDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *TestLocationConfigDefault) GetPayload() *TestLocationConfigDefaultBody {
 	return o.Payload
 }
 
 func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(TestLocationConfigDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
-
 	// pmm client config
 	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
 
@@ -231,7 +230,6 @@ func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *TestLocationConfigBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -247,7 +245,6 @@ func (o *TestLocationConfigBody) contextValidatePMMClientConfig(ctx context.Cont
 }
 
 func (o *TestLocationConfigBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -263,7 +260,6 @@ func (o *TestLocationConfigBody) contextValidatePMMServerConfig(ctx context.Cont
 }
 
 func (o *TestLocationConfigBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -300,10 +296,6 @@ func (o *TestLocationConfigBody) UnmarshalBinary(b []byte) error {
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -369,9 +361,7 @@ func (o *TestLocationConfigDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -382,7 +372,6 @@ func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -410,13 +399,8 @@ func (o *TestLocationConfigDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model TestLocationConfigDefaultBodyDetailsItems0
 */
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this test location config default body details items0
@@ -451,7 +435,6 @@ func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model TestLocationConfigParamsBodyPMMClientConfig
 */
 type TestLocationConfigParamsBodyPMMClientConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -488,7 +471,6 @@ func (o *TestLocationConfigParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) 
 swagger:model TestLocationConfigParamsBodyPMMServerConfig
 */
 type TestLocationConfigParamsBodyPMMServerConfig struct {
-
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -525,7 +507,6 @@ func (o *TestLocationConfigParamsBodyPMMServerConfig) UnmarshalBinary(b []byte) 
 swagger:model TestLocationConfigParamsBodyS3Config
 */
 type TestLocationConfigParamsBodyS3Config struct {
-
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

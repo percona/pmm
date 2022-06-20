@@ -58,7 +58,6 @@ func NewStartUpdateParamsWithHTTPClient(client *http.Client) *StartUpdateParams 
    Typically these are written to a http.Request.
 */
 type StartUpdateParams struct {
-
 	// Body.
 	Body interface{}
 
@@ -128,7 +127,6 @@ func (o *StartUpdateParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartUpdateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
