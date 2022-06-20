@@ -1,8 +1,6 @@
 # Devcontainer Makefile.
 
-init:                 ## Install tools.
-	rm -rf bin/*
-	cd tools && go generate -x -tags=tools
+include Makefile.include
 
 release-dev:
 	make -C managed release-dev
@@ -37,4 +35,3 @@ psql-test:                      ## Open database used in unit tests in psql shel
 
 dlv/attach:						## Attache Delve to `pmm-managed`
 	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
-

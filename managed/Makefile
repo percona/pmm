@@ -25,6 +25,13 @@ PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
+gen: clean                      ## Generate files.
+	go generate ./...
+
+clean:                          ## Remove generated files.
+	find . -name *_reform.go -delete
+	find . -name mock_*.go -delete
+
 release:                        ## Build pmm-managed release binaries.
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-managed-init ./cmd/pmm-managed-init
