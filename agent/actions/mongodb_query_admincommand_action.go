@@ -20,13 +20,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
+	"github.com/percona/pmm/api/agentpb"
 )
 
 // MongoDBQueryAdmincommandActionParams represent Mongo DB Query Admin Command Action params.
