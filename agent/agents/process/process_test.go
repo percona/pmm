@@ -189,3 +189,46 @@ func TestProcess(t *testing.T) {
 		require.EqualError(t, err, "os: process already finished", "child process with pid %v is not killed", pid)
 	})
 }
+
+func TestMatchLogLevel(t *testing.T) {
+	const (
+		msgInfo  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info msg="Starting mysqld_exporter"`
+		msgWarn  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter"`
+		msgError = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=error msg="Starting mysqld_exporter"`
+		msgPanic = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=panic msg="Starting mysqld_exporter"`
+		msgFatal = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=fatal msg="Starting mysqld_exporter"`
+		msgTrace = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=trace msg="Starting mysqld_exporter"`
+		msgDebug = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=debug msg="Starting mysqld_exporter"`
+
+		msgDuplicate = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`
+
+		msgNone   = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`
+		msgEmpty  = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`
+		msgNumber = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=123 msg="Starting mysqld_exporter"`
+		msgSymbol = `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=* msg="Starting mysqld_exporter"`
+	)
+
+	var assertLogLevel = func(t *testing.T, line string, expected logrus.Level) {
+		t.Helper()
+
+		require.Equal(t, expected, matchLogLevel(line))
+	}
+
+	assertLogLevel(t, msgInfo, logrus.InfoLevel)
+	assertLogLevel(t, msgWarn, logrus.WarnLevel)
+
+	assertLogLevel(t, msgError, logrus.ErrorLevel)
+	assertLogLevel(t, msgPanic, logrus.ErrorLevel)
+	assertLogLevel(t, msgFatal, logrus.ErrorLevel)
+
+	assertLogLevel(t, msgTrace, logrus.TraceLevel)
+	assertLogLevel(t, msgDebug, logrus.DebugLevel)
+
+	assertLogLevel(t, msgDuplicate, logrus.WarnLevel)
+
+	assertLogLevel(t, msgNone, logrus.InfoLevel)
+	assertLogLevel(t, msgEmpty, logrus.InfoLevel)
+
+	assertLogLevel(t, msgNumber, logrus.ErrorLevel)
+	assertLogLevel(t, msgSymbol, logrus.InfoLevel)
+}
