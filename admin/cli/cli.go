@@ -24,7 +24,6 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/admin/cli/opts"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
@@ -33,9 +32,6 @@ import (
 
 var (
 	isJSON = false
-	CLI    = opts.Opts{
-		SetupClients: true,
-	}
 )
 
 type CLIGlobalFlags struct {
@@ -87,7 +83,7 @@ func (c *CLIFlags) Run(ctx *kong.Context) error {
 	in := []reflect.Value{}
 	method := getMethod(ctx.Selected().Target, "RunCmdWithContext")
 	if method.IsValid() {
-		in = append(in, reflect.ValueOf(CLI.Ctx))
+		in = append(in, reflect.ValueOf(commands.CLICtx))
 	} else {
 		method = getMethod(ctx.Selected().Target, "RunCmd")
 	}

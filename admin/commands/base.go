@@ -46,9 +46,12 @@ import (
 
 var (
 	// Ctx is a shared context for all requests.
-	Ctx = context.Background()
+	Ctx    = context.Background()
+	CLICtx context.Context
 
 	errExecutionNotImplemented = errors.New("execution is not supported")
+
+	SetupClientsEnabled = true
 )
 
 // Result is a common interface for all command results.

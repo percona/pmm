@@ -72,7 +72,6 @@ func main() {
 			Compact:             true,
 			NoExpandSubcommands: true,
 		}),
-		kong.Bind(&cli.CLI),
 		kong.Vars{
 			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
 			"nodeIp":                       nodeinfo.PublicAddress,
@@ -117,11 +116,11 @@ func main() {
 	agentlocal.SetTransport(ctx, opts.Debug || opts.Trace, opts.PMMAgentListenPort)
 
 	// pmm-admin status command don't connect to PMM Server.
-	if cli.CLI.SetupClients {
+	if commands.SetupClientsEnabled {
 		commands.SetupClients(ctx, opts.ServerURL)
 	}
 
-	cli.CLI.Ctx = ctx
+	commands.CLICtx = ctx
 
 	err := kongCtx.Run()
 	if err != nil {
