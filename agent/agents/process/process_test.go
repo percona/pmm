@@ -17,6 +17,7 @@ package process
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"runtime"
@@ -190,29 +191,35 @@ func TestProcess(t *testing.T) {
 	})
 }
 
-func TestMatchLogLevel(t *testing.T) {
+func TestExtractLogLevel(t *testing.T) {
 	tests := []struct {
-		testName string
-		line     string
-		expected logrus.Level
+		testName      string
+		line          string
+		expectedLevel logrus.Level
+		expectedFound bool
+		expectedErr   error
 	}{
-		{"info", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info msg="Starting mysqld_exporter"`, logrus.InfoLevel},
-		{"warn", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter"`, logrus.WarnLevel},
-		{"error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=error msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
-		{"panic to error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=panic msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
-		{"fatal to error", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=fatal msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
-		{"trace", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=trace msg="Starting mysqld_exporter"`, logrus.TraceLevel},
-		{"debug", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=debug msg="Starting mysqld_exporter"`, logrus.DebugLevel},
-		{"duplicate level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`, logrus.WarnLevel},
-		{"missing level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`, logrus.InfoLevel},
-		{"level key with empty value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`, logrus.InfoLevel},
-		{"level key with incorrect value number", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=123 msg="Starting mysqld_exporter"`, logrus.ErrorLevel},
-		{"level key with incorrect value symbol", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=* msg="Starting mysqld_exporter"`, logrus.InfoLevel},
+		{"info", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info msg="Starting mysqld_exporter"`, logrus.InfoLevel, true, nil},
+		{"panic", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=panic msg="Starting mysqld_exporter"`, logrus.PanicLevel, true, nil},
+		{"trace", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=trace msg="Starting mysqld_exporter"`, logrus.TraceLevel, true, nil},
+		{"duplicate level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`, logrus.WarnLevel, true, nil},
+		{"missing level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`, 0, false, nil},
+		{"level key with empty value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`, 0, false, nil},
+		{"level key with incorrect value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info123 msg="Starting mysqld_exporter"`, 0, false, errors.New(`not a valid logrus Level: "info123"`)},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			require.Equal(t, tt.expected, matchLogLevel(tt.line))
+			level, found, err := extractLogLevel(tt.line)
+
+			require.Equal(t, tt.expectedLevel, level)
+			require.Equal(t, tt.expectedFound, found)
+
+			if tt.expectedErr != nil {
+				require.EqualError(t, err, tt.expectedErr.Error())
+			} else {
+				require.NoError(t, err)
+			}
 		})
 	}
 }

@@ -79,7 +79,21 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			line = pl.replacer.Replace(line)
 		}
 		if pl.l != nil {
-			pl.l.Logln(matchLogLevel(line), line)
+			level, found, err := extractLogLevel(line)
+
+			if err != nil {
+				pl.l.Warnf("Extract log level error: %v.", err)
+
+				pl.l.Infoln(line)
+			} else if found {
+				if logrus.ErrorLevel < level {
+					level = logrus.ErrorLevel
+				}
+
+				pl.l.Logln(level, line)
+			} else {
+				pl.l.Infoln(line)
+			}
 		}
 		pl.data[pl.i] = pointer.ToString(line)
 		pl.i = (pl.i + 1) % len(pl.data)
@@ -117,29 +131,22 @@ func replacer(redactWords []string) *strings.Replacer {
 	return strings.NewReplacer(r...)
 }
 
-var matchLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
+var extractLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
 
-func matchLogLevel(line string) logrus.Level {
-	const defaultLogLevel = logrus.InfoLevel
-
-	matches := matchLogLevelRegex.FindStringSubmatch(line)
+func extractLogLevel(line string) (level logrus.Level, found bool, err error) {
+	matches := extractLogLevelRegex.FindStringSubmatch(line)
 
 	noMatches := len(matches) < 2
 	if noMatches {
-		return defaultLogLevel
+		return 0, false, nil
 	}
 
-	lineLogLevel, err := logrus.ParseLevel(matches[1])
+	level, err = logrus.ParseLevel(matches[1])
 	if err != nil {
-		// unreachable
-		return logrus.ErrorLevel
+		return 0, false, err
 	}
 
-	if lineLogLevel < logrus.ErrorLevel {
-		return logrus.ErrorLevel
-	}
-
-	return lineLogLevel
+	return level, true, nil
 }
 
 // check interfaces
