@@ -38,3 +38,4 @@ It means that everything works.
 ## Testing
 pmm-admin doesn't require setting-up environment.  
 Run `make test` to run tests. 
+
