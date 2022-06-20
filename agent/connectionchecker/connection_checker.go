@@ -29,17 +29,17 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
 )
 
 // ConnectionChecker is a struct to check connection to services.
@@ -77,7 +77,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
-		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
+		panic(fmt.Sprintf("unhandled service type: %v", msg.Type))
 	}
 }
 
@@ -162,7 +162,14 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		cc.l.Debugf("failed to parse DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Connect: %s", err)
 		res.Error = err.Error()

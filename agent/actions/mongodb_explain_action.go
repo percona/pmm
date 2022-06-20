@@ -22,13 +22,13 @@ import (
 	"strings"
 
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
 )
 
 type mongodbExplainAction struct {
@@ -37,7 +37,10 @@ type mongodbExplainAction struct {
 	tempDir string
 }
 
-var errCannotExplain = fmt.Errorf("cannot explain this type of query")
+var (
+	errCannotExplain     = fmt.Errorf("cannot explain this type of query")
+	errInvalidInputQuery = fmt.Errorf("invalid input query for explain")
+)
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
@@ -65,7 +68,12 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
