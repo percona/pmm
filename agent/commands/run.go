@@ -18,7 +18,6 @@ package commands
 import (
 	"context"
 	_ "embed"
-	"github.com/percona/pmm/utils/encryption"
 	"os"
 	"os/signal"
 
@@ -32,6 +31,7 @@ import (
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
+	"github.com/percona/pmm/utils/encryption"
 )
 
 //go:embed default-key

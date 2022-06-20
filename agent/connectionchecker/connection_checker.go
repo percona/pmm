@@ -20,7 +20,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/percona/pmm/utils/encryption"
 	"io"
 	"math"
 	"net/http"
@@ -41,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/utils/encryption"
 )
 
 // ConnectionChecker is a struct to check connection to services.
