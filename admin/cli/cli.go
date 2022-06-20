@@ -30,9 +30,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var (
-	isJSON = false
-)
+var isJSON = false
 
 type CLIGlobalFlags struct {
 	ServerURL          string      `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
