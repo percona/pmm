@@ -213,7 +213,7 @@ func (cmd *addMongoDBCommand) RunWithContext(ctx context.Context) (commands.Resu
 
 // register command
 var (
-	AddMongoDB  = new(addMongoDBCommand)
+	AddMongoDB  addMongoDBCommand
 	AddMongoDBC = AddC.Command("mongodb", "Add MongoDB to monitoring")
 )
 

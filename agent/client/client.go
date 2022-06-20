@@ -55,10 +55,11 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg               *config.Config
-	supervisor        supervisor
-	connectionChecker connectionChecker
-	softwareVersioner softwareVersioner
+	cfg                *config.Config
+	supervisor         supervisor
+	connectionChecker  connectionChecker
+	softwareVersioner  softwareVersioner
+	defaultsFileParser defaultsFileParser
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -78,16 +79,17 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser) *Client {
 	return &Client{
-		cfg:               cfg,
-		supervisor:        supervisor,
-		connectionChecker: connectionChecker,
-		softwareVersioner: sv,
-		l:                 logrus.WithField("component", "client"),
-		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:              make(chan struct{}),
-		dialTimeout:       dialTimeout,
+		cfg:                cfg,
+		supervisor:         supervisor,
+		connectionChecker:  connectionChecker,
+		softwareVersioner:  sv,
+		l:                  logrus.WithField("component", "client"),
+		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
+		done:               make(chan struct{}),
+		dialTimeout:        dialTimeout,
+		defaultsFileParser: dfp,
 	}
 }
 
@@ -388,10 +390,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
 
 			case *agentpb.StartActionRequest_PtPgSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPgSummary, argListFromPgParams(params.PtPgSummaryParams))
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySqlSummary, params.PtMysqlSummaryParams)
+				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 
 			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
@@ -436,6 +438,8 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				resp.Error = err.Error()
 			}
 			responsePayload = &resp
+		case *agentpb.ParseDefaultsFileRequest:
+			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
@@ -457,8 +461,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 }
 
 func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
-	err := p.Timeout.CheckValid()
-	if err != nil {
+	if err := p.Timeout.CheckValid(); err != nil {
 		return err
 	}
 	timeout := p.Timeout.AsDuration()
@@ -593,7 +596,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		host, _, _ := net.SplitHostPort(cfg.Server.Address)
 		tlsConfig := tlsconfig.Get()
 		tlsConfig.ServerName = host
-		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS //nolint:gosec
+		tlsConfig.InsecureSkipVerify = cfg.Server.InsecureTLS
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 
@@ -610,7 +613,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		msg := err.Error()
 
 		// improve error message in that particular case
-		if err == context.DeadlineExceeded {
+		if errors.Is(err, context.DeadlineExceeded) {
 			msg = "timeout"
 		}
 
@@ -733,7 +736,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return
 	}
 
-	latency, clockDrift, err = getNetworkInformation(c.channel)
+	latency, clockDrift, err = getNetworkInformation(channel)
 	return
 }
 
@@ -808,7 +811,7 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	}
 
 	if pParams.Host != "" {
-		var hostPortStr string = pParams.Host
+		hostPortStr := pParams.Host
 
 		// If valid port attaches ':' and the port number after address
 		if pParams.Port > 0 && pParams.Port <= 65535 {

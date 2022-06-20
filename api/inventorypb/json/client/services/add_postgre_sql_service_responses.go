@@ -183,9 +183,6 @@ func (o *AddPostgreSQLServiceBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLServiceDefaultBody
 */
 type AddPostgreSQLServiceDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -289,12 +286,8 @@ func (o *AddPostgreSQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgreSQLServiceDefaultBodyDetailsItems0
 */
 type AddPostgreSQLServiceDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add postgre SQL service default body details items0

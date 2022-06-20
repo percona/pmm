@@ -79,7 +79,7 @@ type Params struct {
 
 func (p *Params) String() string {
 	res := p.Path + " " + strings.Join(p.Args, " ")
-	if len(p.Env) > 0 {
+	if len(p.Env) != 0 {
 		res += " (environment: " + strings.Join(p.Env, ", ") + ")"
 	}
 

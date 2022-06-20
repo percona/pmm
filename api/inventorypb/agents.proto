@@ -64,6 +64,8 @@ message VMAgent {
   AgentStatus status = 5;
   // Path to exec process.
   string process_exec_path = 6;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 7;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.

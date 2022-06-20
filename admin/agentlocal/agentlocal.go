@@ -42,7 +42,7 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	client.Default.SetTransport(transport)
 }

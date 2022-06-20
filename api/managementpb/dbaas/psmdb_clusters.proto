@@ -16,24 +16,12 @@ message PSMDBClusterParams {
     // Requested compute resources.
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
-    int64 disk_size = 2 [
-      (validator.field) = {
-        int_gt: 0
-      }
-    ];
+    int64 disk_size = 2;
   }
   // Cluster size.
-  int32 cluster_size = 1 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
+  int32 cluster_size = 1;
   // ReplicaSet container parameters.
-  ReplicaSet replicaset = 2 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  ReplicaSet replicaset = 2;
   // Docker image used for PSMDB.
   string image = 3;
 }
@@ -82,17 +70,9 @@ message CreatePSMDBClusterRequest {
   // a DNS-1035 label must consist of lower case alphanumeric characters or '-',
   // start with an alphabetic character, and end with an alphanumeric character
   // (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
-  string name = 2 [
-    (validator.field) = {
-      regex: "^[a-z]([-a-z0-9]*[a-z0-9])?$"
-    }
-  ];
+  string name = 2;
   // Cluster parameters.
-  PSMDBClusterParams params = 3 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  PSMDBClusterParams params = 3;
   // Make DB cluster accessible outside of K8s cluster.
   bool expose = 4;
 }
@@ -139,11 +119,7 @@ message UpdatePSMDBClusterResponse {}
 
 message GetPSMDBClusterResourcesRequest {
   // Cluster parameters.
-  PSMDBClusterParams params = 1 [
-    (validator.field) = {
-      msg_exists: true
-    }
-  ];
+  PSMDBClusterParams params = 1;
 }
 
 message GetPSMDBClusterResourcesResponse {

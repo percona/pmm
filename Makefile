@@ -108,13 +108,16 @@ clean: clean_swagger  ## Remove generated files.
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
-test:                 ## Run tests
+test:                 ## Run tests from all packages
 	go test ./...
+
+test-common: 		  ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
+	go test $(shell go list ./... | grep -v -e admin -e agent)
 
 check:                          ## Run required checkers and linters.
 	#go run .github/check-license.go ## TODO: This repo has multiple licenses, fix checker
 	bin/golangci-lint run -c=.golangci-required.yml
-	#bin/go-consistent -pedantic ./... TODO: enable and fix all warnings
+	bin/go-consistent -pedantic ./...
 
 check-all: check                ## Run golang ci linter to check new changes from main.
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=main
@@ -137,6 +140,6 @@ descriptors:          ## Update API compatibility descriptors.
 
 ci-reviewdog:         ## Runs reviewdog checks.
 	# go run .github/check-license.go TODO: This repo has multiple licenses, fix checker
-	# bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-review -fail-on-error TODO: enable and fix all warnings
+	bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -name='Required go-consistent checks' -reporter=github-pr-review -fail-on-error
 	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error
 	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review

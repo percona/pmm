@@ -4,7 +4,7 @@ package inventorypb
 
 // Service is a common interface for all types of Services.
 type Service interface {
-	sealedService() //nolint:unused
+	sealedService()
 }
 
 // in order of ServiceType enum
