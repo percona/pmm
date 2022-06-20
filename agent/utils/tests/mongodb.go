@@ -61,7 +61,8 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt")) //nolint:gosec
 	require.NoError(tb, err)
 
-	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec	require.NoError(tb, err)
+	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec
+	require.NoError(tb, err)
 
 	return dsn, &agentpb.TextFiles{
 		Files: map[string]string{
