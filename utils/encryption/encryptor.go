@@ -296,7 +296,11 @@ func (s *Encryptor) DecryptDSN(dsn string) (string, error) {
 const EncryptorKey = "encryptor"
 
 func GetEncryptor(ctx context.Context) *Encryptor {
-	return ctx.Value(EncryptorKey).(*Encryptor)
+	value := ctx.Value(EncryptorKey)
+	if value != nil {
+		return value.(*Encryptor)
+	}
+	return nil
 }
 
 func InjectEncryptorIfNotPresent(ctx context.Context, key []byte, keyID string) (context.Context, error) {

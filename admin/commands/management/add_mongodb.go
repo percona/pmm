@@ -157,11 +157,16 @@ func (cmd *addMongoDBCommand) RunWithContext(ctx context.Context) (commands.Resu
 		}
 	}
 
+	password := cmd.Password
 	encryptor := encryption.GetEncryptor(ctx)
-	password, err := encryptor.EncryptAsBlock(cmd.Password)
-	if err != nil {
-		logrus.Warnf("Failed to encrypt password: %s", err)
-		password = cmd.Password
+	if encryptor == nil {
+		password, err = encryptor.EncryptAsBlock(password)
+		if err != nil {
+			logrus.Warnf("Failed to encrypt password: %s", err)
+			password = cmd.Password
+		}
+	} else {
+		logrus.Warn("Encryptor it not injected into the context")
 	}
 
 	params := &mongodb.AddMongoDBParams{

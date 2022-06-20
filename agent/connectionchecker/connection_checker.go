@@ -67,11 +67,15 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	encryptor := encryption.GetEncryptor(ctx)
-	dsn, err := encryptor.DecryptDSN(msg.Dsn)
-	if err != nil {
-		cc.l.Debugf("Failed to decrypt DSN: %s", err)
+	if encryptor == nil {
+		dsn, err := encryptor.DecryptDSN(msg.Dsn)
+		if err != nil {
+			cc.l.Debugf("Failed to decrypt DSN: %s", err)
+		} else {
+			msg.Dsn = dsn
+		}
 	} else {
-		msg.Dsn = dsn
+		cc.l.Warn("Encryptor it not injected into the context")
 	}
 
 	switch msg.Type {
