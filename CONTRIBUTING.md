@@ -149,7 +149,7 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
     
 ### API tests
     
-API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm-managed/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
     
 ### End to End (E2E) tests
     
