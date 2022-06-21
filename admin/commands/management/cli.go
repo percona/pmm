@@ -39,7 +39,7 @@ type RegisterCommand struct {
 	NodeModel         string `help:"Node model"`
 	Region            string `help:"Node region"`
 	Az                string `help:"Node availability zone"`
-	CustomLabels      string `help:"Custom user-assigned labels"`
+	CustomLabels      string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	Force             bool   `help:"Re-register Node"`
 	MetricsMode       string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
@@ -76,7 +76,7 @@ type AddProxySQLCmd struct {
 	Environment         string `help:"Environment name"`
 	Cluster             string `help:"Cluster name"`
 	ReplicationSet      string `help:"Replication set name"`
-	CustomLabels        string `help:"Custom user-assigned labels"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 	TLS                 bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
@@ -102,7 +102,7 @@ type AddPostgreSQLCmd struct {
 	Environment          string `help:"Environment name"`
 	Cluster              string `help:"Cluster name"`
 	ReplicationSet       string `help:"Replication set name"`
-	CustomLabels         string `help:"Custom user-assigned labels"`
+	CustomLabels         string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck  bool   `help:"Skip connection check"`
 	TLS                  bool   `help:"Use TLS to connect to the database"`
 	TLSCAFile            string `name:"tls-ca-file" help:"TLS CA certificate file"`
@@ -136,7 +136,7 @@ type AddMySQLCmd struct {
 	Environment            string           `help:"Environment name"`
 	Cluster                string           `help:"Cluster name"`
 	ReplicationSet         string           `help:"Replication set name"`
-	CustomLabels           string           `help:"Custom user-assigned labels"`
+	CustomLabels           string           `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck    bool             `help:"Skip connection check"`
 	TLS                    bool             `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool             `help:"Skip TLS certificates validation"`
@@ -165,7 +165,7 @@ type AddMongoDBCmd struct {
 	Environment                   string `help:"Environment name"`
 	Cluster                       string `help:"Cluster name"`
 	ReplicationSet                string `help:"Replication set name"`
-	CustomLabels                  string `help:"Custom user-assigned labels"`
+	CustomLabels                  string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck           bool   `help:"Skip connection check"`
 	TLS                           bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool   `help:"Skip TLS certificates validation"`
@@ -195,7 +195,7 @@ type AddHAProxyCmd struct {
 	Environment         string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	MetricsMode         string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 }
@@ -213,7 +213,7 @@ type AddExternalCmd struct {
 	Environment         string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	MetricsMode         string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
 	Group               string `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool   `help:"Skip exporter connection checks"`
@@ -233,7 +233,7 @@ type AddExternalServerlessCmd struct {
 	Environment         string `placeholder:"testing" help:"Environment name"`
 	Cluster             string `help:"Cluster name"`
 	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        string `placeholder:"'app=myapp,region=s1'" help:"Custom user-assigned labels"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	Group               string `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	MachineID           string `help:"Node machine-id"`
 	Distro              string `help:"Node OS distribution"`

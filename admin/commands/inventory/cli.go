@@ -70,7 +70,7 @@ type AddServiceProxySQLCmd struct {
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
 	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddServicePostgreSQLCmd struct {
@@ -82,7 +82,7 @@ type AddServicePostgreSQLCmd struct {
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
 	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddServiceMySQLCmd struct {
@@ -94,7 +94,7 @@ type AddServiceMySQLCmd struct {
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
 	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddServiceMongoDBCmd struct {
@@ -106,7 +106,7 @@ type AddServiceMongoDBCmd struct {
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
 	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddServiceHAProxyCmd struct {
@@ -115,7 +115,7 @@ type AddServiceHAProxyCmd struct {
 	Environment    string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster        string `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddServiceExternalCmd struct {
@@ -124,7 +124,7 @@ type AddServiceExternalCmd struct {
 	Environment    string `help:"Environment name"`
 	Cluster        string `help:"Cluster name"`
 	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	Group          string `help:"Group name of external service"`
 }
 
@@ -138,7 +138,7 @@ type AddNodeCmd struct {
 type AddNodeRemoteCmd struct {
 	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string `help:"Address"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	CustomLabels string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	Region       string `help:"Node region"`
 	Az           string `help:"Node availability zone"`
 }
@@ -149,7 +149,7 @@ type AddNodeRemoteRDSCmd struct {
 	NodeModel    string `help:"Node mddel"`
 	Region       string `help:"Node region"`
 	Az           string `help:"Node availability zone"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	CustomLabels string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type AddNodeGenericCmd struct {
@@ -157,7 +157,7 @@ type AddNodeGenericCmd struct {
 	MachineID    string `help:"Linux machine-id"`
 	Distro       string `help:"Linux distribution (if any)"`
 	Address      string `help:"Address"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	CustomLabels string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	Region       string `help:"Node region"`
 	Az           string `help:"Node availability zone"`
 	NodeModel    string `help:"Node mddel"`
@@ -169,7 +169,7 @@ type AddNodeContainerCmd struct {
 	ContainerID   string `help:"Container identifier; if specified, must be a unique Docker container identifier"`
 	ContainerName string `help:"Container name"`
 	Address       string `help:"Address"`
-	CustomLabels  string `help:"Custom user-assigned labels"`
+	CustomLabels  string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	Region        string `help:"Node region"`
 	Az            string `help:"Node availability zone"`
 	NodeModel     string `help:"Node model"`
@@ -198,7 +198,7 @@ type AddAgentRDSExporterCmd struct {
 	NodeID                 string `arg:"" help:"Node identifier"`
 	AWSAccessKey           string `help:"AWS Access Key ID"`
 	AWSSecretKey           string `help:"AWS Secret Access Key"`
-	CustomLabels           string `help:"Custom user-assigned labels"`
+	CustomLabels           string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck    bool   `help:"Skip connection check"`
 	DisableBasicMetrics    bool   `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool   `help:"Disable enhanced metrics"`
@@ -210,7 +210,7 @@ type AddQANPostgreSQLPgStatMonitorAgentCmd struct {
 	ServiceID             string `arg:"" help:"Service identifier"`
 	Username              string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
 	Password              string `help:"PostgreSQL password for QAN agent"`
-	CustomLabels          string `help:"Custom user-assigned labels"`
+	CustomLabels          string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck   bool   `help:"Skip connection check"`
 	QueryExamplesDisabled bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                   bool   `help:"Use TLS to connect to the database"`
@@ -225,7 +225,7 @@ type AddQANPostgreSQLPgStatementsAgentCmd struct {
 	ServiceID           string `arg:"" help:"Service identifier"`
 	Username            string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
 	Password            string `help:"PostgreSQL password for QAN agent"`
-	CustomLabels        string `help:"Custom user-assigned labels"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 	TLS                 bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
@@ -239,7 +239,7 @@ type AddQANMySQLSlowlogAgentCmd struct {
 	ServiceID            string           `arg:"" help:"Service identifier"`
 	Username             string           `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string           `help:"MySQL password for scraping metrics"`
-	CustomLabels         string           `help:"Custom user-assigned labels"`
+	CustomLabels         string           `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck  bool             `help:"Skip connection check"`
 	DisableQueryExamples bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
@@ -255,7 +255,7 @@ type AddQANMySQLPerfSchemaAgentCmd struct {
 	ServiceID            string `arg:"" help:"Service identifier"`
 	Username             string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string `help:"MySQL password for scraping metrics"`
-	CustomLabels         string `help:"Custom user-assigned labels"`
+	CustomLabels         string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck  bool   `help:"Skip connection check"`
 	DisableQueryExamples bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool   `help:"Use TLS to connect to the database"`
@@ -270,7 +270,7 @@ type AddQANMongoDBProfilerAgentCmd struct {
 	ServiceID                     string `arg:"" help:"Service identifier"`
 	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string `help:"MongoDB password for scraping metrics"`
-	CustomLabels                  string `help:"Custom user-assigned labels"`
+	CustomLabels                  string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck           bool   `help:"Skip connection check"`
 	DisableQueryExamples          bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                           bool   `help:"Use TLS to connect to the database"`
@@ -287,7 +287,7 @@ type ProxysqlExporterCmd struct {
 	Username            string `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
 	Password            string `help:"ProxySQL password for scraping metrics"`
 	AgentPassword       string `help:"Custom password for /metrics endpoint"`
-	CustomLabels        string `help:"Custom user-assigned labels"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 	TLS                 bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
@@ -301,7 +301,7 @@ type PostgresExporterCmd struct {
 	Username            string `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
 	Password            string `help:"PostgreSQL password for scraping metrics"`
 	AgentPassword       string `help:"Custom password for /metrics endpoint"`
-	CustomLabels        string `help:"Custom user-assigned labels"`
+	CustomLabels        string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck bool   `help:"Skip connection check"`
 	PushMetrics         bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors   string `help:"Comma-separated list of collector names to exclude from exporter"`
@@ -314,12 +314,12 @@ type PostgresExporterCmd struct {
 
 type PMMAgentCmd struct {
 	RunsOnNodeID string `arg:"" help:"Node identifier where this instance runs"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	CustomLabels string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 }
 
 type NodeExporterCmd struct {
 	PMMAgentID        string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	CustomLabels      string `help:"Custom user-assigned labels"`
+	CustomLabels      string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	PushMetrics       bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors string `help:"Comma-separated list of collector names to exclude from exporter"`
 }
@@ -330,7 +330,7 @@ type MysqldExporterCmd struct {
 	Username                  string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password                  string `help:"MySQL password for scraping metrics"`
 	AgentPassword             string `help:"Custom password for /metrics endpoint"`
-	CustomLabels              string `help:"Custom user-assigned labels"`
+	CustomLabels              string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck       bool   `help:"Skip connection check"`
 	TLS                       bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify             bool   `help:"Skip TLS certificates validation"`
@@ -348,7 +348,7 @@ type MongoDBExporterCmd struct {
 	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string `help:"MongoDB password for scraping metrics"`
 	AgentPassword                 string `help:"Custom password for /metrics endpoint"`
-	CustomLabels                  string `help:"Custom user-assigned labels"`
+	CustomLabels                  string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	SkipConnectionCheck           bool   `help:"Skip connection check"`
 	TLS                           bool   `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool   `help:"Skip TLS certificates validation"`
@@ -370,7 +370,7 @@ type ExternalExporterCmd struct {
 	Scheme       string `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
 	MetricsPath  string `help:"Path under which metrics are exposed, used to generate URI"`
 	ListenPort   int64  `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	CustomLabels string `help:"Custom user-assigned labels. Example: key1=value1,key2=value2"`
 	PushMetrics  bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
