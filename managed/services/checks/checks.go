@@ -61,7 +61,7 @@ const (
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
-	portalRequestTimeout   = 2 * time.Minute  // time limit to get checks list from the portal
+	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the portal
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
@@ -1417,7 +1417,7 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		return nil, nil
 	}
 
-	nCtx, cancel := context.WithTimeout(ctx, portalRequestTimeout)
+	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)
 	defer cancel()
 
 	resp, err := s.platformClient.GetChecks(nCtx)
