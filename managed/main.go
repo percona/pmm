@@ -134,7 +134,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 type gRPCServerDeps struct {
 	db                   *reform.DB
 	vmdb                 *victoriametrics.Service
-	portalClient         *platformClient.Client
+	platformClient       *platformClient.Client
 	server               *server.Server
 	agentsRegistry       *agents.Registry
 	handler              *agents.Handler
@@ -231,7 +231,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
-	platformService, err := platform.New(deps.portalClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
+	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	if err == nil {
 		platformpb.RegisterPlatformServer(gRPCServer, platformService)
 	} else {
@@ -308,8 +308,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-	)
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(5 * 1024 * 1024)),
@@ -931,7 +931,7 @@ func main() {
 			&gRPCServerDeps{
 				db:                   db,
 				vmdb:                 vmdb,
-				portalClient:         platformClient,
+				platformClient:       platformClient,
 				server:               server,
 				agentsRegistry:       agentsRegistry,
 				handler:              agentsHandler,
