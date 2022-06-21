@@ -1,0 +1,22 @@
+---
+templates:
+  - name: pmm_proxysql_server_status
+    version: 1
+    summary: ProxySQL server status
+    expr: |-
+      proxysql_runtime_servers_status
+      >= [[ .status ]]
+    params:
+      - name: status 
+        summary: Warning status 3 - OFFLINE_SOFT, 4 - OFFLINE_HARD 
+        unit: ""
+        type: float
+        range: [3, 4]
+        value: 4 
+    for: 5m
+    severity: warning
+    annotations:
+      summary: ProxySQL ({{ $labels.service_name }}) server {{ $labels.endpoint }} in  {{ $labels.hostgroup }} hostgroup has got OFFLINE status
+      description: |-
+        server {{ $labels.endpoint }} in  {{ $labels.hostgroup }} hostgroup has got an OFFLINE status ({{ $value }})
+        proxysql service {{ $labels.service_name }} on {{ $labels.node_name }}.
