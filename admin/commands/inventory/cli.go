@@ -17,7 +17,7 @@ package inventory
 
 import "github.com/alecthomas/units"
 
-type InventoryCmd struct {
+type InventoryCommand struct {
 	List   ListCmd   `cmd:"" hidden:"" help:"List inventory commands"`
 	Add    AddCmd    `cmd:"" hidden:"" help:"Add to inventory commands"`
 	Remove RemoveCmd `cmd:"" hidden:"" help:"Remove from inventory commands"`

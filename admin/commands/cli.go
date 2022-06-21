@@ -17,21 +17,21 @@ package commands
 
 import "time"
 
-type StatusCmd struct {
+type StatusCommand struct {
 	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
 }
 
-type SummaryCmd struct {
+type SummaryCommand struct {
 	Filename   string `help:"Summary archive filename"`
 	SkipServer bool   `help:"Skip fetching logs.zip from PMM Server"`
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-type ListCmd struct {
+type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-type ConfigCmd struct {
+type ConfigCommand struct {
 	NodeAddress       string `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
 	NodeType          string `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
 	NodeName          string `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
@@ -47,7 +47,7 @@ type ConfigCmd struct {
 	LogLevel          string `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 }
 
-type AnnotateCmd struct {
+type AnnotateCommand struct {
 	Text        string `arg:"" help:"Text of annotation"`
 	Tags        string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`
 	Node        bool   `help:"Annotate current node"`
@@ -56,4 +56,4 @@ type AnnotateCmd struct {
 	ServiceName string `help:"Name of service to annotate"`
 }
 
-type VersionCmd struct{}
+type VersionCommand struct{}

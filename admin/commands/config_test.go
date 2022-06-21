@@ -24,7 +24,7 @@ import (
 )
 
 func TestConfigCommandArgs(t *testing.T) {
-	cmd := &ConfigCmd{
+	cmd := &ConfigCommand{
 		NodeAddress: "1.2.3.4",
 		NodeType:    "generic",
 		NodeName:    "node1",
@@ -47,7 +47,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("SwitchToTLS2", func(t *testing.T) {
-		cmd := &ConfigCmd{
+		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",
@@ -69,7 +69,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.True(t, switchedToTLS)
 	})
 	t.Run("DisableCollectors", func(t *testing.T) {
-		cmd := &ConfigCmd{
+		cmd := &ConfigCommand{
 			NodeAddress:       "1.2.3.4",
 			NodeType:          "generic",
 			NodeName:          "node1",
@@ -95,7 +95,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("LoggingLevel", func(t *testing.T) {
-		cmd := &ConfigCmd{
+		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",

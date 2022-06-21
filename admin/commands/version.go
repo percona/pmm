@@ -29,11 +29,11 @@ func (v versionResult) MarshalJSON() ([]byte, error) {
 	return []byte(version.FullInfoJSON()), nil
 }
 
-func (cmd *VersionCmd) BeforeApply() error {
+func (cmd *VersionCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil
 }
 
-func (cmd *VersionCmd) RunCmd() (versionResult, error) {
+func (cmd *VersionCommand) RunCmd() (versionResult, error) {
 	return versionResult{}, nil
 }

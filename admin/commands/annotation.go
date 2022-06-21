@@ -44,7 +44,7 @@ func (res *annotationResult) String() string {
 	return RenderTemplate(annotationResultT, res)
 }
 
-func (cmd *AnnotateCmd) nodeName() (string, error) {
+func (cmd *AnnotateCommand) nodeName() (string, error) {
 	if cmd.NodeName != "" {
 		return cmd.NodeName, nil
 	}
@@ -61,7 +61,7 @@ func (cmd *AnnotateCmd) nodeName() (string, error) {
 	return helpers.GetNodeName(node)
 }
 
-func (cmd *AnnotateCmd) getCurrentNode() (*nodes.GetNodeOKBody, error) {
+func (cmd *AnnotateCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (cmd *AnnotateCmd) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	return result.GetPayload(), nil
 }
 
-func (cmd *AnnotateCmd) serviceNames() ([]string, error) {
+func (cmd *AnnotateCommand) serviceNames() ([]string, error) {
 	switch {
 	case cmd.ServiceName != "":
 		return []string{cmd.ServiceName}, nil
@@ -93,7 +93,7 @@ func (cmd *AnnotateCmd) serviceNames() ([]string, error) {
 	}
 }
 
-func (cmd *AnnotateCmd) getCurrentNodeAllServices() ([]string, error) {
+func (cmd *AnnotateCommand) getCurrentNodeAllServices() ([]string, error) {
 	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (cmd *AnnotateCmd) getCurrentNodeAllServices() ([]string, error) {
 }
 
 // Run runs annotation command.
-func (cmd *AnnotateCmd) RunCmd() (Result, error) {
+func (cmd *AnnotateCommand) RunCmd() (Result, error) {
 	tags := strings.Split(cmd.Tags, ",")
 	for i := range tags {
 		tags[i] = strings.TrimSpace(tags[i])

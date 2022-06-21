@@ -43,7 +43,7 @@ func (res *registerResult) String() string {
 	return commands.RenderTemplate(registerResultT, res)
 }
 
-func (cmd *RegisterCmd) RunCmd() (commands.Result, error) {
+func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

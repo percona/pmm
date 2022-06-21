@@ -38,7 +38,7 @@ func (res *configResult) String() string {
 	return s
 }
 
-func (cmd *ConfigCmd) args() (res []string, switchedToTLS bool) {
+func (cmd *ConfigCommand) args() (res []string, switchedToTLS bool) {
 	port := GlobalFlags.ServerURL.Port()
 	if port == "" {
 		port = "443"
@@ -115,7 +115,7 @@ func (cmd *ConfigCmd) args() (res []string, switchedToTLS bool) {
 	return //nolint:nakedret
 }
 
-func (cmd *ConfigCmd) RunCmd() (Result, error) {
+func (cmd *ConfigCommand) RunCmd() (Result, error) {
 	args, switchedToTLS := cmd.args()
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))

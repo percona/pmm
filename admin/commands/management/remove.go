@@ -33,7 +33,7 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceGenericResultT, res)
 }
 
-func (cmd *RemoveCmd) RunCmd() (commands.Result, error) {
+func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
 			ServiceID:   cmd.ServiceID,
@@ -50,7 +50,7 @@ func (cmd *RemoveCmd) RunCmd() (commands.Result, error) {
 	return &removeServiceResult{}, nil
 }
 
-func (cmd *RemoveCmd) serviceType() *string {
+func (cmd *RemoveCommand) serviceType() *string {
 	if val, ok := allServiceTypes[cmd.ServiceType]; ok {
 		return &val
 	}

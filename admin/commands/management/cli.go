@@ -17,18 +17,18 @@ package management
 
 import "github.com/alecthomas/units"
 
-type UnregisterCmd struct {
+type UnregisterCommand struct {
 	Force    bool   `help:"Remove this node with all dependencies"`
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
 
-type RemoveCmd struct {
+type RemoveCommand struct {
 	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${serviceTypesEnum}"`
 	ServiceName string `arg:"" default:"" help:"Service name"`
 	ServiceID   string `help:"Service ID"`
 }
 
-type RegisterCmd struct {
+type RegisterCommand struct {
 	Address           string `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
 	NodeType          string `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`
 	NodeName          string `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
@@ -46,7 +46,7 @@ type RegisterCmd struct {
 	DisableCollectors string `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
-type AddCmd struct {
+type AddCommand struct {
 	External           AddExternalCmd           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
 	ExternalServerless AddExternalServerlessCmd `cmd:"" help:"Add External Service on Remote node to monitoring."`
 	HAProxy            AddHAProxyCmd            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`

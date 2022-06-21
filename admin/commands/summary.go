@@ -142,7 +142,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
 	}
 
-	addClientCommand(zipW, "client/list.txt", &ListCmd{NodeID: status.RunsOnNodeID})
+	addClientCommand(zipW, "client/list.txt", &ListCommand{NodeID: status.RunsOnNodeID})
 }
 
 // addServerData adds logs.zip from PMM Server to zip file.
@@ -304,7 +304,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 }
 
-func (cmd *SummaryCmd) makeArchive(ctx context.Context) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context) (err error) {
 	var f *os.File
 
 	if f, err = os.Create(cmd.Filename); err != nil {
@@ -339,7 +339,7 @@ func (cmd *SummaryCmd) makeArchive(ctx context.Context) (err error) {
 	return //nolint:nakedret
 }
 
-func (cmd *SummaryCmd) RunCmdWithContext(ctx context.Context) (Result, error) {
+func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename
 	}

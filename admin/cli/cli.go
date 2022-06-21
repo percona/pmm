@@ -76,17 +76,17 @@ func (v jsonFlag) BeforeApply() error {
 type CLIFlags struct {
 	CLIGlobalFlags
 
-	Status     commands.StatusCmd       `cmd:"" help:"Show information about local pmm-agent"`
-	Summary    commands.SummaryCmd      `cmd:"" help:"Fetch system data for diagnostics"`
-	List       commands.ListCmd         `cmd:"" help:"Show Services and Agents running on this Node"`
-	Config     commands.ConfigCmd       `cmd:"" help:"Configure local pmm-agent"`
-	Annotate   commands.AnnotateCmd     `cmd:"" help:"Add an annotation to Grafana charts"`
-	Unregister management.UnregisterCmd `cmd:"" help:"Unregister current Node from PMM Server"`
-	Remove     management.RemoveCmd     `cmd:"" help:"Remove Service from monitoring"`
-	Register   management.RegisterCmd   `cmd:"" help:"Register current Node with PMM Server"`
-	Add        management.AddCmd        `cmd:"" help:"Add Service to monitoring"`
-	Inventory  inventory.InventoryCmd   `cmd:"" hidden:"" help:"Inventory commands"`
-	Version    commands.VersionCmd      `cmd:"" help:"Print version"`
+	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
+	Summary    commands.SummaryCommand      `cmd:"" help:"Fetch system data for diagnostics"`
+	List       commands.ListCommand         `cmd:"" help:"Show Services and Agents running on this Node"`
+	Config     commands.ConfigCommand       `cmd:"" help:"Configure local pmm-agent"`
+	Annotate   commands.AnnotateCommand     `cmd:"" help:"Add an annotation to Grafana charts"`
+	Unregister management.UnregisterCommand `cmd:"" help:"Unregister current Node from PMM Server"`
+	Remove     management.RemoveCommand     `cmd:"" help:"Remove Service from monitoring"`
+	Register   management.RegisterCommand   `cmd:"" help:"Register current Node with PMM Server"`
+	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
+	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
+	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
 }
 
 func (c *CLIFlags) Run(ctx *kong.Context) error {

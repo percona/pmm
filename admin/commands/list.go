@@ -117,7 +117,7 @@ func convertTabs(template string) (string, error) {
 	return buf.String(), nil
 }
 
-func (cmd *ListCmd) RunCmd() (Result, error) {
+func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {

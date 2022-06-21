@@ -84,12 +84,12 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 	}
 }
 
-func (cmd *StatusCmd) BeforeApply() error {
+func (cmd *StatusCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil
 }
 
-func (cmd *StatusCmd) RunCmd() (Result, error) {
+func (cmd *StatusCommand) RunCmd() (Result, error) {
 	// Unlike list, this command uses only local pmm-agent status.
 	// It does not use PMM Server APIs.
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), cmd.Timeout)

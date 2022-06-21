@@ -40,7 +40,7 @@ func (res *unregisterResult) String() string {
 	return commands.RenderTemplate(unregisterNodeResultT, res)
 }
 
-func (cmd *UnregisterCmd) RunCmd() (commands.Result, error) {
+func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string
 	var err error
