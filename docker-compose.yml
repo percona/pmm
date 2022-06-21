@@ -48,6 +48,10 @@ services:
       # CH
       - ${PMM_PORT_CH_TCP:-11000}:9000
       - ${PMM_PORT_CH_HTTP:-11123}:8123
+      # Exporters
+      - ${PMM_PORT_EXP_0:-52000}:42000
+      - ${PMM_PORT_EXP_1:-52001}:42001
+      - ${PMM_PORT_EXP_2:-52002}:42002
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro

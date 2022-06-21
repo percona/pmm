@@ -132,11 +132,10 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 
 		case models.PostgresExporterType:
 			scfgs, err = scrapeConfigsForPostgresExporter(s, &scrapeConfigParams{
-				host:        paramsHost,
-				node:        paramsNode,
-				service:     paramsService,
-				agent:       agent,
-				streamParse: true,
+				host:    paramsHost,
+				node:    paramsNode,
+				service: paramsService,
+				agent:   agent,
 			})
 
 		case models.ProxySQLExporterType:
@@ -194,6 +193,11 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 
 		if err != nil {
 			l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+		}
+
+		// PMM-10180: disable compression by default
+		for _, scfg := range scfgs {
+			scfg.DisableCompression = true
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 	}

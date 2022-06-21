@@ -163,7 +163,6 @@ type scrapeConfigParams struct {
 	service         *models.Service
 	agent           *models.Agent
 	pmmAgentVersion *version.Parsed
-	streamParse     bool
 }
 
 // scrapeConfigForStandardExporter returns scrape config for endpoint with given parameters.
@@ -174,7 +173,6 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 	}
 
 	cfg := &config.ScrapeConfig{
-		StreamParse:      params.streamParse,
 		JobName:          jobName(params.agent, intervalName, interval),
 		ScrapeInterval:   config.Duration(interval),
 		ScrapeTimeout:    scrapeTimeout(interval),
