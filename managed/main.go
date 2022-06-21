@@ -90,8 +90,10 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/logger"
+	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -132,6 +134,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 type gRPCServerDeps struct {
 	db                   *reform.DB
 	vmdb                 *victoriametrics.Service
+	portalClient         *platformClient.Client
 	server               *server.Server
 	agentsRegistry       *agents.Registry
 	handler              *agents.Handler
@@ -228,7 +231,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
-	platformService, err := platform.New(deps.db, deps.supervisord, deps.checksService, deps.grafanaClient, deps.config.Services.Platform)
+	platformService, err := platform.New(deps.portalClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	if err == nil {
 		platformpb.RegisterPlatformServer(gRPCServer, platformService)
 	} else {
@@ -305,8 +308,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler))
-
+		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
+	)
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(5 * 1024 * 1024)),
@@ -699,7 +702,17 @@ func main() {
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams)
 
-	telemetry, err := telemetry.NewService(db, version.Version, cfg.Config.Services.Telemetry)
+	platformAddress, err := envvars.GetPlatformAddress()
+	if err != nil {
+		l.Fatal(err)
+	}
+
+	platformClient, err := platformClient.NewClient(db, platformAddress)
+	if err != nil {
+		l.Fatalf("Could not create Percona Portal client: %s", err)
+	}
+
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -714,7 +727,7 @@ func main() {
 
 	actionsService := agents.NewActionsService(agentsRegistry)
 
-	checksService, err := checks.New(actionsService, alertManager, db, *victoriaMetricsURLF)
+	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}
@@ -722,7 +735,7 @@ func main() {
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
-	templatesService, err := ia.NewTemplatesService(db)
+	templatesService, err := ia.NewTemplatesService(db, platformClient)
 	if err != nil {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
@@ -918,6 +931,7 @@ func main() {
 			&gRPCServerDeps{
 				db:                   db,
 				vmdb:                 vmdb,
+				portalClient:         platformClient,
 				server:               server,
 				agentsRegistry:       agentsRegistry,
 				handler:              agentsHandler,

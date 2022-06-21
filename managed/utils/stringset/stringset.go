@@ -16,7 +16,9 @@
 
 package stringset
 
-import "sort"
+import (
+	"sort"
+)
 
 // ToSlice converts a set of strings to slice of strings. The result is sorted in increasing order.
 func ToSlice(set map[string]struct{}) []string {
