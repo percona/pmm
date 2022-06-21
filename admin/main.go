@@ -93,10 +93,10 @@ func main() {
 	if opts.JSON {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 	}
-	if opts.Debug {
+	if opts.EnableDebug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-	if opts.Trace {
+	if opts.EnableTrace {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
@@ -113,7 +113,7 @@ func main() {
 		cancel()
 	}()
 
-	agentlocal.SetTransport(ctx, opts.Debug || opts.Trace, opts.PMMAgentListenPort)
+	agentlocal.SetTransport(ctx, opts.EnableDebug || opts.EnableTrace, opts.PMMAgentListenPort)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {

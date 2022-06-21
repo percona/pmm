@@ -33,13 +33,13 @@ import (
 var isJSON = false
 
 type CLIGlobalFlags struct {
-	ServerURL          string      `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
-	ServerInsecureTls  bool        `help:"Skip PMM Server TLS certificate validation"`
-	Debug              bool        `help:"Enable debug logging"`
-	Trace              bool        `help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
-	JSON               jsonFlag    `help:"Enable JSON output"`
-	Version            versionFlag `short:"v" help:"Show application version"`
+	ServerURL               string      `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
+	SkipTLSCertificateCheck bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
+	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`
+	EnableTrace             bool        `name:"trace" help:"Enable trace logging (implies debug)"`
+	PMMAgentListenPort      uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
+	JSON                    jsonFlag    `help:"Enable JSON output"`
+	Version                 versionFlag `short:"v" help:"Show application version"`
 }
 
 type versionFlag bool
