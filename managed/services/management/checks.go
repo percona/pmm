@@ -69,12 +69,22 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *manageme
 			summaries[result.Target.ServiceID] = svcSummary
 		}
 		switch result.Result.Severity {
-		case common.Emergency, common.Alert, common.Critical, common.Error:
+		case common.Emergency:
+			svcSummary.EmergencyCount++
+		case common.Alert:
+			svcSummary.AlertCount++
+		case common.Critical:
 			svcSummary.CriticalCount++
+		case common.Error:
+			svcSummary.ErrorCount++
 		case common.Warning:
 			svcSummary.WarningCount++
-		case common.Notice, common.Debug, common.Info:
+		case common.Notice:
 			svcSummary.NoticeCount++
+		case common.Info:
+			svcSummary.InfoCount++
+		case common.Debug:
+			svcSummary.DebugCount++
 		case common.Unknown:
 		}
 	}
@@ -82,11 +92,16 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *manageme
 	failedServices := make([]*managementpb.CheckResultSummary, 0, len(summaries))
 	for _, result := range summaries {
 		failedServices = append(failedServices, &managementpb.CheckResultSummary{
-			ServiceId:     result.ServiceID,
-			ServiceName:   result.ServiceName,
-			CriticalCount: result.CriticalCount,
-			WarningCount:  result.WarningCount,
-			NoticeCount:   result.NoticeCount,
+			ServiceId:      result.ServiceID,
+			ServiceName:    result.ServiceName,
+			EmergencyCount: result.EmergencyCount,
+			AlertCount:     result.AlertCount,
+			CriticalCount:  result.CriticalCount,
+			ErrorCount:     result.ErrorCount,
+			WarningCount:   result.WarningCount,
+			NoticeCount:    result.NoticeCount,
+			InfoCount:      result.InfoCount,
+			DebugCount:     result.DebugCount,
 		})
 	}
 
