@@ -15,9 +15,7 @@
 
 package commands
 
-import (
-	"github.com/percona/pmm/version"
-)
+import "github.com/percona/pmm/version"
 
 type versionResult struct{}
 
