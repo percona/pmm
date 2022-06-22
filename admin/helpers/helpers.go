@@ -18,7 +18,6 @@ package helpers
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/pkg/errors"
 
@@ -82,16 +81,6 @@ func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
 	default:
 		return "", errors.Wrap(errNoNode, "unknown node type")
 	}
-}
-
-// GetLocalNodeName returns default node name pmm-admin uses
-func GetLocalNodeName() string {
-	hostname, err := os.Hostname()
-	if err != nil {
-		panic(err)
-	}
-
-	return hostname
 }
 
 // IsOnPmmServer returns true if pmm-admin is running on pmm-server.

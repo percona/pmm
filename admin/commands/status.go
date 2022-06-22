@@ -25,7 +25,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/version"
 )
@@ -33,7 +32,7 @@ import (
 var statusResultT = ParseTemplate(`
 Agent ID : {{ .PMMAgentStatus.AgentID }}
 Node ID  : {{ .PMMAgentStatus.NodeID }}
-Node name: {{ .NodeName }}
+Node name: {{ .PMMAgentStatus.NodeName }}
 
 PMM Server:
 	URL    : {{ .PMMAgentStatus.ServerURL }}
@@ -53,7 +52,6 @@ Agents:
 type statusResult struct {
 	PMMAgentStatus *agentlocal.Status `json:"pmm_agent_status"`
 	PMMVersion     string             `json:"pmm_admin_version"`
-	NodeName       string             `json:"pmm_node_name"`
 }
 
 func (res *statusResult) HumanReadableAgentType(agentType string) string {
@@ -85,7 +83,6 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 	return &statusResult{
 		PMMAgentStatus: status,
 		PMMVersion:     pmmVersion,
-		NodeName:       helpers.GetLocalNodeName(),
 	}
 }
 
