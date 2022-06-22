@@ -183,7 +183,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 				// This happens when the database is in "Creating" state.
 				// At this point there is no endpoint available.
 				if db.Endpoint == nil {
-					l.Infof("Instance %q not ready yet. Please wait until the database is fully created in AWS.", *db.DBInstanceIdentifier)
+					l.Debugf("Instance %q not ready yet. Please wait until the database is fully created in AWS.", *db.DBInstanceIdentifier)
 					continue
 				}
 
