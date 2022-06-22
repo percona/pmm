@@ -106,10 +106,10 @@ jobs:
 
   merge-gatekeeper:
     needs: [check]
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
+        if: github.event_name == 'pull_request'
         uses: percona-platform/merge-gatekeeper@v1.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
