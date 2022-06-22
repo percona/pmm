@@ -106,6 +106,7 @@ jobs:
 
   merge-gatekeeper:
     needs: [check]
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
@@ -114,7 +115,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
           timeout: 1200
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
   workflow_success:
     needs: [merge-gatekeeper]
