@@ -32,14 +32,6 @@ telemetry:
       - metric_name: "dbaas_enabled"
         column: "dbaas_enabled"
 
-  - id: PMMServerDBaaSEnabled
-    source: PMMDB_SELECT
-    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
-    summary: "PMM Server DBaaS feature enabled/disabled"
-    data:
-      - metric_name: "dbaas_enabled"
-        column: "dbaas_enabled"
-
   - id: PMMServerUpdatesDisabled
     source: PMMDB_SELECT
     query: updates->'disabled' AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
