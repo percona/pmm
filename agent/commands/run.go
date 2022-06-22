@@ -63,8 +63,6 @@ func Run() {
 
 		run(ctx, cfg, configFilepath)
 
-		cleanupTmp(cfg.Paths.TempDir, l)
-
 		if ctx.Err() != nil {
 			return
 		}
