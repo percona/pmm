@@ -239,7 +239,7 @@ func TestPerfSchema(t *testing.T) {
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag) //nolint:gosec
+	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
 	_, err := db.Exec(updateQuery + "performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_statements_history'")
 	require.NoError(t, err, "failed to enable events_statements_history consumer")
 
@@ -285,20 +285,20 @@ func TestPerfSchema(t *testing.T) {
 
 	case "10.2-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "e58c348e4947db23b7f3ad30b7ed184a",
-			"SELECT * FROM `city`": "e0f47172152e8750d070a854e607123f",
+			"SELECT `sleep` (?)":   "fe8d67e28d171893e1b33b179394e592",
+			"SELECT * FROM `city`": "7e30fa1763d6d9aa88f359236cedaa78",
 		}
 
 	case "10.3-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "af50128de9089f71d749eda5ba3d02cd",
-			"SELECT * FROM `city`": "2153d686f335a2ca39f3aca05bf9709a",
+			"SELECT `sleep` (?)":   "b0062e3bc75dd6e57cdc90696ba47688",
+			"SELECT * FROM `city`": "f4c92872bdf2de2331aae63a94b51a83",
 		}
 
 	case "10.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "84a33aa2dff8b023bfd9c28247516e55",
-			"SELECT * FROM `city`": "639b3ffc239a110c57ade746773952ab",
+			"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
+			"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
 		}
 
 	default:

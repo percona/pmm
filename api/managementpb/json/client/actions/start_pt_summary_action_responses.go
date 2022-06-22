@@ -159,9 +159,6 @@ func (o *StartPTSummaryActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -265,12 +262,8 @@ func (o *StartPTSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start PT summary action default body details items0

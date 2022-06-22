@@ -2,7 +2,7 @@
 /.vscode/
 
 /api/nginx/*.pem
-/bin/
+bin/
 
 # System Files
 .DS_Store

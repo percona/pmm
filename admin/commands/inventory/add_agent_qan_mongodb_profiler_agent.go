@@ -104,7 +104,7 @@ func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error
 
 // register command
 var (
-	AddAgentQANMongoDBProfilerAgent  = new(addAgentQANMongoDBProfilerAgentCommand)
+	AddAgentQANMongoDBProfilerAgent  addAgentQANMongoDBProfilerAgentCommand
 	AddAgentQANMongoDBProfilerAgentC = addAgentC.Command("qan-mongodb-profiler-agent", "add QAN MongoDB profiler agent to inventory").Hide(hide)
 )
 

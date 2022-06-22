@@ -15,9 +15,7 @@
 
 package noop
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestNoOp(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage

@@ -213,9 +213,6 @@ func (o *ChangePostgresExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePostgresExporterDefaultBody
 */
 type ChangePostgresExporterDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -319,12 +316,8 @@ func (o *ChangePostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePostgresExporterDefaultBodyDetailsItems0
 */
 type ChangePostgresExporterDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change postgres exporter default body details items0

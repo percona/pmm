@@ -156,9 +156,6 @@ func (o *GetQueryPlanBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,12 +259,8 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryPlanDefaultBodyDetailsItems0
 */
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this get query plan default body details items0

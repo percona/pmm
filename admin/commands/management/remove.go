@@ -58,7 +58,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	return new(removeServiceResult), nil
+	return &removeServiceResult{}, nil
 }
 
 func (cmd *removeMySQLCommand) serviceType() *string {
@@ -70,7 +70,7 @@ func (cmd *removeMySQLCommand) serviceType() *string {
 
 // register command
 var (
-	Remove  = new(removeMySQLCommand)
+	Remove  removeMySQLCommand
 	RemoveC = kingpin.Command("remove", "Remove Service from monitoring")
 )
 

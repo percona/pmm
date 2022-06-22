@@ -50,12 +50,12 @@ func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return new(removeNodeResult), nil
+	return &removeNodeResult{}, nil
 }
 
 // register command
 var (
-	RemoveNode  = new(removeNodeCommand)
+	RemoveNode  removeNodeCommand
 	RemoveNodeC = inventoryRemoveC.Command("node", "Remove node from inventory").Hide(hide)
 )
 
