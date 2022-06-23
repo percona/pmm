@@ -37,9 +37,9 @@ jobs:
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ matrix.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ matrix.os }}-go-${{ env.GO_VERSION }}-modules-
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
@@ -98,10 +98,11 @@ jobs:
       SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: percona-platform/checkout@v3
-      - uses: percona-platform/setup-node@v2
+#      - uses: percona-platform/checkout@v3
+#      - uses: percona-platform/setup-node@v2
       - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
+        run: echo Success
+#        uses: percona-platform/action-slack-notify@v2
 
   workflow_failure:
     if: ${{ failure() }}
@@ -118,6 +119,7 @@ jobs:
       SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: percona-platform/checkout@v3
+#      - uses: percona-platform/checkout@v3
       - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
+        run: echo Failure
+#        uses: percona-platform/action-slack-notify@v2
