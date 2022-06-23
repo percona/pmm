@@ -35,6 +35,7 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/bluele/gcache"
 	"github.com/percona/pmm/agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
@@ -51,7 +52,12 @@ const (
 	backoffMaxDelay      = 15 * time.Second
 	clockDriftWarning    = 5 * time.Second
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
+
+	cacheSize                   = 30_000
+	defaultWindowConnectionTime = "24h"
 )
+
+var requestConnectedUpTimeCache gcache.Cache
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
@@ -80,6 +86,17 @@ type Client struct {
 //
 // Caller should call Run.
 func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser) *Client {
+	if requestConnectedUpTimeCache == nil {
+		windowConnectionTime, err := time.ParseDuration(cfg.WindowConnectedTime)
+		if err != nil {
+			windowConnectionTime, _ = time.ParseDuration(defaultWindowConnectionTime)
+		}
+		logrus.Infof("Window check connection time is %.2f hours", windowConnectionTime.Hours())
+		requestConnectedUpTimeCache = gcache.New(cacheSize).
+			ARC().
+			Expiration(windowConnectionTime).
+			Build()
+	}
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -127,6 +144,13 @@ func (c *Client) Run(ctx context.Context) error {
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
+
+		successfullRequest := false
+		if dialErr == nil {
+			successfullRequest = true
+		}
+
+		requestConnectedUpTimeCache.Set(time.Now().Unix(), successfullRequest)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -295,6 +319,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			}
+			requestConnectedUpTimeCache.Set(time.Now().Unix(), true)
 
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
@@ -746,6 +771,20 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	md := c.md
 	c.rw.RUnlock()
 	return md
+}
+
+func (c *Client) GetConnectedUpTime() float32 {
+	m := requestConnectedUpTimeCache.GetALL(true)
+	successfullRequests := 0
+	totalRequests := 0
+	for _, v := range m {
+		successRequest := v.(bool)
+		totalRequests++
+		if successRequest {
+			successfullRequests++
+		}
+	}
+	return float32(successfullRequests) / float32(totalRequests) * 100
 }
 
 // Describe implements "unchecked" prometheus.Collector.

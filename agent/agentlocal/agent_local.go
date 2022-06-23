@@ -128,6 +128,8 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		connected = false
 		md = &agentpb.ServerConnectMetadata{}
 	}
+	upTime := s.client.GetConnectedUpTime()
+	s.l.Infof("connected up time: %v", upTime)
 
 	var serverInfo *agentlocalpb.ServerInfo
 	if u := s.cfg.Server.URL(); u != nil {
