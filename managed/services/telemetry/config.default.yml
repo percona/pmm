@@ -10,7 +10,7 @@ telemetry:
 
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
-    query: stt->'stt_enabled' AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN 'true' ELSE 'false' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
     summary: "PMM Server Security Thread Tool feature enabled/disabled"
     data:
       - metric_name: "stt_enabled"
