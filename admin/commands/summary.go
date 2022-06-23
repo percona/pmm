@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -37,6 +36,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
@@ -88,7 +88,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 	if err != nil {
 		// use error instead of file data
 		logrus.Debugf("%s", err)
-		r = ioutil.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
+		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
 	defer r.Close() //nolint:errcheck
 
@@ -195,14 +195,19 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
 			var html []byte
 			req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
-			req.Header.Set("accept", "text/html")
-			res, _ := http.DefaultClient.Do(req)
 			if err != nil {
 				logrus.Debugf("%s", err)
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close()
+			req.Header.Set("accept", "text/html")
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				logrus.Debugf("%s", err)
+				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
+				return
+			}
+			defer res.Body.Close() //nolint:errcheck
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -230,7 +235,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)
 	}
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot read response body")
 	}
@@ -263,7 +268,10 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	sources := map[string]string{
 		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, GlobalFlags.PMMAgentListenPort),
 	}
-	if !skipServer {
+
+	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
+
+	if !skipServer && isRunOnPmmServer {
 		sources["server/pprof/pmm-managed"] = fmt.Sprintf("http://%s:7773/debug/pprof", agentlocal.Localhost)
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
 	}
@@ -283,7 +291,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 				logrus.Infof("Getting %s ...", url)
 				data, err := getURL(ctx, url)
 				if err != nil {
-					logrus.Debugf("%s", err)
+					logrus.Warnf("%s", err)
 					return
 				}
 
@@ -359,7 +367,7 @@ func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
 
 // register command
 var (
-	Summary     = new(summaryCommand)
+	Summary     summaryCommand
 	SummaryC    = kingpin.Command("summary", "Fetch system data for diagnostics")
 	hostname, _ = os.Hostname()
 	filename    = fmt.Sprintf("summary_%s_%s.zip",

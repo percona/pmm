@@ -213,9 +213,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBody
 */
 type ChangeQANMySQLPerfSchemaAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -319,12 +316,8 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) err
 swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent default body details items0

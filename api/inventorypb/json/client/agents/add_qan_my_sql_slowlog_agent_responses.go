@@ -262,9 +262,6 @@ func (o *AddQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLSlowlogAgentDefaultBody
 */
 type AddQANMySQLSlowlogAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -368,12 +365,8 @@ func (o *AddQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add QAN my SQL slowlog agent default body details items0

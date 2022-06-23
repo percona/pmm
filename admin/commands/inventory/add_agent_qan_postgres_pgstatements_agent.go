@@ -114,7 +114,7 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 
 // register command
 var (
-	AddAgentQANPostgreSQLPgStatementsAgent  = new(addAgentQANPostgreSQLPgStatementsAgentCommand)
+	AddAgentQANPostgreSQLPgStatementsAgent  addAgentQANPostgreSQLPgStatementsAgentCommand
 	AddAgentQANPostgreSQLPgStatementsAgentC = addAgentC.Command("qan-postgresql-pgstatements-agent", "Add QAN PostgreSQL Stat Statements Agent to inventory").Hide(hide)
 )
 

@@ -165,9 +165,6 @@ func (o *StartMySQLExplainTraditionalJSONActionBody) UnmarshalBinary(b []byte) e
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBody
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -271,12 +268,8 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) UnmarshalBinary(b []
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start my SQL explain traditional JSON action default body details items0

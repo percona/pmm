@@ -1,0 +1,22 @@
+---
+templates:
+  - name: pmm_postgresql_restarted
+    version: 1
+    summary: PostgreSQL restarted
+    expr: |-
+      pg_postmaster_uptime_seconds
+      < [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: Seconds from the last restart
+        unit: s
+        type: float
+        range: [0, 1800]
+        value: 300
+    for: 10s
+    severity: warning
+    annotations:
+      summary: PostgreSQL restarted ({{ $labels.service_name }})
+      description: |-
+        PostgreSQL {{ $labels.service_name }} on {{ $labels.node_name }}
+        was restarted {{ $value }} seconds ago.

@@ -171,12 +171,12 @@ func (cmd *annotationCommand) Run() (Result, error) {
 		return nil, err
 	}
 
-	return new(annotationResult), nil
+	return &annotationResult{}, nil
 }
 
 // register command
 var (
-	Annotation  = new(annotationCommand)
+	Annotation  annotationCommand
 	AnnotationC = kingpin.Command("annotate", "Add an annotation to Grafana charts")
 )
 

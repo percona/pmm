@@ -134,7 +134,7 @@ func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentQANMySQLSlowlogAgent  = new(addAgentQANMySQLSlowlogAgentCommand)
+	AddAgentQANMySQLSlowlogAgent  addAgentQANMySQLSlowlogAgentCommand
 	AddAgentQANMySQLSlowlogAgentC = addAgentC.Command("qan-mysql-slowlog-agent", "add QAN MySQL slowlog agent to inventory").Hide(hide)
 )
 

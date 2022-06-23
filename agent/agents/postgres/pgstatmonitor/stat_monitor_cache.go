@@ -114,7 +114,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		totalN++
 
 		var c pgStatMonitorExtended
-		switch pgMonitorVersion { // nolint:exhaustive
+		switch pgMonitorVersion {
 		case pgStatMonitorVersion06:
 			c.pgStatMonitor = *row
 			c.Database = databases[row.DBID]

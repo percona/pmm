@@ -76,7 +76,7 @@ func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentNodeExporter  = new(addAgentNodeExporterCommand)
+	AddAgentNodeExporter  addAgentNodeExporterCommand
 	AddAgentNodeExporterC = addAgentC.Command("node-exporter", "add Node exporter to inventory").Hide(hide)
 )
 

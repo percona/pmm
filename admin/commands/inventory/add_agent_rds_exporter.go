@@ -90,7 +90,7 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentRDSExporter  = new(addAgentRDSExporterCommand)
+	AddAgentRDSExporter  addAgentRDSExporterCommand
 	AddAgentRDSExporterC = addAgentC.Command("rds-exporter", "Add rds_exporter to inventory").Hide(hide)
 )
 

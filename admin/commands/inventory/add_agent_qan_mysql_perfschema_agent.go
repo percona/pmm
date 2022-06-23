@@ -122,7 +122,7 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 
 // register command
 var (
-	AddAgentQANMySQLPerfSchemaAgent  = new(addAgentQANMySQLPerfSchemaAgentCommand)
+	AddAgentQANMySQLPerfSchemaAgent  addAgentQANMySQLPerfSchemaAgentCommand
 	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory").Hide(hide)
 )
 

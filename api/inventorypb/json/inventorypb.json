@@ -214,33 +214,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -400,33 +392,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -707,33 +691,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1009,33 +985,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1203,33 +1171,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1322,33 +1282,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1586,33 +1538,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1835,33 +1779,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2072,33 +2008,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2324,33 +2252,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2588,33 +2508,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2825,33 +2737,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3052,33 +2956,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3280,33 +3176,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3485,33 +3373,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3666,33 +3546,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3903,33 +3775,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4147,33 +4011,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4345,33 +4201,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4563,33 +4411,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4781,33 +4621,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4980,33 +4812,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5199,33 +5023,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5424,33 +5240,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5628,33 +5436,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5827,33 +5627,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -6037,33 +5829,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -7408,6 +7192,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -7447,33 +7237,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -8896,6 +8678,12 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8936,33 +8724,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9014,33 +8794,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9193,33 +8965,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9362,33 +9126,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9511,33 +9267,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9660,33 +9408,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9809,33 +9549,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10135,33 +9867,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10485,33 +10209,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10564,33 +10280,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10723,33 +10431,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10872,33 +10572,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11053,33 +10745,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11234,33 +10918,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11420,33 +11096,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11601,33 +11269,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -12021,33 +11681,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -12479,33 +12131,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -12558,33 +12202,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -12592,5 +12228,16 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Agents"
+    },
+    {
+      "name": "Nodes"
+    },
+    {
+      "name": "Services"
+    }
+  ]
 }

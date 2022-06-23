@@ -121,7 +121,7 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentPostgresExporter  = new(addAgentPostgresExporterCommand)
+	AddAgentPostgresExporter  addAgentPostgresExporterCommand
 	AddAgentPostgresExporterC = addAgentC.Command("postgres-exporter", "Add postgres_exporter to inventory").Hide(hide)
 )
 

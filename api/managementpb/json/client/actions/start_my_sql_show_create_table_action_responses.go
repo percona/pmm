@@ -165,9 +165,6 @@ func (o *StartMySQLShowCreateTableActionBody) UnmarshalBinary(b []byte) error {
 swagger:model StartMySQLShowCreateTableActionDefaultBody
 */
 type StartMySQLShowCreateTableActionDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -271,12 +268,8 @@ func (o *StartMySQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []byte) e
 swagger:model StartMySQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start my SQL show create table action default body details items0
