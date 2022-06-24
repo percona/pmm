@@ -63,7 +63,7 @@ This project is built from several repositories:
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
 It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
-documentation source files which are located in the `markdown` directory. The
+documentation source files which are located in the `docs/api/` directory. The
 content and structure of these is formatted using [Markdown markup
 language](https://www.markdownguide.org/) and published on the
 [ReadMe.com](https://readme.com/) service.
