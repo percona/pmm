@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: Test pmm-managed
+    name: Tests
     timeout-minutes: 30
 
     strategy:
