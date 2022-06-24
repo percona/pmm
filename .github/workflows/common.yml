@@ -63,8 +63,8 @@ jobs:
 
       - name: Download Go modules
         run: |
-        pushd tools && go mod download
-        popd        && go mod download
+          pushd tools && go mod download
+          popd        && go mod download
 
       - name: Install development tools
         run: make init
