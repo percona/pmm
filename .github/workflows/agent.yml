@@ -99,7 +99,9 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Download Go modules
-        run: go mod download
+        run: |
+        pushd tools && go mod download
+        popd        && go mod download
 
       - name: Build and install
         run: make install
