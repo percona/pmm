@@ -23,10 +23,6 @@ jobs:
 
     continue-on-error: ${{ matrix.may-fail }}
 
-    env:
-      GOPATH: ${{ github.workspace }}
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-
     steps:
       - name: Check out code into the working directory under the GOPATH
         uses: percona-platform/checkout@v3
