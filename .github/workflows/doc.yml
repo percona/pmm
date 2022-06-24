@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - "api/**"
-      - "markdown/**"
+      - "docs/api/**"
   workflow_dispatch:
     inputs:
       version:
