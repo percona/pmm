@@ -312,7 +312,7 @@ type StatusOKBody struct {
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
-	// up connected time
+	// Shows connection time in percentage between agent and server
 	UpConnectedTime float32 `json:"up_connected_time,omitempty"`
 
 	// server info

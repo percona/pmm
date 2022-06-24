@@ -261,7 +261,8 @@ type StatusResponse struct {
 	// Config file path if pmm-agent was started with one.
 	ConfigFilepath string `protobuf:"bytes,5,opt,name=config_filepath,json=configFilepath,proto3" json:"config_filepath,omitempty"`
 	// PMM Agent version.
-	AgentVersion    string  `protobuf:"bytes,6,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
+	AgentVersion string `protobuf:"bytes,6,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
+	// Shows connection time in percentage between agent and server
 	UpConnectedTime float32 `protobuf:"fixed32,7,opt,name=up_connected_time,json=upConnectedTime,proto3" json:"up_connected_time,omitempty"`
 }
 
