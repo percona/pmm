@@ -50,9 +50,6 @@ jobs:
     continue-on-error: ${{ matrix.may-fail }}
 
     env:
-      GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -61,14 +58,13 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR }}/agent
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code into the working directory under the GOPATH
         uses: percona-platform/checkout@v3
         with:
           fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
         if: matrix.go-version != 'tip'
@@ -100,8 +96,8 @@ jobs:
 
       - name: Download Go modules
         run: |
-          pushd tools && go mod download
-          popd        && go mod download
+          pushd ../tools && go mod download
+          popd           && go mod download
 
       - name: Build and install
         run: make install

@@ -25,21 +25,15 @@ jobs:
     #          - go-version: tip
     #            may-fail: true
 
-    env:
-      GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR }}/admin
+        working-directory: ${{ github.workspace }}/admin
 
     steps:
       - name: Check out code into the working directory under the GOPATH
         uses: percona-platform/checkout@v3
         with:
           fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
         uses: percona-platform/setup-go@v2

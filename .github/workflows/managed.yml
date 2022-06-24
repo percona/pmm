@@ -42,10 +42,6 @@ jobs:
       GO_VERSION: ${{ matrix.go-version }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
-
     steps:
       - name: Check out code into the Go module directory
         uses: percona-platform/checkout@v3

@@ -27,10 +27,6 @@ jobs:
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
-
     steps:
       - name: Check out code into the working directory under the GOPATH
         uses: percona-platform/checkout@v3
