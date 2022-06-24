@@ -46,7 +46,8 @@ Currently, our development team has fewer people than components/repositories. I
 
 ## Code style
 
-* `gofmt -s ` (note the `-s`)
+* `gofumt -s ` (note the `-s`)
+* `make format`
 * Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments) wiki page.
 * golangci-lint checks style too.
 * Try to keep code consistent
