@@ -1,0 +1,9 @@
+---
+# You can edit this file; changes will be preserved.
+
+route:
+    receiver: empty
+    routes: []
+
+receivers:
+    - name: empty

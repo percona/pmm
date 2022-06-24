@@ -1,0 +1,25 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="pmm-managed" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="PMM-10229-escape-jail" />
+    <working_directory value="$PROJECT_DIR$/pmm" />
+    <EXTENSION ID="com.fapiko.jetbrains.plugins.better_direnv.runconfigs.GolandRunConfigurationExtension">
+      <option name="DIRENV_ENABLED" value="false" />
+      <option name="DIRENV_TRUSTED" value="false" />
+    </EXTENSION>
+    <EXTENSION ID="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+      </ENTRIES>
+    </EXTENSION>
+    <kind value="PACKAGE" />
+    <package value="github.com/percona/pmm/managed" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/pmm/managed/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

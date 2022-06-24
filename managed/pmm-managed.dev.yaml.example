@@ -1,0 +1,34 @@
+services:
+  platform:
+    skip_tls_verification: false
+  telemetry:
+    enabled: true
+    load_defaults: true
+    endpoints:
+      # %s is substituted with `saas_hostname`
+      report: https://%s/v1/telemetry/Report
+    datasources:
+      VM:
+        enabled: true
+        timeout: 2s
+        address: http://localhost:9090/prometheus
+      QANDB_SELECT:
+        enabled: true
+        timeout: 2s
+        dsn: tcp://localhost:25432?database=pmm&block_size=10000&pool_size=2
+      PMMDB_SELECT:
+        enabled: true
+        timeout: 10s
+        use_separate_credentials: false
+        separate_credentials:
+          username: pmm
+          password: pmm
+    reporting:
+      skip_tls_verification: false
+      send_on_start: false
+      interval: 24h
+      interval_env: "PERCONA_TEST_TELEMETRY_INTERVAL"
+      retry_backoff: 1h
+      retry_backoff_env: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
+      retry_count: 20
+      send_timeout: 5s

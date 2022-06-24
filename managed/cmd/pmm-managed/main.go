@@ -98,13 +98,27 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var (
+	bindAddress = "127.0.0.1"
+	gRPCAddr    string
+	http1Addr   string
+	debugAddr   string
+)
+
+func init() {
+	bindAddressFromEnv, isSet := os.LookupEnv("PMM_BIND_ADDRESS")
+	if isSet {
+		bindAddress = bindAddressFromEnv
+	}
+
+	gRPCAddr = bindAddress + ":7771"
+	http1Addr = bindAddress + ":7772"
+	debugAddr = bindAddress + ":7773"
+}
+
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
-
-	gRPCAddr  = "127.0.0.1:7771"
-	http1Addr = "127.0.0.1:7772"
-	debugAddr = "127.0.0.1:7773"
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute

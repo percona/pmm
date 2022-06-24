@@ -52,17 +52,35 @@ import (
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
+var (
+	alertmanagerDir            = "/srv/alertmanager"
+	alertmanagerCertDir        string
+	alertmanagerDataDir        string
+	alertmanagerConfigPath     = "/etc/alertmanager.yml"
+	alertmanagerBaseConfigPath string
+)
+
+func init() {
+	alertmanagerDirFromEnv, isSet := os.LookupEnv("PMM_ALERTMANAGER_DIR")
+	if isSet {
+		alertmanagerDir = alertmanagerDirFromEnv
+	}
+	alertmanagerConfigPathFromEnv, isSet := os.LookupEnv("PMM_ALERTMANAGER_CONF")
+	if isSet {
+		alertmanagerConfigPath = alertmanagerConfigPathFromEnv
+	}
+
+	alertmanagerCertDir = alertmanagerDir + "/cert"
+	alertmanagerDataDir = alertmanagerDir + "/data"
+
+	alertmanagerBaseConfigPath = alertmanagerDir + "/alertmanager.base.yml"
+}
+
 const (
 	updateBatchDelay           = time.Second
 	configurationUpdateTimeout = 3 * time.Second
 
-	alertmanagerDir     = "/srv/alertmanager"
-	alertmanagerCertDir = "/srv/alertmanager/cert"
-	alertmanagerDataDir = "/srv/alertmanager/data"
-	dirPerm             = os.FileMode(0o775)
-
-	alertmanagerConfigPath     = "/etc/alertmanager.yml"
-	alertmanagerBaseConfigPath = "/srv/alertmanager/alertmanager.base.yml"
+	dirPerm = os.FileMode(0o775)
 
 	receiverNameSeparator = " + "
 
