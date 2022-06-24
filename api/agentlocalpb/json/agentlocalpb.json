@@ -216,6 +216,7 @@
                 "up_connected_time": {
                   "type": "number",
                   "format": "float",
+                  "title": "Shows connection time in percentage between agent and server",
                   "x-order": 6
                 }
               }
@@ -404,6 +405,7 @@
                 "up_connected_time": {
                   "type": "number",
                   "format": "float",
+                  "title": "Shows connection time in percentage between agent and server",
                   "x-order": 6
                 }
               }
