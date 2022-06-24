@@ -111,6 +111,7 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -159,6 +160,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -209,6 +211,7 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -267,6 +270,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -324,6 +328,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -378,6 +383,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
@@ -418,6 +424,7 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: "24h",
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
