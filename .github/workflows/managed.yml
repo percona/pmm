@@ -47,7 +47,6 @@ jobs:
         uses: percona-platform/checkout@v3
         with:
           fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Enable Go build cache
         uses: percona-platform/cache@v2
