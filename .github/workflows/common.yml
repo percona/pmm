@@ -114,6 +114,7 @@ jobs:
 
   merge-gatekeeper:
     needs: [check]
+    name: Merge Gatekeeper
     if: ${{ always() }}
     runs-on: ubuntu-22.04
     steps:
