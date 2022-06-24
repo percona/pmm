@@ -212,6 +212,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "up_connected_time": {
+                  "type": "number",
+                  "format": "float",
+                  "x-order": 6
                 }
               }
             }
@@ -395,6 +400,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "up_connected_time": {
+                  "type": "number",
+                  "format": "float",
+                  "x-order": 6
                 }
               }
             }
