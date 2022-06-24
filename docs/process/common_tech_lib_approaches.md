@@ -19,7 +19,7 @@ Currently, our development team has fewer people than components/repositories. I
 * [golangci-lint](https://github.com/golangci/golangci-lint) is used for static code checks.
 * [gocov.io](http://gocov.io/) and [gocoverutil](https://github.com/AlekSi/gocoverutil) gather code coverage metrics.
 * [Docker Compose](https://docs.docker.com/compose/) is used for a local development environment and in CI.
-* [Kong](https://github.com/alecthomas/kong) for CLI.
+* [Kong](https://github.com/alecthomas/kong) for pmm CLI and [kingpin.v2](http://gopkg.in/alecthomas/kingpin.v2) for exporters and some other code. Use [Kong](https://github.com/alecthomas/kong) if you need some new CLI or need big changes in old `kingpin.v2` CLI.
 * go modules for vendoring.
 
 ## Approaches
