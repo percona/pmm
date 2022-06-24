@@ -25,6 +25,9 @@ jobs:
     #          - go-version: tip
     #            may-fail: true
 
+    env:
+      GOBIN: ${{ github.workspace }}/bin
+
     defaults:
       run:
         working-directory: ${{ github.workspace }}/admin

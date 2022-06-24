@@ -50,6 +50,7 @@ jobs:
     continue-on-error: ${{ matrix.may-fail }}
 
     env:
+      GOBIN: ${{ github.workspace }}/bin
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
