@@ -21,6 +21,7 @@ import (
 	_ "expvar" // register /debug/vars
 	"html/template"
 	"log"
+	"math"
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
@@ -129,8 +130,6 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		md = &agentpb.ServerConnectMetadata{}
 	}
 	upTime := s.client.GetConnectedUpTime()
-	s.l.Infof("connected up time: %v", upTime)
-
 	var serverInfo *agentlocalpb.ServerInfo
 	if u := s.cfg.Server.URL(); u != nil {
 		serverInfo = &agentlocalpb.ServerInfo{
@@ -154,12 +153,13 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	agentsInfo := s.supervisor.AgentsList()
 
 	return &agentlocalpb.StatusResponse{
-		AgentId:        s.cfg.ID,
-		RunsOnNodeId:   md.AgentRunsOnNodeID,
-		ServerInfo:     serverInfo,
-		AgentsInfo:     agentsInfo,
-		ConfigFilepath: s.configFilepath,
-		AgentVersion:   version.Version,
+		AgentId:         s.cfg.ID,
+		RunsOnNodeId:    md.AgentRunsOnNodeID,
+		ServerInfo:      serverInfo,
+		AgentsInfo:      agentsInfo,
+		ConfigFilepath:  s.configFilepath,
+		AgentVersion:    version.Version,
+		UpConnectedTime: float32(math.Round(float64(upTime)*100) / 100),
 	}, nil
 }
 

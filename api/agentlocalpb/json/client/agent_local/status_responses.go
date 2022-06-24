@@ -312,6 +312,9 @@ type StatusOKBody struct {
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
+	// up connected time
+	UpConnectedTime float32 `json:"up_connected_time,omitempty"`
+
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }
