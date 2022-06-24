@@ -12,8 +12,7 @@ on:
       - "api/**"
       - "third_party/**"
       - "*"
-    paths-ignore:
-      - "docs/**"
+      - "!docs/**"
 
 jobs:
   check:
