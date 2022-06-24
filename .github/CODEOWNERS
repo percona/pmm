@@ -1,8 +1,9 @@
+*                           @BupycHuk
 /admin/                     @michal-kralik
 /agent/agents/postgres/     @JiriCtvrtka
-/agent/actions/             artemgavrilov
-/agent/jobs/                artemgavrilov
+/agent/actions/             @artemgavrilov
+/agent/jobs/                @artemgavrilov
 /api/                       @BupycHuk
+/docs/api/                  @atymchuk
 /managed/                   @BupycHuk @artemgavrilov
-/markdown/                  @atymchuk
 /api-tests/                 @BupycHuk @artemgavrilov
