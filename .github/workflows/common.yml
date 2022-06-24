@@ -97,6 +97,12 @@ jobs:
       - name: Test common API
         run: make test-common
 
+      - name: Check that there are no source code changes
+        run: |
+          pushd tools && go mod tidy -v
+          popd        && go mod tidy -v
+          git diff --exit-code
+
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
