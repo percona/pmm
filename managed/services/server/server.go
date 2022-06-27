@@ -902,10 +902,10 @@ var (
 	_ serverpb.ServerServer = (*Server)(nil)
 )
 
-func canUpdateDurationSetting(setting, envSetting time.Duration) bool {
-	if setting != 0 && envSetting != 0 && setting != envSetting {
-		return false
+func canUpdateDurationSetting(valueToBeSet, valueFromEnvironmentVariable time.Duration) bool {
+	if valueToBeSet == 0 || valueFromEnvironmentVariable == 0 || valueToBeSet == valueFromEnvironmentVariable {
+		return true
 	}
 
-	return true
+	return false
 }
