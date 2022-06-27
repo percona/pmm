@@ -53,8 +53,8 @@ services:
       - ${PMM_CH_PORT_TCP:-11000}:9000
       - ${PMM_CH_PORT_HTTP:-11123}:8123
     volumes:
-      - ./.devcontainer/etc/nginx/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
-      - ./.devcontainer/etc/supervisord.d/:/etc/supervisord.d/:ro
+      - ./.devcontainer/etc-patched/nginx/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+      - ./.devcontainer/etc-patched/supervisord.d/:/etc/supervisord.d/:ro
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
