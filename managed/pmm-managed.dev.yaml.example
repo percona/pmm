@@ -1,4 +1,11 @@
 services:
+  victoria_metrics:
+    scrape_config_path: # is set via CLI flag `victoriametrics-config`
+    base_prometheus_config_path: "/srv/prometheus/prometheus.base.yml"
+    victoriametrics_dir_user: "am"
+    victoriametrics_dir_group: "am"
+    victoriametrics_dir: "/srv/victoriametrics"
+    victoriametrics_data_dir: "/srv/victoriametrics/data"
   platform:
     skip_tls_verification: false
   telemetry:

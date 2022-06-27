@@ -43,26 +43,18 @@ import (
 )
 
 const (
-	updateBatchDelay           = time.Second
-	configurationUpdateTimeout = 3 * time.Second
-
-	// BasePrometheusConfigPath - basic path with prometheus config,
-	// that user can mount to container.
-	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
-
-	victoriametricsDir     = "/srv/victoriametrics"
-	victoriametricsDataDir = "/srv/victoriametrics/data"
-	dirPerm                = os.FileMode(0o775)
+	updateBatchDelay = time.Second
+	dirPerm          = os.FileMode(0o775)
 )
 
 var checkFailedRE = regexp.MustCompile(`(?s)cannot unmarshal data: (.+)`)
 
 // Service is responsible for interactions with VictoriaMetrics.
 type Service struct {
-	scrapeConfigPath string
-	db               *reform.DB
-	baseURL          *url.URL
-	client           *http.Client
+	config  ServiceConfig
+	db      *reform.DB
+	baseURL *url.URL
+	client  *http.Client
 
 	baseConfigPath string // for testing
 
@@ -71,20 +63,20 @@ type Service struct {
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, params *models.VictoriaMetricsParams) (*Service, error) {
+func NewVictoriaMetrics(db *reform.DB, baseURL string, params *models.VictoriaMetricsParams, config ServiceConfig) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &Service{
-		scrapeConfigPath: scrapeConfigPath,
-		db:               db,
-		baseURL:          u,
-		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		baseConfigPath:   params.BaseConfigPath,
-		l:                logrus.WithField("component", "victoriametrics"),
-		reloadCh:         make(chan struct{}, 1),
+		config:         config,
+		db:             db,
+		baseURL:        u,
+		client:         &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
+		baseConfigPath: params.BaseConfigPath,
+		l:              logrus.WithField("component", "victoriametrics"),
+		reloadCh:       make(chan struct{}, 1),
 	}, nil
 }
 
@@ -96,10 +88,10 @@ func (svc *Service) Run(ctx context.Context) {
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
-	if err := dir.CreateDataDir(victoriametricsDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(svc.config.VictoriaMetricsDir, svc.config.VictoriaMetricsDirUser, svc.config.VictoriaMetricsDirGroup, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
-	if err := dir.CreateDataDir(victoriametricsDataDir, "pmm", "pmm", dirPerm); err != nil {
+	if err := dir.CreateDataDir(svc.config.VictoriaMetricsDataDir, svc.config.VictoriaMetricsDirUser, svc.config.VictoriaMetricsDirGroup, dirPerm); err != nil {
 		svc.l.Error(err)
 	}
 
@@ -125,7 +117,7 @@ func (svc *Service) Run(ctx context.Context) {
 				return
 			}
 
-			nCtx, cancel := context.WithTimeout(ctx, configurationUpdateTimeout)
+			nCtx, cancel := context.WithTimeout(ctx, svc.config.ConfigurationUpdateTimeout)
 			if err := svc.updateConfiguration(nCtx); err != nil {
 				svc.l.Errorf("Failed to update configuration, will retry: %+v.", err)
 				svc.RequestConfigurationUpdate()
@@ -276,12 +268,21 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 // configAndReload saves given VictoriaMetrics configuration to file and reloads VictoriaMetrics.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
-	oldCfg, err := ioutil.ReadFile(svc.scrapeConfigPath)
-	if err != nil {
-		return errors.WithStack(err)
+	var oldCfg []byte
+
+	if _, err := os.Stat(svc.config.ScrapeConfigPath); !errors.Is(err, os.ErrNotExist) {
+		oldCfg, err = ioutil.ReadFile(svc.config.ScrapeConfigPath)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else {
+		_, err := os.Create(svc.config.ScrapeConfigPath)
+		if err != nil {
+			return errors.WithStack(err)
+		}
 	}
 
-	fi, err := os.Stat(svc.scrapeConfigPath)
+	fi, err := os.Stat(svc.config.ScrapeConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -290,7 +291,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()); err != nil {
+			if err = ioutil.WriteFile(svc.config.ScrapeConfigPath, oldCfg, fi.Mode()); err != nil {
 				svc.l.Error(err)
 			}
 			if err = svc.reload(ctx); err != nil {
@@ -304,7 +305,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	}
 
 	restore = true
-	if err = ioutil.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
+	if err = ioutil.WriteFile(svc.config.ScrapeConfigPath, b, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = svc.reload(ctx); err != nil {

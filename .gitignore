@@ -23,3 +23,5 @@ fuzzing/
 
 backoff.png
 pmm-agent-dev.yaml
+.devcontainer/tmp
+.devcontainer/etc-runtime/victoriametrics-promscrape.yml

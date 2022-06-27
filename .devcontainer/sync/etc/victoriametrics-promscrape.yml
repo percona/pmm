@@ -64,7 +64,7 @@ scrape_configs:
             - 127.0.0.1:9933
           labels:
             instance: pmm-server
-    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_hr-5s
+    - job_name: node_exporter_agent_id_95ab1c9f-d1a7-41c1-b090-788df2a31bf9_hr-5s
       honor_timestamps: false
       params:
         collect[]:
@@ -92,16 +92,16 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42000
           labels:
-            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_id: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             agent_type: node_exporter
-            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            instance: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
       basic_auth:
         username: pmm
-        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
-    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_mr-10s
+        password: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
+    - job_name: node_exporter_agent_id_95ab1c9f-d1a7-41c1-b090-788df2a31bf9_mr-10s
       honor_timestamps: false
       params:
         collect[]:
@@ -114,16 +114,16 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42000
           labels:
-            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_id: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             agent_type: node_exporter
-            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            instance: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
       basic_auth:
         username: pmm
-        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
-    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_lr-1m0s
+        password: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
+    - job_name: node_exporter_agent_id_95ab1c9f-d1a7-41c1-b090-788df2a31bf9_lr-1m0s
       honor_timestamps: false
       params:
         collect[]:
@@ -138,16 +138,16 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42000
           labels:
-            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_id: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             agent_type: node_exporter
-            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            instance: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
       basic_auth:
         username: pmm
-        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
-    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_hr-5s
+        password: /agent_id/95ab1c9f-d1a7-41c1-b090-788df2a31bf9
+    - job_name: postgres_exporter_agent_id_c5170dd8-9a9b-4a8a-9748-df6a73958c8a_hr-5s
       honor_timestamps: false
       params:
         collect[]:
@@ -162,20 +162,20 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42001
           labels:
-            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_id: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             agent_type: postgres_exporter
-            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            instance: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
-            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_id: /service_id/5cda552d-1099-407f-93e5-a5cea5c582ad
             service_name: pmm-server-postgresql
             service_type: postgresql
       basic_auth:
         username: pmm
-        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+        password: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
       stream_parse: true
-    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_mr-10s
+    - job_name: postgres_exporter_agent_id_c5170dd8-9a9b-4a8a-9748-df6a73958c8a_mr-10s
       honor_timestamps: false
       params:
         collect[]:
@@ -187,20 +187,20 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42001
           labels:
-            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_id: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             agent_type: postgres_exporter
-            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            instance: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
-            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_id: /service_id/5cda552d-1099-407f-93e5-a5cea5c582ad
             service_name: pmm-server-postgresql
             service_type: postgresql
       basic_auth:
         username: pmm
-        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+        password: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
       stream_parse: true
-    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_lr-1m0s
+    - job_name: postgres_exporter_agent_id_c5170dd8-9a9b-4a8a-9748-df6a73958c8a_lr-1m0s
       honor_timestamps: false
       params:
         collect[]:
@@ -212,16 +212,16 @@ scrape_configs:
         - targets:
             - 127.0.0.1:42001
           labels:
-            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_id: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             agent_type: postgres_exporter
-            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            instance: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
             node_id: pmm-server
             node_name: pmm-server
             node_type: generic
-            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_id: /service_id/5cda552d-1099-407f-93e5-a5cea5c582ad
             service_name: pmm-server-postgresql
             service_type: postgresql
       basic_auth:
         username: pmm
-        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+        password: /agent_id/c5170dd8-9a9b-4a8a-9748-df6a73958c8a
       stream_parse: true

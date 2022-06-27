@@ -1,4 +1,23 @@
 services:
+  alertmanager:
+    host: "http://prime-pmm-1"
+    dir_user: "pmm"
+    dir_group: "pmm"
+    dir: "/srv/alertmanager"
+    cert_dir: "/srv/alertmanager/cert"
+    data_dir: "/srv/alertmanager/data"
+    config_path: "/etc/alertmanager.yml"
+    base_config_path: "/srv/alertmanager/alertmanager.base.yml"
+  victoria_metrics:
+    configuration_update_timeout: "10s"
+    scrape_config_path: # is set via CLI flag `victoriametrics-config`
+    base_prometheus_config_path: "/srv/prometheus/prometheus.base.yml"
+    victoriametrics_dir_user: "pmm"
+    victoriametrics_dir_group: "pmm"
+    victoriametrics_dir: "/srv/victoriametrics"
+    victoriametrics_data_dir: "/srv/victoriametrics/data"
+  platform:
+    skip_tls_verification: false
   telemetry:
     enabled: true
     datasources:

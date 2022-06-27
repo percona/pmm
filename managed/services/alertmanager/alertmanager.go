@@ -32,7 +32,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 	"github.com/percona/promconfig"
 	"github.com/percona/promconfig/alertmanager"
@@ -51,30 +50,6 @@ import (
 	"github.com/percona/pmm/managed/utils/dir"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
-
-var (
-	alertmanagerDir            = "/srv/alertmanager"
-	alertmanagerCertDir        string
-	alertmanagerDataDir        string
-	alertmanagerConfigPath     = "/etc/alertmanager.yml"
-	alertmanagerBaseConfigPath string
-)
-
-func init() {
-	alertmanagerDirFromEnv, isSet := os.LookupEnv("PMM_ALERTMANAGER_DIR")
-	if isSet {
-		alertmanagerDir = alertmanagerDirFromEnv
-	}
-	alertmanagerConfigPathFromEnv, isSet := os.LookupEnv("PMM_ALERTMANAGER_CONF")
-	if isSet {
-		alertmanagerConfigPath = alertmanagerConfigPathFromEnv
-	}
-
-	alertmanagerCertDir = alertmanagerDir + "/cert"
-	alertmanagerDataDir = alertmanagerDir + "/data"
-
-	alertmanagerBaseConfigPath = alertmanagerDir + "/alertmanager.base.yml"
-}
 
 const (
 	updateBatchDelay           = time.Second
@@ -100,6 +75,7 @@ var emailTemplate string
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
+	config ServiceConfig
 	db     *reform.DB
 	client *http.Client
 
@@ -108,8 +84,9 @@ type Service struct {
 }
 
 // New creates new service.
-func New(db *reform.DB) *Service {
+func New(db *reform.DB, config ServiceConfig) *Service {
 	return &Service{
+		config:   config,
 		db:       db,
 		client:   &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
 		l:        logrus.WithField("component", "alertmanager"),
@@ -122,8 +99,8 @@ func New(db *reform.DB) *Service {
 // It is needed because Alertmanager was added to PMM
 // with invalid configuration file (it will fail with "no route provided in config" error).
 func (svc *Service) GenerateBaseConfigs() {
-	for _, dirPath := range []string{alertmanagerDir, alertmanagerDataDir, alertmanagerCertDir} {
-		if err := dir.CreateDataDir(dirPath, "pmm", "pmm", dirPerm); err != nil {
+	for _, dirPath := range []string{svc.config.Dir, svc.config.DataDir, svc.config.CertDir} {
+		if err := dir.CreateDataDir(dirPath, svc.config.DirUser, svc.config.DirGroup, dirPerm); err != nil {
 			svc.l.Error(err)
 		}
 	}
@@ -140,24 +117,24 @@ receivers:
     - name: empty
 	`) + "\n"
 
-	_, err := os.Stat(alertmanagerBaseConfigPath)
-	svc.l.Debugf("%s status: %v", alertmanagerBaseConfigPath, err)
+	_, err := os.Stat(svc.config.BaseConfigPath)
+	svc.l.Debugf("%s status: %v", svc.config.BaseConfigPath, err)
 	if os.IsNotExist(err) {
-		svc.l.Infof("Creating %s", alertmanagerBaseConfigPath)
-		err = ioutil.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
+		svc.l.Infof("Creating %s", svc.config.BaseConfigPath)
+		err = ioutil.WriteFile(svc.config.BaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		if err != nil {
-			svc.l.Errorf("Failed to write %s: %s", alertmanagerBaseConfigPath, err)
+			svc.l.Errorf("Failed to write %s: %s", svc.config.BaseConfigPath, err)
 		}
 	}
 
 	// Don't call updateConfiguration() there as Alertmanager is likely to be in the crash loop at the moment.
 	// Instead, write alertmanager.yml directly. main.go will request configuration update.
-	stat, err := os.Stat(alertmanagerConfigPath)
+	stat, err := os.Stat(svc.config.ConfigPath)
 	if err != nil || int(stat.Size()) <= len("---\n") { // https://github.com/percona/pmm-server/blob/main/alertmanager.yml
-		svc.l.Infof("Creating %s", alertmanagerConfigPath)
-		err = ioutil.WriteFile(alertmanagerConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
+		svc.l.Infof("Creating %s", svc.config.ConfigPath)
+		err = ioutil.WriteFile(svc.config.ConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		if err != nil {
-			svc.l.Errorf("Failed to write %s: %s", alertmanagerConfigPath, err)
+			svc.l.Errorf("Failed to write %s: %s", svc.config.ConfigPath, err)
 		}
 	}
 }
@@ -230,7 +207,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 
 // reload asks Alertmanager to reload configuration.
 func (svc *Service) reload(ctx context.Context) error {
-	u := "http://127.0.0.1:9093/alertmanager/-/reload"
+	u := fmt.Sprintf("%s:9093/alertmanager/-/reload", svc.config.Host)
 	req, err := http.NewRequestWithContext(ctx, "POST", u, nil)
 	if err != nil {
 		return errors.WithStack(err)
@@ -255,10 +232,10 @@ func (svc *Service) reload(ctx context.Context) error {
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *alertmanager.Config {
-	buf, err := ioutil.ReadFile(alertmanagerBaseConfigPath)
+	buf, err := ioutil.ReadFile(svc.config.BaseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			svc.l.Errorf("Failed to load base Alertmanager config %s: %s", alertmanagerBaseConfigPath, err)
+			svc.l.Errorf("Failed to load base Alertmanager config %s: %s", svc.config.BaseConfigPath, err)
 		}
 
 		return &alertmanager.Config{}
@@ -266,7 +243,7 @@ func (svc *Service) loadBaseConfig() *alertmanager.Config {
 
 	var cfg alertmanager.Config
 	if err := yaml.Unmarshal(buf, &cfg); err != nil {
-		svc.l.Errorf("Failed to parse base Alertmanager config %s: %s.", alertmanagerBaseConfigPath, err)
+		svc.l.Errorf("Failed to parse base Alertmanager config %s: %s.", svc.config.BaseConfigPath, err)
 
 		return &alertmanager.Config{}
 	}
@@ -322,12 +299,12 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 // configAndReload saves given Alertmanager configuration to file and reloads Alertmanager.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
-	oldCfg, err := ioutil.ReadFile(alertmanagerConfigPath)
+	oldCfg, err := ioutil.ReadFile(svc.config.ConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	fi, err := os.Stat(alertmanagerConfigPath)
+	fi, err := os.Stat(svc.config.ConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -336,7 +313,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(alertmanagerConfigPath, oldCfg, fi.Mode()); err != nil {
+			if err = ioutil.WriteFile(svc.config.ConfigPath, oldCfg, fi.Mode()); err != nil {
 				svc.l.Error(err)
 			}
 			if err = svc.reload(ctx); err != nil {
@@ -350,7 +327,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	}
 
 	restore = true
-	if err = ioutil.WriteFile(alertmanagerConfigPath, b, fi.Mode()); err != nil {
+	if err = ioutil.WriteFile(svc.config.ConfigPath, b, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = svc.reload(ctx); err != nil {
@@ -367,21 +344,21 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 //  - CAFile is set to corresponding model field if CAFileContent is not specified, `sha256(id).ca` otherwise.
 //  - CertFile is set to corresponding model field if CertFileContent is not specified, `sha256(id).crt` otherwise.
 //  - KeyFile is set to corresponding model field if KeyFileContent is not specified, `sha256(id).key` otherwise.
-func convertTLSConfig(id string, tls *models.TLSConfig) promconfig.TLSConfig {
+func (svc *Service) convertTLSConfig(id string, tls *models.TLSConfig) promconfig.TLSConfig {
 	hashedIDBytes := sha256.Sum256([]byte(id))
 	hashedID := hex.EncodeToString(hashedIDBytes[:])
 
 	caFile := tls.CAFile
 	if tls.CAFileContent != "" {
-		caFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.ca", hashedID))
+		caFile = path.Join(svc.config.CertDir, fmt.Sprintf("%s.ca", hashedID))
 	}
 	certFile := tls.CertFile
 	if tls.CertFileContent != "" {
-		certFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.crt", hashedID))
+		certFile = path.Join(svc.config.CertDir, fmt.Sprintf("%s.crt", hashedID))
 	}
 	keyFile := tls.KeyFile
 	if tls.KeyFileContent != "" {
-		keyFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.key", hashedID))
+		keyFile = path.Join(svc.config.CertDir, fmt.Sprintf("%s.key", hashedID))
 	}
 	return promconfig.TLSConfig{
 		CAFile:             caFile,
@@ -392,8 +369,8 @@ func convertTLSConfig(id string, tls *models.TLSConfig) promconfig.TLSConfig {
 	}
 }
 
-func cleanupTLSConfigFiles() error {
-	des, err := os.ReadDir(alertmanagerCertDir)
+func (svc *Service) cleanupTLSConfigFiles() error {
+	des, err := os.ReadDir(svc.config.CertDir)
 	if err != nil {
 		return errors.Wrap(err, "failed to list alertmanager certificates directory")
 	}
@@ -402,7 +379,7 @@ func cleanupTLSConfigFiles() error {
 			continue
 		}
 
-		if err := os.Remove(path.Join(alertmanagerCertDir, de.Name())); err != nil {
+		if err := os.Remove(path.Join(svc.config.CertDir, de.Name())); err != nil {
 			return errors.WithStack(err)
 		}
 	}
@@ -410,7 +387,7 @@ func cleanupTLSConfigFiles() error {
 	return nil
 }
 
-func tlsConfig(c *models.Channel) *models.TLSConfig {
+func (svc *Service) tlsConfig(c *models.Channel) *models.TLSConfig {
 	if c.WebHookConfig != nil &&
 		c.WebHookConfig.HTTPConfig != nil &&
 		c.WebHookConfig.HTTPConfig.TLSConfig != nil {
@@ -422,23 +399,23 @@ func tlsConfig(c *models.Channel) *models.TLSConfig {
 
 // recreateTLSConfigFiles cleanups old tls config files and creates new ones for each channel using the content
 // from CAFileContent, CertFileContent, KeyFileContent if it is set.
-func recreateTLSConfigFiles(chanMap map[string]*models.Channel) error {
-	fi, err := os.Stat(alertmanagerCertDir)
+func (svc *Service) recreateTLSConfigFiles(chanMap map[string]*models.Channel) error {
+	fi, err := os.Stat(svc.config.CertDir)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	if err := cleanupTLSConfigFiles(); err != nil {
+	if err := svc.cleanupTLSConfigFiles(); err != nil {
 		return errors.WithStack(err)
 	}
 
 	for _, c := range chanMap {
-		tlsConfig := tlsConfig(c)
+		tlsConfig := svc.tlsConfig(c)
 		if tlsConfig == nil {
 			continue
 		}
 
-		convertedTLSConfig := convertTLSConfig(c.ID, tlsConfig)
+		convertedTLSConfig := svc.convertTLSConfig(c.ID, tlsConfig)
 		fileContentMap := map[string]string{
 			convertedTLSConfig.CAFile:   tlsConfig.CAFileContent,
 			convertedTLSConfig.CertFile: tlsConfig.CertFileContent,
@@ -489,7 +466,7 @@ func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
 	for _, ch := range channels {
 		chanMap[ch.ID] = ch
 	}
-	if err := recreateTLSConfigFiles(chanMap); err != nil {
+	if err := svc.recreateTLSConfigFiles(chanMap); err != nil {
 		return err
 	}
 
@@ -717,7 +694,7 @@ func (svc *Service) generateReceivers(chanMap map[string]*models.Channel, recvSe
 						}
 					}
 					if channel.WebHookConfig.HTTPConfig.TLSConfig != nil {
-						webhookConfig.HTTPConfig.TLSConfig = convertTLSConfig(channel.ID,
+						webhookConfig.HTTPConfig.TLSConfig = svc.convertTLSConfig(channel.ID,
 							channel.WebHookConfig.HTTPConfig.TLSConfig)
 					}
 				}
@@ -868,7 +845,7 @@ func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.Gett
 
 // IsReady verifies that Alertmanager works.
 func (svc *Service) IsReady(ctx context.Context) error {
-	u := "http://127.0.0.1:9093/alertmanager/-/ready"
+	u := fmt.Sprintf("%s:9093/alertmanager/-/ready", svc.config.Host)
 	req, err := http.NewRequestWithContext(ctx, "GET", u, nil)
 	if err != nil {
 		return errors.WithStack(err)
@@ -889,10 +866,4 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// configure default client; we use it mainly because we can't remove it from generated code
-//nolint:gochecknoinits
-func init() {
-	amclient.Default.SetTransport(httptransport.New("127.0.0.1:9093", "/alertmanager/api/v2", []string{"http"}))
 }
