@@ -68,6 +68,8 @@ type dbaasClient interface {
 	InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error)
 	// StartMonitoring sets up victoria metrics operator to monitor kubernetes cluster.
 	StartMonitoring(ctx context.Context, in *controllerv1beta1.StartMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StartMonitoringResponse, error)
+	// StopMonitoring removes victoria metrics operator from the cluster.
+	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
 }
 
 type versionService interface {
