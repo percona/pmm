@@ -143,11 +143,14 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
 
-		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST", "PERCONA_TEST_SAAS_HOST":
+		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST":
 			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envPlatformAddress)
 
+		case "PERCONA_TEST_SAAS_HOST":
+			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformAddress))
+
 		case "PERCONA_TEST_CHECKS_PUBLIC_KEY":
-			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envPlatformPublicKey)
+			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformPublicKey))
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
