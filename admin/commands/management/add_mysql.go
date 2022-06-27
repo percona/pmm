@@ -321,12 +321,12 @@ func init() {
 }
 
 func defaultsFileUsernameCheck(cmd *addMySQLCommand) string {
-	// defaults file specified, but passed username has higher priority
-	if cmd.Username != "" && cmd.DefaultsFile != "" {
+	// passed username has higher priority over defaults file
+	if cmd.Username != "" {
 		return cmd.Username
 	}
 
-	// username not specified, but can be in defaults files
+	// username not specified, but can be in defaults file
 	if cmd.Username == "" && cmd.DefaultsFile != "" {
 		return ""
 	}
