@@ -1,0 +1,227 @@
+# Managed by pmm-managed. DO NOT EDIT.
+---
+global:
+    scrape_interval: 1m
+    scrape_timeout: 54s
+scrape_configs:
+    - job_name: victoriametrics
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /prometheus/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9090
+          labels:
+            instance: pmm-server
+    - job_name: vmalert
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:8880
+          labels:
+            instance: pmm-server
+    - job_name: alertmanager
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /alertmanager/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9093
+          labels:
+            instance: pmm-server
+    - job_name: grafana
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:3000
+          labels:
+            instance: pmm-server
+    - job_name: pmm-managed
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7773
+          labels:
+            instance: pmm-server
+    - job_name: qan-api2
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_hr-5s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - buddyinfo
+            - cpu
+            - diskstats
+            - filefd
+            - filesystem
+            - loadavg
+            - meminfo
+            - meminfo_numa
+            - netdev
+            - netstat
+            - processes
+            - standard.go
+            - standard.process
+            - stat
+            - textfile.hr
+            - time
+            - vmstat
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_type: node_exporter
+            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_mr-10s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - hwmon
+            - textfile.mr
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_type: node_exporter
+            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+    - job_name: node_exporter_agent_id_1dd87fd7-9c90-4496-a3d4-e83e904321f0_lr-1m0s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - bonding
+            - entropy
+            - textfile.lr
+            - uname
+      scrape_interval: 1m
+      scrape_timeout: 54s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            agent_type: node_exporter
+            instance: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/1dd87fd7-9c90-4496-a3d4-e83e904321f0
+    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_hr-5s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.hr
+            - exporter
+            - standard.go
+            - standard.process
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42001
+          labels:
+            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_type: postgres_exporter
+            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_name: pmm-server-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+      stream_parse: true
+    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_mr-10s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.mr
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42001
+          labels:
+            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_type: postgres_exporter
+            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_name: pmm-server-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+      stream_parse: true
+    - job_name: postgres_exporter_agent_id_d21f5fb6-669b-4b0c-b693-4d07727666ff_lr-1m0s
+      honor_timestamps: false
+      params:
+        collect[]:
+            - custom_query.lr
+      scrape_interval: 1m
+      scrape_timeout: 54s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42001
+          labels:
+            agent_id: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            agent_type: postgres_exporter
+            instance: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+            node_id: pmm-server
+            node_name: pmm-server
+            node_type: generic
+            service_id: /service_id/621863e0-d515-4465-bfc6-4b10c15a76d6
+            service_name: pmm-server-postgresql
+            service_type: postgresql
+      basic_auth:
+        username: pmm
+        password: /agent_id/d21f5fb6-669b-4b0c-b693-4d07727666ff
+      stream_parse: true
