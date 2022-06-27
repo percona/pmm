@@ -25,6 +25,7 @@ import (
 // ServiceConfig victoriametrics config.
 type ServiceConfig struct {
 	l                          *logrus.Entry
+	BeforeConfigReloadDelay    time.Duration `yaml:"before_config_reload_delay"`   //nolint:tagliatelle
 	ConfigurationUpdateTimeout time.Duration `yaml:"configuration_update_timeout"` //nolint:tagliatelle
 	ScrapeConfigPath           string        `yaml:"scrape_config_path"`           //nolint:tagliatelle
 	BasePrometheusConfigPath   string        `yaml:"base_prometheus_config_path"`  //nolint:tagliatelle

@@ -1,4 +1,4 @@
-# Managed by pmm-managed. DO NOT EDIT.
+#Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
     scrape_interval: 1m

@@ -1,11 +1,22 @@
 services:
+  alertmanager:
+    host: "http://prime-pmm-1"
+    dir_user: "am"
+    dir_group: "am"
+    dir: "./.devcontainer/alertmanager"
+    cert_dir: "./.devcontainer/alertmanager/cert"
+    data_dir: "./.devcontainer/alertmanager/data"
+    config_path: "./.devcontainer/alertmanager/alertmanager.yml"
+    base_config_path: "./.devcontainer/alertmanager/alertmanager.base.yml"
   victoria_metrics:
+    before_config_reload_delay: "15s"
+    configuration_update_timeout: "30s"
     scrape_config_path: # is set via CLI flag `victoriametrics-config`
-    base_prometheus_config_path: "/srv/prometheus/prometheus.base.yml"
+    base_prometheus_config_path: "./.devcontainer/prometheus/prometheus.base.yml"
     victoriametrics_dir_user: "am"
     victoriametrics_dir_group: "am"
-    victoriametrics_dir: "/srv/victoriametrics"
-    victoriametrics_data_dir: "/srv/victoriametrics/data"
+    victoriametrics_dir: ".devcontainer/tmp/srv/victoriametrics"
+    victoriametrics_data_dir: ".devcontainer/tmp/srv/victoriametrics/data"
   platform:
     skip_tls_verification: false
   telemetry:
@@ -18,11 +29,11 @@ services:
       VM:
         enabled: true
         timeout: 2s
-        address: http://localhost:9090/prometheus
+        address: http://prime-pmm-1:9090/prometheus
       QANDB_SELECT:
         enabled: true
         timeout: 2s
-        dsn: tcp://localhost:25432?database=pmm&block_size=10000&pool_size=2
+        dsn: tcp://prime-pmm-1:25432?database=pmm&block_size=10000&pool_size=2
       PMMDB_SELECT:
         enabled: true
         timeout: 10s
