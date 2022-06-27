@@ -1,9 +1,9 @@
 ---
 version: '3.9'
 services:
-  pmm-managed-server-ex:
+  pmm-managed-server:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
-    container_name: pmm-managed-server-modular
+    container_name: pmm-managed-server-ex
     hostname: pmm-managed-server
     networks:
       - ${NETWORK:-default}
