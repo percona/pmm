@@ -478,6 +478,10 @@ github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813 h1:Jb/t6zDMQMwt
 github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 github.com/percona-platform/dbaas-api v0.0.0-20220606084829-6a0bd2018c88 h1:koi7izCSRG3i8GWwSeQrsK9g8350tpyO0TBlwUv1MhY=
 github.com/percona-platform/dbaas-api v0.0.0-20220606084829-6a0bd2018c88/go.mod h1:Z+cv//W6luzn9aC9DK/UfQURsABEVzoCi8dN6Tr01o4=
+github.com/percona-platform/dbaas-api v0.0.0-20220606142637-ec3681f61e6c h1:71OiWKl0X3FanHrwr3ZythTh01aD6Gkt8A8Xujsz3HM=
+github.com/percona-platform/dbaas-api v0.0.0-20220606142637-ec3681f61e6c/go.mod h1:Z+cv//W6luzn9aC9DK/UfQURsABEVzoCi8dN6Tr01o4=
+github.com/percona-platform/dbaas-controller v0.1.3-0.20220623140726-13379def9eeb h1:z8j4oCwRpa9TaLhJ4HK5I7g82O+KWOfvHqcGxbSmYXw=
+github.com/percona-platform/dbaas-controller v0.1.3-0.20220623140726-13379def9eeb/go.mod h1:YtqrAfACRv4w3CbA49XAgZUA1NN0m4zu8P3d9mcTbto=
 github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16 h1:0fx16uGtl4MwrBwm9/VSoNEhjL0cXYxS0quEhLthGcc=
 github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16/go.mod h1:gFUwaFp6Ugu5qsBwiOVJYbDlzgZ77tmXdXGO7tG5xVI=
 github.com/percona/exporter_shared v0.7.3 h1:TX4LisZ08jo8KIlekBTwPX13JlM6gOOKgmwg7QEf+r8=
