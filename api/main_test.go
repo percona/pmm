@@ -1,16 +1,21 @@
 package main
 
 import (
-	"go/build"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/tools/go/packages"
 )
 
 func TestImports(t *testing.T) {
 	type constraint struct {
 		blacklistPrefixes []string
+	}
+
+	config := &packages.Config{
+		Mode:  packages.NeedImports,
+		Tests: true,
 	}
 
 	for path, c := range map[string]constraint{
@@ -50,32 +55,24 @@ func TestImports(t *testing.T) {
 			},
 		},
 	} {
-		p, err := build.Import(path, ".", build.IgnoreVendor)
+		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
 
-		allImports := make(map[string]struct{}, len(p.Imports)+len(p.TestImports)+len(p.XTestImports))
-		for _, i := range p.Imports {
-			allImports[i] = struct{}{}
-		}
-		for _, i := range p.TestImports {
-			allImports[i] = struct{}{}
-		}
-		for _, i := range p.XTestImports {
-			allImports[i] = struct{}{}
-		}
+		for _, p := range pkgs {
+			for _, b := range c.blacklistPrefixes {
+				for i := range p.Imports {
+					// whitelist own subpackages
+					if strings.HasPrefix(i, path) {
+						continue
+					}
 
-		for _, b := range c.blacklistPrefixes {
-			for i := range allImports {
-				// whitelist own subpackages
-				if strings.HasPrefix(i, path) {
-					continue
-				}
-
-				// check blacklist
-				if strings.HasPrefix(i, b) {
-					t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+					// check blacklist
+					if strings.HasPrefix(i, b) {
+						t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+					}
 				}
 			}
 		}
+
 	}
 }
