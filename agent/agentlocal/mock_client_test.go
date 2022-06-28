@@ -27,7 +27,7 @@ func (_m *mockClient) Describe(_a0 chan<- *prometheus.Desc) {
 }
 
 // GetConnectedUpTime provides a mock function with given fields:
-func (_m *mockClient) GetConnectedUpTime() float32 {
+func (_m *mockClient) GetConnectionUpTime() float32 {
 	ret := _m.Called()
 
 	var r0 float32

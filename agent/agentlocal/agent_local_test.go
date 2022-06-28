@@ -47,7 +47,7 @@ func TestServerStatus(t *testing.T) {
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
-		client.On("GetConnectedUpTime").Return(float32(100.00))
+		client.On("GetConnectionUpTime").Return(float32(100.00))
 		cfg := &config.Config{
 			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
 			Server: config.Server{

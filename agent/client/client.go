@@ -20,12 +20,12 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/bluele/gcache"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -57,7 +57,7 @@ const (
 	defaultWindowConnectionTime = "24h"
 )
 
-var requestConnectedUpTimeCache gcache.Cache
+var cs *connectionSet
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
@@ -86,16 +86,13 @@ type Client struct {
 //
 // Caller should call Run.
 func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser) *Client {
-	if requestConnectedUpTimeCache == nil {
+	if cs == nil {
 		windowConnectionTime, err := time.ParseDuration(cfg.WindowConnectedTime)
 		if err != nil {
 			windowConnectionTime, _ = time.ParseDuration(defaultWindowConnectionTime)
 		}
 		logrus.Infof("Window check connection time is %.2f hours", windowConnectionTime.Hours())
-		requestConnectedUpTimeCache = gcache.New(cacheSize).
-			ARC().
-			Expiration(windowConnectionTime).
-			Build()
+		cs = NewConnectionSet(windowConnectionTime)
 	}
 	return &Client{
 		cfg:                cfg,
@@ -150,7 +147,7 @@ func (c *Client) Run(ctx context.Context) error {
 			successfullRequest = true
 		}
 
-		requestConnectedUpTimeCache.Set(time.Now().Unix(), successfullRequest)
+		cs.Set(time.Now(), successfullRequest)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -319,7 +316,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			}
-			requestConnectedUpTimeCache.Set(time.Now().Unix(), true)
+			cs.Set(time.Now(), true)
 
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
@@ -773,18 +770,60 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-func (c *Client) GetConnectedUpTime() float32 {
-	m := requestConnectedUpTimeCache.GetALL(true)
-	successfullRequests := 0
-	totalRequests := 0
-	for _, v := range m {
-		successRequest := v.(bool)
-		totalRequests++
-		if successRequest {
-			successfullRequests++
+// GetConnectionUpTime calculates the connection up time between agent and server
+// based on the stored connection events.
+//
+// In the connection event set we store only when connection status was changed
+// (was it connected or not) in the next format:
+// {<timestamp, is_connected>, <timestamp, is_connected>, ...}
+//
+// For example:
+// {<'2022-01-01 15:00:00', true>, <'2022-01-01 15:20:00', false>, <'2022-01-01 15:20:10', true>}
+//
+// GetConnectionUpTime returns the percentage of connection uptime during
+// set period of time (by default it's 24 hours).
+// Method will calculate connected time as interval between connected and disconneced events
+//
+// Here is example how it works.
+// When we have such set of events in connection set `f1 s1 f2`
+// where f1 - first event of failed connection
+//       s1 - first event of successful connection
+//       f2 - second event of failed connection
+//
+// method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
+// where time_between(s1, f2) - connection up time
+//       time_between(f1, now) - total time betweeen first event (f1) and current moment
+func (c *Client) GetConnectionUpTime() float32 {
+	return c.getConnectedUpTimeSince(time.Now())
+}
+
+func (c *Client) getConnectedUpTimeSince(sinceTime time.Time) float32 {
+	events := cs.GetAll()
+	if len(events) == 1 {
+		if events[0].connected {
+			return 100
+		} else {
+			return 0
 		}
 	}
-	return float32(successfullRequests) / float32(totalRequests) * 100
+	// sort events by time
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].t.Before(events[j].t)
+	})
+
+	var connectedTimeMs int64
+	for i, event := range events {
+		if event.connected {
+			if i+1 >= len(events) {
+				connectedTimeMs += sinceTime.Sub(event.t).Milliseconds()
+			} else {
+				connectedTimeMs += events[i+1].t.Sub(event.t).Milliseconds()
+			}
+		}
+	}
+
+	totalTime := sinceTime.Sub(events[0].t).Milliseconds()
+	return float32(connectedTimeMs) / float32(totalTime) * 100
 }
 
 // Describe implements "unchecked" prometheus.Collector.
