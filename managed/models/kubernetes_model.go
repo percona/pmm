@@ -25,30 +25,30 @@ import (
 
 //go:generate ../../bin/reform
 
-// Component stores info about DBaaS Component
-type Component struct {
+// ComponentSettings stores info about DBaaS ComponentSettings
+type ComponentSettings struct {
 	DisabledVersions []string
 	DefaultVersion   string
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c Component) Value() (driver.Value, error) { return jsonValue(c) }
+func (c ComponentSettings) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *Component) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *ComponentSettings) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // KubernetesCluster represents a Kubernetes cluster as stored in database.
 //reform:kubernetes_clusters
 type KubernetesCluster struct {
-	ID                    string     `reform:"id,pk"`
-	KubernetesClusterName string     `reform:"kubernetes_cluster_name"`
-	KubeConfig            string     `reform:"kube_config"`
-	PXC                   *Component `reform:"pxc"`
-	ProxySQL              *Component `reform:"proxysql"`
-	HAProxy               *Component `reform:"haproxy"`
-	Mongod                *Component `reform:"mongod"`
-	CreatedAt             time.Time  `reform:"created_at"`
-	UpdatedAt             time.Time  `reform:"updated_at"`
+	ID                    string             `reform:"id,pk"`
+	KubernetesClusterName string             `reform:"kubernetes_cluster_name"`
+	KubeConfig            string             `reform:"kube_config"`
+	PXC                   *ComponentSettings `reform:"pxc"`
+	ProxySQL              *ComponentSettings `reform:"proxysql"`
+	HAProxy               *ComponentSettings `reform:"haproxy"`
+	Mongod                *ComponentSettings `reform:"mongod"`
+	CreatedAt             time.Time          `reform:"created_at"`
+	UpdatedAt             time.Time          `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

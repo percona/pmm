@@ -297,7 +297,7 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 			return errors.New("cannot get the list of PXC components")
 		}
 
-		component, err := DefaultComponent(pxcComponents.Versions[0].Matrix.Pxc)
+		component, err := defaultComponent(pxcComponents.Versions[0].Matrix.Pxc)
 		if err != nil {
 			return errors.Wrap(err, "cannot get the recommended PXC image name")
 		}

@@ -299,7 +299,7 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 		return nil, err
 	}
 
-	var mongod, pxc, proxySQL, haproxy *models.Component
+	var mongod, pxc, proxySQL, haproxy *models.ComponentSettings
 	if cluster != nil {
 		mongod = cluster.Mongod
 		pxc = cluster.PXC
@@ -331,7 +331,7 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 	return versions, nil
 }
 
-func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.Component) map[string]*dbaasv1beta1.Component {
+func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.ComponentSettings) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
@@ -375,9 +375,9 @@ func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion 
 	return result
 }
 
-func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*models.Component, error) {
+func setComponent(kc *models.ComponentSettings, rc *dbaasv1beta1.ChangeComponent) (*models.ComponentSettings, error) {
 	if kc == nil {
-		kc = &models.Component{}
+		kc = &models.ComponentSettings{}
 	}
 	if rc.DefaultVersion != "" {
 		kc.DefaultVersion = rc.DefaultVersion
@@ -411,7 +411,7 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var component *models.Component
+	var component *models.ComponentSettings
 	var installFunc func() error
 	switch req.OperatorType {
 	case pxcOperator:
@@ -459,8 +459,8 @@ func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta
 	return &dbaasv1beta1.InstallOperatorResponse{Status: dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK}, nil
 }
 
-// DefaultComponent returns the component marked as default in the components list.
-func DefaultComponent(m map[string]*dbaasv1beta1.Component) (*dbaasv1beta1.Component, error) {
+// defaultComponent returns the component marked as default in the components list.
+func defaultComponent(m map[string]*dbaasv1beta1.Component) (*dbaasv1beta1.Component, error) {
 	if len(m) == 0 {
 		return nil, errNoVersionsFound
 	}

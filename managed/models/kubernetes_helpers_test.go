@@ -56,19 +56,19 @@ func TestKubernetesHelpers(t *testing.T) {
 				ID:                    "KC1",
 				KubernetesClusterName: "Kubernetes Cluster 1",
 				KubeConfig:            `{"kind": "Config", "apiVersion": "v1"}`,
-				PXC: &models.Component{
+				PXC: &models.ComponentSettings{
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-20",
 				},
-				ProxySQL: &models.Component{
+				ProxySQL: &models.ComponentSettings{
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-19",
 				},
-				HAProxy: &models.Component{
+				HAProxy: &models.ComponentSettings{
 					DisabledVersions: []string{"2.0.0"},
 					DefaultVersion:   "2.1.7",
 				},
-				Mongod: &models.Component{
+				Mongod: &models.ComponentSettings{
 					DisabledVersions: []string{"3.4.0", "3.6.0"},
 					DefaultVersion:   "4.4.3-8",
 				},
@@ -97,19 +97,19 @@ func TestKubernetesHelpers(t *testing.T) {
 				ID:                    "KC1",
 				KubernetesClusterName: "Kubernetes Cluster 1",
 				KubeConfig:            `{"kind": "Config", "apiVersion": "v1"}`,
-				PXC: &models.Component{
+				PXC: &models.ComponentSettings{
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-20",
 				},
-				ProxySQL: &models.Component{
+				ProxySQL: &models.ComponentSettings{
 					DisabledVersions: []string{"8.0.0"},
 					DefaultVersion:   "8.0.1-19",
 				},
-				HAProxy: &models.Component{
+				HAProxy: &models.ComponentSettings{
 					DisabledVersions: []string{"2.0.0"},
 					DefaultVersion:   "2.1.7",
 				},
-				Mongod: &models.Component{
+				Mongod: &models.ComponentSettings{
 					DisabledVersions: []string{"3.4.0", "3.6.0"},
 					DefaultVersion:   "4.4.3-8",
 				},

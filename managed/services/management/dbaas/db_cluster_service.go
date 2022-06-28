@@ -19,14 +19,14 @@ package dbaas
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+	"strings"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -54,6 +54,97 @@ func NewDBClusterService(db *reform.DB, controllerClient dbaasClient, grafanaCli
 	}
 }
 
+func (s DBClusterService) ImportDBClusters(ctx context.Context) error {
+	clusters, err := models.FindAllKubernetesClusters(s.db.Querier)
+	if err != nil {
+		return err
+	}
+	g, ctx := errgroup.WithContext(ctx)
+	for _, k := range clusters {
+		kubernetesCluster := k
+		g.Go(func() error {
+			pxc, err := s.controllerClient.ListPXCClusters(ctx, &dbaascontrollerv1beta1.ListPXCClustersRequest{
+				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+					Kubeconfig: kubernetesCluster.KubeConfig,
+				},
+			})
+			if err != nil {
+				return err
+			}
+
+			psmdb, err := s.controllerClient.ListPSMDBClusters(ctx, &dbaascontrollerv1beta1.ListPSMDBClustersRequest{
+				KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+					Kubeconfig: kubernetesCluster.KubeConfig,
+				},
+			})
+			if err != nil {
+				return err
+			}
+			tx, err := s.db.Begin()
+			if err != nil {
+				return err
+			}
+
+			for _, c := range pxc.Clusters {
+				_, err := models.CreateOrUpdateDBCluster(tx.Querier, models.PXCType, &models.DBClusterParams{
+					KubernetesClusterID: kubernetesCluster.ID,
+					Name:                c.Name,
+					Exposed:             c.Exposed,
+					InstalledImage:      c.Params.Pxc.Image,
+					PXCClusterParams: &models.PXCClusterParams{
+						ClusterSize: c.Params.ClusterSize,
+						Pxc: &models.ComponentParams{
+							Image: c.Params.Pxc.Image,
+							ComputeResources: &models.ComputeResources{
+								CpuM:        c.Params.Pxc.ComputeResources.CpuM,
+								MemoryBytes: c.Params.Pxc.ComputeResources.MemoryBytes,
+							},
+							DiskSize: c.Params.Pxc.DiskSize,
+						},
+						Proxysql: &models.ComponentParams{
+							Image: c.Params.Proxysql.Image,
+							ComputeResources: &models.ComputeResources{
+								CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
+								MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
+							},
+							DiskSize: c.Params.Proxysql.DiskSize,
+						},
+					},
+				})
+				if err != nil {
+					return err
+				}
+			}
+
+			for _, c := range psmdb.Clusters {
+				_, err = models.CreateOrUpdateDBCluster(s.db.Querier, models.PSMDBType, &models.DBClusterParams{
+					KubernetesClusterID: kubernetesCluster.ID,
+					Name:                c.Name,
+					Exposed:             c.Exposed,
+					InstalledImage:      c.Params.Image,
+					PSMDBClusterParams: &models.PSMDBClusterParams{
+						ClusterSize: c.Params.ClusterSize,
+						Psmdb: &models.ComponentParams{
+							Image: c.Params.Image,
+							ComputeResources: &models.ComputeResources{
+								CpuM:        c.Params.Replicaset.ComputeResources.CpuM,
+								MemoryBytes: c.Params.Replicaset.ComputeResources.MemoryBytes,
+							},
+							DiskSize: c.Params.Replicaset.DiskSize,
+						},
+					},
+				})
+				if err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
+	}
+	return g.Wait()
+}
+
 // ListDBClusters returns a list of all DB clusters.
 func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.ListDBClustersRequest) (*dbaasv1beta1.ListDBClustersResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)
@@ -66,7 +157,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 		return nil, err
 	}
 
-	pxcClusters, err := s.listPXCClusters(ctx, kubernetesCluster.KubeConfig, checkResponse.Operators.PxcOperatorVersion)
+	pxcClusters, err := s.listPXCClusters(ctx, kubernetesCluster.ID, checkResponse.Operators.PxcOperatorVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -147,71 +238,69 @@ func (s DBClusterService) listPSMDBClusters(ctx context.Context, kubeConfig stri
 	return clusters, nil
 }
 
-func (s DBClusterService) listPXCClusters(ctx context.Context, kubeConfig string, operatorVersion string) ([]*dbaasv1beta1.PXCCluster, error) {
-	in := dbaascontrollerv1beta1.ListPXCClustersRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-	}
-
-	out, err := s.controllerClient.ListPXCClusters(ctx, &in)
+func (s DBClusterService) listPXCClusters(ctx context.Context, kubernetesClusterID string, operatorVersion string) ([]*dbaasv1beta1.PXCCluster, error) {
+	clusters, err := models.FindDBClusters(s.db.Querier, models.DBClusterFilters{
+		KubernetesClusterID: kubernetesClusterID,
+		ClusterType:         models.PXCType,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	pxcClusters := make([]*dbaasv1beta1.PXCCluster, len(out.Clusters))
-	for i, c := range out.Clusters {
+	pxcClusters := make([]*dbaasv1beta1.PXCCluster, len(clusters))
+	for i, c := range clusters {
 		cluster := dbaasv1beta1.PXCCluster{
 			Name: c.Name,
 			Params: &dbaasv1beta1.PXCClusterParams{
-				ClusterSize: c.Params.ClusterSize,
+				ClusterSize: c.PXCClusterParams.ClusterSize,
 			},
-			State: dbClusterStates()[c.State],
-			Operation: &dbaasv1beta1.RunningOperation{
-				TotalSteps:    c.Operation.TotalSteps,
-				FinishedSteps: c.Operation.FinishedSteps,
-				Message:       c.Operation.Message,
-			},
+			// TODO: what do to with it?
+			//State: dbClusterStates()[c.State],
+			//Operation: &dbaasv1beta1.RunningOperation{
+			//	TotalSteps:    c.Operation.TotalSteps,
+			//	FinishedSteps: c.Operation.FinishedSteps,
+			//	Message:       c.Operation.Message,
+			//},
 			Exposed: c.Exposed,
 		}
 
-		if c.Params.Pxc != nil {
+		if c.PXCClusterParams.Pxc != nil {
 			cluster.Params.Pxc = &dbaasv1beta1.PXCClusterParams_PXC{
-				DiskSize: c.Params.Pxc.DiskSize,
+				DiskSize: c.PXCClusterParams.Pxc.DiskSize,
 			}
-			if c.Params.Pxc.ComputeResources != nil {
+			if c.PXCClusterParams.Pxc.ComputeResources != nil {
 				cluster.Params.Pxc.ComputeResources = &dbaasv1beta1.ComputeResources{
-					CpuM:        c.Params.Pxc.ComputeResources.CpuM,
-					MemoryBytes: c.Params.Pxc.ComputeResources.MemoryBytes,
+					CpuM:        c.PXCClusterParams.Pxc.ComputeResources.CpuM,
+					MemoryBytes: c.PXCClusterParams.Pxc.ComputeResources.MemoryBytes,
 				}
 			}
 		}
 
-		if c.Params.Haproxy != nil {
-			if c.Params.Haproxy.ComputeResources != nil {
+		if c.PXCClusterParams.Haproxy != nil {
+			if c.PXCClusterParams.Haproxy.ComputeResources != nil {
 				cluster.Params.Haproxy = &dbaasv1beta1.PXCClusterParams_HAProxy{
 					ComputeResources: &dbaasv1beta1.ComputeResources{
-						CpuM:        c.Params.Haproxy.ComputeResources.CpuM,
-						MemoryBytes: c.Params.Haproxy.ComputeResources.MemoryBytes,
+						CpuM:        c.PXCClusterParams.Haproxy.ComputeResources.CpuM,
+						MemoryBytes: c.PXCClusterParams.Haproxy.ComputeResources.MemoryBytes,
 					},
 				}
 			}
-		} else if c.Params.Proxysql != nil {
-			if c.Params.Proxysql.ComputeResources != nil {
+		} else if c.PXCClusterParams.Proxysql != nil {
+			if c.PXCClusterParams.Proxysql.ComputeResources != nil {
 				cluster.Params.Proxysql = &dbaasv1beta1.PXCClusterParams_ProxySQL{
-					DiskSize: c.Params.Proxysql.DiskSize,
+					DiskSize: c.PXCClusterParams.Proxysql.DiskSize,
 					ComputeResources: &dbaasv1beta1.ComputeResources{
-						CpuM:        c.Params.Proxysql.ComputeResources.CpuM,
-						MemoryBytes: c.Params.Proxysql.ComputeResources.MemoryBytes,
+						CpuM:        c.PXCClusterParams.Proxysql.ComputeResources.CpuM,
+						MemoryBytes: c.PXCClusterParams.Proxysql.ComputeResources.MemoryBytes,
 					},
 				}
 			}
 		}
 
-		if c.Params.Pxc.Image != "" {
-			imageAndTag := strings.Split(c.Params.Pxc.Image, ":")
+		if c.InstalledImage != "" {
+			imageAndTag := strings.Split(c.PXCClusterParams.Pxc.Image, ":")
 			if len(imageAndTag) != 2 {
-				return nil, errors.Errorf("failed to parse Xtradb Cluster version out of %q", c.Params.Pxc.Image)
+				return nil, errors.Errorf("failed to parse Xtradb Cluster version out of %q", c.PXCClusterParams.Pxc.Image)
 			}
 			currentDBVersion := imageAndTag[1]
 
@@ -220,7 +309,7 @@ func (s DBClusterService) listPXCClusters(ctx context.Context, kubeConfig string
 				return nil, err
 			}
 			cluster.AvailableImage = nextVersionImage
-			cluster.InstalledImage = c.Params.Pxc.Image
+			cluster.InstalledImage = c.InstalledImage
 		}
 
 		pxcClusters[i] = &cluster

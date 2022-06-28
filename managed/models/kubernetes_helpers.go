@@ -86,6 +86,22 @@ func FindKubernetesClusterByName(q *reform.Querier, name string) (*KubernetesClu
 	}
 }
 
+// FindKubernetesClusterByID finds a Kubernetes cluster with provided ID.
+func FindKubernetesClusterByID(q *reform.Querier, id string) (*KubernetesCluster, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Kubernetes Cluster ID.")
+	}
+
+	switch cluster, err := q.FindByPrimaryKeyFrom(KubernetesClusterTable, id); err {
+	case nil:
+		return cluster.(*KubernetesCluster), nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "Kubernetes Cluster with id %q not found.", id)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
 // CreateKubernetesClusterParams contains all params required to create Kubernetes cluster.
 type CreateKubernetesClusterParams struct {
 	KubernetesClusterName string

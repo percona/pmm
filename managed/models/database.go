@@ -715,6 +715,23 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ADD COLUMN log_level VARCHAR`,
 	},
+	64: {
+		`CREATE TABLE db_clusters (
+			id VARCHAR NOT NULL,
+			cluster_type VARCHAR NOT NULL CHECK (cluster_type <> ''),
+			kubernetes_cluster_id VARCHAR CHECK (kubernetes_cluster_id <> ''),
+			name VARCHAR NOT NULL,
+			pxc_cluster_params JSONB,
+			psmdb_cluster_params JSONB,
+			exposed BOOLEAN NOT NULL,
+			installed_image VARCHAR NOT NULL,
+
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

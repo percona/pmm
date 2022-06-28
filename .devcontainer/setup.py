@@ -30,11 +30,23 @@ def install_packages():
         "yum reinstall -y yum rpm",
 
         "yum install -y gcc git make pkgconfig glibc-static \
-            vim \
+            bash-completion bash-completion-extras",
+    ])
+
+
+def install_useful_packages():
+    """Installs required and useful RPM packages."""
+
+    run_commands([
+        # to install man pages
+        "sed -i '/nodocs/d' /etc/yum.conf",
+
+        # reinstall with man pages
+        "yum reinstall -y yum rpm",
+
+        "yum install -y vim \
             ansible-lint \
-            mc tmux psmisc lsof which iproute \
-            bash-completion bash-completion-extras \
-            man man-pages",
+            mc tmux psmisc lsof which iproute",
     ])
 
 

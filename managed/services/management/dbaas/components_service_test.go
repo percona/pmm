@@ -25,6 +25,8 @@ import (
 	"github.com/google/uuid"
 	goversion "github.com/hashicorp/go-version"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	pmmversion "github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -34,12 +36,10 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
-	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/managed/utils/tests"
-	pmmversion "github.com/percona/pmm/version"
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/testdb"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 const (
@@ -393,7 +393,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 	t.Run("Disabled and Default Components", func(t *testing.T) {
 		cs := &ComponentsService{}
 
-		m := cs.matrix(input, nil, &models.Component{
+		m := cs.matrix(input, nil, &models.ComponentVersionConfig{
 			DisabledVersions: []string{"8.0.20-11.2", "8.0.20-11.1"},
 			DefaultVersion:   "8.0.19-10.1",
 		})
@@ -421,7 +421,7 @@ func TestComponentServiceMatrix(t *testing.T) {
 
 		minimumSupportedVersion, err := goversion.NewVersion("8.0.0")
 		require.NoError(t, err)
-		m := cs.matrix(input, minimumSupportedVersion, &models.Component{
+		m := cs.matrix(input, minimumSupportedVersion, &models.ComponentVersionConfig{
 			DisabledVersions: []string{"8.0.21-12.1", "8.0.20-11.1"},
 			DefaultVersion:   "8.0.20-11.2",
 		})
@@ -523,10 +523,10 @@ func setup(t *testing.T, clusterName string, response *VersionServiceResponse, p
 		KubeConfig:            "{}",
 	})
 	require.NoError(t, err)
-	kubernetesCluster.Mongod = &models.Component{
+	kubernetesCluster.Mongod = &models.ComponentVersionConfig{
 		DefaultVersion: defaultPSMDB,
 	}
-	kubernetesCluster.PXC = &models.Component{
+	kubernetesCluster.PXC = &models.ComponentVersionConfig{
 		DefaultVersion: defaultPXC,
 	}
 	require.NoError(t, db.Save(kubernetesCluster))

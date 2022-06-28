@@ -5,7 +5,7 @@ include Makefile.include
 env-up: env-compose-up env-devcontainer     ## Start devcontainer.
 
 env-compose-up:
-	docker-compose pull
+	#docker-compose pull
 	docker-compose up --detach --renew-anon-volumes --remove-orphans
 
 env-devcontainer:

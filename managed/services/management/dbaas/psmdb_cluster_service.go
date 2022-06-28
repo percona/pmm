@@ -175,6 +175,23 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		return nil, err
 	}
+	_, err = models.CreateOrUpdateDBCluster(s.db.Querier, models.PSMDBType, &models.DBClusterParams{
+		KubernetesClusterID: kubernetesCluster.ID,
+		Name:                req.Name,
+		Exposed:             req.Expose,
+		InstalledImage:      req.Params.Image,
+		PSMDBClusterParams: &models.PSMDBClusterParams{
+			ClusterSize: req.Params.ClusterSize,
+			Psmdb: &models.ComponentParams{
+				Image: req.Params.Image,
+				ComputeResources: &models.ComputeResources{
+					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
+					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
+				},
+				DiskSize: req.Params.Replicaset.DiskSize,
+			},
+		},
+	})
 
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
 }
@@ -226,7 +243,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 			return errors.New("cannot get the list of PXC components")
 		}
 
-		component, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
+		component, err := defaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
 		if err != nil {
 			return errors.Wrap(err, "cannot get the recommended MongoDB image name")
 		}
