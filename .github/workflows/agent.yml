@@ -122,7 +122,7 @@ jobs:
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v1
         with:
-          file: cover.out
+          file: ./src/github.com/percona/pmm/agent/cover.out
           flags: cover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
@@ -130,7 +130,7 @@ jobs:
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v1
         with:
-          file: crosscover.out
+          file: ./src/github.com/percona/pmm/agent/crosscover.out
           flags: crosscover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
