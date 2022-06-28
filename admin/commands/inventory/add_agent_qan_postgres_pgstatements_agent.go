@@ -45,7 +45,7 @@ func (res *addAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANPostgreSQLPgStatementsAgentResultT, res)
 }
 
-func (cmd *AddQANPostgreSQLPgStatementsAgentCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

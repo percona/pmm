@@ -48,23 +48,23 @@ func (res *addMongoDBResult) String() string {
 	return commands.RenderTemplate(addMongoDBResultT, res)
 }
 
-func (cmd *AddMongoDBCmd) GetServiceName() string {
+func (cmd *AddMongoDBCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *AddMongoDBCmd) GetAddress() string {
+func (cmd *AddMongoDBCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *AddMongoDBCmd) GetDefaultAddress() string {
+func (cmd *AddMongoDBCommand) GetDefaultAddress() string {
 	return "127.0.0.1:27017"
 }
 
-func (cmd *AddMongoDBCmd) GetSocket() string {
+func (cmd *AddMongoDBCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *AddMongoDBCmd) GetCredentials() error {
+func (cmd *AddMongoDBCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -77,7 +77,7 @@ func (cmd *AddMongoDBCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddMongoDBCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

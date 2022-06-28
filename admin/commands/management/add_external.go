@@ -50,7 +50,7 @@ func (res *addExternalResult) String() string {
 	return commands.RenderTemplate(addExternalResultT, res)
 }
 
-func (cmd *AddExternalCmd) GetCredentials() error {
+func (cmd *AddExternalCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -62,7 +62,7 @@ func (cmd *AddExternalCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddExternalCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

@@ -48,7 +48,7 @@ func (res *addAgentExternalExporterResult) String() string {
 	return commands.RenderTemplate(addAgentExternalExporterResultT, res)
 }
 
-func (cmd *ExternalExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *ExternalExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

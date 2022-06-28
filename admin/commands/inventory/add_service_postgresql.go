@@ -48,7 +48,7 @@ func (res *addServicePostgreSQLResult) String() string {
 	return commands.RenderTemplate(addServicePostgreSQLResultT, res)
 }
 
-func (cmd *AddServicePostgreSQLCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

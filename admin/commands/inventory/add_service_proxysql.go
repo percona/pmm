@@ -48,7 +48,7 @@ func (res *addServiceProxySQLResult) String() string {
 	return commands.RenderTemplate(addServiceProxySQLResultT, res)
 }
 
-func (cmd *AddServiceProxySQLCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

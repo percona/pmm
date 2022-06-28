@@ -46,7 +46,7 @@ func (res *addAgentPostgresExporterResult) String() string {
 	return commands.RenderTemplate(addAgentPostgresExporterResultT, res)
 }
 
-func (cmd *PostgresExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *PostgresExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

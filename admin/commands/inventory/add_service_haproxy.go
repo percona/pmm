@@ -43,7 +43,7 @@ func (res *addHAProxyServiceResult) String() string {
 	return commands.RenderTemplate(addHAProxyServiceResultT, res)
 }
 
-func (cmd *AddServiceHAProxyCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err

@@ -46,7 +46,7 @@ func (res *addNodeContainerResult) String() string {
 	return commands.RenderTemplate(addNodeContainerResultT, res)
 }
 
-func (cmd *AddNodeContainerCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

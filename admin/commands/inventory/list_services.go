@@ -72,7 +72,7 @@ func (res *listServicesResult) String() string {
 	return commands.RenderTemplate(listServicesResultT, res)
 }
 
-func (cmd *ListServicesCmd) RunCmd() (commands.Result, error) {
+func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
 	if err != nil {
 		return nil, err

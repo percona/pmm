@@ -112,7 +112,7 @@ func TestManagementGlobalFlags(t *testing.T) {
 	for _, test := range tests {
 		test := test
 		t.Run(test.testName, func(t *testing.T) {
-			cmd := &AddMongoDBCmd{
+			cmd := &AddMongoDBCommand{
 				ServiceName: test.nameArg,
 				Address:     test.addressArg,
 				Socket:      test.socketFlag,

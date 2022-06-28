@@ -53,7 +53,7 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
 	return "enabled"
 }
 
-func (cmd *AddQANMySQLPerfSchemaAgentCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

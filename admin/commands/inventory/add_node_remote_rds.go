@@ -44,7 +44,7 @@ func (res *addNodeRemoteRDSResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteRDSResultT, res)
 }
 
-func (cmd *AddNodeRemoteRDSCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

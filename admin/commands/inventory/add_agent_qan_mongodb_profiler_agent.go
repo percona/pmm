@@ -45,7 +45,7 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBProfilerAgentResultT, res)
 }
 
-func (cmd *AddQANMongoDBProfilerAgentCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

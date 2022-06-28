@@ -42,7 +42,7 @@ func (res *addAgentNodeExporterResult) String() string {
 	return commands.RenderTemplate(addAgentNodeExporterResultT, res)
 }
 
-func (cmd *NodeExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *NodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

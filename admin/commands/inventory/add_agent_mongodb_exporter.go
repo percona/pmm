@@ -46,7 +46,7 @@ func (res *addAgentMongodbExporterResult) String() string {
 	return commands.RenderTemplate(addAgentMongodbExporterResultT, res)
 }
 
-func (cmd *MongoDBExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *MongoDBExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

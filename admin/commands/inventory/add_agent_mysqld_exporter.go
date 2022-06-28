@@ -79,7 +79,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	return s
 }
 
-func (cmd *MysqldExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *MysqldExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

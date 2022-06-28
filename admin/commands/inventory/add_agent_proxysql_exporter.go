@@ -46,7 +46,7 @@ func (res *addAgentProxysqlExporterResult) String() string {
 	return commands.RenderTemplate(addAgentProxysqlExporterResultT, res)
 }
 
-func (cmd *ProxysqlExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *ProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

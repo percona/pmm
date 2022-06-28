@@ -61,7 +61,7 @@ func (res *addAgentQANMySQLSlowlogAgentResult) SlowlogRotation() string {
 	return res.Agent.MaxSlowlogFileSize
 }
 
-func (cmd *AddQANMySQLSlowlogAgentCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
