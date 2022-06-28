@@ -91,6 +91,12 @@ jobs:
       - name: Run tests
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
 
+      - name: Copy cover profiles
+        run: |
+          docker cp pmm-managed-server:/root/go/src/github.com/percona/pmm/managed/cover.out .
+          docker cp pmm-managed-server:/root/go/src/github.com/percona/pmm/managed/crosscover.out .
+          docker cp pmm-managed-server:/root/go/src/github.com/percona/pmm/managed/race-crosscover.out .
+
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v1
         with:
