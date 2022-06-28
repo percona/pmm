@@ -10,7 +10,7 @@ telemetry:
 
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
-    query: stt->'stt_enabled' AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN 'true' ELSE 'false' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
     summary: "PMM Server Security Thread Tool feature enabled/disabled"
     data:
       - metric_name: "stt_enabled"
@@ -23,14 +23,6 @@ telemetry:
     data:
       - metric_name: "backup_management_enabled"
         column: "bm_enabled"
-
-  - id: PMMServerDBaaSEnabled
-    source: PMMDB_SELECT
-    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
-    summary: "PMM Server DBaaS feature enabled/disabled"
-    data:
-      - metric_name: "dbaas_enabled"
-        column: "dbaas_enabled"
 
   - id: PMMServerDBaaSEnabled
     source: PMMDB_SELECT
