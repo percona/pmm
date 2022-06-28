@@ -55,7 +55,7 @@ services:
     volumes:
       - ./.devcontainer/etc-patched/nginx/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
       - ./.devcontainer/etc-patched/supervisord.d/:/etc/supervisord.d/:ro
-      - ./.devcontainer/sync/etc/victoriametrics-promscrape.yml:/etc/victoriametrics-promscrape.yml:ro
+      - ./.devcontainer/sync/etc/victoriametrics:/etc/victoriametrics:ro
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
       - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
