@@ -40,7 +40,8 @@ func New(count int) *LogsStore {
 // Write writes log for store.
 func (l *LogsStore) Write(b []byte) (int, error) {
 	l.m.Lock()
-	l.log.Value = string(b)
+	str := string(b)
+	l.log.Value = str
 	l.log = l.log.Next()
 	l.m.Unlock()
 	return len(b), nil
@@ -53,8 +54,9 @@ func (l *LogsStore) GetLogs() (logs []string) {
 		l.log.Do(func(p interface{}) {
 			log := fmt.Sprint(p)
 			replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
+			res := replacer.Replace(log)
 			if p != nil {
-				logs = append(logs, replacer.Replace(log))
+				logs = append(logs, res)
 			}
 		})
 		l.m.Unlock()

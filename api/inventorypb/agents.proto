@@ -1361,6 +1361,14 @@ message RemoveAgentRequest {
 
 message RemoveAgentResponse {}
 
+message AgentLogsRequest {
+  string agentID = 1;
+}
+message AgentLogsResponse {
+  string logs = 1;
+}
+
+
 // Agents service provides public methods for managing Agents.
 service Agents {
   // ListAgents returns a list of all Agents.
@@ -1691,6 +1699,17 @@ service Agents {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Agent"
       description: "Removes Agent."
+    };
+  }
+  // AgentLogs return Agent logs.
+  rpc AgentLogs(AgentLogsRequest) returns (AgentLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/Logs"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Agent Logs"
+      description: "Agent Logs."
     };
   }
 }

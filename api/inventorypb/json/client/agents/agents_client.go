@@ -56,6 +56,8 @@ type ClientService interface {
 
 	AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOption) (*AddRDSExporterOK, error)
 
+	AgentLogs(params *AgentLogsParams, opts ...ClientOption) (*AgentLogsOK, error)
+
 	ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams, opts ...ClientOption) (*ChangeAzureDatabaseExporterOK, error)
 
 	ChangeExternalExporter(params *ChangeExternalExporterParams, opts ...ClientOption) (*ChangeExternalExporterOK, error)
@@ -634,6 +636,45 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOpti
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddRDSExporterDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  AgentLogs agents logs
+
+  Agent Logs.
+*/
+func (a *Client) AgentLogs(params *AgentLogsParams, opts ...ClientOption) (*AgentLogsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAgentLogsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AgentLogs",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/Logs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AgentLogsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AgentLogsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AgentLogsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

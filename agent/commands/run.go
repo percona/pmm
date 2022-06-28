@@ -17,11 +17,10 @@ package commands
 
 import (
 	"context"
-	"os"
-	"os/signal"
-
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+	"os"
+	"os/signal"
 
 	"github.com/percona/pmm/agent/agentlocal"
 	"github.com/percona/pmm/agent/agents/supervisor"
@@ -33,10 +32,11 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 )
 
-const maxServerLogs = 500 // max number logs can store server
+const maxServerLogs = 3 // max number logs can store server
 
 // Run implements `pmm-agent run` default command.
 func Run() {
+	//time.Sleep(20 * time.Second)
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer l.Info("Done.")
@@ -84,7 +84,6 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string, ringLog
 	v := versioner.New(&versioner.RealExecFunctions{})
 	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, ringLog)
-
 	go func() {
 		_ = client.Run(ctx)
 		cancel()

@@ -90,6 +90,7 @@ func NewServer(cfg *config.Config, supervisor supervisor, client client, configF
 		configFilepath: configFilepath,
 		l:              logger.WithField("component", "local-server"),
 		reload:         make(chan struct{}),
+		ringLogs:       ringLog,
 	}
 }
 
@@ -307,6 +308,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/debug", debugPageHandler)
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
+	mux.HandleFunc("/logs/agent", s.GetAgentLogs)
 
 	server := &http.Server{
 		Addr:     address,
@@ -381,5 +383,26 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(buf.Bytes())
 	if err != nil {
 		log.Fatal(err)
+	}
+}
+
+// GetLogs Handle function for return logs by id.
+func (s *Server) GetAgentLogs(w http.ResponseWriter, r *http.Request) {
+	agentID := r.FormValue("agent_id")
+	logs, err := s.supervisor.AgentLogsByID(agentID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	buf := &bytes.Buffer{}
+	for _, l := range logs {
+		_, err := buf.WriteString(fmt.Sprintf("%s \n", l))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+	w.Header().Set("Content-Type", "text/html")
+	_, err = w.Write(buf.Bytes())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

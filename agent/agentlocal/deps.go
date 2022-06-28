@@ -41,4 +41,5 @@ type client interface {
 type supervisor interface {
 	AgentsList() []*agentlocalpb.AgentInfo
 	AgentsLogs() map[string][]string
+	AgentLogsByID(ID string) ([]string, error)
 }

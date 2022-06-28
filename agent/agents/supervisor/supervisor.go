@@ -19,6 +19,8 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
@@ -163,6 +165,29 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logs.GetLogs()
 	}
 	return res
+}
+
+// AgentLogsByID returns logs for all Agents managed by this supervisor.
+func (s *Supervisor) AgentLogsByID(ID string) ([]string, error) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	s.arw.RLock()
+	defer s.arw.RUnlock()
+	newID := fmt.Sprintf("/agent_id/%s", ID)
+
+	for id, agent := range s.agentProcesses {
+		if id == newID {
+			return agent.logs.GetLogs(), nil
+		}
+	}
+
+	for id, agent := range s.builtinAgents {
+		if id == newID {
+			return agent.logs.GetLogs(), nil
+		}
+	}
+
+	return nil, fmt.Errorf("not found Agent by ID: %s", ID)
 }
 
 // Changes returns channel with Agent's state changes.
@@ -351,6 +376,7 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
+	maxAgentLogs                          = 200 // max number logs can store each agent
 )
 
 // startProcess starts Agent's process.
@@ -363,13 +389,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	l := logrus.WithFields(logrus.Fields{
-		"component": "agent-process",
-		"agentID":   agentID,
-		"type":      agentType,
-	})
+	ringLog, l := s.newLogger("agent-process", agentID, agentType)
 	l.Debugf("Starting: %s.", processParams)
-
 	process := process.New(processParams, agentProcess.RedactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
@@ -394,8 +415,22 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
 		listenPort:      port,
 		processExecPath: processParams.Path,
+		logs:            ringLog,
 	}
 	return nil
+}
+
+func (s *Supervisor) newLogger(component string, agentID string, agentType string) (*storelogs.LogsStore, *logrus.Entry) {
+	ringLog := storelogs.New(maxAgentLogs)
+	logger := logrus.New()
+	logger.SetFormatter(logrus.StandardLogger().Formatter)
+	logger.Out = io.MultiWriter(os.Stderr, ringLog)
+	l := logger.WithFields(logrus.Fields{
+		"component": component,
+		"agentID":   agentID,
+		"type":      agentType,
+	})
+	return ringLog, l
 }
 
 // startBuiltin starts built-in Agent.

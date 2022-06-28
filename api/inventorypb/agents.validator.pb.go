@@ -914,3 +914,11 @@ func (this *RemoveAgentRequest) Validate() error {
 func (this *RemoveAgentResponse) Validate() error {
 	return nil
 }
+
+func (this *AgentLogsRequest) Validate() error {
+	return nil
+}
+
+func (this *AgentLogsResponse) Validate() error {
+	return nil
+}

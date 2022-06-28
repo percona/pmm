@@ -96,6 +96,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-msgpack v1.1.5 // indirect

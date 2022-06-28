@@ -83,6 +83,8 @@ type AgentsClient interface {
 	ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
+	// AgentLogs return Agent logs.
+	AgentLogs(ctx context.Context, in *AgentLogsRequest, opts ...grpc.CallOption) (*AgentLogsResponse, error)
 }
 
 type agentsClient struct {
@@ -363,6 +365,15 @@ func (c *agentsClient) RemoveAgent(ctx context.Context, in *RemoveAgentRequest, 
 	return out, nil
 }
 
+func (c *agentsClient) AgentLogs(ctx context.Context, in *AgentLogsRequest, opts ...grpc.CallOption) (*AgentLogsResponse, error) {
+	out := new(AgentLogsResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/AgentLogs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AgentsServer is the server API for Agents service.
 // All implementations must embed UnimplementedAgentsServer
 // for forward compatibility
@@ -427,6 +438,8 @@ type AgentsServer interface {
 	ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
+	// AgentLogs return Agent logs.
+	AgentLogs(context.Context, *AgentLogsRequest) (*AgentLogsResponse, error)
 	mustEmbedUnimplementedAgentsServer()
 }
 
@@ -551,6 +564,10 @@ func (UnimplementedAgentsServer) ChangeAzureDatabaseExporter(context.Context, *C
 
 func (UnimplementedAgentsServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveAgent not implemented")
+}
+
+func (UnimplementedAgentsServer) AgentLogs(context.Context, *AgentLogsRequest) (*AgentLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AgentLogs not implemented")
 }
 func (UnimplementedAgentsServer) mustEmbedUnimplementedAgentsServer() {}
 
@@ -1105,6 +1122,24 @@ func _Agents_RemoveAgent_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agents_AgentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AgentLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).AgentLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/AgentLogs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).AgentLogs(ctx, req.(*AgentLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Agents_ServiceDesc is the grpc.ServiceDesc for Agents service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1231,6 +1266,10 @@ var Agents_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveAgent",
 			Handler:    _Agents_RemoveAgent_Handler,
+		},
+		{
+			MethodName: "AgentLogs",
+			Handler:    _Agents_AgentLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
