@@ -548,17 +548,19 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "DBaaS is enabled via ENABLE_DBAAS or via deprecated PERCONA_TEST_DBAAS environment variable.")
 	}
 
-	if metricsRes.GetHr().AsDuration() != 0 && s.envSettings.MetricsResolutions.HR != 0 {
+	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
-	if metricsRes.GetMr().AsDuration() != 0 && s.envSettings.MetricsResolutions.MR != 0 {
+
+	if !canUpdateDurationSetting(metricsRes.GetMr().AsDuration(), s.envSettings.MetricsResolutions.MR) {
 		return status.Error(codes.FailedPrecondition, "Medium resolution for metrics is set via METRICS_RESOLUTION_MR environment variable.")
 	}
-	if metricsRes.GetLr().AsDuration() != 0 && s.envSettings.MetricsResolutions.LR != 0 {
+
+	if !canUpdateDurationSetting(metricsRes.GetLr().AsDuration(), s.envSettings.MetricsResolutions.LR) {
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if req.DataRetention.AsDuration() != 0 && s.envSettings.DataRetention != 0 {
+	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via DATA_RETENTION environment variable.")
 	}
 
@@ -878,3 +880,11 @@ func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 var (
 	_ serverpb.ServerServer = (*Server)(nil)
 )
+
+func canUpdateDurationSetting(valueToBeSet, valueFromEnvironmentVariable time.Duration) bool {
+	if valueToBeSet == 0 || valueFromEnvironmentVariable == 0 || valueToBeSet == valueFromEnvironmentVariable {
+		return true
+	}
+
+	return false
+}
