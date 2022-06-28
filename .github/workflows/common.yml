@@ -62,7 +62,9 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker
+          # TODO: This repo has multiple licenses, fix checker. https://jira.percona.com/browse/PMM-10118
+          # go run ../.github/check-license.go
+          
           bin/go-sumtype ./...
           # use GITHUB_TOKEN because only it has access to GitHub Checks API
           bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
