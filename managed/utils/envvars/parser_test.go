@@ -140,6 +140,23 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("PERCONA_TEST_CHECKS_PUBLIC_KEY env vars with warnings", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PERCONA_TEST_CHECKS_PUBLIC_KEY=some key",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+		expectedWarns := []string{
+			`environment variable "PERCONA_TEST_CHECKS_PUBLIC_KEY" is removed and replaced by "PERCONA_TEST_PLATFORM_PUBLIC_KEY"`,
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Equal(t, expectedWarns, gotWarns)
+	})
+
 	t.Run("SAAS env vars with errors", func(t *testing.T) {
 		t.Parallel()
 
@@ -149,11 +166,11 @@ func TestEnvVarValidator(t *testing.T) {
 			"PERCONA_TEST_TELEMETRY_HOST",
 			"PERCONA_TEST_SAAS_HOST",
 		} {
-			expected := fmt.Errorf(`environment variable %q is removed and replaced by "PERCONA_TEST_PLATFORM_ADDRESS"`, k)
+			expected := fmt.Sprintf(`environment variable %q is removed and replaced by "PERCONA_TEST_PLATFORM_ADDRESS"`, k)
 			envs := []string{k + "=host:333"}
 			_, gotErrs, gotWarns := ParseEnvVars(envs)
-			assert.Equal(t, []error{expected}, gotErrs)
-			assert.Nil(t, gotWarns)
+			assert.Equal(t, []string{expected}, gotWarns)
+			assert.Nil(t, gotErrs)
 		}
 	})
 
