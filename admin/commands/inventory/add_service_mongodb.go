@@ -48,7 +48,7 @@ func (res *addServiceMongoDBResult) String() string {
 	return commands.RenderTemplate(addServiceMongoDBResultT, res)
 }
 
-func (cmd *AddServiceMongoDBCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

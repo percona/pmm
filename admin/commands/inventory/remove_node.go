@@ -33,7 +33,7 @@ func (res *removeNodeResult) String() string {
 	return commands.RenderTemplate(removeNodeGenericResultT, res)
 }
 
-func (cmd *RemoveNodeCmd) RunCmd() (commands.Result, error) {
+func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{
 			NodeID: cmd.NodeID,

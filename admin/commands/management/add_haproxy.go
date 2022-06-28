@@ -44,7 +44,7 @@ func (res *addHAProxyResult) String() string {
 	return commands.RenderTemplate(addHAProxyResultT, res)
 }
 
-func (cmd *AddHAProxyCmd) GetCredentials() error {
+func (cmd *AddHAProxyCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -56,7 +56,7 @@ func (cmd *AddHAProxyCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddHAProxyCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err

@@ -43,23 +43,23 @@ func (res *addProxySQLResult) String() string {
 	return commands.RenderTemplate(addProxySQLResultT, res)
 }
 
-func (cmd *AddProxySQLCmd) GetServiceName() string {
+func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *AddProxySQLCmd) GetAddress() string {
+func (cmd *AddProxySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *AddProxySQLCmd) GetDefaultAddress() string {
+func (cmd *AddProxySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:6032"
 }
 
-func (cmd *AddProxySQLCmd) GetSocket() string {
+func (cmd *AddProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *AddProxySQLCmd) GetCredentials() error {
+func (cmd *AddProxySQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -72,7 +72,7 @@ func (cmd *AddProxySQLCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddProxySQLCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

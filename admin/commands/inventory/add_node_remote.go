@@ -43,7 +43,7 @@ func (res *addNodeRemoteResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteResultT, res)
 }
 
-func (cmd *AddNodeRemoteCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

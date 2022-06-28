@@ -92,7 +92,7 @@ func getAgentStatus(status *string) string {
 	return res
 }
 
-func (cmd *ListAgentsCmd) RunCmd() (commands.Result, error) {
+func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.AgentType)
 	if err != nil {
 		return nil, err

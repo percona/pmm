@@ -48,7 +48,7 @@ func (res *addServiceMySQLResult) String() string {
 	return commands.RenderTemplate(addServiceMySQLResultT, res)
 }
 
-func (cmd *AddServiceMySQLCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

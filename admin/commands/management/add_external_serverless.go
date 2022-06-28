@@ -47,7 +47,7 @@ func (res *addExternalServerlessResult) String() string {
 	return commands.RenderTemplate(addExternalServerlessResultT, res)
 }
 
-func (cmd *AddExternalServerlessCmd) Help() string {
+func (cmd *AddExternalServerlessCommand) Help() string {
 	return `Usage example:
 sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics
 
@@ -61,7 +61,7 @@ or even you can specify --address instead of host and port as individual paramet
 `
 }
 
-func (cmd *AddExternalServerlessCmd) GetCredentials() error {
+func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -73,7 +73,7 @@ func (cmd *AddExternalServerlessCmd) GetCredentials() error {
 	return nil
 }
 
-func (cmd *AddExternalServerlessCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (cmd *AddExternalServerlessCmd) RunCmd() (commands.Result, error) {
 	}, nil
 }
 
-func (cmd *AddExternalServerlessCmd) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
+func (cmd *AddExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
 	scheme = cmd.Scheme
 	address = cmd.Host
 	port = cmd.ListenPort

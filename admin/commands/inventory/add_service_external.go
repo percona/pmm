@@ -43,7 +43,7 @@ func (res *addExternalServiceResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
-func (cmd *AddServiceExternalCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

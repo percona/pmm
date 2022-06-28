@@ -46,7 +46,7 @@ func (res *addNodeGenericResult) String() string {
 	return commands.RenderTemplate(addNodeGenericResultT, res)
 }
 
-func (cmd *AddNodeGenericCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

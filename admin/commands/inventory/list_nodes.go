@@ -59,7 +59,7 @@ func (res *listNodesResult) String() string {
 	return commands.RenderTemplate(listNodesResultT, res)
 }
 
-func (cmd *ListNodesCmd) RunCmd() (commands.Result, error) {
+func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
 	if err != nil {
 		return nil, err

@@ -33,7 +33,7 @@ func (res *removeAgentResult) String() string {
 	return commands.RenderTemplate(removeAgentResultT, res)
 }
 
-func (cmd *RemoveAgentCmd) RunCmd() (commands.Result, error) {
+func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{
 			AgentID: cmd.AgentID,
