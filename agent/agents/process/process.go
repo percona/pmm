@@ -180,9 +180,11 @@ func (p *Process) toWaiting() {
 	select {
 	case <-t.C:
 		// recreate config file in temp dir.
-		_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
-		if err != nil {
-			p.l.Warnf("Process: failed to regenerate config in %s.", p.params.TemplateRenderer.TempDir)
+		if p.params.TemplateRenderer != nil {
+			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
+			if err != nil {
+				p.l.Warnf("Process: failed to regenerate config in %s.", p.params.TemplateRenderer.TempDir)
+			}
 		}
 
 		go p.toStarting()
