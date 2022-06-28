@@ -1,6 +1,6 @@
 coverage:
-  range: "60...80"
+  range: "60...100"
   status:
-    patch:
+    project:
       default:
         threshold: 1
