@@ -153,13 +153,13 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	agentsInfo := s.supervisor.AgentsList()
 
 	return &agentlocalpb.StatusResponse{
-		AgentId:         s.cfg.ID,
-		RunsOnNodeId:    md.AgentRunsOnNodeID,
-		ServerInfo:      serverInfo,
-		AgentsInfo:      agentsInfo,
-		ConfigFilepath:  s.configFilepath,
-		AgentVersion:    version.Version,
-		UpConnectedTime: float32(math.Round(float64(upTime)*100) / 100),
+		AgentId:          s.cfg.ID,
+		RunsOnNodeId:     md.AgentRunsOnNodeID,
+		ServerInfo:       serverInfo,
+		AgentsInfo:       agentsInfo,
+		ConfigFilepath:   s.configFilepath,
+		AgentVersion:     version.Version,
+		ConnectionUptime: float32(math.Round(float64(upTime)*100) / 100),
 	}, nil
 }
 

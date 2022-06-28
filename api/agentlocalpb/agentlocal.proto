@@ -50,8 +50,8 @@ message StatusResponse {
   string config_filepath = 5;
   // PMM Agent version.
   string agent_version = 6;
-  // Shows connection time in percentage between agent and server
-  float up_connected_time = 7;
+  // Shows connection uptime in percentage between agent and server
+  float connection_uptime = 7;
 }
 
 message ReloadRequest {}

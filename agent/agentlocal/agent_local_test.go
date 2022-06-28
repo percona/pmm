@@ -76,9 +76,9 @@ func TestServerStatus(t *testing.T) {
 				Version:   "2.0.0-dev",
 				Connected: true,
 			},
-			AgentsInfo:      agentInfo,
-			UpConnectedTime: 100.00,
-			ConfigFilepath:  "/some/dir/pmm-agent.yaml",
+			AgentsInfo:       agentInfo,
+			ConnectionUptime: 100.00,
+			ConfigFilepath:   "/some/dir/pmm-agent.yaml",
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -105,9 +105,9 @@ func TestServerStatus(t *testing.T) {
 				ClockDrift: durationpb.New(clockDrift),
 				Connected:  true,
 			},
-			UpConnectedTime: 100.00,
-			AgentsInfo:      agentInfo,
-			ConfigFilepath:  "/some/dir/pmm-agent.yaml",
+			ConnectionUptime: 100.00,
+			AgentsInfo:       agentInfo,
+			ConfigFilepath:   "/some/dir/pmm-agent.yaml",
 		}
 		assert.Equal(t, expected, actual)
 	})

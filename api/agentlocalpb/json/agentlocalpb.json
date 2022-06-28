@@ -172,6 +172,12 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "connection_uptime": {
+                  "type": "number",
+                  "format": "float",
+                  "title": "Shows connection uptime in percentage between agent and server",
+                  "x-order": 6
+                },
                 "runs_on_node_id": {
                   "type": "string",
                   "x-order": 1
@@ -212,12 +218,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "up_connected_time": {
-                  "type": "number",
-                  "format": "float",
-                  "title": "Shows connection time in percentage between agent and server",
-                  "x-order": 6
                 }
               }
             }
@@ -361,6 +361,12 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "connection_uptime": {
+                  "type": "number",
+                  "format": "float",
+                  "title": "Shows connection uptime in percentage between agent and server",
+                  "x-order": 6
+                },
                 "runs_on_node_id": {
                   "type": "string",
                   "x-order": 1
@@ -401,12 +407,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "up_connected_time": {
-                  "type": "number",
-                  "format": "float",
-                  "title": "Shows connection time in percentage between agent and server",
-                  "x-order": 6
                 }
               }
             }

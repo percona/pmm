@@ -78,7 +78,7 @@ type Status struct {
 	ServerClockDrift time.Duration `json:"server_clock_drift,omitempty"`
 	ServerLatency    time.Duration `json:"server_latency,omitempty"`
 
-	UpConnectedTime float32 `json:"up_connected_time"`
+	ConnectionUptime float32 `json:"connection_uptime"`
 }
 
 type AgentStatus struct {
@@ -168,6 +168,6 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		ServerClockDrift: clockDrift,
 		ServerLatency:    latency,
 
-		UpConnectedTime: p.UpConnectedTime,
+		ConnectionUptime: p.ConnectionUptime,
 	}, nil
 }
