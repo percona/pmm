@@ -11,6 +11,7 @@ on:
     paths-ignore:
       - "agent/**"
       - "managed/**"
+      - "docs/**"
 
 jobs:
   test-admin:
