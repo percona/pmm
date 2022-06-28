@@ -19,7 +19,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.39
+	github.com/aws/aws-sdk-go v1.44.42
 	github.com/brianvoe/gofakeit/v6 v6.16.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.14.0
@@ -38,7 +38,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.28
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20220606142637-ec3681f61e6c
+	github.com/percona-platform/dbaas-api v0.0.0-20220627132007-e6e85c6e26dc
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
@@ -124,7 +124,6 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/paulmach/orb v0.7.1 // indirect
-	github.com/percona-platform/dbaas-controller v0.1.3-0.20220623140726-13379def9eeb // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
