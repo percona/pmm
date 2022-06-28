@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"os/user"
 	"path"
 	"path/filepath"
@@ -37,7 +36,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/unix"
+	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -47,7 +46,6 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
 )
 
@@ -813,28 +811,9 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 }
 
 func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
-	tempFile, err := ioutil.TempFile("", "temp_ssh_keys_*")
+	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey)) //nolint:dogsled
 	if err != nil {
-		return errors.WithStack(err)
-	}
-	tempFile.Close()                 //nolint:errcheck
-	defer os.Remove(tempFile.Name()) //nolint:errcheck
-
-	if err = ioutil.WriteFile(tempFile.Name(), []byte(sshKey), 0o600); err != nil {
-		return errors.WithStack(err)
-	}
-
-	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(timeoutCtx, "ssh-keygen", "-l", "-f", tempFile.Name()) //nolint:gosec
-	pdeathsig.Set(cmd, unix.SIGKILL)
-
-	if err = cmd.Run(); err != nil {
-		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
-			return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")
-		}
-		return errors.WithStack(err)
+		return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")
 	}
 
 	return nil
@@ -895,7 +874,7 @@ func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 	return true
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ serverpb.ServerServer = (*Server)(nil)
 )
