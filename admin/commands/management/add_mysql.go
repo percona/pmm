@@ -143,16 +143,35 @@ func (cmd *addMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// GetCredentials figures out the credentials to be taken from CLI, credentials-source or defaults-file
 func (cmd *addMySQLCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
+	// passed username has higher priority
+	if cmd.Username != "" {
+		return nil
 	}
 
-	cmd.AgentPassword = creds.AgentPassword
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
+	// credentials source file has 2nd priority
+	if cmd.CredentialsSource != "" {
+		creds, err := commands.ReadFromSource(cmd.CredentialsSource)
+		if err != nil {
+			return fmt.Errorf("%w", err)
+		}
 
+		cmd.AgentPassword = creds.AgentPassword
+		cmd.Password = creds.Password
+		cmd.Username = creds.Username
+
+		return nil
+	}
+
+	// username not specified, but can be in defaults file
+	// empty return ok here because later username will be read from defaults file
+	if cmd.DefaultsFile != "" {
+		return nil
+	}
+
+	// just use default user if none of above specified
+	cmd.Username = cmd.GetDefaultUsername()
 	return nil
 }
 
@@ -203,8 +222,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	username := defaultsFileUsernameCheck(cmd)
-
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
@@ -214,10 +231,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		tablestatsGroupTableLimit = -1
 	}
 
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
-		}
+	if err := cmd.GetCredentials(); err != nil {
+		return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
 	}
 
 	params := &mysql.AddMySQLParams{
@@ -231,7 +246,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
-			Username:       username,
+			Username:       cmd.Username,
 			Password:       cmd.Password,
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
@@ -318,18 +333,4 @@ func init() {
 		EnumVar(&AddMySQL.MetricsMode, metricsModes...)
 	AddMySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMySQL.DisableCollectors)
 	addGlobalFlags(AddMySQLC)
-}
-
-func defaultsFileUsernameCheck(cmd *addMySQLCommand) string {
-	// passed username has higher priority over defaults file
-	if cmd.Username != "" {
-		return cmd.Username
-	}
-
-	// username not specified, but can be in defaults file
-	if cmd.Username == "" && cmd.DefaultsFile != "" {
-		return ""
-	}
-
-	return cmd.GetDefaultUsername()
 }
