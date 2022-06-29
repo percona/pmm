@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -154,12 +153,10 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		agentVersion = "unknown"
 	}
 
-	hostname, _ := os.Hostname()
-
 	return &Status{
 		AgentID:  p.AgentID,
 		NodeID:   p.RunsOnNodeID,
-		NodeName: hostname,
+		NodeName: p.NodeName,
 
 		ServerURL:         u.String(),
 		ServerInsecureTLS: p.ServerInfo.InsecureTLS,
