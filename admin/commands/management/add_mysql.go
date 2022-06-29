@@ -143,8 +143,9 @@ func (cmd *addMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-// GetCredentials figures out the credentials to be taken from CLI, credentials-source or defaults-file
-func (cmd *addMySQLCommand) GetCredentials() error {
+// UpdateCredentials figures out the credentials to be taken from CLI, credentials-source or defaults-file
+// and updates cmd instance
+func (cmd *addMySQLCommand) UpdateCredentials() error {
 	// passed username has higher priority
 	if cmd.Username != "" {
 		return nil
@@ -231,7 +232,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		tablestatsGroupTableLimit = -1
 	}
 
-	if err := cmd.GetCredentials(); err != nil {
+	if err := cmd.UpdateCredentials(); err != nil {
 		return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
 	}
 
