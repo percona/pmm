@@ -20,7 +20,6 @@ package qan
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -114,9 +113,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.QueryExists(ctx, qanReq)
-	fmt.Printf("\n\n\n\n\n\n\n %+v \n\n\n\n\n\n\n", err)
-	fmt.Printf("\n\n\n\n\n\n\n %+v \n\n\n\n\n\n\n", res)
+	_, err := c.odc.QueryExists(ctx, qanReq)
 	if err != nil {
 		return err
 	}

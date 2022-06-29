@@ -38,15 +38,6 @@ message QANCollectRequest {
 // QANCollectResponse is a ServerMessage for QAN data acceptance.
 message QANCollectResponse {}
 
-// QANQueryExistsRequest is an AgentMessage for check if query exists in qan-api.
-message QANQueryExistsRequest {
-  string service_id = 1;
-  string query = 2;
-}
-
-// QANQueryExistsResponse is a ServerMessage for QAN data acceptance.
-message QANQueryExistsResponse {}
-
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
@@ -671,7 +662,6 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
-    QANQueryExistsRequest qan_query_exists = 21;
     ActionResultRequest action_result = 5;
     // responses from agent
     Pong pong = 8;
@@ -705,7 +695,6 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
-    QANQueryExistsResponse qan_query_exists = 19;
     ActionResultResponse action_result = 5;
     // requests from server
     Ping ping = 8;
