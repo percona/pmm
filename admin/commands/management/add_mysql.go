@@ -95,7 +95,6 @@ type addMySQLCommand struct {
 	Username          string
 	Password          string
 	AgentPassword     string
-	CredentialsSource string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -132,19 +131,6 @@ func (cmd *addMySQLCommand) GetDefaultAddress() string {
 
 func (cmd *addMySQLCommand) GetSocket() string {
 	return cmd.Socket
-}
-
-func (cmd *addMySQLCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.AgentPassword = creds.AgentPassword
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -201,12 +187,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 
 		tablestatsGroupTableLimit = -1
-	}
-
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
-		}
 	}
 
 	params := &mysql.AddMySQLParams{
@@ -276,7 +256,6 @@ func init() {
 	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
 	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
-	AddMySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddMySQL.CredentialsSource)
 
 	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
