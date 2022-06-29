@@ -293,7 +293,9 @@ func TestGetActionTimeout(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
-			client := New(nil, nil, nil, nil, nil)
+			client := New(&config.Config{
+				WindowConnectedTime: "24h",
+			}, nil, nil, nil, nil)
 			actual := client.getActionTimeout(tc.req)
 			assert.Equal(t, tc.expected, actual)
 		})
