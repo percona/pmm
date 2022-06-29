@@ -24,6 +24,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/qan"
 )
 
 var (
@@ -34,18 +35,25 @@ var (
 
 // ActionsService handles sending actions to pmm agents.
 type ActionsService struct {
-	r *Registry
+	r         *Registry
+	qanClient *qan.Client
 }
 
 // NewActionsService creates new actions service.
-func NewActionsService(r *Registry) *ActionsService {
+func NewActionsService(qanClient *qan.Client, r *Registry) *ActionsService {
 	return &ActionsService{
-		r: r,
+		r:         r,
+		qanClient: qanClient,
 	}
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	err := s.qanClient.QueryExists(ctx, serviceID, query)
+	if err != nil {
+		return err
+	}
+
 	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -64,6 +72,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 					TemplateRightDelim: tdp.Right,
 				},
 				TlsSkipVerify: tlsSkipVerify,
+				ServiceId:     serviceID,
 			},
 		},
 		Timeout: defaultActionTimeout,
@@ -75,6 +84,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
 func (s *ActionsService) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlShowCreateTableParams{

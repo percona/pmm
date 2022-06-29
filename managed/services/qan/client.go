@@ -20,6 +20,7 @@ package qan
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -36,17 +37,19 @@ import (
 
 // Client represents qan-api client for data collection.
 type Client struct {
-	c  qanCollectorClient
-	db *reform.DB
-	l  *logrus.Entry
+	c   qanCollectorClient
+	odc qanpb.ObjectDetailsClient
+	db  *reform.DB
+	l   *logrus.Entry
 }
 
 // NewClient returns new client for given gRPC connection.
 func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	return &Client{
-		c:  qanpb.NewCollectorClient(cc),
-		db: db,
-		l:  logrus.WithField("component", "qan"),
+		c:   qanpb.NewCollectorClient(cc),
+		odc: qanpb.NewObjectDetailsClient(cc),
+		db:  db,
+		l:   logrus.WithField("component", "qan"),
 	}
 }
 
@@ -102,6 +105,23 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 		m[node.NodeID] = node
 	}
 	return m, nil
+}
+
+// QueryExists TODO.
+func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error {
+	qanReq := &qanpb.QueryExistsRequest{
+		Serviceid: serviceID,
+		Query:     query,
+	}
+	c.l.Debugf("%+v", qanReq)
+	res, err := c.odc.QueryExists(ctx, qanReq)
+	fmt.Printf("\n\n\n\n\n\n\n %+v \n\n\n\n\n\n\n", err)
+	fmt.Printf("\n\n\n\n\n\n\n %+v \n\n\n\n\n\n\n", res)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.

@@ -5,8 +5,9 @@ package qan
 import (
 	context "context"
 
-	mock "github.com/stretchr/testify/mock"
 	grpc "google.golang.org/grpc"
+
+	mock "github.com/stretchr/testify/mock"
 
 	qanv1beta1 "github.com/percona/pmm/api/qanpb"
 )

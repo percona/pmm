@@ -57,6 +57,14 @@ func (this *QANCollectResponse) Validate() error {
 	return nil
 }
 
+func (this *QANQueryExistsRequest) Validate() error {
+	return nil
+}
+
+func (this *QANQueryExistsResponse) Validate() error {
+	return nil
+}
+
 func (this *StateChangedRequest) Validate() error {
 	return nil
 }
@@ -853,6 +861,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_QanQueryExists); ok {
+		if oneOfNester.QanQueryExists != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanQueryExists); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanQueryExists", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_ActionResult); ok {
 		if oneOfNester.ActionResult != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ActionResult); err != nil {
@@ -978,6 +993,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.QanCollect != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanCollect); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanCollect", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_QanQueryExists); ok {
+		if oneOfNester.QanQueryExists != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanQueryExists); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanQueryExists", err)
 			}
 		}
 	}

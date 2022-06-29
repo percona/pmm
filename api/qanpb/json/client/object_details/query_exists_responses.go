@@ -118,11 +118,11 @@ func (o *QueryExistsDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model QueryExistsBody
 */
 type QueryExistsBody struct {
-	// agentid
-	Agentid string `json:"agentid,omitempty"`
+	// serviceid
+	Serviceid string `json:"serviceid,omitempty"`
 
-	// queryid
-	Queryid string `json:"queryid,omitempty"`
+	// query
+	Query string `json:"query,omitempty"`
 }
 
 // Validate validates this query exists body

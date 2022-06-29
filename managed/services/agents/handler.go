@@ -142,6 +142,18 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 					})
 				})
 
+			// case *agentpb.QANQueryExistsRequest:
+			// 	pprof.Do(ctx, pprof.Labels("request", "QANQueryExistsRequest"), func(ctx context.Context) {
+			// 		if err := h.qanClient.QueryExists(ctx, p.ServiceId, p.Query); err != nil {
+			// 			l.Errorf("%+v", err)
+			// 		}
+
+			// 		agent.channel.Send(&channel.ServerResponse{
+			// 			ID:      req.ID,
+			// 			Payload: &agentpb.QANQueryExistsResponse{},
+			// 		})
+			// 	})
+
 			case *agentpb.ActionResultRequest:
 				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
 				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)

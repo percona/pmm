@@ -1938,13 +1938,13 @@
               "description": "QueryExistsRequest check if provided query exists or not.",
               "type": "object",
               "properties": {
-                "agentid": {
-                  "type": "string",
-                  "x-order": 0
-                },
-                "queryid": {
+                "query": {
                   "type": "string",
                   "x-order": 1
+                },
+                "serviceid": {
+                  "type": "string",
+                  "x-order": 0
                 }
               }
             }

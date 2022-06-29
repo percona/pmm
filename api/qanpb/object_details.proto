@@ -180,6 +180,6 @@ message HistogramItem {
 
 // QueryExistsRequest check if provided query exists or not.
 message QueryExistsRequest {
-  string agentid = 1;
-  string queryid = 2;
+  string serviceid = 1;
+  string query = 2;
 }
