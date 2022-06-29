@@ -876,8 +876,8 @@ func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 	return true
 }
 
-func canUpdateDurationSetting(valueToBeSet, valueFromEnvironmentVariable time.Duration) bool {
-	if valueToBeSet == 0 || valueFromEnvironmentVariable == 0 || valueToBeSet == valueFromEnvironmentVariable {
+func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
+	if newValue == 0 || envValue == 0 || newValue == envValue {
 		return true
 	}
 
