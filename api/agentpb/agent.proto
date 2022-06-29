@@ -156,7 +156,6 @@ message StartActionRequest {
     TextFiles tls_files = 4;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 5;
-    string service_id = 6;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {

@@ -71,7 +71,6 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 					TemplateRightDelim: tdp.Right,
 				},
 				TlsSkipVerify: tlsSkipVerify,
-				ServiceId:     serviceID,
 			},
 		},
 		Timeout: defaultActionTimeout,

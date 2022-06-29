@@ -115,11 +115,11 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	ok, err := c.odc.QueryExists(ctx, qanReq)
+	resp, err := c.odc.QueryExists(ctx, qanReq)
 	if err != nil {
 		return err
 	}
-	if !ok.Value {
+	if !resp.Value {
 		return fmt.Errorf("given query is not valid")
 	}
 
