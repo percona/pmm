@@ -52,6 +52,8 @@ const (
 	backoffMaxDelay      = 15 * time.Second
 	clockDriftWarning    = 5 * time.Second
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
+
+	periodForRunningDeletingOldEvents = time.Minute
 )
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
@@ -109,6 +111,8 @@ func (c *Client) Run(ctx context.Context) error {
 
 	c.actionsRunner = actions.NewConcurrentRunner(ctx)
 	c.jobsRunner = jobs.NewRunner()
+
+	c.deleteOldEventsRunner(ctx)
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -225,6 +229,20 @@ func (c *Client) Done() <-chan struct{} {
 	return c.done
 }
 
+func (c *Client) deleteOldEventsRunner(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
+		for {
+			select {
+			case <-ticker.C:
+				c.cs.DeleteOldEvents()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
 func (c *Client) processActionResults() {
 	for result := range c.actionsRunner.Results() {
 		resp, err := c.channel.SendAndWaitResponse(&agentpb.ActionResultRequest{
@@ -301,8 +319,6 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			}
-			c.cs.Set(time.Now(), true)
-
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
 			responsePayload = &agentpb.SetStateResponse{}
@@ -450,6 +466,8 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
+		c.cs.Set(time.Now(), true)
+
 		response := &channel.AgentResponse{
 			ID:      req.ID,
 			Payload: responsePayload,

@@ -21,6 +21,8 @@ import (
 	"time"
 )
 
+const periodForRunningDeletingOldEvents = time.Minute
+
 type ConnectionSet struct {
 	events       []ConnectionEvent
 	windowPeriod time.Duration
@@ -42,8 +44,6 @@ func (c *ConnectionSet) SetWindowPeriod(windowPeriod time.Duration) {
 }
 
 func (c *ConnectionSet) Set(timestamp time.Time, connnected bool) {
-	c.deleteOldEvents()
-
 	newElem := ConnectionEvent{
 		Timestamp: timestamp,
 		Connected: connnected,
@@ -59,12 +59,28 @@ func (c *ConnectionSet) Set(timestamp time.Time, connnected bool) {
 	}
 }
 
-func (c *ConnectionSet) deleteOldEvents() {
-	for i, e := range c.events {
-		if e.Timestamp.Before(time.Now().Add(-1 * c.windowPeriod)) {
-			c.events = append(c.events[:i], c.events[i+1:]...)
+func (c *ConnectionSet) DeleteOldEvents() {
+	if len(c.events) == 0 {
+		return
+	}
+
+	if time.Now().Sub(c.events[0].Timestamp) > c.windowPeriod {
+		c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
+
+		if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
+			c.removeEventByIndex(0)
 		}
 	}
+
+	for i, e := range c.events {
+		if e.Timestamp.Before(time.Now().Add(-1 * c.windowPeriod)) {
+			c.removeEventByIndex(i)
+		}
+	}
+}
+
+func (c *ConnectionSet) removeEventByIndex(i int) {
+	c.events = append(c.events[:i], c.events[i+1:]...)
 }
 
 // GetConnectedUpTimeSince calculates the connection up time between agent and server

@@ -117,31 +117,6 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 	}
 }
 
-func TestConnectionSetExpirationElements(t *testing.T) {
-	const secondPeriod = time.Second
-
-	t.Run("should not return element if it is expired", func(t *testing.T) {
-		now := time.Now()
-
-		set := NewConnectionSet(secondPeriod)
-
-		set.Set(now, true)
-		time.Sleep(2 * time.Second)
-		// after expiration of window time first element should be removed when we set
-		// new time
-		set.Set(now.Add(1*time.Minute), true)
-
-		expectedEvents := []ConnectionEvent{
-			{
-				Timestamp: now.Add(1 * time.Minute),
-				Connected: true,
-			},
-		}
-
-		assert.Equal(t, expectedEvents, set.GetAll())
-	})
-}
-
 func TestConnectionUpTime(t *testing.T) {
 	now := time.Now()
 	tests := []struct {
@@ -216,6 +191,120 @@ func TestConnectionUpTime(t *testing.T) {
 			}
 
 			assert.EqualValues(t, tt.expectedUpTime, cs.GetConnectedUpTimeSince(now))
+		})
+	}
+}
+
+func TestConnectionSet_DeleteOldEvents(t *testing.T) {
+	now := time.Now()
+
+	type fields struct {
+		events       map[time.Time]bool
+		windowPeriod time.Duration
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		expected []ConnectionEvent
+	}{
+		{
+			name: "should return remove expired element with connected=true and created instead of it a new one",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-61 * time.Minute): true,
+					now.Add(-1 * time.Minute):  false,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
+					Connected: true,
+				},
+				{
+					Timestamp: now.Add(-1 * time.Minute),
+					Connected: false,
+				},
+			},
+		},
+		{
+			name: "should return remove expired element with connected=false and created instead of it a new one",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-61 * time.Minute): false,
+					now.Add(-1 * time.Minute):  true,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
+					Connected: false,
+				},
+				{
+					Timestamp: now.Add(-1 * time.Minute),
+					Connected: true,
+				},
+			},
+		},
+		//01-00:00, 01-23:50, (23:50)
+		//01-00:00, 01-23:50, (23:50)
+		{
+			name: "should remove expired element with connected=false and replace it with the next one",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-121 * time.Minute): false,
+					now.Add(-60 * time.Minute):  true,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-59 * time.Minute),
+					Connected: true,
+				},
+			},
+		},
+		{
+			name: "should update single event which is expired",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-121 * time.Minute): false,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
+					Connected: false,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cs := NewConnectionSet(tt.fields.windowPeriod)
+
+			var sortedTime []time.Time
+			for k := range tt.fields.events {
+				sortedTime = append(sortedTime, k)
+			}
+
+			sort.Slice(sortedTime, func(i, j int) bool {
+				return sortedTime[i].Before(sortedTime[j])
+			})
+
+			for _, t := range sortedTime {
+				cs.Set(t, tt.fields.events[t])
+			}
+
+			cs.DeleteOldEvents()
+
+			gotEvents := cs.GetAll()
+			for i, e := range gotEvents {
+				assert.Equal(t, tt.expected[i].Timestamp.Unix(), e.Timestamp.Unix())
+				assert.Equal(t, tt.expected[i].Connected, e.Connected)
+			}
 		})
 	}
 }
