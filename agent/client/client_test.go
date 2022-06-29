@@ -80,7 +80,7 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		cfg := &config.Config{}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -95,7 +95,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -112,7 +112,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, nil)
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -158,7 +158,7 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, &s, nil, nil, nil)
+			client := New(cfg, &s, nil, nil, nil, nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -186,91 +186,12 @@ func TestClient(t *testing.T) {
 				},
 			}
 
-			client := New(cfg, nil, nil, nil, nil)
+			client := New(cfg, nil, nil, nil, nil, nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
 	})
-}
-
-func TestConnectionUpTime(t *testing.T) {
-	now := time.Now()
-	tests := []struct {
-		name             string
-		setOfConnections map[time.Time]bool
-		expectedUpTime   float32
-	}{
-		{
-			name: "should be 100%",
-			setOfConnections: map[time.Time]bool{
-				now: true,
-			},
-			expectedUpTime: 100,
-		},
-		{
-			name: "should be 0%",
-			setOfConnections: map[time.Time]bool{
-				now: false,
-			},
-			expectedUpTime: 0,
-		},
-		{
-			name: "should be 50% when half of the time there is no connection between server and server",
-			setOfConnections: map[time.Time]bool{
-				now.Add(-10 * time.Second): false,
-				now.Add(-5 * time.Second):  true,
-			},
-			expectedUpTime: 50,
-		},
-		{
-			name: "should be 10% when only 6 seconds was uptime from 1 minute",
-			setOfConnections: map[time.Time]bool{
-				now.Add(-1 * time.Minute): false,
-				now.Add(-6 * time.Second): true,
-			},
-			expectedUpTime: 10,
-		},
-		{
-			name: "should be 90% when only 54 seconds was uptime from 1 minute",
-			setOfConnections: map[time.Time]bool{
-				now.Add(-1 * time.Minute): true,
-				now.Add(-6 * time.Second): false,
-			},
-			expectedUpTime: 90,
-		},
-		{
-			name: "should be 50% when only 30 seconds was uptime from 1 minute",
-			setOfConnections: map[time.Time]bool{
-				now.Add(-1 * time.Minute):  true,
-				now.Add(-50 * time.Second): false,
-				now.Add(-40 * time.Second): false,
-				now.Add(-20 * time.Second): true,
-			},
-			expectedUpTime: 50,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg := &config.Config{
-				ID: "agent_id",
-				Server: config.Server{
-					Address:    fmt.Sprintf("example.com"),
-					WithoutTLS: true,
-				},
-			}
-
-			client := New(cfg, nil, nil, nil, nil)
-			for k, v := range tt.setOfConnections {
-				cs.Set(k, v)
-			}
-			assert.EqualValues(t, tt.expectedUpTime, client.getConnectedUpTimeSince(now))
-
-			// clean up object
-			cs = nil
-		})
-	}
 }
 
 func TestGetActionTimeout(t *testing.T) {
@@ -293,9 +214,7 @@ func TestGetActionTimeout(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(prototext.Format(tc.req), func(t *testing.T) {
-			client := New(&config.Config{
-				WindowConnectedTime: "24h",
-			}, nil, nil, nil, nil)
+			client := New(nil, nil, nil, nil, nil, nil)
 			actual := client.getActionTimeout(tc.req)
 			assert.Equal(t, tc.expected, actual)
 		})
@@ -354,7 +273,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	client := New(cfg, s, nil, nil, nil)
+	client := New(cfg, s, nil, nil, nil, nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())

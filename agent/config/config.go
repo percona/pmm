@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -152,7 +153,7 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	WindowConnectedTime string `yaml:"window-connected-time"`
+	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
 
 	Setup Setup `yaml:"-"`
 }
@@ -196,8 +197,8 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		if cfg.Ports.Max == 0 {
 			cfg.Ports.Max = 51999
 		}
-		if cfg.WindowConnectedTime == "" {
-			cfg.WindowConnectedTime = "24h"
+		if cfg.WindowConnectedTime == 0 {
+			cfg.WindowConnectedTime = 24 * time.Hour
 		}
 
 		for sp, v := range map[*string]string{
@@ -375,7 +376,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
 		Envar("PMM_AGENT_PORTS_MAX").Uint16Var(&cfg.Ports.Max)
 	app.Flag("window-connected-time", "Window time for which we tracke the status of connection between agent and server").
-		Envar("PMM_AGENT_WINDOW_CONNECTED_TIME").StringVar(&cfg.WindowConnectedTime)
+		Envar("PMM_AGENT_WINDOW_CONNECTED_TIME").DurationVar(&cfg.WindowConnectedTime)
 
 	app.Flag("log-level", "Set logging level [PMM_AGENT_LOG_LEVEL]").
 		Envar("PMM_AGENT_LOG_LEVEL").EnumVar(&cfg.LogLevel, "debug", "info", "warn", "error", "fatal")

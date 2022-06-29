@@ -17,10 +17,12 @@ package commands
 
 import (
 	"context"
+	"github.com/percona/pmm/agent/connectionset"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -34,6 +36,8 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
 )
+
+const defaultWindowConnectionTime = 24 * time.Hour
 
 // Run implements `pmm-agent run` default command.
 func Run() {
@@ -51,6 +55,7 @@ func Run() {
 		cancel()
 	}()
 
+	var cs *connectionset.ConnectionSet
 	for {
 		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
@@ -60,8 +65,13 @@ func Run() {
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
+		if cs == nil {
+			cs = createConnectionSet(cfg)
+		} else {
+			cs.SetWindowPeriod(cfg.WindowConnectedTime)
+		}
 
-		run(ctx, cfg, configFilepath)
+		run(ctx, cfg, configFilepath, cs)
 
 		if ctx.Err() != nil {
 			return
@@ -84,9 +94,18 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 	}
 }
 
+func createConnectionSet(cfg *config.Config) *connectionset.ConnectionSet {
+	windowConnectionTime := cfg.WindowConnectedTime
+	if cfg.WindowConnectedTime == 0 {
+		windowConnectionTime = defaultWindowConnectionTime
+	}
+	logrus.Infof("Window check connection time is %.2f hour(s)", windowConnectionTime.Hours())
+	return connectionset.NewConnectionSet(windowConnectionTime)
+}
+
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
 // See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string) {
+func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *connectionset.ConnectionSet) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
@@ -98,7 +117,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
+	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser, cs)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 	go func() {
