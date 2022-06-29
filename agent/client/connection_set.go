@@ -16,9 +16,7 @@
 // Package client contains business logic of working with pmm-managed.
 package client
 
-import (
-	"time"
-)
+import "time"
 
 type connectionSet struct {
 	events       []connectionEvent
@@ -44,7 +42,7 @@ func (c *connectionSet) Set(timestamp time.Time, connnected bool) {
 		connected: connnected,
 	}
 
-	if len(c.events) > 0 {
+	if len(c.events) != 0 {
 		lastElem := c.events[len(c.events)-1]
 		if lastElem.connected != connnected {
 			c.events = append(c.events, newElem)
