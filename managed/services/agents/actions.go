@@ -84,7 +84,6 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
 func (s *ActionsService) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlShowCreateTableParams{
