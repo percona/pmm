@@ -86,6 +86,7 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *manageme
 		case common.Debug:
 			svcSummary.DebugCount++
 		case common.Unknown:
+			continue
 		}
 	}
 
