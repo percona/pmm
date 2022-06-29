@@ -24,7 +24,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/qan"
 )
 
 var (
@@ -36,11 +35,11 @@ var (
 // ActionsService handles sending actions to pmm agents.
 type ActionsService struct {
 	r         *Registry
-	qanClient *qan.Client
+	qanClient qanClient
 }
 
 // NewActionsService creates new actions service.
-func NewActionsService(qanClient *qan.Client, r *Registry) *ActionsService {
+func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 	return &ActionsService{
 		r:         r,
 		qanClient: qanClient,
