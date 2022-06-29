@@ -20,6 +20,7 @@ package qan
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -106,16 +107,20 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 	return m, nil
 }
 
-// QueryExists TODO.
+// QueryExists check if query value in request exists in clickhouse.
+// This avoid recieving custom queries.
 func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error {
 	qanReq := &qanpb.QueryExistsRequest{
 		Serviceid: serviceID,
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	_, err := c.odc.QueryExists(ctx, qanReq)
+	ok, err := c.odc.QueryExists(ctx, qanReq)
 	if err != nil {
 		return err
+	}
+	if !ok.Value {
+		return fmt.Errorf("given query is not valid")
 	}
 
 	return nil
