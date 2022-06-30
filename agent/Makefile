@@ -26,7 +26,7 @@ release:                        ## Build static pmm-agent release binary (Linux 
 	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
 release-dev:
-	env CGO_ENABLED=1 go build -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
+	env CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
 
 gen:                            ## Generate files.
 	go generate ./...

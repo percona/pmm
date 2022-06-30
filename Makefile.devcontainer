@@ -2,10 +2,10 @@
 
 include Makefile.include
 
-release-dev-managed:
+release-dev-managed:              ## Build pmm-managed
 	make -C managed release-dev
 
-release-dev-agent:
+release-dev-agent:                ## Build pmm-agent
 	make -C agent release-dev
 
 # used by host Makefile
@@ -14,13 +14,13 @@ _bash:
 
 PMM_RELEASE_PATH ?= ./bin
 
-run-managed:
+run-managed:                      ## Replace pmm-managed from build, restart and tail logs
 	supervisorctl stop pmm-managed
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
 	supervisorctl start pmm-managed &
 	supervisorctl tail -f pmm-managed
 
-run-agent:
+run-agent:                        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
