@@ -87,7 +87,6 @@ func (c *ConnectionSet) deleteOldEvents() {
 			c.removeEventByIndex(i)
 		}
 	}
-
 }
 
 func (c *ConnectionSet) DeleteOldEventsRunner(ctx context.Context) {
