@@ -144,8 +144,8 @@ func jobNameMapping(r rune) rune {
 	}
 }
 
-func jobName(agent *models.Agent, intervalName string, interval time.Duration) string {
-	return fmt.Sprintf("%s%s_%s-%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName, interval)
+func jobName(agent *models.Agent, intervalName string) string {
+	return fmt.Sprintf("%s%s_%s", agent.AgentType, strings.Map(jobNameMapping, agent.AgentID), intervalName)
 }
 
 func httpClientConfig(agent *models.Agent) config.HTTPClientConfig {
@@ -175,7 +175,7 @@ func scrapeConfigForStandardExporter(intervalName string, interval time.Duration
 
 	cfg := &config.ScrapeConfig{
 		StreamParse:      params.streamParse,
-		JobName:          jobName(params.agent, intervalName, interval),
+		JobName:          jobName(params.agent, intervalName),
 		ScrapeInterval:   config.Duration(interval),
 		ScrapeTimeout:    scrapeTimeout(interval),
 		MetricsPath:      "/metrics",
@@ -502,7 +502,7 @@ func scrapeConfigsForAzureDatabase(s *models.MetricsResolutions, params *scrapeC
 
 	interval := s.MR
 	cfg := &config.ScrapeConfig{
-		JobName:        jobName(params.agent, "mr", interval),
+		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
@@ -529,7 +529,7 @@ func scrapeConfigsForExternalExporter(s *models.MetricsResolutions, params *scra
 
 	interval := s.MR
 	cfg := &config.ScrapeConfig{
-		JobName:        jobName(params.agent, "mr", interval),
+		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		Scheme:         pointer.GetString(params.agent.MetricsScheme),
@@ -566,7 +566,7 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 
 	interval := s.MR
 	cfg := &config.ScrapeConfig{
-		JobName:        jobName(params.agent, "mr", interval),
+		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(interval),
 		ScrapeTimeout:  scrapeTimeout(interval),
 		Scheme:         pointer.GetString(params.agent.MetricsScheme),
