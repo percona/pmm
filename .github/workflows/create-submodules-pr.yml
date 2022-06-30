@@ -5,7 +5,7 @@ jobs:
   check-submodules-auto:
     runs-on: ubuntu-latest
     outputs:
-      found: ${{ steps.step1.check-for-auto.test }}
+      found: ${{ steps.check-for-auto.outputs.found }}
     steps:
       - name: Check for SUBMODULES-auto
         id: check-for-auto
