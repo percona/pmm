@@ -116,7 +116,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Server
 
-* Clone [pmm-managed repository](https://github.com/percona/pmm-managed)
+* Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container.
 * To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
 
