@@ -63,7 +63,7 @@ This project is built from several repositories:
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
 It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
-documentation source files which are located in the `markdown` directory. The
+documentation source files which are located in the `docs/api/` directory. The
 content and structure of these is formatted using [Markdown markup
 language](https://www.markdownguide.org/) and published on the
 [ReadMe.com](https://readme.com/) service.
@@ -116,7 +116,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Server
 
-* Clone [pmm-managed repository](https://github.com/percona/pmm-managed)
+* Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container.
 * To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
 
@@ -158,7 +158,7 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](GIT_AND_GITHUB.md)
+See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
