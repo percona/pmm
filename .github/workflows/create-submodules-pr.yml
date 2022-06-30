@@ -19,7 +19,7 @@ jobs:
 
   create-submodules-pr:
     needs: [check-submodules-auto]
-    if: ${{ needs.check-submodules-auto.outputs.check-for-auto == '1' }}
+    if: ${{ needs.check-submodules-auto.outputs.found == '1' }}
     runs-on: ubuntu-latest
     steps:
       - name: would run
