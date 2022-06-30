@@ -247,8 +247,6 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 			},
 		},
-		//01-00:00, 01-23:50, (23:50)
-		//01-00:00, 01-23:50, (23:50)
 		{
 			name: "should remove expired element with connected=false and replace it with the next one",
 			fields: fields{
