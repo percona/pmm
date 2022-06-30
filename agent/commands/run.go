@@ -17,7 +17,6 @@ package commands
 
 import (
 	"context"
-	"github.com/percona/pmm/agent/connectionset"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -32,6 +31,7 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/connectionset"
 	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"

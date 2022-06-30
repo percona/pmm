@@ -18,7 +18,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/agent/connectionset"
 	"net"
 	"testing"
 	"time"
@@ -33,6 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/connectionset"
 	"github.com/percona/pmm/api/agentpb"
 )
 
