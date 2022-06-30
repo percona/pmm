@@ -62,10 +62,10 @@ def install_go():
     ])
 
 def make_release_dev():
-    """Runs make release-dev."""
+    """Runs make release-dev-managed."""
 
     run_commands([
-        "make release-dev",
+        "make release-dev-managed",
     ])
 
 def make_init():
