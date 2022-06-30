@@ -9,13 +9,12 @@ jobs:
     steps:
       - name: Check for SUBMODULES-auto
         id: check-for-auto
-        run: echo "::set-output name=found::1"
-        # run: |
-        #   if [[ "${{ github.event.pull_request.body }}" == *"SUBMODULES-auto"* ]]; then
-        #     echo "::set-output name=found::1"
-        #   else
-        #     echo "::set-output name=found::0"
-        #   fi
+        run: |
+          if [[ "${{ github.event.pull_request.body }}" == *"SUBMODULES-auto"* ]]; then
+            echo "::set-output name=found::1"
+          else
+            echo "::set-output name=found::0"
+          fi
 
   create-submodules-pr:
     needs: [check-submodules-auto]
