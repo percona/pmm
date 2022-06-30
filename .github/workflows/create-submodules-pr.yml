@@ -1,0 +1,40 @@
+name: Create submodules PR
+on: pull_request
+
+jobs:
+  check-submodules-auto:
+    runs-on: ubuntu-latest
+    outputs:
+      found: ${{ steps.step1.check-for-auto.test }}
+    steps:
+      - name: Check for SUBMODULES-auto
+        id: check-for-auto
+        run: |
+          if [[ "${{ github.event.pull_request.body }}" == *"SUBMODULES-auto"* ]]; then
+            echo "::set-output name=found::1"
+          else
+            echo "::set-output name=found::0"
+          fi
+
+  create-submodules-pr:
+    needs: [check-submodules-auto]
+    if: ${{ needs.check-submodules-auto.outputs.check-for-auto == '1' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: would run
+        run: echo 1
+
+      # - uses: percona-platform/checkout@v3
+      #   repository: Percona-Lab/pmm-submodules
+      #   with:
+      #     fetch-depth: 1
+
+      # - name: Update ci.yml
+      #   run: |
+      #     echo "deps: \
+      #       - name: pmm \
+      #       branch: ${{ github.event.inputs.branch }}" > ci.yml
+      #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --local user.name "github-actions[bot]"
+      #     git commit -m "${{ github.event.head_commit.message }}"
+
