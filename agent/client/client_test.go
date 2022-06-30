@@ -18,6 +18,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"github.com/percona/pmm/agent/connectionset"
 	"net"
 	"testing"
 	"time"
@@ -112,7 +113,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		}
-		client := New(cfg, nil, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, connectionset.NewConnectionSet(time.Hour))
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -158,7 +159,7 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, &s, nil, nil, nil, nil)
+			client := New(cfg, &s, nil, nil, nil, connectionset.NewConnectionSet(time.Hour))
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -186,7 +187,7 @@ func TestClient(t *testing.T) {
 				},
 			}
 
-			client := New(cfg, nil, nil, nil, nil, nil)
+			client := New(cfg, nil, nil, nil, nil, connectionset.NewConnectionSet(time.Hour))
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
@@ -273,7 +274,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	client := New(cfg, s, nil, nil, nil, nil)
+	client := New(cfg, s, nil, nil, nil, connectionset.NewConnectionSet(time.Hour))
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
