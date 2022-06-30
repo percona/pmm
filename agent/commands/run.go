@@ -66,7 +66,8 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
-			cs = createConnectionSet(cfg)
+			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+			cs = connectionset.NewConnectionSet(cfg.WindowConnectedTime)
 		} else {
 			cs.SetWindowPeriod(cfg.WindowConnectedTime)
 		}
@@ -92,15 +93,6 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
-}
-
-func createConnectionSet(cfg *config.Config) *connectionset.ConnectionSet {
-	windowConnectionTime := cfg.WindowConnectedTime
-	if cfg.WindowConnectedTime == 0 {
-		windowConnectionTime = defaultWindowConnectionTime
-	}
-	logrus.Infof("Window check connection time is %.2f hour(s)", windowConnectionTime.Hours())
-	return connectionset.NewConnectionSet(windowConnectionTime)
 }
 
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
