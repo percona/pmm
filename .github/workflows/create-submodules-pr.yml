@@ -28,6 +28,8 @@ jobs:
 
       - name: Update ci.yml
         run: |
+          set -exo pipefail
+
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
@@ -38,7 +40,7 @@ jobs:
 
           git add ci.yml
           git commit -m "${{ github.event.pull_request.title }}"
-          git push origin
+          git push -u origin
 
       - name: Create submodules PR
         uses: percona-platform/github-script@v6
