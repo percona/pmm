@@ -40,7 +40,7 @@ jobs:
 
           git add ci.yml
           git commit -m "${{ github.event.pull_request.title }}"
-          git push -u origin
+          git push -u origin "${{ github.head_ref }}"
 
       - name: Create submodules PR
         uses: percona-platform/github-script@v6
