@@ -52,8 +52,6 @@ const (
 	backoffMaxDelay      = 15 * time.Second
 	clockDriftWarning    = 5 * time.Second
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
-
-	periodForRunningDeletingOldEvents = time.Minute
 )
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
@@ -112,7 +110,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.actionsRunner = actions.NewConcurrentRunner(ctx)
 	c.jobsRunner = jobs.NewRunner()
 
-	c.deleteOldEventsRunner(ctx)
+	c.cs.DeleteOldEventsRunner(ctx)
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -227,20 +225,6 @@ func (c *Client) Run(ctx context.Context) error {
 // Done is closed when all supervisors's requests are sent (if possible) and connection is closed.
 func (c *Client) Done() <-chan struct{} {
 	return c.done
-}
-
-func (c *Client) deleteOldEventsRunner(ctx context.Context) {
-	go func() {
-		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
-		for {
-			select {
-			case <-ticker.C:
-				c.cs.DeleteOldEvents()
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
 }
 
 func (c *Client) processActionResults() {

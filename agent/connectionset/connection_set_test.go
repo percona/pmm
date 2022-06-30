@@ -296,7 +296,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				cs.Set(t, tt.fields.events[t])
 			}
 
-			cs.DeleteOldEvents()
+			cs.deleteOldEvents()
 
 			gotEvents := cs.GetAll()
 			for i, e := range gotEvents {

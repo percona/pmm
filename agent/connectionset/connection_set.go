@@ -16,14 +16,15 @@
 package connectionset
 
 import (
-	"fmt"
-	"sort"
+	"context"
+	"sync"
 	"time"
 )
 
 const periodForRunningDeletingOldEvents = time.Minute
 
 type ConnectionSet struct {
+	mx           sync.Mutex
 	events       []ConnectionEvent
 	windowPeriod time.Duration
 }
@@ -43,15 +44,21 @@ func (c *ConnectionSet) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
-func (c *ConnectionSet) Set(timestamp time.Time, connnected bool) {
+func (c *ConnectionSet) Set(timestamp time.Time, connected bool) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	c.setEvent(timestamp, connected)
+}
+
+func (c *ConnectionSet) setEvent(timestamp time.Time, connected bool) {
 	newElem := ConnectionEvent{
 		Timestamp: timestamp,
-		Connected: connnected,
+		Connected: connected,
 	}
 
 	if len(c.events) != 0 {
 		lastElem := c.events[len(c.events)-1]
-		if lastElem.Connected != connnected {
+		if lastElem.Connected != connected {
 			c.events = append(c.events, newElem)
 		}
 	} else {
@@ -59,7 +66,10 @@ func (c *ConnectionSet) Set(timestamp time.Time, connnected bool) {
 	}
 }
 
-func (c *ConnectionSet) DeleteOldEvents() {
+func (c *ConnectionSet) deleteOldEvents() {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+
 	if len(c.events) == 0 {
 		return
 	}
@@ -77,6 +87,21 @@ func (c *ConnectionSet) DeleteOldEvents() {
 			c.removeEventByIndex(i)
 		}
 	}
+
+}
+
+func (c *ConnectionSet) DeleteOldEventsRunner(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
+		for {
+			select {
+			case <-ticker.C:
+				c.deleteOldEvents()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
 }
 
 func (c *ConnectionSet) removeEventByIndex(i int) {
@@ -106,7 +131,7 @@ func (c *ConnectionSet) removeEventByIndex(i int) {
 // method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
 // where time_between(s1, f2) - connection up time
 //       time_between(f1, now) - total time betweeen first event (f1) and current moment
-func (c *ConnectionSet) GetConnectedUpTimeSince(sinceTime time.Time) float32 {
+func (c *ConnectionSet) GetConnectedUpTimeSince(toTime time.Time) float32 {
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
 			return 100
@@ -114,25 +139,19 @@ func (c *ConnectionSet) GetConnectedUpTimeSince(sinceTime time.Time) float32 {
 			return 0
 		}
 	}
-	// sort events by time
-	sort.Slice(c.events, func(i, j int) bool {
-		return c.events[i].Timestamp.Before(c.events[j].Timestamp)
-	})
-
-	fmt.Println(c.events)
 
 	var connectedTimeMs int64
 	for i, event := range c.events {
 		if event.Connected {
 			if i+1 >= len(c.events) {
-				connectedTimeMs += sinceTime.Sub(event.Timestamp).Milliseconds()
+				connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
 			} else {
 				connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
 			}
 		}
 	}
 
-	totalTime := sinceTime.Sub(c.events[0].Timestamp).Milliseconds()
+	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
 	return float32(connectedTimeMs) / float32(totalTime) * 100
 }
 
