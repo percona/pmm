@@ -41,7 +41,20 @@ jobs:
           git push origin
 
       - name: Create submodules PR
-        uses: actions/github-script@v6
+        uses: percona-platform/github-script@v6
         with:
           script: |
-            console.log('hello')
+            const { repo, owner } = context.repo;
+            const result = await github.rest.pulls.create({
+              title: "${{ github.event.pull_request.title }} [bot]",
+              owner,
+              repo: 'Percona-Lab/pmm-submodules',
+              head: '${{ github.head_ref }}',
+              base: 'PMM-2.0',
+              draft: true,
+              body: [
+                'This PR is auto-generated',
+                '',
+                "${{ github.event.pull_request.title }}",
+              ].join('\n')
+            });
