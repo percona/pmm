@@ -725,7 +725,7 @@ func main() {
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
-	actionsService := agents.NewActionsService(agentsRegistry)
+	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
 	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
 	if err != nil {
