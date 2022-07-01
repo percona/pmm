@@ -56,8 +56,8 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	require.NoError(t, err)
 
 	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n")},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n")},
+		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
+		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -82,8 +82,8 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 
 	// https://github.com/golang/go/issues/21880
 	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed"},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed"},
+		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -113,8 +113,8 @@ func TestConcurrentRunnerStop(t *testing.T) {
 
 	// https://github.com/golang/go/issues/21880
 	expected := []*agentpb.ActionResultRequest{
-		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed"},
-		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed"},
+		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
+		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
 	assertActionResults(t, cr, expected...)
 	cr.wg.Wait()
@@ -150,8 +150,10 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	})
 	assert.Equal(t, expected[0].(*agentpb.ActionResultRequest).ActionId, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
 	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
+	assert.True(t, expected[0].(*agentpb.ActionResultRequest).Done)
 	assert.Equal(t, expected[1].(*agentpb.ActionResultRequest).ActionId, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
 	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
+	assert.True(t, expected[1].(*agentpb.ActionResultRequest).Done)
 	cr.wg.Wait()
 	assert.Empty(t, cr.rCancel)
 }
