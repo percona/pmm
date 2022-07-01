@@ -23,6 +23,7 @@ import (
 
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/percona/qan-api2/models"
 )
@@ -342,4 +343,18 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 	}
 
 	return resp, nil
+}
+
+// QueryExists check if query value in request exists in clickhouse.
+func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest) (*wrapperspb.BoolValue, error) {
+	resp, err := s.mm.QueryExists(
+		ctx,
+		in.Serviceid,
+		in.Query,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%v", err)
+	}
+
+	return wrapperspb.Bool(resp), nil
 }

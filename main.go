@@ -37,7 +37,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmoiron/sqlx"
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -50,6 +50,7 @@ import (
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/qan-api2/models"
@@ -141,7 +142,21 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	l := logrus.WithField("component", "JSON")
 	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
-	proxyMux := grpc_gateway.NewServeMux()
+	marshaller := &grpc_gateway.JSONPb{
+		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
+			UseEnumNumbers:  false,
+			EmitUnpopulated: false,
+			UseProtoNames:   true,
+			Indent:          "  ",
+		},
+		UnmarshalOptions: protojson.UnmarshalOptions{ //nolint:exhaustivestruct
+			DiscardUnknown: true,
+		},
+	}
+
+	proxyMux := grpc_gateway.NewServeMux(
+		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
+	)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
