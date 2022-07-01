@@ -23,7 +23,7 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	servicesClient "github.com/percona/pmm/api/inventorypb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
@@ -56,8 +56,13 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		}
 		cmd.NodeID = status.NodeID
 	}
+
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
-		servicesRes, err := servicesClient.Default.Services.ListServices(&services.ListServicesParams{
+		// PMM-10095: Automatic service lookup during removal
+		//
+		// Get services and remove it automatically once it's only one
+		// service registered
+		servicesRes, err := inventoryClient.Default.Services.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				NodeID:      cmd.NodeID,
 				ServiceType: cmd.serviceType(),
@@ -86,6 +91,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
 	}
+
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
 			ServiceID:   cmd.ServiceID,
