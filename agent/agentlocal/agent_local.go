@@ -351,35 +351,35 @@ func addData(zipW *zip.Writer, name string, data []byte) {
 
 // ZipLogs Handle function for generate zip file with logs.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
-	b := &bytes.Buffer{}
+	fileBuffer := &bytes.Buffer{}
 	for _, serverLog := range s.ringLogs.GetLogs() {
-		_, err := b.WriteString(serverLog)
+		_, err := fileBuffer.WriteString(serverLog)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	buf := &bytes.Buffer{}
-	writer := zip.NewWriter(buf)
-	addData(writer, serverZipFile, b.Bytes())
+	zipBuffer := &bytes.Buffer{}
+	zipWriter := zip.NewWriter(zipBuffer)
+	addData(zipWriter, serverZipFile, fileBuffer.Bytes())
 
 	for id, logs := range s.supervisor.AgentsLogs() {
-		b := &bytes.Buffer{}
+		fileBuffer.Reset()
 		for _, l := range logs {
-			_, err := b.WriteString(l + "\n")
+			_, err := fileBuffer.WriteString(l + "\n")
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
-		addData(writer, fmt.Sprintf("%s.txt", id), b.Bytes())
+		addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
 	}
-	err := writer.Close()
+	err := zipWriter.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "logs"))
-	_, err = w.Write(buf.Bytes())
+	_, err = w.Write(zipBuffer.Bytes())
 	if err != nil {
 		log.Fatal(err)
 	}
