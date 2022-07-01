@@ -378,7 +378,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "logs"))
+	w.Header().Set("Content-Disposition", `attachment; filename="logs.zip"`)
 	_, err = w.Write(zipBuffer.Bytes())
 	if err != nil {
 		log.Fatal(err)
