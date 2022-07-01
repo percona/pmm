@@ -37,6 +37,10 @@ func TestCheckUpdates(t *testing.T) {
 
 	const fast, slow = 5 * time.Second, 60 * time.Second
 
+	if !pmmapitests.RunUpdateTest {
+		t.Skip("skipping PMM Server check update test")
+	}
+
 	// that call should always be fast
 	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
 	require.NoError(t, err)
