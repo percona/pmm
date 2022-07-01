@@ -1,0 +1,129 @@
+telemetry:
+# PMM - generic information
+  - id: PMMServerIAEnabled
+    source: PMMDB_SELECT
+    query: ia->'enabled' AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
+    summary: "PMM Server Integration Alerting feature enabled/disabled"
+    data:
+      - metric_name: "ia_enabled"
+        column: "ia_enabled"
+
+  - id: PMMServerSTTEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN 'true' ELSE 'false' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    summary: "PMM Server Security Thread Tool feature enabled/disabled"
+    data:
+      - metric_name: "stt_enabled"
+        column: "stt_enabled"
+
+  - id: PMMServerBackupEnabled
+    source: PMMDB_SELECT
+    query: bm->'enabled' AS bm_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS bm
+    summary: "PMM Server Backup feature enabled/disabled"
+    data:
+      - metric_name: "backup_management_enabled"
+        column: "bm_enabled"
+
+  - id: PMMServerDBaaSEnabled
+    source: PMMDB_SELECT
+    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
+    summary: "PMM Server DBaaS feature enabled/disabled"
+    data:
+      - metric_name: "dbaas_enabled"
+        column: "dbaas_enabled"
+
+  - id: PMMServerDBaaSEnabled
+    source: PMMDB_SELECT
+    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
+    summary: "PMM Server DBaaS feature enabled/disabled"
+    data:
+      - metric_name: "dbaas_enabled"
+        column: "dbaas_enabled"
+
+  - id: PMMServerUpdatesDisabled
+    source: PMMDB_SELECT
+    query: updates->'disabled' AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    summary: "PMM Server Check Updates feature disabled"
+    data:
+      - metric_name: "updates_disabled"
+        column: "updates_disabled"
+
+  - id: PMMServerBackupManagementEnabled
+    source: PMMDB_SELECT
+    query: backup_management->'enabled' AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    summary: "PMM Server Backup Management feature enabled"
+    data:
+      - metric_name: "backup_management_enabled"
+        column: "backup_management_enabled"
+
+# Services Information
+  - id: MySQLVersion
+    source: VM
+    query: mysql_version_info{service_type="mysql"}
+    summary: "Version of monitored MySQL services"
+    data:
+      - metric_name: "mysql_version"
+        label: "version"
+
+  - id: MongoDBVersion
+    source: VM
+    query: mongodb_version_info{service_type="mongodb"}
+    summary: "Version of monitored MongoDB services"
+    data:
+      - metric_name: "mongodb_version"
+        label: "mongodb"
+
+  - id: PostgresDBVersion
+    source: VM
+    query: pg_static{service_type="postgresql"}
+    summary: "Version of monitored PostgreSQL services"
+    data:
+      - metric_name: "postgresql_version"
+        label: "short_version"
+
+#
+  - id: GrafanaStatTotalUsers
+    source: VM
+    query: grafana_stat_total_users
+    summary: "Grafana total users"
+    data:
+      - metric_name: "grafana_stat_total_users"
+        value: 1
+
+# PMM - Usage
+  - id: PMMUsageNodesCount
+    source: PMMDB_SELECT
+    query: count(*) AS nodes_count FROM nodes
+    summary: "Monitored nodes count"
+    data:
+      - metric_name: "pmm_usage_nodes_count"
+        column: "nodes_count"
+
+  - id: PMMUsageServicesCount
+    source: PMMDB_SELECT
+    query: count(*) AS services_count FROM services
+    summary: "Monitored services count"
+    data:
+      - metric_name: "pmm_usage_services_count"
+        column: "services_count"
+
+# Nodes information
+  - id: NodesInfoAgentsVersions
+    source: PMMDB_SELECT
+    query: agent_type, version FROM agents
+    summary: "Agents Versions"
+    data:
+      - metric_name: "nodes_info_agent"
+        column: "agent_type"
+      - metric_name: "nodes_info_version"
+        column: "version"
+      - metric_name: "classifier"
+        column: "agent_type"
+
+  - id: NodesInfoNodeType
+    source: PMMDB_SELECT
+    query: node_type FROM nodes
+    summary: "Node type"
+    data:
+      - metric_name: "nodes_info_node_type"
+        column: "node_type"

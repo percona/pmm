@@ -1,0 +1,70 @@
+---
+checks:
+  - version: 1
+    name: good_check_pg
+    summary: Good Check PG
+    description: Good check for PostgreSQL.
+    type: POSTGRESQL_SELECT
+    query: rolpassword FROM pg_authid WHERE rolcanlogin
+    interval: standard
+    script: |
+      results = []
+      return results
+
+
+  - version: 1
+    name: bad_check_mysql
+    summary: Bad Check MYSQL
+    description: Bad check for MYSQL.
+    type: MYSQL_SHOW
+    query: VARIABLES LIKE 'version%'
+    interval: standard
+    script: |
+      def check_context(rows, context):
+          results = []
+
+          results.append({
+              "summary": "Fake check 1",
+              "description": "That checks fails each time 1111",
+              "severity": "warning",
+          })
+          results.append({
+              "summary": "Fake check 2",
+              "description": "That checks fails each time 2222",
+              "severity": "warning",
+          })
+
+          return results
+
+  - version: 1
+    name: good_check_mongo
+    summary: Good Check Mongo
+    description: Good check for MongoDB.
+    type: MONGODB_BUILDINFO
+    query: ""
+    interval: standard
+    script: |
+      results = []
+      return results
+
+  - version: 1
+    name: check_mongo_replSetGetStatus
+    summary: Check Mongo replSetGetStatus
+    description: Check that we can use command replSetGetStatus.
+    type: MONGODB_REPLSETGETSTATUS
+    query: ""
+    interval: standard
+    script: |
+      results = []
+      return results
+
+  - version: 1
+    name: check_mongo_getDiagnosticData
+    summary: Check Mongo getDiagnosticData
+    description: Check that we can use command getDiagnosticData.
+    type: MONGODB_GETDIAGNOSTICDATA
+    query: ""
+    interval: standard
+    script: |
+      results = []
+      return results

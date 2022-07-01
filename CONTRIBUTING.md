@@ -63,7 +63,7 @@ This project is built from several repositories:
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
 It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
-documentation source files which are located in the `markdown` directory. The
+documentation source files which are located in the `docs/api/` directory. The
 content and structure of these is formatted using [Markdown markup
 language](https://www.markdownguide.org/) and published on the
 [ReadMe.com](https://readme.com/) service.
@@ -149,7 +149,7 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
     
 ### API tests
     
-API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm-managed/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
     
 ### End to End (E2E) tests
     
@@ -158,7 +158,7 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](GIT_AND_GITHUB.md)
+See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
