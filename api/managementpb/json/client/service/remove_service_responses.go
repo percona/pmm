@@ -130,9 +130,6 @@ type RemoveServiceBody struct {
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
-
-	// agent id
-	AgentID string `json:"agent_id,omitempty"`
 }
 
 // Validate validates this remove service body

@@ -43,6 +43,7 @@ type removeMySQLCommand struct {
 	ServiceType string
 	ServiceName string
 	ServiceID   string
+	AgentID     string
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
@@ -50,9 +51,9 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
+	cmd.AgentID = status.AgentID
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
-			AgentID:     status.AgentID,
 			ServiceID:   cmd.ServiceID,
 			ServiceName: cmd.ServiceName,
 			ServiceType: cmd.serviceType(),
