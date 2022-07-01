@@ -47,16 +47,19 @@ func (l *LogsStore) Write(b []byte) (int, error) {
 
 // GetLogs return all logs.
 func (l *LogsStore) GetLogs() (logs []string) {
-	if l != nil {
-		l.m.Lock()
-		defer l.m.Unlock()
-		l.log.Do(func(p interface{}) {
-			log := fmt.Sprint(p)
-			replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
-			if p != nil {
-				logs = append(logs, replacer.Replace(log))
-			}
-		})
+	if l == nil {
+		return
 	}
+
+	l.m.Lock()
+	defer l.m.Unlock()
+	l.log.Do(func(p interface{}) {
+		log := fmt.Sprint(p)
+		replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
+		if p != nil {
+			logs = append(logs, replacer.Replace(log))
+		}
+	})
+
 	return logs
 }
