@@ -21,6 +21,7 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
@@ -45,15 +46,20 @@ type removeMySQLCommand struct {
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return nil, err
+	}
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
+			AgentID:     status.AgentID,
 			ServiceID:   cmd.ServiceID,
 			ServiceName: cmd.ServiceName,
 			ServiceType: cmd.serviceType(),
 		},
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.Service.RemoveService(params)
+	_, err = client.Default.Service.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}

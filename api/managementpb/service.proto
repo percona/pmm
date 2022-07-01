@@ -46,6 +46,8 @@ message RemoveServiceRequest {
   string service_id = 2;
   // Unique across all Services user-defined name.
   string service_name = 3;
+
+  string agent_id = 4;
 }
 
 message RemoveServiceResponse {}

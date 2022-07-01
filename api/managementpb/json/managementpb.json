@@ -6445,6 +6445,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "x-order": 3
+                },
                 "service_id": {
                   "description": "Service ID or Service Name is required.\nUnique randomly generated instance identifier.",
                   "type": "string",

@@ -25327,6 +25327,10 @@
                   "description": "Unique across all Services user-defined name.",
                   "type": "string",
                   "x-order": 2
+                },
+                "agent_id": {
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }

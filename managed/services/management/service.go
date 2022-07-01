@@ -56,6 +56,25 @@ func NewServiceService(db *reform.DB, state agentsStateUpdater, vmdb prometheusS
 
 // RemoveService removes Service with Agents.
 func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
+
+		agent, err := models.FindAgentByID(tx.Querier, req.AgentId)
+		if err != nil {
+			return err
+		}
+		serviceType := serviceTypes[req.ServiceType]
+		services, err := models.FindServices(tx.Querier, models.ServiceFilters{
+			NodeID:      *agent.RunsOnNodeID,
+			ServiceType: &serviceType,
+		})
+		if len(services) == 1 {
+			req.ServiceId = services[0].ServiceID
+		}
+		return nil
+	}); e != nil {
+		return nil, e
+	}
+
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
