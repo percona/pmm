@@ -7,22 +7,25 @@ on:
       - release-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+
   pull_request:
     paths-ignore:
       - "docs/**"
+
+  workflow_call:
+    inputs:
+      go-version:
+        required: false
+        type: string
+        default: tip
 
 jobs:
   check:
     name: Checks
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        go-version: [1.18.x]
-        may-fail: [false]
-
-    continue-on-error: ${{ matrix.may-fail }}
 
     env:
+      GO_VERSION: ${{ inputs.go-version || '1.18.x' }}
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 
@@ -38,17 +41,27 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
+        if: env.GO_VERSION != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Set up Go tip
+        if: env.GO_VERSION == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+          echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
       - name: Enable Go modules cache
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ matrix.go-version }}-modules-
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
@@ -61,27 +74,27 @@ jobs:
 
       - name: Run required checks/linters
         env:
+          # use GITHUB_TOKEN because only it has access to GitHub Checks API
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GOLANGCI_LINT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
+          GO_CONSISTENT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
         run: |
-          # TODO: This repo has multiple licenses, fix checker. https://jira.percona.com/browse/PMM-10118
-          # go run ../.github/check-license.go
+          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker. https://jira.percona.com/browse/PMM-10118
           
           bin/go-sumtype ./...
-          # use GITHUB_TOKEN because only it has access to GitHub Checks API
-          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
+          bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number ${{ env.GOLANGCI_LINT_REDIRECT }}
 
-          # run it like this until it will be added to golangci-lint:
-          # * https://github.com/golangci/golangci-lint/issues/288
-          bin/go-consistent -pedantic -exclude "tests" ./... | bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true
+          # run it like this until it will be added to golangci-lint. https://github.com/golangci/golangci-lint/issues/288
+          bin/go-consistent -pedantic -exclude "tests" ./... ${{ env.GO_CONSISTENT_REDIRECT }}
 
       - name: Run optional checks/linters
-        run: |
+        env:
           # use ROBOT_TOKEN for better reviewer's name
-          if [[ ! -z "${{ secrets.ROBOT_TOKEN }}" ]]; then
-            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.ROBOT_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
-          else
-            bin/golangci-lint run --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -reporter=github-pr-review
-          fi
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+          GOLANGCI_LINT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"]')[github.event.pull_request] }}
+        run: |
+          bin/golangci-lint run --out-format=line-number ${{ env.GOLANGCI_LINT_REDIRECT }}
+
 
       - name: Test common API
         run: make test-common
