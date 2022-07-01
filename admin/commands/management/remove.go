@@ -23,6 +23,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
+	servicesClient "github.com/percona/pmm/api/inventorypb/json/client"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
@@ -43,15 +45,47 @@ type removeMySQLCommand struct {
 	ServiceType string
 	ServiceName string
 	ServiceID   string
-	AgentID     string
+	NodeID      string
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
-	if err != nil {
-		return nil, err
+	if cmd.NodeID == "" {
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		if err != nil {
+			return nil, err
+		}
+		cmd.NodeID = status.NodeID
 	}
-	cmd.AgentID = status.AgentID
+	if cmd.ServiceID == "" && cmd.ServiceName == "" {
+		servicesRes, err := servicesClient.Default.Services.ListServices(&services.ListServicesParams{
+			Body: services.ListServicesBody{
+				NodeID:      cmd.NodeID,
+				ServiceType: cmd.serviceType(),
+			},
+			Context: commands.Ctx,
+		})
+		if err != nil {
+			return nil, err
+		}
+		if len(servicesRes.Payload.Mysql) == 1 {
+			cmd.ServiceID = servicesRes.Payload.Mysql[0].ServiceID
+		}
+		if len(servicesRes.Payload.Mongodb) == 1 {
+			cmd.ServiceID = servicesRes.Payload.Mongodb[0].ServiceID
+		}
+		if len(servicesRes.Payload.Postgresql) == 1 {
+			cmd.ServiceID = servicesRes.Payload.Postgresql[0].ServiceID
+		}
+		if len(servicesRes.Payload.Proxysql) == 1 {
+			cmd.ServiceID = servicesRes.Payload.Proxysql[0].ServiceID
+		}
+		if len(servicesRes.Payload.Haproxy) == 1 {
+			cmd.ServiceID = servicesRes.Payload.Haproxy[0].ServiceID
+		}
+		if len(servicesRes.Payload.External) == 1 {
+			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
+		}
+	}
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{
 			ServiceID:   cmd.ServiceID,
@@ -60,7 +94,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	_, err = client.Default.Service.RemoveService(params)
+	_, err := client.Default.Service.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}
