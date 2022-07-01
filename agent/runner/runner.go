@@ -160,6 +160,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		}
 		r.actionsResults <- &agentpb.ActionResultRequest{
 			ActionId: actionID,
+			Done:     true,
 			Output:   b,
 			Error:    errorS,
 		}
