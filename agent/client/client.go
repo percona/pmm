@@ -110,8 +110,6 @@ func (c *Client) Run(ctx context.Context) error {
 	c.actionsRunner = actions.NewConcurrentRunner(ctx)
 	c.jobsRunner = jobs.NewRunner()
 
-	c.cs.DeleteOldEventsRunner(ctx)
-
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
 	if c.cfg.ID == "" {

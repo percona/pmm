@@ -89,7 +89,7 @@ func (c *ConnectionSet) deleteOldEvents() {
 	}
 }
 
-func (c *ConnectionSet) DeleteOldEventsRunner(ctx context.Context) {
+func (c *ConnectionSet) RunOldEventsDeleter(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
 		for {
