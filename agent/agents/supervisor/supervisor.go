@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/agents/postgres/pgstatstatements"
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
@@ -71,6 +72,7 @@ type agentProcessInfo struct {
 	requestedState  *agentpb.SetStateRequest_AgentProcess
 	listenPort      uint16
 	processExecPath string
+	logs            *storelogs.LogsStore // store logs
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -80,6 +82,7 @@ type builtinAgentInfo struct {
 	requestedState *agentpb.SetStateRequest_BuiltinAgent
 	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
 	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
+	logs           *storelogs.LogsStore           // store logs
 }
 
 // NewSupervisor creates new Supervisor object.
@@ -140,6 +143,26 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 	}
 
 	sort.Slice(res, func(i, j int) bool { return res[i].AgentId < res[j].AgentId })
+	return res
+}
+
+// AgentsLogs returns logs for all Agents managed by this supervisor.
+func (s *Supervisor) AgentsLogs() map[string][]string {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	s.arw.RLock()
+	defer s.arw.RUnlock()
+	res := make(map[string][]string)
+
+	for id, agent := range s.agentProcesses {
+		newID := strings.ReplaceAll(id, "/agent_id/", "")
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logs.GetLogs()
+	}
+
+	for id, agent := range s.builtinAgents {
+		newID := strings.ReplaceAll(id, "/agent_id/", "")
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logs.GetLogs()
+	}
 	return res
 }
 

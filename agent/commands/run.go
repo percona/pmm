@@ -31,9 +31,12 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/defaultsfile"
+	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
 )
+
+const maxServerLogs = 500 // max number logs can store server
 
 // Run implements `pmm-agent run` default command.
 func Run() {
@@ -44,6 +47,7 @@ func Run() {
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	ringLog := storelogs.New(maxServerLogs)
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
@@ -61,7 +65,7 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 
-		run(ctx, cfg, configFilepath)
+		run(ctx, cfg, configFilepath, ringLog)
 
 		if ctx.Err() != nil {
 			return
@@ -86,7 +90,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
 // See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string) {
+func run(ctx context.Context, cfg *config.Config, configFilepath string, ringLog *storelogs.LogsStore) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
@@ -99,7 +103,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
 	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
-	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
+	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, ringLog)
 
 	go func() {
 		_ = client.Run(ctx)

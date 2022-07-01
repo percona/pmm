@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -124,14 +125,14 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
 
-	now := time.Now()
-
 	b, err := json.MarshalIndent(status, "", "  ")
 	if err != nil {
 		logrus.Debugf("%s", err)
 		b = []byte(err.Error())
 	}
 	b = append(b, '\n')
+
+	now := time.Now()
 	addData(zipW, "client/status.json", now, bytes.NewReader(b))
 
 	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
@@ -144,6 +145,11 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 	addData(zipW, "client/pmm-agent-version.txt", now, bytes.NewReader(b))
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
+
+	err = downloadFile(zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "pmm-admin")
+	if err != nil {
+		logrus.Warnf("%s", err)
+	}
 
 	if status.ConfigFilepath != "" {
 		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
@@ -240,6 +246,44 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 		return nil, errors.Wrap(err, "cannot read response body")
 	}
 	return b, nil
+}
+
+// downloadFile download file and includes into zip file
+func downloadFile(zipW *zip.Writer, url, fileName string) error {
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		return errors.New("Received non 200 response code")
+	}
+
+	b, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return errors.Wrap(err, "cannot read response body")
+	}
+	bufR := bytes.NewReader(b)
+
+	zipR, err := zip.NewReader(bufR, bufR.Size())
+	if err != nil {
+		return errors.Wrap(err, "cannot create ZipLogs reader")
+	}
+
+	for _, rf := range zipR.File {
+		rc, err := rf.Open()
+		if err != nil {
+			logrus.Errorf("%s", err)
+			continue
+		}
+		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc)
+		err = rc.Close()
+		if err != nil {
+			return errors.Wrap(err, "Fail to close file")
+		}
+	}
+	return nil
 }
 
 type pprofData struct {
