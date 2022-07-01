@@ -351,8 +351,6 @@ func addData(zipW *zip.Writer, name string, data []byte) {
 
 // ZipLogs Handle function for generate zip file with logs.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
-	buf := &bytes.Buffer{}
-	writer := zip.NewWriter(buf)
 	b := &bytes.Buffer{}
 	for _, serverLog := range s.ringLogs.GetLogs() {
 		_, err := b.WriteString(serverLog)
@@ -360,6 +358,9 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
+
+	buf := &bytes.Buffer{}
+	writer := zip.NewWriter(buf)
 	addData(writer, serverZipFile, b.Bytes())
 
 	for id, logs := range s.supervisor.AgentsLogs() {
