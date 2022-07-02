@@ -152,7 +152,7 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 	defer s.rw.RUnlock()
 	s.arw.RLock()
 	defer s.arw.RUnlock()
-	res := make(map[string][]string)
+	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
 		newID := strings.ReplaceAll(id, "/agent_id/", "")
