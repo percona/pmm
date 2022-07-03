@@ -340,49 +340,68 @@ var (
 )
 
 // addData add data to zip file
-func addData(zipW *zip.Writer, name string, data []byte) {
+func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	_, err = f.Write(data)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 // ZipLogs Handle function for generate zip file with logs.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
-	buf := &bytes.Buffer{}
-	writer := zip.NewWriter(buf)
-	b := &bytes.Buffer{}
+	fileBuffer := &bytes.Buffer{}
 	for _, serverLog := range s.ringLogs.GetLogs() {
-		_, err := b.WriteString(serverLog)
+		_, err := fileBuffer.WriteString(serverLog)
 		if err != nil {
-			log.Fatal(err)
+			logrus.Error(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 	}
-	addData(writer, serverZipFile, b.Bytes())
 
+	zipBuffer := &bytes.Buffer{}
+	zipWriter := zip.NewWriter(zipBuffer)
+	err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
+	if err != nil {
+		logrus.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	for id, logs := range s.supervisor.AgentsLogs() {
-		b := &bytes.Buffer{}
+		fileBuffer.Reset()
 		for _, l := range logs {
-			_, err := b.WriteString(l + "\n")
+			_, err := fileBuffer.WriteString(l + "\n")
 			if err != nil {
-				log.Fatal(err)
+				logrus.Error(err)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
 			}
 		}
-		addData(writer, fmt.Sprintf("%s.txt", id), b.Bytes())
+		err = addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
+		if err != nil {
+			logrus.Error(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
 	}
-	err := writer.Close()
+	err = zipWriter.Close()
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/zip")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s.zip\"", "logs"))
-	_, err = w.Write(buf.Bytes())
+	w.Header().Set("Content-Disposition", `attachment; filename="logs.zip"`)
+	_, err = w.Write(zipBuffer.Bytes())
 	if err != nil {
-		log.Fatal(err)
+		logrus.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 }
 

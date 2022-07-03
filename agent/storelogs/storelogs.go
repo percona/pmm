@@ -26,40 +26,36 @@ import (
 // LogsStore implement ring save logs.
 type LogsStore struct {
 	log *ring.Ring
-	m   sync.RWMutex
+	m   sync.Mutex
 }
 
 // New creates LogsStore.
 func New(count int) *LogsStore {
 	return &LogsStore{
 		log: ring.New(count),
-		m:   sync.RWMutex{},
 	}
 }
 
 // Write writes log for store.
 func (l *LogsStore) Write(b []byte) (int, error) {
 	l.m.Lock()
-	str := string(b)
-	l.log.Value = str
+	defer l.m.Unlock()
+	l.log.Value = string(b)
 	l.log = l.log.Next()
-	l.m.Unlock()
 	return len(b), nil
 }
 
 // GetLogs return all logs.
 func (l *LogsStore) GetLogs() (logs []string) {
-	if l != nil {
-		l.m.Lock()
-		l.log.Do(func(p interface{}) {
-			log := fmt.Sprint(p)
-			replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
-			res := replacer.Replace(log)
-			if p != nil {
-				logs = append(logs, res)
-			}
-		})
-		l.m.Unlock()
-	}
+	l.m.Lock()
+	defer l.m.Unlock()
+	l.log.Do(func(p interface{}) {
+		log := fmt.Sprint(p)
+		replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
+		if p != nil {
+			logs = append(logs, replacer.Replace(log))
+		}
+	})
+
 	return logs
 }
