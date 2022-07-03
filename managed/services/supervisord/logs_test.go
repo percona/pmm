@@ -124,7 +124,7 @@ func TestFiles(t *testing.T) {
 	l := NewLogs("2.4.5", checker)
 	ctx := logger.Set(context.Background(), t.Name())
 
-	files := l.files(ctx)
+	files := l.files(ctx, nil)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		// present only after update
@@ -157,7 +157,7 @@ func TestZip(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
-	require.NoError(t, l.Zip(ctx, &buf))
+	require.NoError(t, l.Zip(ctx, &buf, nil))
 	reader := bytes.NewReader(buf.Bytes())
 	r, err := zip.NewReader(reader, reader.Size())
 	require.NoError(t, err)
