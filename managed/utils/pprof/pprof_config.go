@@ -16,9 +16,7 @@
 
 package pprof
 
-import (
-	"time"
-)
+import "time"
 
 // Config pprof settings.
 type Config struct {
