@@ -422,12 +422,7 @@ func (s *Supervisor) newLogger(component string, agentID string, agentType strin
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	l := logrus.WithFields(logrus.Fields{
-		"component": "agent-builtin",
-		"agentID":   agentID,
-		"type":      agentType,
-	})
-
+	ringLog, l := s.newLogger("agent-process", agentID, agentType)
 	done := make(chan struct{})
 	var agent agents.BuiltinAgent
 	var err error
@@ -531,6 +526,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		requestedState: proto.Clone(builtinAgent).(*agentpb.SetStateRequest_BuiltinAgent),
 		describe:       agent.Describe,
 		collect:        agent.Collect,
+		logs:           ringLog,
 	}
 	return nil
 }

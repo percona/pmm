@@ -47,10 +47,6 @@ func (l *LogsStore) Write(b []byte) (int, error) {
 
 // GetLogs return all logs.
 func (l *LogsStore) GetLogs() (logs []string) {
-	if l == nil {
-		return
-	}
-
 	l.m.Lock()
 	defer l.m.Unlock()
 	l.log.Do(func(p interface{}) {
