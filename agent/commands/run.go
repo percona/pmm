@@ -17,10 +17,13 @@ package commands
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/sys/unix"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
+
+	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/agentlocal"
 	"github.com/percona/pmm/agent/agents/supervisor"
@@ -30,6 +33,7 @@ import (
 	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/storelogs"
 	"github.com/percona/pmm/agent/versioner"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 const maxServerLogs = 3 // max number logs can store server
@@ -60,10 +64,27 @@ func Run() {
 		config.ConfigureLogger(cfg)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
+		cleanupTmp(cfg.Paths.TempDir, l)
+
 		run(ctx, cfg, configFilepath, ringLog)
 
 		if ctx.Err() != nil {
 			return
+		}
+	}
+}
+
+func cleanupTmp(tmpRoot string, log *logrus.Entry) {
+	for k := range inventorypb.AgentType_name {
+		agentType := inventorypb.AgentType(k)
+		if agentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+			continue
+		}
+
+		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
 }

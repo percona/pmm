@@ -12,6 +12,7 @@ on:
       - "api/**"
       - "third_party/**"
       - "*"
+      - "!docs/**"
 
 jobs:
   check:
