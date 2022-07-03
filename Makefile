@@ -6,14 +6,14 @@ TARGET ?= _bash
 
 env-up-ex:                    ## Start experimental devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up -d
-	TARGET="run" make env-ex
+	TARGET="run-fast" make env-ex
 
 env-up-ex-rebuild:            ## Start experimental with rebuild devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up --build -d
-	TARGET="run" make env-ex
+	TARGET="run-fast" make env-ex
 
 env-down-ex:                  ## Stop experimental devcontainer.
-	docker-compose -f devcontainer.docker-compose.yml down --remove-orphans
+	docker-compose -f devcontainer.docker-compose.yml down
 
 env-ex:  					  ## Enter devcontainer / or run TARGET
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server-experimental make $(TARGET)

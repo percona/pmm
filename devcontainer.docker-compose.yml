@@ -51,6 +51,13 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      # caching
+      - go-modules:/root/go/pkg/mod
+      - go-build:/root/.cache/go-build
+
+volumes:
+  go-modules:
+  go-build:
 
 networks:
   minikube:
