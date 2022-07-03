@@ -197,12 +197,11 @@ func TestGetAgentLogs(t *testing.T) {
 		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
-		agentLogs := make(map[string][]string)
-		textLog := "agent_log"
-		agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
-			textLog,
+		agentLogs := []string{
+			"logs1",
+			"logs2",
 		}
-		supervisor.On("AgentLogsByID").Return(agentLogs)
+		supervisor.On("AgentLogsByID", "00000000-0000-4000-8000-000000000004").Return(agentLogs, nil)
 		var client mockClient
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
@@ -220,7 +219,7 @@ func TestGetAgentLogs(t *testing.T) {
 		return agentInfo, &supervisor, &client, cfg
 	}
 
-	t.Run("test agent logs", func(t *testing.T) {
+	t.Run("test get agent logs ", func(t *testing.T) {
 		_, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
@@ -228,15 +227,15 @@ func TestGetAgentLogs(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
 		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
-
 		formData := url.Values{
 			"agent_id": {"00000000-0000-4000-8000-000000000004"},
 		}
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("POST", "//logs/agent", strings.NewReader(formData.Encode()))
+		req := httptest.NewRequest("POST", "/logs/agent", strings.NewReader(formData.Encode()))
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		s.GetAgentLogs(rec, req)
 		logs, err := ioutil.ReadAll(rec.Body)
-		assert.Equal(t, "ggg", string(logs))
+		expected := "logs1 \nlogs2 \n"
+		assert.Equal(t, expected, string(logs))
 	})
 }
