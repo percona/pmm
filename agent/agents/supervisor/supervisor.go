@@ -19,6 +19,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -358,6 +359,7 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
+	maxAgentLogs                          = 200 // max number logs can store each agent
 )
 
 // startProcess starts Agent's process.
@@ -370,11 +372,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	l := logrus.WithFields(logrus.Fields{
-		"component": "agent-process",
-		"agentID":   agentID,
-		"type":      agentType,
-	})
+	ringLog, l := s.newLogger("agent-process", agentID, agentType)
 	l.Debugf("Starting: %s.", processParams)
 
 	process := process.New(processParams, agentProcess.RedactWords, l)
@@ -401,8 +399,22 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
 		listenPort:      port,
 		processExecPath: processParams.Path,
+		logs:            ringLog,
 	}
 	return nil
+}
+
+func (s *Supervisor) newLogger(component string, agentID string, agentType string) (*storelogs.LogsStore, *logrus.Entry) {
+	ringLog := storelogs.New(maxAgentLogs)
+	logger := logrus.New()
+	logger.SetFormatter(logrus.StandardLogger().Formatter)
+	logger.Out = io.MultiWriter(os.Stderr, ringLog)
+	l := logger.WithFields(logrus.Fields{
+		"component": component,
+		"agentID":   agentID,
+		"type":      agentType,
+	})
+	return ringLog, l
 }
 
 // startBuiltin starts built-in Agent.
