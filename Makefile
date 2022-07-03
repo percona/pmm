@@ -5,16 +5,12 @@ include Makefile.include
 TARGET ?= _bash
 
 env-up-ex:                    ## Start experimental devcontainer.
-	docker-compose -f devcontainer.docker-compose.yml up
-
-env-up-ex-detach:             ## Start experimental devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up -d
+	TARGET="run" make env-ex
 
 env-up-ex-rebuild:            ## Start experimental with rebuild devcontainer.
-	docker-compose -f devcontainer.docker-compose.yml up --build
-
-env-up-ex-rebuild-detach:     ## Start experimental with rebuild devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up --build -d
+	TARGET="run" make env-ex
 
 env-down-ex:                  ## Stop experimental devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml down --remove-orphans
