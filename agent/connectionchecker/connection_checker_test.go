@@ -196,7 +196,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_SERVICE_TYPE_INVALID,
 				Timeout: durationpb.New(time.Nanosecond),
 			},
-			expectedErr: `invalid service type`,
+			expectedErr: `unknown service type: SERVICE_TYPE_INVALID`,
 			panic:       true,
 		},
 		{

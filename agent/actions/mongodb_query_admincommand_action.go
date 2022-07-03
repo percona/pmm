@@ -23,8 +23,8 @@ import (
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 )
@@ -77,7 +77,12 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 		return nil, errors.WithStack(err)
 	}
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -94,3 +99,5 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	data := []map[string]interface{}{doc}
 	return agentpb.MarshalActionQueryDocsResult(data)
 }
+
+func (a *mongodbQueryAdmincommandAction) sealed() {}

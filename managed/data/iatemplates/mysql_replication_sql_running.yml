@@ -1,0 +1,16 @@
+---
+templates:
+  - name: pmm_mysql_replication_sql_running
+    version: 1
+    summary: MySQL replication running SQL
+    tiers: [anonymous, registered]
+    expr: |-
+      mysql_slave_status_master_server_id > 0 and ON (instance) mysql_slave_status_slave_sql_running == 0
+    for: 1m
+    severity: critical
+    annotations:
+      description: |-
+        MySQL Replication Not Running on {{ $labels.instance }}
+        VALUE = {{ $value }}
+        LABELS: {{ $labels }}
+      summary: MySQL Replication Not Running on (instance {{ $labels.instance }})

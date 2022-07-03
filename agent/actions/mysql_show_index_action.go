@@ -68,3 +68,5 @@ func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	return jsonRows(columns, dataRows)
 }
+
+func (a *mysqlShowIndexAction) sealed() {}

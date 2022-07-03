@@ -91,3 +91,5 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	return jsonRows(columns, dataRows)
 }
+
+func (a *postgresqlShowIndexAction) sealed() {}
