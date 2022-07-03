@@ -359,6 +359,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -368,6 +369,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 	for id, logs := range s.supervisor.AgentsLogs() {
 		fileBuffer.Reset()
@@ -376,18 +378,21 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				logrus.Error(err)
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
 			}
 		}
 		err = addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 	}
 	err = zipWriter.Close()
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", `attachment; filename="logs.zip"`)
@@ -395,5 +400,6 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 }
