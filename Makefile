@@ -2,6 +2,26 @@
 
 include Makefile.include
 
+TARGET ?= _bash
+
+env-up-ex:                    ## Start experimental devcontainer.
+	docker-compose -f devcontainer.docker-compose.yml up
+
+env-up-ex-detach:             ## Start experimental devcontainer.
+	docker-compose -f devcontainer.docker-compose.yml up -d
+
+env-up-ex-rebuild:            ## Start experimental with rebuild devcontainer.
+	docker-compose -f devcontainer.docker-compose.yml up --build
+
+env-up-ex-rebuild-detach:     ## Start experimental with rebuild devcontainer.
+	docker-compose -f devcontainer.docker-compose.yml up --build -d
+
+env-down-ex:                  ## Stop experimental devcontainer.
+	docker-compose -f devcontainer.docker-compose.yml down --remove-orphans
+
+env-ex:  					  ## Enter devcontainer / or run TARGET
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server-experimental make $(TARGET)
+
 env-up: env-compose-up env-devcontainer     ## Start devcontainer.
 
 env-compose-up:
@@ -16,9 +36,6 @@ env-down:                                   ## Stop devcontainer.
 
 env-remove:
 	docker-compose down --volumes --remove-orphans
-
-
-TARGET ?= _bash
 
 env:                                        ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
