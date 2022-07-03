@@ -21,6 +21,8 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -181,5 +183,60 @@ func TestGetZipFile(t *testing.T) {
 				}
 			}
 		}
+	})
+}
+
+func TestGetAgentLogs(t *testing.T) {
+	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+		t.Helper()
+		agentInfo := []*agentlocalpb.AgentInfo{{
+			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000004",
+			AgentType: inventorypb.AgentType_NODE_EXPORTER,
+			Status:    inventorypb.AgentStatus_RUNNING,
+		}}
+		var supervisor mockSupervisor
+		supervisor.Test(t)
+		supervisor.On("AgentsList").Return(agentInfo)
+		agentLogs := make(map[string][]string)
+		textLog := "agent_log"
+		agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
+			textLog,
+		}
+		supervisor.On("AgentLogsByID").Return(agentLogs)
+		var client mockClient
+		client.Test(t)
+		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
+			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
+			ServerVersion:     "2.0.0-dev",
+		})
+		cfg := &config.Config{
+			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
+			Server: config.Server{
+				Address:  "127.0.0.1:8443",
+				Username: "username",
+				Password: "password",
+			},
+		}
+		return agentInfo, &supervisor, &client, cfg
+	}
+
+	t.Run("test agent logs", func(t *testing.T) {
+		_, supervisor, client, cfg := setup(t)
+		defer supervisor.AssertExpectations(t)
+		defer client.AssertExpectations(t)
+		ringLog := storelogs.New(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
+		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		require.NoError(t, err)
+
+		formData := url.Values{
+			"agent_id": {"00000000-0000-4000-8000-000000000004"},
+		}
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("POST", "//logs/agent", strings.NewReader(formData.Encode()))
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		s.GetAgentLogs(rec, req)
+		logs, err := ioutil.ReadAll(rec.Body)
+		assert.Equal(t, "ggg", string(logs))
 	})
 }

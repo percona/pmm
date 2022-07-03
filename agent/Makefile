@@ -35,7 +35,7 @@ gen-init:
 	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-admin binary.
-	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
+	go install -ldflags "$(VERSION_FLAGS)"
 
 install-race:                   ## Install pmm-admin binary with race detector.
 	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
@@ -112,7 +112,7 @@ env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
 
 setup-dev: install              ## Run pmm-agent setup in development environment.
-	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
+	agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
 
 env-mysql:                      ## Run mysql client.
 	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
