@@ -15,4 +15,5 @@ COPY ./ ./
 # setup.py, uses a task from Makefile.devcontainer but expect it to be in the fault file Makefile
 COPY ./Makefile.devcontainer ./Makefile
 
-RUN python ./.devcontainer/setup.py
+RUN python ./.devcontainer/setup-ex.py
+RUN mv -f $GOPATH/src/github.com/percona/pmm/bin/* /root/go/bin/
