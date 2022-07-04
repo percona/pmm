@@ -4,6 +4,8 @@ services:
   pmm-managed-server:
     build:
       context: .
+      args:
+        PMM_VERSION: ${PMM_VERSION:-percona/pmm-server:2.28.0}
       dockerfile: devcontainer.Dockerfile
     container_name: pmm-managed-server-experimental
     hostname: pmm-managed-server
