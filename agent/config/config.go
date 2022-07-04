@@ -198,7 +198,7 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 			cfg.Ports.Max = 51999
 		}
 		if cfg.WindowConnectedTime == 0 {
-			cfg.WindowConnectedTime = 24 * time.Hour
+			cfg.WindowConnectedTime = time.Hour
 		}
 
 		for sp, v := range map[*string]string{
