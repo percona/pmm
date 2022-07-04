@@ -233,15 +233,6 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 		req.Params.Replicaset.ComputeResources.MemoryBytes = psmdbDefaultMemoryBytes
 	}
 
-	// Only call the version service if it is really needed.
-	// if req.Name == "" || req.Params.Image == "" {
-	// psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
-	// 	KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
-	// })
-	// if err != nil {
-	// 	return errors.New("cannot get the list of PXC components")
-	// }
-
 	psmdbComponent, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
 	if err != nil {
 		return errors.Wrap(err, "cannot get the recommended MongoDB image name")

@@ -232,8 +232,6 @@ func TestComponentService(t *testing.T) {
 			require.NoError(t, err)
 			require.NotNil(t, psmdbComponents)
 
-			fmt.Println(psmdbComponents)
-
 			expected := map[string]*dbaasv1beta1.Component{
 				"4.2.7-7":   {ImagePath: "percona/percona-server-mongodb:4.2.7-7", ImageHash: "1d8a0859b48a3e9cadf9ad7308ec5aa4b278a64ca32ff5d887156b1b46146b13", Status: "available", Critical: false},
 				"4.2.8-8":   {ImagePath: "percona/percona-server-mongodb:4.2.8-8", ImageHash: "a66e889d3e986413e41083a9c887f33173da05a41c8bd107cf50eede4588a505", Status: "available", Critical: false},
