@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-const defaultWindowConnectionTime = 24 * time.Hour
+const defaultWindowConnectionTime = time.Hour
 
 // Run implements `pmm-agent run` default command.
 func Run() {
@@ -66,11 +66,9 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
-			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
-			cs = connectionset.NewConnectionSet(cfg.WindowConnectedTime)
+			logrus.Infof("Window check connection time is %.2f hour(s)", defaultWindowConnectionTime.Hours())
+			cs = connectionset.NewConnectionSet(defaultWindowConnectionTime)
 			cs.RunOldEventsDeleter(ctx)
-		} else {
-			cs.SetWindowPeriod(cfg.WindowConnectedTime)
 		}
 
 		run(ctx, cfg, configFilepath, cs)
