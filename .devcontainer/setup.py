@@ -65,7 +65,7 @@ def make_release_dev():
     """Runs make release-dev."""
 
     run_commands([
-        "make release-dev-fast",
+        "make release-dev",
     ])
 
 def make_init():

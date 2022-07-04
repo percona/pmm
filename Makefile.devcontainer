@@ -5,9 +5,6 @@ include Makefile.include
 release-dev:
 	make -C managed release-dev
 
-release-dev-fast:
-	make -C managed release-dev-fast
-
 # used by host Makefile
 _bash:
 	/bin/bash
@@ -21,8 +18,6 @@ _run:
 	supervisorctl tail -f pmm-managed
 
 run: release-dev _run               ## Run pmm-managed.
-
-run-fast: release-dev-fast _run     ## Run pmm-managed... fast.
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.

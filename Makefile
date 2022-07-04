@@ -6,11 +6,11 @@ TARGET ?= _bash
 
 env-up-ex:                    ## Start experimental devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up -d
-	TARGET="run-fast" make env-ex
+	TARGET="run" make env-ex
 
 env-up-ex-rebuild:            ## Start experimental with rebuild devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml up --build -d
-	TARGET="run-fast" make env-ex
+	TARGET="run" make env-ex
 
 env-down-ex:                  ## Stop experimental devcontainer.
 	docker-compose -f devcontainer.docker-compose.yml down
