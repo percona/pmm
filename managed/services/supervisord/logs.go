@@ -35,9 +35,11 @@ import (
 
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
+	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/promconfig/alertmanager"
 )
 
 const (
@@ -146,13 +148,23 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		})
 	}
 
+	b, m, err := readFile("/srv/alertmanager/alertmanager.base.yml")
+	if err != nil {
+		logger.Get(ctx).WithField("component", "logs").Error(err)
+	}
+	b, err = maskSensitiveValues(b)
+	files = append(files, fileContent{
+		Name:     filepath.Base("/srv/alertmanager/alertmanager.base.yml"),
+		Modified: m,
+		Data:     b,
+		Err:      err,
+	})
 	// add configs
 	for _, f := range []string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
 
-		"/srv/alertmanager/alertmanager.base.yml",
 		"/srv/prometheus/prometheus.base.yml",
 
 		"/etc/alertmanager.yml",
@@ -183,7 +195,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	})
 
 	// add supervisord status
-	b, err := readCmdOutput(ctx, "supervisorctl", "status")
+	b, err = readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -359,4 +371,28 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	}
 
 	return nil
+}
+
+func maskSensitiveValues(data []byte) ([]byte, error) {
+	var maskedValue = "**********"
+	var c alertmanager.Config
+	err := yaml.Unmarshal(data, &c)
+	if err != nil {
+		return data, err
+	}
+	c.Global.SMTPAuthUsername = maskedValue
+	c.Global.SMTPAuthPassword = maskedValue
+	c.Global.SMTPAuthSecret = maskedValue
+	c.Global.SMTPAuthIdentity = maskedValue
+	c.Global.SlackAPIURL = maskedValue
+	c.Global.PagerdutyURL = maskedValue
+	c.Global.OpsGenieAPIURL = maskedValue
+	c.Global.OpsGenieAPIKey = maskedValue
+	c.Global.WeChatAPIURL = maskedValue
+	c.Global.WeChatAPISecret = maskedValue
+	c.Global.WeChatAPICorpID = maskedValue
+	c.Global.VictorOpsAPIURL = maskedValue
+	c.Global.VictorOpsAPIKey = maskedValue
+
+	return nil, nil
 }
