@@ -53,11 +53,11 @@ services:
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
       # caching
       - go-modules:/root/go/pkg/mod
-      - go-build:/root/.cache/go-build
+      - root-cache:/root/.cache
 
 volumes:
   go-modules:
-  go-build:
+  root-cache:
 
 networks:
   minikube:
