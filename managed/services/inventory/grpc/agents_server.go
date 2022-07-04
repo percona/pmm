@@ -19,13 +19,14 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/inventory"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/inventory"
 )
 
 const (

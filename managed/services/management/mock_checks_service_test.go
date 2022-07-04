@@ -6,7 +6,6 @@ import (
 	context "context"
 
 	check "github.com/percona-platform/saas/pkg/check"
-
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm/managed/services"
