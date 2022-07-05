@@ -147,18 +147,23 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 			Err:      err,
 		})
 	}
+	for _, f := range []string{
 
-	b, m, err := readFile("/srv/alertmanager/alertmanager.base.yml")
-	if err != nil {
-		logger.Get(ctx).WithField("component", "logs").Error(err)
+		"/etc/alertmanager.yml",
+		"/srv/alertmanager/alertmanager.base.yml",
+	} {
+		b, m, err := readFile(f)
+		if err != nil {
+			logger.Get(ctx).WithField("component", "logs").Error(err)
+		}
+		b, err = maskSensitiveValues(b)
+		files = append(files, fileContent{
+			Name:     filepath.Base(f),
+			Modified: m,
+			Data:     b,
+			Err:      err,
+		})
 	}
-	b, err = maskSensitiveValues(b)
-	files = append(files, fileContent{
-		Name:     filepath.Base("/srv/alertmanager/alertmanager.base.yml"),
-		Modified: m,
-		Data:     b,
-		Err:      err,
-	})
 	// add configs
 	for _, f := range []string{
 		"/etc/nginx/nginx.conf",
@@ -167,7 +172,6 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 
 		"/srv/prometheus/prometheus.base.yml",
 
-		"/etc/alertmanager.yml",
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
@@ -195,7 +199,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	})
 
 	// add supervisord status
-	b, err = readCmdOutput(ctx, "supervisorctl", "status")
+	b, err := readCmdOutput(ctx, "supervisorctl", "status")
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -374,25 +378,11 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 }
 
 func maskSensitiveValues(data []byte) ([]byte, error) {
-	var maskedValue = "**********"
 	var c alertmanager.Config
 	err := yaml.Unmarshal(data, &c)
 	if err != nil {
 		return data, err
 	}
-	c.Global.SMTPAuthUsername = maskedValue
-	c.Global.SMTPAuthPassword = maskedValue
-	c.Global.SMTPAuthSecret = maskedValue
-	c.Global.SMTPAuthIdentity = maskedValue
-	c.Global.SlackAPIURL = maskedValue
-	c.Global.PagerdutyURL = maskedValue
-	c.Global.OpsGenieAPIURL = maskedValue
-	c.Global.OpsGenieAPIKey = maskedValue
-	c.Global.WeChatAPIURL = maskedValue
-	c.Global.WeChatAPISecret = maskedValue
-	c.Global.WeChatAPICorpID = maskedValue
-	c.Global.VictorOpsAPIURL = maskedValue
-	c.Global.VictorOpsAPIKey = maskedValue
-
-	return nil, nil
+	alertmanager.MaskSensitiveData(&c)
+	return yaml.Marshal(c)
 }
