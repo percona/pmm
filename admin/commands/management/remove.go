@@ -73,6 +73,8 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 			cmd.ServiceID = servicesRes.Payload.Mysql[0].ServiceID
 		case len(servicesRes.Payload.Mongodb) == 1:
 			cmd.ServiceID = servicesRes.Payload.Mongodb[0].ServiceID
+		case len(servicesRes.Payload.Postgresql) == 1:
+			cmd.ServiceID = servicesRes.Payload.Postgresql[0].ServiceID
 		case len(servicesRes.Payload.Proxysql) == 1:
 			cmd.ServiceID = servicesRes.Payload.Proxysql[0].ServiceID
 		case len(servicesRes.Payload.Haproxy) == 1:
