@@ -72,22 +72,16 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		if err != nil {
 			return nil, err
 		}
-		if len(servicesRes.Payload.Mysql) == 1 {
+		switch {
+		case len(servicesRes.Payload.Mysql) == 1:
 			cmd.ServiceID = servicesRes.Payload.Mysql[0].ServiceID
-		}
-		if len(servicesRes.Payload.Mongodb) == 1 {
+		case len(servicesRes.Payload.Mongodb) == 1:
 			cmd.ServiceID = servicesRes.Payload.Mongodb[0].ServiceID
-		}
-		if len(servicesRes.Payload.Postgresql) == 1 {
-			cmd.ServiceID = servicesRes.Payload.Postgresql[0].ServiceID
-		}
-		if len(servicesRes.Payload.Proxysql) == 1 {
+		case len(servicesRes.Payload.Proxysql) == 1:
 			cmd.ServiceID = servicesRes.Payload.Proxysql[0].ServiceID
-		}
-		if len(servicesRes.Payload.Haproxy) == 1 {
+		case len(servicesRes.Payload.Haproxy) == 1:
 			cmd.ServiceID = servicesRes.Payload.Haproxy[0].ServiceID
-		}
-		if len(servicesRes.Payload.External) == 1 {
+		case len(servicesRes.Payload.External) == 1:
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
 	}
