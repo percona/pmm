@@ -6,114 +6,27 @@ on:
     - cron: "0 13 * * 0"
 
 jobs:
-  check:
-    name: Checks
-    runs-on: ubuntu-22.04
+  common:
+    uses: percona/pmm/.github/workflows/common.yml@main
+    with:
+      go-version: 'tip'
 
-    env:
-      GO_VERSION: tip
-      GOPATH: ${{ github.workspace }}
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
+  admin:
+    uses: percona/pmm/.github/workflows/admin.yml@main
+    with:
+      go-version: 'tip'
 
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
+  agent:
+    uses: percona/pmm/.github/workflows/agent.yml@main
+    with:
+      go-version: 'tip'
 
-    steps:
-      - name: Check out code into the working directory under the GOPATH
-        uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
+  api:
+    uses: percona/pmm/.github/workflows/api.yml@main
+    with:
+      go-version: 'tip'
 
-      - name: Set up Go tip
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
-
-      - name: Enable Go modules cache
-        uses: percona-platform/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
-
-      - name: Download Go modules
-        run: go mod download
-
-      - name: Install development tools
-        run: make init
-
-      - name: Check build
-        run: make release
-
-      - name: Run required checks/linters
-        run: |
-          # TODO: This repo has multiple licenses, fix checker. https://jira.percona.com/browse/PMM-10118
-          # go run ../.github/check-license.go
-          
-          bin/go-sumtype ./...
-          bin/golangci-lint run -c=.golangci-required.yml
-
-          # run it like this until it will be added to golangci-lint:
-          # * https://github.com/golangci/golangci-lint/issues/288
-          bin/go-consistent -pedantic -exclude "tests" ./...
-
-      - name: Run optional checks/linters
-        run: |
-          bin/golangci-lint run
-
-
-      - name: Test common API
-        run: make test-common
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env
-          go version
-          go env
-          pwd
-          git status
-
-  workflow_success:
-    needs: [check]
-    name: Slack Notification success
-    runs-on: ubuntu-22.04
-    env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-      SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
-      SLACK_COLOR: "#00FF00"
-      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-
-    steps:
-      - uses: percona-platform/checkout@v3
-      - uses: percona-platform/setup-node@v2
-      - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
-
-  workflow_failure:
-    if: ${{ failure() }}
-    needs: [check]
-    name: Slack Notification failure
-    runs-on: ubuntu-22.04
-    env:
-      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
-      SLACK_CHANNEL: "pmm-ci"
-      SLACK_USERNAME: "PR pipelines bot"
-      SLACK_ICON_EMOJI: ":chestnut:"
-      SLACK_COLOR: "#FF0000"
-      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
-      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
-
-    steps:
-      - uses: percona-platform/checkout@v3
-      - name: Slack Notification
-        uses: percona-platform/action-slack-notify@v2
+  managed:
+    uses: percona/pmm/.github/workflows/managed.yml@main
+    with:
+      go-version: 'tip'
