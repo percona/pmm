@@ -63,7 +63,7 @@ This project is built from several repositories:
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
 It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API
-documentation source files which are located in the `markdown` directory. The
+documentation source files which are located in the `docs/api/` directory. The
 content and structure of these is formatted using [Markdown markup
 language](https://www.markdownguide.org/) and published on the
 [ReadMe.com](https://readme.com/) service.
@@ -116,7 +116,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Server
 
-* Clone [pmm-managed repository](https://github.com/percona/pmm-managed)
+* Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container.
 * To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
 
@@ -127,9 +127,11 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
-* To work correctly pmm-agent needs exporters installed on the system.
-  * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
-  * Exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+* To work correctly pmm-agent needs vmagent and exporters installed on the system.
+  * First option is just install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+  * Another option is to do it manually
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+    * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
 
 ### Exporters
 
@@ -158,7 +160,7 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](GIT_AND_GITHUB.md)
+See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)

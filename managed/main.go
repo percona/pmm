@@ -309,7 +309,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(5 * 1024 * 1024)),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
 
 	// TODO switch from RegisterXXXHandlerFromEndpoint to RegisterXXXHandler to avoid extra dials
@@ -712,7 +712,7 @@ func main() {
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
-	actionsService := agents.NewActionsService(agentsRegistry)
+	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
 	checksService, err := checks.New(actionsService, alertManager, db, *victoriaMetricsURLF)
 	if err != nil {
