@@ -92,7 +92,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	_, err = client.Default.Service.RemoveService(params)
+	_, err := client.Default.Service.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}
