@@ -48,16 +48,16 @@ type removeMySQLCommand struct {
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
-	if err != nil {
-		return nil, err
-	}
-
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
 		// Automatic service lookup during removal
 		//
 		// Get services and remove it automatically once it's only one
 		// service registered
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		if err != nil {
+			return nil, err
+		}
+
 		servicesRes, err := inventoryClient.Default.Services.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				NodeID:      status.NodeID,
