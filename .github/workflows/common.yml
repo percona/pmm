@@ -76,8 +76,8 @@ jobs:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # In case the workflow triggered by pull_request event, we want to redirect linter's output to reviewdog.
           # The selection made through converting available cases to json and then choosing an element depending on logical value (true=1, false=0).
-          GOLANGCI_LINT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
-          GO_CONSISTENT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
+          GOLANGCI_LINT_REDIRECT: ${{ fromJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
+          GO_CONSISTENT_REDIRECT: ${{ fromJson('["", "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
         run: |
           # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker. https://jira.percona.com/browse/PMM-10118
           
@@ -92,7 +92,7 @@ jobs:
           # use ROBOT_TOKEN for better reviewer's name
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           # See description of GOLANGCI_LINT_REDIRECT above.
-          GOLANGCI_LINT_REDIRECT: ${{ toJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"]')[github.event.pull_request != null] }}
+          GOLANGCI_LINT_REDIRECT: ${{ fromJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"]')[github.event.pull_request != null] }}
         run: |
           bin/golangci-lint run --out-format=line-number ${{ env.GOLANGCI_LINT_REDIRECT }}
 
