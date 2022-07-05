@@ -45,16 +45,12 @@ type removeMySQLCommand struct {
 	ServiceType string
 	ServiceName string
 	ServiceID   string
-	NodeID      string
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
-	if cmd.NodeID == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
-		if err != nil {
-			return nil, err
-		}
-		cmd.NodeID = status.NodeID
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return nil, err
 	}
 
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
@@ -64,7 +60,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		// service registered
 		servicesRes, err := inventoryClient.Default.Services.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
-				NodeID:      cmd.NodeID,
+				NodeID:      status.NodeID,
 				ServiceType: cmd.serviceType(),
 			},
 			Context: commands.Ctx,
@@ -94,7 +90,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.Service.RemoveService(params)
+	_, err = client.Default.Service.RemoveService(params)
 	if err != nil {
 		return nil, err
 	}
