@@ -58,7 +58,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	}
 
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
-		// PMM-10095: Automatic service lookup during removal
+		// Automatic service lookup during removal
 		//
 		// Get services and remove it automatically once it's only one
 		// service registered
