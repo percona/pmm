@@ -22,7 +22,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.47
 	github.com/brianvoe/gofakeit/v6 v6.17.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.14.0
+	github.com/go-co-op/gocron v1.15.0
 	github.com/go-openapi/errors v0.20.2
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.2
