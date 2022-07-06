@@ -18,7 +18,8 @@ env-down-ex:                  ## Stop experimental devcontainer.
 env-ex:  					  ## Enter devcontainer / or run TARGET
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server-experimental make $(TARGET)
 
-env-up: env-compose-up env-devcontainer     ## Start devcontainer.
+							  ## Start devcontainer.
+env-up: env-compose-up env-devcontainer
 
 env-compose-up:
 	docker-compose pull
@@ -27,11 +28,12 @@ env-compose-up:
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
 
-env-down:                                   ## Stop devcontainer.
+							  ## Stop devcontainer.
+env-down:
 	docker-compose down --remove-orphans
 
 env-remove:
 	docker-compose down --volumes --remove-orphans
 
-env:                                        ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
+env:                          ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)

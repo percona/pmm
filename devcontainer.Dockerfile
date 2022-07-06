@@ -1,4 +1,4 @@
-ARG PMM_VERSION="percona/pmm-server:2.28.0"
+ARG PMM_VERSION="perconalab/pmm-server:dev-latest"
 FROM $PMM_VERSION
 
 ARG PMM_VERSION
