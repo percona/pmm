@@ -2,17 +2,17 @@ header:
   - paths:
       - "**/*.go"
     paths-ignore:
-      - "**/agent/**"             # agent uses a different license
-      - "**/admin/**"             # admin uses a different license
-      - "**/managed/**"           # managed uses the same license, but content might differ
-      - "**/api-tests/**"         # managed uses the same license, but content might differ
-      - "**/mock_*"               # generated mock files
-      - "**/*.pb.go"              # generated go code from protobuf files
-      - "**/*_reform.go"           # generated reform files
-      - "**/*.pb.gw.go"           # generated grpc-gateway files
-      - "**/json/client/**"       # generated go-swagger client files
-      - "**/amclient/**"          # generated alertmanager go-swagger files
-      - "**/ammodels/**"          # generated alertmanager go-swagger files
+      - "**/agent/**"
+      - "**/admin/**"
+      - "**/managed/**"
+      - "**/api-tests/**"
+      - "**/mock_*"
+      - "**/*.pb.go"
+      - "**/*_reform.go"
+      - "**/*.pb.gw.go"
+      - "**/json/client/**"
+      - "**/amclient/**"
+      - "**/ammodels/**"
     license:
       spdx-id: AGPL-3.0
       content: |
@@ -36,8 +36,8 @@ header:
       - "**/managed/**/*.go"
       - "**/api-tests/**/*.go"
     paths-ignore:
-      - "**/*_reform.go"           # generated reform files
-      - "**/mock_*"               # generated mock files
+      - "**/*_reform.go"
+      - "**/mock_*"
     license:
       spdx-id: AGPL-3.0
       content: |
@@ -62,8 +62,8 @@ header:
       - "**/agent/**/*.go"
       - "**/admin/**/.go"
     paths-ignore:
-      - "**/*_reform.go"    # generated go code from protobuf files
-      - "**/mock_*"               # generated mock files
+      - "**/*_reform.go"
+      - "**/mock_*"
     license:
       content: |
         // pmm-agent
