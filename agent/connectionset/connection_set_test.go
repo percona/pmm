@@ -16,6 +16,7 @@
 package connectionset
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 	"time"
@@ -258,7 +259,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 			},
 			expected: []ConnectionEvent{
 				{
-					Timestamp: now.Add(-59 * time.Minute),
+					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: true,
 				},
 			},
@@ -275,6 +276,54 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				{
 					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: false,
+				},
+			},
+		},
+		{
+			name: "should update single event which is expired",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-121 * time.Minute): false,
+					now.Add(-120 * time.Minute): true,
+					now.Add(-119 * time.Minute): false,
+					now.Add(-118 * time.Minute): true,
+					now.Add(-117 * time.Minute): false,
+					now.Add(-116 * time.Minute): true,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
+					Connected: true,
+				},
+			},
+		},
+		{
+			name: "should update single event which is expired",
+			fields: fields{
+				events: map[time.Time]bool{
+					now.Add(-121 * time.Minute): false,
+					now.Add(-120 * time.Minute): true,
+					now.Add(-119 * time.Minute): false,
+					now.Add(-60 * time.Minute):  true,
+					now.Add(-59 * time.Minute):  false,
+					now.Add(-58 * time.Minute):  true,
+				},
+				windowPeriod: time.Hour,
+			},
+			expected: []ConnectionEvent{
+				{
+					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
+					Connected: true,
+				},
+				{
+					Timestamp: now.Add(-59 * time.Minute),
+					Connected: false,
+				},
+				{
+					Timestamp: now.Add(-58 * time.Minute),
+					Connected: true,
 				},
 			},
 		},
@@ -299,9 +348,10 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 			cs.deleteOldEvents()
 
 			gotEvents := cs.GetAll()
+			assert.True(t, len(gotEvents) == len(tt.expected), "length of got slice of events is not correct")
 			for i, e := range gotEvents {
-				assert.Equal(t, tt.expected[i].Timestamp.Unix(), e.Timestamp.Unix())
-				assert.Equal(t, tt.expected[i].Connected, e.Connected)
+				assert.Equal(t, tt.expected[i].Timestamp.Unix(), e.Timestamp.Unix(), fmt.Sprintf("element with index: %d", i))
+				assert.Equal(t, tt.expected[i].Connected, e.Connected, fmt.Sprintf("element with index: %d", i))
 			}
 		})
 	}

@@ -74,17 +74,17 @@ func (c *ConnectionSet) deleteOldEvents() {
 		return
 	}
 
-	if time.Now().Sub(c.events[0].Timestamp) > c.windowPeriod {
-		c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
-
-		if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
-			c.removeEventByIndex(0)
-		}
-	}
-
-	for i, e := range c.events {
-		if e.Timestamp.Before(time.Now().Add(-1 * c.windowPeriod)) {
-			c.removeEventByIndex(i)
+	// Move first elements which are already expired to the start of the slice
+	// in order to not loose information about previous state of connection.
+	// The latest expired element in the slice will be the first one to calculate
+	// uptime correctly during set up window time
+	lenOfEvents := len(c.events)
+	for i := 0; i < lenOfEvents; i++ {
+		if time.Now().Sub(c.events[0].Timestamp) > c.windowPeriod {
+			c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
+			if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
+				c.removeEventByIndex(0)
+			}
 		}
 	}
 }
