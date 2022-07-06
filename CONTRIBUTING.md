@@ -24,7 +24,7 @@ This project is built from several repositories:
 ### PMM Server
 
 #### BackEnd
-* [percona/pmm-managed](https://github.com/percona/pmm-managed)
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
 * [percona/pmm-update](https://github.com/percona/pmm-update)
