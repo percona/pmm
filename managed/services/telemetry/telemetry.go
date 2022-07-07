@@ -22,7 +22,6 @@ import (
 	"context"
 	"encoding/hex"
 	"io/ioutil"
-	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -32,14 +31,13 @@ import (
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/platform"
 )
 
 const (
@@ -51,6 +49,7 @@ const (
 type Service struct {
 	db                  *reform.DB
 	l                   *logrus.Entry
+	portalClient        *platform.Client
 	start               time.Time
 	config              ServiceConfig
 	dsRegistry          DataSourceLocator
@@ -71,7 +70,7 @@ var (
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, pmmVersion string, config ServiceConfig) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -83,12 +82,13 @@ func NewService(db *reform.DB, pmmVersion string, config ServiceConfig) (*Servic
 		return nil, err
 	}
 	s := &Service{
-		db:         db,
-		l:          l,
-		pmmVersion: pmmVersion,
-		start:      time.Now(),
-		config:     config,
-		dsRegistry: registry,
+		db:           db,
+		l:            l,
+		portalClient: portalClient,
+		pmmVersion:   pmmVersion,
+		start:        time.Now(),
+		config:       config,
+		dsRegistry:   registry,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = getDistributionMethodAndOS(l)
@@ -307,7 +307,8 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 	var err error
 	var attempt int
 	for {
-		err = s.sendRequest(ctx, report)
+		s.l.Debugf("Using %s as telemetry host.", s.config.SaasHostname)
+		err = s.portalClient.SendTelemetry(ctx, report)
 		attempt++
 		s.l.Debugf("sendV2Request (attempt %d/%d) result: %v", attempt, s.config.Reporting.RetryCount, err)
 		if err == nil {
@@ -328,27 +329,4 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 			return err
 		}
 	}
-}
-
-func (s *Service) sendRequest(ctx context.Context, req *reporter.ReportRequest) error {
-	s.l.Debugf("Using %s as telemetry host.", s.config.SaasHostname)
-
-	var accessToken string
-	if ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
-		accessToken = ssoDetails.AccessToken.AccessToken
-	}
-
-	reqByte, err := protojson.Marshal(req)
-	if err != nil {
-		return err
-	}
-
-	_, err = saasreq.MakeRequest(ctx, http.MethodPost, s.config.ReportEndpointURL(), accessToken, bytes.NewReader(reqByte), &saasreq.SaasRequestOptions{
-		SkipTLSVerification: s.config.Reporting.SkipTLSVerification,
-	})
-	if err != nil {
-		return errors.Wrap(err, "failed to dial")
-	}
-
-	return nil
 }
