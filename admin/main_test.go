@@ -17,7 +17,6 @@ package main
 
 import (
 	"encoding/json"
-	"go/build"
 	"os/exec"
 	"strings"
 	"testing"
@@ -53,39 +52,5 @@ func TestVersionJson(t *testing.T) {
 	var jsonStruct interface{}
 	if err := json.Unmarshal(b, &jsonStruct); err != nil {
 		t.Errorf("pmm-admin --version --json produces incorrect output format")
-	}
-}
-
-func TestImports(t *testing.T) {
-	type constraint struct {
-		blacklist []string
-	}
-
-	for path, c := range map[string]constraint{
-		// "github.com/percona/pmm/admin/commands": {
-		// 	blacklist: []string{
-		// 		"gopkg.in/alecthomas/kingpin.v2",
-		// 	},
-		// },
-	} {
-		p, err := build.Import(path, ".", build.IgnoreVendor)
-		require.NoError(t, err)
-
-		allImports := make(map[string]struct{})
-		for _, i := range p.Imports {
-			allImports[i] = struct{}{}
-		}
-		for _, i := range p.TestImports {
-			allImports[i] = struct{}{}
-		}
-		for _, i := range p.XTestImports {
-			allImports[i] = struct{}{}
-		}
-
-		for _, i := range c.blacklist {
-			if _, ok := allImports[i]; ok {
-				t.Errorf("Package %q should not import %q.", path, i)
-			}
-		}
 	}
 }

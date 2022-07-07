@@ -19,7 +19,6 @@ package telemetry
 
 import (
 	_ "embed" //nolint:golint
-	"fmt"
 	"os"
 	"time"
 
@@ -33,11 +32,10 @@ import (
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
 	l            *logrus.Entry
-	Enabled      bool            `yaml:"enabled"`
-	LoadDefaults bool            `yaml:"load_defaults"` //nolint:tagliatelle
-	telemetry    []Config        `yaml:"-"`
-	Endpoints    EndpointsConfig `yaml:"endpoints"`
-	SaasHostname string          `yaml:"saas_hostname"` //nolint:tagliatelle
+	Enabled      bool     `yaml:"enabled"`
+	LoadDefaults bool     `yaml:"load_defaults"` //nolint:tagliatelle
+	telemetry    []Config `yaml:"-"`
+	SaasHostname string   `yaml:"saas_hostname"` //nolint:tagliatelle
 	DataSources  struct {
 		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
 		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
@@ -49,16 +47,6 @@ type ServiceConfig struct {
 // FileConfig top level telemetry config element.
 type FileConfig struct {
 	Telemetry []Config `yaml:"telemetry"`
-}
-
-// EndpointsConfig telemetry endpoint config.
-type EndpointsConfig struct {
-	Report string `yaml:"report"`
-}
-
-// ReportEndpointURL returns reporting endpoint URL.
-func (c *ServiceConfig) ReportEndpointURL() string {
-	return fmt.Sprintf(c.Endpoints.Report, c.SaasHostname)
 }
 
 // DSConfigQAN telemetry config.
@@ -124,14 +112,13 @@ func (c *Config) mapByColumn() map[string][]ConfigData {
 
 // ReportingConfig reporting config.
 type ReportingConfig struct {
-	SkipTLSVerification bool          `yaml:"skip_tls_verification"` //nolint:tagliatelle
-	SendOnStart         bool          `yaml:"send_on_start"`         //nolint:tagliatelle
-	IntervalEnv         string        `yaml:"interval_env"`          //nolint:tagliatelle
-	Interval            time.Duration `yaml:"interval"`
-	RetryBackoffEnv     string        `yaml:"retry_backoff_env"` //nolint:tagliatelle
-	RetryBackoff        time.Duration `yaml:"retry_backoff"`     //nolint:tagliatelle
-	SendTimeout         time.Duration `yaml:"send_timeout"`      //nolint:tagliatelle
-	RetryCount          int           `yaml:"retry_count"`       //nolint:tagliatelle
+	SendOnStart     bool          `yaml:"send_on_start"` //nolint:tagliatelle
+	IntervalEnv     string        `yaml:"interval_env"`  //nolint:tagliatelle
+	Interval        time.Duration `yaml:"interval"`
+	RetryBackoffEnv string        `yaml:"retry_backoff_env"` //nolint:tagliatelle
+	RetryBackoff    time.Duration `yaml:"retry_backoff"`     //nolint:tagliatelle
+	SendTimeout     time.Duration `yaml:"send_timeout"`      //nolint:tagliatelle
+	RetryCount      int           `yaml:"retry_count"`       //nolint:tagliatelle
 }
 
 //go:embed config.default.yml
@@ -157,7 +144,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	}
 
 	if c.SaasHostname == "" {
-		host, err := envvars.GetSAASHost()
+		host, err := envvars.GetPlatformAddress()
 		c.SaasHostname = host
 		if err != nil {
 			return errors.Wrap(err, "failed to get SaaSHost")

@@ -29,16 +29,17 @@ import (
 
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 const (
-	devPortalHost      = "check-dev.percona.com"
-	devPortalPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
-	testBadTemplates   = "../../../testdata/ia/bad"
-	testTemplates      = "../../../testdata/ia/user2"
-	testTemplates2     = "../../../testdata/ia/user"
-	issuerURL          = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
+	devPlatformAddress   = "https://check-dev.percona.com"
+	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
+	testBadTemplates     = "../../../testdata/ia/bad"
+	testTemplates        = "../../../testdata/ia/user2"
+	testTemplates2       = "../../../testdata/ia/user"
+	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
 func TestCollect(t *testing.T) {
@@ -50,6 +51,8 @@ func TestCollect(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	platformClient, err := platform.NewClient(db, devPlatformAddress)
+	require.NoError(t, err)
 
 	insertSSODetails := &models.PerconaSSODetailsInsert{
 		IssuerURL:              issuerURL,
@@ -57,13 +60,13 @@ func TestCollect(t *testing.T) {
 		PMMManagedClientSecret: clientSecret,
 		Scope:                  "percona",
 	}
-	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	err = models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
 	require.NoError(t, err)
 
 	t.Run("builtin are valid", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
+		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
 		_, err = svc.loadTemplatesFromAssets(ctx)
 		require.NoError(t, err)
@@ -72,7 +75,7 @@ func TestCollect(t *testing.T) {
 	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
+		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testBadTemplates
 		templates, err := svc.loadTemplatesFromUserFiles(ctx)
@@ -83,7 +86,7 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db)
+		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testTemplates2
 		svc.CollectTemplates(ctx)
@@ -114,6 +117,12 @@ func TestDownloadTemplates(t *testing.T) {
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	platformClient, err := platform.NewClient(db, devPlatformAddress)
+	require.NoError(t, err)
+
+	svc, err := NewTemplatesService(db, platformClient)
+	svc.platformPublicKeys = []string{devPlatformPublicKey}
+	require.NoError(t, err)
 
 	insertSSODetails := &models.PerconaSSODetailsInsert{
 		IssuerURL:              issuerURL,
@@ -121,13 +130,8 @@ func TestDownloadTemplates(t *testing.T) {
 		PMMManagedClientSecret: clientSecret,
 		Scope:                  "percona",
 	}
-	err := models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
+	err = models.InsertPerconaSSODetails(db.Querier, insertSSODetails)
 	require.NoError(t, err)
-
-	svc, err := NewTemplatesService(db)
-	require.NoError(t, err)
-	svc.host = devPortalHost
-	svc.publicKeys = []string{devPortalPublicKey}
 
 	t.Run("normal", func(t *testing.T) {
 		assert.Empty(t, svc.getTemplates())
@@ -160,6 +164,8 @@ func TestTemplateValidation(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	platformClient, err := platform.NewClient(db, devPlatformAddress)
+	require.NoError(t, err)
 
 	// Enable IA
 	settings, err := models.GetSettings(db)
@@ -208,7 +214,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db)
+		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
 		resp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
@@ -301,7 +307,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db)
+		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
 		createResp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
 			Yaml: validTemplate,
