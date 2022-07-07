@@ -38,6 +38,8 @@ type ClientService interface {
 
 	GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error)
 
+	QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -223,6 +225,43 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*GetQueryPlanDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  QueryExists queries exists check if query exists in clickhouse
+*/
+func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewQueryExistsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "QueryExists",
+		Method:             "POST",
+		PathPattern:        "/v0/qan/ObjectDetails/QueryExists",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &QueryExistsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*QueryExistsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*QueryExistsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
