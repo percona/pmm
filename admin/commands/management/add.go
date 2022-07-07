@@ -37,7 +37,7 @@ func addGlobalFlags(cmd *kingpin.CmdClause) {
 	cmd.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").StringVar(&addServiceNameFlag)
 	cmd.Flag("host", "Service hostname or IP address (overrides positional argument)").StringVar(&addHostFlag)
 	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
-	cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
+	cmd.Flag("log-level", "Service logging level. One of: [debug, info, warn, error, fatal]").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
 }
 
 type connectionGetter interface {
