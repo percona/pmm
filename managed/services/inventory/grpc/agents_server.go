@@ -20,9 +20,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
-	"net/url"
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
@@ -545,21 +543,24 @@ func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveA
 
 // AgentLogs agent logs.
 func (s *agentsServer) AgentLogs(ctx context.Context, req *inventorypb.AgentLogsRequest) (*inventorypb.AgentLogsResponse, error) {
-	formData := url.Values{
-		"agent_id": {req.AgentID},
+	if req.AgentID == "" {
+		return nil, fmt.Errorf("agentId is empty")
 	}
-	resp, err := http.PostForm(fmt.Sprintf("%s%d/logs/agent", Localhost, DefaultPMMAgentListenPort), formData)
-	defer resp.Body.Close()
+
+	resp, err := http.Get(fmt.Sprintf("http://%s:%v/logs/agent?agentID=%s", Localhost, DefaultPMMAgentListenPort, req.AgentID))
 	if err != nil {
-		return &inventorypb.AgentLogsResponse{}, err
+		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return &inventorypb.AgentLogsResponse{}, fmt.Errorf("bad request, status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("bad request, status code: %d", resp.StatusCode)
 	}
+
 	b, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
+
 	return &inventorypb.AgentLogsResponse{
 		Logs: string(b),
 	}, nil

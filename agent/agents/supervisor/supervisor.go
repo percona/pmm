@@ -174,17 +174,14 @@ func (s *Supervisor) AgentLogsByID(ID string) ([]string, error) {
 	s.arw.RLock()
 	defer s.arw.RUnlock()
 	newID := fmt.Sprintf("/agent_id/%s", ID)
-
-	for id, agent := range s.agentProcesses {
-		if id == newID {
-			return agent.logs.GetLogs(), nil
-		}
+	res, ok := s.agentProcesses[newID]
+	if ok {
+		return res.logs.GetLogs(), nil
 	}
 
-	for id, agent := range s.builtinAgents {
-		if id == newID {
-			return agent.logs.GetLogs(), nil
-		}
+	resb, ok := s.builtinAgents[newID]
+	if ok {
+		return resb.logs.GetLogs(), nil
 	}
 
 	return nil, fmt.Errorf("not found Agent by ID: %s", ID)

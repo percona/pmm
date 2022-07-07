@@ -407,21 +407,28 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 
 // GetLogs Handle function for return logs by id.
 func (s *Server) GetAgentLogs(w http.ResponseWriter, r *http.Request) {
-	agentID := r.FormValue("agent_id")
+	agentID := r.URL.Query().Get("agentID")
+	if agentID == "" {
+		http.Error(w, "agentId is empty", http.StatusBadRequest)
+		return
+	}
 	logs, err := s.supervisor.AgentLogsByID(agentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	buf := &bytes.Buffer{}
 	for _, l := range logs {
 		_, err := buf.WriteString(fmt.Sprintf("%s \n", l))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 	w.Header().Set("Content-Type", "text/html")
 	_, err = w.Write(buf.Bytes())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }

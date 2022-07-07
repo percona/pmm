@@ -40,7 +40,6 @@ const maxServerLogs = 3 // max number logs can store server
 
 // Run implements `pmm-agent run` default command.
 func Run() {
-	// time.Sleep(20 * time.Second)
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer l.Info("Done.")
