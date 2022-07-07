@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
+	"github.com/pkg/errors"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
@@ -94,7 +95,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	}
 	_, err := client.Default.Service.RemoveService(params)
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("We can't find service associated with the local node, %s", err)
 	}
 
 	return &removeServiceResult{}, nil

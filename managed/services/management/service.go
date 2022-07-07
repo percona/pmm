@@ -154,10 +154,10 @@ func (s *ServiceService) checkServiceType(service *models.Service, serviceType i
 
 func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
 	if request.ServiceName == "" && request.ServiceId == "" {
-		return status.Error(codes.InvalidArgument, "We can't find service associated with the local node, service_id or service_name expected")
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
 	}
 	if request.ServiceName != "" && request.ServiceId != "" {
-		return status.Error(codes.InvalidArgument, "We can't find service associated with the local node, service_id or service_name expected; not both")
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
 	}
 	return nil
 }
