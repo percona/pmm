@@ -72,8 +72,8 @@ jobs:
 
       - name: Run required checks/linters
         env:
-          # use GITHUB_TOKEN because only it has access to GitHub Checks API
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # use ROBOT_TOKEN for better reviewer's name
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           # In case the workflow triggered by pull_request event, we want to redirect linter's output to reviewdog.
           # The selection made through converting available cases to json and then choosing an element depending on logical value (true=1, false=0).
           GOLANGCI_LINT_REDIRECT: ${{ fromJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"]')[github.event.pull_request != null] }}
@@ -89,7 +89,6 @@ jobs:
 
       - name: Run optional checks/linters
         env:
-          # use ROBOT_TOKEN for better reviewer's name
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           # See description of GOLANGCI_LINT_REDIRECT above.
           GOLANGCI_LINT_REDIRECT: ${{ fromJson('["", "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"]')[github.event.pull_request != null] }}
