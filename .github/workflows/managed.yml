@@ -20,18 +20,23 @@ on:
   workflow_call:
     inputs:
       go-version:
+        description: An array of Go versions to be tested against, in a format of json string.
         required: false
         type: string
-        default: tip
+        default: '["tip"]'
 
 jobs:
   test:
     name: Test pmm-managed
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
     timeout-minutes: 30
 
     env:
-      GO_VERSION: ${{ inputs.go-version || '1.18.x' }}
+      GO_VERSION: ${{ matrix.go-version }}
       # no `-mod=readonly` to test PRs made by @dependabot;
       # `git diff --exit-code` step below still checks what we need
       GOFLAGS: -v

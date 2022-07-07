@@ -13,17 +13,22 @@ on:
   workflow_call:
     inputs:
       go-version:
+        description: An array of Go versions to be tested against, in a format of json string.
         required: false
         type: string
-        default: tip
+        default: '["tip"]'
 
 jobs:
   check:
     name: Checks
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
 
     env:
-      GO_VERSION: ${{ inputs.go-version || '1.18.x' }}
+      GO_VERSION: ${{ matrix.go-version }}
       GOPATH: ${{ github.workspace }}
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
 
