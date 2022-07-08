@@ -57,6 +57,14 @@ telemetry:
       - metric_name: "mysql_version"
         label: "version"
 
+- id: MySQLVersionComment
+    source: VM
+    query: mysql_version_info{service_type="mysql"}
+    summary: "Detailed information about version of monitored MySQL services"
+    data:
+      - metric_name: "mysql_version"
+        label: "version_comment"
+
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
