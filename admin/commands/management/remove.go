@@ -49,8 +49,6 @@ type removeMySQLCommand struct {
 }
 
 func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
-	autoLookup := false
-
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
 		// Automatic service lookup during removal
 		//
@@ -85,7 +83,9 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		case len(servicesRes.Payload.External) == 1:
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
-		autoLookup = true
+		if cmd.ServiceID == "" && cmd.ServiceName == "" {
+			return nil, errors.New("We can't find service associated with the local node")
+		}
 	}
 
 	params := &service.RemoveServiceParams{
@@ -103,7 +103,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 			return nil, err
 		}
 		errResponse := commands.GetError(e)
-		if autoLookup && errResponse.Code < 500 {
+		if errResponse.Code == 400 {
 			return nil, errors.Errorf("We can't find service associated with the local node, %s", errResponse.Error)
 		}
 		return nil, err
