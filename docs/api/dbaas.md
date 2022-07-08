@@ -65,7 +65,7 @@ API endpoint used in this step: [Change settings](ref:changesettings).
 
 Once kubernetes cluster is created it should be registered in PMM where `my_cluster` is a name of kubernetes cluster which will be used later. `sed` command is used to remove newlines, otherwise this script doesn’t work.
 ```bash
-KUBECONFIG=$(kubectl -- config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
+KUBECONFIG=$(kubectl config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
 
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \ 
      -H "accept: application/json" \

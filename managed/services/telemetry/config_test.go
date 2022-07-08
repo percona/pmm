@@ -70,18 +70,14 @@ reporting:
 		Enabled:      true,
 		LoadDefaults: true,
 		SaasHostname: "check.localhost",
-		Endpoints: EndpointsConfig{
-			Report: "https://%s/v1/telemetry/Report",
-		},
 		Reporting: ReportingConfig{
-			SkipTLSVerification: true,
-			SendOnStart:         true,
-			Interval:            time.Second * 10,
-			IntervalEnv:         "PERCONA_TEST_TELEMETRY_INTERVAL",
-			RetryBackoff:        time.Second * 1,
-			RetryBackoffEnv:     "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF",
-			RetryCount:          2,
-			SendTimeout:         time.Second * 10,
+			SendOnStart:     true,
+			Interval:        time.Second * 10,
+			IntervalEnv:     "PERCONA_TEST_TELEMETRY_INTERVAL",
+			RetryBackoff:    time.Second * 1,
+			RetryBackoffEnv: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF",
+			RetryCount:      2,
+			SendTimeout:     time.Second * 10,
 		},
 		DataSources: struct {
 			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
