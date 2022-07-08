@@ -59,7 +59,7 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
-- id: MongoDBVersion
+  - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
     summary: "Version of monitored MongoDB services"
