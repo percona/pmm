@@ -84,7 +84,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if cmd.ServiceID == "" && cmd.ServiceName == "" {
-			return nil, errors.New("We can't find service associated with the local node")
+			return nil, errors.New("We can't find a service associated with the local node. service_id or service_name is required.")
 		}
 	}
 
@@ -98,14 +98,6 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	}
 	_, err := client.Default.Service.RemoveService(params)
 	if err != nil {
-		e, ok := err.(commands.ErrorResponse)
-		if !ok {
-			return nil, err
-		}
-		errResponse := commands.GetError(e)
-		if errResponse.Code == 400 {
-			return nil, errors.Errorf("We can't find service associated with the local node, %s", errResponse.Error)
-		}
 		return nil, err
 	}
 
