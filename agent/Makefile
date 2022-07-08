@@ -22,6 +22,7 @@ VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
 
 release:                        ## Build static pmm-agent release binary (Linux only).
 	env CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
+	go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent-entrypoint ./cmd/pmm-agent-entrypoint
 	$(PMM_RELEASE_PATH)/pmm-agent --version
 	-ldd $(PMM_RELEASE_PATH)/pmm-agent
 
