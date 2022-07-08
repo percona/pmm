@@ -59,12 +59,12 @@ type AddRemoteRDSNodeOK struct {
 func (o *AddRemoteRDSNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] addRemoteRdsNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *AddRemoteRDSNodeOK) GetPayload() *AddRemoteRDSNodeOKBody {
 	return o.Payload
 }
 
 func (o *AddRemoteRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteRDSNodeOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddRemoteRDSNodeDefault) Code() int {
 func (o *AddRemoteRDSNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddRemoteRDSNodeDefault) GetPayload() *AddRemoteRDSNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteRDSNodeDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, 
 swagger:model AddRemoteRDSNodeBody
 */
 type AddRemoteRDSNodeBody struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -172,10 +171,6 @@ func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -241,9 +236,7 @@ func (o *AddRemoteRDSNodeDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddRemoteRDSNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -254,7 +247,6 @@ func (o *AddRemoteRDSNodeDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -282,13 +274,8 @@ func (o *AddRemoteRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRemoteRDSNodeDefaultBodyDetailsItems0
 */
 type AddRemoteRDSNodeDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add remote RDS node default body details items0
@@ -323,7 +310,6 @@ func (o *AddRemoteRDSNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
-
 	// remote rds
 	RemoteRDS *AddRemoteRDSNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -376,7 +362,6 @@ func (o *AddRemoteRDSNodeOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddRemoteRDSNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -413,7 +398,6 @@ func (o *AddRemoteRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 */
 type AddRemoteRDSNodeOKBodyRemoteRDS struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

@@ -61,12 +61,12 @@ type AddMySQLOK struct {
 func (o *AddMySQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
 }
+
 func (o *AddMySQLOK) GetPayload() *AddMySQLOKBody {
 	return o.Payload
 }
 
 func (o *AddMySQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMySQLOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddMySQLDefault) Code() int {
 func (o *AddMySQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddMySQLDefault) GetPayload() *AddMySQLDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMySQLDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer
 swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -215,6 +214,10 @@ type AddMySQLBody struct {
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
 
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -224,6 +227,10 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -282,6 +289,60 @@ func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
+var addMySqlBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlBodyTypeLogLevelPropEnum = append(addMySqlBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLBodyLogLevelAuto captures enum value "auto"
+	AddMySQLBodyLogLevelAuto string = "auto"
+
+	// AddMySQLBodyLogLevelFatal captures enum value "fatal"
+	AddMySQLBodyLogLevelFatal string = "fatal"
+
+	// AddMySQLBodyLogLevelError captures enum value "error"
+	AddMySQLBodyLogLevelError string = "error"
+
+	// AddMySQLBodyLogLevelWarn captures enum value "warn"
+	AddMySQLBodyLogLevelWarn string = "warn"
+
+	// AddMySQLBodyLogLevelInfo captures enum value "info"
+	AddMySQLBodyLogLevelInfo string = "info"
+
+	// AddMySQLBodyLogLevelDebug captures enum value "debug"
+	AddMySQLBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (o *AddMySQLBody) validateAddNode(formats strfmt.Registry) error {
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
@@ -316,7 +377,6 @@ func (o *AddMySQLBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *AddMySQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -353,10 +413,6 @@ func (o *AddMySQLBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLDefaultBody
 */
 type AddMySQLDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -422,9 +478,7 @@ func (o *AddMySQLDefaultBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *AddMySQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -435,7 +489,6 @@ func (o *AddMySQLDefaultBody) contextValidateDetails(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -463,13 +516,8 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLDefaultBodyDetailsItems0
 */
 type AddMySQLDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add my SQL default body details items0
@@ -504,7 +552,6 @@ func (o *AddMySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
-
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -650,7 +697,6 @@ func (o *AddMySQLOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddMySQLOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -666,7 +712,6 @@ func (o *AddMySQLOKBody) contextValidateMysqldExporter(ctx context.Context, form
 }
 
 func (o *AddMySQLOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -682,7 +727,6 @@ func (o *AddMySQLOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, 
 }
 
 func (o *AddMySQLOKBody) contextValidateQANMysqlSlowlog(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -698,7 +742,6 @@ func (o *AddMySQLOKBody) contextValidateQANMysqlSlowlog(ctx context.Context, for
 }
 
 func (o *AddMySQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -735,7 +778,6 @@ func (o *AddMySQLOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBodyMysqldExporter
 */
 type AddMySQLOKBodyMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -796,6 +838,13 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -803,6 +852,10 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -869,6 +922,60 @@ func (o *AddMySQLOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	return nil
 }
 
+var addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum = append(addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	AddMySQLOKBodyMysqldExporterLogLevelAuto string = "auto"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddMySQLOKBodyMysqldExporterLogLevelFatal string = "fatal"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelError captures enum value "error"
+	AddMySQLOKBodyMysqldExporterLogLevelError string = "error"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddMySQLOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddMySQLOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddMySQLOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddMySQLOKBodyMysqldExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMySqlOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add my SQL OK body mysqld exporter based on context it is used
 func (o *AddMySQLOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -896,7 +1003,6 @@ func (o *AddMySQLOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBodyQANMysqlPerfschema
 */
 type AddMySQLOKBodyQANMysqlPerfschema struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -943,6 +1049,9 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql perfschema
@@ -1043,7 +1152,6 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBodyQANMysqlSlowlog
 */
 type AddMySQLOKBodyQANMysqlSlowlog struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1093,6 +1201,9 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// mod tidy
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql slowlog
@@ -1193,7 +1304,6 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLOKBodyService
 */
 type AddMySQLOKBodyService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1260,7 +1370,6 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

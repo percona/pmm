@@ -61,12 +61,12 @@ type AddMongoDBOK struct {
 func (o *AddMongoDBOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
+
 func (o *AddMongoDBOK) GetPayload() *AddMongoDBOKBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddMongoDBDefault) Code() int {
 func (o *AddMongoDBDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddMongoDBDefault) GetPayload() *AddMongoDBDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model AddMongoDBBody
 */
 type AddMongoDBBody struct {
-
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -217,6 +216,10 @@ type AddMongoDBBody struct {
 	// Enable all collectors
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
 
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -226,6 +229,10 @@ func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -284,6 +291,60 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
+var addMongoDbBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbBodyTypeLogLevelPropEnum = append(addMongoDbBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBBodyLogLevelAuto captures enum value "auto"
+	AddMongoDBBodyLogLevelAuto string = "auto"
+
+	// AddMongoDBBodyLogLevelFatal captures enum value "fatal"
+	AddMongoDBBodyLogLevelFatal string = "fatal"
+
+	// AddMongoDBBodyLogLevelError captures enum value "error"
+	AddMongoDBBodyLogLevelError string = "error"
+
+	// AddMongoDBBodyLogLevelWarn captures enum value "warn"
+	AddMongoDBBodyLogLevelWarn string = "warn"
+
+	// AddMongoDBBodyLogLevelInfo captures enum value "info"
+	AddMongoDBBodyLogLevelInfo string = "info"
+
+	// AddMongoDBBodyLogLevelDebug captures enum value "debug"
+	AddMongoDBBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (o *AddMongoDBBody) validateAddNode(formats strfmt.Registry) error {
 	if swag.IsZero(o.AddNode) { // not required
 		return nil
@@ -318,7 +379,6 @@ func (o *AddMongoDBBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddMongoDBBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -355,10 +415,6 @@ func (o *AddMongoDBBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBDefaultBody
 */
 type AddMongoDBDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -424,9 +480,7 @@ func (o *AddMongoDBDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddMongoDBDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -437,7 +491,6 @@ func (o *AddMongoDBDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -465,13 +518,8 @@ func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBDefaultBodyDetailsItems0
 */
 type AddMongoDBDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add mongo DB default body details items0
@@ -506,7 +554,6 @@ func (o *AddMongoDBDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBOKBody
 */
 type AddMongoDBOKBody struct {
-
 	// mongodb exporter
 	MongodbExporter *AddMongoDBOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
@@ -619,7 +666,6 @@ func (o *AddMongoDBOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddMongoDBOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -635,7 +681,6 @@ func (o *AddMongoDBOKBody) contextValidateMongodbExporter(ctx context.Context, f
 }
 
 func (o *AddMongoDBOKBody) contextValidateQANMongodbProfiler(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -651,7 +696,6 @@ func (o *AddMongoDBOKBody) contextValidateQANMongodbProfiler(ctx context.Context
 }
 
 func (o *AddMongoDBOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -688,7 +732,6 @@ func (o *AddMongoDBOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBOKBodyMongodbExporter
 */
 type AddMongoDBOKBodyMongodbExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -742,6 +785,13 @@ type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter
@@ -749,6 +799,10 @@ func (o *AddMongoDBOKBodyMongodbExporter) Validate(formats strfmt.Registry) erro
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -815,6 +869,60 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry
 	return nil
 }
 
+var addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum = append(addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	AddMongoDBOKBodyMongodbExporterLogLevelAuto string = "auto"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	AddMongoDBOKBodyMongodbExporterLogLevelFatal string = "fatal"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelError captures enum value "error"
+	AddMongoDBOKBodyMongodbExporterLogLevelError string = "error"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	AddMongoDBOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	AddMongoDBOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// AddMongoDBOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	AddMongoDBOKBodyMongodbExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMongoDbOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add mongo DB OK body mongodb exporter based on context it is used
 func (o *AddMongoDBOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -842,7 +950,6 @@ func (o *AddMongoDBOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBOKBodyQANMongodbProfiler
 */
 type AddMongoDBOKBodyQANMongodbProfiler struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -877,6 +984,9 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body QAN mongodb profiler
@@ -977,7 +1087,6 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBOKBodyService
 */
 type AddMongoDBOKBodyService struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1044,7 +1153,6 @@ func (o *AddMongoDBOKBodyService) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBParamsBodyAddNode
 */
 type AddMongoDBParamsBodyAddNode struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

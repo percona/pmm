@@ -18,7 +18,6 @@ import (
 //
 // swagger:model versionInfo
 type VersionInfo struct {
-
 	// branch
 	// Required: true
 	Branch *string `json:"branch"`
@@ -79,7 +78,6 @@ func (m *VersionInfo) Validate(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateBranch(formats strfmt.Registry) error {
-
 	if err := validate.Required("branch", "body", m.Branch); err != nil {
 		return err
 	}
@@ -88,7 +86,6 @@ func (m *VersionInfo) validateBranch(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateBuildDate(formats strfmt.Registry) error {
-
 	if err := validate.Required("buildDate", "body", m.BuildDate); err != nil {
 		return err
 	}
@@ -97,7 +94,6 @@ func (m *VersionInfo) validateBuildDate(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateBuildUser(formats strfmt.Registry) error {
-
 	if err := validate.Required("buildUser", "body", m.BuildUser); err != nil {
 		return err
 	}
@@ -106,7 +102,6 @@ func (m *VersionInfo) validateBuildUser(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateGoVersion(formats strfmt.Registry) error {
-
 	if err := validate.Required("goVersion", "body", m.GoVersion); err != nil {
 		return err
 	}
@@ -115,7 +110,6 @@ func (m *VersionInfo) validateGoVersion(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateRevision(formats strfmt.Registry) error {
-
 	if err := validate.Required("revision", "body", m.Revision); err != nil {
 		return err
 	}
@@ -124,7 +118,6 @@ func (m *VersionInfo) validateRevision(formats strfmt.Registry) error {
 }
 
 func (m *VersionInfo) validateVersion(formats strfmt.Registry) error {
-
 	if err := validate.Required("version", "body", m.Version); err != nil {
 		return err
 	}

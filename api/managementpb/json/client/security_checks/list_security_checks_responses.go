@@ -61,12 +61,12 @@ type ListSecurityChecksOK struct {
 func (o *ListSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] listSecurityChecksOk  %+v", 200, o.Payload)
 }
+
 func (o *ListSecurityChecksOK) GetPayload() *ListSecurityChecksOKBody {
 	return o.Payload
 }
 
 func (o *ListSecurityChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListSecurityChecksOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListSecurityChecksDefault) Code() int {
 func (o *ListSecurityChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] ListSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListSecurityChecksDefault) GetPayload() *ListSecurityChecksDefaultBody {
 	return o.Payload
 }
 
 func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListSecurityChecksDefaultBody)
 
 	// response payload
@@ -122,10 +122,6 @@ func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse
 swagger:model ListSecurityChecksDefaultBody
 */
 type ListSecurityChecksDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -191,9 +187,7 @@ func (o *ListSecurityChecksDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListSecurityChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -204,7 +198,6 @@ func (o *ListSecurityChecksDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -232,13 +225,8 @@ func (o *ListSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListSecurityChecksDefaultBodyDetailsItems0
 */
 type ListSecurityChecksDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this list security checks default body details items0
@@ -273,7 +261,6 @@ func (o *ListSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model ListSecurityChecksOKBody
 */
 type ListSecurityChecksOKBody struct {
-
 	// checks
 	Checks []*ListSecurityChecksOKBodyChecksItems0 `json:"checks"`
 }
@@ -333,9 +320,7 @@ func (o *ListSecurityChecksOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListSecurityChecksOKBody) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Checks); i++ {
-
 		if o.Checks[i] != nil {
 			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -346,7 +331,6 @@ func (o *ListSecurityChecksOKBody) contextValidateChecks(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -374,7 +358,6 @@ func (o *ListSecurityChecksOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListSecurityChecksOKBodyChecksItems0
 */
 type ListSecurityChecksOKBodyChecksItems0 struct {
-
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

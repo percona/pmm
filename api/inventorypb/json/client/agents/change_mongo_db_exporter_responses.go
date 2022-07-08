@@ -61,12 +61,12 @@ type ChangeMongoDBExporterOK struct {
 func (o *ChangeMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeMongoDBExporterOK) GetPayload() *ChangeMongoDBExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeMongoDBExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 func (o *ChangeMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeMongoDBExporterDefault) GetPayload() *ChangeMongoDBExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeMongoDBExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientRespo
 swagger:model ChangeMongoDBExporterBody
 */
 type ChangeMongoDBExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeMongoDBExporterBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeMongoDBExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,10 +213,6 @@ func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterDefaultBody
 */
 type ChangeMongoDBExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,9 +278,7 @@ func (o *ChangeMongoDBExporterDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangeMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +289,6 @@ func (o *ChangeMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,13 +316,8 @@ func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterDefaultBodyDetailsItems0
 */
 type ChangeMongoDBExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter default body details items0
@@ -366,7 +352,6 @@ func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 swagger:model ChangeMongoDBExporterOKBody
 */
 type ChangeMongoDBExporterOKBody struct {
-
 	// mongodb exporter
 	MongodbExporter *ChangeMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 }
@@ -419,7 +404,6 @@ func (o *ChangeMongoDBExporterOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ChangeMongoDBExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +440,6 @@ func (o *ChangeMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeMongoDBExporterOKBodyMongodbExporter
 */
 type ChangeMongoDBExporterOKBodyMongodbExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -510,6 +493,13 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Enable All collectors.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter OK body mongodb exporter
@@ -517,6 +507,10 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Reg
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -583,6 +577,60 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strf
 	return nil
 }
 
+var changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum = append(changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelAuto string = "auto"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal string = "fatal"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError captures enum value "error"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError string = "error"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn string = "warn"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo captures enum value "info"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo string = "info"
+
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this change mongo DB exporter OK body mongodb exporter based on context it is used
 func (o *ChangeMongoDBExporterOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -610,7 +658,6 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) e
 swagger:model ChangeMongoDBExporterParamsBodyCommon
 */
 type ChangeMongoDBExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

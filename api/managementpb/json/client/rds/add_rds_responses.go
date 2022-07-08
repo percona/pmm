@@ -61,12 +61,12 @@ type AddRDSOK struct {
 func (o *AddRDSOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] addRdsOk  %+v", 200, o.Payload)
 }
+
 func (o *AddRDSOK) GetPayload() *AddRDSOKBody {
 	return o.Payload
 }
 
 func (o *AddRDSOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRDSOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddRDSDefault) Code() int {
 func (o *AddRDSDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] AddRDS default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddRDSDefault) GetPayload() *AddRDSDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRDSDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer r
 swagger:model AddRDSBody
 */
 type AddRDSBody struct {
-
 	// AWS region.
 	Region string `json:"region,omitempty"`
 
@@ -351,10 +350,6 @@ func (o *AddRDSBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSDefaultBody
 */
 type AddRDSDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -420,9 +415,7 @@ func (o *AddRDSDefaultBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddRDSDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -433,7 +426,6 @@ func (o *AddRDSDefaultBody) contextValidateDetails(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -461,13 +453,8 @@ func (o *AddRDSDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSDefaultBodyDetailsItems0
 */
 type AddRDSDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add RDS default body details items0
@@ -502,7 +489,6 @@ func (o *AddRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBody
 */
 type AddRDSOKBody struct {
-
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -768,7 +754,6 @@ func (o *AddRDSOKBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *AddRDSOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Mysql != nil {
 		if err := o.Mysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -784,7 +769,6 @@ func (o *AddRDSOKBody) contextValidateMysql(ctx context.Context, formats strfmt.
 }
 
 func (o *AddRDSOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -800,7 +784,6 @@ func (o *AddRDSOKBody) contextValidateMysqldExporter(ctx context.Context, format
 }
 
 func (o *AddRDSOKBody) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Node != nil {
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -816,7 +799,6 @@ func (o *AddRDSOKBody) contextValidateNode(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddRDSOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Postgresql != nil {
 		if err := o.Postgresql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -832,7 +814,6 @@ func (o *AddRDSOKBody) contextValidatePostgresql(ctx context.Context, formats st
 }
 
 func (o *AddRDSOKBody) contextValidatePostgresqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlExporter != nil {
 		if err := o.PostgresqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -848,7 +829,6 @@ func (o *AddRDSOKBody) contextValidatePostgresqlExporter(ctx context.Context, fo
 }
 
 func (o *AddRDSOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -864,7 +844,6 @@ func (o *AddRDSOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, fo
 }
 
 func (o *AddRDSOKBody) contextValidateQANPostgresqlPgstatements(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANPostgresqlPgstatements != nil {
 		if err := o.QANPostgresqlPgstatements.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -880,7 +859,6 @@ func (o *AddRDSOKBody) contextValidateQANPostgresqlPgstatements(ctx context.Cont
 }
 
 func (o *AddRDSOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -917,7 +895,6 @@ func (o *AddRDSOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyMysql
 */
 type AddRDSOKBodyMysql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -984,7 +961,6 @@ func (o *AddRDSOKBodyMysql) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyMysqldExporter
 */
 type AddRDSOKBodyMysqldExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1045,6 +1021,13 @@ type AddRDSOKBodyMysqldExporter struct {
 
 	// True if tablestats group collectors are currently disabled.
 	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -1052,6 +1035,10 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1118,6 +1105,60 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
+var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyMysqldExporterTypeLogLevelPropEnum = append(addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyMysqldExporterLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyMysqldExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyMysqldExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add RDS OK body mysqld exporter based on context it is used
 func (o *AddRDSOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -1145,7 +1186,6 @@ func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyNode
 */
 type AddRDSOKBodyNode struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -1200,7 +1240,6 @@ func (o *AddRDSOKBodyNode) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyPostgresql
 */
 type AddRDSOKBodyPostgresql struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1270,7 +1309,6 @@ func (o *AddRDSOKBodyPostgresql) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyPostgresqlExporter
 */
 type AddRDSOKBodyPostgresqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1314,6 +1352,13 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1321,6 +1366,10 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1387,6 +1436,60 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
+var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum = append(addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyPostgresqlExporterLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyPostgresqlExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"postgresql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this add RDS OK body postgresql exporter based on context it is used
 func (o *AddRDSOKBodyPostgresqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -1414,7 +1517,6 @@ func (o *AddRDSOKBodyPostgresqlExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyQANMysqlPerfschema
 */
 type AddRDSOKBodyQANMysqlPerfschema struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1461,6 +1563,9 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN mysql perfschema
@@ -1561,7 +1666,6 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 swagger:model AddRDSOKBodyQANPostgresqlPgstatements
 */
 type AddRDSOKBodyQANPostgresqlPgstatements struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1596,6 +1700,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN postgresql pgstatements
@@ -1696,7 +1803,6 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) UnmarshalBinary(b []byte) error 
 swagger:model AddRDSOKBodyRDSExporter
 */
 type AddRDSOKBodyRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1737,6 +1843,9 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter

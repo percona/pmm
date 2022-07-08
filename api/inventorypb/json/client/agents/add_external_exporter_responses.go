@@ -59,12 +59,12 @@ type AddExternalExporterOK struct {
 func (o *AddExternalExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddExternalExporterOK) GetPayload() *AddExternalExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddExternalExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddExternalExporterOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddExternalExporterDefault) Code() int {
 func (o *AddExternalExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] AddExternalExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddExternalExporterDefault) GetPayload() *AddExternalExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddExternalExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddExternalExporterDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *AddExternalExporterDefault) readResponse(response runtime.ClientRespons
 swagger:model AddExternalExporterBody
 */
 type AddExternalExporterBody struct {
-
 	// The node identifier where this instance is run.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -181,10 +180,6 @@ func (o *AddExternalExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalExporterDefaultBody
 */
 type AddExternalExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -250,9 +245,7 @@ func (o *AddExternalExporterDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddExternalExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -263,7 +256,6 @@ func (o *AddExternalExporterDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -291,13 +283,8 @@ func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalExporterDefaultBodyDetailsItems0
 */
 type AddExternalExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add external exporter default body details items0
@@ -332,7 +319,6 @@ func (o *AddExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model AddExternalExporterOKBody
 */
 type AddExternalExporterOKBody struct {
-
 	// external exporter
 	ExternalExporter *AddExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
 }
@@ -385,7 +371,6 @@ func (o *AddExternalExporterOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddExternalExporterOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -422,7 +407,6 @@ func (o *AddExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddExternalExporterOKBodyExternalExporter
 */
 type AddExternalExporterOKBodyExternalExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -452,6 +436,9 @@ type AddExternalExporterOKBodyExternalExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this add external exporter OK body external exporter

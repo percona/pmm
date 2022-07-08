@@ -58,7 +58,6 @@ func NewGetPSMDBComponentsParamsWithHTTPClient(client *http.Client) *GetPSMDBCom
    Typically these are written to a http.Request.
 */
 type GetPSMDBComponentsParams struct {
-
 	// Body.
 	Body GetPSMDBComponentsBody
 
@@ -128,7 +127,6 @@ func (o *GetPSMDBComponentsParams) SetBody(body GetPSMDBComponentsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetPSMDBComponentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

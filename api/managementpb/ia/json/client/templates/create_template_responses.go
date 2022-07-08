@@ -59,12 +59,12 @@ type CreateTemplateOK struct {
 func (o *CreateTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Create][%d] createTemplateOk  %+v", 200, o.Payload)
 }
+
 func (o *CreateTemplateOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *CreateTemplateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *CreateTemplateDefault) Code() int {
 func (o *CreateTemplateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Templates/Create][%d] CreateTemplate default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *CreateTemplateDefault) GetPayload() *CreateTemplateDefaultBody {
 	return o.Payload
 }
 
 func (o *CreateTemplateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(CreateTemplateDefaultBody)
 
 	// response payload
@@ -118,7 +118,6 @@ func (o *CreateTemplateDefault) readResponse(response runtime.ClientResponse, co
 swagger:model CreateTemplateBody
 */
 type CreateTemplateBody struct {
-
 	// YAML (or JSON) template file content.
 	Yaml string `json:"yaml,omitempty"`
 }
@@ -155,10 +154,6 @@ func (o *CreateTemplateBody) UnmarshalBinary(b []byte) error {
 swagger:model CreateTemplateDefaultBody
 */
 type CreateTemplateDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -224,9 +219,7 @@ func (o *CreateTemplateDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *CreateTemplateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -237,7 +230,6 @@ func (o *CreateTemplateDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -265,13 +257,8 @@ func (o *CreateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model CreateTemplateDefaultBodyDetailsItems0
 */
 type CreateTemplateDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this create template default body details items0

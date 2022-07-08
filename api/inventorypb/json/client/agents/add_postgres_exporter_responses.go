@@ -61,12 +61,12 @@ type AddPostgresExporterOK struct {
 func (o *AddPostgresExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddPostgresExporterOK) GetPayload() *AddPostgresExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddPostgresExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddPostgresExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddPostgresExporterDefault) Code() int {
 func (o *AddPostgresExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddPostgresExporterDefault) GetPayload() *AddPostgresExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddPostgresExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientRespons
 swagger:model AddPostgresExporterBody
 */
 type AddPostgresExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -198,10 +197,6 @@ func (o *AddPostgresExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterDefaultBody
 */
 type AddPostgresExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -267,9 +262,7 @@ func (o *AddPostgresExporterDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddPostgresExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -280,7 +273,6 @@ func (o *AddPostgresExporterDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -308,13 +300,8 @@ func (o *AddPostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterDefaultBodyDetailsItems0
 */
 type AddPostgresExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add postgres exporter default body details items0
@@ -349,7 +336,6 @@ func (o *AddPostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model AddPostgresExporterOKBody
 */
 type AddPostgresExporterOKBody struct {
-
 	// postgres exporter
 	PostgresExporter *AddPostgresExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 }
@@ -402,7 +388,6 @@ func (o *AddPostgresExporterOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddPostgresExporterOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -439,7 +424,6 @@ func (o *AddPostgresExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPostgresExporterOKBodyPostgresExporter
 */
 type AddPostgresExporterOKBodyPostgresExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -483,6 +467,13 @@ type AddPostgresExporterOKBodyPostgresExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgres exporter OK body postgres exporter
@@ -490,6 +481,10 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.Regi
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -550,6 +545,60 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) validateStatus(formats strfm
 
 	// value enum
 	if err := o.validateStatusEnum("addPostgresExporterOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum = append(addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelAuto string = "auto"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelFatal string = "fatal"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelError captures enum value "error"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelError string = "error"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelWarn string = "warn"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelInfo captures enum value "info"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelInfo string = "info"
+
+	// AddPostgresExporterOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
+	AddPostgresExporterOKBodyPostgresExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgresExporterOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgresExporterOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addPostgresExporterOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

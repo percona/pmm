@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -33,6 +34,8 @@ type ObjectDetailsClient interface {
 	GetQueryPlan(ctx context.Context, in *QueryPlanRequest, opts ...grpc.CallOption) (*QueryPlanReply, error)
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
+	// QueryExists check if query exists in clickhouse.
+	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 }
 
 type objectDetailsClient struct {
@@ -88,6 +91,15 @@ func (c *objectDetailsClient) GetHistogram(ctx context.Context, in *HistogramReq
 	return out, nil
 }
 
+func (c *objectDetailsClient) QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
+	out := new(wrapperspb.BoolValue)
+	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/QueryExists", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -102,27 +114,36 @@ type ObjectDetailsServer interface {
 	GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error)
 	// GetHistogram gets histogram items for specific filtering.
 	GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error)
+	// QueryExists check if query exists in clickhouse.
+	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
 // UnimplementedObjectDetailsServer must be embedded to have forward compatible implementations.
-type UnimplementedObjectDetailsServer struct {
-}
+type UnimplementedObjectDetailsServer struct{}
 
 func (UnimplementedObjectDetailsServer) GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetQueryExample(context.Context, *QueryExampleRequest) (*QueryExampleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetLabels(context.Context, *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
 }
+
 func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
+}
+
+func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -227,6 +248,24 @@ func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ObjectDetailsServer).QueryExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/qan.v1beta1.ObjectDetails/QueryExists",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ObjectDetailsServer).QueryExists(ctx, req.(*QueryExistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -253,6 +292,10 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHistogram",
 			Handler:    _ObjectDetails_GetHistogram_Handler,
+		},
+		{
+			MethodName: "QueryExists",
+			Handler:    _ObjectDetails_QueryExists_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

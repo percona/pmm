@@ -58,7 +58,6 @@ func NewDeleteSilenceParamsWithHTTPClient(client *http.Client) *DeleteSilencePar
    Typically these are written to a http.Request.
 */
 type DeleteSilenceParams struct {
-
 	/* SilenceID.
 
 	   ID of the silence to get
@@ -133,7 +132,6 @@ func (o *DeleteSilenceParams) SetSilenceID(silenceID strfmt.UUID) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteSilenceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

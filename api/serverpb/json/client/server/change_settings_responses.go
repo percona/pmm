@@ -59,12 +59,12 @@ type ChangeSettingsOK struct {
 func (o *ChangeSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
 	return o.Payload
 }
 
 func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeSettingsOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *ChangeSettingsDefault) Code() int {
 func (o *ChangeSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeSettingsDefaultBody)
 
 	// response payload
@@ -120,7 +120,6 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
-
 	// enable updates
 	EnableUpdates bool `json:"enable_updates,omitempty"`
 
@@ -338,7 +337,6 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ChangeSettingsBody) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -354,7 +352,6 @@ func (o *ChangeSettingsBody) contextValidateEmailAlertingSettings(ctx context.Co
 }
 
 func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -370,7 +367,6 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 }
 
 func (o *ChangeSettingsBody) contextValidateSlackAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackAlertingSettings != nil {
 		if err := o.SlackAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -386,7 +382,6 @@ func (o *ChangeSettingsBody) contextValidateSlackAlertingSettings(ctx context.Co
 }
 
 func (o *ChangeSettingsBody) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -423,10 +418,6 @@ func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsDefaultBody
 */
 type ChangeSettingsDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -492,9 +483,7 @@ func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -505,7 +494,6 @@ func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -529,17 +517,119 @@ func (o *ChangeSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsDefaultBodyDetailsItems0 change settings default body details items0
+/*ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+// URL that describes the type of the serialized message.
+//
+// Protobuf library provides support to pack/unpack Any values in the form
+// of utility functions or additional generated methods of the Any type.
+//
+// Example 1: Pack and unpack a message in C++.
+//
+//     Foo foo = ...;
+//     Any any;
+//     any.PackFrom(foo);
+//     ...
+//     if (any.UnpackTo(&foo)) {
+//       ...
+//     }
+//
+// Example 2: Pack and unpack a message in Java.
+//
+//     Foo foo = ...;
+//     Any any = Any.pack(foo);
+//     ...
+//     if (any.is(Foo.class)) {
+//       foo = any.unpack(Foo.class);
+//     }
+//
+// Example 3: Pack and unpack a message in Python.
+//
+//     foo = Foo(...)
+//     any = Any()
+//     any.Pack(foo)
+//     ...
+//     if any.Is(Foo.DESCRIPTOR):
+//       any.Unpack(foo)
+//       ...
+//
+// Example 4: Pack and unpack a message in Go
+//
+//      foo := &pb.Foo{...}
+//      any, err := anypb.New(foo)
+//      if err != nil {
+//        ...
+//      }
+//      ...
+//      foo := &pb.Foo{}
+//      if err := any.UnmarshalTo(foo); err != nil {
+//        ...
+//      }
+//
+// The pack methods provided by protobuf library will by default use
+// 'type.googleapis.com/full.type.name' as the type URL and the unpack
+// methods only use the fully qualified type name after the last '/'
+// in the type URL, for example "foo.bar.com/x/y.z" will yield type
+// name "y.z".
+//
+//
+// JSON
+//
+// The JSON representation of an `Any` value uses the regular
+// representation of the deserialized, embedded message, with an
+// additional field `@type` which contains the type URL. Example:
+//
+//     package google.profile;
+//     message Person {
+//       string first_name = 1;
+//       string last_name = 2;
+//     }
+//
+//     {
+//       "@type": "type.googleapis.com/google.profile.Person",
+//       "firstName": <string>,
+//       "lastName": <string>
+//     }
+//
+// If the embedded message type is well-known and has a custom JSON
+// representation, that representation will be embedded adding a field
+// `value` which holds the custom JSON in addition to the `@type`
+// field. Example (for message [google.protobuf.Duration][]):
+//
+//     {
+//       "@type": "type.googleapis.com/google.protobuf.Duration",
+//       "value": "1.212s"
+//     }
 swagger:model ChangeSettingsDefaultBodyDetailsItems0
 */
 type ChangeSettingsDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// A URL/resource name that uniquely identifies the type of the serialized
+	// protocol buffer message. This string must contain at least
+	// one "/" character. The last segment of the URL's path must represent
+	// the fully qualified name of the type (as in
+	// `path/google.protobuf.Duration`). The name should be in a canonical form
+	// (e.g., leading "." is not accepted).
+	//
+	// In practice, teams usually precompile into the binary all types that they
+	// expect it to use in the context of Any. However, for URLs which use the
+	// scheme `http`, `https`, or no scheme, one can optionally set up a type
+	// server that maps type URLs to message definitions as follows:
+	//
+	// * If no scheme is provided, `https` is assumed.
+	// * An HTTP GET on the URL must yield a [google.protobuf.Type][]
+	//   value in binary format, or produce an error.
+	// * Applications are allowed to cache lookup results based on the
+	//   URL, or have them precompiled into a binary to avoid any
+	//   lookup. Therefore, binary compatibility needs to be preserved
+	//   on changes to types. (Use versioned type names to manage
+	//   breaking changes.)
+	//
+	// Note: this functionality is not currently available in the official
+	// protobuf release, and it is not used for type URLs beginning with
+	// type.googleapis.com.
+	//
+	// Schemes other than `http`, `https` (or the empty scheme) might be
+	// used with implementation specific semantics.
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change settings default body details items0
@@ -574,7 +664,6 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model ChangeSettingsOKBody
 */
 type ChangeSettingsOKBody struct {
-
 	// settings
 	Settings *ChangeSettingsOKBodySettings `json:"settings,omitempty"`
 }
@@ -627,7 +716,6 @@ func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Settings != nil {
 		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -664,7 +752,6 @@ func (o *ChangeSettingsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
-
 	// True if updates are disabled.
 	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 
@@ -852,7 +939,6 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -868,7 +954,6 @@ func (o *ChangeSettingsOKBodySettings) contextValidateEmailAlertingSettings(ctx 
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -884,7 +969,6 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateSlackAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackAlertingSettings != nil {
 		if err := o.SlackAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -900,7 +984,6 @@ func (o *ChangeSettingsOKBodySettings) contextValidateSlackAlertingSettings(ctx 
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -937,7 +1020,6 @@ func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsOKBodySettingsEmailAlertingSettings
 */
 type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
-
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
 
@@ -995,7 +1077,6 @@ func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []
 swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
-
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -1038,7 +1119,6 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 swagger:model ChangeSettingsOKBodySettingsSlackAlertingSettings
 */
 type ChangeSettingsOKBodySettingsSlackAlertingSettings struct {
-
 	// Slack API (webhook) URL.
 	URL string `json:"url,omitempty"`
 }
@@ -1075,7 +1155,6 @@ func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []
 swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
 */
 type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
-
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -1118,7 +1197,6 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
 */
 type ChangeSettingsParamsBodyEmailAlertingSettings struct {
-
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
 
@@ -1176,7 +1254,6 @@ func (o *ChangeSettingsParamsBodyEmailAlertingSettings) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
-
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -1219,7 +1296,6 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) e
 swagger:model ChangeSettingsParamsBodySlackAlertingSettings
 */
 type ChangeSettingsParamsBodySlackAlertingSettings struct {
-
 	// Slack API (webhook) URL.
 	URL string `json:"url,omitempty"`
 }
@@ -1256,7 +1332,6 @@ func (o *ChangeSettingsParamsBodySlackAlertingSettings) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodySttCheckIntervals
 */
 type ChangeSettingsParamsBodySttCheckIntervals struct {
-
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 

@@ -61,12 +61,12 @@ type AddProxySQLExporterOK struct {
 func (o *AddProxySQLExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] addProxySqlExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddProxySQLExporterOK) GetPayload() *AddProxySQLExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddProxySQLExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddProxySQLExporterDefault) Code() int {
 func (o *AddProxySQLExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddProxySQLExporter][%d] AddProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddProxySQLExporterDefault) GetPayload() *AddProxySQLExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddProxySQLExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *AddProxySQLExporterDefault) readResponse(response runtime.ClientRespons
 swagger:model AddProxySQLExporterBody
 */
 type AddProxySQLExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -189,10 +188,6 @@ func (o *AddProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterDefaultBody
 */
 type AddProxySQLExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,9 +253,7 @@ func (o *AddProxySQLExporterDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -271,7 +264,6 @@ func (o *AddProxySQLExporterDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -299,13 +291,8 @@ func (o *AddProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterDefaultBodyDetailsItems0
 */
 type AddProxySQLExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter default body details items0
@@ -340,7 +327,6 @@ func (o *AddProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model AddProxySQLExporterOKBody
 */
 type AddProxySQLExporterOKBody struct {
-
 	// proxysql exporter
 	ProxysqlExporter *AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 }
@@ -393,7 +379,6 @@ func (o *AddProxySQLExporterOKBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddProxySQLExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -430,7 +415,6 @@ func (o *AddProxySQLExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLExporterOKBodyProxysqlExporter
 */
 type AddProxySQLExporterOKBodyProxysqlExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -474,6 +458,13 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter OK body proxysql exporter
@@ -481,6 +472,10 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) Validate(formats strfmt.Regi
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -541,6 +536,60 @@ func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats strfm
 
 	// value enum
 	if err := o.validateStatusEnum("addProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum = append(addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto string = "auto"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelError captures enum value "error"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelError string = "error"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddProxySQLExporterOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addProxySqlExporterOk"+"."+"proxysql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

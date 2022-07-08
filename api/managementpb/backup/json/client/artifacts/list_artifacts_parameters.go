@@ -58,7 +58,6 @@ func NewListArtifactsParamsWithHTTPClient(client *http.Client) *ListArtifactsPar
    Typically these are written to a http.Request.
 */
 type ListArtifactsParams struct {
-
 	// Body.
 	Body interface{}
 
@@ -128,7 +127,6 @@ func (o *ListArtifactsParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListArtifactsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

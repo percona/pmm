@@ -61,12 +61,12 @@ type ChangeQANMySQLPerfSchemaAgentOK struct {
 func (o *ChangeQANMySQLPerfSchemaAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] changeQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeQANMySQLPerfSchemaAgentOK) GetPayload() *ChangeQANMySQLPerfSchemaAgentOKBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANMySQLPerfSchemaAgentOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefault) Code() int {
 func (o *ChangeQANMySQLPerfSchemaAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent][%d] ChangeQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeQANMySQLPerfSchemaAgentDefault) GetPayload() *ChangeQANMySQLPerfSchemaAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeQANMySQLPerfSchemaAgentDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.Cli
 swagger:model ChangeQANMySQLPerfSchemaAgentBody
 */
 type ChangeQANMySQLPerfSchemaAgentBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,10 +213,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBody
 */
 type ChangeQANMySQLPerfSchemaAgentDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,9 +278,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) ContextValidate(ctx context.C
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +289,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) contextValidateDetails(ctx co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,13 +316,8 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) err
 swagger:model ChangeQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent default body details items0
@@ -366,7 +352,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) UnmarshalBinary(
 swagger:model ChangeQANMySQLPerfSchemaAgentOKBody
 */
 type ChangeQANMySQLPerfSchemaAgentOKBody struct {
-
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 }
@@ -419,7 +404,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBody) ContextValidate(ctx context.Contex
 }
 
 func (o *ChangeQANMySQLPerfSchemaAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +440,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 */
 type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -503,6 +486,9 @@ type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this change QAN my SQL perf schema agent OK body QAN mysql perfschema agent
@@ -603,7 +589,6 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBi
 swagger:model ChangeQANMySQLPerfSchemaAgentParamsBodyCommon
 */
 type ChangeQANMySQLPerfSchemaAgentParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

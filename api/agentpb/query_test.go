@@ -52,7 +52,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				[]byte{},
 				time.Time{},
 				[]interface{}{},
-				map[string]interface{}{},
+				make(map[string]interface{}),
 				primitive.Binary{},
 			},
 
@@ -95,7 +95,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"bytes":  "",
 				"time":   time.Time{},
 				"slice":  []interface{}{},
-				"map":    map[string]interface{}{},
+				"map":    make(map[string]interface{}),
 				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 
@@ -160,7 +160,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"string1": "", "string2": "\x00",
 				"time":   time.Time{},
 				"slice1": []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
-				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
+				"map1": make(map[string]interface{}), "map2": map[string]interface{}{"": int64(0)},
 			},
 		}
 
@@ -198,7 +198,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"mongoTimestamp": primitive.Timestamp{},
 				"mongoDateTime":  primitive.DateTime(0),
 				"slice1":         []int{}, "slice2": []int{0},
-				"map1": map[string]int{}, "map2": map[string]int{"": 0},
+				"map1": make(map[string]int), "map2": map[string]int{"": 0},
 			},
 		})
 		require.NoError(t, err)
@@ -226,7 +226,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"mongoTimestamp": time.Time{},
 				"mongoDateTime":  time.Time{},
 				"slice1":         []interface{}{}, "slice2": []interface{}{int64(0)},
-				"map1": map[string]interface{}{}, "map2": map[string]interface{}{"": int64(0)},
+				"map1": make(map[string]interface{}), "map2": map[string]interface{}{"": int64(0)},
 			},
 		}
 		assert.Equal(t, expected, actual)

@@ -61,12 +61,12 @@ type ChangeRDSExporterOK struct {
 func (o *ChangeRDSExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] changeRdsExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeRDSExporterOK) GetPayload() *ChangeRDSExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeRDSExporterOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ChangeRDSExporterDefault) Code() int {
 func (o *ChangeRDSExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] ChangeRDSExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeRDSExporterDefault) GetPayload() *ChangeRDSExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeRDSExporterDefaultBody)
 
 	// response payload
@@ -122,7 +122,6 @@ func (o *ChangeRDSExporterDefault) readResponse(response runtime.ClientResponse,
 swagger:model ChangeRDSExporterBody
 */
 type ChangeRDSExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -178,7 +177,6 @@ func (o *ChangeRDSExporterBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ChangeRDSExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -215,10 +213,6 @@ func (o *ChangeRDSExporterBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRDSExporterDefaultBody
 */
 type ChangeRDSExporterDefaultBody struct {
-
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,9 +278,7 @@ func (o *ChangeRDSExporterDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeRDSExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,7 +289,6 @@ func (o *ChangeRDSExporterDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -325,13 +316,8 @@ func (o *ChangeRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRDSExporterDefaultBodyDetailsItems0
 */
 type ChangeRDSExporterDefaultBodyDetailsItems0 struct {
-
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change RDS exporter default body details items0
@@ -366,7 +352,6 @@ func (o *ChangeRDSExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 swagger:model ChangeRDSExporterOKBody
 */
 type ChangeRDSExporterOKBody struct {
-
 	// rds exporter
 	RDSExporter *ChangeRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -419,7 +404,6 @@ func (o *ChangeRDSExporterOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ChangeRDSExporterOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +440,6 @@ func (o *ChangeRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRDSExporterOKBodyRDSExporter
 */
 type ChangeRDSExporterOKBodyRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -497,6 +480,9 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// Path to exec process.
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
 // Validate validates this change RDS exporter OK body RDS exporter
@@ -597,7 +583,6 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRDSExporterParamsBodyCommon
 */
 type ChangeRDSExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

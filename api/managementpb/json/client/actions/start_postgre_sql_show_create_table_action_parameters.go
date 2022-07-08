@@ -58,7 +58,6 @@ func NewStartPostgreSQLShowCreateTableActionParamsWithHTTPClient(client *http.Cl
    Typically these are written to a http.Request.
 */
 type StartPostgreSQLShowCreateTableActionParams struct {
-
 	// Body.
 	Body StartPostgreSQLShowCreateTableActionBody
 
@@ -128,7 +127,6 @@ func (o *StartPostgreSQLShowCreateTableActionParams) SetBody(body StartPostgreSQ
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartPostgreSQLShowCreateTableActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
