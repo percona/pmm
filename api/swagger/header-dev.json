@@ -1,0 +1,30 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM API",
+    "version": "develop",
+    "description": "This API is for development and testing purposes."
+  },
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "x-readme": {
+    "samples-languages": [
+      "curl",
+      "go",
+      "node",
+      "python"
+    ]
+  }
+}

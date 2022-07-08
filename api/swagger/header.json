@@ -1,0 +1,29 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM API",
+    "version": "public"
+  },
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ],
+  "x-readme": {
+    "samples-languages": [
+      "curl",
+      "go",
+      "node",
+      "python"
+    ]
+  }
+}
