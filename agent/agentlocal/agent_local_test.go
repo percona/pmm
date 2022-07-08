@@ -21,8 +21,6 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 	"time"
 
@@ -227,11 +225,8 @@ func TestGetAgentLogs(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
 		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
-		formData := url.Values{
-			"agent_id": {"00000000-0000-4000-8000-000000000004"},
-		}
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest("POST", "/logs/agent", strings.NewReader(formData.Encode()))
+		req := httptest.NewRequest("GET", "/logs/agent?agentID=00000000-0000-4000-8000-000000000004", nil)
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 		s.GetAgentLogs(rec, req)
 		logs, err := ioutil.ReadAll(rec.Body)
