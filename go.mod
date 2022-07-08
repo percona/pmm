@@ -34,7 +34,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
-	github.com/hashicorp/go-version v1.5.0
+	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.31
 	github.com/mwitkow/go-proto-validators v0.3.2
