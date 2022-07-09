@@ -34,6 +34,8 @@ type SecurityChecksClient interface {
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
+	// StartChecksStream executes Checks and returns their results as a gRPC stream
+	StartChecksStream(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (SecurityChecks_StartChecksStreamClient, error)
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
@@ -94,6 +96,38 @@ func (c *securityChecksClient) StartSecurityChecks(ctx context.Context, in *Star
 	return out, nil
 }
 
+func (c *securityChecksClient) StartChecksStream(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (SecurityChecks_StartChecksStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SecurityChecks_ServiceDesc.Streams[0], "/management.SecurityChecks/StartChecksStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &securityChecksStartChecksStreamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type SecurityChecks_StartChecksStreamClient interface {
+	Recv() (*CheckResult, error)
+	grpc.ClientStream
+}
+
+type securityChecksStartChecksStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *securityChecksStartChecksStreamClient) Recv() (*CheckResult, error) {
+	m := new(CheckResult)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *securityChecksClient) ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error) {
 	out := new(ListSecurityChecksResponse)
 	err := c.cc.Invoke(ctx, "/management.SecurityChecks/ListSecurityChecks", in, out, opts...)
@@ -127,6 +161,8 @@ type SecurityChecksServer interface {
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
+	// StartChecksStream executes Checks and returns their results as a gRPC stream
+	StartChecksStream(*StartSecurityChecksRequest, SecurityChecks_StartChecksStreamServer) error
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)
 	// ChangeSecurityChecks enables/disables Security Thread Tool checks or changes their interval by names.
@@ -155,6 +191,10 @@ func (UnimplementedSecurityChecksServer) GetSecurityCheckResults(context.Context
 
 func (UnimplementedSecurityChecksServer) StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartSecurityChecks not implemented")
+}
+
+func (UnimplementedSecurityChecksServer) StartChecksStream(*StartSecurityChecksRequest, SecurityChecks_StartChecksStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method StartChecksStream not implemented")
 }
 
 func (UnimplementedSecurityChecksServer) ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error) {
@@ -267,6 +307,27 @@ func _SecurityChecks_StartSecurityChecks_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityChecks_StartChecksStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StartSecurityChecksRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SecurityChecksServer).StartChecksStream(m, &securityChecksStartChecksStreamServer{stream})
+}
+
+type SecurityChecks_StartChecksStreamServer interface {
+	Send(*CheckResult) error
+	grpc.ServerStream
+}
+
+type securityChecksStartChecksStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *securityChecksStartChecksStreamServer) Send(m *CheckResult) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _SecurityChecks_ListSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListSecurityChecksRequest)
 	if err := dec(in); err != nil {
@@ -339,6 +400,12 @@ var SecurityChecks_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _SecurityChecks_ChangeSecurityChecks_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StartChecksStream",
+			Handler:       _SecurityChecks_StartChecksStream_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "managementpb/checks.proto",
 }

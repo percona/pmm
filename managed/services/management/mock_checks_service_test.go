@@ -177,3 +177,26 @@ func (_m *mockChecksService) ToggleCheckAlert(ctx context.Context, alertID strin
 
 	return r0
 }
+
+// WatchChecksStream provides a mock function with given fields: ctx, checkNames
+func (_m *mockChecksService) WatchChecksStream(ctx context.Context, checkNames []string) (<-chan *services.CheckResult, error) {
+	ret := _m.Called(ctx, checkNames)
+
+	var r0 <-chan *services.CheckResult
+	if rf, ok := ret.Get(0).(func(context.Context, []string) <-chan *services.CheckResult); ok {
+		r0 = rf(ctx, checkNames)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *services.CheckResult)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, []string) error); ok {
+		r1 = rf(ctx, checkNames)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

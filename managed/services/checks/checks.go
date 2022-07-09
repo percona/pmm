@@ -297,6 +297,38 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(), nil
 }
 
+func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<-chan *services.CheckResult, error) {
+	start := time.Now()
+	count := 1
+	watcher := make(chan *services.CheckResult)
+	go func() {
+		for {
+			s.l.Warn("preparing stream result")
+
+			if count > 5 {
+				s.l.Warn("reached max count")
+				break
+			}
+			var prefix string
+			if len(checkNames) != 0 {
+				prefix = checkNames[0]
+			}
+			result := &services.CheckResult{
+				CheckName: prefix + "hello there!" + fmt.Sprint(time.Now().Sub(start)),
+				Result: check.Result{
+					Summary:     fmt.Sprintf("ping summary - %d", count),
+					Description: fmt.Sprintf("ping description - %d", count),
+				},
+			}
+			watcher <- result
+			count++
+			time.Sleep(1 * time.Second)
+		}
+		close(watcher)
+	}()
+	return watcher, nil
+}
+
 // GetChecksResults returns the failed checks for a given service from AlertManager.
 func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)

@@ -194,6 +194,31 @@ func local_request_SecurityChecks_StartSecurityChecks_0(ctx context.Context, mar
 	return msg, metadata, err
 }
 
+var filter_SecurityChecks_StartChecksStream_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_SecurityChecks_StartChecksStream_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (SecurityChecks_StartChecksStreamClient, runtime.ServerMetadata, error) {
+	var protoReq StartSecurityChecksRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityChecks_StartChecksStream_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StartChecksStream(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+}
+
 func request_SecurityChecks_ListSecurityChecks_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityChecksClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListSecurityChecksRequest
 	var metadata runtime.ServerMetadata
@@ -376,6 +401,13 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		}
 
 		forward_SecurityChecks_StartSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	mux.Handle("POST", pattern_SecurityChecks_StartChecksStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -564,6 +596,26 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		forward_SecurityChecks_StartSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("POST", pattern_SecurityChecks_StartChecksStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/StartChecksStream", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Stream"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_SecurityChecks_StartChecksStream_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_SecurityChecks_StartChecksStream_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_SecurityChecks_ListSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -618,6 +670,8 @@ var (
 
 	pattern_SecurityChecks_StartSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "Start"}, ""))
 
+	pattern_SecurityChecks_StartChecksStream_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "Stream"}, ""))
+
 	pattern_SecurityChecks_ListSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "List"}, ""))
 
 	pattern_SecurityChecks_ChangeSecurityChecks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "SecurityChecks", "Change"}, ""))
@@ -633,6 +687,8 @@ var (
 	forward_SecurityChecks_GetSecurityCheckResults_0 = runtime.ForwardResponseMessage
 
 	forward_SecurityChecks_StartSecurityChecks_0 = runtime.ForwardResponseMessage
+
+	forward_SecurityChecks_StartChecksStream_0 = runtime.ForwardResponseStream
 
 	forward_SecurityChecks_ListSecurityChecks_0 = runtime.ForwardResponseMessage
 

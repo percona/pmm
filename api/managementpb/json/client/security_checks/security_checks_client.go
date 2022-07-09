@@ -38,6 +38,8 @@ type ClientService interface {
 
 	ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error)
 
+	StartChecksStream(params *StartChecksStreamParams, opts ...ClientOption) (*StartChecksStreamOK, error)
+
 	StartSecurityChecks(params *StartSecurityChecksParams, opts ...ClientOption) (*StartSecurityChecksOK, error)
 
 	ToggleCheckAlert(params *ToggleCheckAlertParams, opts ...ClientOption) (*ToggleCheckAlertOK, error)
@@ -237,6 +239,43 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...Cl
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListSecurityChecksDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  StartChecksStream starts checks stream executes checks and returns their results as a g RPC stream
+*/
+func (a *Client) StartChecksStream(params *StartChecksStreamParams, opts ...ClientOption) (*StartChecksStreamOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartChecksStreamParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "StartChecksStream",
+		Method:             "POST",
+		PathPattern:        "/v1/management/SecurityChecks/Stream",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartChecksStreamReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartChecksStreamOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartChecksStreamDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -70,6 +70,7 @@ type checksService interface {
 	EnableChecks(checkNames []string) error
 	ChangeInterval(params map[string]check.Interval) error
 	ToggleCheckAlert(ctx context.Context, alertID string, newStatus bool) error
+	WatchChecksStream(ctx context.Context, checkNames []string) (<-chan *services.CheckResult, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

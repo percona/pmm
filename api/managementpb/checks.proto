@@ -206,6 +206,14 @@ service SecurityChecks {
       description: "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified."
     };
   }
+
+  // StartChecksStream executes Checks and returns their results as a gRPC stream
+  rpc StartChecksStream(StartSecurityChecksRequest) returns (stream CheckResult) {
+    option (google.api.http) = {
+      post: "/v1/management/SecurityChecks/Stream"
+    };
+  }
+
   // ListSecurityChecks returns a list of available Security Thread Tool checks.
   rpc ListSecurityChecks(ListSecurityChecksRequest) returns (ListSecurityChecksResponse) {
     option (google.api.http) = {

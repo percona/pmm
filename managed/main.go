@@ -43,6 +43,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"github.com/tmc/grpc-websocket-proxy/wsproxy"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -364,7 +365,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/", proxyMux)
+	mux.Handle("/", wsproxy.WebsocketProxy(proxyMux, wsproxy.WithRequestMutator(
+		// rewrite request to use HTTP POST method
+		func(_ *http.Request, outgoing *http.Request) *http.Request {
+			outgoing.Method = "POST"
+			return outgoing
+		},
+	), wsproxy.WithLogger(l)))
 
 	server := &http.Server{
 		Addr:     http1Addr,

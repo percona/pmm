@@ -18,7 +18,6 @@ package management
 
 import (
 	"context"
-
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -214,6 +213,31 @@ func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managem
 	}
 
 	return &managementpb.StartSecurityChecksResponse{}, nil
+}
+
+func (s *ChecksAPIService) StartChecksStream(req *managementpb.StartSecurityChecksRequest, stream managementpb.SecurityChecks_StartChecksStreamServer) error {
+	var checkNames []string
+	if req != nil {
+		checkNames = req.Names
+	}
+	checksWatcher, err := s.checksService.WatchChecksStream(stream.Context(), checkNames)
+	if err != nil {
+		return err
+	}
+
+	for result := range checksWatcher {
+		if result == nil {
+			break
+		}
+		if err := stream.Send(&managementpb.CheckResult{
+			CheckName:   result.CheckName,
+			Summary:     result.Result.Summary,
+			Description: result.Result.Description,
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
