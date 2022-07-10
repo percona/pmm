@@ -30,6 +30,9 @@ import (
 // DataSourceName data source name.
 type DataSourceName string
 
+//go:generate ../../../bin/mockery -name=DataSourceLocator -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=DataSource -case=snake -inpkg -testonly
+
 // DataSourceLocator locates data source by name.
 type DataSourceLocator interface {
 	LocateTelemetryDataSource(name string) (DataSource, error)
