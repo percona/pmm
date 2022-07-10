@@ -35,7 +35,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 		name           string
 		windowPeriod   time.Duration
 		args           map[time.Time]bool
-		expectedEvents []ConnectionEvent
+		expectedEvents []connectionEvent
 	}{
 		{
 			name:         "should return one event",
@@ -43,7 +43,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 			args: map[time.Time]bool{
 				now: true,
 			},
-			expectedEvents: []ConnectionEvent{
+			expectedEvents: []connectionEvent{
 				{
 					Timestamp: now,
 					Connected: true,
@@ -59,7 +59,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 				now.Add(1 * time.Minute): true,
 				now.Add(2 * time.Minute): true,
 			},
-			expectedEvents: []ConnectionEvent{
+			expectedEvents: []connectionEvent{
 				{
 					Timestamp: now,
 					Connected: true,
@@ -79,7 +79,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 				now.Add(6 * time.Minute): true,
 				now.Add(7 * time.Minute): true,
 			},
-			expectedEvents: []ConnectionEvent{
+			expectedEvents: []connectionEvent{
 				{
 					Timestamp: now,
 					Connected: true,
@@ -98,7 +98,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			set := NewService(tt.windowPeriod)
+			service := NewService(tt.windowPeriod)
 
 			var sortedTime []time.Time
 			for k := range tt.args {
@@ -110,10 +110,10 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				set.AddConnectionEvent(t, tt.args[t])
+				service.AddConnectionEvent(t, tt.args[t])
 			}
 
-			assert.Equal(t, tt.expectedEvents, set.GetAll())
+			assert.Equal(t, tt.expectedEvents, service.events)
 		})
 	}
 }
@@ -177,7 +177,7 @@ func TestConnectionUpTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cs := NewService(time.Hour)
+			service := NewService(time.Hour)
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
 				sortedTime = append(sortedTime, k)
@@ -188,10 +188,10 @@ func TestConnectionUpTime(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				cs.AddConnectionEvent(t, tt.setOfConnections[t])
+				service.AddConnectionEvent(t, tt.setOfConnections[t])
 			}
 
-			assert.EqualValues(t, tt.expectedUpTime, cs.GetConnectedUpTimeSince(now))
+			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(now))
 		})
 	}
 }
@@ -206,7 +206,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 	tests := []struct {
 		name     string
 		fields   fields
-		expected []ConnectionEvent
+		expected []connectionEvent
 	}{
 		{
 			name: "should return remove expired element with connected=true and created instead of it a new one",
@@ -217,7 +217,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
 					Connected: true,
@@ -237,7 +237,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
 					Connected: false,
@@ -257,7 +257,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: true,
@@ -272,7 +272,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: false,
@@ -292,7 +292,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: true,
@@ -312,7 +312,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 				},
 				windowPeriod: time.Hour,
 			},
-			expected: []ConnectionEvent{
+			expected: []connectionEvent{
 				{
 					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
 					Connected: true,
@@ -330,7 +330,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cs := NewService(tt.fields.windowPeriod)
+			service := NewService(tt.fields.windowPeriod)
 
 			var sortedTime []time.Time
 			for k := range tt.fields.events {
@@ -342,12 +342,12 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				cs.AddConnectionEvent(t, tt.fields.events[t])
+				service.AddConnectionEvent(t, tt.fields.events[t])
 			}
 
-			cs.deleteOldEvents()
+			service.deleteOldEvents()
 
-			gotEvents := cs.GetAll()
+			gotEvents := service.events
 			assert.True(t, len(gotEvents) == len(tt.expected), "length of got slice of events is not correct")
 			for i, e := range gotEvents {
 				assert.Equal(t, tt.expected[i].Timestamp.Unix(), e.Timestamp.Unix(), fmt.Sprintf("element with index: %d", i))

@@ -23,27 +23,33 @@ import (
 
 const periodForRunningDeletingOldEvents = time.Minute
 
+// Service calculates connection up time between agent and server
+// based on the connection events events
 type Service struct {
 	mx           sync.Mutex
-	events       []ConnectionEvent
+	events       []connectionEvent
 	windowPeriod time.Duration
 }
 
-type ConnectionEvent struct {
+type connectionEvent struct {
 	Timestamp time.Time
 	Connected bool
 }
 
+// NewService creates new instance of Service
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriod: windowPeriod,
 	}
 }
 
+// SetWindowPeriod updates window period during which connection uptime
+// is calculated
 func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
+// AddConnectionEvent adds connection event
 func (c *Service) AddConnectionEvent(timestamp time.Time, connected bool) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
@@ -51,7 +57,7 @@ func (c *Service) AddConnectionEvent(timestamp time.Time, connected bool) {
 }
 
 func (c *Service) addEvent(timestamp time.Time, connected bool) {
-	newElem := ConnectionEvent{
+	newElem := connectionEvent{
 		Timestamp: timestamp,
 		Connected: connected,
 	}
@@ -80,7 +86,7 @@ func (c *Service) deleteOldEvents() {
 	// uptime correctly during set up window time
 	lenOfEvents := len(c.events)
 	for i := 0; i < lenOfEvents; i++ {
-		if time.Now().Sub(c.events[0].Timestamp) > c.windowPeriod {
+		if time.Since(c.events[0].Timestamp) > c.windowPeriod {
 			c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
 			if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
 				c.removeEventByIndex(0)
@@ -89,6 +95,8 @@ func (c *Service) deleteOldEvents() {
 	}
 }
 
+// RunOldEventsDeleter starts goroutine which removes already expired connection events.
+// Expired event means that it was created more than `windowPeriod` time ago.
 func (c *Service) RunOldEventsDeleter(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
@@ -134,9 +142,8 @@ func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
 			return 100
-		} else {
-			return 0
 		}
+		return 0
 	}
 
 	var connectedTimeMs int64
@@ -152,8 +159,4 @@ func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
 
 	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
 	return float32(connectedTimeMs) / float32(totalTime) * 100
-}
-
-func (c *Service) GetAll() []ConnectionEvent {
-	return c.events
 }

@@ -21,7 +21,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -36,8 +35,6 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
 )
-
-const defaultWindowConnectionTime = time.Hour
 
 // Run implements `pmm-agent run` default command.
 func Run() {
