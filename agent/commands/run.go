@@ -66,9 +66,11 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
-			logrus.Infof("Window check connection time is %.2f hour(s)", defaultWindowConnectionTime.Hours())
-			cs = connectionset.NewConnectionSet(defaultWindowConnectionTime)
+			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+			cs = connectionset.NewConnectionSet(cfg.WindowConnectedTime)
 			cs.RunOldEventsDeleter(ctx)
+		} else {
+			cs.SetWindowPeriod(cfg.WindowConnectedTime)
 		}
 
 		run(ctx, cfg, configFilepath, cs)
