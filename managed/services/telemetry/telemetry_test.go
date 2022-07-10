@@ -396,23 +396,24 @@ func initGetSettingsSqlMock(mock sqlmock.Sqlmock, b []byte, now time.Time) {
 							"percona_sso_details"."pmm_server_name",
 							"percona_sso_details"."created_at" 
 						FROM "percona_sso_details" `).
-		WillReturnRows(sqlmock.NewRows([]string{
-			"pmm_managed_client_id",
-			"pmm_managed_client_secret",
-			"grafana_client_id",
-			"issuer_url",
-			"scope",
-			"access_token",
-			"organization_id",
-			"pmm_server_name",
-			"created_at",
-		}).AddRow(
-			"id",
-			"secret",
-			"client_id",
-			"url",
-			"scope",
-			fmt.Sprintf(`
+		WillReturnRows(
+			sqlmock.NewRows([]string{
+				"pmm_managed_client_id",
+				"pmm_managed_client_secret",
+				"grafana_client_id",
+				"issuer_url",
+				"scope",
+				"access_token",
+				"organization_id",
+				"pmm_server_name",
+				"created_at",
+			}).AddRow(
+				"id",
+				"secret",
+				"client_id",
+				"url",
+				"scope",
+				fmt.Sprintf(`
 							{
 								"token_type": "type",
 								"expires_in": 10000,
@@ -420,9 +421,9 @@ func initGetSettingsSqlMock(mock sqlmock.Sqlmock, b []byte, now time.Time) {
 								"access_token":"token",
 								"scope": "scope"
 							}`, now.Add(time.Hour).Format(time.RFC3339)),
-			"id",
-			"server_name",
-			now.Add(-1*time.Hour),
-		))
+				"id",
+				"server_name",
+				now.Add(-1*time.Hour),
+			))
 	mock.ExpectCommit()
 }

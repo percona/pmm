@@ -147,7 +147,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 	return s.sDistributionMethod
 }
 
-//todo: this method never returns error. Is it okay?
+// todo: this method never returns error. Is it okay?
 func (s *Service) prepareReport(ctx context.Context) (*reporter.ReportRequest, error) {
 	var reportMetrics []*pmmv1.ServerMetric
 

@@ -3,10 +3,9 @@
 package telemetry
 
 import (
+	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	logrus "github.com/sirupsen/logrus"
 	mock "github.com/stretchr/testify/mock"
-
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 
 	serverpb "github.com/percona/pmm/api/serverpb"
 )
