@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectionset
+package connectionuptime
 
 import (
 	"context"
@@ -23,7 +23,7 @@ import (
 
 const periodForRunningDeletingOldEvents = time.Minute
 
-type ConnectionSet struct {
+type Service struct {
 	mx           sync.Mutex
 	events       []ConnectionEvent
 	windowPeriod time.Duration
@@ -34,23 +34,23 @@ type ConnectionEvent struct {
 	Connected bool
 }
 
-func NewConnectionSet(windowPeriod time.Duration) *ConnectionSet {
-	return &ConnectionSet{
+func NewService(windowPeriod time.Duration) *Service {
+	return &Service{
 		windowPeriod: windowPeriod,
 	}
 }
 
-func (c *ConnectionSet) SetWindowPeriod(windowPeriod time.Duration) {
+func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
-func (c *ConnectionSet) Set(timestamp time.Time, connected bool) {
+func (c *Service) AddConnectionEvent(timestamp time.Time, connected bool) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
-	c.setEvent(timestamp, connected)
+	c.addEvent(timestamp, connected)
 }
 
-func (c *ConnectionSet) setEvent(timestamp time.Time, connected bool) {
+func (c *Service) addEvent(timestamp time.Time, connected bool) {
 	newElem := ConnectionEvent{
 		Timestamp: timestamp,
 		Connected: connected,
@@ -66,7 +66,7 @@ func (c *ConnectionSet) setEvent(timestamp time.Time, connected bool) {
 	}
 }
 
-func (c *ConnectionSet) deleteOldEvents() {
+func (c *Service) deleteOldEvents() {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 
@@ -89,7 +89,7 @@ func (c *ConnectionSet) deleteOldEvents() {
 	}
 }
 
-func (c *ConnectionSet) RunOldEventsDeleter(ctx context.Context) {
+func (c *Service) RunOldEventsDeleter(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
 		for {
@@ -103,7 +103,7 @@ func (c *ConnectionSet) RunOldEventsDeleter(ctx context.Context) {
 	}()
 }
 
-func (c *ConnectionSet) removeEventByIndex(i int) {
+func (c *Service) removeEventByIndex(i int) {
 	c.events = append(c.events[:i], c.events[i+1:]...)
 }
 
@@ -130,7 +130,7 @@ func (c *ConnectionSet) removeEventByIndex(i int) {
 // method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
 // where time_between(s1, f2) - connection up time
 //       time_between(f1, now) - total time betweeen first event (f1) and current moment
-func (c *ConnectionSet) GetConnectedUpTimeSince(toTime time.Time) float32 {
+func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
 			return 100
@@ -154,6 +154,6 @@ func (c *ConnectionSet) GetConnectedUpTimeSince(toTime time.Time) float32 {
 	return float32(connectedTimeMs) / float32(totalTime) * 100
 }
 
-func (c *ConnectionSet) GetAll() []ConnectionEvent {
+func (c *Service) GetAll() []ConnectionEvent {
 	return c.events
 }

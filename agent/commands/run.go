@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
-	"github.com/percona/pmm/agent/connectionset"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
@@ -55,7 +55,7 @@ func Run() {
 		cancel()
 	}()
 
-	var cs *connectionset.ConnectionSet
+	var cs *connectionuptime.Service
 	for {
 		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
@@ -67,7 +67,7 @@ func Run() {
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
 			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
-			cs = connectionset.NewConnectionSet(cfg.WindowConnectedTime)
+			cs = connectionuptime.NewService(cfg.WindowConnectedTime)
 			cs.RunOldEventsDeleter(ctx)
 		} else {
 			cs.SetWindowPeriod(cfg.WindowConnectedTime)
@@ -98,7 +98,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
 // See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *connectionset.ConnectionSet) {
+func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *connectionuptime.Service) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 

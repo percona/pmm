@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectionset
+package connectionuptime
 
 import (
 	"fmt"
@@ -98,7 +98,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			set := NewConnectionSet(tt.windowPeriod)
+			set := NewService(tt.windowPeriod)
 
 			var sortedTime []time.Time
 			for k := range tt.args {
@@ -110,7 +110,7 @@ func TestSetElemsToConnectionSet(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				set.Set(t, tt.args[t])
+				set.AddConnectionEvent(t, tt.args[t])
 			}
 
 			assert.Equal(t, tt.expectedEvents, set.GetAll())
@@ -177,7 +177,7 @@ func TestConnectionUpTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cs := NewConnectionSet(time.Hour)
+			cs := NewService(time.Hour)
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
 				sortedTime = append(sortedTime, k)
@@ -188,7 +188,7 @@ func TestConnectionUpTime(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				cs.Set(t, tt.setOfConnections[t])
+				cs.AddConnectionEvent(t, tt.setOfConnections[t])
 			}
 
 			assert.EqualValues(t, tt.expectedUpTime, cs.GetConnectedUpTimeSince(now))
@@ -330,7 +330,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cs := NewConnectionSet(tt.fields.windowPeriod)
+			cs := NewService(tt.fields.windowPeriod)
 
 			var sortedTime []time.Time
 			for k := range tt.fields.events {
@@ -342,7 +342,7 @@ func TestConnectionSet_DeleteOldEvents(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				cs.Set(t, tt.fields.events[t])
+				cs.AddConnectionEvent(t, tt.fields.events[t])
 			}
 
 			cs.deleteOldEvents()

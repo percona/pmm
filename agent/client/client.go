@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/agent/connectionset"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/jobs"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/agentpb"
@@ -76,13 +76,13 @@ type Client struct {
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
 
-	cs *connectionset.ConnectionSet
+	cs *connectionuptime.Service
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cs *connectionset.ConnectionSet) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cs *connectionuptime.Service) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -132,7 +132,7 @@ func (c *Client) Run(ctx context.Context) error {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
 
-		c.cs.Set(time.Now(), dialErr == nil)
+		c.cs.AddConnectionEvent(time.Now(), dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -448,7 +448,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
-		c.cs.Set(time.Now(), true)
+		c.cs.AddConnectionEvent(time.Now(), true)
 
 		response := &channel.AgentResponse{
 			ID:      req.ID,
