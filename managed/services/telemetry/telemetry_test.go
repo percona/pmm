@@ -348,6 +348,7 @@ func initMockDB(now time.Time, t *testing.T, callTimes int) func() *reform.DB {
 
 		var s models.Settings
 		b, err := json.Marshal(s)
+		assert.NoError(t, err)
 
 		for i := 0; i < callTimes; i++ {
 			initGetSettingsSqlMock(mock, b, now)
