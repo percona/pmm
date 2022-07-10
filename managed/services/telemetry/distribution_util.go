@@ -18,11 +18,13 @@ package telemetry
 
 import (
 	"bytes"
-	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
-	"github.com/percona/pmm/api/serverpb"
-	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"regexp"
+
+	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/api/serverpb"
 )
 
 //go:generate ../../../bin/mockery -name=DistributionUtilService -case=snake -inpkg -testonly
