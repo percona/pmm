@@ -222,7 +222,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			traceBytes, err := pprofUtils.Trace(pprofConfig.TraceDuration, ctx)
+			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
 			files = append(files, fileContent{
 				Name: "pprof/trace.out",
 				Data: traceBytes,
@@ -233,7 +233,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			profileBytes, err := pprofUtils.Profile(pprofConfig.ProfileDuration, ctx)
+			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
 			files = append(files, fileContent{
 				Name: "pprof/profile.pb.gz",
 				Data: profileBytes,

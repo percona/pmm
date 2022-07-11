@@ -19,16 +19,17 @@ package pprof
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Profile responds with the pprof-formatted cpu profile.
 // Profiling lasts for duration specified in seconds.
-func Profile(duration time.Duration, ctx context.Context) ([]byte, error) {
+func Profile(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var profileBuf bytes.Buffer
 	if err := pprof.StartCPUProfile(&profileBuf); err != nil {
 		return nil, err
@@ -40,13 +41,13 @@ func Profile(duration time.Duration, ctx context.Context) ([]byte, error) {
 		return profileBuf.Bytes(), nil
 	case <-ctx.Done():
 		pprof.StopCPUProfile()
-		return nil, fmt.Errorf("pprof.Profile was canceled")
+		return nil, errors.New("pprof.Profile was canceled")
 	}
 }
 
 // Trace responds with the execution trace in binary form.
 // Tracing lasts for duration specified in seconds.
-func Trace(duration time.Duration, ctx context.Context) ([]byte, error) {
+func Trace(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var traceBuf bytes.Buffer
 	if err := trace.Start(&traceBuf); err != nil {
 		return nil, err
@@ -58,12 +59,11 @@ func Trace(duration time.Duration, ctx context.Context) ([]byte, error) {
 		return traceBuf.Bytes(), nil
 	case <-ctx.Done():
 		trace.Stop()
-		return nil, fmt.Errorf("pprof.Trace was canceled")
+		return nil, errors.New("pprof.Trace was canceled")
 	}
 }
 
-// Heap responds with the pprof-formatted profile named "heap".
-// listing the available profiles.
+// Heap responds with the pprof-formatted profile named "heap". Listing the available profiles.
 // You can specify the gc parameter to run gc before taking the heap sample.
 func Heap(gc bool) ([]byte, error) {
 	var heapBuf bytes.Buffer
@@ -72,7 +72,7 @@ func Heap(gc bool) ([]byte, error) {
 
 	p := pprof.Lookup(profile)
 	if p == nil {
-		return nil, fmt.Errorf("profile cannot be found: %s", profile)
+		return nil, errors.Errorf("profile cannot be found: %s", profile)
 	}
 
 	if gc {
