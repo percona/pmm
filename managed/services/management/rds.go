@@ -180,6 +180,13 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 			for _, db := range regInstances {
 				l.Debugf("Discovered instance: %+v", db)
 
+				// This happens when the database is in "Creating" state.
+				// At this point there is no endpoint available.
+				if db.Endpoint == nil {
+					l.Debugf("Instance %q not ready yet. Please wait until the database is fully created in AWS.", *db.DBInstanceIdentifier)
+					continue
+				}
+
 				instances <- &managementpb.DiscoverRDSInstance{
 					Region:        region,
 					Az:            *db.AvailabilityZone,

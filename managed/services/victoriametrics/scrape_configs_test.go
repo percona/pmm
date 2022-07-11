@@ -56,7 +56,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -99,7 +99,7 @@ func TestScrapeConfig(t *testing.T) {
 					"vmstat",
 				}},
 			}, {
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -128,7 +128,7 @@ func TestScrapeConfig(t *testing.T) {
 					"textfile.mr",
 				}},
 			}, {
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -189,7 +189,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -258,7 +258,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -292,7 +292,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -331,7 +331,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -411,7 +411,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -444,7 +444,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -481,7 +481,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -557,7 +557,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -588,7 +588,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.process",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -623,7 +623,7 @@ func TestScrapeConfig(t *testing.T) {
 					"slave_status",
 				}},
 			}, {
-				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -714,7 +714,7 @@ func TestScrapeConfig(t *testing.T) {
 
 			expected := []*config.ScrapeConfig{
 				{
-					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 					ScrapeInterval: config.Duration(s.HR),
 					ScrapeTimeout:  scrapeTimeout(s.HR),
 					MetricsPath:    "/metrics",
@@ -744,7 +744,7 @@ func TestScrapeConfig(t *testing.T) {
 						}},
 					},
 				}, {
-					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+					JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 					ScrapeInterval: config.Duration(s.LR),
 					ScrapeTimeout:  scrapeTimeout(s.LR),
 					MetricsPath:    "/metrics",
@@ -832,7 +832,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -864,7 +864,7 @@ func TestScrapeConfig(t *testing.T) {
 					"standard.go",
 				}},
 			}, {
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.MR),
 				ScrapeTimeout:  scrapeTimeout(s.MR),
 				MetricsPath:    "/metrics",
@@ -894,7 +894,7 @@ func TestScrapeConfig(t *testing.T) {
 					"custom_query.mr",
 				}},
 			}, {
-				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr-1m0s",
+				JobName:        "postgres_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: config.Duration(s.LR),
 				ScrapeTimeout:  scrapeTimeout(s.LR),
 				MetricsPath:    "/metrics",
@@ -976,7 +976,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "proxysql_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr-5s",
+				JobName:        "proxysql_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/metrics",
@@ -1158,7 +1158,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
@@ -1206,7 +1206,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr-5s",
+				JobName:        "external-exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: config.Duration(s.HR),
 				ScrapeTimeout:  scrapeTimeout(s.HR),
 				MetricsPath:    "/some-metric-path",
