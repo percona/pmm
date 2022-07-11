@@ -113,13 +113,8 @@ func (s *Service) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	doSend := func() {
-		report, err := s.prepareReport(ctx)
-		if err != nil {
-			s.l.Debugf("Failed to prepare report: %s.", err)
-			return
-		}
-
-		err = s.send(ctx, report)
+		report := s.prepareReport(ctx)
+		err := s.send(ctx, report)
 		if err != nil {
 			s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
 			return
@@ -147,8 +142,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 	return s.sDistributionMethod
 }
 
-// todo: this method never returns error. Is it okay?
-func (s *Service) prepareReport(ctx context.Context) (*reporter.ReportRequest, error) {
+func (s *Service) prepareReport(ctx context.Context) *reporter.ReportRequest {
 	var reportMetrics []*pmmv1.ServerMetric
 
 	var totalTime time.Duration
@@ -190,7 +184,7 @@ telemetryLoop:
 
 	return &reporter.ReportRequest{
 		Metrics: reportMetrics,
-	}, nil
+	}
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {

@@ -149,27 +149,6 @@ func TestService_Run(t *testing.T) {
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expetedReport, 2),
 		},
-
-		////todo: this method never returns error. Is it okay?
-		//{
-		//	name:        "should not send metric when error happened during making a report",
-		//	testTimeout: 3 * time.Second,
-		//	fields: fields{
-		//		db:         initMockDB(now, t, 1),
-		//		start:      now,
-		//		config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
-		//		dsRegistry: mockReturnErrorWhenFetchMetricsFromDataSource(t, testSourceName, 1),
-		//		pmmVersion: pmmVersion,
-		//		dus: func(l *logrus.Entry) DistributionUtilService {
-		//			var dusMock MockDistributionUtilService
-		//			return &dusMock
-		//		},
-		//	},
-		//
-		//	initMockServer: mockServer(t, &reporter.ReportRequest{
-		//		Metrics: expectedServerMetrics,
-		//	}),
-		//},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
