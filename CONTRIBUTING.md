@@ -143,7 +143,7 @@ See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-d
 
 ## Tests
 
-In a PMM we have 4 kind of tests.
+In a PMM we have 3 kind of tests.
 
 ### Unit tests
 
