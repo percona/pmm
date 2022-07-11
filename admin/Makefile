@@ -11,7 +11,10 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
-GOPATH=$(shell go env GOPATH)
+GOBIN := $(shell go env GOBIN)
+ifeq ($(GOBIN),)
+	GOBIN := $(shell go env GOPATH)/bin
+endif
 
 LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.ProjectName=pmm-admin' \
@@ -26,10 +29,10 @@ release:                        ## Build pmm-admin release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
 
 install:                        ## Install pmm-admin binary.
-	go build -v $(LD_FLAGS) -o $(GOPATH)/bin/pmm-admin
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin
 
 install-race:                   ## Install pmm-admin binary with race detector.
-	go build -v $(LD_FLAGS) -race -o $(GOPATH)/bin/pmm-admin
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin
 
 TEST_FLAGS ?= -timeout=20s
 

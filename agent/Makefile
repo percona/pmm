@@ -12,6 +12,10 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 PMM_DEV_SERVER_PORT ?= 443
+GOBIN := $(shell go env GOBIN)
+ifeq ($(GOBIN),)
+	GOBIN := $(shell go env GOPATH)/bin
+endif
 GOPATH=$(shell go env GOPATH)
 
 VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
@@ -36,10 +40,10 @@ gen-init:
 	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-admin binary.
-	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOPATH)/bin/pmm-agent
+	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
 
 install-race:                   ## Install pmm-admin binary with race detector.
-	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOPATH)/bin/pmm-agent
+	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
 
 # TODO https://jira.percona.com/browse/PMM-4681
 # TEST_PARALLEL_PACKAGES ?= foo bar
