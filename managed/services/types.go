@@ -47,11 +47,16 @@ type CheckResult struct {
 
 // CheckResultSummary contains the summary of failed checks for a service.
 type CheckResultSummary struct {
-	ServiceName   string
-	ServiceID     string
-	CriticalCount uint32
-	WarningCount  uint32
-	NoticeCount   uint32
+	ServiceName    string
+	ServiceID      string
+	EmergencyCount uint32
+	AlertCount     uint32
+	CriticalCount  uint32
+	ErrorCount     uint32
+	WarningCount   uint32
+	NoticeCount    uint32
+	InfoCount      uint32
+	DebugCount     uint32
 }
 
 // FilterParams provides fields needed to filter alerts from AlertManager.

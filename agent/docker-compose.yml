@@ -31,6 +31,7 @@ services:
   # Otherwise, MySQL in Docker for Mac completely locks during/after slowlog rotation tests.
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
+    platform: linux/amd64
     container_name: pmm-agent_mysql
     command: >
       --sql-mode="ANSI_QUOTES"

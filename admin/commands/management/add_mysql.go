@@ -93,32 +93,11 @@ func (cmd *AddMySQLCommand) GetAddress() string {
 }
 
 func (cmd *AddMySQLCommand) GetDefaultAddress() string {
-	if cmd.DefaultsFile != "" {
-		// address might be specified in defaults file
-		return ""
-	}
 	return "127.0.0.1:3306"
-}
-
-func (cmd *AddMySQLCommand) GetDefaultUsername() string {
-	return "root"
 }
 
 func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
-}
-
-func (cmd *AddMySQLCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.AgentPassword = creds.AgentPassword
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
 }
 
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
@@ -168,8 +147,6 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	username := defaultsFileUsernameCheck(cmd)
-
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
@@ -177,12 +154,6 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 
 		tablestatsGroupTableLimit = -1
-	}
-
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
-		}
 	}
 
 	params := &mysql.AddMySQLParams{
@@ -196,7 +167,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
-			Username:       username,
+			Username:       cmd.Username,
 			Password:       cmd.Password,
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
@@ -229,18 +200,4 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		MysqldExporter: resp.Payload.MysqldExporter,
 		TableCount:     resp.Payload.TableCount,
 	}, nil
-}
-
-func defaultsFileUsernameCheck(cmd *AddMySQLCommand) string {
-	// passed username has higher priority over defaults file
-	if cmd.Username != "" {
-		return cmd.Username
-	}
-
-	// username not specified, but can be in defaults file
-	if cmd.Username == "" && cmd.DefaultsFile != "" {
-		return ""
-	}
-
-	return cmd.GetDefaultUsername()
 }
