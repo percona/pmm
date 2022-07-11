@@ -30,7 +30,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -182,7 +181,6 @@ func TestService_Run(t *testing.T) {
 			}()
 
 			wg.Wait()
-			fmt.Println("Test is done")
 		})
 	}
 }
@@ -233,36 +231,6 @@ func equalReports(report *reporter.ReportRequest, expectedReport *reporter.Repor
 	return true
 }
 
-//func mockServer(t *testing.T, expectedReport *reporter.ReportRequest) func() *httptest.Server {
-//	return func() *httptest.Server {
-//		return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//			fmt.Println("Call metric server")
-//			b, err := ioutil.ReadAll(r.Body)
-//			assert.NoError(t, err)
-//
-//			var reportRequest reporter.ReportRequest
-//			err = protojson.Unmarshal(b, &reportRequest)
-//			assert.NoError(t, err)
-//
-//			assert.True(t, len(expectedReport.Metrics) == len(reportRequest.Metrics))
-//
-//			for i, m := range expectedReport.Metrics {
-//				gotMetric := reportRequest.Metrics[i]
-//
-//				assert.Equal(t, m.PmmServerVersion, gotMetric.PmmServerVersion)
-//				assert.Equal(t, m.DistributionMethod, gotMetric.DistributionMethod)
-//				for j, mm := range m.Metrics {
-//					assert.Equal(t, mm.Key, gotMetric.Metrics[j].Key)
-//					assert.Equal(t, mm.Value, gotMetric.Metrics[j].Value)
-//				}
-//			}
-//
-//			w.WriteHeader(http.StatusOK)
-//		}))
-//
-//	}
-//}
-
 func mockDataSourceLocator(t *testing.T, metrics [][]*pmmv1.ServerMetric_Metric, testSourceName string, times int) func() DataSourceLocator {
 	return func() DataSourceLocator {
 		var mockSource MockDataSource
@@ -282,20 +250,6 @@ func mockDataSourceLocator(t *testing.T, metrics [][]*pmmv1.ServerMetric_Metric,
 			Return(&mockSource, nil)
 		t.Cleanup(func() {
 			mockSource.AssertExpectations(t)
-			mockDsl.AssertExpectations(t)
-		})
-		return &mockDsl
-	}
-}
-
-func mockReturnErrorWhenFetchMetricsFromDataSource(t *testing.T, testSourceName string, times int) func() DataSourceLocator {
-	return func() DataSourceLocator {
-		var mockDsl MockDataSourceLocator
-		mockDsl.Test(t)
-		mockDsl.On("LocateTelemetryDataSource", testSourceName).
-			Times(times).
-			Return(nil, errors.New("cannot localte telemetry data source"))
-		t.Cleanup(func() {
 			mockDsl.AssertExpectations(t)
 		})
 		return &mockDsl

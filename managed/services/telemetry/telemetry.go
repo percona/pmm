@@ -43,6 +43,7 @@ const (
 )
 
 //go:generate ../../../bin/mockery -name=Sender -case=snake -inpkg -testonly
+// Sender is interface which defines method for client which sends report with metrics
 type Sender interface {
 	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
 }
