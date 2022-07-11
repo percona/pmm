@@ -21,9 +21,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -33,7 +31,6 @@ import (
 	"text/template"
 	"time"
 
-	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -49,7 +46,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/signatures"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/version"
@@ -64,7 +61,7 @@ const (
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
-	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the platform
+	platformRequestTimeout = 2 * time.Minute  // time limit to get checks list from the portal
 	resultAwaitTimeout     = 20 * time.Second // should be greater than agents.defaultQueryActionTimeout
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
@@ -91,18 +88,18 @@ var (
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
+	platformClient      *platform.Client
 	agentsRegistry      agentsRegistry
 	alertmanagerService alertmanagerService
 	db                  *reform.DB
 	alertsRegistry      *registry
 	vmClient            v1.API
 
-	l               *logrus.Entry
-	host            string
-	publicKeys      []string
-	startDelay      time.Duration
-	resendInterval  time.Duration
-	localChecksFile string // For testing
+	l                  *logrus.Entry
+	startDelay         time.Duration
+	resendInterval     time.Duration
+	platformPublicKeys []string
+	localChecksFile    string // For testing
 
 	cm     sync.Mutex
 	checks map[string]check.Check
@@ -117,7 +114,7 @@ type Service struct {
 }
 
 // New returns Service with given PMM version.
-func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, db *reform.DB, VMAddress string) (*Service, error) {
+func New(db *reform.DB, platformClient *platform.Client, agentsRegistry agentsRegistry, alertmanagerService alertmanagerService, VMAddress string) (*Service, error) {
 	l := logrus.WithField("component", "checks")
 
 	resendInterval := defaultResendInterval
@@ -126,28 +123,30 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		resendInterval = d
 	}
 
-	host, err := envvars.GetSAASHost()
-	if err != nil {
-		return nil, err
-	}
-
 	vmClient, err := metrics.NewClient(metrics.Config{Address: VMAddress})
 	if err != nil {
 		return nil, err
 	}
 
+	var platformPublicKeys []string
+	if k := envvars.GetPlatformPublicKeys(); k != nil {
+		l.Warnf("Percona Platform public keys changed to %q.", k)
+		platformPublicKeys = k
+	}
+
 	s := &Service{
+		db:                  db,
 		agentsRegistry:      agentsRegistry,
 		alertmanagerService: alertmanagerService,
-		db:                  db,
 		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
 		vmClient:            v1.NewAPI(vmClient),
 
-		l:               l,
-		host:            host,
-		startDelay:      defaultStartDelay,
-		resendInterval:  resendInterval,
-		localChecksFile: os.Getenv(envCheckFile),
+		l:                  l,
+		platformClient:     platformClient,
+		startDelay:         defaultStartDelay,
+		resendInterval:     resendInterval,
+		platformPublicKeys: platformPublicKeys,
+		localChecksFile:    os.Getenv(envCheckFile),
 
 		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -164,10 +163,6 @@ func New(agentsRegistry agentsRegistry, alertmanagerService alertmanagerService,
 		}, []string{"service_type", "check_type"}),
 	}
 
-	if k := envvars.GetPublicKeys(); k != nil {
-		l.Warnf("Public keys changed to %q.", k)
-		s.publicKeys = k
-	}
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
 		l.Warn("Start delay disabled.")
 		s.startDelay = 0
@@ -1494,29 +1489,15 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		return nil, nil
 	}
 
-	s.l.Infof("Downloading checks from %s ...", s.host)
-
 	nCtx, cancel := context.WithTimeout(ctx, platformRequestTimeout)
 	defer cancel()
 
-	var accessToken string
-	if ssoDetails, err := models.GetPerconaSSODetails(nCtx, s.db.Querier); err == nil {
-		accessToken = ssoDetails.AccessToken.AccessToken
-	}
-
-	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllChecks", s.host)
-	bodyBytes, err := saasreq.MakeRequest(nCtx, http.MethodPost, endpoint, accessToken, nil,
-		&saasreq.SaasRequestOptions{})
+	resp, err := s.platformClient.GetChecks(nCtx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to dial")
+		return nil, errors.WithStack(err)
 	}
 
-	var resp *api.GetAllChecksResponse
-	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
-		return nil, err
-	}
-
-	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {
+	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.platformPublicKeys); err != nil {
 		return nil, err
 	}
 
@@ -1525,9 +1506,10 @@ func (s *Service) downloadChecks(ctx context.Context) ([]check.Check, error) {
 		DisallowUnknownFields: false,
 		DisallowInvalidChecks: false,
 	}
+
 	checks, err := check.Parse(strings.NewReader(resp.File), params)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	return checks, nil
