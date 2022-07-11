@@ -5,5 +5,7 @@
 /agent/jobs/                @artemgavrilov
 /api/                       @BupycHuk
 /docs/api/                  @atymchuk
+/managed/services/checks/   @idoqo
 /managed/                   @BupycHuk @artemgavrilov
 /api-tests/                 @BupycHuk @artemgavrilov
+go.mod                      @BupycHuk @artemgavrilov
