@@ -58,7 +58,7 @@ func TestService_Run(t *testing.T) {
 
 	now := time.Now()
 
-	expectedServerMetrics_Metrics := []*pmmv1.ServerMetric_Metric{
+	expectedServerMetrics := []*pmmv1.ServerMetric_Metric{
 		{
 			Key:   "key",
 			Value: "value",
@@ -76,7 +76,7 @@ func TestService_Run(t *testing.T) {
 		Metrics: []*pmmv1.ServerMetric{
 			{
 				DistributionMethod: pmmv1.DistributionMethod_AMI,
-				Metrics:            expectedServerMetrics_Metrics,
+				Metrics:            expectedServerMetrics,
 			},
 		},
 	}
@@ -93,7 +93,7 @@ func TestService_Run(t *testing.T) {
 				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics}, testSourceName, 1),
+				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
 				dus: func(l *logrus.Entry) DistributionUtilService {
 					var dusMock MockDistributionUtilService
@@ -112,7 +112,7 @@ func TestService_Run(t *testing.T) {
 				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics}, testSourceName, 1),
+				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
 				dus: func(l *logrus.Entry) DistributionUtilService {
 					var dusMock MockDistributionUtilService
@@ -131,7 +131,7 @@ func TestService_Run(t *testing.T) {
 				db:     initMockDB(t, now, 2),
 				start:  now,
 				config: getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics},
+				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics},
 					testSourceName, 2),
 				pmmVersion: pmmVersion,
 				dus: func(l *logrus.Entry) DistributionUtilService {
