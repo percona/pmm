@@ -27,7 +27,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const defaultWindowPeriod = 24 * time.Hour
+const defaultWindowPeriod = time.Hour
 
 func writeConfig(t *testing.T, cfg *Config) string {
 	f, err := os.CreateTemp("", "pmm-agent-test-")
