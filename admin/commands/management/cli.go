@@ -60,7 +60,7 @@ type AddCommonFlags struct {
 	AddServiceNameFlag string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
 	AddHostFlag        string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`
 	AddPortFlag        uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
-	AddLogLevel        string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
+	AddLogLevel        string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 type AddProxySQLCommand struct {
@@ -117,16 +117,14 @@ type AddPostgreSQLCommand struct {
 }
 
 type AddMySQLCommand struct {
-	ServiceName       string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
-	Address           string `arg:"" default:"127.0.0.1:3306" help:"MySQL address and port (default: 127.0.0.1:3306)"`
-	Socket            string `help:"Path to MySQL socket"`
-	NodeID            string `help:"Node ID (default is autodetected)"`
-	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username          string `help:"MySQL username"`
-	Password          string `help:"MySQL password"`
-	DefaultsFile      string `help:"Path to defaults file"`
-	AgentPassword     string `help:"Custom password for /metrics endpoint"`
-	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
+	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
+	Address       string `arg:"" default:"127.0.0.1:3306" help:"MySQL address and port (default: 127.0.0.1:3306)"`
+	Socket        string `help:"Path to MySQL socket"`
+	NodeID        string `help:"Node ID (default is autodetected)"`
+	PMMAgentID    string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username      string `default:"root" help:"MySQL username"`
+	Password      string `help:"MySQL password"`
+	AgentPassword string `help:"Custom password for /metrics endpoint"`
 	// TODO add "auto", make it default
 	QuerySource            string           `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
 	DisableQueryExamples   bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
