@@ -12,7 +12,6 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 PMM_DEV_SERVER_PORT ?= 443
-GOBIN := $(shell go env GOBIN)
 ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
