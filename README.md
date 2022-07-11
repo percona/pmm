@@ -1,11 +1,5 @@
 # Percona Monitoring and Management 2.x
-[![Checks](https://github.com/percona/pmm/actions/workflows/common.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/common.yml)
-[![API](https://github.com/percona/pmm/actions/workflows/api.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/api.yml)
-[![Agent](https://github.com/percona/pmm/actions/workflows/agent.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/agent.yml)
-[![Admin](https://github.com/percona/pmm/actions/workflows/admin.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/admin.yml)
-[![Managed](https://github.com/percona/pmm/actions/workflows/managed.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/managed.yml)
-[![Doc](https://github.com/percona/pmm/actions/workflows/doc.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/doc.yml)
-
+[![CI](https://github.com/percona/pmm/actions/workflows/common.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/common.yml)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
