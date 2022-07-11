@@ -297,32 +297,72 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(), nil
 }
 
-func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<-chan *services.CheckResult, error) {
-	start := time.Now()
-	count := 1
-	watcher := make(chan *services.CheckResult)
-	go func() {
-		for {
-			s.l.Warn("preparing stream result")
+func (s *Service) WatchChecksStream(ctx context.Context, _ []string) (<-chan []services.CheckResult, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-			if count > 5 {
-				s.l.Warn("reached max count")
-				break
+	if settings.SaaS.STTDisabled {
+		return nil, services.ErrSTTDisabled
+	}
+
+	watcher := make(chan []services.CheckResult)
+	go func() {
+		s.CollectChecks(ctx)
+		var serviceType models.ServiceType
+
+		for _, ch := range s.checks {
+			if ch.Version == 1 {
+				switch ch.Type {
+				case check.MySQLShow, check.MySQLSelect:
+					serviceType = models.MySQLServiceType
+				case check.PostgreSQLShow, check.PostgreSQLSelect:
+					serviceType = models.PostgreSQLServiceType
+				case check.MongoDBGetCmdLineOpts, check.MongoDBGetParameter, check.MongoDBBuildInfo, check.MongoDBGetDiagnosticData, check.MongoDBReplSetGetStatus:
+					serviceType = models.MongoDBServiceType
+				default:
+					s.l.Warnf("Unknown check type %s, skip it.", ch.Type)
+					continue
+				}
+			} else if ch.Version == 2 {
+				switch ch.Family {
+				case check.MySQL:
+					serviceType = models.MySQLServiceType
+				case check.PostgreSQL:
+					serviceType = models.PostgreSQLServiceType
+				case check.MongoDB:
+					serviceType = models.MongoDBServiceType
+				default:
+					s.l.Warnf("Unknown check family %s, skip it.", ch.Family)
+					continue
+				}
 			}
-			var prefix string
-			if len(checkNames) != 0 {
-				prefix = checkNames[0]
+
+			pmmAgentVersion := s.minPMMAgentVersion(ch)
+			targets, err := s.findTargets(serviceType, pmmAgentVersion)
+			if err != nil {
+				s.l.Warnf("Failed to find proper agents and services for check type: %s and "+
+					"min version: %s, reason: %s.", serviceType, pmmAgentVersion, err)
+				continue
 			}
-			result := &services.CheckResult{
-				CheckName: prefix + "hello there!" + fmt.Sprint(time.Now().Sub(start)),
-				Result: check.Result{
-					Summary:     fmt.Sprintf("ping summary - %d", count),
-					Description: fmt.Sprintf("ping description - %d", count),
-				},
+			serviceResults := make([]services.CheckResult, 0, len(targets))
+			for _, target := range targets {
+				results, err := s.executeCheck(ctx, target, ch)
+				if err != nil {
+					s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", ch.Name, ch.Type, target.AgentID, err)
+					continue
+				}
+				serviceResults = append(serviceResults, results...)
+
+				s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType)).Inc()
+				s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(ch.Type)).Add(float64(len(results)))
 			}
-			watcher <- result
-			count++
-			time.Sleep(1 * time.Second)
+
+			watcher <- serviceResults
+			// todo: this should append to existing results in alertmanager
+			// instead of overwriting them completely.
+			s.alertsRegistry.set(serviceResults)
 		}
 		close(watcher)
 	}()

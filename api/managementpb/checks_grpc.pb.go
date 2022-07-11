@@ -112,7 +112,7 @@ func (c *securityChecksClient) StartChecksStream(ctx context.Context, in *StartS
 }
 
 type SecurityChecks_StartChecksStreamClient interface {
-	Recv() (*CheckResult, error)
+	Recv() (*StartChecksStreamResponse, error)
 	grpc.ClientStream
 }
 
@@ -120,8 +120,8 @@ type securityChecksStartChecksStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *securityChecksStartChecksStreamClient) Recv() (*CheckResult, error) {
-	m := new(CheckResult)
+func (x *securityChecksStartChecksStreamClient) Recv() (*StartChecksStreamResponse, error) {
+	m := new(StartChecksStreamResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -316,7 +316,7 @@ func _SecurityChecks_StartChecksStream_Handler(srv interface{}, stream grpc.Serv
 }
 
 type SecurityChecks_StartChecksStreamServer interface {
-	Send(*CheckResult) error
+	Send(*StartChecksStreamResponse) error
 	grpc.ServerStream
 }
 
@@ -324,7 +324,7 @@ type securityChecksStartChecksStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *securityChecksStartChecksStreamServer) Send(m *CheckResult) error {
+func (x *securityChecksStartChecksStreamServer) Send(m *StartChecksStreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 

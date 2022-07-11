@@ -139,6 +139,10 @@ message GetFailedChecksResponse {
   PageTotals page_totals = 2;
 }
 
+message StartChecksStreamResponse {
+  repeated CheckResult results = 1;
+}
+
 message ToggleCheckAlertRequest {
   // Alert ID of the check result.
   string alert_id = 1;
@@ -208,7 +212,7 @@ service SecurityChecks {
   }
 
   // StartChecksStream executes Checks and returns their results as a gRPC stream
-  rpc StartChecksStream(StartSecurityChecksRequest) returns (stream CheckResult) {
+  rpc StartChecksStream(StartSecurityChecksRequest) returns (stream StartChecksStreamResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Stream"
     };

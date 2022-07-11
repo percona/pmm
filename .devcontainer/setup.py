@@ -24,6 +24,7 @@ def install_packages():
 
     run_commands([
         # to install man pages
+        "sed -i '2s/enabled=1/enabled=0/' /etc/yum/pluginconf.d/fastestmirror.conf",
         "sed -i '/nodocs/d' /etc/yum.conf",
 
         # reinstall with man pages

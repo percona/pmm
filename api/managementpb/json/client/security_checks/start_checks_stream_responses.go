@@ -257,7 +257,7 @@ func (o *StartChecksStreamDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*StartChecksStreamOKBody Stream result of managementCheckResult
+/*StartChecksStreamOKBody Stream result of managementStartChecksStreamResponse
 swagger:model StartChecksStreamOKBody
 */
 type StartChecksStreamOKBody struct {
@@ -529,10 +529,107 @@ func (o *StartChecksStreamOKBodyErrorDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*StartChecksStreamOKBodyResult CheckResult represents the check results for a given service.
+/*StartChecksStreamOKBodyResult start checks stream OK body result
 swagger:model StartChecksStreamOKBodyResult
 */
 type StartChecksStreamOKBodyResult struct {
+	// results
+	Results []*StartChecksStreamOKBodyResultResultsItems0 `json:"results"`
+}
+
+// Validate validates this start checks stream OK body result
+func (o *StartChecksStreamOKBodyResult) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateResults(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartChecksStreamOKBodyResult) validateResults(formats strfmt.Registry) error {
+	if swag.IsZero(o.Results) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Results); i++ {
+		if swag.IsZero(o.Results[i]) { // not required
+			continue
+		}
+
+		if o.Results[i] != nil {
+			if err := o.Results[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("startChecksStreamOk" + "." + "result" + "." + "results" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("startChecksStreamOk" + "." + "result" + "." + "results" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this start checks stream OK body result based on the context it is used
+func (o *StartChecksStreamOKBodyResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateResults(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StartChecksStreamOKBodyResult) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Results); i++ {
+		if o.Results[i] != nil {
+			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("startChecksStreamOk" + "." + "result" + "." + "results" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("startChecksStreamOk" + "." + "result" + "." + "results" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartChecksStreamOKBodyResult) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartChecksStreamOKBodyResult) UnmarshalBinary(b []byte) error {
+	var res StartChecksStreamOKBodyResult
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StartChecksStreamOKBodyResultResultsItems0 CheckResult represents the check results for a given service.
+swagger:model StartChecksStreamOKBodyResultResultsItems0
+*/
+type StartChecksStreamOKBodyResultResultsItems0 struct {
 	// summary
 	Summary string `json:"summary,omitempty"`
 
@@ -565,8 +662,8 @@ type StartChecksStreamOKBodyResult struct {
 	Silenced bool `json:"silenced,omitempty"`
 }
 
-// Validate validates this start checks stream OK body result
-func (o *StartChecksStreamOKBodyResult) Validate(formats strfmt.Registry) error {
+// Validate validates this start checks stream OK body result results items0
+func (o *StartChecksStreamOKBodyResultResultsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateSeverity(formats); err != nil {
@@ -579,7 +676,7 @@ func (o *StartChecksStreamOKBodyResult) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var startChecksStreamOkBodyResultTypeSeverityPropEnum []interface{}
+var startChecksStreamOkBodyResultResultsItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -587,68 +684,68 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		startChecksStreamOkBodyResultTypeSeverityPropEnum = append(startChecksStreamOkBodyResultTypeSeverityPropEnum, v)
+		startChecksStreamOkBodyResultResultsItems0TypeSeverityPropEnum = append(startChecksStreamOkBodyResultResultsItems0TypeSeverityPropEnum, v)
 	}
 }
 
 const (
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	StartChecksStreamOKBodyResultSeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
-	StartChecksStreamOKBodyResultSeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
-	StartChecksStreamOKBodyResultSeveritySEVERITYALERT string = "SEVERITY_ALERT"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYALERT string = "SEVERITY_ALERT"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
-	StartChecksStreamOKBodyResultSeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
-	StartChecksStreamOKBodyResultSeveritySEVERITYERROR string = "SEVERITY_ERROR"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYERROR string = "SEVERITY_ERROR"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
-	StartChecksStreamOKBodyResultSeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYWARNING string = "SEVERITY_WARNING"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
-	StartChecksStreamOKBodyResultSeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
-	StartChecksStreamOKBodyResultSeveritySEVERITYINFO string = "SEVERITY_INFO"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYINFO string = "SEVERITY_INFO"
 
-	// StartChecksStreamOKBodyResultSeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
-	StartChecksStreamOKBodyResultSeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+	// StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	StartChecksStreamOKBodyResultResultsItems0SeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
 )
 
 // prop value enum
-func (o *StartChecksStreamOKBodyResult) validateSeverityEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, startChecksStreamOkBodyResultTypeSeverityPropEnum, true); err != nil {
+func (o *StartChecksStreamOKBodyResultResultsItems0) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startChecksStreamOkBodyResultResultsItems0TypeSeverityPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *StartChecksStreamOKBodyResult) validateSeverity(formats strfmt.Registry) error {
+func (o *StartChecksStreamOKBodyResultResultsItems0) validateSeverity(formats strfmt.Registry) error {
 	if swag.IsZero(o.Severity) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateSeverityEnum("startChecksStreamOk"+"."+"result"+"."+"severity", "body", *o.Severity); err != nil {
+	if err := o.validateSeverityEnum("severity", "body", *o.Severity); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this start checks stream OK body result based on context it is used
-func (o *StartChecksStreamOKBodyResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this start checks stream OK body result results items0 based on context it is used
+func (o *StartChecksStreamOKBodyResultResultsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *StartChecksStreamOKBodyResult) MarshalBinary() ([]byte, error) {
+func (o *StartChecksStreamOKBodyResultResultsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -656,8 +753,8 @@ func (o *StartChecksStreamOKBodyResult) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *StartChecksStreamOKBodyResult) UnmarshalBinary(b []byte) error {
-	var res StartChecksStreamOKBodyResult
+func (o *StartChecksStreamOKBodyResultResultsItems0) UnmarshalBinary(b []byte) error {
+	var res StartChecksStreamOKBodyResultResultsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

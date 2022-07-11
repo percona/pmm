@@ -19230,7 +19230,7 @@
             "description": "A successful response.(streaming responses)",
             "schema": {
               "type": "object",
-              "title": "Stream result of managementCheckResult",
+              "title": "Stream result of managementStartChecksStreamResponse",
               "properties": {
                 "error": {
                   "type": "object",
@@ -19261,70 +19261,79 @@
                   }
                 },
                 "result": {
-                  "description": "CheckResult represents the check results for a given service.",
                   "type": "object",
                   "properties": {
-                    "summary": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "description": {
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "severity": {
-                      "description": "Severity represents severity level of the check result or alert.",
-                      "type": "string",
-                      "default": "SEVERITY_INVALID",
-                      "enum": [
-                        "SEVERITY_INVALID",
-                        "SEVERITY_EMERGENCY",
-                        "SEVERITY_ALERT",
-                        "SEVERITY_CRITICAL",
-                        "SEVERITY_ERROR",
-                        "SEVERITY_WARNING",
-                        "SEVERITY_NOTICE",
-                        "SEVERITY_INFO",
-                        "SEVERITY_DEBUG"
-                      ],
-                      "x-order": 2
-                    },
-                    "labels": {
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "description": "CheckResult represents the check results for a given service.",
+                        "type": "object",
+                        "properties": {
+                          "summary": {
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "description": {
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "severity": {
+                            "description": "Severity represents severity level of the check result or alert.",
+                            "type": "string",
+                            "default": "SEVERITY_INVALID",
+                            "enum": [
+                              "SEVERITY_INVALID",
+                              "SEVERITY_EMERGENCY",
+                              "SEVERITY_ALERT",
+                              "SEVERITY_CRITICAL",
+                              "SEVERITY_ERROR",
+                              "SEVERITY_WARNING",
+                              "SEVERITY_NOTICE",
+                              "SEVERITY_INFO",
+                              "SEVERITY_DEBUG"
+                            ],
+                            "x-order": 2
+                          },
+                          "labels": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 3
+                          },
+                          "read_more_url": {
+                            "description": "URL containing information on how to resolve an issue detected by an STT check.",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "service_name": {
+                            "description": "Name of the monitored service on which the check ran.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "service_id": {
+                            "description": "ID of the monitored service on which the check ran.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "check_name": {
+                            "type": "string",
+                            "title": "Name of the check that failed",
+                            "x-order": 7
+                          },
+                          "alert_id": {
+                            "type": "string",
+                            "title": "ID of the check result as stored in AlertManager",
+                            "x-order": 8
+                          },
+                          "silenced": {
+                            "type": "boolean",
+                            "title": "Silence status of the check result",
+                            "x-order": 9
+                          }
+                        }
                       },
-                      "x-order": 3
-                    },
-                    "read_more_url": {
-                      "description": "URL containing information on how to resolve an issue detected by an STT check.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "service_name": {
-                      "description": "Name of the monitored service on which the check ran.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "service_id": {
-                      "description": "ID of the monitored service on which the check ran.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "check_name": {
-                      "type": "string",
-                      "title": "Name of the check that failed",
-                      "x-order": 7
-                    },
-                    "alert_id": {
-                      "type": "string",
-                      "title": "ID of the check result as stored in AlertManager",
-                      "x-order": 8
-                    },
-                    "silenced": {
-                      "type": "boolean",
-                      "title": "Silence status of the check result",
-                      "x-order": 9
+                      "x-order": 0
                     }
                   }
                 }

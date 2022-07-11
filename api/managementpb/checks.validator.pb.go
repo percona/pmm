@@ -136,6 +136,17 @@ func (this *GetFailedChecksResponse) Validate() error {
 	return nil
 }
 
+func (this *StartChecksStreamResponse) Validate() error {
+	for _, item := range this.Results {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Results", err)
+			}
+		}
+	}
+	return nil
+}
+
 func (this *ToggleCheckAlertRequest) Validate() error {
 	return nil
 }

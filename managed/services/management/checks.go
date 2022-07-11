@@ -18,6 +18,7 @@ package management
 
 import (
 	"context"
+
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
@@ -225,15 +226,27 @@ func (s *ChecksAPIService) StartChecksStream(req *managementpb.StartSecurityChec
 		return err
 	}
 
-	for result := range checksWatcher {
-		if result == nil {
+	for targetResults := range checksWatcher {
+		if targetResults == nil {
 			break
 		}
-		if err := stream.Send(&managementpb.CheckResult{
-			CheckName:   result.CheckName,
-			Summary:     result.Result.Summary,
-			Description: result.Result.Description,
-		}); err != nil {
+
+		results := make([]*managementpb.CheckResult, 0, len(targetResults))
+		for _, res := range targetResults {
+			results = append(results, &managementpb.CheckResult{
+				CheckName:   res.CheckName,
+				Summary:     res.Result.Summary,
+				Description: res.Result.Description,
+				ReadMoreUrl: res.Result.ReadMoreURL,
+				Severity:    managementpb.Severity(res.Result.Severity),
+				Labels:      res.Result.Labels,
+				ServiceName: res.Target.ServiceName,
+			})
+		}
+		err := stream.Send(&managementpb.StartChecksStreamResponse{
+			Results: results,
+		})
+		if err != nil {
 			return err
 		}
 	}
