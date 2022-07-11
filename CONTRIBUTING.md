@@ -24,7 +24,7 @@ This project is built from several repositories:
 ### PMM Server
 
 #### BackEnd
-* [percona/pmm-managed](https://github.com/percona/pmm-managed)
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
 * [percona/qan-api2](https://github.com/percona/qan-api2)
 * [percona/pmm-update](https://github.com/percona/pmm-update)
@@ -116,7 +116,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### PMM Server
 
-* Clone [pmm-managed repository](https://github.com/percona/pmm-managed)
+* Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container.
 * To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
 
@@ -127,9 +127,11 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
-* To work correctly pmm-agent needs exporters installed on the system.
-  * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
-  * Exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+* To work correctly pmm-agent needs vmagent and exporters installed on the system.
+  * First option is just install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
+  * Another option is to do it manually
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+    * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
 
 ### Exporters
 
