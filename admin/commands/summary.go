@@ -146,7 +146,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	err = downloadFile(zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "pmm-admin")
+	err = downloadFile(zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "pmm-agent")
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}
