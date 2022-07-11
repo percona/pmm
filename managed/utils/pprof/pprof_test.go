@@ -19,6 +19,7 @@ package pprof
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"testing"
 	"time"
 
@@ -45,7 +46,9 @@ func TestHeap(t *testing.T) {
 func TestProfile(t *testing.T) {
 	t.Parallel()
 	t.Run("Profile test", func(t *testing.T) {
-		profileBytes, err := Profile(1 * time.Second)
+		// Create a new context
+		ctx := context.Background()
+		profileBytes, err := Profile(1*time.Second, ctx)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, profileBytes)
@@ -60,14 +63,45 @@ func TestProfile(t *testing.T) {
 
 		assert.NotEmpty(t, resB.Bytes())
 	})
+
+	t.Run("Profile break test", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		go func() {
+			profileBytes, err := Trace(30*time.Second, ctx)
+			assert.Empty(t, profileBytes)
+			assert.Error(t, err)
+		}()
+
+		go func() {
+			time.Sleep(1 * time.Second)
+			cancel()
+		}()
+	})
 }
 
 func TestTrace(t *testing.T) {
 	t.Parallel()
 	t.Run("Trace test", func(t *testing.T) {
-		traceBytes, err := Trace(1 * time.Second)
+		// Create a new context
+		ctx := context.Background()
+		traceBytes, err := Trace(1*time.Second, ctx)
 
 		assert.NoError(t, err)
 		assert.NotEmpty(t, traceBytes)
+	})
+
+	t.Run("Trace break test", func(t *testing.T) {
+		// Create a new context
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+		go func() {
+			traceBytes, err := Trace(30*time.Second, ctx)
+			assert.Empty(t, traceBytes)
+			assert.Error(t, err)
+		}()
+
+		go func() {
+			time.Sleep(1 * time.Second)
+			cancel()
+		}()
 	})
 }

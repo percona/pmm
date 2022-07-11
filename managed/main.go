@@ -94,7 +94,6 @@ import (
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/logger"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
-	"github.com/percona/pmm/managed/utils/pprof"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -126,10 +125,10 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		if err != nil {
 			l.Debug("Unable to read 'pprof' query param. Using default: pprof=false")
 		}
-		var pprofConfig *pprof.Config
+		var pprofConfig *supervisord.PprofConfig
 		if pprofQueryParameter {
 			contextTimeout += pProfProfileDuration + pProfTraceDuration
-			pprofConfig = &pprof.Config{
+			pprofConfig = &supervisord.PprofConfig{
 				ProfileDuration: pProfProfileDuration,
 				TraceDuration:   pProfTraceDuration,
 			}

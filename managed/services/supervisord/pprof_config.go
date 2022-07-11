@@ -14,16 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package pprof
+package supervisord
 
 import "time"
 
-// Config pprof settings.
-type Config struct {
-	ProfileDuration time.Duration `yaml:"profile_duration"` //nolint:tagliatelle
-	TraceDuration   time.Duration `yaml:"trace_duration"`   //nolint:tagliatelle
-}
-
-// Init pprof config init.
-func (c *Config) Init() {
+// PprofConfig pprof settings.
+type PprofConfig struct {
+	ProfileDuration time.Duration
+	TraceDuration   time.Duration
 }

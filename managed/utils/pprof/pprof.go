@@ -18,6 +18,7 @@ package pprof
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"runtime"
 	"runtime/pprof"
@@ -27,30 +28,38 @@ import (
 
 // Profile responds with the pprof-formatted cpu profile.
 // Profiling lasts for duration specified in seconds.
-func Profile(duration time.Duration) ([]byte, error) {
+func Profile(duration time.Duration, ctx context.Context) ([]byte, error) {
 	var profileBuf bytes.Buffer
 	if err := pprof.StartCPUProfile(&profileBuf); err != nil {
 		return nil, err
 	}
 
-	time.Sleep(duration)
-	pprof.StopCPUProfile()
-
-	return profileBuf.Bytes(), nil
+	select {
+	case <-time.After(duration):
+		pprof.StopCPUProfile()
+		return profileBuf.Bytes(), nil
+	case <-ctx.Done():
+		pprof.StopCPUProfile()
+		return nil, fmt.Errorf("pprof.Profile was canceled")
+	}
 }
 
 // Trace responds with the execution trace in binary form.
 // Tracing lasts for duration specified in seconds.
-func Trace(duration time.Duration) ([]byte, error) {
+func Trace(duration time.Duration, ctx context.Context) ([]byte, error) {
 	var traceBuf bytes.Buffer
 	if err := trace.Start(&traceBuf); err != nil {
 		return nil, err
 	}
 
-	time.Sleep(duration)
-	trace.Stop()
-
-	return traceBuf.Bytes(), nil
+	select {
+	case <-time.After(duration):
+		trace.Stop()
+		return traceBuf.Bytes(), nil
+	case <-ctx.Done():
+		trace.Stop()
+		return nil, fmt.Errorf("pprof.Trace was canceled")
+	}
 }
 
 // Heap responds with the pprof-formatted profile named "heap".

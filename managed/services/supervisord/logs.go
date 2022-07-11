@@ -71,7 +71,7 @@ func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 }
 
 // Zip creates .zip archive with all logs.
-func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *pprofUtils.Config) error {
+func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) error {
 	start := time.Now()
 	log := logger.Get(ctx).WithField("component", "logs")
 	log.WithField("d", time.Since(start).Seconds()).Info("Starting...")
@@ -130,7 +130,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *pprofUtils.Con
 }
 
 // files reads log/config/pprof files and returns content.
-func (l *Logs) files(ctx context.Context, pprofConfig *pprofUtils.Config) []fileContent {
+func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileContent {
 	files := make([]fileContent, 0, 20)
 
 	// add logs
@@ -222,7 +222,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *pprofUtils.Config) []file
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			traceBytes, err := pprofUtils.Trace(pprofConfig.TraceDuration)
+			traceBytes, err := pprofUtils.Trace(pprofConfig.TraceDuration, ctx)
 			files = append(files, fileContent{
 				Name: "pprof/trace.out",
 				Data: traceBytes,
@@ -233,7 +233,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *pprofUtils.Config) []file
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			profileBytes, err := pprofUtils.Profile(pprofConfig.ProfileDuration)
+			profileBytes, err := pprofUtils.Profile(pprofConfig.ProfileDuration, ctx)
 			files = append(files, fileContent{
 				Name: "pprof/profile.pb.gz",
 				Data: profileBytes,
