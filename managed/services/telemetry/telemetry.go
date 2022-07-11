@@ -42,8 +42,8 @@ const (
 	osInfoFilePath           = "/proc/version"
 )
 
-//go:generate ../../../bin/mockery -name=TelemetrySender -case=snake -inpkg -testonly
-type TelemetrySender interface {
+//go:generate ../../../bin/mockery -name=Sender -case=snake -inpkg -testonly
+type Sender interface {
 	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
 }
 
@@ -51,7 +51,7 @@ type TelemetrySender interface {
 type Service struct {
 	db                  *reform.DB
 	l                   *logrus.Entry
-	portalClient        TelemetrySender
+	portalClient        Sender
 	start               time.Time
 	config              ServiceConfig
 	dsRegistry          DataSourceLocator

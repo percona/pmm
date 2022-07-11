@@ -84,14 +84,14 @@ func TestService_Run(t *testing.T) {
 	tests := []struct {
 		name                string
 		fields              fields
-		mockTelemetrySender func() TelemetrySender
+		mockTelemetrySender func() Sender
 		testTimeout         time.Duration
 	}{
 		{
 			name:        "should send metrics only once during start",
 			testTimeout: 2 * time.Second,
 			fields: fields{
-				db:         initMockDB(now, t, 1),
+				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics}, testSourceName, 1),
@@ -110,7 +110,7 @@ func TestService_Run(t *testing.T) {
 			name:        "should send metrics only once and not send during start",
 			testTimeout: 3 * time.Second,
 			fields: fields{
-				db:         initMockDB(now, t, 1),
+				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics}, testSourceName, 1),
@@ -129,7 +129,7 @@ func TestService_Run(t *testing.T) {
 			name:        "should send metrics during start and once timer is ticked",
 			testTimeout: 3 * time.Second,
 			fields: fields{
-				db:     initMockDB(now, t, 2),
+				db:     initMockDB(t, now, 2),
 				start:  now,
 				config: getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics_Metrics},
@@ -187,9 +187,9 @@ func TestService_Run(t *testing.T) {
 	}
 }
 
-func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() TelemetrySender {
-	return func() TelemetrySender {
-		var mockTelemetrySender MockTelemetrySender
+func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() Sender {
+	return func() Sender {
+		var mockTelemetrySender MockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
 			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
@@ -334,7 +334,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 	}
 }
 
-func initMockDB(now time.Time, t *testing.T, callTimes int) func() *reform.DB {
+func initMockDB(t *testing.T, now time.Time, callTimes int) func() *reform.DB {
 	return func() *reform.DB {
 		db, mock, err := sqlmock.New()
 		assert.NoError(t, err)
@@ -346,7 +346,7 @@ func initMockDB(now time.Time, t *testing.T, callTimes int) func() *reform.DB {
 		assert.NoError(t, err)
 
 		for i := 0; i < callTimes; i++ {
-			initGetSettingsSqlMock(mock, b, now)
+			initGetSettingsSQLMock(mock, b, now)
 		}
 
 		// we make sure that all expectations were met
@@ -359,7 +359,7 @@ func initMockDB(now time.Time, t *testing.T, callTimes int) func() *reform.DB {
 	}
 }
 
-func initGetSettingsSqlMock(mock sqlmock.Sqlmock, b []byte, now time.Time) {
+func initGetSettingsSQLMock(mock sqlmock.Sqlmock, b []byte, now time.Time) {
 	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT settings FROM settings").
 		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(b))
