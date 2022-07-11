@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -27,7 +28,6 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
-	"github.com/pkg/errors"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
