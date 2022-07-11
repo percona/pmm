@@ -288,9 +288,8 @@ func TestListAlerts(t *testing.T) {
 
 	mockAlert.On("GetAlerts", ctx, mock.Anything).Return(mockedAlerts, nil)
 
-	tmplSvc, err := NewTemplatesService(db)
+	tmplSvc, err := NewTemplatesService(db, nil)
 	require.NoError(t, err)
-	tmplSvc.CollectTemplates(ctx)
 	svc := NewAlertsService(db, mockAlert, tmplSvc)
 
 	findAlerts := func(alerts []*iav1beta1.Alert, alertIDs ...string) bool {
