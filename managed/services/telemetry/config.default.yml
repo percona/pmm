@@ -52,10 +52,12 @@ telemetry:
   - id: MySQLVersion
     source: VM
     query: mysql_version_info{service_type="mysql"}
-    summary: "Version of monitored MySQL services"
+    summary: "Detailed information about version and comment of monitored MySQL services"
     data:
       - metric_name: "mysql_version"
         label: "version"
+      - metric_name: "mysql_version_comment"
+        label: "version_comment"
 
   - id: MongoDBVersion
     source: VM

@@ -19,11 +19,8 @@ package ia
 import (
 	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
 	"io/fs"
 	"io/ioutil"
-	"net/http"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -31,7 +28,6 @@ import (
 	"text/template"
 	"time"
 
-	api "github.com/percona-platform/saas/gen/check/retrieval"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/promconfig"
@@ -49,12 +45,14 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
 	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/saasreq"
+	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/signatures"
 )
 
 const (
-	templatesDir = "/srv/ia/templates"
+	templatesDir         = "/srv/ia/templates"
+	portalRequestTimeout = 2 * time.Minute // time limit to get templates list from the portal
+
 )
 
 // templateInfo represents alerting rule template information from various sources.
@@ -70,12 +68,11 @@ type templateInfo struct {
 
 // TemplatesService is responsible for interactions with IA rule templates.
 type TemplatesService struct {
-	db                *reform.DB
-	l                 *logrus.Entry
-	userTemplatesPath string
-
-	host       string
-	publicKeys []string
+	db                 *reform.DB
+	l                  *logrus.Entry
+	platformClient     *platform.Client
+	userTemplatesPath  string
+	platformPublicKeys []string
 
 	rw        sync.RWMutex
 	templates map[string]templateInfo
@@ -84,7 +81,7 @@ type TemplatesService struct {
 }
 
 // NewTemplatesService creates a new TemplatesService.
-func NewTemplatesService(db *reform.DB) (*TemplatesService, error) {
+func NewTemplatesService(db *reform.DB, platformClient *platform.Client) (*TemplatesService, error) {
 	l := logrus.WithField("component", "management/ia/templates")
 
 	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)
@@ -92,22 +89,19 @@ func NewTemplatesService(db *reform.DB) (*TemplatesService, error) {
 		l.Error(err)
 	}
 
-	host, err := envvars.GetSAASHost()
-	if err != nil {
-		return nil, err
+	var platformPublicKeys []string
+	if k := envvars.GetPlatformPublicKeys(); k != nil {
+		l.Warnf("Percona Platform public keys changed to %q.", k)
+		platformPublicKeys = k
 	}
 
 	s := &TemplatesService{
-		db:                db,
-		l:                 l,
-		userTemplatesPath: templatesDir,
-		host:              host,
-		templates:         make(map[string]templateInfo),
-	}
-
-	if k := envvars.GetPublicKeys(); k != nil {
-		l.Warnf("Public keys changed to %q.", k)
-		s.publicKeys = k
+		db:                 db,
+		l:                  l,
+		platformClient:     platformClient,
+		userTemplatesPath:  templatesDir,
+		platformPublicKeys: platformPublicKeys,
+		templates:          make(map[string]templateInfo),
 	}
 
 	return s, nil
@@ -382,7 +376,6 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]templateInfo, error) {
 			},
 		)
 	}
-
 	return res, nil
 }
 
@@ -398,26 +391,15 @@ func (s *TemplatesService) downloadTemplates(ctx context.Context) ([]alert.Templ
 		return nil, nil
 	}
 
-	s.l.Infof("Downloading templates from %s ...", s.host)
+	nCtx, cancel := context.WithTimeout(ctx, portalRequestTimeout)
+	defer cancel()
 
-	var accessToken string
-	if ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
-		accessToken = ssoDetails.AccessToken.AccessToken
-	}
-
-	endpoint := fmt.Sprintf("https://%s/v1/check/GetAllAlertRuleTemplates", s.host)
-	bodyBytes, err := saasreq.MakeRequest(ctx, http.MethodPost, endpoint, accessToken, nil,
-		&saasreq.SaasRequestOptions{SkipTLSVerification: false})
+	resp, err := s.platformClient.GetTemplates(nCtx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to dial")
+		return nil, errors.WithStack(err)
 	}
 
-	var resp *api.GetAllAlertRuleTemplatesResponse
-	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
-		return nil, err
-	}
-
-	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.publicKeys); err != nil {
+	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.platformPublicKeys); err != nil {
 		return nil, err
 	}
 
