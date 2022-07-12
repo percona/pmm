@@ -4,13 +4,13 @@ include Makefile.include
 
 TARGET ?= _bash
 
+env-up:						## Start devcontainer.
+	docker-compose up -d
+	TARGET="run" make env
+
 env-up-rebuild:				## Start devcontainer with rebuild.
 	docker pull "perconalab/pmm-server:dev-latest"
 	docker-compose up --build -d
-	TARGET="run" make env
-
-env-up:						## Start devcontainer.
-	docker-compose up -d
 	TARGET="run" make env
 
 env-compose-up:
