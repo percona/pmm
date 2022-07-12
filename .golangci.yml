@@ -31,6 +31,16 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        json: snake
+        yaml: camel
+        xml: camel
+
   unused:
     check-exported: false #TODO: set true for agent
 
@@ -63,7 +73,7 @@ linters:
     - varnamelen        # useless
     - wrapcheck         # we do not use wrapping everywhere
     - wsl               # too annoying
-
+        
 run:
   timeout: 5m
   skip-dirs:
