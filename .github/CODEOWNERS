@@ -1,4 +1,11 @@
 *                           @BupycHuk
+/admin/                     @michal-kralik
+/agent/agents/postgres/     @JiriCtvrtka
+/agent/actions/             @artemgavrilov
+/agent/jobs/                @artemgavrilov
+/api/                       @BupycHuk
+/docs/api/                  @atymchuk
+/managed/services/checks/   @idoqo
 /managed/                   @BupycHuk @artemgavrilov
 /api-tests/                 @BupycHuk @artemgavrilov
-/managed/data/iatemplates/  @BupycHuk @artemgavrilov
+go.mod                      @BupycHuk @artemgavrilov
