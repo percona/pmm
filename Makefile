@@ -2,8 +2,6 @@
 
 include Makefile.include
 
-TARGET ?= _bash
-
 env-up:						## Start devcontainer.
 	docker-compose up -d
 	TARGET="run" make env
@@ -24,6 +22,8 @@ env-down:					## Stop devcontainer.
 
 env-remove:
 	docker-compose down --volumes --remove-orphans
+
+TARGET ?= _bash
 
 env:						## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
