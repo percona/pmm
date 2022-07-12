@@ -5,7 +5,7 @@ on:
       - main
     paths:
       - "api/**"
-      - "markdown/**"
+      - "docs/api/**"
   workflow_dispatch:
     inputs:
       version:
@@ -33,4 +33,4 @@ jobs:
       - name: Upload markdown content
         uses: percona-platform/rdme@7.2.0
         with:
-          rdme: docs markdown --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}
+          rdme: docs docs/api --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}

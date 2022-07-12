@@ -13,6 +13,7 @@ on:
     paths-ignore:
       - "admin/**"
       - "agent/**"
+      - "docs/**"
 
 jobs:
   test:
