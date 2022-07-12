@@ -88,8 +88,7 @@ jobs:
           REDIRECT: "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          if ! out=$( ${{ env.COMMAND }} ); then
-            exit_code=$?
+          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
             if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
               echo "$out"
               exit $exit_code
@@ -106,8 +105,7 @@ jobs:
           REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          if ! out=$( ${{ env.COMMAND }} ); then
-            exit_code=$?
+          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
             if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
               echo "$out"
               exit $exit_code
@@ -124,8 +122,7 @@ jobs:
           REDIRECT: "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          if ! out=$( ${{ env.COMMAND }} ); then
-            exit_code=$?
+          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
             if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
               echo "$out"
               exit $exit_code
