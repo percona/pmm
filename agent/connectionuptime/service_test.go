@@ -16,7 +16,6 @@
 package connectionuptime
 
 import (
-	"fmt"
 	"sort"
 	"testing"
 	"time"
@@ -24,120 +23,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetElemsToConnectionSet(t *testing.T) {
-	const (
-		dayPeriod = 24 * time.Hour
-	)
-
-	now := time.Now()
-
-	tests := []struct {
-		name           string
-		windowPeriod   time.Duration
-		args           map[time.Time]bool
-		expectedEvents []connectionEvent
-	}{
-		{
-			name:         "should return one event",
-			windowPeriod: dayPeriod,
-			args: map[time.Time]bool{
-				now: true,
-			},
-			expectedEvents: []connectionEvent{
-				{
-					Timestamp: now,
-					Connected: true,
-				},
-			},
-		},
-		{
-			name:         "should return only one event when we have sequence of same events",
-			windowPeriod: dayPeriod,
-			args: map[time.Time]bool{
-				now:                      true,
-				now.Add(time.Minute):     true,
-				now.Add(1 * time.Minute): true,
-				now.Add(2 * time.Minute): true,
-			},
-			expectedEvents: []connectionEvent{
-				{
-					Timestamp: now,
-					Connected: true,
-				},
-			},
-		},
-		{
-			name:         "should return set of events",
-			windowPeriod: dayPeriod,
-			args: map[time.Time]bool{
-				now:                      true,
-				now.Add(1 * time.Minute): true,
-				now.Add(2 * time.Minute): false,
-				now.Add(3 * time.Minute): false,
-				now.Add(4 * time.Minute): false,
-				now.Add(5 * time.Minute): false,
-				now.Add(6 * time.Minute): true,
-				now.Add(7 * time.Minute): true,
-			},
-			expectedEvents: []connectionEvent{
-				{
-					Timestamp: now,
-					Connected: true,
-				},
-				{
-					Timestamp: now.Add(2 * time.Minute),
-					Connected: false,
-				},
-				{
-					Timestamp: now.Add(6 * time.Minute),
-					Connected: true,
-				},
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			service := NewService(tt.windowPeriod)
-
-			var sortedTime []time.Time
-			for k := range tt.args {
-				sortedTime = append(sortedTime, k)
-			}
-
-			sort.Slice(sortedTime, func(i, j int) bool {
-				return sortedTime[i].Before(sortedTime[j])
-			})
-
-			for _, t := range sortedTime {
-				service.AddConnectionEvent(t, tt.args[t])
-			}
-
-			assert.Equal(t, tt.expectedEvents, service.events)
-		})
-	}
-}
-
 func TestConnectionUpTime(t *testing.T) {
 	now := time.Now()
 	tests := []struct {
 		name             string
 		setOfConnections map[time.Time]bool
 		expectedUpTime   float32
+		windowPeriod     time.Duration
+		toTime           time.Time
 	}{
 		{
 			name: "should be 100%",
 			setOfConnections: map[time.Time]bool{
-				now: true,
+				now.Add(-1 * time.Second): true,
 			},
 			expectedUpTime: 100,
+			windowPeriod:   time.Hour,
+			toTime:         now,
 		},
 		{
 			name: "should be 0%",
 			setOfConnections: map[time.Time]bool{
-				now: false,
+				now.Add(-1 * time.Second): false,
 			},
 			expectedUpTime: 0,
+			windowPeriod:   time.Hour,
+			toTime:         now,
 		},
 		{
 			name: "should be 50% when half of the time there is no connection between server and server",
@@ -146,6 +57,8 @@ func TestConnectionUpTime(t *testing.T) {
 				now.Add(-5 * time.Second):  true,
 			},
 			expectedUpTime: 50,
+			windowPeriod:   time.Hour,
+			toTime:         now,
 		},
 		{
 			name: "should be 10% when only 6 seconds was uptime from 1 minute",
@@ -154,6 +67,8 @@ func TestConnectionUpTime(t *testing.T) {
 				now.Add(-6 * time.Second): true,
 			},
 			expectedUpTime: 10,
+			windowPeriod:   time.Hour,
+			toTime:         now,
 		},
 		{
 			name: "should be 90% when only 54 seconds was uptime from 1 minute",
@@ -162,6 +77,8 @@ func TestConnectionUpTime(t *testing.T) {
 				now.Add(-6 * time.Second): false,
 			},
 			expectedUpTime: 90,
+			windowPeriod:   time.Hour,
+			toTime:         now,
 		},
 		{
 			name: "should be 50% when only 30 seconds was uptime from 1 minute",
@@ -172,12 +89,58 @@ func TestConnectionUpTime(t *testing.T) {
 				now.Add(-20 * time.Second): true,
 			},
 			expectedUpTime: 50,
+			windowPeriod:   time.Hour,
+			toTime:         now,
+		},
+		{
+			name: "should count uptime only during 1 minute and should be only 10% uptime",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-2 * time.Minute):                true,
+				now.Add(-1*time.Minute - 20*time.Second): false,
+				now.Add(-1*time.Minute - 6*time.Second):  true,
+				now.Add(-1 * time.Minute):                false,
+				now.Add(-40 * time.Second):               false,
+			},
+			expectedUpTime: 10,
+			windowPeriod:   time.Minute,
+			toTime:         now.Add(-20 * time.Second),
+		},
+		{
+			name: "should return 100% uptime",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-59 * time.Second): true,
+				now.Add(-50 * time.Second): true,
+				now.Add(-49 * time.Second): true,
+				now.Add(-38 * time.Second): true,
+				now.Add(-30 * time.Second): true,
+				now.Add(-27 * time.Second): true,
+				now.Add(-23 * time.Second): true,
+				now.Add(-10 * time.Second): true,
+			},
+			expectedUpTime: 100,
+			windowPeriod:   time.Minute,
+			toTime:         now,
+		},
+		{
+			name: "should return 100% uptime for 5 second period",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-7 * time.Second): false,
+				now.Add(-6 * time.Second): false,
+				now.Add(-5 * time.Second): false,
+				now.Add(-4 * time.Second): true,
+				now.Add(-3 * time.Second): true,
+				now.Add(-2 * time.Second): true,
+				now.Add(-1 * time.Second): true,
+			},
+			expectedUpTime: 100,
+			windowPeriod:   5 * time.Second,
+			toTime:         now,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			service := NewService(time.Hour)
+			service := NewService(tt.windowPeriod)
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
 				sortedTime = append(sortedTime, k)
@@ -188,171 +151,10 @@ func TestConnectionUpTime(t *testing.T) {
 			})
 
 			for _, t := range sortedTime {
-				service.AddConnectionEvent(t, tt.setOfConnections[t])
+				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
 
-			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(now))
-		})
-	}
-}
-
-func TestConnectionSet_DeleteOldEvents(t *testing.T) {
-	now := time.Now()
-
-	type fields struct {
-		events       map[time.Time]bool
-		windowPeriod time.Duration
-	}
-	tests := []struct {
-		name     string
-		fields   fields
-		expected []connectionEvent
-	}{
-		{
-			name: "should return remove expired element with connected=true and created instead of it a new one",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-61 * time.Minute): true,
-					now.Add(-1 * time.Minute):  false,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
-					Connected: true,
-				},
-				{
-					Timestamp: now.Add(-1 * time.Minute),
-					Connected: false,
-				},
-			},
-		},
-		{
-			name: "should return remove expired element with connected=false and created instead of it a new one",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-61 * time.Minute): false,
-					now.Add(-1 * time.Minute):  true,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-1 * time.Hour).Add(time.Second),
-					Connected: false,
-				},
-				{
-					Timestamp: now.Add(-1 * time.Minute),
-					Connected: true,
-				},
-			},
-		},
-		{
-			name: "should remove expired element with connected=false and replace it with the next one",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-121 * time.Minute): false,
-					now.Add(-60 * time.Minute):  true,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
-					Connected: true,
-				},
-			},
-		},
-		{
-			name: "should update single event which is expired",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-121 * time.Minute): false,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
-					Connected: false,
-				},
-			},
-		},
-		{
-			name: "should update single event which is expired",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-121 * time.Minute): false,
-					now.Add(-120 * time.Minute): true,
-					now.Add(-119 * time.Minute): false,
-					now.Add(-118 * time.Minute): true,
-					now.Add(-117 * time.Minute): false,
-					now.Add(-116 * time.Minute): true,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
-					Connected: true,
-				},
-			},
-		},
-		{
-			name: "should update single event which is expired",
-			fields: fields{
-				events: map[time.Time]bool{
-					now.Add(-121 * time.Minute): false,
-					now.Add(-120 * time.Minute): true,
-					now.Add(-119 * time.Minute): false,
-					now.Add(-60 * time.Minute):  true,
-					now.Add(-59 * time.Minute):  false,
-					now.Add(-58 * time.Minute):  true,
-				},
-				windowPeriod: time.Hour,
-			},
-			expected: []connectionEvent{
-				{
-					Timestamp: now.Add(-60 * time.Minute).Add(time.Second),
-					Connected: true,
-				},
-				{
-					Timestamp: now.Add(-59 * time.Minute),
-					Connected: false,
-				},
-				{
-					Timestamp: now.Add(-58 * time.Minute),
-					Connected: true,
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			service := NewService(tt.fields.windowPeriod)
-
-			var sortedTime []time.Time
-			for k := range tt.fields.events {
-				sortedTime = append(sortedTime, k)
-			}
-
-			sort.Slice(sortedTime, func(i, j int) bool {
-				return sortedTime[i].Before(sortedTime[j])
-			})
-
-			for _, t := range sortedTime {
-				service.AddConnectionEvent(t, tt.fields.events[t])
-			}
-
-			service.deleteOldEvents()
-
-			gotEvents := service.events
-			assert.True(t, len(gotEvents) == len(tt.expected), "length of got slice of events is not correct")
-			for i, e := range gotEvents {
-				assert.Equal(t, tt.expected[i].Timestamp.Unix(), e.Timestamp.Unix(), fmt.Sprintf("element with index: %d", i))
-				assert.Equal(t, tt.expected[i].Connected, e.Connected, fmt.Sprintf("element with index: %d", i))
-			}
+			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
 		})
 	}
 }

@@ -65,9 +65,6 @@ func Run() {
 		if cs == nil {
 			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 			cs = connectionuptime.NewService(cfg.WindowConnectedTime)
-			cs.RunOldEventsDeleter(ctx)
-		} else {
-			cs.SetWindowPeriod(cfg.WindowConnectedTime)
 		}
 
 		run(ctx, cfg, configFilepath, cs)

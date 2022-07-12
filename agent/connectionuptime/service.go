@@ -16,147 +16,106 @@
 package connectionuptime
 
 import (
-	"context"
 	"sync"
 	"time"
 )
 
-const periodForRunningDeletingOldEvents = time.Minute
-
-// Service calculates connection up time between agent and server
-// based on the connection events events
+// Service calculates connection uptime between agent and server
 type Service struct {
-	mx           sync.Mutex
-	events       []connectionEvent
-	windowPeriod time.Duration
-}
+	mx sync.Mutex
 
-type connectionEvent struct {
-	Timestamp time.Time
-	Connected bool
+	connectedStatuses []bool
+
+	windowPeriodSeconds int
+	indexLastStatus     int
+	startTime           time.Time
+	lastStatusTimestamp time.Time
 }
 
 // NewService creates new instance of Service
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
-		windowPeriod: windowPeriod,
+		windowPeriodSeconds: int(windowPeriod.Seconds()),
+		connectedStatuses:   make([]bool, int(windowPeriod.Seconds())),
 	}
 }
 
-// SetWindowPeriod updates window period during which connection uptime
-// is calculated
-func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
-	c.windowPeriod = windowPeriod
+// RegisterConnectionStatus adds new connection status
+func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	s.registerConnectionStatus(timestamp, connected)
 }
 
-// AddConnectionEvent adds connection event
-func (c *Service) AddConnectionEvent(timestamp time.Time, connected bool) {
-	c.mx.Lock()
-	defer c.mx.Unlock()
-	c.addEvent(timestamp, connected)
-}
+func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) {
+	if s.startTime.IsZero() {
+		s.startTime = timestamp
+		s.lastStatusTimestamp = timestamp
+		s.connectedStatuses[0] = connected
+		s.indexLastStatus = 0
 
-func (c *Service) addEvent(timestamp time.Time, connected bool) {
-	newElem := connectionEvent{
-		Timestamp: timestamp,
-		Connected: connected,
-	}
-
-	if len(c.events) != 0 {
-		lastElem := c.events[len(c.events)-1]
-		if lastElem.Connected != connected {
-			c.events = append(c.events, newElem)
-		}
-	} else {
-		c.events = append(c.events, newElem)
-	}
-}
-
-func (c *Service) deleteOldEvents() {
-	c.mx.Lock()
-	defer c.mx.Unlock()
-
-	if len(c.events) == 0 {
 		return
 	}
 
-	// Move first elements which are already expired to the start of the slice
-	// in order to not loose information about previous state of connection.
-	// The latest expired element in the slice will be the first one to calculate
-	// uptime correctly during set up window time
-	lenOfEvents := len(c.events)
-	for i := 0; i < lenOfEvents; i++ {
-		if time.Since(c.events[0].Timestamp) > c.windowPeriod {
-			c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
-			if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
-				c.removeEventByIndex(0)
-			}
-		}
-	}
-}
-
-// RunOldEventsDeleter starts goroutine which removes already expired connection events.
-// Expired event means that it was created more than `windowPeriod` time ago.
-func (c *Service) RunOldEventsDeleter(ctx context.Context) {
-	go func() {
-		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
-		for {
-			select {
-			case <-ticker.C:
-				c.deleteOldEvents()
-			case <-ctx.Done():
-				return
-			}
-		}
-	}()
-}
-
-func (c *Service) removeEventByIndex(i int) {
-	c.events = append(c.events[:i], c.events[i+1:]...)
-}
-
-// GetConnectedUpTimeSince calculates the connection up time between agent and server
-// based on the stored connection events.
-//
-// In the connection event set we store only when connection status was changed
-// (was it connected or not) in the next format:
-// {<timestamp, is_connected>, <timestamp, is_connected>, ...}
-//
-// For example:
-// {<'2022-01-01 15:00:00', true>, <'2022-01-01 15:20:00', false>, <'2022-01-01 15:20:10', true>}
-//
-// GetConnectionUpTime returns the percentage of connection uptime during
-// set period of time (by default it's 24 hours).
-// Method will calculate connected time as interval between connected and disconneced events
-//
-// Here is example how it works.
-// When we have such set of events in connection set `f1 s1 f2`
-// where f1 - first event of failed connection
-//       s1 - first event of successful connection
-//       f2 - second event of failed connection
-//
-// method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
-// where time_between(s1, f2) - connection up time
-//       time_between(f1, now) - total time betweeen first event (f1) and current moment
-func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
-	if len(c.events) == 1 {
-		if c.events[0].Connected {
-			return 100
-		}
-		return 0
+	secondsFromLastEvent := int(timestamp.Unix() - s.lastStatusTimestamp.Unix())
+	for i := s.indexLastStatus + 1; i < (s.indexLastStatus + secondsFromLastEvent); i++ {
+		// set the same status to elements of previous connection status
+		s.connectedStatuses[i%s.windowPeriodSeconds] = s.connectedStatuses[s.indexLastStatus]
 	}
 
-	var connectedTimeMs int64
-	for i, event := range c.events {
-		if event.Connected {
-			if i+1 >= len(c.events) {
-				connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
-			} else {
-				connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
-			}
+	s.indexLastStatus = (s.indexLastStatus + secondsFromLastEvent) % s.windowPeriodSeconds
+	s.connectedStatuses[s.indexLastStatus] = connected
+	s.lastStatusTimestamp = timestamp
+}
+
+// GetConnectedUpTimeSince calculates connected uptime between agent and server
+// based on the connection statuses
+func (s *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	s.fillStatusesUntil(toTime)
+	return s.calculateConnectionUpTime(toTime)
+}
+
+func (s *Service) calculateConnectionUpTime(toTime time.Time) float32 {
+	totalNumOfSeconds := s.getTotalNumberOfSeconds(toTime)
+	startIndex := s.getStartIndex(totalNumOfSeconds)
+	connectedSeconds := s.getNumOfConnectedSeconds(startIndex, totalNumOfSeconds)
+
+	return float32(connectedSeconds) / float32(totalNumOfSeconds) * 100
+}
+
+func (s *Service) getTotalNumberOfSeconds(toTime time.Time) int {
+	totalNumOfSeconds := s.windowPeriodSeconds
+	diffInSecondsBetweenStartTimeAndToTime := int(toTime.Unix() - s.startTime.Unix())
+	if diffInSecondsBetweenStartTimeAndToTime < s.windowPeriodSeconds {
+		totalNumOfSeconds = diffInSecondsBetweenStartTimeAndToTime
+	}
+	return totalNumOfSeconds
+}
+
+func (s *Service) getStartIndex(size int) int {
+	startElement := s.indexLastStatus - size
+	if startElement < 0 {
+		startElement = s.windowPeriodSeconds + startElement
+	}
+	return startElement
+}
+
+func (s *Service) getNumOfConnectedSeconds(startIndex int, totalNumOfSeconds int) int {
+	endIndex := startIndex + totalNumOfSeconds
+	connectedSeconds := 0
+	for i := startIndex; i < endIndex; i++ {
+		if s.connectedStatuses[i%s.windowPeriodSeconds] {
+			connectedSeconds++
 		}
 	}
+	return connectedSeconds
+}
 
-	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
-	return float32(connectedTimeMs) / float32(totalTime) * 100
+// fill values in the slice until toTime
+func (s *Service) fillStatusesUntil(toTime time.Time) {
+	s.registerConnectionStatus(toTime, s.connectedStatuses[s.indexLastStatus])
 }

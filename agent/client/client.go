@@ -132,7 +132,7 @@ func (c *Client) Run(ctx context.Context) error {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
 
-		c.cs.AddConnectionEvent(time.Now(), dialErr == nil)
+		c.cs.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -448,7 +448,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
-		c.cs.AddConnectionEvent(time.Now(), true)
+		c.cs.RegisterConnectionStatus(time.Now(), true)
 
 		response := &channel.AgentResponse{
 			ID:      req.ID,
