@@ -18,10 +18,12 @@ services:
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_ALERTING=1
       - ENABLE_BACKUP_MANAGEMENT=1
-    #      - PERCONA_TEST_SAAS_HOST=check.localhost
-    #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-    #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-    #      - PMM_DEBUG=1
+#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+#      - PERCONA_TEST_PLATFORM_INSECURE=1
+#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+#      - PMM_DEBUG=1
 
     extra_hosts:
       - host.docker.internal:host-gateway
