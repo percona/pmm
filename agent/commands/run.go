@@ -66,7 +66,7 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
-			logrus.Infof("Window check connection time is %.2f hour(s)", defaultWindowConnectedTime)
+			logrus.Infof("Window check connection time is %.2f hour(s)", defaultWindowConnectedTime.Hours())
 			cs = connectionuptime.NewService(defaultWindowConnectedTime)
 		}
 
