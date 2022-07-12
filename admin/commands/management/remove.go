@@ -84,7 +84,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if cmd.ServiceID == "" && cmd.ServiceName == "" {
-			return nil, errors.New("We can't find a service associated with the local node. service_id or service_name is required.")
+			return nil, errors.New(`we could not find a service associated with the local node. Please provide "Service ID" or "Service name"`)
 		}
 	}
 
