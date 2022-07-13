@@ -75,7 +75,7 @@ linters:
     - varnamelen        # useless
     - wrapcheck         # we do not use wrapping everywhere
     - wsl               # too annoying
-        
+
 run:
   timeout: 5m
   skip-dirs:
