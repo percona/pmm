@@ -4,7 +4,6 @@ header:
     paths-ignore:
       - "**/agent/**"
       - "**/admin/**"
-      - "**/api-tests/**"
       - "**/mock_*"
       - "**/*.pb.go"
       - "**/*_reform.go"
