@@ -179,6 +179,10 @@ Expand the table below for the list of checks types that you can use to define y
 
 
 ## Develop version 2 checks
+
+!!! note alert alert-primary "Development / Debugging Only"
+    Note that V2 check development in PMM 2.28+ is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks. 
+    
 To develop custom checks for PMM 2.28 and later: 
 
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#). 

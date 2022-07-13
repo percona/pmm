@@ -210,6 +210,10 @@ Expand the table below for the list of checks types that you can use to define y
     | MONGODB_BUILDINFO    | Executes db.adminCommand( { buildInfo:  1 } ) against MongoDB's "admin" database.  For more information, see [buildInfo](https://docs.mongodb.com/manual/reference/command/buildInfo/) | No|
 
 ## Develop version 1 checks
+
+!!! note alert alert-primary "Development / Debugging Only"
+    Note that V1 check development in PMM 2.26/2.27 is currently for **debugging only** and **NOT for production use!**  Future releases plan to include the option to run custom local checks in addition to hosted Percona Platform checks. 
+    
 To develop custom checks for PMM 2.26 and 2.27: 
 
 1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#). 
