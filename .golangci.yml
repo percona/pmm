@@ -39,6 +39,7 @@ linters-settings:
         bson: camel
         # Disabled because we have too many errors at the moment
         json: ""
+        # Disabled because we have too many errors at the moment
         yaml: ""
         xml: camel
 
