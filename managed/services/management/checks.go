@@ -259,7 +259,6 @@ func (s *ChecksAPIService) StartChecksStream(stream managementpb.SecurityChecks_
 			}
 		}
 	}
-	return nil
 }
 
 // ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
