@@ -4,7 +4,6 @@ header:
     paths-ignore:
       - "**/agent/**"
       - "**/admin/**"
-      - "**/managed/**"
       - "**/api-tests/**"
       - "**/mock_*"
       - "**/*.pb.go"
@@ -16,7 +15,6 @@ header:
     license:
       spdx-id: AGPL-3.0
       content: |
-        // pmm
         // Copyright (C) 2019 Percona LLC
         //
         // This program is free software: you can redistribute it and/or modify
@@ -31,32 +29,6 @@ header:
         //
         // You should have received a copy of the GNU Affero General Public License
         // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-  - paths:
-      - "**/managed/**/*.go"
-      - "**/api-tests/**/*.go"
-    paths-ignore:
-      - "**/*_reform.go"
-      - "**/mock_*"
-    license:
-      spdx-id: AGPL-3.0
-      content: |
-        // pmm-managed
-        // Copyright (C) 2019 Percona LLC
-        //
-        // This program is free software: you can redistribute it and/or modify
-        // it under the terms of the GNU Affero General Public License as published by
-        // the Free Software Foundation, either version 3 of the License, or
-        // (at your option) any later version.
-        //
-        // This program is distributed in the hope that it will be useful,
-        // but WITHOUT ANY WARRANTY; without even the implied warranty of
-        // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-        // GNU Affero General Public License for more details.
-        //
-        // You should have received a copy of the GNU Affero General Public License
-        // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 
   - paths:
       - "**/agent/**/*.go"
@@ -66,7 +38,6 @@ header:
       - "**/mock_*"
     license:
       content: |
-        // pmm-agent
         // Copyright (C) 2019 Percona LLC
         //
         // Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,7 +53,6 @@ header:
         // limitations under the License.
 
       pattern: |
-        // pmm([a-z\-]+)?
         // Copyright \(C\) 20\d{2} Percona LLC
         //
         // Licensed under the Apache License, Version 2.0 \(the "License"\);
