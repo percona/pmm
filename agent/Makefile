@@ -12,6 +12,10 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 PMM_DEV_SERVER_PORT ?= 443
+ifeq ($(GOBIN),)
+	GOBIN := $(shell go env GOPATH)/bin
+endif
+GOPATH=$(shell go env GOPATH)
 
 VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
 				-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
