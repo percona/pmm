@@ -259,7 +259,6 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.
 		return nil, errors.Wrap(err, "failed to update agent")
 	}
 
-	// Get node name
 	node, err := models.FindNodeByID(q, runsOnNodeID)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Can't retrieve node ID for pmm-agent with ID %q.", md.ID)
