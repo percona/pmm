@@ -216,38 +216,47 @@ func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managem
 	return &managementpb.StartSecurityChecksResponse{}, nil
 }
 
-func (s *ChecksAPIService) StartChecksStream(req *managementpb.StartSecurityChecksRequest, stream managementpb.SecurityChecks_StartChecksStreamServer) error {
-	var checkNames []string
-	if req != nil {
-		checkNames = req.Names
-	}
-	checksWatcher, err := s.checksService.WatchChecksStream(stream.Context(), checkNames)
-	if err != nil {
-		return err
-	}
-
-	for targetResults := range checksWatcher {
-		if targetResults == nil {
-			break
-		}
-
-		results := make([]*managementpb.CheckResult, 0, len(targetResults))
-		for _, res := range targetResults {
-			results = append(results, &managementpb.CheckResult{
-				CheckName:   res.CheckName,
-				Summary:     res.Result.Summary,
-				Description: res.Result.Description,
-				ReadMoreUrl: res.Result.ReadMoreURL,
-				Severity:    managementpb.Severity(res.Result.Severity),
-				Labels:      res.Result.Labels,
-				ServiceName: res.Target.ServiceName,
-			})
-		}
-		err := stream.Send(&managementpb.StartChecksStreamResponse{
-			Results: results,
-		})
+func (s *ChecksAPIService) StartChecksStream(stream managementpb.SecurityChecks_StartChecksStreamServer) error {
+	for {
+		req, err := stream.Recv()
 		if err != nil {
 			return err
+		}
+
+		if req == nil {
+			continue
+		}
+
+		checkNames := req.Names
+		ctx := context.Background()
+		checksWatcher, err := s.checksService.WatchChecksStream(ctx, checkNames)
+		if err != nil {
+			return err
+		}
+
+		for targetResults := range checksWatcher {
+			if targetResults == nil {
+				break
+			}
+
+			results := make([]*managementpb.CheckResult, 0, len(targetResults))
+			for _, res := range targetResults {
+				results = append(results, &managementpb.CheckResult{
+					CheckName:   res.CheckName,
+					Summary:     res.Result.Summary,
+					Description: res.Result.Description,
+					ReadMoreUrl: res.Result.ReadMoreURL,
+					Severity:    managementpb.Severity(res.Result.Severity),
+					Labels:      res.Result.Labels,
+					ServiceName: res.Target.ServiceName,
+				})
+			}
+			err := stream.Send(&managementpb.StartChecksStreamResponse{
+				Results: results,
+			})
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

@@ -292,7 +292,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(), nil
 }
 
-func (s *Service) WatchChecksStream(ctx context.Context, _ []string) (<-chan []services.CheckResult, error) {
+func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<-chan []services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -303,11 +303,23 @@ func (s *Service) WatchChecksStream(ctx context.Context, _ []string) (<-chan []s
 	}
 
 	watcher := make(chan []services.CheckResult)
+
+	enabledMap := make(map[string]struct{}, len(checkNames))
+	for _, name := range checkNames {
+		enabledMap[name] = struct{}{}
+	}
+
 	go func() {
 		s.CollectChecks(ctx)
 		var serviceType models.ServiceType
 
 		for _, ch := range s.checks {
+			if len(checkNames) != 0 {
+				if _, exists := enabledMap[ch.Name]; !exists {
+					continue
+				}
+			}
+
 			if ch.Version == 1 {
 				switch ch.Type {
 				case check.MySQLShow, check.MySQLSelect:

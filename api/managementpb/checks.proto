@@ -212,7 +212,7 @@ service SecurityChecks {
   }
 
   // StartChecksStream executes Checks and returns their results as a gRPC stream
-  rpc StartChecksStream(StartSecurityChecksRequest) returns (stream StartChecksStreamResponse) {
+  rpc StartChecksStream(stream StartSecurityChecksRequest) returns (stream StartChecksStreamResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Stream"
     };
