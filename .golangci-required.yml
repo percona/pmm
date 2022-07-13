@@ -24,16 +24,6 @@ linters-settings:
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm) # Groups all local imports.
 
-  tagliatelle:
-    # Check the struck tag name case.
-    case:
-      rules:
-        avro: snake
-        bson: camel
-        json: snake
-        yaml: camel
-        xml: camel
-
   exhaustive:
     default-signifies-exhaustive: true
 
