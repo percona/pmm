@@ -21,7 +21,6 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -36,8 +35,6 @@ import (
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
 )
-
-const defaultWindowConnectedTime = time.Hour
 
 // Run implements `pmm-agent run` default command.
 func Run() {
@@ -66,8 +63,8 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		if cs == nil {
-			logrus.Infof("Window check connection time is %.2f hour(s)", defaultWindowConnectedTime.Hours())
-			cs = connectionuptime.NewService(defaultWindowConnectedTime)
+			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+			cs = connectionuptime.NewService(cfg.WindowConnectedTime)
 		}
 
 		run(ctx, cfg, configFilepath, cs)
