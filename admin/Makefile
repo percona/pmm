@@ -11,6 +11,9 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+ifeq ($(GOBIN),)
+	GOBIN := $(shell go env GOPATH)/bin
+endif
 
 LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.ProjectName=pmm-admin' \
