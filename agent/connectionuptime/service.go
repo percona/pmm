@@ -16,6 +16,7 @@
 package connectionuptime
 
 import (
+	"math/big"
 	"sync"
 	"time"
 )
@@ -24,7 +25,7 @@ import (
 type Service struct {
 	mx sync.Mutex
 
-	connectedStatuses []bool
+	bits big.Int
 
 	windowPeriodSeconds int
 	indexLastStatus     int
@@ -36,7 +37,6 @@ type Service struct {
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriodSeconds: int(windowPeriod.Seconds()),
-		connectedStatuses:   make([]bool, int(windowPeriod.Seconds())),
 	}
 }
 
@@ -52,7 +52,7 @@ func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) 
 	if s.startTime.IsZero() {
 		s.startTime = timestamp
 		s.lastStatusTimestamp = timestamp
-		s.connectedStatuses[0] = connected
+		s.bits.SetBit(&s.bits, 0, getBit(connected))
 		s.indexLastStatus = 0
 
 		return
@@ -61,12 +61,19 @@ func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) 
 	secondsFromLastEvent := int(timestamp.Unix() - s.lastStatusTimestamp.Unix())
 	for i := s.indexLastStatus + 1; i < (s.indexLastStatus + secondsFromLastEvent); i++ {
 		// set the same status to elements of previous connection status
-		s.connectedStatuses[i%s.windowPeriodSeconds] = s.connectedStatuses[s.indexLastStatus]
+		s.bits.SetBit(&s.bits, i%s.windowPeriodSeconds, s.bits.Bit(s.indexLastStatus))
 	}
 
 	s.indexLastStatus = (s.indexLastStatus + secondsFromLastEvent) % s.windowPeriodSeconds
-	s.connectedStatuses[s.indexLastStatus] = connected
+	s.bits.SetBit(&s.bits, s.indexLastStatus, getBit(connected))
 	s.lastStatusTimestamp = timestamp
+}
+
+func getBit(b bool) uint {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 // GetConnectedUpTimeSince calculates connected uptime between agent and server
@@ -108,7 +115,7 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int, totalNumOfSeconds int
 	endIndex := startIndex + totalNumOfSeconds
 	connectedSeconds := 0
 	for i := startIndex; i < endIndex; i++ {
-		if s.connectedStatuses[i%s.windowPeriodSeconds] {
+		if s.bits.Bit(i%s.windowPeriodSeconds) == 1 {
 			connectedSeconds++
 		}
 	}
@@ -117,5 +124,5 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int, totalNumOfSeconds int
 
 // fill values in the slice until toTime
 func (s *Service) fillStatusesUntil(toTime time.Time) {
-	s.registerConnectionStatus(toTime, s.connectedStatuses[s.indexLastStatus])
+	s.registerConnectionStatus(toTime, s.bits.Bit(s.indexLastStatus) == 1)
 }
