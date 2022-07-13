@@ -128,7 +128,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
 	})
 	if err != nil {
-		return nil, errors.New("cannot get the list of PXC components")
+		return nil, errors.New("cannot get the list of PSMDB components")
 	}
 
 	var backupImage string
