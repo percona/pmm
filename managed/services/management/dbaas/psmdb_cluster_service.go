@@ -207,7 +207,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 		}
 	}
 	if req.Params == nil {
-		req.Params = new(dbaasv1beta1.PSMDBClusterParams)
+		req.Params = &dbaasv1beta1.PSMDBClusterParams{}
 	}
 
 	if req.Params.ClusterSize < 1 {
@@ -215,7 +215,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 	}
 
 	if req.Params.Replicaset == nil {
-		req.Params.Replicaset = new(dbaasv1beta1.PSMDBClusterParams_ReplicaSet)
+		req.Params.Replicaset = &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{}
 	}
 
 	if req.Params.Replicaset.DiskSize == 0 {
