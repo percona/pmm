@@ -15,6 +15,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -89,24 +90,44 @@ type CLIFlags struct {
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
 }
 
-func (c *CLIFlags) Run(ctx *kong.Context) error {
-	in := []reflect.Value{}
-	method := getMethod(ctx.Selected().Target, "RunCmdWithContext")
-	if method.IsValid() {
-		in = append(in, reflect.ValueOf(commands.CLICtx))
-	} else {
-		method = getMethod(ctx.Selected().Target, "RunCmd")
-	}
-
-	out := method.Call(in)
-	if !out[1].IsNil() {
-		return out[1].Interface().(error)
-	}
-
-	return PrintResponse(&c.CLIGlobalFlags, out[0].Interface().(commands.Result), nil)
+// CmdRunner represents a command to be run without arguments.
+type CmdRunner interface {
+	RunCmd() (commands.Result, error)
 }
 
-func PrintResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
+// CmdWithContextRunner represents a command to be run with context.
+type CmdWithContextRunner interface {
+	RunCmdWithContext(context.Context) (commands.Result, error)
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way.
+func (c *CLIFlags) Run(ctx *kong.Context) error {
+	var res commands.Result
+	var err error
+
+	i := ctx.Selected().Target.Addr().Interface()
+
+	cmdContext, ok := i.(CmdWithContextRunner)
+	if ok {
+		res, err = cmdContext.RunCmdWithContext(commands.CLICtx)
+	} else {
+		cmd, ok := i.(CmdRunner)
+		if !ok {
+			panic("The command does not implement RunCmd()")
+		}
+
+		res, err = cmd.RunCmd()
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return printResponse(&c.CLIGlobalFlags, res, nil)
+}
+
+func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 

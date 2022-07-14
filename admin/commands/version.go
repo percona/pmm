@@ -34,6 +34,6 @@ func (cmd *VersionCommand) BeforeApply() error {
 	return nil
 }
 
-func (cmd *VersionCommand) RunCmd() (versionResult, error) {
+func (cmd *VersionCommand) RunCmd() (Result, error) {
 	return versionResult{}, nil
 }
