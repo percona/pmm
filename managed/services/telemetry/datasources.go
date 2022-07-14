@@ -30,14 +30,6 @@ import (
 // DataSourceName data source name.
 type DataSourceName string
 
-//go:generate ../../../bin/mockery -name=DataSourceLocator -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=DataSource -case=snake -inpkg -testonly
-
-// DataSourceLocator locates data source by name.
-type DataSourceLocator interface {
-	LocateTelemetryDataSource(name string) (DataSource, error)
-}
-
 type dataSourceRegistry struct {
 	l           *logrus.Entry
 	dataSources map[DataSourceName]DataSource
@@ -77,12 +69,6 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 		return nil, errors.Errorf("data source [%s] is not supported", name)
 	}
 	return ds, nil
-}
-
-// DataSource telemetry data source.
-type DataSource interface {
-	FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error)
-	Enabled() bool
 }
 
 func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {

@@ -42,17 +42,11 @@ const (
 	osInfoFilePath           = "/proc/version"
 )
 
-//go:generate ../../../bin/mockery -name=Sender -case=snake -inpkg -testonly
-// Sender is interface which defines method for client which sends report with metrics
-type Sender interface {
-	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
-}
-
 // Service reports telemetry.
 type Service struct {
 	db                  *reform.DB
 	l                   *logrus.Entry
-	portalClient        Sender
+	portalClient        sender
 	start               time.Time
 	config              ServiceConfig
 	dsRegistry          DataSourceLocator
@@ -61,12 +55,7 @@ type Service struct {
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 
-	dus DistributionUtilService
-}
-
-// LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
-	return s.dsRegistry.LocateTelemetryDataSource(name)
+	dus distributionUtilService
 }
 
 // check interfaces

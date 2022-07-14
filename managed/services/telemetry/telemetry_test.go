@@ -40,7 +40,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestService_Run(t *testing.T) {
+func TestRunTelemetryService(t *testing.T) {
 	type fields struct {
 		db                  func() *reform.DB
 		l                   *logrus.Entry
@@ -51,7 +51,7 @@ func TestService_Run(t *testing.T) {
 		os                  string
 		sDistributionMethod serverpb.DistributionMethod
 		tDistributionMethod pmmv1.DistributionMethod
-		dus                 func(l *logrus.Entry) DistributionUtilService
+		dus                 func(l *logrus.Entry) distributionUtilService
 	}
 	const testSourceName = "PMMDB_SELECT"
 	const pmmVersion = "2.29"
@@ -83,7 +83,7 @@ func TestService_Run(t *testing.T) {
 	tests := []struct {
 		name                string
 		fields              fields
-		mockTelemetrySender func() Sender
+		mockTelemetrySender func() sender
 		testTimeout         time.Duration
 	}{
 		{
@@ -95,8 +95,8 @@ func TestService_Run(t *testing.T) {
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) DistributionUtilService {
-					var dusMock MockDistributionUtilService
+				dus: func(l *logrus.Entry) distributionUtilService {
+					var dusMock mockDistributionUtilService
 					dusMock.Test(t)
 					dusMock.On("getDistributionMethodAndOS", l).Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
 						Times(1)
@@ -114,8 +114,8 @@ func TestService_Run(t *testing.T) {
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) DistributionUtilService {
-					var dusMock MockDistributionUtilService
+				dus: func(l *logrus.Entry) distributionUtilService {
+					var dusMock mockDistributionUtilService
 					dusMock.Test(t)
 					dusMock.On("getDistributionMethodAndOS", l).Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
 						Times(1)
@@ -134,8 +134,8 @@ func TestService_Run(t *testing.T) {
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics},
 					testSourceName, 2),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) DistributionUtilService {
-					var dusMock MockDistributionUtilService
+				dus: func(l *logrus.Entry) distributionUtilService {
+					var dusMock mockDistributionUtilService
 					dusMock.Test(t)
 					dusMock.On("getDistributionMethodAndOS", l).
 						Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
@@ -151,6 +151,7 @@ func TestService_Run(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
 			defer cancel()
 
@@ -185,9 +186,9 @@ func TestService_Run(t *testing.T) {
 	}
 }
 
-func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() Sender {
-	return func() Sender {
-		var mockTelemetrySender MockSender
+func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() sender {
+	return func() sender {
+		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
 			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),

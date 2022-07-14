@@ -27,13 +27,6 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-//go:generate ../../../bin/mockery -name=DistributionUtilService -case=snake -inpkg -testonly
-// DistributionUtilService service to get info about OS on which pmm server is running
-type DistributionUtilService interface {
-	getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
-	getLinuxDistribution(procVersion string) string
-}
-
 type distributionUtilServiceImpl struct{}
 
 func (d distributionUtilServiceImpl) getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
