@@ -113,7 +113,7 @@ templates:
    for: 5m
    severity: warning
    labels:
-      cultom_label: demo
+      custom_label: demo
    annotations:
       summary: MongoDB high memory usage ({{ $labels.service_name }})
       description: |-
