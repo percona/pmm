@@ -30,7 +30,7 @@ This means that extracted data is processed on the PMM side and not sent back to
 ## Frontend
 PMM uses Alertmanager API to get information about failed checks and show them on the UI:
  
-![!](../../_images/FrontendChecks.png)
+![!](../../_images/FrontEndChecks.png)
  
 ## Advisor check format version 2
 PMM 2.28 upgraded Advisor checks to version 2, to accomodate the following major enhancements introduced in this release: 
