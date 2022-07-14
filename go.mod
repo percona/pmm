@@ -20,7 +20,7 @@ require (
 	github.com/alecthomas/kong v0.6.0
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.47
+	github.com/aws/aws-sdk-go v1.44.51
 	github.com/brianvoe/gofakeit/v6 v6.17.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.15.0
@@ -51,6 +51,7 @@ require (
 	github.com/prometheus/alertmanager v0.24.0
 	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/common v0.35.0
+	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/objx v0.4.0
