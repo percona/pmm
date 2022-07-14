@@ -24,7 +24,7 @@ import (
 
 func TestAddServiceHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		res := &addHAProxyServiceResult{
+		res := &addServiceHAProxyResult{
 			Service: &services.AddHAProxyServiceOKBodyHaproxy{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "ClickHouse Service",

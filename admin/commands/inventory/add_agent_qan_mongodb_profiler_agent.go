@@ -44,7 +44,7 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBProfilerAgentResultT, res)
 }
 
-type AddQANMongoDBProfilerAgentCommand struct {
+type AddAgentQANMongoDBProfilerAgentCommand struct {
 	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string `arg:"" help:"Service identifier"`
 	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -60,7 +60,7 @@ type AddQANMongoDBProfilerAgentCommand struct {
 	AuthenticationMechanism       string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
 }
 
-func (cmd *AddQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

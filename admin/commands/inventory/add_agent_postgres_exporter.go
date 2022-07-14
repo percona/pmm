@@ -45,7 +45,7 @@ func (res *addAgentPostgresExporterResult) String() string {
 	return commands.RenderTemplate(addAgentPostgresExporterResultT, res)
 }
 
-type PostgresExporterCommand struct {
+type AddAgentPostgresExporterCommand struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
 	Username            string `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
@@ -62,7 +62,7 @@ type PostgresExporterCommand struct {
 	TLSKeyFile          string `help:"TLS certificate key file"`
 }
 
-func (cmd *PostgresExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

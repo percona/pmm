@@ -43,7 +43,7 @@ func (res *annotationResult) String() string {
 	return RenderTemplate(annotationResultT, res)
 }
 
-type AnnotateCommand struct {
+type AnnotationCommand struct {
 	Text        string `arg:"" help:"Text of annotation"`
 	Tags        string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`
 	Node        bool   `help:"Annotate current node"`
@@ -52,7 +52,7 @@ type AnnotateCommand struct {
 	ServiceName string `help:"Name of service to annotate"`
 }
 
-func (cmd *AnnotateCommand) nodeName() (string, error) {
+func (cmd *AnnotationCommand) nodeName() (string, error) {
 	if cmd.NodeName != "" {
 		return cmd.NodeName, nil
 	}
@@ -69,7 +69,7 @@ func (cmd *AnnotateCommand) nodeName() (string, error) {
 	return helpers.GetNodeName(node)
 }
 
-func (cmd *AnnotateCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
+func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (cmd *AnnotateCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 	return result.GetPayload(), nil
 }
 
-func (cmd *AnnotateCommand) serviceNames() ([]string, error) {
+func (cmd *AnnotationCommand) serviceNames() ([]string, error) {
 	switch {
 	case cmd.ServiceName != "":
 		return []string{cmd.ServiceName}, nil
@@ -101,7 +101,7 @@ func (cmd *AnnotateCommand) serviceNames() ([]string, error) {
 	}
 }
 
-func (cmd *AnnotateCommand) getCurrentNodeAllServices() ([]string, error) {
+func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (cmd *AnnotateCommand) getCurrentNodeAllServices() ([]string, error) {
 }
 
 // Run runs annotation command.
-func (cmd *AnnotateCommand) RunCmd() (Result, error) {
+func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 	tags := strings.Split(cmd.Tags, ",")
 	for i := range tags {
 		tags[i] = strings.TrimSpace(tags[i])

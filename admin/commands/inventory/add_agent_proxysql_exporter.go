@@ -45,7 +45,7 @@ func (res *addAgentProxysqlExporterResult) String() string {
 	return commands.RenderTemplate(addAgentProxysqlExporterResultT, res)
 }
 
-type ProxysqlExporterCommand struct {
+type AddAgentProxysqlExporterCommand struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
 	Username            string `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
@@ -59,7 +59,7 @@ type ProxysqlExporterCommand struct {
 	DisableCollectors   string `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
-func (cmd *ProxysqlExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

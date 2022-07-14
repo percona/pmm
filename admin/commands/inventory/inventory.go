@@ -40,21 +40,21 @@ type AddCommand struct {
 }
 
 type AddAgentCommand struct {
-	ExternalExporter ExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
-	MongodbExporter  MongoDBExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
-	MysqldExporter   MysqldExporterCommand   `cmd:"" help:"Add mysqld_exporter to inventory"`
-	NodeExporter     NodeExporterCommand     `cmd:"" help:"Add Node exporter to inventory"`
-	PMMAgent         PMMAgentCommand         `cmd:"" help:"Add PMM agent to inventory"`
-	PostgresExporter PostgresExporterCommand `cmd:"" help:"Add postgres_exporter to inventory"`
-	ProxysqlExporter ProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
+	ExternalExporter AddAgentExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
+	MongodbExporter  AddAgentMongodbExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
+	MysqldExporter   AddAgentMysqldExporterCommand   `cmd:"" help:"Add mysqld_exporter to inventory"`
+	NodeExporter     AddAgentNodeExporterCommand     `cmd:"" help:"Add Node exporter to inventory"`
+	PMMAgent         AddPMMAgentCommand              `cmd:"" help:"Add PMM agent to inventory"`
+	PostgresExporter AddAgentPostgresExporterCommand `cmd:"" help:"Add postgres_exporter to inventory"`
+	ProxysqlExporter AddAgentProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
 
-	QANMongoDBProfilerAgent         AddQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
-	QANMySQLPerfSchemaAgent         AddQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
-	QANMySQLSlowlogAgent            AddQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
-	QANPostgreSQLPgStatementsAgent  AddQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
-	QANPostgreSQLPgStatMonitorAgent AddQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
+	QANMongoDBProfilerAgent         AddAgentQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
+	QANMySQLPerfSchemaAgent         AddAgentQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
+	QANMySQLSlowlogAgent            AddAgentQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
+	QANPostgreSQLPgStatementsAgent  AddAgentQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
+	QANPostgreSQLPgStatMonitorAgent AddAgentQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
 
-	RDSExporter AddAgentRDSExporterCmd `cmd:"" help:"Add rds_exporter to inventory"`
+	RDSExporter AddAgentRDSExporterCommand `cmd:"" help:"Add rds_exporter to inventory"`
 }
 
 type AddNodeCommand struct {

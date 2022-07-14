@@ -47,7 +47,7 @@ func (res *addAgentExternalExporterResult) String() string {
 	return commands.RenderTemplate(addAgentExternalExporterResultT, res)
 }
 
-type ExternalExporterCommand struct {
+type AddAgentExternalExporterCommand struct {
 	RunsOnNodeID string `required:"" help:"Node identifier where this instance runs"`
 	ServiceID    string `required:"" help:"Service identifier"`
 	Username     string `help:"HTTP Basic auth username for scraping metrics"`
@@ -59,7 +59,7 @@ type ExternalExporterCommand struct {
 	PushMetrics  bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
-func (cmd *ExternalExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

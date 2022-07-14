@@ -32,13 +32,13 @@ Replication set: {{ .Service.ReplicationSet }}
 Custom labels  : {{ .Service.CustomLabels }}
 `)
 
-type addHAProxyServiceResult struct {
+type addServiceHAProxyResult struct {
 	Service *services.AddHAProxyServiceOKBodyHaproxy `json:"haproxy"`
 }
 
-func (res *addHAProxyServiceResult) Result() {}
+func (res *addServiceHAProxyResult) Result() {}
 
-func (res *addHAProxyServiceResult) String() string {
+func (res *addServiceHAProxyResult) String() string {
 	return commands.RenderTemplate(addHAProxyServiceResultT, res)
 }
 
@@ -78,7 +78,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &addHAProxyServiceResult{
+	return &addServiceHAProxyResult{
 		Service: resp.Payload.Haproxy,
 	}, nil
 }

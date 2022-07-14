@@ -52,7 +52,7 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
 	return "enabled"
 }
 
-type AddQANMySQLPerfSchemaAgentCommand struct {
+type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	PMMAgentID           string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string `arg:"" help:"Service identifier"`
 	Username             string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
@@ -67,7 +67,7 @@ type AddQANMySQLPerfSchemaAgentCommand struct {
 	TLSKeyFile           string `name:"tls-key" help:"Path to client key file"`
 }
 
-func (cmd *AddQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

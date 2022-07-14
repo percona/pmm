@@ -78,7 +78,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	return s
 }
 
-type MysqldExporterCommand struct {
+type AddAgentMysqldExporterCommand struct {
 	PMMAgentID                string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                 string `arg:"" help:"Service identifier"`
 	Username                  string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
@@ -96,7 +96,7 @@ type MysqldExporterCommand struct {
 	DisableCollectors         string `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
-func (cmd *MysqldExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

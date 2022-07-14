@@ -44,7 +44,7 @@ func (res *addAgentRDSExporterResult) String() string {
 	return commands.RenderTemplate(addAgentRDSExporterResultT, res)
 }
 
-type AddAgentRDSExporterCmd struct {
+type AddAgentRDSExporterCommand struct {
 	PMMAgentID             string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	NodeID                 string `arg:"" help:"Node identifier"`
 	AWSAccessKey           string `help:"AWS Access Key ID"`
@@ -56,7 +56,7 @@ type AddAgentRDSExporterCmd struct {
 	PushMetrics            bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
-func (cmd *AddAgentRDSExporterCmd) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

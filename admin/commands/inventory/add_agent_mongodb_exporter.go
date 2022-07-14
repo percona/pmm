@@ -45,7 +45,7 @@ func (res *addAgentMongodbExporterResult) String() string {
 	return commands.RenderTemplate(addAgentMongodbExporterResultT, res)
 }
 
-type MongoDBExporterCommand struct {
+type AddAgentMongodbExporterCommand struct {
 	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string `arg:"" help:"Service identifier"`
 	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -65,7 +65,7 @@ type MongoDBExporterCommand struct {
 	CollectionsLimit              int32  `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 }
 
-func (cmd *MongoDBExporterCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

@@ -44,7 +44,7 @@ func (res *addAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANPostgreSQLPgStatementsAgentResultT, res)
 }
 
-type AddQANPostgreSQLPgStatementsAgentCommand struct {
+type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`
 	Username            string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
@@ -58,7 +58,7 @@ type AddQANPostgreSQLPgStatementsAgentCommand struct {
 	TLSKeyFile          string `help:"TLS certificate key file"`
 }
 
-func (cmd *AddQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
+func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err

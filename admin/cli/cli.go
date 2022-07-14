@@ -80,7 +80,7 @@ type CLIFlags struct {
 	Summary    commands.SummaryCommand      `cmd:"" help:"Fetch system data for diagnostics"`
 	List       commands.ListCommand         `cmd:"" help:"Show Services and Agents running on this Node"`
 	Config     commands.ConfigCommand       `cmd:"" help:"Configure local pmm-agent"`
-	Annotate   commands.AnnotateCommand     `cmd:"" help:"Add an annotation to Grafana charts"`
+	Annotate   commands.AnnotationCommand   `cmd:"" help:"Add an annotation to Grafana charts"`
 	Unregister management.UnregisterCommand `cmd:"" help:"Unregister current Node from PMM Server"`
 	Remove     management.RemoveCommand     `cmd:"" help:"Remove Service from monitoring"`
 	Register   management.RegisterCommand   `cmd:"" help:"Register current Node with PMM Server"`

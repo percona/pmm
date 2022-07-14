@@ -32,13 +32,13 @@ Custom labels  : {{ .Service.CustomLabels }}
 Group          : {{ .Service.Group }}
 `)
 
-type addExternalServiceResult struct {
+type addServiceExternalResult struct {
 	Service *services.AddExternalServiceOKBodyExternal `json:"external"`
 }
 
-func (res *addExternalServiceResult) Result() {}
+func (res *addServiceExternalResult) Result() {}
 
-func (res *addExternalServiceResult) String() string {
+func (res *addServiceExternalResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
@@ -75,7 +75,7 @@ func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &addExternalServiceResult{
+	return &addServiceExternalResult{
 		Service: resp.Payload.External,
 	}, nil
 }

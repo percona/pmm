@@ -24,7 +24,7 @@ import (
 
 func TestAddServiceExternal(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		res := &addExternalServiceResult{
+		res := &addServiceExternalResult{
 			Service: &services.AddExternalServiceOKBodyExternal{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "ClickHouse Service",
