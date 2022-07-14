@@ -45,7 +45,8 @@ import (
 
 var (
 	// Ctx is a shared context for all requests.
-	Ctx    = context.Background()
+	Ctx = context.Background()
+	// CLICtx is context used for commands ran with context.
 	CLICtx context.Context
 
 	errExecutionNotImplemented = errors.New("execution is not supported")
@@ -77,7 +78,7 @@ type Command interface {
 	RunCmd() (Result, error)
 }
 
-// TODO remove Command above, rename CommandWithContext to Command
+// TODO remove Command above, rename CommandWithContext to Command.
 type CommandWithContext interface {
 	// TODO rename to Run
 	RunWithContext(ctx context.Context) (Result, error)
@@ -170,7 +171,7 @@ var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 // ParseCustomLabels parses --custom-labels flag value.
 //
 // Note that quotes around value are parsed and removed by shell before this function is called.
-// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// E.g. The value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
 	result := make(map[string]string)
@@ -304,7 +305,7 @@ func SetupClients(ctx context.Context, serverURL string) {
 	serverpb.Default.SetTransport(transport)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = nginxError("")
 	_ fmt.GoStringer = nginxError("")
