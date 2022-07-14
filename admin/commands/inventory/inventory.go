@@ -21,6 +21,64 @@ import (
 	"github.com/pkg/errors"
 )
 
+type InventoryCommand struct {
+	List   ListCommand   `cmd:"" hidden:"" help:"List inventory commands"`
+	Add    AddCommand    `cmd:"" hidden:"" help:"Add to inventory commands"`
+	Remove RemoveCommand `cmd:"" hidden:"" help:"Remove from inventory commands"`
+}
+
+type ListCommand struct {
+	Agents   ListAgentsCommand   `cmd:"" help:"Show agents in inventory"`
+	Nodes    ListNodesCommand    `cmd:"" help:"Show nodes in inventory"`
+	Services ListServicesCommand `cmd:"" help:"Show services in inventory"`
+}
+
+type AddCommand struct {
+	Agent   AddAgentCommand   `cmd:"" help:"Add agent to inventory"`
+	Node    AddNodeCommand    `cmd:"" help:"Add node to inventory"`
+	Service AddServiceCommand `cmd:"" help:"Add service to inventory"`
+}
+
+type AddAgentCommand struct {
+	ExternalExporter ExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
+	MongodbExporter  MongoDBExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
+	MysqldExporter   MysqldExporterCommand   `cmd:"" help:"Add mysqld_exporter to inventory"`
+	NodeExporter     NodeExporterCommand     `cmd:"" help:"Add Node exporter to inventory"`
+	PMMAgent         PMMAgentCommand         `cmd:"" help:"Add PMM agent to inventory"`
+	PostgresExporter PostgresExporterCommand `cmd:"" help:"Add postgres_exporter to inventory"`
+	ProxysqlExporter ProxysqlExporterCommand `cmd:"" help:"Add proxysql_exporter to inventory"`
+
+	QANMongoDBProfilerAgent         AddQANMongoDBProfilerAgentCommand         `cmd:"" name:"qan-mongodb-profiler-agent" help:"Add QAN MongoDB profiler agent to inventory"`
+	QANMySQLPerfSchemaAgent         AddQANMySQLPerfSchemaAgentCommand         `cmd:"" name:"qan-mysql-perfschema-agent" help:"Add QAN MySQL perf schema agent to inventory"`
+	QANMySQLSlowlogAgent            AddQANMySQLSlowlogAgentCommand            `cmd:"" name:"qan-mysql-slowlog-agent" help:"Add QAN MySQL slowlog agent to inventory"`
+	QANPostgreSQLPgStatementsAgent  AddQANPostgreSQLPgStatementsAgentCommand  `cmd:"" name:"qan-postgresql-pgstatements-agent" help:"Add QAN PostgreSQL Stat Statements Agent to inventory"`
+	QANPostgreSQLPgStatMonitorAgent AddQANPostgreSQLPgStatMonitorAgentCommand `cmd:"" name:"qan-postgresql-pgstatmonitor-agent" help:"Add QAN PostgreSQL Stat Monitor Agent to inventory"`
+
+	RDSExporter AddAgentRDSExporterCmd `cmd:"" help:"Add rds_exporter to inventory"`
+}
+
+type AddNodeCommand struct {
+	Container AddNodeContainerCommand `cmd:"" help:"Add container node to inventory"`
+	Generic   AddNodeGenericCommand   `cmd:"" help:"Add generic node to inventory"`
+	Remote    AddNodeRemoteCommand    `cmd:"" help:"Add Remote node to inventory"`
+	RemoteRDS AddNodeRemoteRDSCommand `cmd:"" help:"Add Remote RDS node to inventory"`
+}
+
+type AddServiceCommand struct {
+	External   AddServiceExternalCommand   `cmd:"" help:"Add an external service to inventory"`
+	HAProxy    AddServiceHAProxyCommand    `cmd:"" name:"haproxy" help:"Add HAProxy service to inventory"`
+	MongoDB    AddServiceMongoDBCommand    `cmd:"" name:"mongodb" help:"Add MongoDB service to inventory"`
+	MySQL      AddServiceMySQLCommand      `cmd:"" name:"mysql" help:"Add MySQL service to inventory"`
+	PostgreSQL AddServicePostgreSQLCommand `cmd:"" name:"postgresql" help:"Add PostgreSQL service to inventory"`
+	ProxySQL   AddServiceProxySQLCommand   `cmd:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
+}
+
+type RemoveCommand struct {
+	Agent   RemoveAgentCommand   `cmd:"" help:"Remove agent from inventory"`
+	Node    RemoveNodeCommand    `cmd:"" help:"Remove node from inventory"`
+	Service RemoveServiceCommand `cmd:"" help:"Remove service from inventory"`
+}
+
 // formatTypeValue checks acceptable type value and variations contains input and returns type value.
 // Values comparison is case-insensitive.
 func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*string, error) {

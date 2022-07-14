@@ -43,6 +43,15 @@ func (res *addNodeRemoteRDSResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteRDSResultT, res)
 }
 
+type AddNodeRemoteRDSCommand struct {
+	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
+	Address      string `help:"Address"`
+	NodeModel    string `help:"Node mddel"`
+	Region       string `help:"Node region"`
+	Az           string `help:"Node availability zone"`
+	CustomLabels string `help:"Custom user-assigned labels"`
+}
+
 func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

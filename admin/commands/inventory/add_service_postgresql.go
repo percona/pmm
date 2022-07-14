@@ -47,6 +47,18 @@ func (res *addServicePostgreSQLResult) String() string {
 	return commands.RenderTemplate(addServicePostgreSQLResultT, res)
 }
 
+type AddServicePostgreSQLCommand struct {
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
+	Socket         string `help:"Path to PostgreSQL socket"`
+	Environment    string `help:"Environment name"`
+	Cluster        string `help:"Cluster name"`
+	ReplicationSet string `help:"Replication set name"`
+	CustomLabels   string `help:"Custom user-assigned labels"`
+}
+
 func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

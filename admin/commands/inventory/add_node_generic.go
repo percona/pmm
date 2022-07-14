@@ -45,6 +45,17 @@ func (res *addNodeGenericResult) String() string {
 	return commands.RenderTemplate(addNodeGenericResultT, res)
 }
 
+type AddNodeGenericCommand struct {
+	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
+	MachineID    string `help:"Linux machine-id"`
+	Distro       string `help:"Linux distribution (if any)"`
+	Address      string `help:"Address"`
+	CustomLabels string `help:"Custom user-assigned labels"`
+	Region       string `help:"Node region"`
+	Az           string `help:"Node availability zone"`
+	NodeModel    string `help:"Node mddel"`
+}
+
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

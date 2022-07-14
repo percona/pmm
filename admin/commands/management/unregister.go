@@ -39,6 +39,11 @@ func (res *unregisterResult) String() string {
 	return commands.RenderTemplate(unregisterNodeResultT, res)
 }
 
+type UnregisterCommand struct {
+	Force    bool   `help:"Remove this node with all dependencies"`
+	NodeName string `help:"Node name (autodetected default: ${hostname})"`
+}
+
 func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string

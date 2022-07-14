@@ -58,6 +58,10 @@ func (res *listNodesResult) String() string {
 	return commands.RenderTemplate(listNodesResultT, res)
 }
 
+type ListNodesCommand struct {
+	NodeType string `help:"Filter by Node type"`
+}
+
 func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
 	if err != nil {

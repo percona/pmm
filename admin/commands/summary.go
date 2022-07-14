@@ -303,6 +303,12 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 }
 
+type SummaryCommand struct {
+	Filename   string `help:"Summary archive filename"`
+	SkipServer bool   `help:"Skip fetching logs.zip from PMM Server"`
+	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
+}
+
 func (cmd *SummaryCommand) makeArchive(ctx context.Context) (err error) {
 	var f *os.File
 
@@ -352,7 +358,7 @@ func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context) (Result, error
 	}, nil
 }
 
-// register command
+// register command.
 var (
 	hostname, _ = os.Hostname()
 	filename    = fmt.Sprintf("summary_%s_%s.zip",

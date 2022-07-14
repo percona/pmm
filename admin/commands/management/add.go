@@ -19,6 +19,23 @@ import (
 	"strconv"
 )
 
+type AddCommand struct {
+	External           AddExternalCommand           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
+	ExternalServerless AddExternalServerlessCommand `cmd:"" help:"Add External Service on Remote node to monitoring."`
+	HAProxy            AddHAProxyCommand            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`
+	MongoDB            AddMongoDBCommand            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`
+	MySQL              AddMySQLCommand              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
+	PostgreSQL         AddPostgreSQLCommand         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
+	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
+}
+
+type AddCommonFlags struct {
+	AddServiceNameFlag string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
+	AddHostFlag        string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`
+	AddPortFlag        uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
+	AddLogLevel        string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+}
+
 type connectionGetter interface {
 	GetServiceName() string
 	GetAddress() string

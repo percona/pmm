@@ -44,6 +44,22 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBProfilerAgentResultT, res)
 }
 
+type AddQANMongoDBProfilerAgentCommand struct {
+	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                     string `arg:"" help:"Service identifier"`
+	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
+	Password                      string `help:"MongoDB password for scraping metrics"`
+	CustomLabels                  string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck           bool   `help:"Skip connection check"`
+	DisableQueryExamples          bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	TLS                           bool   `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                 bool   `help:"Skip TLS certificates validation"`
+	TLSCertificateKeyFile         string `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword string `help:"Password for certificate"`
+	TLSCaFile                     string `help:"Path to certificate authority file"`
+	AuthenticationMechanism       string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+}
+
 func (cmd *AddQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

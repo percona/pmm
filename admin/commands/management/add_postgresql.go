@@ -42,6 +42,36 @@ func (res *addPostgreSQLResult) String() string {
 	return commands.RenderTemplate(addPostgreSQLResultT, res)
 }
 
+type AddPostgreSQLCommand struct {
+	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
+	Address           string `arg:"" default:"127.0.0.1:5432" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Socket            string `help:"Path to socket"`
+	Username          string `default:"postgres" help:"PostgreSQL username"`
+	Password          string `help:"PostgreSQL password"`
+	Database          string `help:"PostgreSQL database"`
+	AgentPassword     string `help:"Custom password for /metrics endpoint"`
+	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
+	NodeID            string `help:"Node ID (default is autodetected)"`
+	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	// TODO add "auto"
+	QuerySource          string `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
+	Environment          string `help:"Environment name"`
+	Cluster              string `help:"Cluster name"`
+	ReplicationSet       string `help:"Replication set name"`
+	CustomLabels         string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck  bool   `help:"Skip connection check"`
+	TLS                  bool   `help:"Use TLS to connect to the database"`
+	TLSCAFile            string `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile          string `help:"TLS certificate file"`
+	TLSKeyFile           string `help:"TLS certificate key file"`
+	TLSSkipVerify        bool   `help:"Skip TLS certificates validation"`
+	DisableQueryExamples bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MetricsMode          string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	DisableCollectors    string `help:"Comma-separated list of collector names to exclude from exporter"`
+
+	AddCommonFlags
+}
+
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }

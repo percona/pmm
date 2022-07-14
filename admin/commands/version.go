@@ -28,6 +28,8 @@ func (v versionResult) MarshalJSON() ([]byte, error) {
 	return []byte(version.FullInfoJSON()), nil
 }
 
+type VersionCommand struct{}
+
 func (cmd *VersionCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil

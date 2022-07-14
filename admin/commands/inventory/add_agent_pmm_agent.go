@@ -38,6 +38,11 @@ func (res *addPMMAgentResult) String() string {
 	return commands.RenderTemplate(addPMMAgentResultT, res)
 }
 
+type PMMAgentCommand struct {
+	RunsOnNodeID string `arg:"" help:"Node identifier where this instance runs"`
+	CustomLabels string `help:"Custom user-assigned labels"`
+}
+
 func (cmd *PMMAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

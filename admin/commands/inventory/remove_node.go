@@ -32,6 +32,11 @@ func (res *removeNodeResult) String() string {
 	return commands.RenderTemplate(removeNodeGenericResultT, res)
 }
 
+type RemoveNodeCommand struct {
+	NodeID string `arg:"" optional:"" help:"Node ID"`
+	Force  bool   `help:"Remove node with all dependencies"`
+}
+
 func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{

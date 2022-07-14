@@ -83,6 +83,10 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 	}
 }
 
+type StatusCommand struct {
+	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
+}
+
 func (cmd *StatusCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil

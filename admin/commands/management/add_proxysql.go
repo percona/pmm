@@ -42,6 +42,29 @@ func (res *addProxySQLResult) String() string {
 	return commands.RenderTemplate(addProxySQLResultT, res)
 }
 
+type AddProxySQLCommand struct {
+	ServiceName         string `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
+	Address             string `arg:"" default:"127.0.0.1:6032" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
+	Socket              string `help:"Path to ProxySQL socket"`
+	NodeID              string `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username            string `default:"admin" help:"ProxySQL username"`
+	Password            string `default:"admin" help:"ProxySQL password"`
+	AgentPassword       string `help:"Custom password for /metrics endpoint"`
+	CredentialsSource   string `type:"existingfile" help:"Credentials provider"`
+	Environment         string `help:"Environment name"`
+	Cluster             string `help:"Cluster name"`
+	ReplicationSet      string `help:"Replication set name"`
+	CustomLabels        string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool   `help:"Skip connection check"`
+	TLS                 bool   `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
+	MetricsMode         string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	DisableCollectors   string `help:"Comma-separated list of collector names to exclude from exporter"`
+
+	AddCommonFlags
+}
+
 func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }

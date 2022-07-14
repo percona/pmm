@@ -46,6 +46,32 @@ func (res *addExternalServerlessResult) String() string {
 	return commands.RenderTemplate(addExternalServerlessResultT, res)
 }
 
+type AddExternalServerlessCommand struct {
+	Name                string `name:"external-name" help:"Service name"`
+	URL                 string `help:"Full URL to exporter metrics endpoints"`
+	Scheme              string `placeholder:"https" help:"Scheme to generate URI to exporter metrics endpoints"`
+	Username            string `help:"External username"`
+	Password            string `help:"External password"`
+	CredentialsSource   string `type:"existingfile" help:"Credentials provider"`
+	Address             string `placeholder:"1.2.3.4:9000" help:"External exporter address and port"`
+	Host                string `placeholder:"1.2.3.4" help:"External exporters hostname or IP address"`
+	ListenPort          uint16 `placeholder:"9999" help:"Listen port of external exporter for scraping metrics."`
+	MetricsPath         string `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URL."`
+	Environment         string `placeholder:"testing" help:"Environment name"`
+	Cluster             string `help:"Cluster name"`
+	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels        string `placeholder:"'app=myapp,region=s1'" help:"Custom user-assigned labels"`
+	Group               string `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
+	MachineID           string `help:"Node machine-id"`
+	Distro              string `help:"Node OS distribution"`
+	ContainerID         string `help:"Container ID"`
+	ContainerName       string `help:"Container name"`
+	NodeModel           string `help:"Node model"`
+	Region              string `help:"Node region"`
+	Az                  string `help:"Node availability zone"`
+	SkipConnectionCheck bool   `help:"Skip exporter connection checks"`
+}
+
 func (cmd *AddExternalServerlessCommand) Help() string {
 	return `Usage example:
 sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics

@@ -116,6 +116,10 @@ func convertTabs(template string) (string, error) {
 	return buf.String(), nil
 }
 
+type ListCommand struct {
+	NodeID string `help:"Node ID (default is autodetected)"`
+}
+
 func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

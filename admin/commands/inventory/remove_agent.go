@@ -32,6 +32,11 @@ func (res *removeAgentResult) String() string {
 	return commands.RenderTemplate(removeAgentResultT, res)
 }
 
+type RemoveAgentCommand struct {
+	AgentID string `arg:"" optional:"" help:"Agent ID"`
+	Force   bool   `help:"Remove agent with all dependencies"`
+}
+
 func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{

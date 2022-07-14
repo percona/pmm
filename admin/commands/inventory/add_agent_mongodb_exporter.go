@@ -45,6 +45,26 @@ func (res *addAgentMongodbExporterResult) String() string {
 	return commands.RenderTemplate(addAgentMongodbExporterResultT, res)
 }
 
+type MongoDBExporterCommand struct {
+	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                     string `arg:"" help:"Service identifier"`
+	Username                      string `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
+	Password                      string `help:"MongoDB password for scraping metrics"`
+	AgentPassword                 string `help:"Custom password for /metrics endpoint"`
+	CustomLabels                  string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck           bool   `help:"Skip connection check"`
+	TLS                           bool   `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                 bool   `help:"Skip TLS certificates validation"`
+	TLSCertificateKeyFile         string `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword string `help:"Password for certificate"`
+	TLSCaFile                     string `help:"Path to certificate authority file"`
+	AuthenticationMechanism       string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	PushMetrics                   bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors             string `help:"Comma-separated list of collector names to exclude from exporter"`
+	StatsCollections              string `help:"Collections for collstats & indexstats"`
+	CollectionsLimit              int32  `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
+}
+
 func (cmd *MongoDBExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

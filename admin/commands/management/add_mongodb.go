@@ -47,6 +47,39 @@ func (res *addMongoDBResult) String() string {
 	return commands.RenderTemplate(addMongoDBResultT, res)
 }
 
+type AddMongoDBCommand struct {
+	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
+	Address           string `arg:"" default:"127.0.0.1:27017" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
+	Socket            string `help:"Path to socket"`
+	NodeID            string `help:"Node ID (default is autodetected)"`
+	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username          string `help:"MongoDB username"`
+	Password          string `help:"MongoDB password"`
+	AgentPassword     string `help:"Custom password for /metrics endpoint"`
+	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
+	// TODO add "auto"
+	QuerySource                   string `default:"${mongoDbQuerySourceDefault}" enum:"${mongoDbQuerySourcesEnum}" help:"Source of queries, one of: ${mongoDbQuerySourcesEnum} (default: ${mongoDbQuerySourceDefault})"`
+	Environment                   string `help:"Environment name"`
+	Cluster                       string `help:"Cluster name"`
+	ReplicationSet                string `help:"Replication set name"`
+	CustomLabels                  string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck           bool   `help:"Skip connection check"`
+	TLS                           bool   `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                 bool   `help:"Skip TLS certificates validation"`
+	TLSCertificateKeyFile         string `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword string `help:"Password for certificate"`
+	TLSCaFile                     string `help:"Path to certificate authority file"`
+	AuthenticationMechanism       string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	AuthenticationDatabase        string `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
+	MetricsMode                   string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	EnableAllCollectors           bool   `help:"Enable all collectors"`
+	DisableCollectors             string `help:"Comma-separated list of collector names to exclude from exporter"`
+	StatsCollections              string `help:"Collections for collstats & indexstats"`
+	CollectionsLimit              int32  `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value."`
+
+	AddCommonFlags
+}
+
 func (cmd *AddMongoDBCommand) GetServiceName() string {
 	return cmd.ServiceName
 }

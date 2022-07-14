@@ -47,6 +47,18 @@ func (res *addServiceMySQLResult) String() string {
 	return commands.RenderTemplate(addServiceMySQLResultT, res)
 }
 
+type AddServiceMySQLCommand struct {
+	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string `arg:"" optional:"" help:"Node ID"`
+	Address        string `arg:"" optional:"" help:"Address"`
+	Port           int64  `arg:"" optional:"" help:"Port"`
+	Socket         string `help:"Path to MySQL socket"`
+	Environment    string `help:"Environment name"`
+	Cluster        string `help:"Cluster name"`
+	ReplicationSet string `help:"Replication set name"`
+	CustomLabels   string `help:"Custom user-assigned labels"`
+}
+
 func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

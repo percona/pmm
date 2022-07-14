@@ -44,6 +44,18 @@ func (res *addAgentRDSExporterResult) String() string {
 	return commands.RenderTemplate(addAgentRDSExporterResultT, res)
 }
 
+type AddAgentRDSExporterCmd struct {
+	PMMAgentID             string `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	NodeID                 string `arg:"" help:"Node identifier"`
+	AWSAccessKey           string `help:"AWS Access Key ID"`
+	AWSSecretKey           string `help:"AWS Secret Access Key"`
+	CustomLabels           string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool   `help:"Skip connection check"`
+	DisableBasicMetrics    bool   `help:"Disable basic metrics"`
+	DisableEnhancedMetrics bool   `help:"Disable enhanced metrics"`
+	PushMetrics            bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+}
+
 func (cmd *AddAgentRDSExporterCmd) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

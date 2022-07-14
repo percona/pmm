@@ -42,6 +42,16 @@ func (res *addExternalServiceResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
+type AddServiceExternalCommand struct {
+	ServiceName    string `name:"name" required:"" help:"External service name. Required"`
+	NodeID         string `required:"" help:"External service node ID. Required"`
+	Environment    string `help:"Environment name"`
+	Cluster        string `help:"Cluster name"`
+	ReplicationSet string `help:"Replication set name"`
+	CustomLabels   string `help:"Custom user-assigned labels"`
+	Group          string `help:"Group name of external service"`
+}
+
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

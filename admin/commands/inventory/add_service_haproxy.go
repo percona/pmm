@@ -42,6 +42,15 @@ func (res *addHAProxyServiceResult) String() string {
 	return commands.RenderTemplate(addHAProxyServiceResultT, res)
 }
 
+type AddServiceHAProxyCommand struct {
+	ServiceName    string `arg:"" optional:"" name:"name" help:"HAProxy service name"`
+	NodeID         string `arg:"" optional:"" help:"HAProxy service node ID"`
+	Environment    string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster        string `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet string `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels   string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+}
+
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {

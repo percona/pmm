@@ -44,6 +44,20 @@ func (res *addAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANPostgreSQLPgStatementsAgentResultT, res)
 }
 
+type AddQANPostgreSQLPgStatementsAgentCommand struct {
+	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID           string `arg:"" help:"Service identifier"`
+	Username            string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
+	Password            string `help:"PostgreSQL password for QAN agent"`
+	CustomLabels        string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool   `help:"Skip connection check"`
+	TLS                 bool   `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
+	TLSCAFile           string `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile         string `help:"TLS certificate file"`
+	TLSKeyFile          string `help:"TLS certificate key file"`
+}
+
 func (cmd *AddQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

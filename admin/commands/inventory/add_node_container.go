@@ -45,6 +45,18 @@ func (res *addNodeContainerResult) String() string {
 	return commands.RenderTemplate(addNodeContainerResultT, res)
 }
 
+type AddNodeContainerCommand struct {
+	NodeName      string `arg:"" optional:"" name:"name" help:"Node name"`
+	MachineID     string `help:"Linux machine-id"`
+	ContainerID   string `help:"Container identifier; if specified, must be a unique Docker container identifier"`
+	ContainerName string `help:"Container name"`
+	Address       string `help:"Address"`
+	CustomLabels  string `help:"Custom user-assigned labels"`
+	Region        string `help:"Node region"`
+	Az            string `help:"Node availability zone"`
+	NodeModel     string `help:"Node model"`
+}
+
 func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {

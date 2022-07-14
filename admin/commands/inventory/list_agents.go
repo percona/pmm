@@ -82,13 +82,20 @@ func (res *listAgentsResult) String() string {
 	return commands.RenderTemplate(listAgentsResultT, res)
 }
 
-// This is used in the json output. By convention, statuses must be in uppercase
+// This is used in the json output. By convention, statuses must be in uppercase.
 func getAgentStatus(status *string) string {
 	res := pointer.GetString(status)
 	if res == "" {
 		res = "UNKNOWN"
 	}
 	return res
+}
+
+type ListAgentsCommand struct {
+	PMMAgentID string `help:"Filter by pmm-agent identifier"`
+	ServiceID  string `help:"Filter by Service identifier"`
+	NodeID     string `help:"Filter by Node identifier"`
+	AgentType  string `help:"Filter by Agent type"`
 }
 
 func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {

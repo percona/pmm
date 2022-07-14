@@ -17,6 +17,8 @@ package inventory
 import (
 	"strconv"
 
+	"github.com/alecthomas/units"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
@@ -58,6 +60,22 @@ func (res *addAgentQANMySQLSlowlogAgentResult) QueryExamples() string {
 func (res *addAgentQANMySQLSlowlogAgentResult) SlowlogRotation() string {
 	// TODO units.ParseBase2Bytes, etc
 	return res.Agent.MaxSlowlogFileSize
+}
+
+type AddQANMySQLSlowlogAgentCommand struct {
+	PMMAgentID           string           `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID            string           `arg:"" help:"Service identifier"`
+	Username             string           `arg:"" optional:"" help:"MySQL username for scraping metrics"`
+	Password             string           `help:"MySQL password for scraping metrics"`
+	CustomLabels         string           `help:"Custom user-assigned labels"`
+	SkipConnectionCheck  bool             `help:"Skip connection check"`
+	DisableQueryExamples bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MaxSlowlogFileSize   units.Base2Bytes `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
+	TLS                  bool             `help:"Use TLS to connect to the database"`
+	TLSSkipVerify        bool             `help:"Skip TLS certificates validation"`
+	TLSCAFile            string           `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile          string           `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile           string           `name:"tls-key" help:"Path to client key file"`
 }
 
 func (cmd *AddQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {

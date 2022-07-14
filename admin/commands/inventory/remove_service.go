@@ -32,6 +32,11 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceResultT, res)
 }
 
+type RemoveServiceCommand struct {
+	ServiceID string `arg:"" optional:"" help:"Service ID"`
+	Force     bool   `help:"Remove service with all dependencies"`
+}
+
 func (cmd *RemoveServiceCommand) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
 		Body: services.RemoveServiceBody{

@@ -32,6 +32,12 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceGenericResultT, res)
 }
 
+type RemoveCommand struct {
+	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${serviceTypesEnum}"`
+	ServiceName string `arg:"" default:"" help:"Service name"`
+	ServiceID   string `help:"Service ID"`
+}
+
 func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	params := &service.RemoveServiceParams{
 		Body: service.RemoveServiceBody{

@@ -43,6 +43,15 @@ func (res *annotationResult) String() string {
 	return RenderTemplate(annotationResultT, res)
 }
 
+type AnnotateCommand struct {
+	Text        string `arg:"" help:"Text of annotation"`
+	Tags        string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`
+	Node        bool   `help:"Annotate current node"`
+	NodeName    string `help:"Name of node to annotate"`
+	Service     bool   `help:"Annotate services of current node"`
+	ServiceName string `help:"Name of service to annotate"`
+}
+
 func (cmd *AnnotateCommand) nodeName() (string, error) {
 	if cmd.NodeName != "" {
 		return cmd.NodeName, nil

@@ -71,6 +71,12 @@ func (res *listServicesResult) String() string {
 	return commands.RenderTemplate(listServicesResultT, res)
 }
 
+type ListServicesCommand struct {
+	NodeID        string `help:"Filter by Node identifier"`
+	ServiceType   string `help:"Filter by Service type"`
+	ExternalGroup string `help:"Filter by external group"`
+}
+
 func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	serviceType, err := formatTypeValue(acceptableServiceTypes, cmd.ServiceType)
 	if err != nil {
