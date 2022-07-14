@@ -415,7 +415,7 @@ func getValueFromENV(envName string, defaultValue string) string {
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
 	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase) 
 	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	ClickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
+	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 
@@ -426,7 +426,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
 		"PerconaTestDbaas":    settings.DBaaS.Enabled,
 		"ClickhouseAddr":      clickhouseAddr,
-		"ClickhouseDataSourceAddr": clickhouseDatasourceAddr,
+		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
 		"ClickhouseDatabase":  clickhouseDatabase,
 		"ClickhousePoolSize":  clickhousePoolSize,
 		"ClickhouseBlockSize": clickhouseBlockSize,
