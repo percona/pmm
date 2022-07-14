@@ -128,57 +128,66 @@ func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 
 	switch err := err.(type) {
 	case nil:
-		if opts.JSON {
-			b, jErr := json.Marshal(res)
-			if jErr != nil {
-				logrus.Infof("Result: %#v.", res)
-				logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
-			}
-			fmt.Printf("%s\n", b) //nolint:forbidigo
-		} else {
-			fmt.Println(res.String()) //nolint:forbidigo
-		}
-
+		printNilError(opts, res)
 		os.Exit(0)
 
 	case commands.ErrorResponse:
-		e := commands.GetError(err)
-
-		if opts.JSON {
-			b, jErr := json.Marshal(e)
-			if jErr != nil {
-				logrus.Infof("Error response: %#v.", e)
-				logrus.Panicf("Failed to marshal error response to JSON.\n%s.\nPlease report this bug.", jErr)
-			}
-			fmt.Printf("%s\n", b) //nolint:forbidigo
-		} else {
-			msg := e.Error
-			if e.Code == 401 {
-				msg += ". Please check username and password."
-			}
-			fmt.Println(msg) //nolint:forbidigo
-		}
-
+		printErrorResponse(err, opts)
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		if opts.JSON {
-			b, jErr := json.Marshal(res)
-			if jErr != nil {
-				logrus.Infof("Result: %#v.", res)
-				logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
-			}
-			fmt.Printf("%s\n", b) //nolint:forbidigo
-		} else {
-			fmt.Println(res.String()) //nolint:forbidigo
-		}
-
-		if err.Stderr != nil {
-			logrus.Debugf("%s, stderr:\n%s", err.String(), err.Stderr)
-		}
-
+		printExitError(opts, res, err)
 		os.Exit(err.ExitCode())
 	}
 
 	return err
+}
+
+func printNilError(opts *CLIGlobalFlags, res commands.Result) {
+	if opts.JSON {
+		b, jErr := json.Marshal(res)
+		if jErr != nil {
+			logrus.Infof("Result: %#v.", res)
+			logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
+		}
+		fmt.Printf("%s\n", b) //nolint:forbidigo
+	} else {
+		fmt.Println(res.String()) //nolint:forbidigo
+	}
+}
+
+func printErrorResponse(err commands.ErrorResponse, opts *CLIGlobalFlags) {
+	e := commands.GetError(err)
+
+	if opts.JSON {
+		b, jErr := json.Marshal(e)
+		if jErr != nil {
+			logrus.Infof("Error response: %#v.", e)
+			logrus.Panicf("Failed to marshal error response to JSON.\n%s.\nPlease report this bug.", jErr)
+		}
+		fmt.Printf("%s\n", b) //nolint:forbidigo
+	} else {
+		msg := e.Error
+		if e.Code == 401 {
+			msg += ". Please check username and password."
+		}
+		fmt.Println(msg) //nolint:forbidigo
+	}
+}
+
+func printExitError(opts *CLIGlobalFlags, res commands.Result, err *exec.ExitError) {
+	if opts.JSON {
+		b, jErr := json.Marshal(res)
+		if jErr != nil {
+			logrus.Infof("Result: %#v.", res)
+			logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
+		}
+		fmt.Printf("%s\n", b) //nolint:forbidigo
+	} else {
+		fmt.Println(res.String()) //nolint:forbidigo
+	}
+
+	if err.Stderr != nil {
+		logrus.Debugf("%s, stderr:\n%s", err.String(), err.Stderr)
+	}
 }
