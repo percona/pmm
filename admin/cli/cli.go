@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"reflect"
 
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
@@ -182,14 +181,4 @@ func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 	}
 
 	return err
-}
-
-func getMethod(value reflect.Value, name string) reflect.Value {
-	method := value.MethodByName(name)
-	if !method.IsValid() {
-		if value.CanAddr() {
-			method = value.Addr().MethodByName(name)
-		}
-	}
-	return method
 }
