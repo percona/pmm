@@ -120,11 +120,7 @@ func (c *CLIFlags) Run(ctx *kong.Context) error {
 		res, err = cmd.RunCmd()
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return printResponse(&c.CLIGlobalFlags, res, nil)
+	return printResponse(&c.CLIGlobalFlags, res, err)
 }
 
 func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
