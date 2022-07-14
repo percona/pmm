@@ -51,6 +51,7 @@ var (
 
 	errExecutionNotImplemented = errors.New("execution is not supported")
 
+	// SetupClientsEnabled defines if clients shall be setup during bootstrapping.
 	SetupClientsEnabled = true
 )
 
