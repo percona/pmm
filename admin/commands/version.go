@@ -28,6 +28,7 @@ func (v versionResult) MarshalJSON() ([]byte, error) {
 	return []byte(version.FullInfoJSON()), nil
 }
 
+// VersionCommand is used for CLI flags and commands.
 type VersionCommand struct{}
 
 func (cmd *VersionCommand) BeforeApply() error {
