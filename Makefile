@@ -9,9 +9,6 @@ env-up-rebuild:				## Start devcontainer with rebuild.
 	docker pull "perconalab/pmm-server:dev-latest"
 	docker-compose up --build -d
 
-env-compose-up:
-	docker-compose up --detach --renew-anon-volumes --remove-orphans
-
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
 
