@@ -18,7 +18,6 @@ import (
 //
 // swagger:model ScheduleDTO
 type ScheduleDTO struct {
-
 	// day
 	Day string `json:"day,omitempty"`
 

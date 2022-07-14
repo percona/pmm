@@ -16,7 +16,6 @@ import (
 //
 // swagger:model DeleteTokenCommand
 type DeleteTokenCommand struct {
-
 	// instance
 	Instance string `json:"instance,omitempty"`
 }

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Receiver
 type Receiver struct {
-
 	// email configs
 	EmailConfigs []*EmailConfig `json:"email_configs"`
 
@@ -377,9 +376,7 @@ func (m *Receiver) ContextValidate(ctx context.Context, formats strfmt.Registry)
 }
 
 func (m *Receiver) contextValidateEmailConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.EmailConfigs); i++ {
-
 		if m.EmailConfigs[i] != nil {
 			if err := m.EmailConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -390,16 +387,13 @@ func (m *Receiver) contextValidateEmailConfigs(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateOpsGenieConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.OpsGenieConfigs); i++ {
-
 		if m.OpsGenieConfigs[i] != nil {
 			if err := m.OpsGenieConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -410,16 +404,13 @@ func (m *Receiver) contextValidateOpsGenieConfigs(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidatePagerdutyConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.PagerdutyConfigs); i++ {
-
 		if m.PagerdutyConfigs[i] != nil {
 			if err := m.PagerdutyConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -430,16 +421,13 @@ func (m *Receiver) contextValidatePagerdutyConfigs(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidatePushoverConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.PushoverConfigs); i++ {
-
 		if m.PushoverConfigs[i] != nil {
 			if err := m.PushoverConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -450,16 +438,13 @@ func (m *Receiver) contextValidatePushoverConfigs(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateSNSConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.SNSConfigs); i++ {
-
 		if m.SNSConfigs[i] != nil {
 			if err := m.SNSConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -470,16 +455,13 @@ func (m *Receiver) contextValidateSNSConfigs(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateSlackConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.SlackConfigs); i++ {
-
 		if m.SlackConfigs[i] != nil {
 			if err := m.SlackConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -490,16 +472,13 @@ func (m *Receiver) contextValidateSlackConfigs(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateVictorOpsConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.VictorOpsConfigs); i++ {
-
 		if m.VictorOpsConfigs[i] != nil {
 			if err := m.VictorOpsConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -510,16 +489,13 @@ func (m *Receiver) contextValidateVictorOpsConfigs(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateWebhookConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.WebhookConfigs); i++ {
-
 		if m.WebhookConfigs[i] != nil {
 			if err := m.WebhookConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -530,16 +506,13 @@ func (m *Receiver) contextValidateWebhookConfigs(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Receiver) contextValidateWechatConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.WechatConfigs); i++ {
-
 		if m.WechatConfigs[i] != nil {
 			if err := m.WechatConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -550,7 +523,6 @@ func (m *Receiver) contextValidateWechatConfigs(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil

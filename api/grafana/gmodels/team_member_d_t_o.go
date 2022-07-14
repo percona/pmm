@@ -17,7 +17,6 @@ import (
 //
 // swagger:model TeamMemberDTO
 type TeamMemberDTO struct {
-
 	// auth module
 	AuthModule string `json:"auth_module,omitempty"`
 
@@ -95,7 +94,6 @@ func (m *TeamMemberDTO) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *TeamMemberDTO) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

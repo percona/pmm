@@ -18,7 +18,6 @@ import (
 //
 // swagger:model UpdateRoleCommand
 type UpdateRoleCommand struct {
-
 	// description
 	Description string `json:"description,omitempty"`
 
@@ -99,9 +98,7 @@ func (m *UpdateRoleCommand) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (m *UpdateRoleCommand) contextValidatePermissions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Permissions); i++ {
-
 		if m.Permissions[i] != nil {
 			if err := m.Permissions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -112,7 +109,6 @@ func (m *UpdateRoleCommand) contextValidatePermissions(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil

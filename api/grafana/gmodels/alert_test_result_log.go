@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AlertTestResultLog
 type AlertTestResultLog struct {
-
 	// data
 	Data interface{} `json:"data,omitempty"`
 

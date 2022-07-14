@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PagerdutyImage
 type PagerdutyImage struct {
-
 	// alt
 	Alt string `json:"alt,omitempty"`
 

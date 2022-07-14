@@ -17,7 +17,6 @@ import (
 //
 // swagger:model PushoverConfig
 type PushoverConfig struct {
-
 	// HTML
 	HTML bool `json:"html,omitempty"`
 
@@ -208,7 +207,6 @@ func (m *PushoverConfig) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *PushoverConfig) contextValidateExpire(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Expire.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("expire")
@@ -222,7 +220,6 @@ func (m *PushoverConfig) contextValidateExpire(ctx context.Context, formats strf
 }
 
 func (m *PushoverConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -238,7 +235,6 @@ func (m *PushoverConfig) contextValidateHTTPConfig(ctx context.Context, formats 
 }
 
 func (m *PushoverConfig) contextValidateRetry(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Retry.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("retry")
@@ -252,7 +248,6 @@ func (m *PushoverConfig) contextValidateRetry(ctx context.Context, formats strfm
 }
 
 func (m *PushoverConfig) contextValidateToken(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Token.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("token")
@@ -266,7 +261,6 @@ func (m *PushoverConfig) contextValidateToken(ctx context.Context, formats strfm
 }
 
 func (m *PushoverConfig) contextValidateUserKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.UserKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("user_key")

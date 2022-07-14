@@ -19,7 +19,6 @@ import (
 //
 // swagger:model Float
 type Float struct {
-
 	// float64
 	Float64 float64 `json:"Float64,omitempty"`
 

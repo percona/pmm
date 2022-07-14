@@ -50,12 +50,12 @@ type RouteGetRulesConfigOK struct {
 func (o *RouteGetRulesConfigOK) Error() string {
 	return fmt.Sprintf("[GET /api/ruler/{Recipient}/api/v1/rules][%d] routeGetRulesConfigOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetRulesConfigOK) GetPayload() gmodels.NamespaceConfigResponse {
 	return o.Payload
 }
 
 func (o *RouteGetRulesConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

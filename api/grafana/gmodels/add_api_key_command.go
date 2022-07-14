@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AddApiKeyCommand
 type AddAPIKeyCommand struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 

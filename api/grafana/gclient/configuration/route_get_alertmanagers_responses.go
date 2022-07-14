@@ -50,12 +50,12 @@ type RouteGetAlertmanagersOK struct {
 func (o *RouteGetAlertmanagersOK) Error() string {
 	return fmt.Sprintf("[GET /api/v1/ngalert/alertmanagers][%d] routeGetAlertmanagersOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetAlertmanagersOK) GetPayload() *gmodels.GettableAlertmanagers {
 	return o.Payload
 }
 
 func (o *RouteGetAlertmanagersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.GettableAlertmanagers)
 
 	// response payload

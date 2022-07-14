@@ -17,7 +17,6 @@ import (
 //
 // swagger:model GettableExtendedRuleNode
 type GettableExtendedRuleNode struct {
-
 	// alert
 	Alert string `json:"alert,omitempty"`
 
@@ -114,7 +113,6 @@ func (m *GettableExtendedRuleNode) ContextValidate(ctx context.Context, formats 
 }
 
 func (m *GettableExtendedRuleNode) contextValidateFor(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.For.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("for")
@@ -128,7 +126,6 @@ func (m *GettableExtendedRuleNode) contextValidateFor(ctx context.Context, forma
 }
 
 func (m *GettableExtendedRuleNode) contextValidateGrafanaAlert(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.GrafanaAlert != nil {
 		if err := m.GrafanaAlert.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model DashboardAclInfoDTO
 type DashboardACLInfoDTO struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`
@@ -214,7 +213,6 @@ func (m *DashboardACLInfoDTO) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *DashboardACLInfoDTO) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

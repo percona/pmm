@@ -19,7 +19,6 @@ import (
 //
 // swagger:model GettableNGalertConfig
 type GettableNGalertConfig struct {
-
 	// alertmanagers
 	Alertmanagers []string `json:"alertmanagers"`
 

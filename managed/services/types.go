@@ -69,4 +69,6 @@ type FilterParams struct {
 	AlertID string
 	// ServiceID is the ID of service to be matched (if any).
 	ServiceID string
+
+	ExcludeChecks bool
 }

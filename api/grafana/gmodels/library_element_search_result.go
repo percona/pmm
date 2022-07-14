@@ -18,7 +18,6 @@ import (
 //
 // swagger:model LibraryElementSearchResult
 type LibraryElementSearchResult struct {
-
 	// elements
 	Elements []*LibraryElementDTO `json:"elements"`
 
@@ -87,9 +86,7 @@ func (m *LibraryElementSearchResult) ContextValidate(ctx context.Context, format
 }
 
 func (m *LibraryElementSearchResult) contextValidateElements(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Elements); i++ {
-
 		if m.Elements[i] != nil {
 			if err := m.Elements[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -100,7 +97,6 @@ func (m *LibraryElementSearchResult) contextValidateElements(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil

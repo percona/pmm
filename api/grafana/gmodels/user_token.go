@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UserToken
 type UserToken struct {
-
 	// auth token
 	AuthToken string `json:"AuthToken,omitempty"`
 

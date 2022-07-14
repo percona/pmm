@@ -18,7 +18,6 @@ import (
 //
 // swagger:model RuleGroupConfigResponse
 type RuleGroupConfigResponse struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -113,9 +112,7 @@ func (m *RuleGroupConfigResponse) ContextValidate(ctx context.Context, formats s
 }
 
 func (m *RuleGroupConfigResponse) contextValidateRules(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Rules); i++ {
-
 		if m.Rules[i] != nil {
 			if err := m.Rules[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -126,14 +123,12 @@ func (m *RuleGroupConfigResponse) contextValidateRules(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *RuleGroupConfigResponse) contextValidateInterval(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Interval.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("interval")

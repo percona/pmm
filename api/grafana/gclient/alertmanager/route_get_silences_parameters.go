@@ -59,7 +59,6 @@ func NewRouteGetSilencesParamsWithHTTPClient(client *http.Client) *RouteGetSilen
    Typically these are written to a http.Request.
 */
 type RouteGetSilencesParams struct {
-
 	/* Recipient.
 
 	     Recipient should be "grafana" for requests to be handled by grafana
@@ -147,7 +146,6 @@ func (o *RouteGetSilencesParams) SetFilter(filter []string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetSilencesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

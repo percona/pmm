@@ -16,7 +16,6 @@ import (
 //
 // swagger:model URL
 type URL struct {
-
 	// force query
 	ForceQuery bool `json:"ForceQuery,omitempty"`
 

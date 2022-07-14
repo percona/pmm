@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TrimDashboardFullWithMeta
 type TrimDashboardFullWithMeta struct {
-
 	// dashboard
 	Dashboard JSON `json:"dashboard,omitempty"`
 

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model DashboardAclUpdateItem
 type DashboardACLUpdateItem struct {
-
 	// role
 	// Enum: [Viewer Editor Admin]
 	Role string `json:"role,omitempty"`
@@ -129,7 +128,6 @@ func (m *DashboardACLUpdateItem) ContextValidate(ctx context.Context, formats st
 }
 
 func (m *DashboardACLUpdateItem) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

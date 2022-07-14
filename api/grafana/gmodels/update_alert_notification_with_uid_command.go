@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateAlertNotificationWithUidCommand
 type UpdateAlertNotificationWithUIDCommand struct {
-
 	// disable resolve message
 	DisableResolveMessage bool `json:"disableResolveMessage,omitempty"`
 

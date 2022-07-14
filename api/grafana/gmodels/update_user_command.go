@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateUserCommand
 type UpdateUserCommand struct {
-
 	// email
 	Email string `json:"email,omitempty"`
 

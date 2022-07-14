@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Alert
 type Alert struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"Created,omitempty"`
@@ -203,7 +202,6 @@ func (m *Alert) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 }
 
 func (m *Alert) contextValidateFor(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.For.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("For")
@@ -217,7 +215,6 @@ func (m *Alert) contextValidateFor(ctx context.Context, formats strfmt.Registry)
 }
 
 func (m *Alert) contextValidateState(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.State.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("State")

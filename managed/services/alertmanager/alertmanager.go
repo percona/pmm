@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 	"github.com/percona/promconfig"
@@ -40,6 +41,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
@@ -47,6 +51,9 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/percona/pmm/api/alertmanager/amclient/silence"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/api/grafana/gclient"
+	alertmanager2 "github.com/percona/pmm/api/grafana/gclient/alertmanager"
+	"github.com/percona/pmm/api/grafana/gmodels"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
@@ -71,6 +78,8 @@ const (
 	CheckFilter = "stt_check=1"
 	// IAFilter represents AlertManager filter for Integrated Alerts.
 	IAFilter = "ia=1"
+
+	ExcludeChecks = "stt_check!=1"
 )
 
 var notificationLabels = []string{
@@ -737,28 +746,71 @@ func (svc *Service) SendAlerts(ctx context.Context, alerts ammodels.PostableAler
 	}
 }
 
+// TODO it was copy-pasted from services/grafana/client.go
+func authHeadersFromContext(ctx context.Context) (http.Header, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("cannot get headers from metadata")
+	}
+	// get authorization from headers.
+	authorizationHeaders := headers.Get("Authorization")
+	cookieHeaders := headers.Get("grpcgateway-cookie")
+	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+
+	authHeaders := make(http.Header)
+	if len(authorizationHeaders) != 0 {
+		authHeaders.Add("Authorization", authorizationHeaders[0])
+	}
+	if len(cookieHeaders) != 0 {
+		for _, header := range cookieHeaders {
+			authHeaders.Add("Cookie", header)
+		}
+	}
+	return authHeaders, nil
+}
+
 // GetAlerts returns alerts available in alertmanager.
-func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([]*ammodels.GettableAlert, error) {
-	alertParams := alert.NewGetAlertsParams()
+func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([]*gmodels.GettableAlert, error) {
+	alertParams := alertmanager2.NewRouteGetAMAlertsParams()
+
 	alertParams.Context = ctx
+	alertParams.Recipient = "grafana"
 
 	if fp != nil {
+		if fp.ExcludeChecks {
+			alertParams.Matchers = append(alertParams.Matchers, ExcludeChecks)
+		}
+
 		if fp.IsCheck {
-			alertParams.Filter = append(alertParams.Filter, CheckFilter)
+			alertParams.Matchers = append(alertParams.Matchers, CheckFilter)
 		}
 		if fp.IsIA {
-			alertParams.Filter = append(alertParams.Filter, IAFilter)
+			alertParams.Matchers = append(alertParams.Matchers, IAFilter)
 		}
 		if fp.ServiceID != "" {
-			alertParams.Filter = append(alertParams.Filter, fmt.Sprintf("service_id=\"%s\"", fp.ServiceID))
+			alertParams.Matchers = append(alertParams.Matchers, fmt.Sprintf("service_id=\"%s\"", fp.ServiceID))
 		}
 		if fp.AlertID != "" {
-			alertParams.Filter = append(alertParams.Filter, fmt.Sprintf("alert_id=\"%s\"", fp.AlertID))
+			alertParams.Matchers = append(alertParams.Matchers, fmt.Sprintf("alert_id=\"%s\"", fp.AlertID))
 		}
 	}
 
 	svc.l.Debugf("%+v", alertParams)
-	resp, err := amclient.Default.Alert.GetAlerts(alertParams)
+	authHeaders, err := authHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	auth := runtime.ClientAuthInfoWriterFunc(func(r runtime.ClientRequest, reg strfmt.Registry) error {
+		for header, values := range authHeaders {
+			_ = r.SetHeaderParam(header, values...)
+		}
+		return nil
+	})
+
+	resp, err := gclient.Default.Alertmanager.RouteGetAMAlerts(alertParams, auth)
 	if err != nil {
 		return nil, err
 	}
@@ -767,7 +819,7 @@ func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([
 }
 
 // FindAlertsByID searches alerts by IDs in alertmanager.
-func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*ammodels.GettableAlert, error) {
+func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*gmodels.GettableAlert, error) {
 	alerts, err := svc.GetAlerts(ctx, params)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get alerts form alertmanager")
@@ -779,7 +831,7 @@ func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterP
 		m[id] = struct{}{}
 	}
 
-	res := make([]*ammodels.GettableAlert, 0, l)
+	res := make([]*gmodels.GettableAlert, 0, l)
 	for _, a := range alerts {
 		if _, ok := m[*a.Fingerprint]; ok {
 			res = append(res, a)
@@ -790,7 +842,7 @@ func (svc *Service) FindAlertsByID(ctx context.Context, params *services.FilterP
 }
 
 // SilenceAlerts silences a group of provided alerts.
-func (svc *Service) SilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+func (svc *Service) SilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error {
 	var err error
 	for _, a := range alerts {
 		if len(a.Status.SilencedBy) != 0 {
@@ -804,7 +856,7 @@ func (svc *Service) SilenceAlerts(ctx context.Context, alerts []*ammodels.Gettab
 				&ammodels.Matcher{
 					IsRegex: pointer.ToBool(false),
 					Name:    pointer.ToString(label),
-					Value:   pointer.ToString(value),
+					Value:   pointer.ToString(string(value)),
 				})
 		}
 
@@ -831,7 +883,7 @@ func (svc *Service) SilenceAlerts(ctx context.Context, alerts []*ammodels.Gettab
 }
 
 // UnsilenceAlerts unmutes the provided alerts.
-func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error {
+func (svc *Service) UnsilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error {
 	var err error
 	for _, a := range alerts {
 		for _, silenceID := range a.Status.SilencedBy {
@@ -877,5 +929,5 @@ func (svc *Service) IsReady(ctx context.Context) error {
 // configure default client; we use it mainly because we can't remove it from generated code
 //nolint:gochecknoinits
 func init() {
-	amclient.Default.SetTransport(httptransport.New("127.0.0.1:9093", "/alertmanager/api/v2", []string{"http"}))
+	gclient.Default.SetTransport(httptransport.New("127.0.0.1:3000", "/", []string{"http"}))
 }

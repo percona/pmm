@@ -16,7 +16,6 @@ import (
 //
 // swagger:model CreateFolderCommand
 type CreateFolderCommand struct {
-
 	// title
 	Title string `json:"title,omitempty"`
 

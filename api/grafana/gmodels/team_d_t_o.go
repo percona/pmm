@@ -17,7 +17,6 @@ import (
 //
 // swagger:model TeamDTO
 type TeamDTO struct {
-
 	// access control
 	AccessControl map[string]bool `json:"accessControl,omitempty"`
 
@@ -89,7 +88,6 @@ func (m *TeamDTO) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 }
 
 func (m *TeamDTO) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

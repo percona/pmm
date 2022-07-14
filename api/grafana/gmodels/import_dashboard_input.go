@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ImportDashboardInput
 type ImportDashboardInput struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 

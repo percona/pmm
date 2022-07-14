@@ -18,7 +18,6 @@ import (
 //
 // swagger:model TimeRange
 type TimeRange struct {
-
 	// end minute
 	EndMinute int64 `json:"EndMinute,omitempty"`
 

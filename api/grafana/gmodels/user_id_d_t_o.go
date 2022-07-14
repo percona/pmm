@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UserIdDTO
 type UserIDDTO struct {
-
 	// Id
 	ID int64 `json:"id,omitempty"`
 

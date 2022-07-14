@@ -17,7 +17,6 @@ import (
 //
 // swagger:model TestRulePayload
 type TestRulePayload struct {
-
 	// expr
 	// Example: (node_filesystem_avail_bytes{fstype!=\"\",job=\"integrations/node_exporter\"} node_filesystem_size_bytes{fstype!=\"\",job=\"integrations/node_exporter\"} * 100 \u003c 5 and node_filesystem_readonly{fstype!=\"\",job=\"integrations/node_exporter\"} == 0)
 	Expr string `json:"expr,omitempty"`
@@ -74,7 +73,6 @@ func (m *TestRulePayload) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *TestRulePayload) contextValidateGrafanaCondition(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.GrafanaCondition != nil {
 		if err := m.GrafanaCondition.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

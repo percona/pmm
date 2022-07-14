@@ -18,7 +18,6 @@ import (
 //
 // swagger:model SearchUserQueryResult
 type SearchUserQueryResult struct {
-
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -87,9 +86,7 @@ func (m *SearchUserQueryResult) ContextValidate(ctx context.Context, formats str
 }
 
 func (m *SearchUserQueryResult) contextValidateUsers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Users); i++ {
-
 		if m.Users[i] != nil {
 			if err := m.Users[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -100,7 +97,6 @@ func (m *SearchUserQueryResult) contextValidateUsers(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ImportDashboardResponse
 type ImportDashboardResponse struct {
-
 	// dashboard Id
 	DashboardID int64 `json:"dashboardId,omitempty"`
 

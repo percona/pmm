@@ -18,7 +18,6 @@ import (
 //
 // swagger:model GettableGrafanaReceivers
 type GettableGrafanaReceivers struct {
-
 	// grafana managed receivers
 	GrafanaManagedReceivers []*GettableGrafanaReceiver `json:"grafana_managed_receiver_configs"`
 }
@@ -78,9 +77,7 @@ func (m *GettableGrafanaReceivers) ContextValidate(ctx context.Context, formats 
 }
 
 func (m *GettableGrafanaReceivers) contextValidateGrafanaManagedReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.GrafanaManagedReceivers); i++ {
-
 		if m.GrafanaManagedReceivers[i] != nil {
 			if err := m.GrafanaManagedReceivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -91,7 +88,6 @@ func (m *GettableGrafanaReceivers) contextValidateGrafanaManagedReceivers(ctx co
 				return err
 			}
 		}
-
 	}
 
 	return nil

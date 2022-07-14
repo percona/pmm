@@ -16,7 +16,6 @@ import (
 //
 // swagger:model CustomPermissionsRecordDTO
 type CustomPermissionsRecordDTO struct {
-
 	// custom permissions
 	CustomPermissions string `json:"customPermissions,omitempty"`
 

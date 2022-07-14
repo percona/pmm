@@ -16,7 +16,6 @@ import (
 //
 // swagger:model RevokeAuthTokenCmd
 type RevokeAuthTokenCmd struct {
-
 	// auth token Id
 	AuthTokenID int64 `json:"authTokenId,omitempty"`
 }

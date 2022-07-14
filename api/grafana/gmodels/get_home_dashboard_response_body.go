@@ -17,7 +17,6 @@ import (
 //
 // swagger:model GetHomeDashboardResponseBody
 type GetHomeDashboardResponseBody struct {
-
 	// dashboard
 	Dashboard JSON `json:"dashboard,omitempty"`
 
@@ -105,7 +104,6 @@ func (m *GetHomeDashboardResponseBody) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GetHomeDashboardResponseBody) validateMeta(formats strfmt.Registry) error {
-
 	if swag.IsZero(m.Meta) { // not required
 		return nil
 	}
@@ -139,7 +137,6 @@ func (m *GetHomeDashboardResponseBody) ContextValidate(ctx context.Context, form
 }
 
 func (m *GetHomeDashboardResponseBody) contextValidateMeta(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Meta != nil {
 		if err := m.Meta.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

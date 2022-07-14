@@ -20,7 +20,6 @@ import (
 //
 // swagger:model PostableGrafanaRule
 type PostableGrafanaRule struct {
-
 	// condition
 	Condition string `json:"condition,omitempty"`
 
@@ -195,9 +194,7 @@ func (m *PostableGrafanaRule) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *PostableGrafanaRule) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Data); i++ {
-
 		if m.Data[i] != nil {
 			if err := m.Data[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -208,7 +205,6 @@ func (m *PostableGrafanaRule) contextValidateData(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil

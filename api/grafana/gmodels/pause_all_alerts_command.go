@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PauseAllAlertsCommand
 type PauseAllAlertsCommand struct {
-
 	// paused
 	Paused bool `json:"paused,omitempty"`
 }

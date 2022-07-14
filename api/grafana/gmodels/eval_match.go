@@ -17,7 +17,6 @@ import (
 //
 // swagger:model EvalMatch
 type EvalMatch struct {
-
 	// metric
 	Metric string `json:"metric,omitempty"`
 
@@ -76,7 +75,6 @@ func (m *EvalMatch) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *EvalMatch) contextValidateValue(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Value != nil {
 		if err := m.Value.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

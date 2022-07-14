@@ -20,7 +20,6 @@ import (
 //
 // swagger:model GettableGrafanaRule
 type GettableGrafanaRule struct {
-
 	// condition
 	Condition string `json:"condition,omitempty"`
 
@@ -264,9 +263,7 @@ func (m *GettableGrafanaRule) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *GettableGrafanaRule) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Data); i++ {
-
 		if m.Data[i] != nil {
 			if err := m.Data[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -277,14 +274,12 @@ func (m *GettableGrafanaRule) contextValidateData(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableGrafanaRule) contextValidateProvenance(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Provenance.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("provenance")

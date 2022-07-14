@@ -16,7 +16,6 @@ import (
 //
 // swagger:model LibraryElementDTOMetaUser
 type LibraryElementDTOMetaUser struct {
-
 	// avatar URL
 	AvatarURL string `json:"avatarUrl,omitempty"`
 

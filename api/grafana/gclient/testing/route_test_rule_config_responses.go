@@ -50,12 +50,12 @@ type RouteTestRuleConfigOK struct {
 func (o *RouteTestRuleConfigOK) Error() string {
 	return fmt.Sprintf("[POST /api/v1/rule/test/{Recipient}][%d] routeTestRuleConfigOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteTestRuleConfigOK) GetPayload() *gmodels.TestRuleResponse {
 	return o.Payload
 }
 
 func (o *RouteTestRuleConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.TestRuleResponse)
 
 	// response payload

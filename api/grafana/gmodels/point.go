@@ -16,7 +16,6 @@ import (
 //
 // swagger:model Point
 type Point struct {
-
 	// t
 	T int64 `json:"T,omitempty"`
 

@@ -17,7 +17,6 @@ import (
 //
 // swagger:model CreateDashboardSnapshotCommand
 type CreateDashboardSnapshotCommand struct {
-
 	// Unique key used to delete the snapshot. It is different from the `key` so that only the creator can delete the snapshot. Required if `external` is `true`.
 	DeleteKey string `json:"deleteKey,omitempty"`
 
@@ -80,7 +79,6 @@ func (m *CreateDashboardSnapshotCommand) validateResult(formats strfmt.Registry)
 }
 
 func (m *CreateDashboardSnapshotCommand) validateDashboard(formats strfmt.Registry) error {
-
 	if m.Dashboard == nil {
 		return errors.Required("dashboard", "body", nil)
 	}
@@ -103,7 +101,6 @@ func (m *CreateDashboardSnapshotCommand) ContextValidate(ctx context.Context, fo
 }
 
 func (m *CreateDashboardSnapshotCommand) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Result != nil {
 		if err := m.Result.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

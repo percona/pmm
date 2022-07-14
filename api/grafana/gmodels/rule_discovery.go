@@ -19,7 +19,6 @@ import (
 //
 // swagger:model RuleDiscovery
 type RuleDiscovery struct {
-
 	// rule groups
 	// Required: true
 	RuleGroups []*RuleGroup `json:"groups"`
@@ -40,7 +39,6 @@ func (m *RuleDiscovery) Validate(formats strfmt.Registry) error {
 }
 
 func (m *RuleDiscovery) validateRuleGroups(formats strfmt.Registry) error {
-
 	if err := validate.Required("groups", "body", m.RuleGroups); err != nil {
 		return err
 	}
@@ -81,9 +79,7 @@ func (m *RuleDiscovery) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *RuleDiscovery) contextValidateRuleGroups(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.RuleGroups); i++ {
-
 		if m.RuleGroups[i] != nil {
 			if err := m.RuleGroups[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -94,7 +90,6 @@ func (m *RuleDiscovery) contextValidateRuleGroups(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil

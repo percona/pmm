@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Matcher
 type Matcher struct {
-
 	// name
 	Name string `json:"Name,omitempty"`
 
@@ -74,7 +73,6 @@ func (m *Matcher) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 }
 
 func (m *Matcher) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("Type")

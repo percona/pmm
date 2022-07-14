@@ -17,7 +17,6 @@ import (
 //
 // swagger:model SettingsDTO
 type SettingsDTO struct {
-
 	// ID
 	ID int64 `json:"id,omitempty"`
 
@@ -79,7 +78,6 @@ func (m *SettingsDTO) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *SettingsDTO) contextValidateBranding(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Branding != nil {
 		if err := m.Branding.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

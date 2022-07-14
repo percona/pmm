@@ -68,12 +68,12 @@ type GetDatasourceByNameOK struct {
 func (o *GetDatasourceByNameOK) Error() string {
 	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameOK  %+v", 200, o.Payload)
 }
+
 func (o *GetDatasourceByNameOK) GetPayload() *gmodels.DataSource {
 	return o.Payload
 }
 
 func (o *GetDatasourceByNameOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.DataSource)
 
 	// response payload
@@ -100,12 +100,12 @@ type GetDatasourceByNameUnauthorized struct {
 func (o *GetDatasourceByNameUnauthorized) Error() string {
 	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameUnauthorized  %+v", 401, o.Payload)
 }
+
 func (o *GetDatasourceByNameUnauthorized) GetPayload() *gmodels.ErrorResponseBody {
 	return o.Payload
 }
 
 func (o *GetDatasourceByNameUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ErrorResponseBody)
 
 	// response payload
@@ -132,12 +132,12 @@ type GetDatasourceByNameForbidden struct {
 func (o *GetDatasourceByNameForbidden) Error() string {
 	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameForbidden  %+v", 403, o.Payload)
 }
+
 func (o *GetDatasourceByNameForbidden) GetPayload() *gmodels.ErrorResponseBody {
 	return o.Payload
 }
 
 func (o *GetDatasourceByNameForbidden) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ErrorResponseBody)
 
 	// response payload
@@ -157,14 +157,12 @@ func NewGetDatasourceByNameInternalServerError() *GetDatasourceByNameInternalSer
 
 GetDatasourceByNameInternalServerError get datasource by name internal server error
 */
-type GetDatasourceByNameInternalServerError struct {
-}
+type GetDatasourceByNameInternalServerError struct{}
 
 func (o *GetDatasourceByNameInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /api/datasources/name/{datasource_name}][%d] getDatasourceByNameInternalServerError ", 500)
 }
 
 func (o *GetDatasourceByNameInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	return nil
 }

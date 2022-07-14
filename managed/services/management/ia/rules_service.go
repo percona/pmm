@@ -19,24 +19,35 @@ package ia
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"math"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/go-openapi/runtime"
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
 
+	"github.com/percona/pmm/api/grafana/gclient"
+	"github.com/percona/pmm/api/grafana/gclient/datasources"
+	"github.com/percona/pmm/api/grafana/gclient/ruler"
+	"github.com/percona/pmm/api/grafana/gmodels"
 	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
@@ -58,6 +69,31 @@ type RulesService struct {
 	rulesPath    string // used for testing
 
 	iav1beta1.UnimplementedRulesServer
+}
+
+// TODO it was copy-pasted from services/grafana/client.go
+func authHeadersFromContext(ctx context.Context) (http.Header, error) {
+	headers, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("cannot get headers from metadata")
+	}
+	// get authorization from headers.
+	authorizationHeaders := headers.Get("Authorization")
+	cookieHeaders := headers.Get("grpcgateway-cookie")
+	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+
+	authHeaders := make(http.Header)
+	if len(authorizationHeaders) != 0 {
+		authHeaders.Add("Authorization", authorizationHeaders[0])
+	}
+	if len(cookieHeaders) != 0 {
+		for _, header := range cookieHeaders {
+			authHeaders.Add("Cookie", header)
+		}
+	}
+	return authHeaders, nil
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
@@ -366,46 +402,26 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, err
 	}
 
-	if req.TemplateName != "" {
-		template, ok := s.templates.getTemplates()[req.TemplateName]
-		if !ok {
-			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
-		}
+	if req.TemplateName == "" {
+		return nil, status.Errorf(codes.Unimplemented, "Template name should be specified.") // TODO
+	}
 
-		params.TemplateName = template.Name
-		params.Summary = template.Summary
-		params.ExprTemplate = template.Expr
-		params.DefaultFor = time.Duration(template.For)
-		params.DefaultSeverity = models.Severity(template.Severity)
-		params.Labels = template.Labels
-		params.Annotations = template.Annotations
+	template, ok := s.templates.getTemplates()[req.TemplateName]
+	if !ok {
+		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
+	}
 
-		params.ParamsDefinitions, err = models.ConvertParamsDefinitions(template.Params)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		sourceRule, err := models.FindRuleByID(s.db.Querier, req.SourceRuleId)
-		if err != nil {
-			return nil, err
-		}
+	params.TemplateName = template.Name
+	params.Summary = template.Summary
+	params.ExprTemplate = template.Expr
+	params.DefaultFor = time.Duration(template.For)
+	params.DefaultSeverity = models.Severity(template.Severity)
+	params.Labels = template.Labels
+	params.Annotations = template.Annotations
 
-		params.TemplateName = sourceRule.TemplateName
-		params.Summary = sourceRule.Summary
-		params.ExprTemplate = sourceRule.ExprTemplate
-		params.DefaultFor = sourceRule.DefaultFor
-		params.DefaultSeverity = sourceRule.DefaultSeverity
-		params.ParamsDefinitions = sourceRule.ParamsDefinitions
-
-		params.Labels, err = sourceRule.GetLabels()
-		if err != nil {
-			return nil, err
-		}
-
-		params.Annotations, err = sourceRule.GetAnnotations()
-		if err != nil {
-			return nil, err
-		}
+	params.ParamsDefinitions, err = models.ConvertParamsDefinitions(template.Params)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := validateParameters(params.ParamsDefinitions, params.ParamsValues); err != nil {
@@ -413,24 +429,195 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	}
 
 	// Check that we can compile expression with given parameters
-	_, err = fillExprWithParams(params.ExprTemplate, params.ParamsValues.AsStringMap())
+	expr, err := fillExprWithParams(params.ExprTemplate, params.ParamsValues.AsStringMap())
 	if err != nil {
 		return nil, err
 	}
 
-	var rule *models.Rule
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		rule, err = models.CreateRule(tx.Querier, params)
-		return err
+	authHeaders, err := authHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	auth := runtime.ClientAuthInfoWriterFunc(func(r runtime.ClientRequest, reg strfmt.Registry) error {
+		for header, values := range authHeaders {
+			_ = r.SetHeaderParam(header, values...)
+		}
+		return nil
 	})
-	if errTX != nil {
-		return nil, errTX
+
+	dsResp, err := gclient.Default.Datasources.GetDatasourceByName(&datasources.GetDatasourceByNameParams{
+		DatasourceName: "Metrics",
+		Context:        ctx,
+	}, auth)
+	if err != nil {
+		return nil, err
 	}
 
-	s.updateConfigurations()
+	p, err := convertParamsValuesToModel(req.Params)
+	if err != nil {
+		return nil, err
+	}
+	annotations := make(map[string]string)
+	if err = transformMaps(template.Annotations, annotations, p.AsStringMap()); err != nil {
+		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
+	}
+	annotations["rule"] = req.Name
 
-	return &iav1beta1.CreateAlertRuleResponse{RuleId: rule.ID}, nil
+	labels := make(map[string]string)
+	if err = transformMaps(template.Labels, labels, p.AsStringMap()); err != nil {
+		return nil, errors.Wrap(err, "failed to fill template labels placeholders")
+	}
+	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
+	labels["ia"] = "1"
+	labels["severity"] = common.Severity(req.Severity).String()
+	labels["template_name"] = req.TemplateName
+
+	r := &ruler.RoutePostNameRulesConfigParams{
+		Recipient: "grafana",
+		Namespace: "Experimental",
+		Body: &gmodels.PostableRuleGroupConfig{
+			Name:     params.Name,
+			Interval: gmodels.Duration(10 * time.Second),
+			Rules: []*gmodels.PostableExtendedRuleNode{
+				{
+					Annotations: annotations,
+					Labels:      labels,
+					For:         gmodels.Duration(req.For.AsDuration()),
+					GrafanaAlert: &gmodels.PostableGrafanaRule{
+						Condition: "C", // TODO: changed to C
+						Data: []*gmodels.AlertQuery{
+							{
+								DatasourceUID: dsResp.Payload.UID,
+								Model: &aQuery{
+									Expr:    expr,
+									RefID:   "A",
+									Instant: true,
+								},
+								RefID: "A",
+								RelativeTimeRange: &gmodels.RelativeTimeRange{ // TODO Range required even for instant queries, but it doesn't affect result
+									From: 60,
+									To:   0,
+								},
+							},
+							{
+								DatasourceUID: "-100", // TODO who knows why? ¯\_(ツ)_/¯
+								Model: &bQuery{
+									Datasource: Datasource{
+										Type: "__expr__",
+										UID:  "-100",
+									},
+									Conditions: []Condition{
+										{
+											Evaluator: Evaluator{
+												Params: []float64{0},
+												Type:   "gt",
+											},
+											Operator: Operator{Type: "and"},
+											Query:    Query{Params: []string{"A"}},
+											Reducer:  Reducer{Type: "last"},
+											Type:     "query",
+										},
+									},
+									Expression: "A",
+									Reducer:    "count",
+									RefID:      "B",
+									Type:       "reduce",
+								},
+								RefID: "B",
+							},
+							{
+								DatasourceUID: "-100", // TODO who knows why? ¯\_(ツ)_/¯
+								Model: &bQuery{
+									Datasource: Datasource{
+										Type: "__expr__",
+										UID:  "-100",
+									},
+									Conditions: []Condition{
+										{
+											Evaluator: Evaluator{
+												Params: []float64{0},
+												Type:   "gt",
+											},
+											Operator: Operator{Type: "and"},
+											Query:    Query{Params: []string{"A"}},
+											Reducer:  Reducer{Type: "last"},
+											Type:     "query",
+										},
+									},
+									Expression: "$B>0",
+									RefID:      "C",
+									Type:       "math",
+								},
+								RefID: "C",
+							},
+						},
+						ExecErrState: "Alerting",
+						NoDataState:  "NoData",
+						Title:        req.Name,
+					},
+				},
+			},
+		},
+		Context: ctx,
+	}
+
+	by, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(by))
+	_, err = gclient.Default.Ruler.RoutePostNameRulesConfig(r, auth)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err // TODO
+	}
+
+	return &iav1beta1.CreateAlertRuleResponse{}, nil
+}
+
+type aQuery struct {
+	EditorMode string `json:"editorMode"`
+	Expr       string `json:"expr"`
+	RefID      string `json:"refId"`
+	Instant    bool   `json:"instant"`
+}
+
+type bQuery struct {
+	Datasource Datasource  `json:"datasource"`
+	Conditions []Condition `json:"conditions"`
+
+	Reducer    string `json:"reducer"`
+	Expression string `json:"expression"`
+	RefID      string `json:"refId"`
+	Type       string `json:"type"`
+}
+
+type Datasource struct {
+	Type string `json:"type"`
+	UID  string `json:"uid"`
+}
+
+type Condition struct {
+	Type      string    `json:"type"`
+	Evaluator Evaluator `json:"evaluator"`
+	Operator  Operator  `json:"operator"`
+	Query     Query     `json:"query"`
+	Reducer   Reducer   `json:"reducer"`
+}
+
+type Evaluator struct {
+	Params []float64 `json:"params"`
+	Type   string    `json:"type"`
+}
+type Operator struct {
+	Type string `json:"type"`
+}
+type Query struct {
+	Params []string `json:"params"`
+}
+type Reducer struct {
+	Type string `json:"type"`
 }
 
 // UpdateAlertRule updates Integrated Alerting rule.
@@ -670,3 +857,10 @@ func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) 
 var (
 	_ iav1beta1.RulesServer = (*RulesService)(nil)
 )
+
+// TODO find a better way
+// configure default client; we use it mainly because we can't remove it from generated code
+//nolint:gochecknoinits
+func init() {
+	gclient.Default.SetTransport(httptransport.New("127.0.0.1", "/graph", []string{"http"}))
+}

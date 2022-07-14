@@ -56,12 +56,12 @@ type RouteGetAMAlertsOK struct {
 func (o *RouteGetAMAlertsOK) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/alerts][%d] routeGetAMAlertsOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetAMAlertsOK) GetPayload() gmodels.GettableAlerts {
 	return o.Payload
 }
 
 func (o *RouteGetAMAlertsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type RouteGetAMAlertsBadRequest struct {
 func (o *RouteGetAMAlertsBadRequest) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/alerts][%d] routeGetAMAlertsBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RouteGetAMAlertsBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RouteGetAMAlertsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload

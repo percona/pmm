@@ -56,12 +56,12 @@ type RouteGetAMStatusOK struct {
 func (o *RouteGetAMStatusOK) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/status][%d] routeGetAMStatusOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetAMStatusOK) GetPayload() *gmodels.GettableStatus {
 	return o.Payload
 }
 
 func (o *RouteGetAMStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.GettableStatus)
 
 	// response payload
@@ -88,12 +88,12 @@ type RouteGetAMStatusBadRequest struct {
 func (o *RouteGetAMStatusBadRequest) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/status][%d] routeGetAMStatusBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RouteGetAMStatusBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RouteGetAMStatusBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model NavLink
 type NavLink struct {
-
 	// Id
 	ID string `json:"id,omitempty"`
 

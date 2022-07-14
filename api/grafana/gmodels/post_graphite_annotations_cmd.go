@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PostGraphiteAnnotationsCmd
 type PostGraphiteAnnotationsCmd struct {
-
 	// data
 	Data string `json:"data,omitempty"`
 

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model SlackConfig
 type SlackConfig struct {
-
 	// API URL file
 	APIURLFile string `json:"api_url_file,omitempty"`
 
@@ -232,9 +231,7 @@ func (m *SlackConfig) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *SlackConfig) contextValidateActions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Actions); i++ {
-
 		if m.Actions[i] != nil {
 			if err := m.Actions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -245,16 +242,13 @@ func (m *SlackConfig) contextValidateActions(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *SlackConfig) contextValidateFields(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Fields); i++ {
-
 		if m.Fields[i] != nil {
 			if err := m.Fields[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -265,14 +259,12 @@ func (m *SlackConfig) contextValidateFields(ctx context.Context, formats strfmt.
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *SlackConfig) contextValidateAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.APIURL != nil {
 		if err := m.APIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -288,7 +280,6 @@ func (m *SlackConfig) contextValidateAPIURL(ctx context.Context, formats strfmt.
 }
 
 func (m *SlackConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -62,12 +62,12 @@ type RouteGetNGalertConfigOK struct {
 func (o *RouteGetNGalertConfigOK) Error() string {
 	return fmt.Sprintf("[GET /api/v1/ngalert/admin_config][%d] routeGetNGalertConfigOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetNGalertConfigOK) GetPayload() *gmodels.GettableNGalertConfig {
 	return o.Payload
 }
 
 func (o *RouteGetNGalertConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.GettableNGalertConfig)
 
 	// response payload
@@ -94,12 +94,12 @@ type RouteGetNGalertConfigNotFound struct {
 func (o *RouteGetNGalertConfigNotFound) Error() string {
 	return fmt.Sprintf("[GET /api/v1/ngalert/admin_config][%d] routeGetNGalertConfigNotFound  %+v", 404, o.Payload)
 }
+
 func (o *RouteGetNGalertConfigNotFound) GetPayload() *gmodels.Failure {
 	return o.Payload
 }
 
 func (o *RouteGetNGalertConfigNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.Failure)
 
 	// response payload
@@ -126,12 +126,12 @@ type RouteGetNGalertConfigInternalServerError struct {
 func (o *RouteGetNGalertConfigInternalServerError) Error() string {
 	return fmt.Sprintf("[GET /api/v1/ngalert/admin_config][%d] routeGetNGalertConfigInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *RouteGetNGalertConfigInternalServerError) GetPayload() *gmodels.Failure {
 	return o.Payload
 }
 
 func (o *RouteGetNGalertConfigInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.Failure)
 
 	// response payload

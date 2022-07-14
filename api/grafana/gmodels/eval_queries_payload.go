@@ -19,7 +19,6 @@ import (
 //
 // swagger:model EvalQueriesPayload
 type EvalQueriesPayload struct {
-
 	// data
 	Data []*AlertQuery `json:"data"`
 
@@ -99,9 +98,7 @@ func (m *EvalQueriesPayload) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (m *EvalQueriesPayload) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Data); i++ {
-
 		if m.Data[i] != nil {
 			if err := m.Data[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -112,7 +109,6 @@ func (m *EvalQueriesPayload) contextValidateData(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil

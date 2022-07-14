@@ -18,7 +18,6 @@ import (
 //
 // swagger:model ErrorResponseBody
 type ErrorResponseBody struct {
-
 	// Error An optional detailed description of the actual error. Only included if running in developer mode.
 	Error string `json:"error,omitempty"`
 
@@ -47,7 +46,6 @@ func (m *ErrorResponseBody) Validate(formats strfmt.Registry) error {
 }
 
 func (m *ErrorResponseBody) validateMessage(formats strfmt.Registry) error {
-
 	if err := validate.Required("message", "body", m.Message); err != nil {
 		return err
 	}

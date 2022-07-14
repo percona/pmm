@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AdminUpdateUserPermissionsForm
 type AdminUpdateUserPermissionsForm struct {
-
 	// is grafana admin
 	IsGrafanaAdmin bool `json:"isGrafanaAdmin,omitempty"`
 }

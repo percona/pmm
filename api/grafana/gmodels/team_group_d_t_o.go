@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TeamGroupDTO
 type TeamGroupDTO struct {
-
 	// group Id
 	GroupID string `json:"groupId,omitempty"`
 

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AddUserRoleCommand
 type AddUserRoleCommand struct {
-
 	// global
 	Global bool `json:"global,omitempty"`
 

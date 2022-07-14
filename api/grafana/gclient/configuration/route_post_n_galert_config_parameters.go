@@ -60,7 +60,6 @@ func NewRoutePostNGalertConfigParamsWithHTTPClient(client *http.Client) *RoutePo
    Typically these are written to a http.Request.
 */
 type RoutePostNGalertConfigParams struct {
-
 	// Body.
 	Body *gmodels.PostableNGalertConfig
 
@@ -130,7 +129,6 @@ func (o *RoutePostNGalertConfigParams) SetBody(body *gmodels.PostableNGalertConf
 
 // WriteToRequest writes these params to a swagger request
 func (o *RoutePostNGalertConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

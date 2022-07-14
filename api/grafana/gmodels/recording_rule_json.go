@@ -16,7 +16,6 @@ import (
 //
 // swagger:model RecordingRuleJSON
 type RecordingRuleJSON struct {
-
 	// active
 	Active bool `json:"active,omitempty"`
 

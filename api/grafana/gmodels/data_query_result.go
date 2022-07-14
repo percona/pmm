@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DataQueryResult
 type DataQueryResult struct {
-
 	// error string
 	ErrorString string `json:"error,omitempty"`
 
@@ -118,9 +117,7 @@ func (m *DataQueryResult) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *DataQueryResult) contextValidateTables(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Tables); i++ {
-
 		if m.Tables[i] != nil {
 			if err := m.Tables[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -131,14 +128,12 @@ func (m *DataQueryResult) contextValidateTables(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *DataQueryResult) contextValidateSeries(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Series.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("series")

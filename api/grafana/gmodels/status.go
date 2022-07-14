@@ -16,7 +16,6 @@ import (
 //
 // swagger:model Status
 type Status struct {
-
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`
 }

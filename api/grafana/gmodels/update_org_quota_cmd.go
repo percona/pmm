@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateOrgQuotaCmd
 type UpdateOrgQuotaCmd struct {
-
 	// limit
 	Limit int64 `json:"limit,omitempty"`
 

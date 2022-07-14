@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/api/grafana/gmodels"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -45,7 +46,7 @@ type agentsRegistry interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertmanagerService interface {
 	SendAlerts(ctx context.Context, alerts ammodels.PostableAlerts)
-	SilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
-	UnsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
-	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*ammodels.GettableAlert, error)
+	SilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error
+	UnsilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error
+	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*gmodels.GettableAlert, error)
 }

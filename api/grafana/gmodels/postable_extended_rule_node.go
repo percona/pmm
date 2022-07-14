@@ -17,7 +17,6 @@ import (
 //
 // swagger:model PostableExtendedRuleNode
 type PostableExtendedRuleNode struct {
-
 	// alert
 	Alert string `json:"alert,omitempty"`
 
@@ -114,7 +113,6 @@ func (m *PostableExtendedRuleNode) ContextValidate(ctx context.Context, formats 
 }
 
 func (m *PostableExtendedRuleNode) contextValidateFor(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.For.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("for")
@@ -128,7 +126,6 @@ func (m *PostableExtendedRuleNode) contextValidateFor(ctx context.Context, forma
 }
 
 func (m *PostableExtendedRuleNode) contextValidateGrafanaAlert(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.GrafanaAlert != nil {
 		if err := m.GrafanaAlert.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

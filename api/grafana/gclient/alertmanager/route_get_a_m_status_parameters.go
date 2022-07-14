@@ -58,7 +58,6 @@ func NewRouteGetAMStatusParamsWithHTTPClient(client *http.Client) *RouteGetAMSta
    Typically these are written to a http.Request.
 */
 type RouteGetAMStatusParams struct {
-
 	/* Recipient.
 
 	     Recipient should be "grafana" for requests to be handled by grafana
@@ -132,7 +131,6 @@ func (o *RouteGetAMStatusParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetAMStatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

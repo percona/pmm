@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AlertTestCommand
 type AlertTestCommand struct {
-
 	// panel Id
 	PanelID int64 `json:"panelId,omitempty"`
 

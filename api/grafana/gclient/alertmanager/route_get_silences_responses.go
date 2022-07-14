@@ -56,12 +56,12 @@ type RouteGetSilencesOK struct {
 func (o *RouteGetSilencesOK) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/silences][%d] routeGetSilencesOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetSilencesOK) GetPayload() gmodels.GettableSilences {
 	return o.Payload
 }
 
 func (o *RouteGetSilencesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type RouteGetSilencesBadRequest struct {
 func (o *RouteGetSilencesBadRequest) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/api/v2/silences][%d] routeGetSilencesBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RouteGetSilencesBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RouteGetSilencesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload

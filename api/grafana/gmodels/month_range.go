@@ -16,7 +16,6 @@ import (
 //
 // swagger:model MonthRange
 type MonthRange struct {
-
 	// begin
 	Begin int64 `json:"Begin,omitempty"`
 

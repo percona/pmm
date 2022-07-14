@@ -16,7 +16,6 @@ import (
 //
 // swagger:model CreateTeamCommand
 type CreateTeamCommand struct {
-
 	// email
 	Email string `json:"email,omitempty"`
 

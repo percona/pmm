@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Hit
 type Hit struct {
-
 	// folder ID
 	FolderID int64 `json:"folderId,omitempty"`
 
@@ -110,7 +109,6 @@ func (m *Hit) ContextValidate(ctx context.Context, formats strfmt.Registry) erro
 }
 
 func (m *Hit) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Type.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("type")

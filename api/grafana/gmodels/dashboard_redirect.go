@@ -16,7 +16,6 @@ import (
 //
 // swagger:model DashboardRedirect
 type DashboardRedirect struct {
-
 	// redirect Uri
 	RedirectURI string `json:"redirectUri,omitempty"`
 }

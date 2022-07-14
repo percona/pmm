@@ -30,7 +30,6 @@ func (m NamespaceConfigResponse) Validate(formats strfmt.Registry) error {
 		}
 
 		for i := 0; i < len(m[k]); i++ {
-
 			if err := m[k][i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(k + "." + strconv.Itoa(i))
@@ -39,7 +38,6 @@ func (m NamespaceConfigResponse) Validate(formats strfmt.Registry) error {
 				}
 				return err
 			}
-
 		}
 
 	}
@@ -55,9 +53,7 @@ func (m NamespaceConfigResponse) ContextValidate(ctx context.Context, formats st
 	var res []error
 
 	for k := range m {
-
 		for i := 0; i < len(m[k]); i++ {
-
 			if err := m[k][i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName(k + "." + strconv.Itoa(i))
@@ -66,9 +62,7 @@ func (m NamespaceConfigResponse) ContextValidate(ctx context.Context, formats st
 				}
 				return err
 			}
-
 		}
-
 	}
 
 	if len(res) > 0 {

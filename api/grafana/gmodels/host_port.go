@@ -16,7 +16,6 @@ import (
 //
 // swagger:model HostPort
 type HostPort struct {
-
 	// host
 	Host string `json:"Host,omitempty"`
 

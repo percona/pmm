@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PrometheusRemoteWriteTargetJSON
 type PrometheusRemoteWriteTargetJSON struct {
-
 	// datasource UID
 	DatasourceUID string `json:"data_source_uid,omitempty"`
 

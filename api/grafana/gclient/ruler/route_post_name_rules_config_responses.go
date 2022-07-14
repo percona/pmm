@@ -50,12 +50,12 @@ type RoutePostNameRulesConfigAccepted struct {
 func (o *RoutePostNameRulesConfigAccepted) Error() string {
 	return fmt.Sprintf("[POST /api/ruler/{Recipient}/api/v1/rules/{Namespace}][%d] routePostNameRulesConfigAccepted  %+v", 202, o.Payload)
 }
+
 func (o *RoutePostNameRulesConfigAccepted) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RoutePostNameRulesConfigAccepted) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

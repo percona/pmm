@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DashboardMeta
 type DashboardMeta struct {
-
 	// can admin
 	CanAdmin bool `json:"canAdmin,omitempty"`
 
@@ -197,7 +196,6 @@ func (m *DashboardMeta) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *DashboardMeta) contextValidateAnnotationsPermissions(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.AnnotationsPermissions != nil {
 		if err := m.AnnotationsPermissions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

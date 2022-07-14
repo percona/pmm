@@ -18,7 +18,6 @@ import (
 //
 // swagger:model LibraryElementConnectionsResponse
 type LibraryElementConnectionsResponse struct {
-
 	// result
 	Result []*LibraryElementConnectionDTO `json:"result"`
 }
@@ -78,9 +77,7 @@ func (m *LibraryElementConnectionsResponse) ContextValidate(ctx context.Context,
 }
 
 func (m *LibraryElementConnectionsResponse) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Result); i++ {
-
 		if m.Result[i] != nil {
 			if err := m.Result[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -91,7 +88,6 @@ func (m *LibraryElementConnectionsResponse) contextValidateResult(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil

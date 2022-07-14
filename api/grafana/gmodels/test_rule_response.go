@@ -17,7 +17,6 @@ import (
 //
 // swagger:model TestRuleResponse
 type TestRuleResponse struct {
-
 	// alerts
 	Alerts Vector `json:"alerts,omitempty"`
 
@@ -98,7 +97,6 @@ func (m *TestRuleResponse) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *TestRuleResponse) contextValidateAlerts(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Alerts.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("alerts")
@@ -112,7 +110,6 @@ func (m *TestRuleResponse) contextValidateAlerts(ctx context.Context, formats st
 }
 
 func (m *TestRuleResponse) contextValidateGrafanaAlertInstances(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.GrafanaAlertInstances != nil {
 		if err := m.GrafanaAlertInstances.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

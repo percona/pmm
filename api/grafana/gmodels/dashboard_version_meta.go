@@ -20,7 +20,6 @@ import (
 //
 // swagger:model DashboardVersionMeta
 type DashboardVersionMeta struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`

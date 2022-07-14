@@ -17,7 +17,6 @@ import (
 //
 // swagger:model AddDataSourceCommand
 type AddDataSourceCommand struct {
-
 	// basic auth
 	BasicAuth bool `json:"basicAuth,omitempty"`
 
@@ -110,7 +109,6 @@ func (m *AddDataSourceCommand) ContextValidate(ctx context.Context, formats strf
 }
 
 func (m *AddDataSourceCommand) contextValidateAccess(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Access.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("access")

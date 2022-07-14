@@ -20,7 +20,6 @@ import (
 //
 // swagger:model SlackField
 type SlackField struct {
-
 	// short
 	Short bool `json:"short,omitempty"`
 

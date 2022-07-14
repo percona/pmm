@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TimeRangeDTO
 type TimeRangeDTO struct {
-
 	// from
 	From string `json:"from,omitempty"`
 

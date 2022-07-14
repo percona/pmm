@@ -18,7 +18,6 @@ import (
 //
 // swagger:model LibraryElementConnectionDTO
 type LibraryElementConnectionDTO struct {
-
 	// connection ID
 	ConnectionID int64 `json:"connectionId,omitempty"`
 
@@ -103,7 +102,6 @@ func (m *LibraryElementConnectionDTO) ContextValidate(ctx context.Context, forma
 }
 
 func (m *LibraryElementConnectionDTO) contextValidateCreatedBy(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.CreatedBy != nil {
 		if err := m.CreatedBy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

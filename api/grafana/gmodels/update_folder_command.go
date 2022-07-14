@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateFolderCommand
 type UpdateFolderCommand struct {
-
 	// overwrite
 	Overwrite bool `json:"overwrite,omitempty"`
 

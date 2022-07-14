@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PagerdutyLink
 type PagerdutyLink struct {
-
 	// href
 	Href string `json:"href,omitempty"`
 

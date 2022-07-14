@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ValidationError
 type ValidationError struct {
-
 	// msg
 	Msg string `json:"msg,omitempty"`
 }

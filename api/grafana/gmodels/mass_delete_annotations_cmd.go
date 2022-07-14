@@ -16,7 +16,6 @@ import (
 //
 // swagger:model MassDeleteAnnotationsCmd
 type MassDeleteAnnotationsCmd struct {
-
 	// annotation Id
 	AnnotationID int64 `json:"annotationId,omitempty"`
 

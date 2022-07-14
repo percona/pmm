@@ -60,7 +60,6 @@ func NewRouteTestRuleConfigParamsWithHTTPClient(client *http.Client) *RouteTestR
    Typically these are written to a http.Request.
 */
 type RouteTestRuleConfigParams struct {
-
 	// Body.
 	Body *gmodels.TestRulePayload
 
@@ -148,7 +147,6 @@ func (o *RouteTestRuleConfigParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteTestRuleConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

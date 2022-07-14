@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PostAnnotationsCmd
 type PostAnnotationsCmd struct {
-
 	// dashboard Id
 	DashboardID int64 `json:"dashboardId,omitempty"`
 

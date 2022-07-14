@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateOrgForm
 type UpdateOrgForm struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 }

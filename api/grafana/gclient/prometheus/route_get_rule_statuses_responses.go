@@ -50,12 +50,12 @@ type RouteGetRuleStatusesOK struct {
 func (o *RouteGetRuleStatusesOK) Error() string {
 	return fmt.Sprintf("[GET /api/prometheus/{Recipient}/api/v1/rules][%d] routeGetRuleStatusesOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetRuleStatusesOK) GetPayload() *gmodels.RuleResponse {
 	return o.Payload
 }
 
 func (o *RouteGetRuleStatusesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.RuleResponse)
 
 	// response payload

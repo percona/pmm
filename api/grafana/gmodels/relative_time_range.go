@@ -17,7 +17,6 @@ import (
 //
 // swagger:model RelativeTimeRange
 type RelativeTimeRange struct {
-
 	// from
 	From int64 `json:"from,omitempty"`
 

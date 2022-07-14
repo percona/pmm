@@ -19,7 +19,6 @@ import (
 //
 // swagger:model TimeInterval
 type TimeInterval struct {
-
 	// days of month
 	DaysOfMonth []*DayOfMonthRange `json:"days_of_month"`
 
@@ -227,9 +226,7 @@ func (m *TimeInterval) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *TimeInterval) contextValidateDaysOfMonth(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.DaysOfMonth); i++ {
-
 		if m.DaysOfMonth[i] != nil {
 			if err := m.DaysOfMonth[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,16 +237,13 @@ func (m *TimeInterval) contextValidateDaysOfMonth(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TimeInterval) contextValidateMonths(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Months); i++ {
-
 		if m.Months[i] != nil {
 			if err := m.Months[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -260,16 +254,13 @@ func (m *TimeInterval) contextValidateMonths(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TimeInterval) contextValidateTimes(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Times); i++ {
-
 		if m.Times[i] != nil {
 			if err := m.Times[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -280,16 +271,13 @@ func (m *TimeInterval) contextValidateTimes(ctx context.Context, formats strfmt.
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TimeInterval) contextValidateWeekdays(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Weekdays); i++ {
-
 		if m.Weekdays[i] != nil {
 			if err := m.Weekdays[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -300,16 +288,13 @@ func (m *TimeInterval) contextValidateWeekdays(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TimeInterval) contextValidateYears(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Years); i++ {
-
 		if m.Years[i] != nil {
 			if err := m.Years[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -320,7 +305,6 @@ func (m *TimeInterval) contextValidateYears(ctx context.Context, formats strfmt.
 				return err
 			}
 		}
-
 	}
 
 	return nil

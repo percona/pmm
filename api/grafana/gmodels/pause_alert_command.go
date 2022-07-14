@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PauseAlertCommand
 type PauseAlertCommand struct {
-
 	// alert Id
 	AlertID int64 `json:"alertId,omitempty"`
 

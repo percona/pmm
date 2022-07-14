@@ -17,7 +17,6 @@ import (
 //
 // swagger:model DataTimeSeries
 type DataTimeSeries struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -74,7 +73,6 @@ func (m *DataTimeSeries) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *DataTimeSeries) contextValidatePoints(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Points.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("points")

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model PatchPrefsCmd
 type PatchPrefsCmd struct {
-
 	// The numerical :id of a favorited dashboard
 	HomeDashboardID int64 `json:"homeDashboardId,omitempty"`
 
@@ -211,7 +210,6 @@ func (m *PatchPrefsCmd) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *PatchPrefsCmd) contextValidateNavbar(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Navbar != nil {
 		if err := m.Navbar.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -227,7 +225,6 @@ func (m *PatchPrefsCmd) contextValidateNavbar(ctx context.Context, formats strfm
 }
 
 func (m *PatchPrefsCmd) contextValidateQueryHistory(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.QueryHistory != nil {
 		if err := m.QueryHistory.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

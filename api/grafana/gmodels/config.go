@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Config
 type Config struct {
-
 	// inhibit rules
 	InhibitRules []*InhibitRule `json:"inhibit_rules"`
 
@@ -178,9 +177,7 @@ func (m *Config) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 }
 
 func (m *Config) contextValidateInhibitRules(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.InhibitRules); i++ {
-
 		if m.InhibitRules[i] != nil {
 			if err := m.InhibitRules[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -191,16 +188,13 @@ func (m *Config) contextValidateInhibitRules(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Config) contextValidateMuteTimeIntervals(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.MuteTimeIntervals); i++ {
-
 		if m.MuteTimeIntervals[i] != nil {
 			if err := m.MuteTimeIntervals[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -211,14 +205,12 @@ func (m *Config) contextValidateMuteTimeIntervals(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Config) contextValidateGlobal(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Global != nil {
 		if err := m.Global.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -234,7 +226,6 @@ func (m *Config) contextValidateGlobal(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *Config) contextValidateRoute(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Route != nil {
 		if err := m.Route.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

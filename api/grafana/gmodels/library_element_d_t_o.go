@@ -17,7 +17,6 @@ import (
 //
 // swagger:model LibraryElementDTO
 type LibraryElementDTO struct {
-
 	// description
 	Description string `json:"description,omitempty"`
 
@@ -103,7 +102,6 @@ func (m *LibraryElementDTO) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (m *LibraryElementDTO) contextValidateMeta(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Meta != nil {
 		if err := m.Meta.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

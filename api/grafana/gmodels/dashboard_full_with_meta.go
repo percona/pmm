@@ -17,7 +17,6 @@ import (
 //
 // swagger:model DashboardFullWithMeta
 type DashboardFullWithMeta struct {
-
 	// dashboard
 	Dashboard JSON `json:"dashboard,omitempty"`
 
@@ -73,7 +72,6 @@ func (m *DashboardFullWithMeta) ContextValidate(ctx context.Context, formats str
 }
 
 func (m *DashboardFullWithMeta) contextValidateMeta(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Meta != nil {
 		if err := m.Meta.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

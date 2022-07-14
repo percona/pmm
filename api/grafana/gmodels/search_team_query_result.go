@@ -18,7 +18,6 @@ import (
 //
 // swagger:model SearchTeamQueryResult
 type SearchTeamQueryResult struct {
-
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -87,9 +86,7 @@ func (m *SearchTeamQueryResult) ContextValidate(ctx context.Context, formats str
 }
 
 func (m *SearchTeamQueryResult) contextValidateTeams(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Teams); i++ {
-
 		if m.Teams[i] != nil {
 			if err := m.Teams[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -100,7 +97,6 @@ func (m *SearchTeamQueryResult) contextValidateTeams(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil

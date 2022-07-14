@@ -58,7 +58,6 @@ func NewRouteDeleteSilenceParamsWithHTTPClient(client *http.Client) *RouteDelete
    Typically these are written to a http.Request.
 */
 type RouteDeleteSilenceParams struct {
-
 	/* Recipient.
 
 	     Recipient should be "grafana" for requests to be handled by grafana
@@ -146,7 +145,6 @@ func (o *RouteDeleteSilenceParams) SetSilenceID(silenceID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteDeleteSilenceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

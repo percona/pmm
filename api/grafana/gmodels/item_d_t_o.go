@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ItemDTO
 type ItemDTO struct {
-
 	// alert Id
 	AlertID int64 `json:"alertId,omitempty"`
 

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model OpsGenieConfig
 type OpsGenieConfig struct {
-
 	// API key file
 	APIKeyFile string `json:"api_key_file,omitempty"`
 
@@ -202,9 +201,7 @@ func (m *OpsGenieConfig) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *OpsGenieConfig) contextValidateResponders(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Responders); i++ {
-
 		if m.Responders[i] != nil {
 			if err := m.Responders[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -215,14 +212,12 @@ func (m *OpsGenieConfig) contextValidateResponders(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *OpsGenieConfig) contextValidateAPIKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.APIKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("api_key")
@@ -236,7 +231,6 @@ func (m *OpsGenieConfig) contextValidateAPIKey(ctx context.Context, formats strf
 }
 
 func (m *OpsGenieConfig) contextValidateAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.APIURL != nil {
 		if err := m.APIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -252,7 +246,6 @@ func (m *OpsGenieConfig) contextValidateAPIURL(ctx context.Context, formats strf
 }
 
 func (m *OpsGenieConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -26,7 +26,6 @@ func (m LabelSet) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for k := range m {
-
 		if val, ok := m[k]; ok {
 			if err := val.Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -37,7 +36,6 @@ func (m LabelSet) Validate(formats strfmt.Registry) error {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {
@@ -51,13 +49,11 @@ func (m LabelSet) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 	var res []error
 
 	for k := range m {
-
 		if val, ok := m[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

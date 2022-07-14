@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AlertStatus
 type AlertStatus struct {
-
 	// inhibited by
 	// Required: true
 	InhibitedBy []string `json:"inhibitedBy"`
@@ -57,7 +56,6 @@ func (m *AlertStatus) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AlertStatus) validateInhibitedBy(formats strfmt.Registry) error {
-
 	if err := validate.Required("inhibitedBy", "body", m.InhibitedBy); err != nil {
 		return err
 	}
@@ -66,7 +64,6 @@ func (m *AlertStatus) validateInhibitedBy(formats strfmt.Registry) error {
 }
 
 func (m *AlertStatus) validateSilencedBy(formats strfmt.Registry) error {
-
 	if err := validate.Required("silencedBy", "body", m.SilencedBy); err != nil {
 		return err
 	}
@@ -101,7 +98,6 @@ func (m *AlertStatus) validateStateEnum(path, location string, value string) err
 }
 
 func (m *AlertStatus) validateState(formats strfmt.Registry) error {
-
 	if err := validate.Required("state", "body", m.State); err != nil {
 		return err
 	}

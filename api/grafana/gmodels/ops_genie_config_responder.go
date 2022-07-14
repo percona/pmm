@@ -16,7 +16,6 @@ import (
 //
 // swagger:model OpsGenieConfigResponder
 type OpsGenieConfigResponder struct {
-
 	// One of those 3 should be filled.
 	ID string `json:"id,omitempty"`
 

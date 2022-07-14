@@ -18,7 +18,6 @@ import (
 //
 // swagger:model TestReceiversConfigBodyParams
 type TestReceiversConfigBodyParams struct {
-
 	// receivers
 	Receivers []*PostableAPIReceiver `json:"receivers"`
 
@@ -108,9 +107,7 @@ func (m *TestReceiversConfigBodyParams) ContextValidate(ctx context.Context, for
 }
 
 func (m *TestReceiversConfigBodyParams) contextValidateReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Receivers); i++ {
-
 		if m.Receivers[i] != nil {
 			if err := m.Receivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -121,14 +118,12 @@ func (m *TestReceiversConfigBodyParams) contextValidateReceivers(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TestReceiversConfigBodyParams) contextValidateAlert(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Alert != nil {
 		if err := m.Alert.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

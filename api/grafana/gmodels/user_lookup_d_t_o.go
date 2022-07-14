@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UserLookupDTO
 type UserLookupDTO struct {
-
 	// avatar URL
 	AvatarURL string `json:"avatarUrl,omitempty"`
 

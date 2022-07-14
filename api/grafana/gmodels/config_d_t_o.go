@@ -18,7 +18,6 @@ import (
 //
 // swagger:model ConfigDTO
 type ConfigDTO struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`
@@ -183,7 +182,6 @@ func (m *ConfigDTO) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *ConfigDTO) contextValidateOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Options != nil {
 		if err := m.Options.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -199,7 +197,6 @@ func (m *ConfigDTO) contextValidateOptions(ctx context.Context, formats strfmt.R
 }
 
 func (m *ConfigDTO) contextValidateSchedule(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Schedule != nil {
 		if err := m.Schedule.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

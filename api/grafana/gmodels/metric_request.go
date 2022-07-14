@@ -18,7 +18,6 @@ import (
 //
 // swagger:model MetricRequest
 type MetricRequest struct {
-
 	// debug
 	Debug bool `json:"debug,omitempty"`
 
@@ -64,7 +63,6 @@ func (m *MetricRequest) Validate(formats strfmt.Registry) error {
 }
 
 func (m *MetricRequest) validateFrom(formats strfmt.Registry) error {
-
 	if err := validate.Required("from", "body", m.From); err != nil {
 		return err
 	}
@@ -73,7 +71,6 @@ func (m *MetricRequest) validateFrom(formats strfmt.Registry) error {
 }
 
 func (m *MetricRequest) validateQueries(formats strfmt.Registry) error {
-
 	if err := validate.Required("queries", "body", m.Queries); err != nil {
 		return err
 	}
@@ -82,7 +79,6 @@ func (m *MetricRequest) validateQueries(formats strfmt.Registry) error {
 }
 
 func (m *MetricRequest) validateTo(formats strfmt.Registry) error {
-
 	if err := validate.Required("to", "body", m.To); err != nil {
 		return err
 	}

@@ -20,7 +20,6 @@ import (
 //
 // swagger:model SlackAction
 type SlackAction struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -91,7 +90,6 @@ func (m *SlackAction) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *SlackAction) contextValidateConfirm(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Confirm != nil {
 		if err := m.Confirm.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

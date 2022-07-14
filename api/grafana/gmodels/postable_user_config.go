@@ -17,7 +17,6 @@ import (
 //
 // swagger:model PostableUserConfig
 type PostableUserConfig struct {
-
 	// template files
 	TemplateFiles map[string]string `json:"template_files,omitempty"`
 
@@ -73,7 +72,6 @@ func (m *PostableUserConfig) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (m *PostableUserConfig) contextValidateAlertmanagerConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.AlertmanagerConfig != nil {
 		if err := m.AlertmanagerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

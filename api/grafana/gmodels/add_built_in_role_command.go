@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AddBuiltInRoleCommand
 type AddBuiltInRoleCommand struct {
-
 	// builtin role
 	// Enum: [Viewer  Editor  Admin  Grafana Admin]
 	BuiltinRole string `json:"builtInRole,omitempty"`

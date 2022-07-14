@@ -17,7 +17,6 @@ import (
 //
 // swagger:model AnnotationPermission
 type AnnotationPermission struct {
-
 	// dashboard
 	Dashboard *AnnotationActions `json:"dashboard,omitempty"`
 
@@ -100,7 +99,6 @@ func (m *AnnotationPermission) ContextValidate(ctx context.Context, formats strf
 }
 
 func (m *AnnotationPermission) contextValidateDashboard(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Dashboard != nil {
 		if err := m.Dashboard.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -116,7 +114,6 @@ func (m *AnnotationPermission) contextValidateDashboard(ctx context.Context, for
 }
 
 func (m *AnnotationPermission) contextValidateOrganization(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Organization != nil {
 		if err := m.Organization.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

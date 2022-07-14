@@ -16,7 +16,6 @@ import (
 //
 // swagger:model NotifierConfig
 type NotifierConfig struct {
-
 	// v send resolved
 	VSendResolved bool `json:"send_resolved,omitempty"`
 }

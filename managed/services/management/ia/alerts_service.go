@@ -31,7 +31,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/api/grafana/gmodels"
 	"github.com/percona/pmm/api/managementpb"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
@@ -68,10 +68,18 @@ func (s *AlertsService) Enabled() bool {
 	return settings.IntegratedAlerting.Enabled
 }
 
+func labelSetToMap(set gmodels.LabelSet) map[string]string {
+	res := make(map[string]string, len(set))
+	for key, value := range set {
+		res[key] = string(value)
+	}
+	return res
+}
+
 // ListAlerts returns list of existing alerts.
 func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) {
 	filter := &services.FilterParams{
-		IsIA: true,
+		ExcludeChecks: true,
 	}
 	alerts, err := s.alertManager.GetAlerts(ctx, filter)
 	if err != nil {
@@ -99,16 +107,16 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			st = iav1beta1.Status_SILENCED
 		}
 
-		var rule *iav1beta1.Rule
+		rule := &iav1beta1.Rule{}
 		// Rules files created by user in directory /srv/prometheus/rules/ doesn't have associated rules in DB.
 		// So alertname field will be empty or will keep invalid value. Don't fill rule field in that case.
 		ruleID, ok := alert.Labels["alertname"]
-		if ok && strings.HasPrefix(ruleID, "/rule_id/") {
+		if ok && strings.HasPrefix(string(ruleID), "/rule_id/") {
 			var r *models.Rule
 			var channels []*models.Channel
 			e := s.db.InTransaction(func(tx *reform.TX) error {
 				var err error
-				r, err = models.FindRuleByID(tx.Querier, ruleID)
+				r, err = models.FindRuleByID(tx.Querier, string(ruleID))
 				if err != nil {
 					return err
 				}
@@ -146,10 +154,10 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 
 		res = append(res, &iav1beta1.Alert{
 			AlertId:   getAlertID(alert),
-			Summary:   alert.Annotations["summary"],
-			Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
+			Summary:   string(alert.Annotations["summary"]),
+			Severity:  managementpb.Severity(common.ParseSeverity(string(alert.Labels["severity"]))),
 			Status:    st,
-			Labels:    alert.Labels,
+			Labels:    labelSetToMap(alert.Labels),
 			Rule:      rule,
 			CreatedAt: createdAt,
 			UpdatedAt: updatedAt,
@@ -188,7 +196,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 }
 
 // satisfiesFilters checks that alert passes filters, returns true in case of success.
-func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) {
+func satisfiesFilters(alert *gmodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) {
 	for _, filter := range filters {
 		value, ok := alert.Labels[filter.Key]
 		if !ok {
@@ -197,7 +205,7 @@ func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter
 
 		switch filter.Type {
 		case iav1beta1.FilterType_EQUAL:
-			if filter.Value != value {
+			if filter.Value != string(value) {
 				return false, nil
 			}
 		case iav1beta1.FilterType_REGEX:
@@ -219,14 +227,14 @@ func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter
 	return true, nil
 }
 
-func getAlertID(alert *ammodels.GettableAlert) string {
+func getAlertID(alert *gmodels.GettableAlert) string {
 	return *alert.Fingerprint
 }
 
 // ToggleAlerts allows to silence/unsilence specified alerts.
 func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
 	var err error
-	var alerts []*ammodels.GettableAlert
+	var alerts []*gmodels.GettableAlert
 
 	filters := &services.FilterParams{
 		IsIA: true,

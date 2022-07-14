@@ -16,7 +16,6 @@ import (
 //
 // swagger:model InclusiveRange
 type InclusiveRange struct {
-
 	// begin
 	Begin int64 `json:"Begin,omitempty"`
 

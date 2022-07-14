@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TagsDTO
 type TagsDTO struct {
-
 	// count
 	Count int64 `json:"count,omitempty"`
 

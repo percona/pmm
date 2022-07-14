@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PatchAnnotationsCmd
 type PatchAnnotationsCmd struct {
-
 	// Id
 	ID int64 `json:"id,omitempty"`
 

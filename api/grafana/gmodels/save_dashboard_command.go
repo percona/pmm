@@ -18,7 +18,6 @@ import (
 //
 // swagger:model SaveDashboardCommand
 type SaveDashboardCommand struct {
-
 	// folder Id
 	FolderID int64 `json:"folderId,omitempty"`
 

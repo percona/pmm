@@ -17,7 +17,6 @@ import (
 //
 // swagger:model GetAnnotationTagsResponse
 type GetAnnotationTagsResponse struct {
-
 	// result
 	Result *FindTagsResult `json:"result,omitempty"`
 }
@@ -70,7 +69,6 @@ func (m *GetAnnotationTagsResponse) ContextValidate(ctx context.Context, formats
 }
 
 func (m *GetAnnotationTagsResponse) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Result != nil {
 		if err := m.Result.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

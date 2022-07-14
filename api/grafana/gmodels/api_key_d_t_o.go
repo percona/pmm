@@ -19,7 +19,6 @@ import (
 //
 // swagger:model ApiKeyDTO
 type APIKeyDTO struct {
-
 	// expiration
 	// Format: date-time
 	Expiration strfmt.DateTime `json:"expiration,omitempty"`
@@ -151,7 +150,6 @@ func (m *APIKeyDTO) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *APIKeyDTO) contextValidateAccessControl(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.AccessControl.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("accessControl")

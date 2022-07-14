@@ -60,7 +60,6 @@ func NewRoutePostAlertingConfigParamsWithHTTPClient(client *http.Client) *RouteP
    Typically these are written to a http.Request.
 */
 type RoutePostAlertingConfigParams struct {
-
 	// Body.
 	Body *gmodels.PostableUserConfig
 
@@ -148,7 +147,6 @@ func (o *RoutePostAlertingConfigParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RoutePostAlertingConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

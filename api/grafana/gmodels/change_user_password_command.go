@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ChangeUserPasswordCommand
 type ChangeUserPasswordCommand struct {
-
 	// new password
 	NewPassword string `json:"newPassword,omitempty"`
 

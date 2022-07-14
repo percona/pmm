@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AdminUpdateUserPasswordForm
 type AdminUpdateUserPasswordForm struct {
-
 	// password
 	Password string `json:"password,omitempty"`
 }

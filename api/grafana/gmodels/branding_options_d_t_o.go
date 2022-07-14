@@ -16,7 +16,6 @@ import (
 //
 // swagger:model BrandingOptionsDTO
 type BrandingOptionsDTO struct {
-
 	// email footer link
 	EmailFooterLink string `json:"emailFooterLink,omitempty"`
 

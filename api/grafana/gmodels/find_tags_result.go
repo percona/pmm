@@ -18,7 +18,6 @@ import (
 //
 // swagger:model FindTagsResult
 type FindTagsResult struct {
-
 	// tags
 	Tags []*TagsDTO `json:"tags"`
 }
@@ -78,9 +77,7 @@ func (m *FindTagsResult) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *FindTagsResult) contextValidateTags(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Tags); i++ {
-
 		if m.Tags[i] != nil {
 			if err := m.Tags[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -91,7 +88,6 @@ func (m *FindTagsResult) contextValidateTags(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil

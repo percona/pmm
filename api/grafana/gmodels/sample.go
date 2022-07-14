@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Sample
 type Sample struct {
-
 	// metric
 	Metric Labels `json:"Metric,omitempty"`
 
@@ -74,7 +73,6 @@ func (m *Sample) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 }
 
 func (m *Sample) contextValidateMetric(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Metric.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("Metric")

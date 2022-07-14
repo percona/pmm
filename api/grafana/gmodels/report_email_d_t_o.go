@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ReportEmailDTO
 type ReportEmailDTO struct {
-
 	// email
 	Email string `json:"email,omitempty"`
 

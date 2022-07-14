@@ -19,7 +19,6 @@ import (
 //
 // swagger:model Route
 type Route struct {
-
 	// continue
 	Continue bool `json:"continue,omitempty"`
 
@@ -295,9 +294,7 @@ func (m *Route) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 }
 
 func (m *Route) contextValidateRoutes(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Routes); i++ {
-
 		if m.Routes[i] != nil {
 			if err := m.Routes[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -308,14 +305,12 @@ func (m *Route) contextValidateRoutes(ctx context.Context, formats strfmt.Regist
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *Route) contextValidateGroupInterval(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.GroupInterval.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("group_interval")
@@ -329,7 +324,6 @@ func (m *Route) contextValidateGroupInterval(ctx context.Context, formats strfmt
 }
 
 func (m *Route) contextValidateGroupWait(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.GroupWait.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("group_wait")
@@ -343,7 +337,6 @@ func (m *Route) contextValidateGroupWait(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *Route) contextValidateMatchRe(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.MatchRe.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("match_re")
@@ -357,7 +350,6 @@ func (m *Route) contextValidateMatchRe(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *Route) contextValidateMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Matchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("matchers")
@@ -371,7 +363,6 @@ func (m *Route) contextValidateMatchers(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *Route) contextValidateObjectMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ObjectMatchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("object_matchers")
@@ -385,7 +376,6 @@ func (m *Route) contextValidateObjectMatchers(ctx context.Context, formats strfm
 }
 
 func (m *Route) contextValidateProvenance(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Provenance.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("provenance")
@@ -399,7 +389,6 @@ func (m *Route) contextValidateProvenance(ctx context.Context, formats strfmt.Re
 }
 
 func (m *Route) contextValidateRepeatInterval(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.RepeatInterval.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("repeat_interval")

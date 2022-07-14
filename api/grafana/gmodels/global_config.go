@@ -18,7 +18,6 @@ import (
 //
 // swagger:model GlobalConfig
 type GlobalConfig struct {
-
 	// ops genie API key file
 	OpsGenieAPIKeyFile string `json:"opsgenie_api_key_file,omitempty"`
 
@@ -444,7 +443,6 @@ func (m *GlobalConfig) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *GlobalConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -460,7 +458,6 @@ func (m *GlobalConfig) contextValidateHTTPConfig(ctx context.Context, formats st
 }
 
 func (m *GlobalConfig) contextValidateOpsgenieAPIKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.OpsgenieAPIKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("opsgenie_api_key")
@@ -474,7 +471,6 @@ func (m *GlobalConfig) contextValidateOpsgenieAPIKey(ctx context.Context, format
 }
 
 func (m *GlobalConfig) contextValidateOpsgenieAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.OpsgenieAPIURL != nil {
 		if err := m.OpsgenieAPIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -490,7 +486,6 @@ func (m *GlobalConfig) contextValidateOpsgenieAPIURL(ctx context.Context, format
 }
 
 func (m *GlobalConfig) contextValidatePagerdutyURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.PagerdutyURL != nil {
 		if err := m.PagerdutyURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -506,7 +501,6 @@ func (m *GlobalConfig) contextValidatePagerdutyURL(ctx context.Context, formats 
 }
 
 func (m *GlobalConfig) contextValidateResolveTimeout(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ResolveTimeout.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("resolve_timeout")
@@ -520,7 +514,6 @@ func (m *GlobalConfig) contextValidateResolveTimeout(ctx context.Context, format
 }
 
 func (m *GlobalConfig) contextValidateSlackAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.SlackAPIURL != nil {
 		if err := m.SlackAPIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -536,7 +529,6 @@ func (m *GlobalConfig) contextValidateSlackAPIURL(ctx context.Context, formats s
 }
 
 func (m *GlobalConfig) contextValidateSMTPAuthPassword(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.SMTPAuthPassword.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("smtp_auth_password")
@@ -550,7 +542,6 @@ func (m *GlobalConfig) contextValidateSMTPAuthPassword(ctx context.Context, form
 }
 
 func (m *GlobalConfig) contextValidateSMTPAuthSecret(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.SMTPAuthSecret.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("smtp_auth_secret")
@@ -564,7 +555,6 @@ func (m *GlobalConfig) contextValidateSMTPAuthSecret(ctx context.Context, format
 }
 
 func (m *GlobalConfig) contextValidateSMTPSmarthost(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.SMTPSmarthost != nil {
 		if err := m.SMTPSmarthost.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -580,7 +570,6 @@ func (m *GlobalConfig) contextValidateSMTPSmarthost(ctx context.Context, formats
 }
 
 func (m *GlobalConfig) contextValidateVictoropsAPIKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.VictoropsAPIKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("victorops_api_key")
@@ -594,7 +583,6 @@ func (m *GlobalConfig) contextValidateVictoropsAPIKey(ctx context.Context, forma
 }
 
 func (m *GlobalConfig) contextValidateVictoropsAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.VictoropsAPIURL != nil {
 		if err := m.VictoropsAPIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -610,7 +598,6 @@ func (m *GlobalConfig) contextValidateVictoropsAPIURL(ctx context.Context, forma
 }
 
 func (m *GlobalConfig) contextValidateWechatAPISecret(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.WechatAPISecret.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("wechat_api_secret")
@@ -624,7 +611,6 @@ func (m *GlobalConfig) contextValidateWechatAPISecret(ctx context.Context, forma
 }
 
 func (m *GlobalConfig) contextValidateWechatAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.WechatAPIURL != nil {
 		if err := m.WechatAPIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AlertNotificationLookup
 type AlertNotificationLookup struct {
-
 	// Id
 	ID int64 `json:"id,omitempty"`
 

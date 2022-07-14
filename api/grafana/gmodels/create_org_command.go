@@ -16,7 +16,6 @@ import (
 //
 // swagger:model CreateOrgCommand
 type CreateOrgCommand struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 }

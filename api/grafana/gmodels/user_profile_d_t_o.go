@@ -18,7 +18,6 @@ import (
 //
 // swagger:model UserProfileDTO
 type UserProfileDTO struct {
-
 	// access control
 	AccessControl map[string]bool `json:"accessControl,omitempty"`
 

@@ -17,7 +17,6 @@ import (
 //
 // swagger:model WebhookConfig
 type WebhookConfig struct {
-
 	// MaxAlerts is the maximum number of alerts to be sent per webhook message.
 	// Alerts exceeding this threshold will be truncated. Setting this to 0
 	// allows an unlimited number of alerts.
@@ -108,7 +107,6 @@ func (m *WebhookConfig) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *WebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -124,7 +122,6 @@ func (m *WebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats s
 }
 
 func (m *WebhookConfig) contextValidateURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.URL != nil {
 		if err := m.URL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

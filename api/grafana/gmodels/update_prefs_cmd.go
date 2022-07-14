@@ -19,7 +19,6 @@ import (
 //
 // swagger:model UpdatePrefsCmd
 type UpdatePrefsCmd struct {
-
 	// The numerical :id of a favorited dashboard
 	HomeDashboardID int64 `json:"homeDashboardId,omitempty"`
 
@@ -211,7 +210,6 @@ func (m *UpdatePrefsCmd) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *UpdatePrefsCmd) contextValidateNavbar(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Navbar != nil {
 		if err := m.Navbar.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -227,7 +225,6 @@ func (m *UpdatePrefsCmd) contextValidateNavbar(ctx context.Context, formats strf
 }
 
 func (m *UpdatePrefsCmd) contextValidateQueryHistory(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.QueryHistory != nil {
 		if err := m.QueryHistory.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

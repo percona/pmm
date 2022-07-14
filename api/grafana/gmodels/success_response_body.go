@@ -16,7 +16,6 @@ import (
 //
 // swagger:model SuccessResponseBody
 type SuccessResponseBody struct {
-
 	// message
 	Message string `json:"message,omitempty"`
 }

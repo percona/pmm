@@ -18,7 +18,6 @@ import (
 //
 // swagger:model UserSearchHitDTO
 type UserSearchHitDTO struct {
-
 	// auth labels
 	AuthLabels []string `json:"authLabels"`
 

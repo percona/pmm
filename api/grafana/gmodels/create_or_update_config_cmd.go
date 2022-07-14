@@ -17,7 +17,6 @@ import (
 //
 // swagger:model CreateOrUpdateConfigCmd
 type CreateOrUpdateConfigCmd struct {
-
 	// dashboard ID
 	DashboardID int64 `json:"dashboardId,omitempty"`
 
@@ -130,7 +129,6 @@ func (m *CreateOrUpdateConfigCmd) ContextValidate(ctx context.Context, formats s
 }
 
 func (m *CreateOrUpdateConfigCmd) contextValidateOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Options != nil {
 		if err := m.Options.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -146,7 +144,6 @@ func (m *CreateOrUpdateConfigCmd) contextValidateOptions(ctx context.Context, fo
 }
 
 func (m *CreateOrUpdateConfigCmd) contextValidateSchedule(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Schedule != nil {
 		if err := m.Schedule.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

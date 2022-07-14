@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TestReceiverConfigResult
 type TestReceiverConfigResult struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 

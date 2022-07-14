@@ -16,7 +16,6 @@ import (
 //
 // swagger:model QueryHistoryPreference
 type QueryHistoryPreference struct {
-
 	// home tab
 	HomeTab string `json:"homeTab,omitempty"`
 }

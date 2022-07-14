@@ -58,7 +58,6 @@ func NewRouteGetNamespaceRulesConfigParamsWithHTTPClient(client *http.Client) *R
    Typically these are written to a http.Request.
 */
 type RouteGetNamespaceRulesConfigParams struct {
-
 	// Namespace.
 	Namespace string
 
@@ -146,7 +145,6 @@ func (o *RouteGetNamespaceRulesConfigParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetNamespaceRulesConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

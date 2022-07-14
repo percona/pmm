@@ -17,7 +17,6 @@ import (
 //
 // swagger:model ReportOptionsDTO
 type ReportOptionsDTO struct {
-
 	// layout
 	Layout string `json:"layout,omitempty"`
 
@@ -76,7 +75,6 @@ func (m *ReportOptionsDTO) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *ReportOptionsDTO) contextValidateTimeRange(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.TimeRange != nil {
 		if err := m.TimeRange.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

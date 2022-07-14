@@ -19,7 +19,6 @@ import (
 //
 // swagger:model UserOrgDTO
 type UserOrgDTO struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 

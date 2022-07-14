@@ -16,7 +16,6 @@ import (
 //
 // swagger:model DashboardTagCloudItem
 type DashboardTagCloudItem struct {
-
 	// count
 	Count int64 `json:"count,omitempty"`
 

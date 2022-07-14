@@ -18,7 +18,6 @@ import (
 //
 // swagger:model LibraryElementDTOMeta
 type LibraryElementDTOMeta struct {
-
 	// connected dashboards
 	ConnectedDashboards int64 `json:"connectedDashboards,omitempty"`
 
@@ -150,7 +149,6 @@ func (m *LibraryElementDTOMeta) ContextValidate(ctx context.Context, formats str
 }
 
 func (m *LibraryElementDTOMeta) contextValidateCreatedBy(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.CreatedBy != nil {
 		if err := m.CreatedBy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -166,7 +164,6 @@ func (m *LibraryElementDTOMeta) contextValidateCreatedBy(ctx context.Context, fo
 }
 
 func (m *LibraryElementDTOMeta) contextValidateUpdatedBy(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.UpdatedBy != nil {
 		if err := m.UpdatedBy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

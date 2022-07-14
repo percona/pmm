@@ -17,7 +17,6 @@ import (
 //
 // swagger:model TestReceiversConfigAlertParams
 type TestReceiversConfigAlertParams struct {
-
 	// annotations
 	Annotations LabelSet `json:"annotations,omitempty"`
 
@@ -100,7 +99,6 @@ func (m *TestReceiversConfigAlertParams) ContextValidate(ctx context.Context, fo
 }
 
 func (m *TestReceiversConfigAlertParams) contextValidateAnnotations(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Annotations.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("annotations")
@@ -114,7 +112,6 @@ func (m *TestReceiversConfigAlertParams) contextValidateAnnotations(ctx context.
 }
 
 func (m *TestReceiversConfigAlertParams) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")

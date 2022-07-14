@@ -19,7 +19,6 @@ import (
 //
 // swagger:model TestReceiversResult
 type TestReceiversResult struct {
-
 	// notified at
 	// Format: date-time
 	NotifiedAt strfmt.DateTime `json:"notified_at,omitempty"`
@@ -129,9 +128,7 @@ func (m *TestReceiversResult) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *TestReceiversResult) contextValidateReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Receivers); i++ {
-
 		if m.Receivers[i] != nil {
 			if err := m.Receivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -142,14 +139,12 @@ func (m *TestReceiversResult) contextValidateReceivers(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *TestReceiversResult) contextValidateAlert(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Alert != nil {
 		if err := m.Alert.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

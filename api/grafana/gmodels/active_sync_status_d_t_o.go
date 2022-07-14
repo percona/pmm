@@ -18,7 +18,6 @@ import (
 //
 // swagger:model ActiveSyncStatusDTO
 type ActiveSyncStatusDTO struct {
-
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`
 
@@ -97,7 +96,6 @@ func (m *ActiveSyncStatusDTO) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *ActiveSyncStatusDTO) contextValidatePrevSync(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.PrevSync != nil {
 		if err := m.PrevSync.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

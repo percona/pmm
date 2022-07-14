@@ -19,7 +19,6 @@ import (
 //
 // swagger:model GettableAlert
 type GettableAlert struct {
-
 	// ends at
 	// Required: true
 	// Format: date-time
@@ -108,7 +107,6 @@ func (m *GettableAlert) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateEndsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("endsAt", "body", m.EndsAt); err != nil {
 		return err
 	}
@@ -121,7 +119,6 @@ func (m *GettableAlert) validateEndsAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateFingerprint(formats strfmt.Registry) error {
-
 	if err := validate.Required("fingerprint", "body", m.Fingerprint); err != nil {
 		return err
 	}
@@ -142,7 +139,6 @@ func (m *GettableAlert) validateGeneratorURL(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateReceivers(formats strfmt.Registry) error {
-
 	if err := validate.Required("receivers", "body", m.Receivers); err != nil {
 		return err
 	}
@@ -169,7 +165,6 @@ func (m *GettableAlert) validateReceivers(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateStartsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("startsAt", "body", m.StartsAt); err != nil {
 		return err
 	}
@@ -182,7 +177,6 @@ func (m *GettableAlert) validateStartsAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
@@ -195,7 +189,6 @@ func (m *GettableAlert) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateAnnotations(formats strfmt.Registry) error {
-
 	if err := validate.Required("annotations", "body", m.Annotations); err != nil {
 		return err
 	}
@@ -215,7 +208,6 @@ func (m *GettableAlert) validateAnnotations(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateLabels(formats strfmt.Registry) error {
-
 	if err := validate.Required("labels", "body", m.Labels); err != nil {
 		return err
 	}
@@ -235,7 +227,6 @@ func (m *GettableAlert) validateLabels(formats strfmt.Registry) error {
 }
 
 func (m *GettableAlert) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -281,9 +272,7 @@ func (m *GettableAlert) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *GettableAlert) contextValidateReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Receivers); i++ {
-
 		if m.Receivers[i] != nil {
 			if err := m.Receivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -294,14 +283,12 @@ func (m *GettableAlert) contextValidateReceivers(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAlert) contextValidateAnnotations(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Annotations.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("annotations")
@@ -315,7 +302,6 @@ func (m *GettableAlert) contextValidateAnnotations(ctx context.Context, formats 
 }
 
 func (m *GettableAlert) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")
@@ -329,7 +315,6 @@ func (m *GettableAlert) contextValidateLabels(ctx context.Context, formats strfm
 }
 
 func (m *GettableAlert) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Status != nil {
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

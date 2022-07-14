@@ -50,12 +50,12 @@ type RouteGetRulegGroupConfigAccepted struct {
 func (o *RouteGetRulegGroupConfigAccepted) Error() string {
 	return fmt.Sprintf("[GET /api/ruler/{Recipient}/api/v1/rules/{Namespace}/{Groupname}][%d] routeGetRulegGroupConfigAccepted  %+v", 202, o.Payload)
 }
+
 func (o *RouteGetRulegGroupConfigAccepted) GetPayload() *gmodels.RuleGroupConfigResponse {
 	return o.Payload
 }
 
 func (o *RouteGetRulegGroupConfigAccepted) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.RuleGroupConfigResponse)
 
 	// response payload

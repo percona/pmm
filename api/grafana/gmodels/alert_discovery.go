@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AlertDiscovery
 type AlertDiscovery struct {
-
 	// alerts
 	// Required: true
 	Alerts []*Alert `json:"alerts"`
@@ -40,7 +39,6 @@ func (m *AlertDiscovery) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AlertDiscovery) validateAlerts(formats strfmt.Registry) error {
-
 	if err := validate.Required("alerts", "body", m.Alerts); err != nil {
 		return err
 	}
@@ -81,9 +79,7 @@ func (m *AlertDiscovery) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *AlertDiscovery) contextValidateAlerts(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Alerts); i++ {
-
 		if m.Alerts[i] != nil {
 			if err := m.Alerts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -94,7 +90,6 @@ func (m *AlertDiscovery) contextValidateAlerts(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil

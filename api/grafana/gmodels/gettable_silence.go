@@ -18,7 +18,6 @@ import (
 //
 // swagger:model gettableSilence
 type GettableSilence struct {
-
 	// comment
 	// Required: true
 	Comment *string `json:"comment"`
@@ -98,7 +97,6 @@ func (m *GettableSilence) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateComment(formats strfmt.Registry) error {
-
 	if err := validate.Required("comment", "body", m.Comment); err != nil {
 		return err
 	}
@@ -107,7 +105,6 @@ func (m *GettableSilence) validateComment(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateCreatedBy(formats strfmt.Registry) error {
-
 	if err := validate.Required("createdBy", "body", m.CreatedBy); err != nil {
 		return err
 	}
@@ -116,7 +113,6 @@ func (m *GettableSilence) validateCreatedBy(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateEndsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("endsAt", "body", m.EndsAt); err != nil {
 		return err
 	}
@@ -129,7 +125,6 @@ func (m *GettableSilence) validateEndsAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateID(formats strfmt.Registry) error {
-
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
 	}
@@ -138,7 +133,6 @@ func (m *GettableSilence) validateID(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateStartsAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("startsAt", "body", m.StartsAt); err != nil {
 		return err
 	}
@@ -151,7 +145,6 @@ func (m *GettableSilence) validateStartsAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateUpdatedAt(formats strfmt.Registry) error {
-
 	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
 		return err
 	}
@@ -164,7 +157,6 @@ func (m *GettableSilence) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateMatchers(formats strfmt.Registry) error {
-
 	if err := validate.Required("matchers", "body", m.Matchers); err != nil {
 		return err
 	}
@@ -182,7 +174,6 @@ func (m *GettableSilence) validateMatchers(formats strfmt.Registry) error {
 }
 
 func (m *GettableSilence) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -220,7 +211,6 @@ func (m *GettableSilence) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *GettableSilence) contextValidateMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Matchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("matchers")
@@ -234,7 +224,6 @@ func (m *GettableSilence) contextValidateMatchers(ctx context.Context, formats s
 }
 
 func (m *GettableSilence) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Status != nil {
 		if err := m.Status.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

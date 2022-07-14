@@ -19,7 +19,6 @@ import (
 //
 // swagger:model PostableNGalertConfig
 type PostableNGalertConfig struct {
-
 	// alertmanagers
 	Alertmanagers []string `json:"alertmanagers"`
 

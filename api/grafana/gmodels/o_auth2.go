@@ -17,7 +17,6 @@ import (
 //
 // swagger:model OAuth2
 type OAuth2 struct {
-
 	// client ID
 	ClientID string `json:"client_id,omitempty"`
 
@@ -113,7 +112,6 @@ func (m *OAuth2) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 }
 
 func (m *OAuth2) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.TLSConfig != nil {
 		if err := m.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -129,7 +127,6 @@ func (m *OAuth2) contextValidateTLSConfig(ctx context.Context, formats strfmt.Re
 }
 
 func (m *OAuth2) contextValidateClientSecret(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ClientSecret.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("client_secret")

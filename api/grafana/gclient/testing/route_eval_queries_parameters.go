@@ -60,7 +60,6 @@ func NewRouteEvalQueriesParamsWithHTTPClient(client *http.Client) *RouteEvalQuer
    Typically these are written to a http.Request.
 */
 type RouteEvalQueriesParams struct {
-
 	// Body.
 	Body *gmodels.EvalQueriesPayload
 
@@ -130,7 +129,6 @@ func (o *RouteEvalQueriesParams) SetBody(body *gmodels.EvalQueriesPayload) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteEvalQueriesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

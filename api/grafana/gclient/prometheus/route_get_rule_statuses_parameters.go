@@ -59,7 +59,6 @@ func NewRouteGetRuleStatusesParamsWithHTTPClient(client *http.Client) *RouteGetR
    Typically these are written to a http.Request.
 */
 type RouteGetRuleStatusesParams struct {
-
 	// DashboardUID.
 	DashboardUID *string
 
@@ -163,7 +162,6 @@ func (o *RouteGetRuleStatusesParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetRuleStatusesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -179,7 +177,6 @@ func (o *RouteGetRuleStatusesParams) WriteToRequest(r runtime.ClientRequest, reg
 		}
 		qDashboardUID := qrDashboardUID
 		if qDashboardUID != "" {
-
 			if err := r.SetQueryParam("DashboardUID", qDashboardUID); err != nil {
 				return err
 			}
@@ -196,7 +193,6 @@ func (o *RouteGetRuleStatusesParams) WriteToRequest(r runtime.ClientRequest, reg
 		}
 		qPanelID := swag.FormatInt64(qrPanelID)
 		if qPanelID != "" {
-
 			if err := r.SetQueryParam("PanelID", qPanelID); err != nil {
 				return err
 			}

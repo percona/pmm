@@ -58,7 +58,6 @@ func NewRouteGetAlertingConfigParamsWithHTTPClient(client *http.Client) *RouteGe
    Typically these are written to a http.Request.
 */
 type RouteGetAlertingConfigParams struct {
-
 	/* Recipient.
 
 	     Recipient should be "grafana" for requests to be handled by grafana
@@ -132,7 +131,6 @@ func (o *RouteGetAlertingConfigParams) SetRecipient(recipient string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetAlertingConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model AlertNotification
 type AlertNotification struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`

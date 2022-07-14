@@ -18,7 +18,6 @@ import (
 //
 // swagger:model GettableStatus
 type GettableStatus struct {
-
 	// uptime
 	// Required: true
 	// Format: date-time
@@ -64,7 +63,6 @@ func (m *GettableStatus) Validate(formats strfmt.Registry) error {
 }
 
 func (m *GettableStatus) validateUptime(formats strfmt.Registry) error {
-
 	if err := validate.Required("uptime", "body", m.Uptime); err != nil {
 		return err
 	}
@@ -77,7 +75,6 @@ func (m *GettableStatus) validateUptime(formats strfmt.Registry) error {
 }
 
 func (m *GettableStatus) validateCluster(formats strfmt.Registry) error {
-
 	if err := validate.Required("cluster", "body", m.Cluster); err != nil {
 		return err
 	}
@@ -97,7 +94,6 @@ func (m *GettableStatus) validateCluster(formats strfmt.Registry) error {
 }
 
 func (m *GettableStatus) validateConfig(formats strfmt.Registry) error {
-
 	if err := validate.Required("config", "body", m.Config); err != nil {
 		return err
 	}
@@ -117,7 +113,6 @@ func (m *GettableStatus) validateConfig(formats strfmt.Registry) error {
 }
 
 func (m *GettableStatus) validateVersionInfo(formats strfmt.Registry) error {
-
 	if err := validate.Required("versionInfo", "body", m.VersionInfo); err != nil {
 		return err
 	}
@@ -159,7 +154,6 @@ func (m *GettableStatus) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (m *GettableStatus) contextValidateCluster(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Cluster != nil {
 		if err := m.Cluster.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -175,7 +169,6 @@ func (m *GettableStatus) contextValidateCluster(ctx context.Context, formats str
 }
 
 func (m *GettableStatus) contextValidateConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Config != nil {
 		if err := m.Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -191,7 +184,6 @@ func (m *GettableStatus) contextValidateConfig(ctx context.Context, formats strf
 }
 
 func (m *GettableStatus) contextValidateVersionInfo(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.VersionInfo != nil {
 		if err := m.VersionInfo.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

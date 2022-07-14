@@ -17,7 +17,6 @@ import (
 //
 // swagger:model WechatConfig
 type WechatConfig struct {
-
 	// agent ID
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -152,7 +151,6 @@ func (m *WechatConfig) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *WechatConfig) contextValidateAPISecret(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.APISecret.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("api_secret")
@@ -166,7 +164,6 @@ func (m *WechatConfig) contextValidateAPISecret(ctx context.Context, formats str
 }
 
 func (m *WechatConfig) contextValidateAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.APIURL != nil {
 		if err := m.APIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -182,7 +179,6 @@ func (m *WechatConfig) contextValidateAPIURL(ctx context.Context, formats strfmt
 }
 
 func (m *WechatConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

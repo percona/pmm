@@ -18,7 +18,6 @@ import (
 //
 // swagger:model UpdateDashboardAclCommand
 type UpdateDashboardACLCommand struct {
-
 	// items
 	Items []*DashboardACLUpdateItem `json:"items"`
 }
@@ -78,9 +77,7 @@ func (m *UpdateDashboardACLCommand) ContextValidate(ctx context.Context, formats
 }
 
 func (m *UpdateDashboardACLCommand) contextValidateItems(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Items); i++ {
-
 		if m.Items[i] != nil {
 			if err := m.Items[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -91,7 +88,6 @@ func (m *UpdateDashboardACLCommand) contextValidateItems(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil

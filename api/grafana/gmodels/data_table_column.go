@@ -16,7 +16,6 @@ import (
 //
 // swagger:model DataTableColumn
 type DataTableColumn struct {
-
 	// text
 	Text string `json:"text,omitempty"`
 }

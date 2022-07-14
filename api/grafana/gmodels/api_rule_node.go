@@ -17,7 +17,6 @@ import (
 //
 // swagger:model ApiRuleNode
 type APIRuleNode struct {
-
 	// alert
 	Alert string `json:"alert,omitempty"`
 
@@ -84,7 +83,6 @@ func (m *APIRuleNode) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *APIRuleNode) contextValidateFor(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.For.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("for")

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model CalculateDiffTarget
 type CalculateDiffTarget struct {
-
 	// dashboard Id
 	DashboardID int64 `json:"dashboardId,omitempty"`
 

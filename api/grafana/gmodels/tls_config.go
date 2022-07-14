@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TLSConfig
 type TLSConfig struct {
-
 	// The CA cert to use for the targets.
 	CAFile string `json:"ca_file,omitempty"`
 

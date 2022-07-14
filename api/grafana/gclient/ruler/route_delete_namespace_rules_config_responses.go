@@ -50,12 +50,12 @@ type RouteDeleteNamespaceRulesConfigAccepted struct {
 func (o *RouteDeleteNamespaceRulesConfigAccepted) Error() string {
 	return fmt.Sprintf("[DELETE /api/ruler/{Recipient}/api/v1/rules/{Namespace}][%d] routeDeleteNamespaceRulesConfigAccepted  %+v", 202, o.Payload)
 }
+
 func (o *RouteDeleteNamespaceRulesConfigAccepted) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RouteDeleteNamespaceRulesConfigAccepted) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

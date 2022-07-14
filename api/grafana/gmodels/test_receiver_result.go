@@ -18,7 +18,6 @@ import (
 //
 // swagger:model TestReceiverResult
 type TestReceiverResult struct {
-
 	// configs
 	Configs []*TestReceiverConfigResult `json:"grafana_managed_receiver_configs"`
 
@@ -81,9 +80,7 @@ func (m *TestReceiverResult) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (m *TestReceiverResult) contextValidateConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Configs); i++ {
-
 		if m.Configs[i] != nil {
 			if err := m.Configs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -94,7 +91,6 @@ func (m *TestReceiverResult) contextValidateConfigs(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil

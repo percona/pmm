@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DataTable
 type DataTable struct {
-
 	// columns
 	Columns []*DataTableColumn `json:"columns"`
 
@@ -76,7 +75,6 @@ func (m *DataTable) validateRows(formats strfmt.Registry) error {
 	}
 
 	for i := 0; i < len(m.Rows); i++ {
-
 		if err := m.Rows[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rows" + "." + strconv.Itoa(i))
@@ -85,7 +83,6 @@ func (m *DataTable) validateRows(formats strfmt.Registry) error {
 			}
 			return err
 		}
-
 	}
 
 	return nil
@@ -110,9 +107,7 @@ func (m *DataTable) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *DataTable) contextValidateColumns(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Columns); i++ {
-
 		if m.Columns[i] != nil {
 			if err := m.Columns[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -123,16 +118,13 @@ func (m *DataTable) contextValidateColumns(ctx context.Context, formats strfmt.R
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *DataTable) contextValidateRows(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Rows); i++ {
-
 		if err := m.Rows[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("rows" + "." + strconv.Itoa(i))
@@ -141,7 +133,6 @@ func (m *DataTable) contextValidateRows(ctx context.Context, formats strfmt.Regi
 			}
 			return err
 		}
-
 	}
 
 	return nil

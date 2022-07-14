@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AddOrgUserCommand
 type AddOrgUserCommand struct {
-
 	// login or email
 	LoginOrEmail string `json:"loginOrEmail,omitempty"`
 

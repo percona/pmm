@@ -56,12 +56,12 @@ type RoutePostNGalertConfigCreated struct {
 func (o *RoutePostNGalertConfigCreated) Error() string {
 	return fmt.Sprintf("[POST /api/v1/ngalert/admin_config][%d] routePostNGalertConfigCreated  %+v", 201, o.Payload)
 }
+
 func (o *RoutePostNGalertConfigCreated) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RoutePostNGalertConfigCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type RoutePostNGalertConfigBadRequest struct {
 func (o *RoutePostNGalertConfigBadRequest) Error() string {
 	return fmt.Sprintf("[POST /api/v1/ngalert/admin_config][%d] routePostNGalertConfigBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RoutePostNGalertConfigBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RoutePostNGalertConfigBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload

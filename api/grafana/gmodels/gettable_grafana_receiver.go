@@ -17,7 +17,6 @@ import (
 //
 // swagger:model GettableGrafanaReceiver
 type GettableGrafanaReceiver struct {
-
 	// disable resolve message
 	DisableResolveMessage bool `json:"disableResolveMessage,omitempty"`
 
@@ -86,7 +85,6 @@ func (m *GettableGrafanaReceiver) ContextValidate(ctx context.Context, formats s
 }
 
 func (m *GettableGrafanaReceiver) contextValidateProvenance(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Provenance.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("provenance")

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model RoleDTO
 type RoleDTO struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`
@@ -143,9 +142,7 @@ func (m *RoleDTO) ContextValidate(ctx context.Context, formats strfmt.Registry) 
 }
 
 func (m *RoleDTO) contextValidatePermissions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Permissions); i++ {
-
 		if m.Permissions[i] != nil {
 			if err := m.Permissions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -156,7 +153,6 @@ func (m *RoleDTO) contextValidatePermissions(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil

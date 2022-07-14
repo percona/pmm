@@ -19,7 +19,6 @@ import (
 //
 // swagger:model RuleGroup
 type RuleGroup struct {
-
 	// evaluation time
 	EvaluationTime float64 `json:"evaluationTime,omitempty"`
 
@@ -77,7 +76,6 @@ func (m *RuleGroup) Validate(formats strfmt.Registry) error {
 }
 
 func (m *RuleGroup) validateFile(formats strfmt.Registry) error {
-
 	if err := validate.Required("file", "body", m.File); err != nil {
 		return err
 	}
@@ -86,7 +84,6 @@ func (m *RuleGroup) validateFile(formats strfmt.Registry) error {
 }
 
 func (m *RuleGroup) validateInterval(formats strfmt.Registry) error {
-
 	if err := validate.Required("interval", "body", m.Interval); err != nil {
 		return err
 	}
@@ -107,7 +104,6 @@ func (m *RuleGroup) validateLastEvaluation(formats strfmt.Registry) error {
 }
 
 func (m *RuleGroup) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
@@ -116,7 +112,6 @@ func (m *RuleGroup) validateName(formats strfmt.Registry) error {
 }
 
 func (m *RuleGroup) validateRules(formats strfmt.Registry) error {
-
 	if err := validate.Required("rules", "body", m.Rules); err != nil {
 		return err
 	}
@@ -157,9 +152,7 @@ func (m *RuleGroup) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *RuleGroup) contextValidateRules(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Rules); i++ {
-
 		if m.Rules[i] != nil {
 			if err := m.Rules[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -170,7 +163,6 @@ func (m *RuleGroup) contextValidateRules(ctx context.Context, formats strfmt.Reg
 				return err
 			}
 		}
-
 	}
 
 	return nil

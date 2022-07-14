@@ -19,7 +19,7 @@ package ia
 import (
 	"context"
 
-	"github.com/percona/pmm/api/alertmanager/ammodels"
+	"github.com/percona/pmm/api/grafana/gmodels"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -29,10 +29,10 @@ import (
 // alertManager is is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertManager interface {
-	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*ammodels.GettableAlert, error)
-	FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*ammodels.GettableAlert, error)
-	SilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
-	UnsilenceAlerts(ctx context.Context, alerts []*ammodels.GettableAlert) error
+	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*gmodels.GettableAlert, error)
+	FindAlertsByID(ctx context.Context, params *services.FilterParams, ids []string) ([]*gmodels.GettableAlert, error)
+	SilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error
+	UnsilenceAlerts(ctx context.Context, alerts []*gmodels.GettableAlert) error
 	RequestConfigurationUpdate()
 }
 

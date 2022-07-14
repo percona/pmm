@@ -17,7 +17,6 @@ import (
 //
 // swagger:model SNSConfig
 type SNSConfig struct {
-
 	// API Url
 	APIURL string `json:"api_url,omitempty"`
 
@@ -124,7 +123,6 @@ func (m *SNSConfig) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *SNSConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -140,7 +138,6 @@ func (m *SNSConfig) contextValidateHTTPConfig(ctx context.Context, formats strfm
 }
 
 func (m *SNSConfig) contextValidateSigv4(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Sigv4 != nil {
 		if err := m.Sigv4.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

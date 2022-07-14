@@ -19,7 +19,6 @@ import (
 //
 // swagger:model PatchLibraryElementCommand
 type PatchLibraryElementCommand struct {
-
 	// ID of the folder where the library element is stored.
 	FolderID int64 `json:"folderId,omitempty"`
 

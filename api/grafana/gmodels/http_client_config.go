@@ -17,7 +17,6 @@ import (
 //
 // swagger:model HTTPClientConfig
 type HTTPClientConfig struct {
-
 	// The bearer token file for the targets. Deprecated in favour of
 	// Authorization.CredentialsFile.
 	BearerTokenFile string `json:"bearer_token_file,omitempty"`
@@ -227,7 +226,6 @@ func (m *HTTPClientConfig) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *HTTPClientConfig) contextValidateAuthorization(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Authorization != nil {
 		if err := m.Authorization.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -243,7 +241,6 @@ func (m *HTTPClientConfig) contextValidateAuthorization(ctx context.Context, for
 }
 
 func (m *HTTPClientConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.BasicAuth != nil {
 		if err := m.BasicAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -259,7 +256,6 @@ func (m *HTTPClientConfig) contextValidateBasicAuth(ctx context.Context, formats
 }
 
 func (m *HTTPClientConfig) contextValidateBearerToken(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.BearerToken.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("bearer_token")
@@ -273,7 +269,6 @@ func (m *HTTPClientConfig) contextValidateBearerToken(ctx context.Context, forma
 }
 
 func (m *HTTPClientConfig) contextValidateOauth2(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Oauth2 != nil {
 		if err := m.Oauth2.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -289,7 +284,6 @@ func (m *HTTPClientConfig) contextValidateOauth2(ctx context.Context, formats st
 }
 
 func (m *HTTPClientConfig) contextValidateProxyURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.ProxyURL != nil {
 		if err := m.ProxyURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -305,7 +299,6 @@ func (m *HTTPClientConfig) contextValidateProxyURL(ctx context.Context, formats 
 }
 
 func (m *HTTPClientConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.TLSConfig != nil {
 		if err := m.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

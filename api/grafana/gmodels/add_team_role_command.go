@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AddTeamRoleCommand
 type AddTeamRoleCommand struct {
-
 	// role UID
 	RoleUID string `json:"roleUid,omitempty"`
 }

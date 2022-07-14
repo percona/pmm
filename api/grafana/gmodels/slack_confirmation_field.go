@@ -18,7 +18,6 @@ import (
 //
 // swagger:model SlackConfirmationField
 type SlackConfirmationField struct {
-
 	// dismiss text
 	DismissText string `json:"dismiss_text,omitempty"`
 

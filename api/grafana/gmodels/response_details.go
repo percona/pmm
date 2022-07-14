@@ -16,7 +16,6 @@ import (
 //
 // swagger:model ResponseDetails
 type ResponseDetails struct {
-
 	// msg
 	Msg string `json:"msg,omitempty"`
 }

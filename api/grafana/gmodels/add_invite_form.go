@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AddInviteForm
 type AddInviteForm struct {
-
 	// login or email
 	LoginOrEmail string `json:"loginOrEmail,omitempty"`
 

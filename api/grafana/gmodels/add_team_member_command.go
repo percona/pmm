@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AddTeamMemberCommand
 type AddTeamMemberCommand struct {
-
 	// user Id
 	UserID int64 `json:"userId,omitempty"`
 }

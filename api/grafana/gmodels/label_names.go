@@ -23,7 +23,6 @@ func (m LabelNames) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {
-
 		if err := m[i].Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName(strconv.Itoa(i))
@@ -32,7 +31,6 @@ func (m LabelNames) Validate(formats strfmt.Registry) error {
 			}
 			return err
 		}
-
 	}
 
 	if len(res) > 0 {
@@ -46,7 +44,6 @@ func (m LabelNames) ContextValidate(ctx context.Context, formats strfmt.Registry
 	var res []error
 
 	for i := 0; i < len(m); i++ {
-
 		if err := m[i].ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName(strconv.Itoa(i))
@@ -55,7 +52,6 @@ func (m LabelNames) ContextValidate(ctx context.Context, formats strfmt.Registry
 			}
 			return err
 		}
-
 	}
 
 	if len(res) > 0 {

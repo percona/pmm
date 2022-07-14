@@ -18,7 +18,6 @@ import (
 //
 // swagger:model RuleResponse
 type RuleResponse struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -56,7 +55,6 @@ func (m *RuleResponse) Validate(formats strfmt.Registry) error {
 }
 
 func (m *RuleResponse) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -119,7 +117,6 @@ func (m *RuleResponse) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *RuleResponse) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Data != nil {
 		if err := m.Data.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -135,7 +132,6 @@ func (m *RuleResponse) contextValidateData(ctx context.Context, formats strfmt.R
 }
 
 func (m *RuleResponse) contextValidateErrorType(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ErrorType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("errorType")

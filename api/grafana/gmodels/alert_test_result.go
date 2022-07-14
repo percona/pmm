@@ -18,7 +18,6 @@ import (
 //
 // swagger:model AlertTestResult
 type AlertTestResult struct {
-
 	// condition evals
 	ConditionEvals string `json:"conditionEvals,omitempty"`
 
@@ -155,9 +154,7 @@ func (m *AlertTestResult) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *AlertTestResult) contextValidateEvalMatches(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.EvalMatches); i++ {
-
 		if m.EvalMatches[i] != nil {
 			if err := m.EvalMatches[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -168,16 +165,13 @@ func (m *AlertTestResult) contextValidateEvalMatches(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *AlertTestResult) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Logs); i++ {
-
 		if m.Logs[i] != nil {
 			if err := m.Logs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -188,14 +182,12 @@ func (m *AlertTestResult) contextValidateLogs(ctx context.Context, formats strfm
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *AlertTestResult) contextValidateState(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.State.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("state")

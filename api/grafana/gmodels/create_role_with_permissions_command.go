@@ -18,7 +18,6 @@ import (
 //
 // swagger:model CreateRoleWithPermissionsCommand
 type CreateRoleWithPermissionsCommand struct {
-
 	// description
 	Description string `json:"description,omitempty"`
 
@@ -99,9 +98,7 @@ func (m *CreateRoleWithPermissionsCommand) ContextValidate(ctx context.Context, 
 }
 
 func (m *CreateRoleWithPermissionsCommand) contextValidatePermissions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Permissions); i++ {
-
 		if m.Permissions[i] != nil {
 			if err := m.Permissions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -112,7 +109,6 @@ func (m *CreateRoleWithPermissionsCommand) contextValidatePermissions(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil

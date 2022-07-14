@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Permission
 type Permission struct {
-
 	// action
 	Action string `json:"action,omitempty"`
 

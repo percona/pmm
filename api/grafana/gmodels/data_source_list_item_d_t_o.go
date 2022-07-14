@@ -17,7 +17,6 @@ import (
 //
 // swagger:model DataSourceListItemDTO
 type DataSourceListItemDTO struct {
-
 	// basic auth
 	BasicAuth bool `json:"basicAuth,omitempty"`
 
@@ -113,7 +112,6 @@ func (m *DataSourceListItemDTO) ContextValidate(ctx context.Context, formats str
 }
 
 func (m *DataSourceListItemDTO) contextValidateAccess(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Access.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("access")

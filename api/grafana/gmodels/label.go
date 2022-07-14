@@ -16,7 +16,6 @@ import (
 //
 // swagger:model Label
 type Label struct {
-
 	// value
 	Value string `json:"Name,omitempty"`
 }

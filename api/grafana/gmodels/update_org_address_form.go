@@ -16,7 +16,6 @@ import (
 //
 // swagger:model UpdateOrgAddressForm
 type UpdateOrgAddressForm struct {
-
 	// address1
 	Address1 string `json:"address1,omitempty"`
 

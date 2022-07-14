@@ -17,7 +17,6 @@ import (
 //
 // swagger:model LibraryElementResponse
 type LibraryElementResponse struct {
-
 	// result
 	Result *LibraryElementDTO `json:"result,omitempty"`
 }
@@ -70,7 +69,6 @@ func (m *LibraryElementResponse) ContextValidate(ctx context.Context, formats st
 }
 
 func (m *LibraryElementResponse) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Result != nil {
 		if err := m.Result.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

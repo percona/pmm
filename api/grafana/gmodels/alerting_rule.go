@@ -19,7 +19,6 @@ import (
 //
 // swagger:model AlertingRule
 type AlertingRule struct {
-
 	// alerts
 	// Required: true
 	Alerts []*Alert `json:"alerts"`
@@ -112,7 +111,6 @@ func (m *AlertingRule) Validate(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateAlerts(formats strfmt.Registry) error {
-
 	if err := validate.Required("alerts", "body", m.Alerts); err != nil {
 		return err
 	}
@@ -139,7 +137,6 @@ func (m *AlertingRule) validateAlerts(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateHealth(formats strfmt.Registry) error {
-
 	if err := validate.Required("health", "body", m.Health); err != nil {
 		return err
 	}
@@ -160,7 +157,6 @@ func (m *AlertingRule) validateLastEvaluation(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
@@ -169,7 +165,6 @@ func (m *AlertingRule) validateName(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateQuery(formats strfmt.Registry) error {
-
 	if err := validate.Required("query", "body", m.Query); err != nil {
 		return err
 	}
@@ -178,7 +173,6 @@ func (m *AlertingRule) validateQuery(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateState(formats strfmt.Registry) error {
-
 	if err := validate.Required("state", "body", m.State); err != nil {
 		return err
 	}
@@ -187,7 +181,6 @@ func (m *AlertingRule) validateState(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateAnnotations(formats strfmt.Registry) error {
-
 	if err := validate.Required("annotations", "body", m.Annotations); err != nil {
 		return err
 	}
@@ -226,7 +219,6 @@ func (m *AlertingRule) validateLabels(formats strfmt.Registry) error {
 }
 
 func (m *AlertingRule) validateType(formats strfmt.Registry) error {
-
 	if err := validate.Required("type", "body", m.Type); err != nil {
 		return err
 	}
@@ -276,9 +268,7 @@ func (m *AlertingRule) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *AlertingRule) contextValidateAlerts(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Alerts); i++ {
-
 		if m.Alerts[i] != nil {
 			if err := m.Alerts[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -289,14 +279,12 @@ func (m *AlertingRule) contextValidateAlerts(ctx context.Context, formats strfmt
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *AlertingRule) contextValidateAnnotations(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Annotations.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("annotations")
@@ -310,7 +298,6 @@ func (m *AlertingRule) contextValidateAnnotations(ctx context.Context, formats s
 }
 
 func (m *AlertingRule) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")
@@ -324,7 +311,6 @@ func (m *AlertingRule) contextValidateLabels(ctx context.Context, formats strfmt
 }
 
 func (m *AlertingRule) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Type != nil {
 		if err := m.Type.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

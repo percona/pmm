@@ -16,7 +16,6 @@ import (
 //
 // swagger:model WeekdayRange
 type WeekdayRange struct {
-
 	// begin
 	Begin int64 `json:"Begin,omitempty"`
 

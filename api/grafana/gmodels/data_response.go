@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DataResponse
 type DataResponse struct {
-
 	// message
 	Message string `json:"message,omitempty"`
 
@@ -81,15 +80,12 @@ func (m *DataResponse) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (m *DataResponse) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
-
 	for k := range m.Results {
-
 		if val, ok := m.Results[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
-
 	}
 
 	return nil

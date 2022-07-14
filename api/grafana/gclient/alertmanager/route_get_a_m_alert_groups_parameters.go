@@ -59,7 +59,6 @@ func NewRouteGetAMAlertGroupsParamsWithHTTPClient(client *http.Client) *RouteGet
    Typically these are written to a http.Request.
 */
 type RouteGetAMAlertGroupsParams struct {
-
 	/* Recipient.
 
 	     Recipient should be "grafana" for requests to be handled by grafana
@@ -241,7 +240,6 @@ func (o *RouteGetAMAlertGroupsParams) SetSilenced(silenced *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RouteGetAMAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -262,7 +260,6 @@ func (o *RouteGetAMAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qActive := swag.FormatBool(qrActive)
 		if qActive != "" {
-
 			if err := r.SetQueryParam("active", qActive); err != nil {
 				return err
 			}
@@ -290,7 +287,6 @@ func (o *RouteGetAMAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qInhibited := swag.FormatBool(qrInhibited)
 		if qInhibited != "" {
-
 			if err := r.SetQueryParam("inhibited", qInhibited); err != nil {
 				return err
 			}
@@ -307,7 +303,6 @@ func (o *RouteGetAMAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qReceiver := qrReceiver
 		if qReceiver != "" {
-
 			if err := r.SetQueryParam("receiver", qReceiver); err != nil {
 				return err
 			}
@@ -324,7 +319,6 @@ func (o *RouteGetAMAlertGroupsParams) WriteToRequest(r runtime.ClientRequest, re
 		}
 		qSilenced := swag.FormatBool(qrSilenced)
 		if qSilenced != "" {
-
 			if err := r.SetQueryParam("silenced", qSilenced); err != nil {
 				return err
 			}

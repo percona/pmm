@@ -18,7 +18,6 @@ import (
 //
 // swagger:model PagerdutyConfig
 type PagerdutyConfig struct {
-
 	// class
 	Class string `json:"class,omitempty"`
 
@@ -258,9 +257,7 @@ func (m *PagerdutyConfig) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *PagerdutyConfig) contextValidateImages(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Images); i++ {
-
 		if m.Images[i] != nil {
 			if err := m.Images[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -271,16 +268,13 @@ func (m *PagerdutyConfig) contextValidateImages(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *PagerdutyConfig) contextValidateLinks(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Links); i++ {
-
 		if m.Links[i] != nil {
 			if err := m.Links[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -291,14 +285,12 @@ func (m *PagerdutyConfig) contextValidateLinks(ctx context.Context, formats strf
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *PagerdutyConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -314,7 +306,6 @@ func (m *PagerdutyConfig) contextValidateHTTPConfig(ctx context.Context, formats
 }
 
 func (m *PagerdutyConfig) contextValidateRoutingKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.RoutingKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("routing_key")
@@ -328,7 +319,6 @@ func (m *PagerdutyConfig) contextValidateRoutingKey(ctx context.Context, formats
 }
 
 func (m *PagerdutyConfig) contextValidateServiceKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ServiceKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("service_key")
@@ -342,7 +332,6 @@ func (m *PagerdutyConfig) contextValidateServiceKey(ctx context.Context, formats
 }
 
 func (m *PagerdutyConfig) contextValidateURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.URL != nil {
 		if err := m.URL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

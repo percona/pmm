@@ -18,7 +18,6 @@ import (
 //
 // swagger:model AlertManagersResult
 type AlertManagersResult struct {
-
 	// active
 	Active []*AlertManager `json:"activeAlertManagers"`
 
@@ -115,9 +114,7 @@ func (m *AlertManagersResult) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *AlertManagersResult) contextValidateActive(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Active); i++ {
-
 		if m.Active[i] != nil {
 			if err := m.Active[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -128,16 +125,13 @@ func (m *AlertManagersResult) contextValidateActive(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *AlertManagersResult) contextValidateDropped(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Dropped); i++ {
-
 		if m.Dropped[i] != nil {
 			if err := m.Dropped[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -148,7 +142,6 @@ func (m *AlertManagersResult) contextValidateDropped(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil

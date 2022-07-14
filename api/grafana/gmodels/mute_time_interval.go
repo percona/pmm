@@ -18,7 +18,6 @@ import (
 //
 // swagger:model MuteTimeInterval
 type MuteTimeInterval struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 
@@ -81,9 +80,7 @@ func (m *MuteTimeInterval) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *MuteTimeInterval) contextValidateTimeIntervals(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.TimeIntervals); i++ {
-
 		if m.TimeIntervals[i] != nil {
 			if err := m.TimeIntervals[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -94,7 +91,6 @@ func (m *MuteTimeInterval) contextValidateTimeIntervals(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil

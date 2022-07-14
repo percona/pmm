@@ -16,7 +16,6 @@ import (
 //
 // swagger:model NotificationTestCommand
 type NotificationTestCommand struct {
-
 	// disable resolve message
 	DisableResolveMessage bool `json:"disableResolveMessage,omitempty"`
 

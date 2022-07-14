@@ -19,7 +19,6 @@ import (
 //
 // swagger:model TempUserDTO
 type TempUserDTO struct {
-
 	// code
 	Code string `json:"code,omitempty"`
 
@@ -193,7 +192,6 @@ func (m *TempUserDTO) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *TempUserDTO) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")

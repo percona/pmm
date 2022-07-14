@@ -17,7 +17,6 @@ import (
 //
 // swagger:model EmbeddedContactPoint
 type EmbeddedContactPoint struct {
-
 	// disable resolve message
 	DisableResolveMessage bool `json:"disableResolveMessage,omitempty"`
 

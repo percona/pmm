@@ -16,7 +16,6 @@ import (
 //
 // swagger:model PostableGrafanaReceiver
 type PostableGrafanaReceiver struct {
-
 	// disable resolve message
 	DisableResolveMessage bool `json:"disableResolveMessage,omitempty"`
 

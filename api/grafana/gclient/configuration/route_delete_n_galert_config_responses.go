@@ -56,12 +56,12 @@ type RouteDeleteNGalertConfigOK struct {
 func (o *RouteDeleteNGalertConfigOK) Error() string {
 	return fmt.Sprintf("[DELETE /api/v1/ngalert/admin_config][%d] routeDeleteNGalertConfigOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteDeleteNGalertConfigOK) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RouteDeleteNGalertConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type RouteDeleteNGalertConfigInternalServerError struct {
 func (o *RouteDeleteNGalertConfigInternalServerError) Error() string {
 	return fmt.Sprintf("[DELETE /api/v1/ngalert/admin_config][%d] routeDeleteNGalertConfigInternalServerError  %+v", 500, o.Payload)
 }
+
 func (o *RouteDeleteNGalertConfigInternalServerError) GetPayload() *gmodels.Failure {
 	return o.Payload
 }
 
 func (o *RouteDeleteNGalertConfigInternalServerError) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.Failure)
 
 	// response payload

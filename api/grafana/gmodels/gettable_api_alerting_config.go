@@ -18,7 +18,6 @@ import (
 //
 // swagger:model GettableApiAlertingConfig
 type GettableAPIAlertingConfig struct {
-
 	// inhibit rules
 	InhibitRules []*InhibitRule `json:"inhibit_rules"`
 
@@ -215,9 +214,7 @@ func (m *GettableAPIAlertingConfig) ContextValidate(ctx context.Context, formats
 }
 
 func (m *GettableAPIAlertingConfig) contextValidateInhibitRules(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.InhibitRules); i++ {
-
 		if m.InhibitRules[i] != nil {
 			if err := m.InhibitRules[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -228,16 +225,13 @@ func (m *GettableAPIAlertingConfig) contextValidateInhibitRules(ctx context.Cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIAlertingConfig) contextValidateMuteTimeIntervals(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.MuteTimeIntervals); i++ {
-
 		if m.MuteTimeIntervals[i] != nil {
 			if err := m.MuteTimeIntervals[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -248,16 +242,13 @@ func (m *GettableAPIAlertingConfig) contextValidateMuteTimeIntervals(ctx context
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIAlertingConfig) contextValidateReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Receivers); i++ {
-
 		if m.Receivers[i] != nil {
 			if err := m.Receivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -268,14 +259,12 @@ func (m *GettableAPIAlertingConfig) contextValidateReceivers(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIAlertingConfig) contextValidateGlobal(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Global != nil {
 		if err := m.Global.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -291,7 +280,6 @@ func (m *GettableAPIAlertingConfig) contextValidateGlobal(ctx context.Context, f
 }
 
 func (m *GettableAPIAlertingConfig) contextValidateRoute(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Route != nil {
 		if err := m.Route.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

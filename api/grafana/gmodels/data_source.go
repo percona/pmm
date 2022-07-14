@@ -17,7 +17,6 @@ import (
 //
 // swagger:model DataSource
 type DataSource struct {
-
 	// basic auth
 	BasicAuth bool `json:"basicAuth,omitempty"`
 
@@ -155,7 +154,6 @@ func (m *DataSource) ContextValidate(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *DataSource) contextValidateAccess(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Access.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("access")
@@ -169,7 +167,6 @@ func (m *DataSource) contextValidateAccess(ctx context.Context, formats strfmt.R
 }
 
 func (m *DataSource) contextValidateAccessControl(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.AccessControl.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("accessControl")

@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AdminCreateUserForm
 type AdminCreateUserForm struct {
-
 	// email
 	Email string `json:"email,omitempty"`
 

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model EvalAlertConditionCommand
 type EvalAlertConditionCommand struct {
-
 	// condition
 	Condition string `json:"condition,omitempty"`
 
@@ -102,9 +101,7 @@ func (m *EvalAlertConditionCommand) ContextValidate(ctx context.Context, formats
 }
 
 func (m *EvalAlertConditionCommand) contextValidateData(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Data); i++ {
-
 		if m.Data[i] != nil {
 			if err := m.Data[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -115,7 +112,6 @@ func (m *EvalAlertConditionCommand) contextValidateData(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil

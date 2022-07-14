@@ -19,7 +19,6 @@ import (
 //
 // swagger:model UpdateOrgUserCommand
 type UpdateOrgUserCommand struct {
-
 	// role
 	// Enum: [Viewer Editor Admin]
 	Role string `json:"role,omitempty"`

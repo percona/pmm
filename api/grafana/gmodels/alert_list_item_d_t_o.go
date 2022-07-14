@@ -18,7 +18,6 @@ import (
 //
 // swagger:model AlertListItemDTO
 type AlertListItemDTO struct {
-
 	// dashboard Id
 	DashboardID int64 `json:"dashboardId,omitempty"`
 
@@ -136,7 +135,6 @@ func (m *AlertListItemDTO) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *AlertListItemDTO) contextValidateState(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.State.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("state")

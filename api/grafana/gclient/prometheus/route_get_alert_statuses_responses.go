@@ -50,12 +50,12 @@ type RouteGetAlertStatusesOK struct {
 func (o *RouteGetAlertStatusesOK) Error() string {
 	return fmt.Sprintf("[GET /api/prometheus/{Recipient}/api/v1/alerts][%d] routeGetAlertStatusesOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetAlertStatusesOK) GetPayload() *gmodels.AlertResponse {
 	return o.Payload
 }
 
 func (o *RouteGetAlertStatusesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.AlertResponse)
 
 	// response payload

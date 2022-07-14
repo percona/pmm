@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DiscoveryBase
 type DiscoveryBase struct {
-
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -49,7 +48,6 @@ func (m *DiscoveryBase) Validate(formats strfmt.Registry) error {
 }
 
 func (m *DiscoveryBase) validateStatus(formats strfmt.Registry) error {
-
 	if err := validate.Required("status", "body", m.Status); err != nil {
 		return err
 	}
@@ -89,7 +87,6 @@ func (m *DiscoveryBase) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *DiscoveryBase) contextValidateErrorType(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.ErrorType.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("errorType")

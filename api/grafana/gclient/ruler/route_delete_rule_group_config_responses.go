@@ -50,12 +50,12 @@ type RouteDeleteRuleGroupConfigAccepted struct {
 func (o *RouteDeleteRuleGroupConfigAccepted) Error() string {
 	return fmt.Sprintf("[DELETE /api/ruler/{Recipient}/api/v1/rules/{Namespace}/{Groupname}][%d] routeDeleteRuleGroupConfigAccepted  %+v", 202, o.Payload)
 }
+
 func (o *RouteDeleteRuleGroupConfigAccepted) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RouteDeleteRuleGroupConfigAccepted) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

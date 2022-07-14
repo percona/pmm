@@ -16,7 +16,6 @@ import (
 //
 // swagger:model TeamGroupMapping
 type TeamGroupMapping struct {
-
 	// group Id
 	GroupID string `json:"groupId,omitempty"`
 }

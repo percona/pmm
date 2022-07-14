@@ -18,7 +18,6 @@ import (
 //
 // swagger:model PostableAlert
 type PostableAlert struct {
-
 	// ends at
 	// Format: date-time
 	// Format: date-time
@@ -128,7 +127,6 @@ func (m *PostableAlert) validateAnnotations(formats strfmt.Registry) error {
 }
 
 func (m *PostableAlert) validateLabels(formats strfmt.Registry) error {
-
 	if err := validate.Required("labels", "body", m.Labels); err != nil {
 		return err
 	}
@@ -166,7 +164,6 @@ func (m *PostableAlert) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *PostableAlert) contextValidateAnnotations(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Annotations.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("annotations")
@@ -180,7 +177,6 @@ func (m *PostableAlert) contextValidateAnnotations(ctx context.Context, formats 
 }
 
 func (m *PostableAlert) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")

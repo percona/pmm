@@ -17,7 +17,6 @@ import (
 //
 // swagger:model BasicAuth
 type BasicAuth struct {
-
 	// password file
 	PasswordFile string `json:"password_file,omitempty"`
 
@@ -74,7 +73,6 @@ func (m *BasicAuth) ContextValidate(ctx context.Context, formats strfmt.Registry
 }
 
 func (m *BasicAuth) contextValidatePassword(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Password.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("password")

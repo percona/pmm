@@ -16,7 +16,6 @@ import (
 //
 // swagger:model NewApiKeyResult
 type NewAPIKeyResult struct {
-
 	// ID
 	ID int64 `json:"id,omitempty"`
 

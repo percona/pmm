@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Prefs
 type Prefs struct {
-
 	// home dashboard ID
 	HomeDashboardID int64 `json:"homeDashboardId,omitempty"`
 
@@ -115,7 +114,6 @@ func (m *Prefs) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 }
 
 func (m *Prefs) contextValidateNavbar(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Navbar != nil {
 		if err := m.Navbar.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -131,7 +129,6 @@ func (m *Prefs) contextValidateNavbar(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *Prefs) contextValidateQueryHistory(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.QueryHistory != nil {
 		if err := m.QueryHistory.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

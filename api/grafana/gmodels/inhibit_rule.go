@@ -19,7 +19,6 @@ import (
 //
 // swagger:model InhibitRule
 type InhibitRule struct {
-
 	// SourceMatch defines a set of labels that have to equal the given
 	// value for source alerts. Deprecated. Remove before v1.0 release.
 	SourceMatch map[string]string `json:"source_match,omitempty"`
@@ -194,7 +193,6 @@ func (m *InhibitRule) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *InhibitRule) contextValidateEqual(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Equal.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("equal")
@@ -208,7 +206,6 @@ func (m *InhibitRule) contextValidateEqual(ctx context.Context, formats strfmt.R
 }
 
 func (m *InhibitRule) contextValidateSourceMatchRe(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.SourceMatchRe.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("source_match_re")
@@ -222,7 +219,6 @@ func (m *InhibitRule) contextValidateSourceMatchRe(ctx context.Context, formats 
 }
 
 func (m *InhibitRule) contextValidateSourceMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.SourceMatchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("source_matchers")
@@ -236,7 +232,6 @@ func (m *InhibitRule) contextValidateSourceMatchers(ctx context.Context, formats
 }
 
 func (m *InhibitRule) contextValidateTargetMatchRe(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.TargetMatchRe.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("target_match_re")
@@ -250,7 +245,6 @@ func (m *InhibitRule) contextValidateTargetMatchRe(ctx context.Context, formats 
 }
 
 func (m *InhibitRule) contextValidateTargetMatchers(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.TargetMatchers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("target_matchers")

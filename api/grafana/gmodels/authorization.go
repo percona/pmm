@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Authorization
 type Authorization struct {
-
 	// credentials file
 	CredentialsFile string `json:"credentials_file,omitempty"`
 
@@ -74,7 +73,6 @@ func (m *Authorization) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *Authorization) contextValidateCredentials(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Credentials.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("credentials")

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Folder
 type Folder struct {
-
 	// can admin
 	CanAdmin bool `json:"canAdmin,omitempty"`
 

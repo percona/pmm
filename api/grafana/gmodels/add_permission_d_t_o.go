@@ -17,7 +17,6 @@ import (
 //
 // swagger:model AddPermissionDTO
 type AddPermissionDTO struct {
-
 	// builtin role
 	BuiltinRole string `json:"builtinRole,omitempty"`
 
@@ -77,7 +76,6 @@ func (m *AddPermissionDTO) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *AddPermissionDTO) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

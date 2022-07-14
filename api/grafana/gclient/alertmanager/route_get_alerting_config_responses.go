@@ -56,12 +56,12 @@ type RouteGetAlertingConfigOK struct {
 func (o *RouteGetAlertingConfigOK) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/config/api/v1/alerts][%d] routeGetAlertingConfigOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteGetAlertingConfigOK) GetPayload() *gmodels.GettableUserConfig {
 	return o.Payload
 }
 
 func (o *RouteGetAlertingConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.GettableUserConfig)
 
 	// response payload
@@ -88,12 +88,12 @@ type RouteGetAlertingConfigBadRequest struct {
 func (o *RouteGetAlertingConfigBadRequest) Error() string {
 	return fmt.Sprintf("[GET /api/alertmanager/{Recipient}/config/api/v1/alerts][%d] routeGetAlertingConfigBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RouteGetAlertingConfigBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RouteGetAlertingConfigBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload

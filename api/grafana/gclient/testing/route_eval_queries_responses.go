@@ -50,12 +50,12 @@ type RouteEvalQueriesOK struct {
 func (o *RouteEvalQueriesOK) Error() string {
 	return fmt.Sprintf("[POST /api/v1/eval][%d] routeEvalQueriesOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteEvalQueriesOK) GetPayload() gmodels.EvalQueriesResponse {
 	return o.Payload
 }
 
 func (o *RouteEvalQueriesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err

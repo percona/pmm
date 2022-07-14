@@ -53,7 +53,6 @@ func (m Vector) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 	var res []error
 
 	for i := 0; i < len(m); i++ {
-
 		if m[i] != nil {
 			if err := m[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -64,7 +63,6 @@ func (m Vector) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 				return err
 			}
 		}
-
 	}
 
 	if len(res) > 0 {

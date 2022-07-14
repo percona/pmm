@@ -19,7 +19,6 @@ import (
 //
 // swagger:model SyncResult
 type SyncResult struct {
-
 	// elapsed
 	// Format: duration
 	Elapsed Duration `json:"Elapsed,omitempty"`
@@ -134,7 +133,6 @@ func (m *SyncResult) ContextValidate(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *SyncResult) contextValidateElapsed(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Elapsed.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("Elapsed")
@@ -148,9 +146,7 @@ func (m *SyncResult) contextValidateElapsed(ctx context.Context, formats strfmt.
 }
 
 func (m *SyncResult) contextValidateFailedUsers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.FailedUsers); i++ {
-
 		if m.FailedUsers[i] != nil {
 			if err := m.FailedUsers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -161,7 +157,6 @@ func (m *SyncResult) contextValidateFailedUsers(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil

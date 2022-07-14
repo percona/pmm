@@ -17,7 +17,6 @@ import (
 //
 // swagger:model EmailConfig
 type EmailConfig struct {
-
 	// auth identity
 	AuthIdentity string `json:"auth_identity,omitempty"`
 
@@ -186,7 +185,6 @@ func (m *EmailConfig) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *EmailConfig) contextValidateAuthPassword(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.AuthPassword.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("auth_password")
@@ -200,7 +198,6 @@ func (m *EmailConfig) contextValidateAuthPassword(ctx context.Context, formats s
 }
 
 func (m *EmailConfig) contextValidateAuthSecret(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.AuthSecret.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("auth_secret")
@@ -214,7 +211,6 @@ func (m *EmailConfig) contextValidateAuthSecret(ctx context.Context, formats str
 }
 
 func (m *EmailConfig) contextValidateSmarthost(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Smarthost != nil {
 		if err := m.Smarthost.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -230,7 +226,6 @@ func (m *EmailConfig) contextValidateSmarthost(ctx context.Context, formats strf
 }
 
 func (m *EmailConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.TLSConfig != nil {
 		if err := m.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

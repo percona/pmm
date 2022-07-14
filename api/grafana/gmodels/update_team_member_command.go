@@ -17,7 +17,6 @@ import (
 //
 // swagger:model UpdateTeamMemberCommand
 type UpdateTeamMemberCommand struct {
-
 	// permission
 	Permission PermissionType `json:"permission,omitempty"`
 }
@@ -68,7 +67,6 @@ func (m *UpdateTeamMemberCommand) ContextValidate(ctx context.Context, formats s
 }
 
 func (m *UpdateTeamMemberCommand) contextValidatePermission(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Permission.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("permission")

@@ -17,7 +17,6 @@ import (
 //
 // swagger:model OrgDetailsDTO
 type OrgDetailsDTO struct {
-
 	// Id
 	ID int64 `json:"id,omitempty"`
 
@@ -76,7 +75,6 @@ func (m *OrgDetailsDTO) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (m *OrgDetailsDTO) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Address != nil {
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

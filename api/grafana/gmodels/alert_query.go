@@ -17,7 +17,6 @@ import (
 //
 // swagger:model AlertQuery
 type AlertQuery struct {
-
 	// Grafana data source unique identifier; it should be '-100' for a Server Side Expression operation.
 	DatasourceUID string `json:"datasourceUid,omitempty"`
 
@@ -83,7 +82,6 @@ func (m *AlertQuery) ContextValidate(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *AlertQuery) contextValidateRelativeTimeRange(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.RelativeTimeRange != nil {
 		if err := m.RelativeTimeRange.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

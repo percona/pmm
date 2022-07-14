@@ -17,7 +17,6 @@ import (
 //
 // swagger:model Token
 type Token struct {
-
 	// account
 	Account string `json:"account,omitempty"`
 
@@ -140,7 +139,6 @@ func (m *Token) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 }
 
 func (m *Token) contextValidateStatus(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Status.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("status")

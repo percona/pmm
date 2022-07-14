@@ -16,7 +16,6 @@ import (
 //
 // swagger:model FolderSearchHit
 type FolderSearchHit struct {
-
 	// Id
 	ID int64 `json:"id,omitempty"`
 

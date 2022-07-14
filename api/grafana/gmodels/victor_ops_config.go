@@ -17,7 +17,6 @@ import (
 //
 // swagger:model VictorOpsConfig
 type VictorOpsConfig struct {
-
 	// custom fields
 	CustomFields map[string]string `json:"custom_fields,omitempty"`
 
@@ -177,7 +176,6 @@ func (m *VictorOpsConfig) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (m *VictorOpsConfig) contextValidateAPIKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.APIKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("api_key")
@@ -191,7 +189,6 @@ func (m *VictorOpsConfig) contextValidateAPIKey(ctx context.Context, formats str
 }
 
 func (m *VictorOpsConfig) contextValidateAPIKeyFile(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.APIKeyFile.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("api_key_file")
@@ -205,7 +202,6 @@ func (m *VictorOpsConfig) contextValidateAPIKeyFile(ctx context.Context, formats
 }
 
 func (m *VictorOpsConfig) contextValidateAPIURL(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.APIURL != nil {
 		if err := m.APIURL.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -221,7 +217,6 @@ func (m *VictorOpsConfig) contextValidateAPIURL(ctx context.Context, formats str
 }
 
 func (m *VictorOpsConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.HTTPConfig != nil {
 		if err := m.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

@@ -19,7 +19,6 @@ import (
 //
 // swagger:model SigV4Config
 type SigV4Config struct {
-
 	// access key
 	AccessKey string `json:"AccessKey,omitempty"`
 
@@ -82,7 +81,6 @@ func (m *SigV4Config) ContextValidate(ctx context.Context, formats strfmt.Regist
 }
 
 func (m *SigV4Config) contextValidateSecretKey(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.SecretKey.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("SecretKey")

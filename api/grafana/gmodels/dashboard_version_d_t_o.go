@@ -19,7 +19,6 @@ import (
 //
 // swagger:model DashboardVersionDTO
 type DashboardVersionDTO struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"created,omitempty"`

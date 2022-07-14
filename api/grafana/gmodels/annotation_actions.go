@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AnnotationActions
 type AnnotationActions struct {
-
 	// can add
 	CanAdd bool `json:"canAdd,omitempty"`
 

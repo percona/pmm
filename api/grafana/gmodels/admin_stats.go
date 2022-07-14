@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AdminStats
 type AdminStats struct {
-
 	// active admins
 	ActiveAdmins int64 `json:"activeAdmins,omitempty"`
 

@@ -18,7 +18,6 @@ import (
 //
 // swagger:model NavbarPreference
 type NavbarPreference struct {
-
 	// saved items
 	SavedItems []*NavLink `json:"savedItems"`
 }
@@ -78,9 +77,7 @@ func (m *NavbarPreference) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (m *NavbarPreference) contextValidateSavedItems(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.SavedItems); i++ {
-
 		if m.SavedItems[i] != nil {
 			if err := m.SavedItems[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -91,7 +88,6 @@ func (m *NavbarPreference) contextValidateSavedItems(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil

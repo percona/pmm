@@ -18,7 +18,6 @@ import (
 //
 // swagger:model ImportDashboardRequest
 type ImportDashboardRequest struct {
-
 	// folder Id
 	FolderID int64 `json:"folderId,omitempty"`
 
@@ -96,9 +95,7 @@ func (m *ImportDashboardRequest) ContextValidate(ctx context.Context, formats st
 }
 
 func (m *ImportDashboardRequest) contextValidateInputs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.Inputs); i++ {
-
 		if m.Inputs[i] != nil {
 			if err := m.Inputs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -109,7 +106,6 @@ func (m *ImportDashboardRequest) contextValidateInputs(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil

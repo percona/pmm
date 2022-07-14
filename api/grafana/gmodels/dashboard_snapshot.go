@@ -18,7 +18,6 @@ import (
 //
 // swagger:model DashboardSnapshot
 type DashboardSnapshot struct {
-
 	// created
 	// Format: date-time
 	Created strfmt.DateTime `json:"Created,omitempty"`

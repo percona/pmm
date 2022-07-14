@@ -16,7 +16,6 @@ import (
 //
 // swagger:model MessageTemplateContent
 type MessageTemplateContent struct {
-
 	// template
 	Template string `json:"Template,omitempty"`
 }

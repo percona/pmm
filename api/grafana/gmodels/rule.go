@@ -18,7 +18,6 @@ import (
 //
 // swagger:model Rule
 type Rule struct {
-
 	// evaluation time
 	EvaluationTime float64 `json:"evaluationTime,omitempty"`
 
@@ -84,7 +83,6 @@ func (m *Rule) Validate(formats strfmt.Registry) error {
 }
 
 func (m *Rule) validateHealth(formats strfmt.Registry) error {
-
 	if err := validate.Required("health", "body", m.Health); err != nil {
 		return err
 	}
@@ -105,7 +103,6 @@ func (m *Rule) validateLastEvaluation(formats strfmt.Registry) error {
 }
 
 func (m *Rule) validateName(formats strfmt.Registry) error {
-
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
@@ -114,7 +111,6 @@ func (m *Rule) validateName(formats strfmt.Registry) error {
 }
 
 func (m *Rule) validateQuery(formats strfmt.Registry) error {
-
 	if err := validate.Required("query", "body", m.Query); err != nil {
 		return err
 	}
@@ -142,7 +138,6 @@ func (m *Rule) validateLabels(formats strfmt.Registry) error {
 }
 
 func (m *Rule) validateType(formats strfmt.Registry) error {
-
 	if err := validate.Required("type", "body", m.Type); err != nil {
 		return err
 	}
@@ -184,7 +179,6 @@ func (m *Rule) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 }
 
 func (m *Rule) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Labels.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("labels")
@@ -198,7 +192,6 @@ func (m *Rule) contextValidateLabels(ctx context.Context, formats strfmt.Registr
 }
 
 func (m *Rule) contextValidateType(ctx context.Context, formats strfmt.Registry) error {
-
 	if m.Type != nil {
 		if err := m.Type.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {

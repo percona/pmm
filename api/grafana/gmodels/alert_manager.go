@@ -16,7 +16,6 @@ import (
 //
 // swagger:model AlertManager
 type AlertManager struct {
-
 	// URL
 	URL string `json:"url,omitempty"`
 }

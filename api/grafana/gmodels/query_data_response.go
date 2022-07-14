@@ -19,7 +19,6 @@ import (
 //
 // swagger:model QueryDataResponse
 type QueryDataResponse struct {
-
 	// responses
 	Responses Responses `json:"Responses,omitempty"`
 }
@@ -72,7 +71,6 @@ func (m *QueryDataResponse) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (m *QueryDataResponse) contextValidateResponses(ctx context.Context, formats strfmt.Registry) error {
-
 	if err := m.Responses.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("Responses")

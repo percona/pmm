@@ -18,7 +18,6 @@ import (
 //
 // swagger:model GettableApiReceiver
 type GettableAPIReceiver struct {
-
 	// email configs
 	EmailConfigs []*EmailConfig `json:"email_configs"`
 
@@ -414,9 +413,7 @@ func (m *GettableAPIReceiver) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (m *GettableAPIReceiver) contextValidateEmailConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.EmailConfigs); i++ {
-
 		if m.EmailConfigs[i] != nil {
 			if err := m.EmailConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -427,16 +424,13 @@ func (m *GettableAPIReceiver) contextValidateEmailConfigs(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateGrafanaManagedReceivers(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.GrafanaManagedReceivers); i++ {
-
 		if m.GrafanaManagedReceivers[i] != nil {
 			if err := m.GrafanaManagedReceivers[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -447,16 +441,13 @@ func (m *GettableAPIReceiver) contextValidateGrafanaManagedReceivers(ctx context
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateOpsGenieConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.OpsGenieConfigs); i++ {
-
 		if m.OpsGenieConfigs[i] != nil {
 			if err := m.OpsGenieConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -467,16 +458,13 @@ func (m *GettableAPIReceiver) contextValidateOpsGenieConfigs(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidatePagerdutyConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.PagerdutyConfigs); i++ {
-
 		if m.PagerdutyConfigs[i] != nil {
 			if err := m.PagerdutyConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -487,16 +475,13 @@ func (m *GettableAPIReceiver) contextValidatePagerdutyConfigs(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidatePushoverConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.PushoverConfigs); i++ {
-
 		if m.PushoverConfigs[i] != nil {
 			if err := m.PushoverConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -507,16 +492,13 @@ func (m *GettableAPIReceiver) contextValidatePushoverConfigs(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateSNSConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.SNSConfigs); i++ {
-
 		if m.SNSConfigs[i] != nil {
 			if err := m.SNSConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -527,16 +509,13 @@ func (m *GettableAPIReceiver) contextValidateSNSConfigs(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateSlackConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.SlackConfigs); i++ {
-
 		if m.SlackConfigs[i] != nil {
 			if err := m.SlackConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -547,16 +526,13 @@ func (m *GettableAPIReceiver) contextValidateSlackConfigs(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateVictorOpsConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.VictorOpsConfigs); i++ {
-
 		if m.VictorOpsConfigs[i] != nil {
 			if err := m.VictorOpsConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -567,16 +543,13 @@ func (m *GettableAPIReceiver) contextValidateVictorOpsConfigs(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateWebhookConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.WebhookConfigs); i++ {
-
 		if m.WebhookConfigs[i] != nil {
 			if err := m.WebhookConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -587,16 +560,13 @@ func (m *GettableAPIReceiver) contextValidateWebhookConfigs(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (m *GettableAPIReceiver) contextValidateWechatConfigs(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(m.WechatConfigs); i++ {
-
 		if m.WechatConfigs[i] != nil {
 			if err := m.WechatConfigs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -607,7 +577,6 @@ func (m *GettableAPIReceiver) contextValidateWechatConfigs(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil

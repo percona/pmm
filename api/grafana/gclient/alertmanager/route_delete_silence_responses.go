@@ -56,12 +56,12 @@ type RouteDeleteSilenceOK struct {
 func (o *RouteDeleteSilenceOK) Error() string {
 	return fmt.Sprintf("[DELETE /api/alertmanager/{Recipient}/api/v2/silence/{SilenceId}][%d] routeDeleteSilenceOK  %+v", 200, o.Payload)
 }
+
 func (o *RouteDeleteSilenceOK) GetPayload() gmodels.Ack {
 	return o.Payload
 }
 
 func (o *RouteDeleteSilenceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -86,12 +86,12 @@ type RouteDeleteSilenceBadRequest struct {
 func (o *RouteDeleteSilenceBadRequest) Error() string {
 	return fmt.Sprintf("[DELETE /api/alertmanager/{Recipient}/api/v2/silence/{SilenceId}][%d] routeDeleteSilenceBadRequest  %+v", 400, o.Payload)
 }
+
 func (o *RouteDeleteSilenceBadRequest) GetPayload() *gmodels.ValidationError {
 	return o.Payload
 }
 
 func (o *RouteDeleteSilenceBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(gmodels.ValidationError)
 
 	// response payload
