@@ -4,12 +4,10 @@ include Makefile.include
 
 env-up:						## Start devcontainer.
 	docker-compose up -d
-	TARGET="run" make env
 
 env-up-rebuild:				## Start devcontainer with rebuild.
 	docker pull "perconalab/pmm-server:dev-latest"
 	docker-compose up --build -d
-	TARGET="run" make env
 
 env-compose-up:
 	docker-compose up --detach --renew-anon-volumes --remove-orphans
