@@ -72,7 +72,7 @@ func TestRunTelemetryService(t *testing.T) {
 			Value: "value3",
 		},
 	}
-	expetedReport := &reporter.ReportRequest{
+	expectedReport := &reporter.ReportRequest{
 		Metrics: []*pmmv1.ServerMetric{
 			{
 				DistributionMethod: pmmv1.DistributionMethod_AMI,
@@ -103,7 +103,7 @@ func TestRunTelemetryService(t *testing.T) {
 					return &dusMock
 				},
 			},
-			mockTelemetrySender: initMockTelemetrySender(t, expetedReport, 1),
+			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
 		{
 			name:        "should send metrics only once and not send during start",
@@ -122,7 +122,7 @@ func TestRunTelemetryService(t *testing.T) {
 					return &dusMock
 				},
 			},
-			mockTelemetrySender: initMockTelemetrySender(t, expetedReport, 1),
+			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
 		{
 			name:        "should send metrics during start and once timer is ticked",
@@ -146,7 +146,7 @@ func TestRunTelemetryService(t *testing.T) {
 					return &dusMock
 				},
 			},
-			mockTelemetrySender: initMockTelemetrySender(t, expetedReport, 2),
+			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 2),
 		},
 	}
 	for _, tt := range tests {
