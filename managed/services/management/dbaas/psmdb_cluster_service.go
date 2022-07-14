@@ -127,7 +127,10 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
 	})
 	if err != nil {
-		return nil, errors.New("cannot get the list of PSMDB components")
+		return nil, errors.Wrap(err, "cannot get the list of PSMDB components")
+	}
+	if psmdbComponents == nil || len(psmdbComponents.Versions) < 1 {
+		return nil, errors.New("version service returned an empty list for the PSMDB components")
 	}
 
 	var backupImage string
@@ -204,7 +207,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 		}
 	}
 	if req.Params == nil {
-		req.Params = &dbaasv1beta1.PSMDBClusterParams{}
+		req.Params = new(dbaasv1beta1.PSMDBClusterParams)
 	}
 
 	if req.Params.ClusterSize < 1 {
@@ -212,7 +215,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 	}
 
 	if req.Params.Replicaset == nil {
-		req.Params.Replicaset = &dbaasv1beta1.PSMDBClusterParams_ReplicaSet{}
+		req.Params.Replicaset = new(dbaasv1beta1.PSMDBClusterParams_ReplicaSet)
 	}
 
 	if req.Params.Replicaset.DiskSize == 0 {
@@ -247,7 +250,7 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 		parts := strings.Split(req.Params.Image, ":")
 
 		// This is to generate an unique name.
-		uuids := strings.Replace(uuid.New().String(), "-", "", -1)
+		uuids := strings.ReplaceAll(uuid.New().String(), "-", "")
 		uuids = uuids[len(uuids)-5:]
 
 		req.Name = fmt.Sprintf("psmdb-%s-%s", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), uuids)
