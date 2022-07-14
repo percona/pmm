@@ -49,6 +49,7 @@ func (res *addExternalResult) String() string {
 	return commands.RenderTemplate(addExternalResultT, res)
 }
 
+// AddExternalCommand is used by Kong for CLI flags and commands.
 type AddExternalCommand struct {
 	ServiceName         string `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
 	RunsOnNodeID        string `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`

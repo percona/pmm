@@ -47,6 +47,7 @@ func (res *addServicePostgreSQLResult) String() string {
 	return commands.RenderTemplate(addServicePostgreSQLResultT, res)
 }
 
+// AddServicePostgreSQLCommand is used by Kong for CLI flags and commands.
 type AddServicePostgreSQLCommand struct {
 	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
 	NodeID         string `arg:"" optional:"" help:"Node ID"`

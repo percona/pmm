@@ -43,6 +43,7 @@ func (res *addHAProxyResult) String() string {
 	return commands.RenderTemplate(addHAProxyResultT, res)
 }
 
+// AddHAProxyCommand is used by Kong for CLI flags and commands.
 type AddHAProxyCommand struct {
 	ServiceName         string `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
 	Username            string `help:"HAProxy username"`

@@ -91,6 +91,7 @@ func getAgentStatus(status *string) string {
 	return res
 }
 
+// ListAgentsCommand is used by Kong for CLI flags and commands.
 type ListAgentsCommand struct {
 	PMMAgentID string `help:"Filter by pmm-agent identifier"`
 	ServiceID  string `help:"Filter by Service identifier"`

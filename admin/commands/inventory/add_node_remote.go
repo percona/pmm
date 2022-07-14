@@ -42,6 +42,7 @@ func (res *addNodeRemoteResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteResultT, res)
 }
 
+// AddNodeRemoteCommand is used by Kong for CLI flags and commands.
 type AddNodeRemoteCommand struct {
 	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string `help:"Address"`

@@ -42,6 +42,7 @@ func (res *addProxySQLResult) String() string {
 	return commands.RenderTemplate(addProxySQLResultT, res)
 }
 
+// AddProxySQLCommand is used by Kong for CLI flags and commands.
 type AddProxySQLCommand struct {
 	ServiceName         string `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
 	Address             string `arg:"" default:"127.0.0.1:6032" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`

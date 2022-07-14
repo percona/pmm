@@ -45,6 +45,7 @@ func (res *addNodeGenericResult) String() string {
 	return commands.RenderTemplate(addNodeGenericResultT, res)
 }
 
+// AddNodeGenericCommand is used by Kong for CLI flags and commands.
 type AddNodeGenericCommand struct {
 	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	MachineID    string `help:"Linux machine-id"`

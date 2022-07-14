@@ -71,6 +71,7 @@ func (res *listServicesResult) String() string {
 	return commands.RenderTemplate(listServicesResultT, res)
 }
 
+// ListServicesCommand is used by Kong for CLI flags and commands.
 type ListServicesCommand struct {
 	NodeID        string `help:"Filter by Node identifier"`
 	ServiceType   string `help:"Filter by Service type"`

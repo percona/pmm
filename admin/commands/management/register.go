@@ -42,6 +42,7 @@ func (res *registerResult) String() string {
 	return commands.RenderTemplate(registerResultT, res)
 }
 
+// RegisterCommand is used by Kong for CLI flags and commands.
 type RegisterCommand struct {
 	Address           string `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
 	NodeType          string `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`

@@ -43,6 +43,7 @@ func (res *addNodeRemoteRDSResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteRDSResultT, res)
 }
 
+// AddNodeRemoteRDSCommand is used by Kong for CLI flags and commands.
 type AddNodeRemoteRDSCommand struct {
 	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string `help:"Address"`

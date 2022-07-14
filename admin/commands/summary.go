@@ -303,6 +303,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 }
 
+// SummaryCommand is used by Kong for CLI flags and commands.
 type SummaryCommand struct {
 	Filename   string `help:"Summary archive filename"`
 	SkipServer bool   `help:"Skip fetching logs.zip from PMM Server"`

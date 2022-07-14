@@ -44,6 +44,7 @@ func (res *addAgentRDSExporterResult) String() string {
 	return commands.RenderTemplate(addAgentRDSExporterResultT, res)
 }
 
+// AddAgentRDSExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentRDSExporterCommand struct {
 	PMMAgentID             string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	NodeID                 string `arg:"" help:"Node identifier"`

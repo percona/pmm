@@ -47,6 +47,7 @@ func (res *addServiceMySQLResult) String() string {
 	return commands.RenderTemplate(addServiceMySQLResultT, res)
 }
 
+// AddServiceMySQLCommand is used by Kong for CLI flags and commands.
 type AddServiceMySQLCommand struct {
 	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
 	NodeID         string `arg:"" optional:"" help:"Node ID"`

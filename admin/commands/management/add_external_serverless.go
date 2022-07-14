@@ -46,6 +46,7 @@ func (res *addExternalServerlessResult) String() string {
 	return commands.RenderTemplate(addExternalServerlessResultT, res)
 }
 
+// AddExternalServerlessCommand is used by Kong for CLI flags and commands.
 type AddExternalServerlessCommand struct {
 	Name                string `name:"external-name" help:"Service name"`
 	URL                 string `help:"Full URL to exporter metrics endpoints"`

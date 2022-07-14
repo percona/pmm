@@ -39,6 +39,7 @@ func (res *unregisterResult) String() string {
 	return commands.RenderTemplate(unregisterNodeResultT, res)
 }
 
+// UnregisterCommand is used by Kong for CLI flags and commands.
 type UnregisterCommand struct {
 	Force    bool   `help:"Remove this node with all dependencies"`
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`

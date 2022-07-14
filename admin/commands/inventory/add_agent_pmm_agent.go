@@ -38,6 +38,7 @@ func (res *addPMMAgentResult) String() string {
 	return commands.RenderTemplate(addPMMAgentResultT, res)
 }
 
+// AddPMMAgentCommand is used by Kong for CLI flags and commands.
 type AddPMMAgentCommand struct {
 	RunsOnNodeID string `arg:"" help:"Node identifier where this instance runs"`
 	CustomLabels string `help:"Custom user-assigned labels"`

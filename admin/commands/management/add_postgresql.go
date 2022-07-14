@@ -42,6 +42,7 @@ func (res *addPostgreSQLResult) String() string {
 	return commands.RenderTemplate(addPostgreSQLResultT, res)
 }
 
+// AddPostgreSQLCommand is used by Kong for CLI flags and commands.
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
 	Address           string `arg:"" default:"127.0.0.1:5432" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`

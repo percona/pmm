@@ -116,6 +116,7 @@ func convertTabs(template string) (string, error) {
 	return buf.String(), nil
 }
 
+// ListCommand is used by Kong for CLI flags and commands.
 type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }

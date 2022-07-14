@@ -47,6 +47,7 @@ func (res *addAgentExternalExporterResult) String() string {
 	return commands.RenderTemplate(addAgentExternalExporterResultT, res)
 }
 
+// AddAgentExternalExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentExternalExporterCommand struct {
 	RunsOnNodeID string `required:"" help:"Node identifier where this instance runs"`
 	ServiceID    string `required:"" help:"Service identifier"`

@@ -42,6 +42,7 @@ func (res *addServiceExternalResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
+// AddServiceExternalCommand is used by Kong for CLI flags and commands.
 type AddServiceExternalCommand struct {
 	ServiceName    string `name:"name" required:"" help:"External service name. Required"`
 	NodeID         string `required:"" help:"External service node ID. Required"`

@@ -44,6 +44,7 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANMongoDBProfilerAgentResultT, res)
 }
 
+// AddAgentQANMongoDBProfilerAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMongoDBProfilerAgentCommand struct {
 	PMMAgentID                    string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string `arg:"" help:"Service identifier"`

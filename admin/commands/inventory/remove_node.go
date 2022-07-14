@@ -32,6 +32,7 @@ func (res *removeNodeResult) String() string {
 	return commands.RenderTemplate(removeNodeGenericResultT, res)
 }
 
+// RemoveNodeCommand is used by Kong for CLI flags and commands.
 type RemoveNodeCommand struct {
 	NodeID string `arg:"" optional:"" help:"Node ID"`
 	Force  bool   `help:"Remove node with all dependencies"`

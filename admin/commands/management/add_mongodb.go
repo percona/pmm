@@ -47,6 +47,7 @@ func (res *addMongoDBResult) String() string {
 	return commands.RenderTemplate(addMongoDBResultT, res)
 }
 
+// AddMongoDBCommand is used by Kong for CLI flags and commands.
 type AddMongoDBCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
 	Address           string `arg:"" default:"127.0.0.1:27017" help:"MongoDB address and port (default: 127.0.0.1:27017)"`

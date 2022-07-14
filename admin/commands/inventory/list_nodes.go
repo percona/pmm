@@ -58,6 +58,7 @@ func (res *listNodesResult) String() string {
 	return commands.RenderTemplate(listNodesResultT, res)
 }
 
+// ListNodesCommand is used by Kong for CLI flags and commands.
 type ListNodesCommand struct {
 	NodeType string `help:"Filter by Node type"`
 }

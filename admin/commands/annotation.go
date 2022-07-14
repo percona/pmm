@@ -43,6 +43,7 @@ func (res *annotationResult) String() string {
 	return RenderTemplate(annotationResultT, res)
 }
 
+// AnnotationCommand is used by Kong for CLI flags and commands.
 type AnnotationCommand struct {
 	Text        string `arg:"" help:"Text of annotation"`
 	Tags        string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`

@@ -45,6 +45,7 @@ func (res *addNodeContainerResult) String() string {
 	return commands.RenderTemplate(addNodeContainerResultT, res)
 }
 
+// AddNodeContainerCommand is used by Kong for CLI flags and commands.
 type AddNodeContainerCommand struct {
 	NodeName      string `arg:"" optional:"" name:"name" help:"Node name"`
 	MachineID     string `help:"Linux machine-id"`

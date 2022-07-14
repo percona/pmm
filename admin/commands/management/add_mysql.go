@@ -84,6 +84,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 	return s
 }
 
+// AddMySQLCommand is used by Kong for CLI flags and commands.
 type AddMySQLCommand struct {
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
 	Address       string `arg:"" default:"127.0.0.1:3306" help:"MySQL address and port (default: 127.0.0.1:3306)"`

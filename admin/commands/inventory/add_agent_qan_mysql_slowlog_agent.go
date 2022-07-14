@@ -62,6 +62,7 @@ func (res *addAgentQANMySQLSlowlogAgentResult) SlowlogRotation() string {
 	return res.Agent.MaxSlowlogFileSize
 }
 
+// AddAgentQANMySQLSlowlogAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMySQLSlowlogAgentCommand struct {
 	PMMAgentID           string           `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string           `arg:"" help:"Service identifier"`

@@ -19,6 +19,7 @@ import (
 	"strconv"
 )
 
+// AddCommand is used by Kong for CLI flags and commands.
 type AddCommand struct {
 	External           AddExternalCommand           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
 	ExternalServerless AddExternalServerlessCommand `cmd:"" help:"Add External Service on Remote node to monitoring."`
@@ -29,6 +30,7 @@ type AddCommand struct {
 	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
 }
 
+// AddCommonFlags is used by Kong for CLI flags and commands.
 type AddCommonFlags struct {
 	AddServiceNameFlag string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
 	AddHostFlag        string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`

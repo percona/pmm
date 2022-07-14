@@ -32,6 +32,7 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceResultT, res)
 }
 
+// RemoveServiceCommand is used by Kong for CLI flags and commands.
 type RemoveServiceCommand struct {
 	ServiceID string `arg:"" optional:"" help:"Service ID"`
 	Force     bool   `help:"Remove service with all dependencies"`

@@ -47,6 +47,7 @@ func (res *addServiceProxySQLResult) String() string {
 	return commands.RenderTemplate(addServiceProxySQLResultT, res)
 }
 
+// AddServiceProxySQLCommand is used by Kong for CLI flags and commands.
 type AddServiceProxySQLCommand struct {
 	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
 	NodeID         string `arg:"" optional:"" help:"Node ID"`

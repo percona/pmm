@@ -83,6 +83,7 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 	}
 }
 
+// StatusCommand is used by Kong for CLI flags and commands.
 type StatusCommand struct {
 	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
 }

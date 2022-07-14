@@ -41,6 +41,7 @@ func (res *addAgentNodeExporterResult) String() string {
 	return commands.RenderTemplate(addAgentNodeExporterResultT, res)
 }
 
+// AddAgentNodeExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentNodeExporterCommand struct {
 	PMMAgentID        string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	CustomLabels      string `help:"Custom user-assigned labels"`

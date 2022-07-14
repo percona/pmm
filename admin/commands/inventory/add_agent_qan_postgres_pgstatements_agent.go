@@ -44,6 +44,7 @@ func (res *addAgentQANPostgreSQLPgStatementsAgentResult) String() string {
 	return commands.RenderTemplate(addAgentQANPostgreSQLPgStatementsAgentResultT, res)
 }
 
+// AddAgentQANPostgreSQLPgStatementsAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`

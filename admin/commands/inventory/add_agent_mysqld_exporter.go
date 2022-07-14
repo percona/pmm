@@ -78,6 +78,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	return s
 }
 
+// AddAgentMysqldExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentMysqldExporterCommand struct {
 	PMMAgentID                string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                 string `arg:"" help:"Service identifier"`

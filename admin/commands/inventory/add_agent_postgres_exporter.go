@@ -45,6 +45,7 @@ func (res *addAgentPostgresExporterResult) String() string {
 	return commands.RenderTemplate(addAgentPostgresExporterResultT, res)
 }
 
+// AddAgentPostgresExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentPostgresExporterCommand struct {
 	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string `arg:"" help:"Service identifier"`

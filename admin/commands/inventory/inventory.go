@@ -21,24 +21,28 @@ import (
 	"github.com/pkg/errors"
 )
 
+// InventoryCommand is used by Kong for CLI flags and commands.
 type InventoryCommand struct {
 	List   ListCommand   `cmd:"" hidden:"" help:"List inventory commands"`
 	Add    AddCommand    `cmd:"" hidden:"" help:"Add to inventory commands"`
 	Remove RemoveCommand `cmd:"" hidden:"" help:"Remove from inventory commands"`
 }
 
+// ListCommand is used by Kong for CLI flags and commands.
 type ListCommand struct {
 	Agents   ListAgentsCommand   `cmd:"" help:"Show agents in inventory"`
 	Nodes    ListNodesCommand    `cmd:"" help:"Show nodes in inventory"`
 	Services ListServicesCommand `cmd:"" help:"Show services in inventory"`
 }
 
+// AddCommand is used by Kong for CLI flags and commands.
 type AddCommand struct {
 	Agent   AddAgentCommand   `cmd:"" help:"Add agent to inventory"`
 	Node    AddNodeCommand    `cmd:"" help:"Add node to inventory"`
 	Service AddServiceCommand `cmd:"" help:"Add service to inventory"`
 }
 
+// AddAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentCommand struct {
 	ExternalExporter AddAgentExternalExporterCommand `cmd:"" name:"external" help:"Add external exporter to inventory"`
 	MongodbExporter  AddAgentMongodbExporterCommand  `cmd:"" help:"Add mongodb_exporter to inventory"`
@@ -57,6 +61,7 @@ type AddAgentCommand struct {
 	RDSExporter AddAgentRDSExporterCommand `cmd:"" help:"Add rds_exporter to inventory"`
 }
 
+// AddNodeCommand is used by Kong for CLI flags and commands.
 type AddNodeCommand struct {
 	Container AddNodeContainerCommand `cmd:"" help:"Add container node to inventory"`
 	Generic   AddNodeGenericCommand   `cmd:"" help:"Add generic node to inventory"`
@@ -64,6 +69,7 @@ type AddNodeCommand struct {
 	RemoteRDS AddNodeRemoteRDSCommand `cmd:"" help:"Add Remote RDS node to inventory"`
 }
 
+// AddServiceCommand is used by Kong for CLI flags and commands.
 type AddServiceCommand struct {
 	External   AddServiceExternalCommand   `cmd:"" help:"Add an external service to inventory"`
 	HAProxy    AddServiceHAProxyCommand    `cmd:"" name:"haproxy" help:"Add HAProxy service to inventory"`
@@ -73,6 +79,7 @@ type AddServiceCommand struct {
 	ProxySQL   AddServiceProxySQLCommand   `cmd:"" name:"proxysql" help:"Add ProxySQL service to inventory"`
 }
 
+// RemoveCommand is used by Kong for CLI flags and commands.
 type RemoveCommand struct {
 	Agent   RemoveAgentCommand   `cmd:"" help:"Remove agent from inventory"`
 	Node    RemoveNodeCommand    `cmd:"" help:"Remove node from inventory"`
