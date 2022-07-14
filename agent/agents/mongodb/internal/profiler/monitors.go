@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,11 +62,11 @@ func (ms *monitors) MonitorAll(ctx context.Context) error {
 	}
 	for _, dbName := range databasesSlice {
 		// Skip admin and local databases to avoid collecting queries from replication and mongodb_exporter
-		//switch dbName {
-		//case "admin", "local":
+		// switch dbName {
+		// case "admin", "local":
 		//	continue
-		//default:
-		//}
+		// default:
+		// }
 
 		// change slice to map for easier lookup
 		databases[dbName] = struct{}{}
