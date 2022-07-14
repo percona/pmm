@@ -47,8 +47,8 @@ import (
 )
 
 const (
-	defaultClickhouseDatabase 		= "pmm"
-	defaultClickhouseAddr     		= "127.0.0.1:9000"
+	defaultClickhouseDatabase       = "pmm"
+	defaultClickhouseAddr           = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
 )
 
@@ -413,23 +413,23 @@ func getValueFromENV(envName string, defaultValue string) string {
 
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase) 
+	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 
 	templateParams := map[string]interface{}{
-		"DataRetentionHours":  int(settings.DataRetention.Hours()),
-		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
-		"VMAlertFlags":        s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
-		"PerconaTestDbaas":    settings.DBaaS.Enabled,
-		"ClickhouseAddr":      clickhouseAddr,
+		"DataRetentionHours":       int(settings.DataRetention.Hours()),
+		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
+		"VMAlertFlags":             s.vmParams.VMAlertFlags,
+		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
+		"PerconaTestDbaas":         settings.DBaaS.Enabled,
+		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
-		"ClickhouseDatabase":  clickhouseDatabase,
-		"ClickhousePoolSize":  clickhousePoolSize,
-		"ClickhouseBlockSize": clickhouseBlockSize,
+		"ClickhouseDatabase":       clickhouseDatabase,
+		"ClickhousePoolSize":       clickhousePoolSize,
+		"ClickhouseBlockSize":      clickhouseBlockSize,
 	}
 
 	if ssoDetails != nil {
