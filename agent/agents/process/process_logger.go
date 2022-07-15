@@ -17,6 +17,7 @@ package process
 import (
 	"bytes"
 	"io"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -77,7 +78,21 @@ func (pl *processLogger) Write(p []byte) (n int, err error) {
 			line = pl.replacer.Replace(line)
 		}
 		if pl.l != nil {
-			pl.l.Infoln(line)
+			level, found, err := extractLogLevel(line)
+
+			if err != nil {
+				pl.l.Warnf("Extract log level error: %v.", err)
+
+				pl.l.Infoln(line)
+			} else if found {
+				if level < logrus.ErrorLevel {
+					level = logrus.ErrorLevel
+				}
+
+				pl.l.Logln(level, line)
+			} else {
+				pl.l.Infoln(line)
+			}
 		}
 		pl.data[pl.i] = pointer.ToString(line)
 		pl.i = (pl.i + 1) % len(pl.data)
@@ -113,6 +128,24 @@ func replacer(redactWords []string) *strings.Replacer {
 		r = append(r, w, "***")
 	}
 	return strings.NewReplacer(r...)
+}
+
+var extractLogLevelRegex = regexp.MustCompile(`level=(\w+)`)
+
+func extractLogLevel(line string) (level logrus.Level, found bool, err error) {
+	matches := extractLogLevelRegex.FindStringSubmatch(line)
+
+	noMatches := len(matches) < 2
+	if noMatches {
+		return 0, false, nil
+	}
+
+	level, err = logrus.ParseLevel(matches[1])
+	if err != nil {
+		return 0, false, err
+	}
+
+	return level, true, nil
 }
 
 // check interfaces
