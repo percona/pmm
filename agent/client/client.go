@@ -87,6 +87,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
 		done:               make(chan struct{}),
 		dialTimeout:        dialTimeout,
+		runner:             runner.New(cfg.RunnerCapacity),
 		defaultsFileParser: dfp,
 	}
 }
@@ -100,8 +101,6 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
-
-	c.runner = runner.New()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string

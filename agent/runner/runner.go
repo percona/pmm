@@ -22,6 +22,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/semaphore"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/runner/actions"
@@ -32,9 +33,10 @@ import (
 const (
 	bufferSize           = 256
 	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
+	defaultCapacity      = 32
 )
 
-// Runner executes jobs.
+// Runner executes jobs and actions.
 type Runner struct {
 	l *logrus.Entry
 
@@ -44,17 +46,27 @@ type Runner struct {
 	actionsResults chan agentpb.AgentRequestPayload
 	jobsMessages   chan agentpb.AgentResponsePayload
 
-	wg      sync.WaitGroup
+	sem *semaphore.Weighted
+	wg  sync.WaitGroup
+
 	rw      sync.RWMutex
 	rCancel map[string]context.CancelFunc
 }
 
-// New creates new runner.
-func New() *Runner {
+// New creates new runner. If capacity is 0 then default value is used.
+func New(capacity uint16) *Runner {
+	l := logrus.WithField("component", "runner")
+	if capacity == 0 {
+		capacity = defaultCapacity
+	}
+
+	l.Infof("Runner capacity set to %d.", capacity)
+
 	return &Runner{
-		l:              logrus.WithField("component", "runner"),
+		l:              l,
 		actions:        make(chan actions.Action, bufferSize),
 		jobs:           make(chan jobs.Job, bufferSize),
+		sem:            semaphore.NewWeighted(int64(capacity)),
 		rCancel:        make(map[string]context.CancelFunc),
 		jobsMessages:   make(chan agentpb.AgentResponsePayload),
 		actionsResults: make(chan agentpb.AgentRequestPayload),
@@ -78,9 +90,64 @@ func (r *Runner) Run(ctx context.Context) {
 	}
 }
 
+// StartAction starts given actions.Action.
+func (r *Runner) StartAction(action actions.Action) error {
+	select {
+	case r.actions <- action:
+		return nil
+	default:
+		return errors.New("actions queue overflowed")
+	}
+}
+
+// StartJob starts given jobs.Job.
+func (r *Runner) StartJob(job jobs.Job) error {
+	select {
+	case r.jobs <- job:
+		return nil
+	default:
+		return errors.New("actions queue overflowed")
+	}
+}
+
+// JobsMessages returns channel with Jobs messages.
+func (r *Runner) JobsMessages() <-chan agentpb.AgentResponsePayload {
+	return r.jobsMessages
+}
+
+// ActionsResults return chanel with Actions results payload.
+func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
+	return r.actionsResults
+}
+
+// Stop stops running Action or Job.
+func (r *Runner) Stop(id string) {
+	r.rw.RLock()
+	defer r.rw.RUnlock()
+
+	// Job removes itself from rCancel map. So here we only invoke cancel.
+	if cancel, ok := r.rCancel[id]; ok {
+		cancel()
+	}
+}
+
+// IsRunning returns true if Action or Job with given ID still running.
+func (r *Runner) IsRunning(id string) bool {
+	r.rw.RLock()
+	defer r.rw.RUnlock()
+	_, ok := r.rCancel[id]
+
+	return ok
+}
+
 func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 	jobID, jobType := job.ID(), job.Type()
 	l := r.l.WithFields(logrus.Fields{"id": jobID, "type": jobType})
+
+	if err := r.sem.Acquire(ctx, 1); err != nil {
+		l.Errorf("Failed to acquire token for a job: %v", err)
+		return
+	}
 
 	var nCtx context.Context
 	var cancel context.CancelFunc
@@ -89,8 +156,8 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 	} else {
 		nCtx, cancel = context.WithCancel(ctx)
 	}
-
 	r.addCancel(jobID, cancel)
+
 	r.wg.Add(1)
 	run := func(ctx context.Context) {
 		l.Infof("Job started.")
@@ -99,6 +166,7 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 			l.WithField("duration", time.Since(start).String()).Info("Job finished.")
 		}(time.Now())
 
+		defer r.sem.Release(1)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(jobID)
@@ -125,6 +193,11 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	actionID, actionType := action.ID(), action.Type()
 	l := r.l.WithFields(logrus.Fields{"id": actionID, "type": actionType})
 
+	if err := r.sem.Acquire(ctx, 1); err != nil {
+		l.Errorf("Failed to acquire token for an action: %v", err)
+		return
+	}
+
 	var timeout time.Duration
 	if timeout = action.Timeout(); timeout == 0 {
 		timeout = defaultActionTimeout
@@ -141,83 +214,29 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			l.WithField("duration", time.Since(start).String()).Info("Action finished.")
 		}(time.Now())
 
+		defer r.sem.Release(1)
 		defer r.wg.Done()
 		defer cancel()
 		defer r.removeCancel(actionID)
 
-		b, err := action.Run(nCtx)
-
-		if err == nil {
-			l.Infof("Done without error.")
-		} else {
-			l.Warnf("Done with error: %s.", err)
-		}
-
-		var errorS string
+		output, err := action.Run(nCtx)
+		var errMsg string
 		if err != nil {
-			errorS = err.Error()
+			errMsg = err.Error()
+			l.Warnf("Action terminated with error: %+v", err)
 		}
 		r.actionsResults <- &agentpb.ActionResultRequest{
 			ActionId: actionID,
 			Done:     true,
-			Output:   b,
-			Error:    errorS,
+			Output:   output,
+			Error:    errMsg,
 		}
 	}
 	go pprof.Do(nCtx, pprof.Labels("actionID", actionID, "type", actionType), run)
 }
 
-// JobsMessages returns channel with Jobs messages.
-func (r *Runner) JobsMessages() <-chan agentpb.AgentResponsePayload {
-	return r.jobsMessages
-}
-
-func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
-	return r.actionsResults
-}
-
 func (r *Runner) send(payload agentpb.AgentResponsePayload) {
 	r.jobsMessages <- payload
-}
-
-// StartAction starts given actions.Action.
-func (r *Runner) StartAction(action actions.Action) error {
-	select {
-	case r.actions <- action:
-		return nil
-	default:
-		return errors.New("actions queue overflowed")
-	}
-}
-
-// StartJob starts given jobs.Job.
-func (r *Runner) StartJob(job jobs.Job) error {
-	select {
-	case r.jobs <- job:
-		return nil
-	default:
-		return errors.New("actions queue overflowed")
-	}
-}
-
-// Stop stops running Action or Job.
-func (r *Runner) Stop(id string) {
-	r.rw.RLock()
-	defer r.rw.RUnlock()
-
-	// Job removes itself from rCancel map. So here we only invoke cancel.
-	if cancel, ok := r.rCancel[id]; ok {
-		cancel()
-	}
-}
-
-// IsRunning returns true if Action or Job with given ID still running.
-func (r *Runner) IsRunning(id string) bool {
-	r.rw.RLock()
-	defer r.rw.RUnlock()
-	_, ok := r.rCancel[id]
-
-	return ok
 }
 
 func (r *Runner) addCancel(jobID string, cancel context.CancelFunc) {

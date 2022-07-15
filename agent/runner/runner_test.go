@@ -16,6 +16,7 @@ package runner
 
 import (
 	"context"
+	"fmt"
 	"sort"
 	"testing"
 	"time"
@@ -24,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/runner/actions"
+	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -40,7 +42,7 @@ func assertActionResults(t *testing.T, cr *Runner, expected ...*agentpb.ActionRe
 
 func TestConcurrentRunnerRun(t *testing.T) {
 	t.Parallel()
-	cr := New()
+	cr := New(0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -63,9 +65,84 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	assert.Empty(t, cr.rCancel)
 }
 
+func TestCapacityLimit(t *testing.T) {
+	t.Parallel()
+
+	cr := New(2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go cr.Run(ctx)
+
+	j1 := testJob{id: "test-1", timeout: time.Second}
+	j2 := testJob{id: "test-2", timeout: 2 * time.Second}
+	j3 := testJob{id: "test-3", timeout: 2 * time.Second}
+	j4 := testJob{id: "test-4", timeout: time.Second}
+
+	require.NoError(t, cr.StartJob(j1))
+	require.NoError(t, cr.StartJob(j2))
+	require.NoError(t, cr.StartJob(j3))
+	require.NoError(t, cr.StartJob(j4))
+
+	// Let first jobs start
+	time.Sleep(500 * time.Millisecond)
+
+	// First two jobs are started
+	assert.True(t, cr.IsRunning(j1.ID()))
+	assert.True(t, cr.IsRunning(j2.ID()))
+	assert.False(t, cr.IsRunning(j3.ID()))
+	assert.False(t, cr.IsRunning(j4.ID()))
+
+	time.Sleep(time.Second)
+
+	// After second first job terminated and third job started
+	assert.False(t, cr.IsRunning(j1.ID()))
+	assert.True(t, cr.IsRunning(j2.ID()))
+	assert.True(t, cr.IsRunning(j3.ID()))
+	assert.False(t, cr.IsRunning(j4.ID()))
+
+	time.Sleep(time.Second)
+
+	// After one more second second job terminated and third started
+	assert.False(t, cr.IsRunning(j1.ID()))
+	assert.False(t, cr.IsRunning(j2.ID()))
+	assert.True(t, cr.IsRunning(j3.ID()))
+	assert.True(t, cr.IsRunning(j4.ID()))
+
+	time.Sleep(time.Second)
+
+	// After another second all jobs are terminated
+	assert.False(t, cr.IsRunning(j1.ID()))
+	assert.False(t, cr.IsRunning(j2.ID()))
+	assert.False(t, cr.IsRunning(j3.ID()))
+	assert.False(t, cr.IsRunning(j4.ID()))
+}
+
+func TestDefaultCapacityLimit(t *testing.T) {
+	t.Parallel()
+
+	// Use default capacity
+	cr := New(0)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go cr.Run(ctx)
+
+	totalJobs := 2 * defaultCapacity
+	for i := 0; i < totalJobs; i++ {
+		require.NoError(t, cr.StartJob(testJob{id: fmt.Sprintf("test-%d", i), timeout: time.Second}))
+	}
+
+	// Let first jobs start
+	time.Sleep(500 * time.Millisecond)
+
+	for i := 0; i < totalJobs; i++ {
+		// Check that running jobs amount is not exceeded default capacity.
+		assert.Equal(t, i < defaultCapacity, cr.IsRunning(fmt.Sprintf("test-%d", i)))
+	}
+}
+
 func TestConcurrentRunnerTimeout(t *testing.T) {
 	t.Parallel()
-	cr := New()
+	cr := New(0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -91,7 +168,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 
 func TestConcurrentRunnerStop(t *testing.T) {
 	t.Parallel()
-	cr := New()
+	cr := New(0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -122,7 +199,7 @@ func TestConcurrentRunnerStop(t *testing.T) {
 
 func TestConcurrentRunnerCancel(t *testing.T) {
 	t.Parallel()
-	cr := New()
+	cr := New(0)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go cr.Run(ctx)
@@ -155,4 +232,26 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 	assert.True(t, expected[1].(*agentpb.ActionResultRequest).Done)
 	cr.wg.Wait()
 	assert.Empty(t, cr.rCancel)
+}
+
+type testJob struct {
+	id      string
+	timeout time.Duration
+}
+
+func (t testJob) ID() string {
+	return t.id
+}
+
+func (t testJob) Type() jobs.JobType {
+	return jobs.JobType("test")
+}
+
+func (t testJob) Timeout() time.Duration {
+	return t.timeout
+}
+
+func (t testJob) Run(ctx context.Context, send jobs.Send) error {
+	<-ctx.Done()
+	return nil
 }
