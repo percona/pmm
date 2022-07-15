@@ -159,8 +159,12 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		AgentsInfo:       agentsInfo,
 		ConfigFilepath:   s.configFilepath,
 		AgentVersion:     version.Version,
-		ConnectionUptime: float32(math.Round(float64(upTime)*100) / 100),
+		ConnectionUptime: leaveTwoDigitsAfterDot(upTime),
 	}, nil
+}
+
+func leaveTwoDigitsAfterDot(upTime float32) float32 {
+	return float32(math.Round(float64(upTime)*100) / 100)
 }
 
 // Reload reloads pmm-agent and it configuration.

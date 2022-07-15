@@ -24,7 +24,7 @@ const channelBufferSize = 10
 
 // Service calculates connection uptime between agent and server
 type Service struct {
-	bits big.Int
+	uptimeSeconds big.Int
 
 	windowPeriodSeconds int64
 	indexLastStatus     int64
@@ -77,7 +77,7 @@ func (s *Service) registerConnectionStatus(event connectionEvent) {
 	if s.startTime.IsZero() {
 		s.startTime = event.timestamp
 		s.lastStatusTimestamp = event.timestamp
-		s.bits.SetBit(&s.bits, 0, toUint(event.connected))
+		s.uptimeSeconds.SetBit(&s.uptimeSeconds, 0, toUint(event.connected))
 		s.indexLastStatus = 0
 
 		return
@@ -86,11 +86,11 @@ func (s *Service) registerConnectionStatus(event connectionEvent) {
 	secondsFromLastEvent := event.timestamp.Unix() - s.lastStatusTimestamp.Unix()
 	for i := s.indexLastStatus + 1; i < (s.indexLastStatus + secondsFromLastEvent); i++ {
 		// set the same status to elements of previous connection status
-		s.bits.SetBit(&s.bits, int(i%s.windowPeriodSeconds), s.bits.Bit(int(s.indexLastStatus)))
+		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(i%s.windowPeriodSeconds), s.uptimeSeconds.Bit(int(s.indexLastStatus)))
 	}
 
 	s.indexLastStatus = (s.indexLastStatus + secondsFromLastEvent) % s.windowPeriodSeconds
-	s.bits.SetBit(&s.bits, int(s.indexLastStatus), toUint(event.connected))
+	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(event.connected))
 	s.lastStatusTimestamp = event.timestamp
 }
 
@@ -109,20 +109,20 @@ func (s *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
 }
 
 func (s *Service) calculateConnectionUpTime(toTime time.Time) float32 {
-	totalNumOfSeconds := s.getTotalNumberOfSeconds(toTime)
-	startIndex := s.getStartIndex(totalNumOfSeconds)
-	connectedSeconds := s.getNumOfConnectedSeconds(startIndex, totalNumOfSeconds)
+	numOfSeconds := s.getNumOfSecondsForCalculationUptime(toTime)
+	startIndex := s.getStartIndex(numOfSeconds)
+	connectedSeconds := s.getNumOfConnectedSeconds(startIndex, numOfSeconds)
 
-	return float32(connectedSeconds) / float32(totalNumOfSeconds) * 100
+	return float32(connectedSeconds) / float32(numOfSeconds) * 100
 }
 
-func (s *Service) getTotalNumberOfSeconds(toTime time.Time) int64 {
-	totalNumOfSeconds := s.windowPeriodSeconds
+func (s *Service) getNumOfSecondsForCalculationUptime(toTime time.Time) int64 {
+	numOfSeconds := s.windowPeriodSeconds
 	diffInSecondsBetweenStartTimeAndToTime := toTime.Unix() - s.startTime.Unix()
 	if diffInSecondsBetweenStartTimeAndToTime < s.windowPeriodSeconds {
-		totalNumOfSeconds = diffInSecondsBetweenStartTimeAndToTime
+		numOfSeconds = diffInSecondsBetweenStartTimeAndToTime
 	}
-	return totalNumOfSeconds
+	return numOfSeconds
 }
 
 func (s *Service) getStartIndex(size int64) int64 {
@@ -137,7 +137,7 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds i
 	endIndex := startIndex + totalNumOfSeconds
 	connectedSeconds := 0
 	for i := startIndex; i < endIndex; i++ {
-		if s.bits.Bit(int(i%s.windowPeriodSeconds)) == 1 {
+		if s.uptimeSeconds.Bit(int(i%s.windowPeriodSeconds)) == 1 {
 			connectedSeconds++
 		}
 	}
@@ -148,6 +148,6 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds i
 func (s *Service) fillStatusesUntil(toTime time.Time) {
 	s.registerConnectionStatus(connectionEvent{
 		timestamp: toTime,
-		connected: s.bits.Bit(int(s.indexLastStatus)) == 1,
+		connected: s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1,
 	})
 }
