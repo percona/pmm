@@ -16,9 +16,13 @@
 package connectionuptime
 
 import (
+	"math"
 	"math/big"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Service calculates connection uptime between agent and server
@@ -31,12 +35,15 @@ type Service struct {
 	lastStatusTimestamp time.Time
 
 	mx sync.Mutex
+
+	l *logrus.Entry
 }
 
 // NewService creates new instance of Service
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriodSeconds: int64(windowPeriod.Seconds()),
+		l:                   logrus.WithField("component", "connection-uptime-service"),
 	}
 }
 
@@ -45,17 +52,20 @@ func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) 
 	s.mx.Lock()
 	defer s.mx.Unlock()
 
-	s.registerConnectionStatus(timestamp, connected)
+	if err := s.registerConnectionStatus(timestamp, connected); err != nil {
+		// only print error here
+		s.l.Error(err.Error())
+	}
 }
 
-func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) {
+func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) error {
 	if s.startTime.IsZero() {
 		s.startTime = timestamp
 		s.lastStatusTimestamp = timestamp
 		s.uptimeSeconds.SetBit(&s.uptimeSeconds, 0, toUint(connected))
 		s.indexLastStatus = 0
 
-		return
+		return nil
 	}
 
 	secondsFromLastEvent := timestamp.Unix() - s.lastStatusTimestamp.Unix()
@@ -64,12 +74,21 @@ func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) 
 
 	for i := s.indexLastStatus + 1; i < endIndex; i++ {
 		// set the same status to elements of previous connection status
-		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(i%s.windowPeriodSeconds), lastConnectedStatusBit)
+		index := i % s.windowPeriodSeconds
+		if index > math.MaxInt32 {
+			return errors.Errorf("Index is higher then max int32 value: %d", index)
+		}
+		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(index), lastConnectedStatusBit)
 	}
 
 	s.indexLastStatus = endIndex % s.windowPeriodSeconds
+	if s.indexLastStatus > math.MaxInt32 {
+		return errors.Errorf("Index is higher then max int32 value: %d", s.indexLastStatus)
+	}
+
 	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(connected))
 	s.lastStatusTimestamp = timestamp
+	return nil
 }
 
 func toUint(b bool) uint {
@@ -82,16 +101,28 @@ func toUint(b bool) uint {
 // GetConnectedUpTimeSince calculates connected uptime between agent and server
 // based on the connection statuses
 func (s *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
-	s.fillStatusesUntil(toTime)
-	return s.calculateConnectionUpTime(toTime)
+	err := s.fillStatusesUntil(toTime)
+	if err != nil {
+		s.l.Error(err.Error())
+		return 0
+	}
+
+	res, err := s.calculateConnectionUpTime(toTime)
+	if err != nil {
+		s.l.Error(err.Error())
+		return 0
+	}
+	return res
 }
 
-func (s *Service) calculateConnectionUpTime(toTime time.Time) float32 {
+func (s *Service) calculateConnectionUpTime(toTime time.Time) (float32, error) {
 	numOfSeconds := s.getNumOfSecondsForCalculationUptime(toTime)
 	startIndex := s.getStartIndex(numOfSeconds)
-	connectedSeconds := s.getNumOfConnectedSeconds(startIndex, numOfSeconds)
-
-	return float32(connectedSeconds) / float32(numOfSeconds) * 100
+	connectedSeconds, err := s.getNumOfConnectedSeconds(startIndex, numOfSeconds)
+	if err != nil {
+		return 0, err
+	}
+	return float32(connectedSeconds) / float32(numOfSeconds) * 100, nil
 }
 
 func (s *Service) getNumOfSecondsForCalculationUptime(toTime time.Time) int64 {
@@ -111,18 +142,27 @@ func (s *Service) getStartIndex(size int64) int64 {
 	return startElement
 }
 
-func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds int64) int {
+func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds int64) (int, error) {
 	endIndex := startIndex + totalNumOfSeconds
 	connectedSeconds := 0
 	for i := startIndex; i < endIndex; i++ {
-		if s.uptimeSeconds.Bit(int(i%s.windowPeriodSeconds)) == 1 {
+		index := i % s.windowPeriodSeconds
+		if index > math.MaxInt32 {
+			return 0, errors.Errorf("Index is higher then max int32 value: %d", index)
+		}
+
+		if s.uptimeSeconds.Bit(int(index)) == 1 {
 			connectedSeconds++
 		}
 	}
-	return connectedSeconds
+	return connectedSeconds, nil
 }
 
 // fill values in the slice until toTime
-func (s *Service) fillStatusesUntil(toTime time.Time) {
-	s.registerConnectionStatus(toTime, s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1)
+func (s *Service) fillStatusesUntil(toTime time.Time) error {
+	if s.indexLastStatus > math.MaxInt32 {
+		return errors.Errorf("indexLastStatus is higher then max int32 value: %d", s.indexLastStatus)
+	}
+
+	return s.registerConnectionStatus(toTime, s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1)
 }
