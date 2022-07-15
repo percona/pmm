@@ -10,17 +10,15 @@ jobs:
     steps:
       - name: Build Changelog
         id: pmm_release
+        shell: bash
         run: |
           git clone --depth 1 https://github.com/percona/pmm-doc doc
           cd doc/docs/release-notes
           version="${release_tag/refs\/tags\/v//}"
-          CHANGELOG=`cat ./$version.md`
-          echo "CHANGELOG<<EOF" >> $GITHUB_ENV
-          echo "$CHANGELOG" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          cat ./$version.md > ${{ github.workspace }}-CHANGELOG.txt
         env:
           release_tag: ${{ github.ref }}
       - name: Create Release
         uses: softprops/action-gh-release@v0.1.14
         with:
-          body: "${{ env.CHANGELOG }}"
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
