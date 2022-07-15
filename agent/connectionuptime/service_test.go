@@ -140,7 +140,11 @@ func TestConnectionUpTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			service := NewService(tt.windowPeriod)
+			service.Listen()
+
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
 				sortedTime = append(sortedTime, k)
@@ -154,6 +158,8 @@ func TestConnectionUpTime(t *testing.T) {
 				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
 
+			//wait some time when all elements will be registered
+			time.Sleep(time.Second)
 			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
 		})
 	}

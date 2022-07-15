@@ -52,7 +52,7 @@ func Run() {
 		cancel()
 	}()
 
-	var cs *connectionuptime.Service
+	var connectionUptimeService *connectionuptime.Service
 	for {
 		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
@@ -62,12 +62,13 @@ func Run() {
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
-		if cs == nil {
+		if connectionUptimeService == nil {
 			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
-			cs = connectionuptime.NewService(cfg.WindowConnectedTime)
+			connectionUptimeService = connectionuptime.NewService(cfg.WindowConnectedTime)
+			connectionUptimeService.InitListeningChannelForEvents()
 		}
 
-		run(ctx, cfg, configFilepath, cs)
+		run(ctx, cfg, configFilepath, connectionUptimeService)
 
 		if ctx.Err() != nil {
 			return

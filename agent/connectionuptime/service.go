@@ -17,20 +17,26 @@ package connectionuptime
 
 import (
 	"math/big"
-	"sync"
 	"time"
 )
 
+const channelBufferSize = 10
+
 // Service calculates connection uptime between agent and server
 type Service struct {
-	mx sync.Mutex
-
 	bits big.Int
 
 	windowPeriodSeconds int64
 	indexLastStatus     int64
 	startTime           time.Time
 	lastStatusTimestamp time.Time
+
+	ch chan connectionEvent
+}
+
+type connectionEvent struct {
+	timestamp time.Time
+	connected bool
 }
 
 // NewService creates new instance of Service
@@ -40,36 +46,55 @@ func NewService(windowPeriod time.Duration) *Service {
 	}
 }
 
-// RegisterConnectionStatus adds new connection status
-func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
-	s.mx.Lock()
-	defer s.mx.Unlock()
-
-	s.registerConnectionStatus(timestamp, connected)
+func (s *Service) InitListeningChannelForEvents() {
+	if s.ch == nil {
+		s.ch = make(chan connectionEvent, channelBufferSize)
+		go s.readEventsFromChannel()
+	}
 }
 
-func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) {
+// RegisterConnectionStatus adds new connection status
+func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
+	s.ch <- connectionEvent{
+		timestamp: timestamp,
+		connected: connected,
+	}
+}
+
+func (s *Service) readEventsFromChannel() {
+	go func() {
+		for {
+			event, ok := <-s.ch
+			if !ok {
+				return
+			}
+			s.registerConnectionStatus(event)
+		}
+	}()
+}
+
+func (s *Service) registerConnectionStatus(event connectionEvent) {
 	if s.startTime.IsZero() {
-		s.startTime = timestamp
-		s.lastStatusTimestamp = timestamp
-		s.bits.SetBit(&s.bits, 0, getBit(connected))
+		s.startTime = event.timestamp
+		s.lastStatusTimestamp = event.timestamp
+		s.bits.SetBit(&s.bits, 0, toUint(event.connected))
 		s.indexLastStatus = 0
 
 		return
 	}
 
-	secondsFromLastEvent := timestamp.Unix() - s.lastStatusTimestamp.Unix()
+	secondsFromLastEvent := event.timestamp.Unix() - s.lastStatusTimestamp.Unix()
 	for i := s.indexLastStatus + 1; i < (s.indexLastStatus + secondsFromLastEvent); i++ {
 		// set the same status to elements of previous connection status
 		s.bits.SetBit(&s.bits, int(i%s.windowPeriodSeconds), s.bits.Bit(int(s.indexLastStatus)))
 	}
 
 	s.indexLastStatus = (s.indexLastStatus + secondsFromLastEvent) % s.windowPeriodSeconds
-	s.bits.SetBit(&s.bits, int(s.indexLastStatus), getBit(connected))
-	s.lastStatusTimestamp = timestamp
+	s.bits.SetBit(&s.bits, int(s.indexLastStatus), toUint(event.connected))
+	s.lastStatusTimestamp = event.timestamp
 }
 
-func getBit(b bool) uint {
+func toUint(b bool) uint {
 	if b {
 		return 1
 	}
@@ -79,9 +104,6 @@ func getBit(b bool) uint {
 // GetConnectedUpTimeSince calculates connected uptime between agent and server
 // based on the connection statuses
 func (s *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
-	s.mx.Lock()
-	defer s.mx.Unlock()
-
 	s.fillStatusesUntil(toTime)
 	return s.calculateConnectionUpTime(toTime)
 }
@@ -124,5 +146,8 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds i
 
 // fill values in the slice until toTime
 func (s *Service) fillStatusesUntil(toTime time.Time) {
-	s.registerConnectionStatus(toTime, s.bits.Bit(int(s.indexLastStatus)) == 1)
+	s.registerConnectionStatus(connectionEvent{
+		timestamp: toTime,
+		connected: s.bits.Bit(int(s.indexLastStatus)) == 1,
+	})
 }
