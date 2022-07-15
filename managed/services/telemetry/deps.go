@@ -52,8 +52,3 @@ type DataSource interface {
 	FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error)
 	Enabled() bool
 }
-
-// LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
-	return s.dsRegistry.LocateTelemetryDataSource(name)
-}

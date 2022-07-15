@@ -92,6 +92,11 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	return s, nil
 }
 
+// LocateTelemetryDataSource retrieves DataSource by name.
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+	return s.dsRegistry.LocateTelemetryDataSource(name)
+}
+
 // Run start sending telemetry to SaaS.
 func (s *Service) Run(ctx context.Context) {
 	if !s.config.Enabled {
