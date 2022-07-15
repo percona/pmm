@@ -12,10 +12,8 @@ jobs:
         id: pmm_release
         shell: bash
         run: |
-          git clone --depth 1 https://github.com/percona/pmm-doc doc
-          cd doc/docs/release-notes
-          version="${release_tag/refs\/tags\/v//}"
-          cat ./$version.md > ${{ github.workspace }}-CHANGELOG.txt
+          version="${release_tag/refs\/tags\/v/}"
+          wget https://raw.githubusercontent.com/percona/pmm-doc/main/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
         env:
           release_tag: ${{ github.ref }}
       - name: Create Release
