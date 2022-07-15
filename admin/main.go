@@ -26,12 +26,17 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/Masterminds/semver"
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/logger"
 	"github.com/percona/pmm/version"
+)
+
+var (
+	errMismatchedVersion = fmt.Errorf("PMM client version is out-of-sync from the server version and may not be compatible. See https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html")
 )
 
 func main() {
@@ -47,6 +52,7 @@ func main() {
 	kingpin.Flag("trace", "Enable trace logging (implies debug)").BoolVar(&commands.GlobalFlags.Trace)
 	kingpin.Flag("pmm-agent-listen-port", "Set listen port of pmm-agent").Default(defaultListenPort).Uint32Var(&commands.GlobalFlags.PMMAgentListenPort)
 	jsonF := kingpin.Flag("json", "Enable JSON output").Bool()
+	versionCheck := kingpin.Flag("version-check", "Disable client/server compatibility checks").Default("true").Bool()
 
 	kingpin.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
@@ -156,6 +162,29 @@ func main() {
 		commands.SetupClients(ctx, *serverURLF)
 	}
 
+	if !*versionCheck {
+		clientVersion := version.Version
+		serverStatus, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		if err == nil {
+			if err = compareVersions(clientVersion, serverStatus.ServerVersion); err != nil {
+				if *jsonF {
+					b, jErr := json.Marshal(err.Error())
+					if jErr != nil {
+						logrus.Infof("Error: %#v.", err)
+						logrus.Panicf("Failed to marshal error to JSON.\n%s.\nPlease report this bug.", jErr)
+					}
+					fmt.Printf("%s\n", b) //nolint:forbidigo
+				} else {
+					if err == errMismatchedVersion {
+						fmt.Println(err) //nolint:forbidigo
+					} else {
+						fmt.Printf("Failed to check version compatibility: %s.", err.Error())
+					}
+				}
+			}
+		}
+	}
+
 	var res commands.Result
 	var err error
 	if cc, ok := command.(commands.CommandWithContext); ok {
@@ -233,4 +262,23 @@ func main() {
 
 		os.Exit(1)
 	}
+}
+
+func compareVersions(clientVersion, serverVersion string) error {
+	cl, err := semver.NewVersion(clientVersion)
+	if err != nil {
+		return err
+	}
+	svr, err := semver.NewVersion(serverVersion)
+	if err != nil {
+		return err
+	}
+
+	if cl.Compare(svr) == 0 {
+		return nil
+	}
+	if cl.Major() != svr.Major() || cl.Minor() != svr.Minor() {
+		return errMismatchedVersion
+	}
+	return nil
 }
