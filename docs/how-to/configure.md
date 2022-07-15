@@ -78,11 +78,19 @@ The *Telemetry* switch enables gathering and sending basic **anonymous** data to
 
 The following information is gathered:
 
-- PMM Version;
-- Installation Method (Docker, AMI, OVF);
-- the Server Uptime;
-- Advisors (enabled or disabled);
-- Integrated Alerting Status (enabled or disabled).
+- PMM Server Integration Alerting feature enabled/disabled
+- PMM Server Security Thread Tool feature enabled/disabled
+- PMM Server Backup feature enabled/disabled
+- PMM Server DBaaS feature enabled/disabled
+- PMM Server Check Updates feature disabled
+- Detailed information about the version of monitored MySQL services
+- Monitored MongoDB services version
+- Monitored PostgreSQL services version
+- Total Grafana users
+- Monitored nodes count
+- Monitored services count
+- Agents version
+- Node type
 
 We do not gather anything that identify a system, but the following two points should be mentioned:
 
