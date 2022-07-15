@@ -75,13 +75,13 @@ type Client struct {
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
 
-	cs *connectionuptime.Service
+	cus *connectionuptime.Service
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cs *connectionuptime.Service) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -92,7 +92,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		done:               make(chan struct{}),
 		dialTimeout:        dialTimeout,
 		defaultsFileParser: dfp,
-		cs:                 cs,
+		cus:                cus,
 	}
 }
 
@@ -131,7 +131,7 @@ func (c *Client) Run(ctx context.Context) error {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
 
-		c.cs.RegisterConnectionStatus(time.Now(), dialErr == nil)
+		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -447,7 +447,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
-		c.cs.RegisterConnectionStatus(time.Now(), true)
+		c.cus.RegisterConnectionStatus(time.Now(), true)
 
 		response := &channel.AgentResponse{
 			ID:      req.ID,
@@ -755,7 +755,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 }
 
 func (c *Client) GetConnectionUpTime() float32 {
-	return c.cs.GetConnectedUpTimeSince(time.Now())
+	return c.cus.GetConnectedUpTimeSince(time.Now())
 }
 
 // Describe implements "unchecked" prometheus.Collector.
