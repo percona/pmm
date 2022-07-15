@@ -132,7 +132,7 @@ func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 		os.Exit(0)
 
 	case commands.ErrorResponse:
-		printErrorResponse(err, opts)
+		printErrorResponse(opts, err)
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
@@ -156,7 +156,7 @@ func printNilError(opts *CLIGlobalFlags, res commands.Result) {
 	}
 }
 
-func printErrorResponse(err commands.ErrorResponse, opts *CLIGlobalFlags) {
+func printErrorResponse(opts *CLIGlobalFlags, err commands.ErrorResponse) {
 	e := commands.GetError(err)
 
 	if opts.JSON {
