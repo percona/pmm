@@ -78,9 +78,6 @@ jobs:
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
-      - name: Show mod cache
-        run: ls -lh ~/go/pkg/mod
-
       - name: Setup dev-container
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
 

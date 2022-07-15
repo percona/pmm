@@ -67,10 +67,12 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # go run ../.github/check-license.go # TODO: This repo has multiple licenses, fix checker
           bin/go-sumtype ./...
           # use GITHUB_TOKEN because only it has access to GitHub Checks API
           bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true
+
+          # run license checker on configured files
+          bin/license-eye -c .licenserc.yaml header check
 
           # run it like this until it will be added to golangci-lint:
           # * https://github.com/golangci/golangci-lint/issues/288
