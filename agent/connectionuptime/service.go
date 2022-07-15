@@ -17,10 +17,9 @@ package connectionuptime
 
 import (
 	"math/big"
+	"sync"
 	"time"
 )
-
-const channelBufferSize = 10
 
 // Service calculates connection uptime between agent and server
 type Service struct {
@@ -31,12 +30,7 @@ type Service struct {
 	startTime           time.Time
 	lastStatusTimestamp time.Time
 
-	ch chan connectionEvent
-}
-
-type connectionEvent struct {
-	timestamp time.Time
-	connected bool
+	mx sync.Mutex
 }
 
 // NewService creates new instance of Service
@@ -46,44 +40,25 @@ func NewService(windowPeriod time.Duration) *Service {
 	}
 }
 
-func (s *Service) InitListeningChannelForEvents() {
-	if s.ch == nil {
-		s.ch = make(chan connectionEvent, channelBufferSize)
-		go s.readEventsFromChannel()
-	}
-}
-
 // RegisterConnectionStatus adds new connection status
 func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
-	s.ch <- connectionEvent{
-		timestamp: timestamp,
-		connected: connected,
-	}
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	s.registerConnectionStatus(timestamp, connected)
 }
 
-func (s *Service) readEventsFromChannel() {
-	go func() {
-		for {
-			event, ok := <-s.ch
-			if !ok {
-				return
-			}
-			s.registerConnectionStatus(event)
-		}
-	}()
-}
-
-func (s *Service) registerConnectionStatus(event connectionEvent) {
+func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) {
 	if s.startTime.IsZero() {
-		s.startTime = event.timestamp
-		s.lastStatusTimestamp = event.timestamp
-		s.uptimeSeconds.SetBit(&s.uptimeSeconds, 0, toUint(event.connected))
+		s.startTime = timestamp
+		s.lastStatusTimestamp = timestamp
+		s.uptimeSeconds.SetBit(&s.uptimeSeconds, 0, toUint(connected))
 		s.indexLastStatus = 0
 
 		return
 	}
 
-	secondsFromLastEvent := event.timestamp.Unix() - s.lastStatusTimestamp.Unix()
+	secondsFromLastEvent := timestamp.Unix() - s.lastStatusTimestamp.Unix()
 	endIndex := s.indexLastStatus + secondsFromLastEvent
 	lastConnectedStatusBit := s.uptimeSeconds.Bit(int(s.indexLastStatus))
 
@@ -93,8 +68,8 @@ func (s *Service) registerConnectionStatus(event connectionEvent) {
 	}
 
 	s.indexLastStatus = endIndex % s.windowPeriodSeconds
-	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(event.connected))
-	s.lastStatusTimestamp = event.timestamp
+	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(connected))
+	s.lastStatusTimestamp = timestamp
 }
 
 func toUint(b bool) uint {
@@ -149,8 +124,5 @@ func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds i
 
 // fill values in the slice until toTime
 func (s *Service) fillStatusesUntil(toTime time.Time) {
-	s.registerConnectionStatus(connectionEvent{
-		timestamp: toTime,
-		connected: s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1,
-	})
+	s.registerConnectionStatus(toTime, s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1)
 }
