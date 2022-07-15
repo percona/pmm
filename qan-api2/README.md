@@ -1,9 +1,9 @@
 # qan-api2
 
-[![Build Status](https://travis-ci.org/percona/qan-api2.svg?branch=master)](https://travis-ci.org/percona/qan-api2)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/qan-api2)](https://goreportcard.com/report/github.com/percona/qan-api2)
+[![Build Status](https://travis-ci.org/percona/pmm/qan-api2.svg?branch=master)](https://travis-ci.org/percona/pmm/qan-api2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm/qan-api2)](https://goreportcard.com/report/github.com/percona/pmm/qan-api2)
 [![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fqan-api2.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fqan-api2?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm%2Fqan-api2.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fpmm%2Fqan-api2?ref=badge_shield)
 
 qan-api for PMM 2.x.
 

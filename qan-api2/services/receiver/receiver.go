@@ -22,8 +22,8 @@ import (
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/qan-api2/models"
-	"github.com/percona/qan-api2/utils/logger"
+	"github.com/percona/pmm/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 // Service implements gRPC service to communicate with agent.

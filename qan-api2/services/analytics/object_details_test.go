@@ -28,7 +28,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 func TestService_GetQueryExample(t *testing.T) {
@@ -151,6 +151,8 @@ func TestService_GetQueryExample(t *testing.T) {
 				mm: tt.fields.mm,
 			}
 			got, err := s.GetQueryExample(tt.args.ctx, tt.args.in)
+			t.Error("!!!!!!!!!!!!!!!!!!!!!!")
+			t.Error(got)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -162,6 +164,7 @@ func TestService_GetQueryExample(t *testing.T) {
 			expectedJSON := getExpectedJSON(t, got, "../../test_data/GetQueryExample_"+tt.name+".json")
 			marshaler := jsonpb.Marshaler{Indent: "\t"}
 			gotJSON, err := marshaler.MarshalToString(got)
+
 			if err != nil {
 				t.Errorf("cannot marshal:%v", err)
 			}

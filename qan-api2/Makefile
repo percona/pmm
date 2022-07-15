@@ -1,10 +1,12 @@
+default: help
+
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 # `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= bin
+PMM_RELEASE_PATH ?= ../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
@@ -20,13 +22,8 @@ release:                        ## Build qan-api2 release binary.
 		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-init:                           ## Install development tools
-	rm -rf ./bin
-	cd tools && go generate -x -tags=tools
-
 gen:                            ## Generate files.
-	bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
-	make format
+	../bin/go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 
 install:                        ## Install qan-api2 binary.
 	go install -v ./...
@@ -46,26 +43,13 @@ test-env-down:
 	docker rm pmm-clickhouse-test
 
 test:                           ## Run tests.
-	go test -v ./...
+	go test ./...
 
 test-race:                      ## Run tests with race detector.
-	go test -v -race ./...
+	go test -race ./...
 
 test-cover:                     ## Run tests and collect coverage information.
-	go test -v -coverprofile=cover.out -covermode=count ./...
-
-check:                          ## Run checkers and linters.
-	go run .github/check-license.go
-	bin/golangci-lint run -c=.golangci.yml --out-format=line-number
-
-check-all: check                ## Run golang ci linter to check new changes from master.
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=master
-
-FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
-
-format:                         ## Format source code.
-	gofmt -w -s $(FILES)
-	bin/goimports -local github.com/percona/qan-api2 -l -w $(FILES)
+	go test -coverprofile=cover.out -covermode=count ./...
 
 RUN_FLAGS = ## -todo-use-kingpin-for-flags
 
@@ -74,7 +58,7 @@ run: install _run               ## Run qan-api2.
 run-race: install-race _run     ## Run qan-api2 with race detector.
 
 run-race-cover: install-race    ## Run qan-api2 with race detector and collect coverage information.
-	go test -coverpkg="github.com/percona/qan-api2/..." \
+	go test -coverpkg="github.com/percona/pmm/qan-api2/..." \
 			-tags maincover \
 			-race -c -o bin/qan-api2.test
 	bin/qan-api2.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
@@ -110,5 +94,3 @@ deploy:
 	docker exec pmm-server supervisorctl start qan-api2
 	docker exec pmm-server supervisorctl status
 
-clean:                          ## Removes generated artifacts.
-	rm -Rf ./bin

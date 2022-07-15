@@ -12,6 +12,7 @@ on:
       - "agent/**"
       - "managed/**"
       - "docs/**"
+      - "qan-api2/**"
 
 jobs:
   test-admin:

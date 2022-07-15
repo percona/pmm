@@ -24,7 +24,7 @@ import (
 
 	qanpb "github.com/percona/pmm/api/qanpb"
 
-	"github.com/percona/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 // GetReport implements rpc to get report for given filtering.

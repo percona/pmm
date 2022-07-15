@@ -17,6 +17,7 @@ require (
 	github.com/golangci/golangci-lint v1.46.3-0.20220706155712-9317da6cf0b0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
 	github.com/jstemmer/go-junit-report v1.0.0
+	github.com/kevinburke/go-bindata v3.22.0+incompatible
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
 	github.com/reviewdog/reviewdog v0.14.1

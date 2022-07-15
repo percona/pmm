@@ -30,7 +30,7 @@ import (
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 func TestService_GetFilters(t *testing.T) {

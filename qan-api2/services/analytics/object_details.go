@@ -25,7 +25,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	"github.com/percona/qan-api2/models"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 // GetMetrics implements rpc to get metrics for specific filtering.

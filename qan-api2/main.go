@@ -53,11 +53,11 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/qan-api2/models"
-	aservice "github.com/percona/qan-api2/services/analytics"
-	rservice "github.com/percona/qan-api2/services/receiver"
-	"github.com/percona/qan-api2/utils/interceptors"
-	"github.com/percona/qan-api2/utils/logger"
+	"github.com/percona/pmm/qan-api2/models"
+	aservice "github.com/percona/pmm/qan-api2/services/analytics"
+	rservice "github.com/percona/pmm/qan-api2/services/receiver"
+	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 const (

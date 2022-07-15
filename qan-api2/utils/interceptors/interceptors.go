@@ -31,7 +31,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/qan-api2/utils/logger"
+	"github.com/percona/pmm/qan-api2/utils/logger"
 )
 
 const responseTimeout = 2 * time.Minute
