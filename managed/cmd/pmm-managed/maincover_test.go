@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -14,13 +13,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package platform
+//go:build maincover
+// +build maincover
 
-// Config platform config.
-type Config struct {
-	SkipTLSVerification bool `yaml:"skip_tls_verification"` //nolint:tagliatelle
-}
+package main
 
-// Init platform config init.
-func (c *Config) Init() {
+import (
+	"testing"
+)
+
+// FIXME Does not currently work due to kingpin/flags clash.
+// https://jira.percona.com/browse/PMM-3484
+
+func TestMainCover(*testing.T) {
+	main()
 }
