@@ -84,12 +84,15 @@ func (s *Service) registerConnectionStatus(event connectionEvent) {
 	}
 
 	secondsFromLastEvent := event.timestamp.Unix() - s.lastStatusTimestamp.Unix()
-	for i := s.indexLastStatus + 1; i < (s.indexLastStatus + secondsFromLastEvent); i++ {
+	endIndex := s.indexLastStatus + secondsFromLastEvent
+	lastConnectedStatusBit := s.uptimeSeconds.Bit(int(s.indexLastStatus))
+
+	for i := s.indexLastStatus + 1; i < endIndex; i++ {
 		// set the same status to elements of previous connection status
-		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(i%s.windowPeriodSeconds), s.uptimeSeconds.Bit(int(s.indexLastStatus)))
+		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(i%s.windowPeriodSeconds), lastConnectedStatusBit)
 	}
 
-	s.indexLastStatus = (s.indexLastStatus + secondsFromLastEvent) % s.windowPeriodSeconds
+	s.indexLastStatus = endIndex % s.windowPeriodSeconds
 	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(event.connected))
 	s.lastStatusTimestamp = event.timestamp
 }
