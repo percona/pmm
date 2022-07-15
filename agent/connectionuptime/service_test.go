@@ -143,7 +143,7 @@ func TestConnectionUpTime(t *testing.T) {
 			t.Parallel()
 
 			service := NewService(tt.windowPeriod)
-			service.Listen()
+			service.InitListeningChannelForEvents()
 
 			var sortedTime []time.Time
 			for k := range tt.setOfConnections {
@@ -158,7 +158,7 @@ func TestConnectionUpTime(t *testing.T) {
 				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
 
-			//wait some time when all elements will be registered
+			// wait some time when all elements will be registered
 			time.Sleep(time.Second)
 			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
 		})
