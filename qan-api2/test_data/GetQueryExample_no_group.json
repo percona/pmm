@@ -1,0 +1,59 @@
+{
+	"queryExamples": [
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema29",
+			"tables": [
+				"table1"
+			]
+		},
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema37",
+			"tables": [
+				"table1"
+			]
+		},
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema58",
+			"tables": [
+				"table1"
+			]
+		},
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema60",
+			"tables": [
+				"table1"
+			]
+		},
+		{
+			"example": "SELECT @@GLOBAL.slow_query_log_file",
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM",
+			"serviceId": "service_id1",
+			"serviceType": "service_type1",
+			"schema": "schema65",
+			"tables": [
+				"table1"
+			]
+		}
+	]
+}

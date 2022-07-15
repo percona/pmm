@@ -1,0 +1,8 @@
+/.vscode/
+/.idea/
+
+/bin/
+
+cover.out
+
+/logs/
