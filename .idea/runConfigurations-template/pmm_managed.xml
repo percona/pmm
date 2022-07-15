@@ -1,0 +1,35 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="pmm-managed" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="<IDEA_MODULE>" />
+    <working_directory value="$PROJECT_DIR$/pmm" />
+    <go_parameters value="-ldflags &quot;-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' -X 'github.com/percona/pmm/version.Version=2.29.0' -X 'github.com/percona/pmm/version.PMMVersion=2.29.0' -X 'github.com/percona/pmm/version.Timestamp=1656017021' -X 'github.com/percona/pmm/version.FullCommit=c8bcd0362be7192e11724c28552c15cd03576c2b' -X 'github.com/percona/pmm/version.Branch=dev' &quot;" />
+    <parameters value="--victoriametrics-config=./.devcontainer/etc-runtime/victoriametrics-promscrape.yml --victoriametrics-url=http://pmm-1:9090/prometheus --postgres-name=pmm-managed --postgres-username=pmm-managed --postgres-password=pmm-managed --supervisord-config-dir=./.devcontainer/etc-patched/supervisord.d --postgres-addr=pmm-1:11123 --victoriametrics-vmalert-url=http://pmm-1:8880/ --grafana-addr=pmm-1:3000" />
+    <envs>
+      <env name="#PMM_DEBUG" value="1" />
+      <env name="PERCONA_PMM_CONFIG_PATH" value="./managed/pmm-managed.dev.yaml" />
+      <env name="PERCONA_TEST_PMM_CLICKHOUSE_ADDR" value="pmm-1:25432" />
+      <env name="PMM_ALERTMANAGER_CONF" value="./.devcontainer/etc-runtime/alertmanager.yml" />
+      <env name="PMM_ALERTMANAGER_DIR" value="./.devcontainer/alertmanager" />
+      <env name="PMM_BIND_ADDRESS" value="0.0.0.0" />
+    </envs>
+    <EXTENSION ID="com.fapiko.jetbrains.plugins.better_direnv.runconfigs.GolandRunConfigurationExtension">
+      <option name="DIRENV_ENABLED" value="false" />
+      <option name="DIRENV_TRUSTED" value="false" />
+    </EXTENSION>
+    <EXTENSION ID="net.ashald.envfile">
+      <option name="IS_ENABLED" value="false" />
+      <option name="IS_SUBST" value="false" />
+      <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+      <option name="IS_IGNORE_MISSING_FILES" value="false" />
+      <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+      <ENTRIES>
+        <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+      </ENTRIES>
+    </EXTENSION>
+    <kind value="PACKAGE" />
+    <package value="github.com/percona/pmm/managed/cmd/pmm-managed" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/pmm/managed/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

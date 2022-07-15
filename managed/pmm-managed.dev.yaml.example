@@ -22,9 +22,6 @@ services:
   telemetry:
     enabled: true
     load_defaults: true
-    endpoints:
-      # %s is substituted with `saas_hostname`
-      report: https://%s/v1/telemetry/Report
     datasources:
       VM:
         enabled: true
