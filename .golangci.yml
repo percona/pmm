@@ -56,7 +56,6 @@ linters:
     - gomoddirectives   # we use replace directives
     - ifshort           # a lot of false positives
     - interfacer        # deprecated
-    - ireturn           # useless
     - maligned          # deprecated
     - nlreturn          # too annoying
     - scopelint         # too many false positives
