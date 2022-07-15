@@ -27,7 +27,7 @@ datasources:
   orgId: 1
   type: vertamedia-clickhouse-datasource
   access: proxy
-  url: http://${PERCONA_TEST_PMM_CLICKHOUSE_ADDR}
+  url: http://${PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR}
   jsonData:
     keepCookies: []
 - name: PTSummary
