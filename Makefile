@@ -5,7 +5,7 @@ include Makefile.include
 env-up: 							## Start devcontainer.
 	docker-compose up -d
 
-env-up-rebuild:		## Rebuild and start devcontainer
+env-up-rebuild:						## Rebuild and start devcontainer
 	docker-compose up --build -d
 
 env-update-image:					## Pull latest dev image
