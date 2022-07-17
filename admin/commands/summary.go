@@ -241,7 +241,7 @@ type pprofData struct {
 }
 
 // addPprofData adds pprof data to zip file.
-func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, globals *flags.CLIGlobalFlags) {
+func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, globals *flags.GlobalFlags) {
 	profiles := []struct {
 		name    string
 		urlPath string
@@ -311,7 +311,7 @@ type SummaryCommand struct {
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.CLIGlobalFlags) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) (err error) {
 	var f *os.File
 
 	if f, err = os.Create(cmd.Filename); err != nil {
@@ -346,7 +346,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.CLIGl
 	return //nolint:nakedret
 }
 
-func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags.CLIGlobalFlags) (Result, error) {
+func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename
 	}

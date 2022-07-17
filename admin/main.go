@@ -117,12 +117,12 @@ func main() {
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
-		base.SetupClients(ctx, &opts.CLIGlobalFlags)
+		base.SetupClients(ctx, &opts.GlobalFlags)
 	}
 
 	commands.CLICtx = ctx
 
-	err := kongCtx.Run(&opts.CLIGlobalFlags)
+	err := kongCtx.Run(&opts.GlobalFlags)
 	if err != nil {
 		if opts.JSON {
 			b, jErr := json.Marshal(err.Error())

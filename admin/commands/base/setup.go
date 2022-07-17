@@ -37,7 +37,7 @@ var (
 )
 
 // SetupClients configures local and PMM Server API clients.
-func SetupClients(ctx context.Context, globalFlags *flags.CLIGlobalFlags) {
+func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	fmt.Println(globalFlags)
 	if globalFlags.ServerURL == nil || globalFlags.ServerURL.String() == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

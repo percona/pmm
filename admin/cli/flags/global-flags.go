@@ -12,8 +12,8 @@ import (
 
 var isJSON = false
 
-// CLIGlobalFlags stores flags global to all commands.
-type CLIGlobalFlags struct {
+// GlobalFlags stores flags global to all commands.
+type GlobalFlags struct {
 	ServerURL               *url.URL    `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
 	SkipTLSCertificateCheck bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
 	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`

@@ -56,7 +56,7 @@ type ConfigCommand struct {
 	LogLevel          string `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 }
 
-func (cmd *ConfigCommand) args(globals *flags.CLIGlobalFlags) (res []string, switchedToTLS bool) {
+func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
 	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"
@@ -133,7 +133,7 @@ func (cmd *ConfigCommand) args(globals *flags.CLIGlobalFlags) (res []string, swi
 	return //nolint:nakedret
 }
 
-func (cmd *ConfigCommand) RunCmd(globals *flags.CLIGlobalFlags) (Result, error) {
+func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
 	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))

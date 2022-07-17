@@ -31,7 +31,7 @@ import (
 )
 
 type CLIFlags struct {
-	flags.CLIGlobalFlags
+	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
 	Summary    commands.SummaryCommand      `cmd:"" help:"Fetch system data for diagnostics"`
@@ -53,17 +53,17 @@ type CmdRunner interface {
 
 // CmdRunner represents a command to be run with global CLI flags.
 type CmdGlobalFlagsRunner interface {
-	RunCmd(*flags.CLIGlobalFlags) (commands.Result, error)
+	RunCmd(*flags.GlobalFlags) (commands.Result, error)
 }
 
 // CmdWithContextRunner represents a command to be run with context.
 type CmdWithContextRunner interface {
-	RunCmdWithContext(context.Context, *flags.CLIGlobalFlags) (commands.Result, error)
+	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
 }
 
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
-func (c *CLIFlags) Run(ctx *kong.Context, globals *flags.CLIGlobalFlags) error {
+func (c *CLIFlags) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 
@@ -80,10 +80,10 @@ func (c *CLIFlags) Run(ctx *kong.Context, globals *flags.CLIGlobalFlags) error {
 		panic("The command does not implement RunCmd()")
 	}
 
-	return printResponse(&c.CLIGlobalFlags, res, err)
+	return printResponse(&c.GlobalFlags, res, err)
 }
 
-func printResponse(opts *flags.CLIGlobalFlags, res commands.Result, err error) error {
+func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) error {
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
@@ -104,7 +104,7 @@ func printResponse(opts *flags.CLIGlobalFlags, res commands.Result, err error) e
 	return err
 }
 
-func printNilError(opts *flags.CLIGlobalFlags, res commands.Result) {
+func printNilError(opts *flags.GlobalFlags, res commands.Result) {
 	if opts.JSON {
 		b, jErr := json.Marshal(res)
 		if jErr != nil {
@@ -117,7 +117,7 @@ func printNilError(opts *flags.CLIGlobalFlags, res commands.Result) {
 	}
 }
 
-func printErrorResponse(opts *flags.CLIGlobalFlags, err commands.ErrorResponse) {
+func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 	e := commands.GetError(err)
 
 	if opts.JSON {
@@ -136,7 +136,7 @@ func printErrorResponse(opts *flags.CLIGlobalFlags, err commands.ErrorResponse) 
 	}
 }
 
-func printExitError(opts *flags.CLIGlobalFlags, res commands.Result, err *exec.ExitError) {
+func printExitError(opts *flags.GlobalFlags, res commands.Result, err *exec.ExitError) {
 	if opts.JSON {
 		b, jErr := json.Marshal(res)
 		if jErr != nil {
