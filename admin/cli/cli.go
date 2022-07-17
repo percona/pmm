@@ -51,7 +51,7 @@ type CmdRunner interface {
 	RunCmd() (commands.Result, error)
 }
 
-// CmdRunner represents a command to be run with global CLI flags.
+// CmdGlobalFlagsRunner represents a command to be run with global CLI flags.
 type CmdGlobalFlagsRunner interface {
 	RunCmd(*flags.GlobalFlags) (commands.Result, error)
 }

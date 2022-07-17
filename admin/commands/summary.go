@@ -346,6 +346,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	return //nolint:nakedret
 }
 
+// RunCmdWithContext runs summary command.
 func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename

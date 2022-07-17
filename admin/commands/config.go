@@ -133,6 +133,7 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 	return //nolint:nakedret
 }
 
+// RunCmd runs config command.
 func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
 	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
