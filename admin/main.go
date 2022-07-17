@@ -22,11 +22,11 @@ import (
 	"os/exec"
 	"os/signal"
 
+	"github.com/Masterminds/semver"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/Masterminds/semver"
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
@@ -35,9 +35,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var (
-	errMismatchedVersion = fmt.Errorf("PMM client version is out-of-sync from the server version and may not be compatible. See https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html")
-)
+var errMismatchedVersion = fmt.Errorf("PMM client version is out-of-sync from the server version and may not be compatible. See https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html")
 
 func main() {
 	kingpin.CommandLine.Name = "pmm-admin"
