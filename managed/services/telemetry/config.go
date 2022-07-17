@@ -19,6 +19,7 @@ package telemetry
 import (
 	_ "embed" //nolint:golint
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,14 +29,19 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
+const (
+	envTelemetryDisableSend = "PERCONA_TEST_TELEMETRY_DISABLE_SEND"
+)
+
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
-	l            *logrus.Entry
-	Enabled      bool     `yaml:"enabled"`
-	LoadDefaults bool     `yaml:"load_defaults"` //nolint:tagliatelle
-	telemetry    []Config `yaml:"-"`
-	SaasHostname string   `yaml:"saas_hostname"` //nolint:tagliatelle
-	DataSources  struct {
+	l             *logrus.Entry
+	ConfigFileEnv string   `yaml:"config_file_env"` //nolint:tagliatelle
+	Enabled       bool     `yaml:"enabled"`
+	LoadDefaults  bool     `yaml:"load_defaults"` //nolint:tagliatelle
+	telemetry     []Config `yaml:"-"`
+	SaasHostname  string   `yaml:"saas_hostname"` //nolint:tagliatelle
+	DataSources   struct {
 		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
 		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
 		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
@@ -111,8 +117,9 @@ func (c *Config) mapByColumn() map[string][]ConfigData {
 
 // ReportingConfig reporting config.
 type ReportingConfig struct {
-	SendOnStart     bool          `yaml:"send_on_start"` //nolint:tagliatelle
-	IntervalEnv     string        `yaml:"interval_env"`  //nolint:tagliatelle
+	SendOnStart     bool          `yaml:"send_on_start"`     //nolint:tagliatelle
+	SendOnStartEnv  string        `yaml:"send_on_start_env"` //nolint:tagliatelle
+	IntervalEnv     string        `yaml:"interval_env"`      //nolint:tagliatelle
 	Interval        time.Duration `yaml:"interval"`
 	RetryBackoffEnv string        `yaml:"retry_backoff_env"` //nolint:tagliatelle
 	RetryBackoff    time.Duration `yaml:"retry_backoff"`     //nolint:tagliatelle
@@ -127,7 +134,15 @@ var defaultConfig string
 func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	c.l = l
 
-	telemetry, err := c.loadConfig()
+	var configFile string
+	if c.ConfigFileEnv != "" {
+		configFileFromEnv, present := os.LookupEnv(c.ConfigFileEnv)
+		if present {
+			configFile = configFileFromEnv
+		}
+	}
+
+	telemetry, err := c.loadConfig(configFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to load telemetry config")
 	}
@@ -150,20 +165,60 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
+	telemetryDisabledStr, present := os.LookupEnv(envTelemetryDisableSend)
+	if present {
+		telemetryDisabled, err := strconv.ParseBool(telemetryDisabledStr)
+		if err != nil {
+			c.l.Warnf("Cannot parse envirounment variable [%s] as bool.", envTelemetryDisableSend)
+		} else {
+			c.l.Debugf("Overriding Telemetry.Enabled with envirounment variable [%s] to %t.", envTelemetryDisableSend, telemetryDisabled)
+			c.Enabled = !telemetryDisabled
+		}
+	} else {
+		c.l.Debugf("[%s] is not set", envTelemetryDisableSend)
+	}
+
+	if c.Reporting.SendOnStartEnv != "" {
+		c.l.Debugf("SendOnStartEnv is defined, checking ENV for [%s]", c.Reporting.SendOnStartEnv)
+		sendOnStartStr, present := os.LookupEnv(c.Reporting.SendOnStartEnv)
+		if present {
+			sendOnStart, err := strconv.ParseBool(sendOnStartStr)
+			if err != nil {
+				c.l.Warnf("Cannot parse envirounment variable [%s] as bool.", c.Reporting.SendOnStartEnv)
+			} else {
+				c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with envirounment variable [%s] to %t.", c.Reporting.SendOnStartEnv, sendOnStart)
+				c.Reporting.SendOnStart = sendOnStart
+			}
+		}
+
+	}
+
 	return nil
 }
 
-func (c *ServiceConfig) loadConfig() ([]Config, error) { //nolint:cyclop
+func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) { //nolint:cyclop
 	var fileConfigs []FileConfig //nolint:prealloc
 	var fileCfg FileConfig
 
-	if c.LoadDefaults {
-		defaultConfigBytes := []byte(defaultConfig)
-		if err := yaml.Unmarshal(defaultConfigBytes, &fileCfg); err != nil {
-			return nil, errors.Wrap(err, "cannot unmashal default config")
+	var config []byte
+	if configFile != "" {
+		file, err := os.ReadFile(configFile)
+		if err != nil {
+			return nil, err
 		}
-		fileConfigs = append(fileConfigs, fileCfg)
+		config = file
+		if c.LoadDefaults {
+			c.l.Debugf("LoadDefaults is set to TRUE, but ENV var [%s] is set and has priority.", c.ConfigFileEnv)
+		}
+	} else if c.LoadDefaults {
+		config = []byte(defaultConfig)
+	} else {
+		return nil, errors.New("file config should be provided via ENV [" + c.ConfigFileEnv + "] or LoadDefaults should be set to TRUE")
 	}
+	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
+		return nil, errors.Wrap(err, "cannot unmashal default config")
+	}
+	fileConfigs = append(fileConfigs, fileCfg)
 
 	if err := c.validateConfig(fileConfigs); err != nil {
 		c.l.Errorf(err.Error())
