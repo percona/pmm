@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -145,7 +144,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	err = downloadFile(zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "pmm-agent")
+	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "pmm-agent")
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}
@@ -248,39 +247,28 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 }
 
 // downloadFile download file and includes into zip file
-func downloadFile(zipW *zip.Writer, url, fileName string) error {
-	response, err := http.Get(url)
+func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
+	b, err := getURL(ctx, url)
 	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-
-	if response.StatusCode != 200 {
-		return errors.New("Received non 200 response code")
+		return errors.WithStack(err)
 	}
 
-	b, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return errors.Wrap(err, "cannot read response body")
-	}
-	bufR := bytes.NewReader(b)
+	responseReader := bytes.NewReader(b)
 
-	zipR, err := zip.NewReader(bufR, bufR.Size())
+	zipReader, err := zip.NewReader(responseReader, responseReader.Size())
 	if err != nil {
 		return errors.Wrap(err, "cannot create ZipLogs reader")
 	}
 
-	for _, rf := range zipR.File {
+	for _, rf := range zipReader.File {
 		rc, err := rf.Open()
 		if err != nil {
 			logrus.Errorf("%s", err)
 			continue
 		}
+		defer rc.Close() //nolint:errcheck
+
 		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc)
-		err = rc.Close()
-		if err != nil {
-			return errors.Wrap(err, "Fail to close file")
-		}
 	}
 	return nil
 }

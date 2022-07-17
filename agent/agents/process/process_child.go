@@ -24,7 +24,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -36,7 +36,7 @@ import (
 func main() {
 	flag.Parse()
 	logger := logrus.New()
-	logger.SetOutput(ioutil.Discard)
+	logger.SetOutput(io.Discard)
 	l := logrus.NewEntry(logger)
 
 	p := process.New(&process.Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
