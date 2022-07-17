@@ -49,8 +49,8 @@ func main() {
 	kingpin.Flag("debug", "Enable debug logging").BoolVar(&commands.GlobalFlags.Debug)
 	kingpin.Flag("trace", "Enable trace logging (implies debug)").BoolVar(&commands.GlobalFlags.Trace)
 	kingpin.Flag("pmm-agent-listen-port", "Set listen port of pmm-agent").Default(defaultListenPort).Uint32Var(&commands.GlobalFlags.PMMAgentListenPort)
+	noVersionCheck := kingpin.Flag("no-version-check", "Disable client/server compatibility checks").Bool()
 	jsonF := kingpin.Flag("json", "Enable JSON output").Bool()
-	versionCheck := kingpin.Flag("version-check", "Disable client/server compatibility checks").Default("true").Bool()
 
 	kingpin.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
@@ -160,7 +160,7 @@ func main() {
 		commands.SetupClients(ctx, *serverURLF)
 	}
 
-	if !*versionCheck {
+	if !*noVersionCheck {
 		clientVersion := version.Version
 		serverStatus, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err == nil {
