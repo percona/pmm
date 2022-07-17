@@ -266,9 +266,9 @@ func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) e
 			logrus.Errorf("%s", err)
 			continue
 		}
-		defer rc.Close() //nolint:errcheck
-
 		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc)
+
+		rc.Close() //nolint:errcheck
 	}
 	return nil
 }
