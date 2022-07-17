@@ -48,8 +48,8 @@ While addressing review comments push the requested changes as a new commit inst
     - [x] If change requests were made, all changes need to be resolved and re-approved by the original reviewers.
     - [x] Task should have Ready for merge status
     - [x] If all conditions for a successful merge are met (checks pass, code reviewed and approved, changes resolved and re-approved), ONLY then the PR can me merged:
-         * If a PR has Assignees, then the last approver should ping them in in the appropriate dev channel. Typically that means they want to merge several PRs in a feature build together.
-         * If a PR has no Assignees, then the last approver must assign it to the author and ping them on Slack.
+         * If an author has write permissions. An author should merge the PR.
+         * If an author doesn't have a write permissions, then author should ask someone with write permissions to merge.
          * If required checks fail for a confusing reason or some non-required checks fail for a long time, ping the appropriate dev channel.
     - [x] A PR should be merged with the "Squash and Merge" button (the code owner should set this as the only option in the repository settings).
     - [x] Never leave PRs fully approved, unassigned, and not merged.
