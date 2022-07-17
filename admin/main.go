@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/base"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/logger"
 	"github.com/percona/pmm/utils/nodeinfo"
@@ -116,12 +117,12 @@ func main() {
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
-		commands.SetupClients(ctx, opts.ServerURL)
+		base.SetupClients(ctx, &opts.CLIGlobalFlags)
 	}
 
 	commands.CLICtx = ctx
 
-	err := kongCtx.Run()
+	err := kongCtx.Run(&opts.CLIGlobalFlags)
 	if err != nil {
 		if opts.JSON {
 			b, jErr := json.Marshal(err.Error())

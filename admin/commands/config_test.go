@@ -20,6 +20,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/admin/cli/flags"
 )
 
 func TestConfigCommandArgs(t *testing.T) {
@@ -32,10 +34,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	t.Run("SwitchToTLS1", func(t *testing.T) {
 		u, err := url.Parse("http://127.0.0.1:80")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.CLIGlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-insecure-tls",
@@ -53,10 +52,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.CLIGlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
@@ -76,10 +72,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.CLIGlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
@@ -103,12 +96,11 @@ func TestConfigCommandArgs(t *testing.T) {
 
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-			Debug:     true,
-			Trace:     true,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.CLIGlobalFlags{
+			ServerURL:   u,
+			EnableDebug: true,
+			EnableTrace: true,
+		})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",

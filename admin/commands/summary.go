@@ -34,6 +34,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
@@ -240,7 +241,7 @@ type pprofData struct {
 }
 
 // addPprofData adds pprof data to zip file.
-func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
+func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, globals *flags.CLIGlobalFlags) {
 	profiles := []struct {
 		name    string
 		urlPath string
@@ -258,7 +259,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 
 	sources := map[string]string{
-		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, GlobalFlags.PMMAgentListenPort),
+		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, globals.PMMAgentListenPort),
 	}
 
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
@@ -310,7 +311,7 @@ type SummaryCommand struct {
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-func (cmd *SummaryCommand) makeArchive(ctx context.Context) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.CLIGlobalFlags) (err error) {
 	var f *os.File
 
 	if f, err = os.Create(cmd.Filename); err != nil {
@@ -335,7 +336,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context) (err error) {
 	addClientData(ctx, zipW)
 
 	if cmd.Pprof {
-		addPprofData(ctx, zipW, cmd.SkipServer)
+		addPprofData(ctx, zipW, cmd.SkipServer, globals)
 	}
 
 	if !cmd.SkipServer {
@@ -345,12 +346,12 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context) (err error) {
 	return //nolint:nakedret
 }
 
-func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context) (Result, error) {
+func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags.CLIGlobalFlags) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename
 	}
 
-	if err := cmd.makeArchive(ctx); err != nil {
+	if err := cmd.makeArchive(ctx, globals); err != nil {
 		return nil, err
 	}
 

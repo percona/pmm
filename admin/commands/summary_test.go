@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli/flags"
 )
 
 func TestSummary(t *testing.T) {
@@ -42,7 +43,7 @@ func TestSummary(t *testing.T) {
 		cmd := &SummaryCommand{
 			Filename: filename,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO())
+		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.CLIGlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -55,7 +56,7 @@ func TestSummary(t *testing.T) {
 			Filename:   filename,
 			SkipServer: true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO())
+		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.CLIGlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,
@@ -73,7 +74,7 @@ func TestSummary(t *testing.T) {
 			SkipServer: true,
 			Pprof:      true,
 		}
-		res, err := cmd.RunCmdWithContext(context.TODO())
+		res, err := cmd.RunCmdWithContext(context.TODO(), &flags.CLIGlobalFlags{})
 		require.NoError(t, err)
 		expected := &summaryResult{
 			Filename: filename,

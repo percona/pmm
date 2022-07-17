@@ -24,57 +24,14 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
-	"github.com/percona/pmm/version"
 )
 
-var isJSON = false
-
-type CLIGlobalFlags struct {
-	ServerURL               string      `placeholder:"SERVER-URL" help:"PMM Server URL in https://username:password@pmm-server-host/ format"`
-	SkipTLSCertificateCheck bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
-	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`
-	EnableTrace             bool        `name:"trace" help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort      uint32      `default:"${defaultListenPort}" help:"Set listen port of pmm-agent"`
-	JSON                    jsonFlag    `help:"Enable JSON output"`
-	Version                 versionFlag `short:"v" help:"Show application version"`
-}
-
-type versionFlag bool
-
-func (v versionFlag) BeforeApply(app *kong.Kong, ctx *kong.Context) error {
-	// For backwards compatibility we scan for "--json" flag.
-	// Kong parses the flags from left to right which breaks compatibility
-	// if the --json flag is after --version flag.
-	if !isJSON {
-		for _, arg := range os.Args[1:] {
-			if arg == "--json" {
-				isJSON = true
-			}
-		}
-	}
-
-	if isJSON {
-		fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
-	} else {
-		fmt.Println(version.FullInfo()) //nolint:forbidigo
-	}
-	os.Exit(0)
-
-	return nil
-}
-
-type jsonFlag bool
-
-func (v jsonFlag) BeforeApply() error {
-	isJSON = true
-	return nil
-}
-
 type CLIFlags struct {
-	CLIGlobalFlags
+	flags.CLIGlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
 	Summary    commands.SummaryCommand      `cmd:"" help:"Fetch system data for diagnostics"`
@@ -94,35 +51,39 @@ type CmdRunner interface {
 	RunCmd() (commands.Result, error)
 }
 
+// CmdRunner represents a command to be run with global CLI flags.
+type CmdGlobalFlagsRunner interface {
+	RunCmd(*flags.CLIGlobalFlags) (commands.Result, error)
+}
+
 // CmdWithContextRunner represents a command to be run with context.
 type CmdWithContextRunner interface {
-	RunCmdWithContext(context.Context) (commands.Result, error)
+	RunCmdWithContext(context.Context, *flags.CLIGlobalFlags) (commands.Result, error)
 }
 
 // Run function is a top-level function which handles running all commands
-// in a standard way.
-func (c *CLIFlags) Run(ctx *kong.Context) error {
+// in a standard way based on the interface they implement.
+func (c *CLIFlags) Run(ctx *kong.Context, globals *flags.CLIGlobalFlags) error {
 	var res commands.Result
 	var err error
 
 	i := ctx.Selected().Target.Addr().Interface()
 
-	cmdContext, ok := i.(CmdWithContextRunner)
-	if ok {
-		res, err = cmdContext.RunCmdWithContext(commands.CLICtx)
-	} else {
-		cmd, ok := i.(CmdRunner)
-		if !ok {
-			panic("The command does not implement RunCmd()")
-		}
-
+	switch cmd := i.(type) {
+	case CmdWithContextRunner:
+		res, err = cmd.RunCmdWithContext(commands.CLICtx, globals)
+	case CmdGlobalFlagsRunner:
+		res, err = cmd.RunCmd(globals)
+	case CmdRunner:
 		res, err = cmd.RunCmd()
+	default:
+		panic("The command does not implement RunCmd()")
 	}
 
 	return printResponse(&c.CLIGlobalFlags, res, err)
 }
 
-func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
+func printResponse(opts *flags.CLIGlobalFlags, res commands.Result, err error) error {
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
@@ -143,7 +104,7 @@ func printResponse(opts *CLIGlobalFlags, res commands.Result, err error) error {
 	return err
 }
 
-func printNilError(opts *CLIGlobalFlags, res commands.Result) {
+func printNilError(opts *flags.CLIGlobalFlags, res commands.Result) {
 	if opts.JSON {
 		b, jErr := json.Marshal(res)
 		if jErr != nil {
@@ -156,7 +117,7 @@ func printNilError(opts *CLIGlobalFlags, res commands.Result) {
 	}
 }
 
-func printErrorResponse(opts *CLIGlobalFlags, err commands.ErrorResponse) {
+func printErrorResponse(opts *flags.CLIGlobalFlags, err commands.ErrorResponse) {
 	e := commands.GetError(err)
 
 	if opts.JSON {
@@ -175,7 +136,7 @@ func printErrorResponse(opts *CLIGlobalFlags, err commands.ErrorResponse) {
 	}
 }
 
-func printExitError(opts *CLIGlobalFlags, res commands.Result, err *exec.ExitError) {
+func printExitError(opts *flags.CLIGlobalFlags, res commands.Result, err *exec.ExitError) {
 	if opts.JSON {
 		b, jErr := json.Marshal(res)
 		if jErr != nil {

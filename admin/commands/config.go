@@ -20,6 +20,8 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/cli/flags"
 )
 
 type configResult struct {
@@ -54,41 +56,41 @@ type ConfigCommand struct {
 	LogLevel          string `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 }
 
-func (cmd *ConfigCommand) args() (res []string, switchedToTLS bool) {
-	port := GlobalFlags.ServerURL.Port()
+func (cmd *ConfigCommand) args(globals *flags.CLIGlobalFlags) (res []string, switchedToTLS bool) {
+	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"
 	}
-	if GlobalFlags.ServerURL.Scheme == "http" {
+	if globals.ServerURL.Scheme == "http" {
 		port = "443"
 		switchedToTLS = true
-		GlobalFlags.ServerInsecureTLS = true
+		globals.SkipTLSCertificateCheck = true
 	}
-	res = append(res, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
+	res = append(res, fmt.Sprintf("--server-address=%s:%s", globals.ServerURL.Hostname(), port))
 
-	if GlobalFlags.ServerURL.User != nil {
-		res = append(res, fmt.Sprintf("--server-username=%s", GlobalFlags.ServerURL.User.Username()))
-		password, ok := GlobalFlags.ServerURL.User.Password()
+	if globals.ServerURL.User != nil {
+		res = append(res, fmt.Sprintf("--server-username=%s", globals.ServerURL.User.Username()))
+		password, ok := globals.ServerURL.User.Password()
 		if ok {
 			res = append(res, fmt.Sprintf("--server-password=%s", password))
 		}
 	}
 
-	if GlobalFlags.PMMAgentListenPort != 0 {
-		res = append(res, fmt.Sprintf("--listen-port=%d", GlobalFlags.PMMAgentListenPort))
+	if globals.PMMAgentListenPort != 0 {
+		res = append(res, fmt.Sprintf("--listen-port=%d", globals.PMMAgentListenPort))
 	}
 
-	if GlobalFlags.ServerInsecureTLS {
+	if globals.SkipTLSCertificateCheck {
 		res = append(res, "--server-insecure-tls")
 	}
 
 	if cmd.LogLevel != "" {
 		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
 	}
-	if GlobalFlags.Debug {
+	if globals.EnableDebug {
 		res = append(res, "--debug")
 	}
-	if GlobalFlags.Trace {
+	if globals.EnableTrace {
 		res = append(res, "--trace")
 	}
 
@@ -131,8 +133,8 @@ func (cmd *ConfigCommand) args() (res []string, switchedToTLS bool) {
 	return //nolint:nakedret
 }
 
-func (cmd *ConfigCommand) RunCmd() (Result, error) {
-	args, switchedToTLS := cmd.args()
+func (cmd *ConfigCommand) RunCmd(globals *flags.CLIGlobalFlags) (Result, error) {
+	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.Output() // hide pmm-agent's stderr logging
