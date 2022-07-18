@@ -2,23 +2,28 @@
 
 include Makefile.include
 
-env-up: env-compose-up env-devcontainer     ## Start devcontainer.
+env-up: 							## Start devcontainer.
+	docker-compose up -d
 
-env-compose-up:
-	docker-compose pull
+env-up-rebuild: env-update-image	## Start devcontainer with rebuild.
+	docker-compose up --build -d
+
+env-update-image:					## Pull latest dev image
+	docker pull "perconalab/pmm-server:dev-latest"
+
+env-compose-up: env-update-image
 	docker-compose up --detach --renew-anon-volumes --remove-orphans
 
 env-devcontainer:
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
 
-env-down:                                   ## Stop devcontainer.
+env-down:							## Stop devcontainer.
 	docker-compose down --remove-orphans
 
 env-remove:
 	docker-compose down --volumes --remove-orphans
 
-
 TARGET ?= _bash
 
-env:                                        ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
+env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
