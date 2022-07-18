@@ -112,7 +112,7 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 
-	if len(cmd.DisableCollectors) > 0 {
+	if len(cmd.DisableCollectors) != 0 {
 		res = append(res, fmt.Sprintf("--disable-collectors=%s", strings.Join(cmd.DisableCollectors, ",")))
 	}
 

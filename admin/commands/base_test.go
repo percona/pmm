@@ -129,7 +129,7 @@ func TestParseCustomLabel(t *testing.T) {
 	}{
 		{"simple label", map[string]string{"foo": "bar"}, map[string]string{"foo": "bar"}},
 		{"two labels", map[string]string{"foo": "bar", "bar": "foo"}, map[string]string{"foo": "bar", "bar": "foo"}},
-		{"no value", map[string]string{"foo": ""}, map[string]string{}},
+		{"no value", map[string]string{"foo": ""}, make(map[string]string)},
 		{"trim spaces", map[string]string{"foo": " bar "}, map[string]string{"foo": "bar"}},
 		{"PMM-4078 hyphen", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
 	} {

@@ -164,7 +164,7 @@ func ParseCustomLabels(labels map[string]string) map[string]string {
 func ParseDisableCollectors(collectors []string) []string {
 	var disableCollectors []string
 
-	if len(collectors) > 0 {
+	if len(collectors) != 0 {
 		for _, v := range collectors {
 			disableCollector := strings.TrimSpace(v)
 			if disableCollector == "" {
