@@ -1,3 +1,18 @@
+// Copyright (C) 2021 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 //go:build tools
 
 package tools
@@ -5,6 +20,7 @@ package tools
 import (
 	_ "github.com/BurntSushi/go-sumtype"
 	_ "github.com/Percona-Lab/swagger-order"
+	_ "github.com/apache/skywalking-eyes/cmd/license-eye"
 	_ "github.com/bufbuild/buf/cmd/buf"
 	_ "github.com/daixiang0/gci"
 	_ "github.com/go-delve/delve/cmd/dlv"
@@ -48,3 +64,4 @@ import (
 //go:generate go build -o ../bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 //go:generate go build -o ../bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 //go:generate go build -o ../bin/swagger-order github.com/Percona-Lab/swagger-order
+//go:generate env CGO_ENABLED=0 go build -o ../bin/license-eye github.com/apache/skywalking-eyes/cmd/license-eye
