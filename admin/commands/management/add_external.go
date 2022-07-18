@@ -28,8 +28,10 @@ import (
 )
 
 const (
+	// DefaultGroupExternalExporter defines default group name for external exporter.
 	DefaultGroupExternalExporter = "external"
-	DefaultServiceNameSuffix     = "-external"
+	// DefaultServiceNameSuffix defines default service suffix for external exporter.
+	DefaultServiceNameSuffix = "-external"
 )
 
 var addExternalResultT = commands.ParseTemplate(`

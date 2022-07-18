@@ -88,11 +88,13 @@ type StatusCommand struct {
 	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
 }
 
+// BeforeApply is run before the command is applied.
 func (cmd *StatusCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil
 }
 
+// RunCmd runs the StatusCommand.
 func (cmd *StatusCommand) RunCmd() (Result, error) {
 	// Unlike list, this command uses only local pmm-agent status.
 	// It does not use PMM Server APIs.

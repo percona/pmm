@@ -31,11 +31,13 @@ func (v versionResult) MarshalJSON() ([]byte, error) {
 // VersionCommand is used for CLI flags and commands.
 type VersionCommand struct{}
 
+// BeforeApply is run before the command is applied.
 func (cmd *VersionCommand) BeforeApply() error {
 	SetupClientsEnabled = false
 	return nil
 }
 
+// RunCmd runs VersionCommand.
 func (cmd *VersionCommand) RunCmd() (Result, error) {
 	return versionResult{}, nil
 }

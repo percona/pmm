@@ -12,6 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+// Package cli stores cli configuration and common logic for commands
 package cli
 
 import (
@@ -30,6 +32,7 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 )
 
+// CLIFlags stores flags for all commands.
 type CLIFlags struct {
 	flags.GlobalFlags
 

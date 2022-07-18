@@ -30,9 +30,12 @@ import (
 )
 
 const (
-	MysqlQuerySourceSlowLog    = "slowlog"
+	// MysqlQuerySourceSlowLog defines available source name for profiler.
+	MysqlQuerySourceSlowLog = "slowlog"
+	// MysqlQuerySourcePerfSchema defines available source name for profiler.
 	MysqlQuerySourcePerfSchema = "perfschema"
-	MysqlQuerySourceNone       = "none"
+	// MysqlQuerySourceNone defines available source name for profiler.
+	MysqlQuerySourceNone = "none"
 )
 
 var addMySQLResultT = commands.ParseTemplate(`

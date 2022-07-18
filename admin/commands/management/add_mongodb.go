@@ -27,8 +27,10 @@ import (
 )
 
 const (
+	// MongodbQuerySourceProfiler defines available source name for profiler.
 	MongodbQuerySourceProfiler = "profiler"
-	MongodbQuerySourceNone     = "none"
+	// MongodbQuerySourceNone defines available source name for profiler.
+	MongodbQuerySourceNone = "none"
 )
 
 var addMongoDBResultT = commands.ParseTemplate(`

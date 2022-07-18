@@ -47,7 +47,7 @@ func (res *addServiceMongoDBResult) String() string {
 	return commands.RenderTemplate(addServiceMongoDBResultT, res)
 }
 
-// AddServiceCommand is used by Kong for CLI flags and commands.
+// AddServiceMongoDBCommand is used by Kong for CLI flags and commands.
 type AddServiceMongoDBCommand struct {
 	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
 	NodeID         string `arg:"" optional:"" help:"Node ID"`

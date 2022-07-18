@@ -73,6 +73,7 @@ type AddExternalServerlessCommand struct {
 	SkipConnectionCheck bool   `help:"Skip exporter connection checks"`
 }
 
+// Help returns cli usage help.
 func (cmd *AddExternalServerlessCommand) Help() string {
 	return `Usage example:
 sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics
