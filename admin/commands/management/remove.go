@@ -82,7 +82,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		case len(servicesRes.Payload.External) == 1:
 			cmd.ServiceID = servicesRes.Payload.External[0].ServiceID
 		}
-		if cmd.ServiceID == "" { //nolint:errorlint,goerr113
+		if cmd.ServiceID == "" { //nolint:golint
 			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
 		}
 	}
