@@ -32,13 +32,13 @@ import (
 	"sort"
 	"time"
 
+	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/percona/promconfig/alertmanager"
 )
 
 const (
@@ -147,7 +147,6 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		})
 	}
 	for _, f := range []string{
-
 		"/etc/alertmanager.yml",
 		"/srv/alertmanager/alertmanager.base.yml",
 	} {
