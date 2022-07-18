@@ -63,7 +63,7 @@ func main() {
 	}
 
 	// Configure CLI
-	var opts cli.CLIFlags
+	var opts cli.Commands
 	kongCtx := kong.Parse(&opts,
 		kong.Name("pmm-admin"),
 		kong.Description(fmt.Sprintf("Version %s", version.Version)),

@@ -32,8 +32,8 @@ import (
 	"github.com/percona/pmm/admin/commands/management"
 )
 
-// CLIFlags stores flags for all commands.
-type CLIFlags struct {
+// Commands stores all commands, flags and arguments.
+type Commands struct {
 	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
@@ -66,7 +66,7 @@ type CmdWithContextRunner interface {
 
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
-func (c *CLIFlags) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 
