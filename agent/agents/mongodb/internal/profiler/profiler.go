@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,11 +23,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/sender"
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 )
 
 // New creates new Profiler
@@ -192,8 +191,13 @@ func signalReady(ready *sync.Cond) {
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutDialInfo)
 	defer cancel()
-	opts := options.Client().
-		ApplyURI(dsn).
+
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	opts = opts.
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(MgoTimeoutSessionSocket).

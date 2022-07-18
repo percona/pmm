@@ -61,13 +61,6 @@ def install_go():
         "go env"
     ])
 
-def make_release_dev():
-    """Runs make release-dev."""
-
-    run_commands([
-        "make release-dev",
-    ])
-
 def make_init():
     """Runs make init."""
 
@@ -96,7 +89,6 @@ def main():
     # make install (requires make package)
     install_packages_p.join()
     make_init()
-    make_release_dev()
 
     # do basic setup
     setup()

@@ -65,6 +65,7 @@ linters:
     - wsl               # too annoying
 
 run:
+  timeout: 5m
   skip-dirs:
     - agent/agents/mongodb/internal/
 

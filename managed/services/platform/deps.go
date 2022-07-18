@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2022 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify

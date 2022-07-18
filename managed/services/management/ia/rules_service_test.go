@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -46,10 +45,11 @@ func TestCreateAlertRule(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	// Enable IA
+	// Enable IA and disable telemetry to prevent network calls
 	settings, err := models.GetSettings(db)
 	require.NoError(t, err)
 	settings.IntegratedAlerting.Enabled = true
+	settings.Telemetry.Disabled = true
 	err = models.SaveSettings(db, settings)
 	require.NoError(t, err)
 
@@ -72,7 +72,7 @@ func TestCreateAlertRule(t *testing.T) {
 	channelID := respC.ChannelId
 
 	// Load test templates
-	templates, err := NewTemplatesService(db)
+	templates, err := NewTemplatesService(db, nil)
 	require.NoError(t, err)
 	templates.userTemplatesPath = testTemplates2
 	templates.CollectTemplates(ctx)
