@@ -153,16 +153,17 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		"/srv/alertmanager/alertmanager.base.yml",
 	} {
 		b, m, err := readFile(f)
-		if err != nil {
+		if err == nil {
+			b, err = maskSensitiveValues(b)
+			files = append(files, fileContent{
+				Name:     filepath.Base(f),
+				Modified: m,
+				Data:     b,
+				Err:      err,
+			})
+		} else {
 			logger.Get(ctx).WithField("component", "logs").Error(err)
 		}
-		b, err = maskSensitiveValues(b)
-		files = append(files, fileContent{
-			Name:     filepath.Base(f),
-			Modified: m,
-			Data:     b,
-			Err:      err,
-		})
 	}
 	// add configs
 	for _, f := range []string{
