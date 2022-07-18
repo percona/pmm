@@ -1,12 +1,7 @@
 services:
-  platform:
-    skip_tls_verification: false
   telemetry:
     enabled: true
     load_defaults: true
-    endpoints:
-      # %s is substituted with `saas_hostname`
-      report: https://%s/v1/telemetry/Report
     datasources:
       VM:
         enabled: true
@@ -24,7 +19,6 @@ services:
           username: pmm
           password: pmm
     reporting:
-      skip_tls_verification: false
       send_on_start: false
       interval: 24h
       interval_env: "PERCONA_TEST_TELEMETRY_INTERVAL"

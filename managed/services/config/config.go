@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,7 +25,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/telemetry"
 )
 
@@ -47,7 +45,6 @@ type Service struct {
 // Config application config.
 type Config struct {
 	Services struct {
-		Platform  platform.Config         `yaml:"platform"`
 		Telemetry telemetry.ServiceConfig `yaml:"telemetry"`
 	} `yaml:"services"`
 }
@@ -90,7 +87,6 @@ func (s *Service) Load() error {
 		}
 	}
 
-	cfg.Services.Platform.Init()
 	if err := cfg.Services.Telemetry.Init(s.l); err != nil {
 		return err
 	}
