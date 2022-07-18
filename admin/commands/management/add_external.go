@@ -53,22 +53,22 @@ func (res *addExternalResult) String() string {
 
 // AddExternalCommand is used by Kong for CLI flags and commands.
 type AddExternalCommand struct {
-	ServiceName         string `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
-	RunsOnNodeID        string `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
-	Username            string `help:"External username"`
-	Password            string `help:"External password"`
-	CredentialsSource   string `type:"existingfile" help:"Credentials provider"`
-	Scheme              string `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
-	MetricsPath         string `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16 `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
-	NodeID              string `name:"service-node-id" help:"Node ID where service runs (default is autodetected)"`
-	Environment         string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
-	Cluster             string `placeholder:"east-cluster" help:"Cluster name"`
-	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
-	MetricsMode         string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
-	Group               string `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
-	SkipConnectionCheck bool   `help:"Skip exporter connection checks"`
+	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
+	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
+	Username            string            `help:"External username"`
+	Password            string            `help:"External password"`
+	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
+	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
+	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
+	NodeID              string            `name:"service-node-id" help:"Node ID where service runs (default is autodetected)"`
+	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
+	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 }
 
 func (cmd *AddExternalCommand) GetCredentials() error {
@@ -84,10 +84,7 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 }
 
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

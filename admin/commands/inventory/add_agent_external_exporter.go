@@ -49,22 +49,19 @@ func (res *addAgentExternalExporterResult) String() string {
 
 // AddAgentExternalExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentExternalExporterCommand struct {
-	RunsOnNodeID string `required:"" help:"Node identifier where this instance runs"`
-	ServiceID    string `required:"" help:"Service identifier"`
-	Username     string `help:"HTTP Basic auth username for scraping metrics"`
-	Password     string `help:"HTTP Basic auth password for scraping metrics"`
-	Scheme       string `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
-	MetricsPath  string `help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort   int64  `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
-	CustomLabels string `help:"Custom user-assigned labels"`
-	PushMetrics  bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	RunsOnNodeID string            `required:"" help:"Node identifier where this instance runs"`
+	ServiceID    string            `required:"" help:"Service identifier"`
+	Username     string            `help:"HTTP Basic auth username for scraping metrics"`
+	Password     string            `help:"HTTP Basic auth password for scraping metrics"`
+	Scheme       string            `help:"Scheme to generate URI to exporter metrics endpoints (http, https)"`
+	MetricsPath  string            `help:"Path under which metrics are exposed, used to generate URI"`
+	ListenPort   int64             `required:"" placeholder:"port" help:"Listen port for scraping metrics"`
+	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	PushMetrics  bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
 func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)

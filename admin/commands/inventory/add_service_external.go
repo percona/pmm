@@ -44,20 +44,17 @@ func (res *addServiceExternalResult) String() string {
 
 // AddServiceExternalCommand is used by Kong for CLI flags and commands.
 type AddServiceExternalCommand struct {
-	ServiceName    string `name:"name" required:"" help:"External service name. Required"`
-	NodeID         string `required:"" help:"External service node ID. Required"`
-	Environment    string `help:"Environment name"`
-	Cluster        string `help:"Cluster name"`
-	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
-	Group          string `help:"Group name of external service"`
+	ServiceName    string            `name:"name" required:"" help:"External service name. Required"`
+	NodeID         string            `required:"" help:"External service node ID. Required"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
+	Group          string            `help:"Group name of external service"`
 }
 
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &services.AddExternalServiceParams{
 		Body: services.AddExternalServiceBody{

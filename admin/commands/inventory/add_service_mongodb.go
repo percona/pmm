@@ -49,22 +49,19 @@ func (res *addServiceMongoDBResult) String() string {
 
 // AddServiceMongoDBCommand is used by Kong for CLI flags and commands.
 type AddServiceMongoDBCommand struct {
-	ServiceName    string `arg:"" optional:"" name:"name" help:"Service name"`
-	NodeID         string `arg:"" optional:"" help:"Node ID"`
-	Address        string `arg:"" optional:"" help:"Address"`
-	Port           int64  `arg:"" optional:"" help:"Port"`
-	Socket         string `help:"Path to socket"`
-	Environment    string `help:"Environment name"`
-	Cluster        string `help:"Cluster name"`
-	ReplicationSet string `help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels"`
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string            `arg:"" optional:"" help:"Node ID"`
+	Address        string            `arg:"" optional:"" help:"Address"`
+	Port           int64             `arg:"" optional:"" help:"Port"`
+	Socket         string            `help:"Path to socket"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
 }
 
 func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddMongoDBServiceParams{
 		Body: services.AddMongoDBServiceBody{
 			ServiceName:    cmd.ServiceName,

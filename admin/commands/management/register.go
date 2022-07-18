@@ -44,28 +44,25 @@ func (res *registerResult) String() string {
 
 // RegisterCommand is used by Kong for CLI flags and commands.
 type RegisterCommand struct {
-	Address           string `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
-	NodeType          string `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`
-	NodeName          string `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
-	MachineID         string `default:"${defaultMachineID}" help:"Node machine-id (default is autodetected)"`
-	Distro            string `default:"${distro}" help:"Node OS distribution (default is autodetected)"`
-	ContainerID       string `help:"Container ID"`
-	ContainerName     string `help:"Container name"`
-	NodeModel         string `help:"Node model"`
-	Region            string `help:"Node region"`
-	Az                string `help:"Node availability zone"`
-	CustomLabels      string `help:"Custom user-assigned labels"`
-	AgentPassword     string `help:"Custom password for /metrics endpoint"`
-	Force             bool   `help:"Re-register Node"`
-	MetricsMode       string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
-	DisableCollectors string `help:"Comma-separated list of collector names to exclude from exporter"`
+	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
+	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`
+	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (default is autodetected)"`
+	Distro            string            `default:"${distro}" help:"Node OS distribution (default is autodetected)"`
+	ContainerID       string            `help:"Container ID"`
+	ContainerName     string            `help:"Container name"`
+	NodeModel         string            `help:"Node model"`
+	Region            string            `help:"Node region"`
+	Az                string            `help:"Node availability zone"`
+	CustomLabels      map[string]string `help:"Custom user-assigned labels"`
+	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
+	Force             bool              `help:"Re-register Node"`
+	MetricsMode       string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
 func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{

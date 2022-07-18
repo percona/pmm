@@ -44,12 +44,12 @@ func (res *addServiceHAProxyResult) String() string {
 
 // AddServiceHAProxyCommand is used by Kong for CLI flags and commands.
 type AddServiceHAProxyCommand struct {
-	ServiceName    string `arg:"" optional:"" name:"name" help:"HAProxy service name"`
-	NodeID         string `arg:"" optional:"" help:"HAProxy service node ID"`
-	Environment    string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
-	Cluster        string `placeholder:"east-cluster" help:"Cluster name"`
-	ReplicationSet string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels   string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"HAProxy service name"`
+	NodeID         string            `arg:"" optional:"" help:"HAProxy service node ID"`
+	Environment    string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster        string            `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
 }
 
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
@@ -58,10 +58,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &services.AddHAProxyServiceParams{
 		Body: services.AddHAProxyServiceBody{

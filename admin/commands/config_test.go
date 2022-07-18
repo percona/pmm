@@ -68,7 +68,7 @@ func TestConfigCommandArgs(t *testing.T) {
 			NodeAddress:       "1.2.3.4",
 			NodeType:          "generic",
 			NodeName:          "node1",
-			DisableCollectors: "cpu,diskstats",
+			DisableCollectors: []string{"cpu", "diskstats"},
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)

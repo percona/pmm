@@ -98,24 +98,24 @@ type AddMySQLCommand struct {
 	Password      string `help:"MySQL password"`
 	AgentPassword string `help:"Custom password for /metrics endpoint"`
 	// TODO add "auto", make it default
-	QuerySource            string           `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
-	DisableQueryExamples   bool             `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	MaxSlowlogFileSize     units.Base2Bytes `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
-	DisableTablestats      bool             `help:"Disable table statistics collection"`
-	DisableTablestatsLimit uint16           `help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
-	Environment            string           `help:"Environment name"`
-	Cluster                string           `help:"Cluster name"`
-	ReplicationSet         string           `help:"Replication set name"`
-	CustomLabels           string           `help:"Custom user-assigned labels"`
-	SkipConnectionCheck    bool             `help:"Skip connection check"`
-	TLS                    bool             `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool             `help:"Skip TLS certificates validation"`
-	TLSCaFile              string           `name:"tls-ca" help:"Path to certificate authority certificate file"`
-	TLSCertFile            string           `name:"tls-cert" help:"Path to client certificate file"`
-	TLSKeyFile             string           `name:"tls-key" help:"Path to client key file"`
-	CreateUser             bool             `hidden:"" help:"Create pmm user"`
-	MetricsMode            string           `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
-	DisableCollectors      string           `help:"Comma-separated list of collector names to exclude from exporter"`
+	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
+	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
+	DisableTablestats      bool              `help:"Disable table statistics collection"`
+	DisableTablestatsLimit uint16            `help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
+	Environment            string            `help:"Environment name"`
+	Cluster                string            `help:"Cluster name"`
+	ReplicationSet         string            `help:"Replication set name"`
+	CustomLabels           map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
+	CreateUser             bool              `hidden:"" help:"Create pmm user"`
+	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
 }
@@ -137,17 +137,17 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 }
 
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
 			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
 	}
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
 		if err != nil {

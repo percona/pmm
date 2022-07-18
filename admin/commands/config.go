@@ -41,19 +41,19 @@ func (res *configResult) String() string {
 
 // ConfigCommand is used by Kong for CLI flags and commands.
 type ConfigCommand struct {
-	NodeAddress       string `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
-	NodeType          string `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
-	NodeName          string `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
-	NodeModel         string `help:"Node model"`
-	Region            string `help:"Node region"`
-	Az                string `help:"Node availability zone"`
-	AgentPassword     string `help:"Custom password for /metrics endpoint"`
-	Force             bool   `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
-	MetricsMode       string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
-	DisableCollectors string `help:"Comma-separated list of collector names to exclude from exporter"`
-	CustomLabels      string `help:"Custom user-assigned labels"`
-	BasePath          string `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
-	LogLevel          string `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
+	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
+	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
+	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	NodeModel         string   `help:"Node model"`
+	Region            string   `help:"Node region"`
+	Az                string   `help:"Node availability zone"`
+	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
+	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
+	MetricsMode       string   `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
+	CustomLabels      string   `help:"Custom user-assigned labels"`
+	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
+	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
@@ -112,8 +112,8 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 
-	if cmd.DisableCollectors != "" {
-		res = append(res, fmt.Sprintf("--disable-collectors=%s", cmd.DisableCollectors))
+	if len(cmd.DisableCollectors) > 0 {
+		res = append(res, fmt.Sprintf("--disable-collectors=%s", strings.Join(cmd.DisableCollectors, ",")))
 	}
 
 	if cmd.CustomLabels != "" {

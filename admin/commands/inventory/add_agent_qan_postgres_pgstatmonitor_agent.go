@@ -47,27 +47,27 @@ func (res *addAgentQANPostgreSQLPgStatMonitorAgentResult) String() string {
 
 // AddAgentQANPostgreSQLPgStatMonitorAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
-	PMMAgentID            string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID             string `arg:"" help:"Service identifier"`
-	Username              string `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
-	Password              string `help:"PostgreSQL password for QAN agent"`
-	CustomLabels          string `help:"Custom user-assigned labels"`
-	SkipConnectionCheck   bool   `help:"Skip connection check"`
-	QueryExamplesDisabled bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	TLS                   bool   `help:"Use TLS to connect to the database"`
-	TLSSkipVerify         bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile             string `name:"tls-ca-file" help:"TLS CA certificate file"`
-	TLSCertFile           string `help:"TLS certificate file"`
-	TLSKeyFile            string `help:"TLS certificate key file"`
+	PMMAgentID            string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID             string            `arg:"" help:"Service identifier"`
+	Username              string            `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
+	Password              string            `help:"PostgreSQL password for QAN agent"`
+	CustomLabels          map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck   bool              `help:"Skip connection check"`
+	QueryExamplesDisabled bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	TLS                   bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify         bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile             string            `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile           string            `help:"TLS certificate file"`
+	TLSKeyFile            string            `help:"TLS certificate key file"`
 }
 
 func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {

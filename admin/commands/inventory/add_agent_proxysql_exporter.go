@@ -47,24 +47,21 @@ func (res *addAgentProxysqlExporterResult) String() string {
 
 // AddAgentProxysqlExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentProxysqlExporterCommand struct {
-	PMMAgentID          string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID           string `arg:"" help:"Service identifier"`
-	Username            string `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
-	Password            string `help:"ProxySQL password for scraping metrics"`
-	AgentPassword       string `help:"Custom password for /metrics endpoint"`
-	CustomLabels        string `help:"Custom user-assigned labels"`
-	SkipConnectionCheck bool   `help:"Skip connection check"`
-	TLS                 bool   `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool   `help:"Skip TLS certificates validation"`
-	PushMetrics         bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	DisableCollectors   string `help:"Comma-separated list of collector names to exclude from exporter"`
+	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID           string            `arg:"" help:"Service identifier"`
+	Username            string            `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
+	Password            string            `help:"ProxySQL password for scraping metrics"`
+	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
+	TLS                 bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddProxySQLExporterParams{
 		Body: agents.AddProxySQLExporterBody{
 			PMMAgentID:          cmd.PMMAgentID,

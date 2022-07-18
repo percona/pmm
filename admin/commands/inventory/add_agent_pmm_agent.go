@@ -40,15 +40,12 @@ func (res *addPMMAgentResult) String() string {
 
 // AddPMMAgentCommand is used by Kong for CLI flags and commands.
 type AddPMMAgentCommand struct {
-	RunsOnNodeID string `arg:"" help:"Node identifier where this instance runs"`
-	CustomLabels string `help:"Custom user-assigned labels"`
+	RunsOnNodeID string            `arg:"" help:"Node identifier where this instance runs"`
+	CustomLabels map[string]string `help:"Custom user-assigned labels"`
 }
 
 func (cmd *AddPMMAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddPMMAgentParams{
 		Body: agents.AddPMMAgentBody{
 			RunsOnNodeID: cmd.RunsOnNodeID,

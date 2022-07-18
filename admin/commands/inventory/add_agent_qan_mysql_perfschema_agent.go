@@ -54,27 +54,27 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
 
 // AddAgentQANMySQLPerfSchemaAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMySQLPerfSchemaAgentCommand struct {
-	PMMAgentID           string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID            string `arg:"" help:"Service identifier"`
-	Username             string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
-	Password             string `help:"MySQL password for scraping metrics"`
-	CustomLabels         string `help:"Custom user-assigned labels"`
-	SkipConnectionCheck  bool   `help:"Skip connection check"`
-	DisableQueryExamples bool   `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	TLS                  bool   `help:"Use TLS to connect to the database"`
-	TLSSkipVerify        bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile            string `name:"tls-ca" help:"Path to certificate authority certificate file"`
-	TLSCertFile          string `name:"tls-cert" help:"Path to client certificate file"`
-	TLSKeyFile           string `name:"tls-key" help:"Path to client key file"`
+	PMMAgentID           string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID            string            `arg:"" help:"Service identifier"`
+	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
+	Password             string            `help:"MySQL password for scraping metrics"`
+	CustomLabels         map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	TLS                  bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
 }
 
 func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {

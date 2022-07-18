@@ -45,20 +45,20 @@ func (res *addHAProxyResult) String() string {
 
 // AddHAProxyCommand is used by Kong for CLI flags and commands.
 type AddHAProxyCommand struct {
-	ServiceName         string `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
-	Username            string `help:"HAProxy username"`
-	Password            string `help:"HAProxy password"`
-	CredentialsSource   string `type:"existingfile" help:"Credentials provider"`
-	Scheme              string `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
-	MetricsPath         string `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16 `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
-	NodeID              string `help:"Node ID (default is autodetected)"`
-	Environment         string `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
-	Cluster             string `placeholder:"east-cluster" help:"Cluster name"`
-	ReplicationSet      string `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
-	MetricsMode         string `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
-	SkipConnectionCheck bool   `help:"Skip connection check"`
+	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
+	Username            string            `help:"HAProxy username"`
+	Password            string            `help:"HAProxy password"`
+	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
+	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
+	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
+	NodeID              string            `help:"Node ID (default is autodetected)"`
+	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
 }
 
 func (cmd *AddHAProxyCommand) GetCredentials() error {
@@ -79,10 +79,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)

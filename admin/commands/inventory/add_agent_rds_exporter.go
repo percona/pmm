@@ -46,23 +46,19 @@ func (res *addAgentRDSExporterResult) String() string {
 
 // AddAgentRDSExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentRDSExporterCommand struct {
-	PMMAgentID             string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	NodeID                 string `arg:"" help:"Node identifier"`
-	AWSAccessKey           string `help:"AWS Access Key ID"`
-	AWSSecretKey           string `help:"AWS Secret Access Key"`
-	CustomLabels           string `help:"Custom user-assigned labels"`
-	SkipConnectionCheck    bool   `help:"Skip connection check"`
-	DisableBasicMetrics    bool   `help:"Disable basic metrics"`
-	DisableEnhancedMetrics bool   `help:"Disable enhanced metrics"`
-	PushMetrics            bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	PMMAgentID             string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	NodeID                 string            `arg:"" help:"Node identifier"`
+	AWSAccessKey           string            `help:"AWS Access Key ID"`
+	AWSSecretKey           string            `help:"AWS Secret Access Key"`
+	CustomLabels           map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
+	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
+	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 }
 
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
-
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddRDSExporterParams{
 		Body: agents.AddRDSExporterBody{
 			PMMAgentID:             cmd.PMMAgentID,

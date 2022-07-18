@@ -45,12 +45,12 @@ func (res *annotationResult) String() string {
 
 // AnnotationCommand is used by Kong for CLI flags and commands.
 type AnnotationCommand struct {
-	Text        string `arg:"" help:"Text of annotation"`
-	Tags        string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`
-	Node        bool   `help:"Annotate current node"`
-	NodeName    string `help:"Name of node to annotate"`
-	Service     bool   `help:"Annotate services of current node"`
-	ServiceName string `help:"Name of service to annotate"`
+	Text        string   `arg:"" help:"Text of annotation"`
+	Tags        []string `help:"Tags to filter annotations. Multiple tags are separated by a comma"`
+	Node        bool     `help:"Annotate current node"`
+	NodeName    string   `help:"Name of node to annotate"`
+	Service     bool     `help:"Annotate services of current node"`
+	ServiceName string   `help:"Name of service to annotate"`
 }
 
 func (cmd *AnnotationCommand) nodeName() (string, error) {
@@ -142,9 +142,8 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 
 // Run runs annotation command.
 func (cmd *AnnotationCommand) RunCmd() (Result, error) {
-	tags := strings.Split(cmd.Tags, ",")
-	for i := range tags {
-		tags[i] = strings.TrimSpace(tags[i])
+	for i := range cmd.Tags {
+		cmd.Tags[i] = strings.TrimSpace(cmd.Tags[i])
 	}
 
 	nodeName, err := cmd.nodeName()
@@ -160,7 +159,7 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 	_, err = managementClient.Default.Annotation.AddAnnotation(&annotation.AddAnnotationParams{
 		Body: annotation.AddAnnotationBody{
 			Text:         cmd.Text,
-			Tags:         tags,
+			Tags:         cmd.Tags,
 			NodeName:     nodeName,
 			ServiceNames: serviceNames,
 		},

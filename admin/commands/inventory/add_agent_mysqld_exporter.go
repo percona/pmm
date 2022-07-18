@@ -80,30 +80,30 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 
 // AddAgentMysqldExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentMysqldExporterCommand struct {
-	PMMAgentID                string `arg:"" help:"The pmm-agent identifier which runs this instance"`
-	ServiceID                 string `arg:"" help:"Service identifier"`
-	Username                  string `arg:"" optional:"" help:"MySQL username for scraping metrics"`
-	Password                  string `help:"MySQL password for scraping metrics"`
-	AgentPassword             string `help:"Custom password for /metrics endpoint"`
-	CustomLabels              string `help:"Custom user-assigned labels"`
-	SkipConnectionCheck       bool   `help:"Skip connection check"`
-	TLS                       bool   `help:"Use TLS to connect to the database"`
-	TLSSkipVerify             bool   `help:"Skip TLS certificates validation"`
-	TLSCAFile                 string `name:"tls-ca" help:"Path to certificate authority certificate file"`
-	TLSCertFile               string `name:"tls-cert" help:"Path to client certificate file"`
-	TLSKeyFile                string `name:"tls-key" help:"Path to client key file"`
-	TablestatsGroupTableLimit int32  `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
-	PushMetrics               bool   `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-	DisableCollectors         string `help:"Comma-separated list of collector names to exclude from exporter"`
+	PMMAgentID                string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                 string            `arg:"" help:"Service identifier"`
+	Username                  string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
+	Password                  string            `help:"MySQL password for scraping metrics"`
+	AgentPassword             string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels              map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck       bool              `help:"Skip connection check"`
+	TLS                       bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify             bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile                 string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile               string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile                string            `name:"tls-key" help:"Path to client key file"`
+	TablestatsGroupTableLimit int32             `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
+	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {

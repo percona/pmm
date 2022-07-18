@@ -47,21 +47,18 @@ func (res *addNodeGenericResult) String() string {
 
 // AddNodeGenericCommand is used by Kong for CLI flags and commands.
 type AddNodeGenericCommand struct {
-	NodeName     string `arg:"" optional:"" name:"name" help:"Node name"`
-	MachineID    string `help:"Linux machine-id"`
-	Distro       string `help:"Linux distribution (if any)"`
-	Address      string `help:"Address"`
-	CustomLabels string `help:"Custom user-assigned labels"`
-	Region       string `help:"Node region"`
-	Az           string `help:"Node availability zone"`
-	NodeModel    string `help:"Node mddel"`
+	NodeName     string            `arg:"" optional:"" name:"name" help:"Node name"`
+	MachineID    string            `help:"Linux machine-id"`
+	Distro       string            `help:"Linux distribution (if any)"`
+	Address      string            `help:"Address"`
+	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	Region       string            `help:"Node region"`
+	Az           string            `help:"Node availability zone"`
+	NodeModel    string            `help:"Node mddel"`
 }
 
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddGenericNodeParams{
 		Body: nodes.AddGenericNodeBody{
 			NodeName:     cmd.NodeName,
