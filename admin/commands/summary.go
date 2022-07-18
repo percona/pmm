@@ -146,9 +146,9 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 }
 
 // addServerData adds logs.zip from PMM Server to zip file.
-func addServerData(ctx context.Context, zipW *zip.Writer) {
+func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 	var buf bytes.Buffer
-	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx}, &buf)
+	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return
@@ -265,7 +265,6 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
 
 	if !skipServer && isRunOnPmmServer {
-		sources["server/pprof/pmm-managed"] = fmt.Sprintf("http://%s:7773/debug/pprof", agentlocal.Localhost)
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
 	}
 
@@ -340,7 +339,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	}
 
 	if !cmd.SkipServer {
-		addServerData(ctx, zipW)
+		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
 	return //nolint:nakedret
