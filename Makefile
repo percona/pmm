@@ -2,7 +2,7 @@
 
 include Makefile.include
 
-env-up: 							## Start devcontainer.
+env-up:								## Start devcontainer.
 	docker-compose up -d
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
@@ -28,11 +28,14 @@ TARGET ?= _bash
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
 
-ext-pmm-env-up: 					## Start devcontainer with pmm-managed running outside.
+ext-pmm-env-up:						## Start devcontainer with pmm-managed running outside.
 	docker-compose -f ./docker-compose.external-pmm.yml up -d
 
-ext-pmm-env:                        ## Enter modular devcontainer.
+ext-pmm-env-up-rebuild:				## Start devcontainer with pmm-managed running outside.
+	docker-compose -f ./docker-compose.external-pmm.yml up -d --build
+
+ext-pmm-env:						## Enter modular devcontainer.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server-external-pmm make $(TARGET)
 
-ext-pmm-env-down:                   ## Stop modular devcontainer.
+ext-pmm-env-down:					## Stop modular devcontainer.
 	docker-compose -f ./docker-compose.external-pmm.yml down --remove-orphans
