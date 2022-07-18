@@ -7,4 +7,4 @@
 
 This Dashboard is a part of [DBaaS solution](https://www.percona.com/doc/percona-monitoring-and-management/2.x/using/dbaas.html) inside PMM.
 
-This Dashboard is designed to show the resource consumption inside K8s Cluster.
+This Dashboard is designed to show the resource consumption inside Kubernetes (K8s) Cluster.
