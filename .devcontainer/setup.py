@@ -3,12 +3,14 @@
 # See CONTRIBUTING.md.
 
 from __future__ import print_function, unicode_literals
-import multiprocessing, os, subprocess, time
+import os
+import subprocess
+import time
 
 
 GO_VERSION = os.getenv("GO_VERSION")
 if GO_VERSION is None:
-    raise("GO_VERSION is not set")
+    raise "GO_VERSION is not set"
 
 
 def run_commands(commands):
@@ -49,7 +51,7 @@ def install_go():
         "chmod +x /usr/local/bin/gimme"
     ])
 
-    go_version = subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip()
+    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip())
 
     if GO_VERSION == "tip":
         run_commands([
@@ -75,12 +77,14 @@ def install_go():
         "go env"
     ])
 
+
 def make_init():
     """Runs make init."""
 
     run_commands([
         "make init",
     ])
+
 
 def setup():
     """Runs various setup commands."""
