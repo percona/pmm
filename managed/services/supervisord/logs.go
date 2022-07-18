@@ -383,6 +383,9 @@ func maskSensitiveValues(data []byte) ([]byte, error) {
 	if err != nil {
 		return data, err
 	}
-	alertmanager.MaskSensitiveData(&c)
-	return yaml.Marshal(c)
+	nc, err := c.Mask()
+	if err != nil {
+		return data, err
+	}
+	return yaml.Marshal(nc)
 }
