@@ -26,7 +26,7 @@ def install_packages():
 
     run_commands([
         # to install man pages
-        #"sed -i '/nodocs/d' /etc/yum.conf",
+        "sed -i '/nodocs/d' /etc/yum.conf",
 
         # reinstall with man pages
         "yum reinstall -y yum rpm",
@@ -90,7 +90,7 @@ def setup():
     """Runs various setup commands."""
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
-        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres/postgresql.conf",
+        #"sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres/pg_hba.conf",
         "supervisorctl restart postgresql",
     ])
