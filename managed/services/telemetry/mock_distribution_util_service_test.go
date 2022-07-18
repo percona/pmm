@@ -40,17 +40,3 @@ func (_m *mockDistributionUtilService) getDistributionMethodAndOS() (serverpb.Di
 
 	return r0, r1, r2
 }
-
-// getLinuxDistribution provides a mock function with given fields: procVersion
-func (_m *mockDistributionUtilService) getLinuxDistribution(procVersion string) string {
-	ret := _m.Called(procVersion)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(procVersion)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
