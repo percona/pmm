@@ -34,11 +34,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestRunTelemetryService(t *testing.T) {
@@ -47,7 +49,6 @@ func TestRunTelemetryService(t *testing.T) {
 		l                   *logrus.Entry
 		start               time.Time
 		config              ServiceConfig
-		dsRegistry          func() DataSourceLocator
 		pmmVersion          string
 		os                  string
 		sDistributionMethod serverpb.DistributionMethod
@@ -55,7 +56,7 @@ func TestRunTelemetryService(t *testing.T) {
 		dus                 distributionUtilService
 	}
 	const (
-		testSourceName = "PMMDB_SELECT"
+		testSourceName = "VM"
 		pmmVersion     = "2.29"
 	)
 
@@ -99,7 +100,6 @@ func TestRunTelemetryService(t *testing.T) {
 				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
 				dus:        initMockDUS(t, logEntry),
 			},
@@ -112,7 +112,6 @@ func TestRunTelemetryService(t *testing.T) {
 				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
 				dus:        initMockDUS(t, logEntry),
 			},
@@ -122,28 +121,39 @@ func TestRunTelemetryService(t *testing.T) {
 			name:        "should send metrics during start and once timer is ticked",
 			testTimeout: 3 * time.Second,
 			fields: fields{
-				db:     initMockDB(t, now, 2),
-				start:  now,
-				config: getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
-				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics},
-					testSourceName, 2),
+				db:         initMockDB(t, now, 2),
+				start:      now,
+				config:     getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        initMockDUS(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 2),
 		},
 	}
+
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
 			defer cancel()
+
+			serviceConfig := getServiceConfig()
+
+			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
+			assert.NoError(t, err)
 
 			s := Service{
 				db:                  tt.fields.db(),
 				l:                   logEntry,
 				start:               tt.fields.start,
 				config:              tt.fields.config,
-				dsRegistry:          tt.fields.dsRegistry(),
+				dsRegistry:          registry,
 				pmmVersion:          "",
 				os:                  tt.fields.os,
 				sDistributionMethod: 0,
@@ -163,6 +173,63 @@ func TestRunTelemetryService(t *testing.T) {
 			wg.Wait()
 		})
 	}
+}
+
+func getServiceConfig() ServiceConfig {
+	serviceConfig := ServiceConfig{
+		Enabled:      true,
+		LoadDefaults: true,
+		SaasHostname: "check.localhost",
+		Reporting: ReportingConfig{
+			SendOnStart:     true,
+			Interval:        time.Second * 10,
+			IntervalEnv:     "PERCONA_TEST_TELEMETRY_INTERVAL",
+			RetryBackoff:    time.Second * 1,
+			RetryBackoffEnv: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF",
+			RetryCount:      2,
+			SendTimeout:     time.Second * 10,
+		},
+		DataSources: struct {
+			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
+			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+		}{
+			VM: &DataSourceVictoriaMetrics{
+				Enabled: true,
+				Timeout: time.Second * 2,
+				Address: "http://localhost:9090/prometheus/",
+			},
+			QanDBSelect: &DSConfigQAN{
+				Enabled: true,
+				Timeout: time.Second * 2,
+				DSN:     "tcp://localhost:9000?database=pmm&block_size=10000&pool_size=",
+			},
+			PmmDBSelect: &DSConfigPMMDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "postgres",
+					Password: "",
+				},
+				DSN: struct {
+					Scheme string
+					Host   string
+					DB     string
+					Params string
+				}{
+					Scheme: "postgres",
+					Host:   "127.0.0.1:5432",
+					DB:     "pmm-managed-dev",
+					Params: "sslmode=disable",
+				},
+			},
+		},
+	}
+	return serviceConfig
 }
 
 func initMockDUS(t *testing.T, l *logrus.Entry) distributionUtilService {
@@ -186,7 +253,7 @@ func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest
 		mockTelemetrySender.On("SendTelemetry",
 			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
-				return equalReports(report, expetedReport)
+				return matchExpectedReport(report, expetedReport)
 			}),
 		).
 			Return(nil).
@@ -199,55 +266,9 @@ func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest
 	}
 }
 
-func equalReports(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
-	if len(expectedReport.Metrics) != len(report.Metrics) {
-		return false
-	}
-
-	for i, m := range expectedReport.Metrics {
-		gotMetric := report.Metrics[i]
-
-		if m.PmmServerVersion != gotMetric.PmmServerVersion {
-			return false
-		}
-		if m.DistributionMethod != gotMetric.DistributionMethod {
-			return false
-		}
-		for j, mm := range m.Metrics {
-			if mm.Key != gotMetric.Metrics[j].Key {
-				return false
-			}
-			if mm.Value != gotMetric.Metrics[j].Value {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func mockDataSourceLocator(t *testing.T, metrics [][]*pmmv1.ServerMetric_Metric, testSourceName string, times int) func() DataSourceLocator {
-	return func() DataSourceLocator {
-		var mockSource MockDataSource
-		mockSource.Mock.Test(t)
-		mockSource.On("Enabled").Return(true)
-
-		mockSource.On("FetchMetrics",
-			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
-			mock.AnythingOfType(reflect.TypeOf(Config{}).Name())).
-			Times(times).
-			Return(metrics, nil)
-
-		var mockDsl MockDataSourceLocator
-		mockDsl.Test(t)
-		mockDsl.On("LocateTelemetryDataSource", testSourceName).
-			Times(times).
-			Return(&mockSource, nil)
-		t.Cleanup(func() {
-			mockSource.AssertExpectations(t)
-			mockDsl.AssertExpectations(t)
-		})
-		return &mockDsl
-	}
+func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporter.ReportRequest) bool {
+	return len(report.Metrics) == 1 &&
+		expectedReport.Metrics[0].DistributionMethod.String() == "AMI"
 }
 
 func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {
@@ -259,9 +280,14 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			{
 				ID:      "1",
 				Source:  testSourceName,
-				Query:   "",
-				Summary: "",
-				Data:    nil,
+				Query:   "pg_static{service_type=\"postgresql\"}",
+				Summary: "Monitored PostgreSQL services version",
+				Data: []ConfigData{
+					{
+						MetricName: "postgresql_version",
+						Label:      "short_version",
+					},
+				},
 			},
 		},
 		SaasHostname: "",
