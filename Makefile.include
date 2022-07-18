@@ -15,7 +15,7 @@ init:                 ## Install tools.
 	rm -rf bin/*
 	cd tools && go generate -x -tags=tools
 
-    # Install golangci-lint
+	# Install golangci-lint
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.46.2
 
 	# Download third-party proto files
