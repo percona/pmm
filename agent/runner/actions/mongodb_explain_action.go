@@ -65,7 +65,7 @@ func (a *mongodbExplainAction) Type() string {
 	return "mongodb-explain"
 }
 
-// Run runs an os.CreateTempAction and returns output and error.
+// Run runs an action and returns output and error.
 func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 	dsn, err := templates.RenderDSN(a.params.Dsn, a.params.TextFiles, filepath.Join(a.tempDir, strings.ToLower(a.Type()), a.id))
 	if err != nil {
