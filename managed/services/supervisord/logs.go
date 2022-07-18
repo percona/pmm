@@ -35,7 +35,7 @@ import (
 	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
