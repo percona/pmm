@@ -26,7 +26,7 @@ def install_packages():
 
     run_commands([
         # to install man pages
-        "sed -i '/nodocs/d' /etc/yum.conf",
+        #"sed -i '/nodocs/d' /etc/yum.conf",
 
         # reinstall with man pages
         "yum reinstall -y yum rpm",
