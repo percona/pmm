@@ -74,7 +74,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
-	dus := &distributionUtilServiceImpl{}
+	dus := NewDistributionUtilServiceImpl(distributionInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -86,7 +86,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dus:          dus,
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS(l)
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
 
 	return s, nil
 }
@@ -220,7 +220,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %q", serverIDToUse)
 	}
-	_, distMethod, _ := s.dus.getDistributionMethodAndOS(s.l)
+	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{

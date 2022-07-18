@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"reflect"
@@ -51,12 +52,17 @@ func TestRunTelemetryService(t *testing.T) {
 		os                  string
 		sDistributionMethod serverpb.DistributionMethod
 		tDistributionMethod pmmv1.DistributionMethod
-		dus                 func(l *logrus.Entry) distributionUtilService
+		dus                 distributionUtilService
 	}
-	const testSourceName = "PMMDB_SELECT"
-	const pmmVersion = "2.29"
+	const (
+		testSourceName = "PMMDB_SELECT"
+		pmmVersion     = "2.29"
+	)
 
 	now := time.Now()
+	logger := logrus.StandardLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	logEntry := logrus.NewEntry(logger)
 
 	expectedServerMetrics := []*pmmv1.ServerMetric_Metric{
 		{
@@ -95,13 +101,7 @@ func TestRunTelemetryService(t *testing.T) {
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) distributionUtilService {
-					var dusMock mockDistributionUtilService
-					dusMock.Test(t)
-					dusMock.On("getDistributionMethodAndOS", l).Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
-						Times(1)
-					return &dusMock
-				},
+				dus:        initMockDUS(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
@@ -114,13 +114,7 @@ func TestRunTelemetryService(t *testing.T) {
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics}, testSourceName, 1),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) distributionUtilService {
-					var dusMock mockDistributionUtilService
-					dusMock.Test(t)
-					dusMock.On("getDistributionMethodAndOS", l).Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
-						Times(1)
-					return &dusMock
-				},
+				dus:        initMockDUS(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
@@ -134,30 +128,15 @@ func TestRunTelemetryService(t *testing.T) {
 				dsRegistry: mockDataSourceLocator(t, [][]*pmmv1.ServerMetric_Metric{expectedServerMetrics},
 					testSourceName, 2),
 				pmmVersion: pmmVersion,
-				dus: func(l *logrus.Entry) distributionUtilService {
-					var dusMock mockDistributionUtilService
-					dusMock.Test(t)
-					dusMock.On("getDistributionMethodAndOS", l).
-						Return(serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami").
-						Times(2)
-					t.Cleanup(func() {
-						dusMock.AssertExpectations(t)
-					})
-					return &dusMock
-				},
+				dus:        initMockDUS(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 2),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
 			defer cancel()
-
-			logger := logrus.StandardLogger()
-			logger.SetLevel(logrus.DebugLevel)
-			logEntry := logrus.NewEntry(logger)
 
 			s := Service{
 				db:                  tt.fields.db(),
@@ -169,7 +148,7 @@ func TestRunTelemetryService(t *testing.T) {
 				os:                  tt.fields.os,
 				sDistributionMethod: 0,
 				tDistributionMethod: 0,
-				dus:                 tt.fields.dus(logEntry),
+				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
 			}
 
@@ -184,6 +163,20 @@ func TestRunTelemetryService(t *testing.T) {
 			wg.Wait()
 		})
 	}
+}
+
+func initMockDUS(t *testing.T, l *logrus.Entry) distributionUtilService {
+	const (
+		tmpDistributionFile = "/tmp/distribution"
+		ami                 = "ami"
+	)
+	err := os.WriteFile(tmpDistributionFile, []byte(ami), fs.ModePerm)
+	if err != nil {
+		assert.Fail(t, "cannot write to file: ", err)
+		return nil
+	}
+	dus := NewDistributionUtilServiceImpl(tmpDistributionFile, l)
+	return dus
 }
 
 func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() sender {

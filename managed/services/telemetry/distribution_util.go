@@ -27,12 +27,23 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-type distributionUtilServiceImpl struct{}
+type distributionUtilServiceImpl struct {
+	distributionInfoFilePath string
 
-func (d distributionUtilServiceImpl) getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
-	b, err := ioutil.ReadFile(distributionInfoFilePath)
+	l *logrus.Entry
+}
+
+func NewDistributionUtilServiceImpl(distributionFilePath string, l *logrus.Entry) *distributionUtilServiceImpl {
+	return &distributionUtilServiceImpl{
+		distributionInfoFilePath: distributionFilePath,
+		l:                        l,
+	}
+}
+
+func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
+	b, err := ioutil.ReadFile(d.distributionInfoFilePath)
 	if err != nil {
-		l.Debugf("Failed to read %s: %s", distributionInfoFilePath, err)
+		d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
 	}
 
 	b = bytes.ToLower(bytes.TrimSpace(b))
@@ -47,7 +58,7 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS(l *logrus.Entry)
 		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
 		if b, err = ioutil.ReadFile(osInfoFilePath); err != nil {
-			l.Debugf("Failed to read %s: %s", osInfoFilePath, err)
+			d.l.Debugf("Failed to read %s: %s", osInfoFilePath, err)
 		}
 		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:

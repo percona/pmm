@@ -21,7 +21,6 @@ import (
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
-	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/api/serverpb"
 )
@@ -33,7 +32,7 @@ import (
 
 // distributionUtilService service to get info about OS on which pmm server is running
 type distributionUtilService interface {
-	getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
+	getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
 	getLinuxDistribution(procVersion string) string
 }
 
