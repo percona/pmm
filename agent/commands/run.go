@@ -62,7 +62,7 @@ func Run() {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
 		config.ConfigureLogger(cfg)
-		ringLog.UpdateCount(int(cfg.ServerLogsMaxLength))
+		ringLog.UpdateCount(int(cfg.LastServerLogsLength))
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
@@ -100,7 +100,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string, ringLog
 	// It should be created separately.
 	// TODO https://jira.percona.com/browse/PMM-7206
 
-	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, int(cfg.AgentsLogsMaxLength))
+	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, int(cfg.LastAgentsLogsLength))
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})

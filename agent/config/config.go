@@ -151,8 +151,8 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	ServerLogsMaxLength uint `json:"server-logs-max-length"`
-	AgentsLogsMaxLength uint `json:"agents-logs-max-length"`
+	LastServerLogsLength uint `json:"last-server-logs-length"`
+	LastAgentsLogsLength uint `json:"last-agents-logs-length"`
 
 	Setup Setup `yaml:"-"`
 }
@@ -377,10 +377,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("server-logs-max-length", "Server logs max length [PMM_SERVER_LOGS_MAX_LENGTH]").
-		Envar("PMM_SERVER_LOGS_MAX_LENGTH").UintVar(&cfg.ServerLogsMaxLength)
-	app.Flag("agents-logs-max-length", "Agents logs max length [PMM_AGENTS_LOGS_MAX_LENGTH]").
-		Envar("PMM_AGENTS_LOGS_MAX_LENGTH").UintVar(&cfg.AgentsLogsMaxLength)
+	app.Flag("last-server-logs-length", "Last server logs length [PMM_LAST_SERVER_LOGS_LENGTH]").
+		Envar("PMM_LAST_SERVER_LOGS_LENGTH").Default("1024").UintVar(&cfg.LastServerLogsLength)
+	app.Flag("last-agents-logs-length", "Last agents logs length [PMM_LAST_AGENTS_LOGS_LENGTH]").
+		Envar("PMM_LAST_AGENTS_LOGS_LENGTH").Default("1024").UintVar(&cfg.LastAgentsLogsLength)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil
