@@ -106,7 +106,7 @@ func (r *Runner) StartJob(job jobs.Job) error {
 	case r.jobs <- job:
 		return nil
 	default:
-		return errors.New("actions queue overflowed")
+		return errors.New("jobs queue overflowed")
 	}
 }
 
