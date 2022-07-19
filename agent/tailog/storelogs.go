@@ -13,44 +13,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package storelogs help to store logs
-package storelogs
+// Package tailog help to store tail logs
+package tailog
 
 import (
 	"container/ring"
-	"fmt"
 	"strings"
 	"sync"
 )
 
-// @TODO rename to tail logs
-
-// LogsStore implement ring save logs.
-type LogsStore struct {
+// Store implement ring save logs.
+type Store struct {
 	log   *ring.Ring
 	count int
 	m     sync.Mutex
 }
 
-// New creates LogsStore.
-func New(count int) *LogsStore {
-	return &LogsStore{
+// NewStore creates Store.
+func NewStore(count int) *Store {
+	return &Store{
 		log:   ring.New(count),
 		count: count,
 	}
 }
 
 // Write writes log for store.
-func (l *LogsStore) Write(b []byte) (int, error) {
+func (l *Store) Write(b []byte) (int, error) {
 	l.m.Lock()
 	defer l.m.Unlock()
+
+	// when store 0 logs
+	if l.log == nil {
+		return len(b), nil
+	}
+
 	l.log.Value = string(b)
 	l.log = l.log.Next()
 	return len(b), nil
 }
 
 // UpdateCount to update max length.
-func (l *LogsStore) UpdateCount(count int) {
+func (l *Store) UpdateCount(count int) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
@@ -58,24 +61,38 @@ func (l *LogsStore) UpdateCount(count int) {
 		return
 	}
 
-	l.count = count
+	old := l.log
 
-	// @TODO update log *ring.Ring
-	// ring.New(count) will remove data, need link!!!
+	l.count = count
+	l.log = ring.New(count)
+	if l.log == nil {
+		return
+	}
+
+	old.Do(func(p interface{}) {
+		if p != nil {
+			l.log.Value = p
+			l.log = l.log.Next()
+		}
+	})
 }
 
 // GetLogs return all logs.
-func (l *LogsStore) GetLogs() []string {
+func (l *Store) GetLogs() []string {
 	l.m.Lock()
 	defer l.m.Unlock()
+
+	// when store 0 logs
+	if l.log == nil {
+		return nil
+	}
 
 	logs := make([]string, 0, l.count)
 
 	replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
 	l.log.Do(func(p interface{}) {
-		log := fmt.Sprint(p)
 		if p != nil {
-			logs = append(logs, replacer.Replace(log))
+			logs = append(logs, replacer.Replace(p.(string)))
 		}
 	})
 

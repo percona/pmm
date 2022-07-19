@@ -40,7 +40,7 @@ import (
 	"github.com/percona/pmm/agent/agents/postgres/pgstatstatements"
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/agent/storelogs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
@@ -74,7 +74,7 @@ type agentProcessInfo struct {
 	requestedState  *agentpb.SetStateRequest_AgentProcess
 	listenPort      uint16
 	processExecPath string
-	logs            *storelogs.LogsStore // store logs
+	logStore        *tailog.Store // store logs
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -84,7 +84,7 @@ type builtinAgentInfo struct {
 	requestedState *agentpb.SetStateRequest_BuiltinAgent
 	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
 	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
-	logs           *storelogs.LogsStore           // store logs
+	logStore       *tailog.Store                  // store logs
 }
 
 // NewSupervisor creates new Supervisor object.
@@ -160,12 +160,12 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 
 	for id, agent := range s.agentProcesses {
 		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logs.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logStore.GetLogs()
 	}
 
 	for id, agent := range s.builtinAgents {
 		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logs.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logStore.GetLogs()
 	}
 	return res
 }
@@ -374,8 +374,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	ringLog := storelogs.New(s.lastAgentsLogsLength)
-	l := s.agentLogger(ringLog).WithFields(logrus.Fields{
+	logStore := tailog.NewStore(s.lastAgentsLogsLength)
+	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -406,7 +406,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
 		listenPort:      port,
 		processExecPath: processParams.Path,
-		logs:            ringLog,
+		logStore:        logStore,
 	}
 	return nil
 }
@@ -416,8 +416,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	ringLog := storelogs.New(s.lastAgentsLogsLength)
-	l := s.agentLogger(ringLog).WithFields(logrus.Fields{
+	logStore := tailog.NewStore(s.lastAgentsLogsLength)
+	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -526,15 +526,15 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		requestedState: proto.Clone(builtinAgent).(*agentpb.SetStateRequest_BuiltinAgent),
 		describe:       agent.Describe,
 		collect:        agent.Collect,
-		logs:           ringLog,
+		logStore:       logStore,
 	}
 	return nil
 }
 
-// agentLogger write logs to LogsStore so can get last N
-func (s *Supervisor) agentLogger(ringLog *storelogs.LogsStore) *logrus.Logger {
+// agentLogger write logs to Store so can get last N
+func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 	return &logrus.Logger{
-		Out:          io.MultiWriter(os.Stderr, ringLog),
+		Out:          io.MultiWriter(os.Stderr, logStore),
 		Hooks:        logrus.StandardLogger().Hooks,
 		Formatter:    logrus.StandardLogger().Formatter,
 		ReportCaller: logrus.StandardLogger().ReportCaller,

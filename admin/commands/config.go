@@ -57,6 +57,9 @@ type configCommand struct {
 	ListenPort        uint32
 	LogLevel          string
 
+	LastServerLogsLength uint
+	LastAgentsLogsLength uint
+
 	Force bool
 }
 
@@ -96,6 +99,13 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 	}
 	if GlobalFlags.Trace {
 		res = append(res, "--trace")
+	}
+
+	if cmd.LastServerLogsLength > 0 {
+		res = append(res, fmt.Sprintf("--last-server-logs-length=%d", cmd.LastServerLogsLength))
+	}
+	if cmd.LastAgentsLogsLength > 0 {
+		res = append(res, fmt.Sprintf("--last-agents-logs-length=%d", cmd.LastAgentsLogsLength))
 	}
 
 	res = append(res, "setup")
@@ -190,4 +200,6 @@ func init() {
 	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
 	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
 	ConfigC.Flag("log-level", "Logging level").Default("warn").EnumVar(&Config.LogLevel, "debug", "info", "warn", "error", "fatal")
+	ConfigC.Flag("last-server-logs-length", "Last server logs length").Default("1024").UintVar(&Config.LastServerLogsLength)
+	ConfigC.Flag("last-agents-logs-length", "Last agents logs length").Default("1024").UintVar(&Config.LastAgentsLogsLength)
 }

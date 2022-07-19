@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/agent/storelogs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -66,8 +66,8 @@ func TestServerStatus(t *testing.T) {
 		agentInfo, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
-		ringLog := storelogs.New(500)
-		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
+		logStore := tailog.NewStore(500)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// without network info
 		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
@@ -93,8 +93,8 @@ func TestServerStatus(t *testing.T) {
 		client.On("GetNetworkInformation").Return(latency, clockDrift, nil)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
-		ringLog := storelogs.New(500)
-		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
+		logStore := tailog.NewStore(500)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// with network info
 		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: true})
@@ -154,8 +154,8 @@ func TestGetZipFile(t *testing.T) {
 		_, supervisor, client, cfg := setup(t)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
-		ringLog := storelogs.New(10)
-		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", ringLog)
+		logStore := tailog.NewStore(10)
+		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
 
