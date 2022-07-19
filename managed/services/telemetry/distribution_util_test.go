@@ -41,19 +41,19 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		digitalocean = "digitalocean"
 		docker       = "docker"
 
-		DistributionMethod_DISTRIBUTION_METHOD_INVALID = 0
-		DistributionMethod_DOCKER                      = 1
-		DistributionMethod_OVF                         = 2
-		DistributionMethod_AMI                         = 3
-		DistributionMethod_AZURE                       = 4
-		DistributionMethod_DO                          = 5
+		DistributionMethodDISTRIBUTION_METHOD_INVALID = 0
+		DistributionMethodDOCKER                      = 1
+		DistributionMethodOVF                         = 2
+		DistributionMethodAMI                         = 3
+		DistributionMethodAZURE                       = 4
+		DistributionMethodDO                          = 5
 
-		PmmV1DistributionMethod_DISTRIBUTION_METHOD_INVALID = 0
-		PmmV1DistributionMethod_DOCKER                      = 1
-		PmmV1DistributionMethod_OVF                         = 2
-		PmmV1DistributionMethod_AMI                         = 3
-		PmmV1DistributionMethod_AZURE                       = 4
-		PmmV1DistributionMethod_DO                          = 5
+		PmmV1DistributionMethodDistributionMethodInvalid = 0
+		PmmV1DistributionMethodDOCKER                    = 1
+		PmmV1DistributionMethodOVF                       = 2
+		PmmV1DistributionMethodAMI                       = 3
+		PmmV1DistributionMethodAZURE                     = 4
+		PmmV1DistributionMethodDO                        = 5
 	)
 
 	logger := logrus.StandardLogger()
@@ -71,52 +71,52 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		{
 			name:             "should return AMI distribution method",
 			distributionName: ami,
-			want:             DistributionMethod_AMI,
-			want1:            PmmV1DistributionMethod_AMI,
+			want:             DistributionMethodAMI,
+			want1:            PmmV1DistributionMethodAMI,
 			want2:            "ami",
 		},
 		{
 			name:             "should return OVF distribution method",
 			distributionName: ovf,
-			want:             DistributionMethod_OVF,
-			want1:            PmmV1DistributionMethod_OVF,
+			want:             DistributionMethodOVF,
+			want1:            PmmV1DistributionMethodOVF,
 			want2:            "ovf",
 		},
 		{
 			name:             "should return Azure distribution method",
 			distributionName: azure,
-			want:             DistributionMethod_AZURE,
-			want1:            PmmV1DistributionMethod_AZURE,
+			want:             DistributionMethodAZURE,
+			want1:            PmmV1DistributionMethodAZURE,
 			want2:            "azure",
 		},
 		{
 			name:             "should return Digital Ocean distribution method",
 			distributionName: digitalocean,
-			want:             DistributionMethod_DO,
-			want1:            PmmV1DistributionMethod_DO,
+			want:             DistributionMethodDO,
+			want1:            PmmV1DistributionMethodDO,
 			want2:            "digitalocean",
 		},
 		{
 			name:             "should return Docker distribution method",
 			distributionName: docker,
 			dokcerOsVersion:  "ubuntu",
-			want:             DistributionMethod_DOCKER,
-			want1:            PmmV1DistributionMethod_DOCKER,
+			want:             DistributionMethodDOCKER,
+			want1:            PmmV1DistributionMethodDOCKER,
 			want2:            "Ubuntu",
 		},
 		{
 			name:             "should return Docker distribution method",
 			distributionName: "",
 			dokcerOsVersion:  "ubuntu",
-			want:             DistributionMethod_DOCKER,
-			want1:            PmmV1DistributionMethod_DOCKER,
+			want:             DistributionMethodDOCKER,
+			want1:            PmmV1DistributionMethodDOCKER,
 			want2:            "Ubuntu",
 		},
 		{
 			name:             "should return Invalid distribution method",
 			distributionName: "invalid",
-			want:             DistributionMethod_DISTRIBUTION_METHOD_INVALID,
-			want1:            PmmV1DistributionMethod_DISTRIBUTION_METHOD_INVALID,
+			want:             DistributionMethodDISTRIBUTION_METHOD_INVALID,
+			want1:            PmmV1DistributionMethodDistributionMethodInvalid,
 			want2:            "",
 		},
 	}

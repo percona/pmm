@@ -101,7 +101,7 @@ func TestRunTelemetryService(t *testing.T) {
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
 				pmmVersion: pmmVersion,
-				dus:        initMockDUS(t, logEntry),
+				dus:        getDistributionUtilService(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
@@ -113,7 +113,7 @@ func TestRunTelemetryService(t *testing.T) {
 				start:      now,
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
-				dus:        initMockDUS(t, logEntry),
+				dus:        getDistributionUtilService(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 1),
 		},
@@ -125,7 +125,7 @@ func TestRunTelemetryService(t *testing.T) {
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
-				dus:        initMockDUS(t, logEntry),
+				dus:        getDistributionUtilService(t, logEntry),
 			},
 			mockTelemetrySender: initMockTelemetrySender(t, expectedReport, 2),
 		},
@@ -232,7 +232,7 @@ func getServiceConfig() ServiceConfig {
 	return serviceConfig
 }
 
-func initMockDUS(t *testing.T, l *logrus.Entry) distributionUtilService {
+func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilService {
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		ami                 = "ami"
@@ -328,7 +328,7 @@ func initMockDB(t *testing.T, now time.Time, callTimes int) func() *reform.DB {
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations for DB mock: %s", err)
 			}
-			defer db.Close()
+			defer db.Close() //nolint:errcheck
 		})
 		return reform.NewDB(db, postgresql.Dialect, reform.NewPrintfLogger(l.Printf))
 	}

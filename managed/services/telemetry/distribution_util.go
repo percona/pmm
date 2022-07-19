@@ -34,6 +34,7 @@ type distributionUtilServiceImpl struct {
 	l *logrus.Entry
 }
 
+// NewDistributionUtilServiceImpl returns instance of distributionUtilServiceImpl interface
 func NewDistributionUtilServiceImpl(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *distributionUtilServiceImpl {
 	return &distributionUtilServiceImpl{
 		distributionInfoFilePath: distributionFilePath,
