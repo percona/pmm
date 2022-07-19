@@ -29,13 +29,15 @@ import (
 
 type distributionUtilServiceImpl struct {
 	distributionInfoFilePath string
+	osInfoFilePath           string
 
 	l *logrus.Entry
 }
 
-func NewDistributionUtilServiceImpl(distributionFilePath string, l *logrus.Entry) *distributionUtilServiceImpl {
+func NewDistributionUtilServiceImpl(distributionFilePath, osInfoFilePath string, l *logrus.Entry) *distributionUtilServiceImpl {
 	return &distributionUtilServiceImpl{
 		distributionInfoFilePath: distributionFilePath,
+		osInfoFilePath:           osInfoFilePath,
 		l:                        l,
 	}
 }
@@ -57,8 +59,8 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.Dist
 	case "digitalocean":
 		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
-		if b, err = ioutil.ReadFile(osInfoFilePath); err != nil {
-			d.l.Debugf("Failed to read %s: %s", osInfoFilePath, err)
+		if b, err = ioutil.ReadFile(d.osInfoFilePath); err != nil {
+			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
 		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:

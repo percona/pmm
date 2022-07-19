@@ -74,7 +74,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
-	dus := NewDistributionUtilServiceImpl(distributionInfoFilePath, l)
+	dus := NewDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,

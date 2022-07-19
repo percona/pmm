@@ -242,7 +242,7 @@ func initMockDUS(t *testing.T, l *logrus.Entry) distributionUtilService {
 		assert.Fail(t, "cannot write to file: ", err)
 		return nil
 	}
-	dus := NewDistributionUtilServiceImpl(tmpDistributionFile, l)
+	dus := NewDistributionUtilServiceImpl(tmpDistributionFile, osInfoFilePath, l)
 	return dus
 }
 
