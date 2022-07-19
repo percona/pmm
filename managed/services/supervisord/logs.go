@@ -30,6 +30,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/percona/promconfig/alertmanager"
@@ -38,6 +39,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/utils/logger"
+	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -70,7 +72,7 @@ func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 }
 
 // Zip creates .zip archive with all logs.
-func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
+func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) error {
 	start := time.Now()
 	log := logger.Get(ctx).WithField("component", "logs")
 	log.WithField("d", time.Since(start).Seconds()).Info("Starting...")
@@ -81,7 +83,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
 
-	files := l.files(ctx)
+	files := l.files(ctx, pprofConfig)
 	log.WithField("d", time.Since(start).Seconds()).Infof("Collected %d files.", len(files))
 
 	for _, file := range files {
@@ -128,8 +130,8 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	return nil
 }
 
-// files reads log/config files and returns content.
-func (l *Logs) files(ctx context.Context) []fileContent {
+// files reads log/config/pprof files and returns content.
+func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileContent {
 	files := make([]fileContent, 0, 20)
 
 	// add logs
@@ -228,6 +230,45 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		Data: b,
 		Err:  err,
 	})
+
+	// add pprof
+	if pprofConfig != nil {
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
+			files = append(files, fileContent{
+				Name: "pprof/trace.out",
+				Data: traceBytes,
+				Err:  err,
+			})
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
+			files = append(files, fileContent{
+				Name: "pprof/profile.pb.gz",
+				Data: profileBytes,
+				Err:  err,
+			})
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			heapBytes, err := pprofUtils.Heap(true)
+			files = append(files, fileContent{
+				Name: "pprof/heap.pb.gz",
+				Data: heapBytes,
+				Err:  err,
+			})
+		}()
+
+		wg.Wait()
+	}
 
 	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
 	return files
