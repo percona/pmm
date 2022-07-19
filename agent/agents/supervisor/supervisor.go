@@ -422,6 +422,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		"agentID":   agentID,
 		"type":      agentType,
 	})
+
 	done := make(chan struct{})
 	var agent agents.BuiltinAgent
 	var err error

@@ -114,6 +114,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Empty(t, configFilepath)
@@ -162,6 +164,8 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -212,8 +216,10 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLevel: "info",
-			Debug:    true,
+			LogLevel:             "info",
+			Debug:                true,
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -270,7 +276,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:                true,
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -327,7 +335,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:                true,
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -381,7 +391,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:                true,
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -421,7 +433,9 @@ func TestGet(t *testing.T) {
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:                true,
+			LastServerLogsLength: 1024,
+			LastAgentsLogsLength: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
