@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -168,6 +167,8 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	fmt.Fprintf(w, "Table \"%s.%s\"\n", schema, relname)
 	return tableID, nil
 }
+
+func (a *postgresqlShowCreateTableAction) sealed() {}
 
 func (a *postgresqlShowCreateTableAction) printColumnsInfo(ctx context.Context, w io.Writer, db *sql.DB, tableID string) error {
 	rows, err := db.QueryContext(ctx, `SELECT /* pmm-agent */ a.attname,

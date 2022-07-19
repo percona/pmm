@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,6 +27,8 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+// go-sumtype:decl Action
+
 // Action describes an abstract thing that can be run by a client and return some output.
 type Action interface {
 	// ID returns an Action ID.
@@ -36,6 +37,8 @@ type Action interface {
 	Type() string
 	// Run runs an Action and returns output and error.
 	Run(ctx context.Context) ([]byte, error)
+
+	sealed()
 }
 
 // readRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.

@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,3 +87,5 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
 }
+
+func (a *postgresqlQuerySelectAction) sealed() {}

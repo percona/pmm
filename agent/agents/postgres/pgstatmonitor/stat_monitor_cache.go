@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,7 +113,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		totalN++
 
 		var c pgStatMonitorExtended
-		switch pgMonitorVersion { // nolint:exhaustive
+		switch pgMonitorVersion {
 		case pgStatMonitorVersion06:
 			c.pgStatMonitor = *row
 			c.Database = databases[row.DBID]
