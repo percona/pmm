@@ -47,7 +47,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/agent/storelogs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	pmmerrors "github.com/percona/pmm/utils/errors"
@@ -67,7 +67,7 @@ type Server struct {
 	configFilepath string
 
 	l               *logrus.Entry
-	ringLog         *storelogs.LogsStore
+	logStore        *tailog.Store
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
 
@@ -77,7 +77,7 @@ type Server struct {
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilepath string, ringLog *storelogs.LogsStore) *Server {
+func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
 	return &Server{
 		cfg:            cfg,
 		supervisor:     supervisor,
@@ -85,7 +85,7 @@ func NewServer(cfg *config.Config, supervisor supervisor, client client, configF
 		configFilepath: configFilepath,
 		l:              logrus.WithField("component", "local-server"),
 		reload:         make(chan struct{}),
-		ringLog:        ringLog,
+		logStore:       logStore,
 	}
 }
 
@@ -374,7 +374,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	// add server logs after agents to store possible previous logs
 	{
 		fileBuffer.Reset()
-		for _, serverLog := range s.ringLog.GetLogs() {
+		for _, serverLog := range s.logStore.GetLogs() {
 			_, err := fileBuffer.WriteString(serverLog)
 			if err != nil {
 				logrus.Error(err)

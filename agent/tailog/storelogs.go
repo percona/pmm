@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package storelogs help to store logs
-package storelogs
+// Package tailog help to store tail logs
+package tailog
 
 import (
 	"container/ring"
@@ -22,23 +22,23 @@ import (
 	"sync"
 )
 
-// LogsStore implement ring save logs.
-type LogsStore struct {
+// Store implement ring save logs.
+type Store struct {
 	log   *ring.Ring
 	count int
 	m     sync.Mutex
 }
 
-// New creates LogsStore.
-func New(count int) *LogsStore {
-	return &LogsStore{
+// NewStore creates Store.
+func NewStore(count int) *Store {
+	return &Store{
 		log:   ring.New(count),
 		count: count,
 	}
 }
 
 // Write writes log for store.
-func (l *LogsStore) Write(b []byte) (int, error) {
+func (l *Store) Write(b []byte) (int, error) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
@@ -53,7 +53,7 @@ func (l *LogsStore) Write(b []byte) (int, error) {
 }
 
 // UpdateCount to update max length.
-func (l *LogsStore) UpdateCount(count int) {
+func (l *Store) UpdateCount(count int) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
@@ -78,7 +78,7 @@ func (l *LogsStore) UpdateCount(count int) {
 }
 
 // GetLogs return all logs.
-func (l *LogsStore) GetLogs() []string {
+func (l *Store) GetLogs() []string {
 	l.m.Lock()
 	defer l.m.Unlock()
 
