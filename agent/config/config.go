@@ -151,8 +151,7 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LastServerLogsLength uint `json:"last-server-logs-length"`
-	LastAgentsLogsLength uint `json:"last-agents-logs-length"`
+	LogLinesCount uint `json:"log-lines-count"`
 
 	Setup Setup `yaml:"-"`
 }
@@ -377,10 +376,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("last-server-logs-length", "Last server logs length [PMM_LAST_SERVER_LOGS_LENGTH]").
-		Envar("PMM_LAST_SERVER_LOGS_LENGTH").Default("1024").UintVar(&cfg.LastServerLogsLength)
-	app.Flag("last-agents-logs-length", "Last agents logs length [PMM_LAST_AGENTS_LOGS_LENGTH]").
-		Envar("PMM_LAST_AGENTS_LOGS_LENGTH").Default("1024").UintVar(&cfg.LastAgentsLogsLength)
+	app.Flag("log-lines-count", "Last logs count [PMM_AGENT_LOG_LINES_COUNT]").
+		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil

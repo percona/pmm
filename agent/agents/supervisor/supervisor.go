@@ -64,7 +64,7 @@ type Supervisor struct {
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
 
-	lastAgentsLogsLength int
+	logLinesCount int
 }
 
 // agentProcessInfo describes Agent process.
@@ -92,7 +92,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, lastAgentsLogsLength int) *Supervisor {
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount int) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
@@ -106,7 +106,7 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
 
-		lastAgentsLogsLength: lastAgentsLogsLength,
+		logLinesCount: logLinesCount,
 	}
 
 	go func() {
@@ -374,7 +374,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	logStore := tailog.NewStore(s.lastAgentsLogsLength)
+	logStore := tailog.NewStore(s.logLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
@@ -416,7 +416,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	logStore := tailog.NewStore(s.lastAgentsLogsLength)
+	logStore := tailog.NewStore(s.logLinesCount)
 	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
