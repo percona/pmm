@@ -63,6 +63,8 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
+
+	agentsLogsMaxLength int
 }
 
 // agentProcessInfo describes Agent process.
@@ -90,7 +92,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server) *Supervisor {
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, agentsLogsMaxLength int) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
@@ -103,6 +105,8 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
+
+		agentsLogsMaxLength: agentsLogsMaxLength,
 	}
 
 	go func() {
@@ -371,7 +375,12 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	ringLog, l := s.newLogger("agent-process", agentID, agentType)
+	ringLog := storelogs.New(s.agentsLogsMaxLength)
+	l := s.agentLogger(ringLog).WithFields(logrus.Fields{
+		"component": "agent-process",
+		"agentID":   agentID,
+		"type":      agentType,
+	})
 	l.Debugf("Starting: %s.", processParams)
 
 	process := process.New(processParams, agentProcess.RedactWords, l)
@@ -403,25 +412,17 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	return nil
 }
 
-func (s *Supervisor) newLogger(component string, agentID string, agentType string) (*storelogs.LogsStore, *logrus.Entry) {
-	ringLog := storelogs.New(maxAgentLogs)
-	logger := logrus.New()
-	logger.SetFormatter(logrus.StandardLogger().Formatter)
-	logger.Out = io.MultiWriter(os.Stderr, ringLog)
-	l := logger.WithFields(logrus.Fields{
-		"component": component,
-		"agentID":   agentID,
-		"type":      agentType,
-	})
-	return ringLog, l
-}
-
 // startBuiltin starts built-in Agent.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	ringLog, l := s.newLogger("agent-process", agentID, agentType)
+	ringLog := storelogs.New(s.agentsLogsMaxLength)
+	l := s.agentLogger(ringLog).WithFields(logrus.Fields{
+		"component": "agent-process",
+		"agentID":   agentID,
+		"type":      agentType,
+	})
 	done := make(chan struct{})
 	var agent agents.BuiltinAgent
 	var err error
@@ -528,6 +529,18 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		logs:           ringLog,
 	}
 	return nil
+}
+
+// agentLogger write logs to LogsStore so can get last N
+func (s *Supervisor) agentLogger(ringLog *storelogs.LogsStore) *logrus.Logger {
+	return &logrus.Logger{
+		Out:          io.MultiWriter(os.Stderr, ringLog),
+		Hooks:        logrus.StandardLogger().Hooks,
+		Formatter:    logrus.StandardLogger().Formatter,
+		ReportCaller: logrus.StandardLogger().ReportCaller,
+		Level:        logrus.StandardLogger().GetLevel(),
+		ExitFunc:     logrus.StandardLogger().ExitFunc,
+	}
 }
 
 // processParams makes *process.Params from SetStateRequest parameters and other data.

@@ -21,7 +21,6 @@ import (
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"net"
 	"net/http"
@@ -68,7 +67,7 @@ type Server struct {
 	configFilepath string
 
 	l               *logrus.Entry
-	ringLogs        *storelogs.LogsStore
+	ringLog         *storelogs.LogsStore
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
 
@@ -79,17 +78,14 @@ type Server struct {
 //
 // Caller should call Run.
 func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilepath string, ringLog *storelogs.LogsStore) *Server {
-	logger := logrus.New()
-	logger.Out = io.MultiWriter(os.Stderr, ringLog)
-
 	return &Server{
 		cfg:            cfg,
 		supervisor:     supervisor,
 		client:         client,
 		configFilepath: configFilepath,
-		l:              logger.WithField("component", "local-server"),
+		l:              logrus.WithField("component", "local-server"),
 		reload:         make(chan struct{}),
-		ringLogs:       ringLog,
+		ringLog:        ringLog,
 	}
 }
 
@@ -352,24 +348,11 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 
 // ZipLogs Handle function for generate zip file with logs.
 func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
-	fileBuffer := &bytes.Buffer{}
-	for _, serverLog := range s.ringLogs.GetLogs() {
-		_, err := fileBuffer.WriteString(serverLog)
-		if err != nil {
-			logrus.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	}
-
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
-	err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
-	if err != nil {
-		logrus.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
+
+	fileBuffer := &bytes.Buffer{}
+
 	for id, logs := range s.supervisor.AgentsLogs() {
 		fileBuffer.Reset()
 		for _, l := range logs {
@@ -380,19 +363,41 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		err = addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
+		err := addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 	}
-	err = zipWriter.Close()
+
+	// add server logs after agents to store possible previous logs
+	{
+		fileBuffer.Reset()
+		for _, serverLog := range s.ringLog.GetLogs() {
+			_, err := fileBuffer.WriteString(serverLog)
+			if err != nil {
+				logrus.Error(err)
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
+		if err != nil {
+			logrus.Error(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	err := zipWriter.Close()
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", `attachment; filename="logs.zip"`)
 	_, err = w.Write(zipBuffer.Bytes())

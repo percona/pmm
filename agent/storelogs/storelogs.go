@@ -23,6 +23,8 @@ import (
 	"sync"
 )
 
+// @TODO rename to tail logs
+
 // LogsStore implement ring save logs.
 type LogsStore struct {
 	log   *ring.Ring
@@ -45,6 +47,21 @@ func (l *LogsStore) Write(b []byte) (int, error) {
 	l.log.Value = string(b)
 	l.log = l.log.Next()
 	return len(b), nil
+}
+
+// UpdateCount to update max length.
+func (l *LogsStore) UpdateCount(count int) {
+	l.m.Lock()
+	defer l.m.Unlock()
+
+	if l.count == count {
+		return
+	}
+
+	l.count = count
+
+	// @TODO update log *ring.Ring
+	// ring.New(count) will remove data, need link!!!
 }
 
 // GetLogs return all logs.
