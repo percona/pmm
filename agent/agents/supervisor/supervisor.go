@@ -418,7 +418,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	agentType := strings.ToLower(builtinAgent.Type.String())
 	ringLog := storelogs.New(s.lastAgentsLogsLength)
 	l := s.agentLogger(ringLog).WithFields(logrus.Fields{
-		"component": "agent-process",
+		"component": "agent-builtin",
 		"agentID":   agentID,
 		"type":      agentType,
 	})
