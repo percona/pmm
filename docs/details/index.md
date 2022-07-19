@@ -17,4 +17,6 @@
 
 - [VictoriaMetrics](victoria-metrics.md): The monitoring solution and time-series database that replaced Prometheus in [PMM 2.12.0](../release-notes/2.12.0.md).
 
+- [ClickHouse](clickhouse.md):  A third-party column-oriented database management system (DBMS) that facilitates the Query Analytics functionality.
+
 - [Glossary](glossary.md): A list of obscure terms and definitions.

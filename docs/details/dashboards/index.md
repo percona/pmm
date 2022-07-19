@@ -55,6 +55,7 @@
 | ProxySQL          | [ProxySQL Instance Summary]                                                              | 55
 | High-availability | [PXC/Galera Node Summary]                                                                | 32
 | High-availability | [PXC/Galera Cluster Summary]                                                             | 19
+| High-availability | [Experimental PXC/Galera Cluster Summary]                                                 | 7
 | High-availability | [PXC/Galera Nodes Compare]                                                               | 55
 | High-availability | [HAProxy Instance Summary]                                                               | 113
 
@@ -111,6 +112,7 @@
 [ProxySQL Instance Summary]: dashboard-proxysql-instance-summary.md
 [PXC/Galera Node Summary]: dashboard-pxc-galera-node-summary.md
 [PXC/Galera Cluster Summary]: dashboard-pxc-galera-cluster-summary.md
+[Experimental PXC/Galera Cluster Summary]: dashboard-pxc-galera-cluster-summary-experimental.md
 [PXC/Galera Nodes Compare]: dashboard-pxc-galera-nodes-compare.md
 [HAProxy Instance Summary]: dashboard-haproxy-instance-summary.md
 

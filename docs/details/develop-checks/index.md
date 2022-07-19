@@ -33,7 +33,7 @@ PMM uses Alertmanager API to get information about failed checks and show them o
 ![!](../../_images/FrontEndChecks.png)
  
 ## Advisor check format version 2
-PMM 2.28 upgraded Advisor checks to version 2, to accomodate the following major enhancements introduced in this release: 
+PMM 2.28 upgraded Advisor checks to version 2 to accommodate the following significant enhancements introduced in this release: 
 
 - Support for multiple queries
 - Support for Victoria Metrics as a data source

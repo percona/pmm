@@ -61,6 +61,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 `--trace`
 :    Enable trace logging (implies debug).
 
+`--log-level` (This parameter is available starting with PMM 2.29.0.)
+:  Set the level for the logs as per your requirement such as INFO, WARNING, ERROR, and FATAL.
+
 `--json`
 :    Enable JSON output.
 
@@ -112,7 +115,7 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--skip-server`
     : Skip fetching `logs.zip` from PMM Server.
 
-    `--pprof`
+    `--pprof` (This parameter is available starting with PMM 2.29.0)
     : Include performance profiling data in the summary.
 
 ### CONFIGURATION COMMANDS
@@ -144,6 +147,9 @@ PMM communicates with the PMM Server via a PMM agent process.
 
     `--paths-base=dir`
     : Base path where all binaries, tools and collectors of PMM client are located
+
+    `--agent-password=password` (This parameter i available starting with PMM 2.29.0.)
+    : Custom agent password.
 
 #### `pmm-admin register`
 
@@ -177,6 +183,9 @@ PMM communicates with the PMM Server via a PMM agent process.
     `--custom-labels=labels`
     : Custom user-assigned labels.
 
+    `--agent-password=password` (This parameter is available starting with PMM 2.29.0.)
+    : Custom agent password.
+ 
 #### `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT`
 
 `pmm-admin add --pmm-agent-listen-port=LISTEN_PORT DATABASE [FLAGS] [NAME] [ADDRESS]`

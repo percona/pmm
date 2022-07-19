@@ -22,11 +22,15 @@
 1. Decide how you want to run PMM Server. Choose from:
 
     - [Docker];
+    - [Podman];
+    - [Helm];
     - [Virtual appliance];
     - [Amazon AWS];
     - Use the [easy install] script.
 
 [Docker]: docker.md
+[Podman]: podman.md
+[Helm]: helm.md
 [virtual appliance]: virtual-appliance.md
 [Amazon AWS]: aws.md
 [easy install]: easy-install.md

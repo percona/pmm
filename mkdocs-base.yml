@@ -67,9 +67,9 @@ plugins:
       - "setting-up/client/docker.md"
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "_pdf/PerconaMonitoringAndManagement-2.28.0.pdf"
+    output_path: "_pdf/PerconaMonitoringAndManagement-2.29.0.pdf"
     cover_title: "Documentation"
-    cover_subtitle: 2.28.0 (May 12, 2022)
+    cover_subtitle: 2.29.0 (July 19, 2022)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/PMM_Logo.svg
     custom_template_path: _resources/templates
@@ -100,6 +100,8 @@ nav:
                 - setting-up/server/index.md
                 - setting-up/server/network.md
                 - setting-up/server/docker.md
+                - setting-up/server/podman.md
+                - setting-up/server/helm.md
                 - setting-up/server/virtual-appliance.md
                 - setting-up/server/aws.md
                 - setting-up/server/easy-install.md
@@ -215,6 +217,7 @@ nav:
                 - HA Dashboards:
                       - details/dashboards/dashboard-pxc-galera-node-summary.md
                       - details/dashboards/dashboard-pxc-galera-cluster-summary.md
+                      - details/dashboards/dashboard-pxc-galera-cluster-summary-experimental.md
                       - details/dashboards/dashboard-pxc-galera-nodes-compare.md
                       - details/dashboards/dashboard-haproxy-instance-summary.md
           - Commands:
@@ -223,6 +226,7 @@ nav:
                 - details/commands/pmm-agent.md
           - details/api.md
           - details/victoria-metrics.md
+          - details/clickhouse.md
           - details/glossary.md
 
             
@@ -230,6 +234,7 @@ nav:
     
     - Release Notes:
           - release-notes/index.md
+          - "PMM 2.29.0": release-notes/2.29.0.md
           - "PMM 2.28.0": release-notes/2.28.0.md
           - "PMM 2.27.0": release-notes/2.27.0.md
           - "PMM 2.26.0": release-notes/2.26.0.md

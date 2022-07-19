@@ -82,11 +82,11 @@ When creating custom templates, make sure to use the required template format be
     - **summary** (required): a short description of what this parameter represents.
     - **unit** (optional): PMM currently supports either s (seconds) or % (percentage).
     - **type** (required):PMM currently supports the float type. string, bool, and other types will be available in a future release.
-    - **range** (optional): defines the boundaries for the value of a  float parameter
+    - **range** (optional): defines the boundaries for the value of a  float parameter.
    - **value** (optional): default  parameter value. Value strings must not include any of these special characters: < > ! @ # $ % ^ & * ( ) _ / \ ' + - = (space)
-- **for** (required): specifies the duration of time that the expression must be met before the alert will be fired
-- **severity** (required): specifies default alert severity level
- - **labels** (optional): are additional labels to be added to generated alerts
+- **for** (required): specifies the duration of time that the expression must be met before the alert will be fired.
+- **severity** (required): specifies default alert severity level.
+ - **labels** (optional): are additional labels to be added to generated alerts.
 - **annotations** (optional): are additional annotations to be added to generated alerts.
 
 ### Template example
@@ -149,7 +149,7 @@ If you have existing YAML alert templates that you want to leverage in PMM Integ
 1. Go to **Alerting > Integrated Alerting** and select the **Alert Rules** tab.
 2. Click **Add** on the right-hand side of the table.
 3. In the **Add Alert** rule dialog, choose the template on which you want to base the new alert rule. This automatically populates the **Duration**, **Severity** fields with information from the template. You can change these values if you want to override the default specifications in the template.
-4. In the **Filters** field, specify if you want the alert rule to apply only to specific services or nodes. For example: *service_name=name123*.
+4. In the **Filters** field, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name'`, Operator:`=(EQUAL)`, VALUE: `ps5.7`.
 5. In the **Channels** field, select one or more notification channels that you have configured for sending out the notifications.
 
 ## Silence alerts

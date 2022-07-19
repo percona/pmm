@@ -6,7 +6,7 @@ If PMM server wasn't updated properly, or if you have concerns about the release
 
 1. From the UI - Home panel: click with the Alt key on the reload icon in the Update panel to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end.
 
-2. By  API  call (if UI not available): You can call the Update API directly with:
+2. By API call (if UI not available): You can call the Update API directly with:
 
     ```sh
     curl --user admin:admin --request POST 'http://PMM_SERVER/v1/Updates/Start'
@@ -123,19 +123,13 @@ If you create a custom alert rule template you will have access to edit.
 
 ### Creating rules
 
-**I'm ready to create my first rule! I've chosen a template and given it a name...what is the format of the fields?**
+**I'm ready to create my first rule! I've chosen a template and given it a name... what is the format of the fields?**
 
-- Threshold - float value, it has different meanings depending on what template is used.
+- Duration - specifies the duration of time that the expression must be met before the alert will be fired.
 
-- Duration - The duration the condition must be satisfied in seconds.
-
-- Filters - A Key, Evaluator, and Value. E.g. `service_name=ps5.7`
-
-    - Key must be an exact match. You can find a complete list of keys by using the <i class="uil uil-compass"></i> *Explore* main menu item in PMM.
-
-    - Evaluator can be: `=` `=~`.
-
-    - Value is an exact match or when used with a ‘fuzzy’ evaluator (`=~`) can be a regular expression. E.g. `service_name=~ps.*`
+- Filters - A label, an operator, and a value. For example: Label: `service_name'`, Operator:`=(EQUAL)`, VALUE: `ps5.7`.
+    - The **Label** field requires an exact match. You can find a complete list of labels under <i class="uil uil-compass"></i> **Explore > Metrics > Metrics browser > 2. Select labels to search in**.
+    - The **Value** also requires an exact match, but when used with a ‘fuzzy’ (`=~`) evaluator, this can be a regular expression. For example: *=~ps.**
 
 ### Variables in Templates
 

@@ -175,12 +175,9 @@ PMM 2.12.0 and earlier function name is **check**, while newer versions use name
 The function signature should be **check_context** (docs, context), where **docs** is lists of docs (one doc represents one row for SQL DBMS and one document for MongoDB).
  
 ## Check severity levels
-PMM can display failed checks as **Critical**, **Major** or **Trivial**. These three severity levels correspond to the following severity types in the check source:
- 
- - **Critical**: emergency, alert, critical
- - **Major**: warning  
- - **Trivial**: notice, info, debug
- 
+You can label your advisor checks with one of the following available severity levels: **Emergency**, **Alert**, **Critical**, **Error**, **Warning**, **Notice**, **Info**, **Debug**.
+PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**. 
+  
 ## Check fields 
 Checks can include the following fields:
  

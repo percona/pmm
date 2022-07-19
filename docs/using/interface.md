@@ -93,12 +93,12 @@ At the top of each panel and to the right of the panel name is the _panel menu_.
 ![!image](../_images/PMM_Common_Panel_Menu.jpg)
 
 !!! hint alert alert-success "Tip"
-The menu is hidden until you mouse over it. Look for the <i class="uil uil-angle-down"></i> symbol in the title bar of a panel.
+      The menu is hidden until you mouse over it. Look for the <i class="uil uil-angle-down"></i> symbol in the title bar of a panel.
 
 | Item                                      | Description                                                                   |
 | ----------------------------------------- | ----------------------------------------------------------------------------- |
 | <i class="uil uil-eye"></i> View          | Open the panel in full window mode.                                           |
-| <i class="uil uil-share-alt"></i> Share   | [Render the panel's image for sharing](../how-to/render-dashboard-images.md). |
+| <i class="uil uil-share-alt"></i> Share   | [Share the panel's link or image](../how-to/share-dashboard.md). |
 | <i class="uil uil-compass"></i> Explore   | Run [PromQL] queries.                                                         |
 | <i class="fa fa-info-circle"></i> Inspect | See the panel's data or definition.                                           |
 | <i class="uil uil-cube"></i> More         | (Only charts and graphs) Additional options.                                  |
