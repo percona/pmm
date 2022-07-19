@@ -21,7 +21,6 @@ import (
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
-	"io"
 	"log"
 	"net"
 	"net/http"

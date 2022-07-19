@@ -100,7 +100,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string, ringLog
 	// It should be created separately.
 	// TODO https://jira.percona.com/browse/PMM-7206
 
-	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
+	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, int(cfg.AgentsLogsMaxLength))
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
