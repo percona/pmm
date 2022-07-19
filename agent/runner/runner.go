@@ -43,8 +43,8 @@ type Runner struct {
 	actions chan actions.Action
 	jobs    chan jobs.Job
 
-	actionsResults chan agentpb.AgentRequestPayload
-	jobsMessages   chan agentpb.AgentResponsePayload
+	actionsMessages chan agentpb.AgentRequestPayload
+	jobsMessages    chan agentpb.AgentResponsePayload
 
 	sem *semaphore.Weighted
 	wg  sync.WaitGroup
@@ -63,13 +63,13 @@ func New(capacity uint16) *Runner {
 	l.Infof("Runner capacity set to %d.", capacity)
 
 	return &Runner{
-		l:              l,
-		actions:        make(chan actions.Action, bufferSize),
-		jobs:           make(chan jobs.Job, bufferSize),
-		sem:            semaphore.NewWeighted(int64(capacity)),
-		rCancel:        make(map[string]context.CancelFunc),
-		jobsMessages:   make(chan agentpb.AgentResponsePayload),
-		actionsResults: make(chan agentpb.AgentRequestPayload),
+		l:               l,
+		actions:         make(chan actions.Action, bufferSize),
+		jobs:            make(chan jobs.Job, bufferSize),
+		sem:             semaphore.NewWeighted(int64(capacity)),
+		rCancel:         make(map[string]context.CancelFunc),
+		jobsMessages:    make(chan agentpb.AgentResponsePayload),
+		actionsMessages: make(chan agentpb.AgentRequestPayload),
 	}
 }
 
@@ -83,7 +83,7 @@ func (r *Runner) Run(ctx context.Context) {
 			r.handleJob(ctx, job)
 		case <-ctx.Done():
 			r.wg.Wait() // wait for all actions and jobs termination
-			close(r.actionsResults)
+			close(r.actionsMessages)
 			close(r.jobsMessages)
 			return
 		}
@@ -117,7 +117,7 @@ func (r *Runner) JobsMessages() <-chan agentpb.AgentResponsePayload {
 
 // ActionsResults return chanel with Actions results payload.
 func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
-	return r.actionsResults
+	return r.actionsMessages
 }
 
 // Stop stops running Action or Job.
@@ -146,6 +146,15 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 
 	if err := r.sem.Acquire(ctx, 1); err != nil {
 		l.Errorf("Failed to acquire token for a job: %v", err)
+		r.sendJobsMessage(&agentpb.JobResult{
+			JobId:     job.ID(),
+			Timestamp: timestamppb.Now(),
+			Result: &agentpb.JobResult_Error_{
+				Error: &agentpb.JobResult_Error{
+					Message: err.Error(),
+				},
+			},
+		})
 		return
 	}
 
@@ -171,9 +180,9 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 		defer cancel()
 		defer r.removeCancel(jobID)
 
-		err := job.Run(ctx, r.send)
+		err := job.Run(ctx, r.sendJobsMessage)
 		if err != nil {
-			r.send(&agentpb.JobResult{
+			r.sendJobsMessage(&agentpb.JobResult{
 				JobId:     job.ID(),
 				Timestamp: timestamppb.Now(),
 				Result: &agentpb.JobResult_Error_{
@@ -195,6 +204,11 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 
 	if err := r.sem.Acquire(ctx, 1); err != nil {
 		l.Errorf("Failed to acquire token for an action: %v", err)
+		r.sendActionsMessage(&agentpb.ActionResultRequest{
+			ActionId: actionID,
+			Done:     true,
+			Error:    err.Error(),
+		})
 		return
 	}
 
@@ -225,18 +239,22 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			errMsg = err.Error()
 			l.Warnf("Action terminated with error: %+v", err)
 		}
-		r.actionsResults <- &agentpb.ActionResultRequest{
+		r.sendActionsMessage(&agentpb.ActionResultRequest{
 			ActionId: actionID,
 			Done:     true,
 			Output:   output,
 			Error:    errMsg,
-		}
+		})
 	}
 	go pprof.Do(nCtx, pprof.Labels("actionID", actionID, "type", actionType), run)
 }
 
-func (r *Runner) send(payload agentpb.AgentResponsePayload) {
+func (r *Runner) sendJobsMessage(payload agentpb.AgentResponsePayload) {
 	r.jobsMessages <- payload
+}
+
+func (r *Runner) sendActionsMessage(payload agentpb.AgentRequestPayload) {
+	r.actionsMessages <- payload
 }
 
 func (r *Runner) addCancel(jobID string, cancel context.CancelFunc) {
