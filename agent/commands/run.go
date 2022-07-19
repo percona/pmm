@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -35,18 +36,19 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-const maxServerLogs = 500 // max number logs can store server
-
 // Run implements `pmm-agent run` default command.
 func Run() {
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer l.Info("Done.")
 
+	const initServerLogsMaxLength = 32 // store logs before load configuration
+	ringLog := storelogs.New(initServerLogsMaxLength)
+	logrus.SetOutput(io.MultiWriter(os.Stderr, ringLog))
+
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
-	ringLog := storelogs.New(maxServerLogs)
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
@@ -60,6 +62,7 @@ func Run() {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
 		config.ConfigureLogger(cfg)
+		ringLog.UpdateCount(int(cfg.ServerLogsMaxLength))
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
