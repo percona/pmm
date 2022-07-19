@@ -362,7 +362,6 @@ func filter(existing, new map[string]agentpb.AgentParams) (toStart, toRestart, t
 const (
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
-	maxAgentLogs                          = 200 // max number logs can store each agent
 )
 
 // startProcess starts Agent's process.
