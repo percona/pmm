@@ -232,7 +232,7 @@ func getServiceConfig() ServiceConfig {
 	return serviceConfig
 }
 
-func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilService {
+func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtilServiceImpl {
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		ami                 = "ami"
@@ -242,7 +242,7 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) distributionUtilS
 		assert.Fail(t, "cannot write to file: ", err)
 		return nil
 	}
-	dus := NewDistributionUtilServiceImpl(tmpDistributionFile, osInfoFilePath, l)
+	dus := newDistributionUtilServiceImpl(tmpDistributionFile, osInfoFilePath, l)
 	return dus
 }
 

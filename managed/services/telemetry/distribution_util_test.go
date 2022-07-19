@@ -41,12 +41,12 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		digitalocean = "digitalocean"
 		docker       = "docker"
 
-		DistributionMethodDISTRIBUTION_METHOD_INVALID = 0
-		DistributionMethodDOCKER                      = 1
-		DistributionMethodOVF                         = 2
-		DistributionMethodAMI                         = 3
-		DistributionMethodAZURE                       = 4
-		DistributionMethodDO                          = 5
+		DistributionMethodDistributionMethodInvalid = 0
+		DistributionMethodDOCKER                    = 1
+		DistributionMethodOVF                       = 2
+		DistributionMethodAMI                       = 3
+		DistributionMethodAZURE                     = 4
+		DistributionMethodDO                        = 5
 
 		PmmV1DistributionMethodDistributionMethodInvalid = 0
 		PmmV1DistributionMethodDOCKER                    = 1
@@ -115,7 +115,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		{
 			name:             "should return Invalid distribution method",
 			distributionName: "invalid",
-			want:             DistributionMethodDISTRIBUTION_METHOD_INVALID,
+			want:             DistributionMethodDistributionMethodInvalid,
 			want1:            PmmV1DistributionMethodDistributionMethodInvalid,
 			want2:            "",
 		},
@@ -136,7 +136,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			d := NewDistributionUtilServiceImpl(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
+			d := newDistributionUtilServiceImpl(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
 			got, got1, got2 := d.getDistributionMethodAndOS()
 			assert.Equalf(t, tt.want, got, "getDistributionMethodAndOS() serverpb.DistributionMethod")
 			assert.Equalf(t, tt.want1, got1, "getDistributionMethodAndOS() pmmv1.DistributionMethod")
