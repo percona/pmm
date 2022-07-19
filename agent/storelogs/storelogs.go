@@ -44,6 +44,12 @@ func New(count int) *LogsStore {
 func (l *LogsStore) Write(b []byte) (int, error) {
 	l.m.Lock()
 	defer l.m.Unlock()
+
+	// when store 0 logs
+	if l.log == nil {
+		return len(b), nil
+	}
+
 	l.log.Value = string(b)
 	l.log = l.log.Next()
 	return len(b), nil
@@ -68,6 +74,11 @@ func (l *LogsStore) UpdateCount(count int) {
 func (l *LogsStore) GetLogs() []string {
 	l.m.Lock()
 	defer l.m.Unlock()
+
+	// when store 0 logs
+	if l.log == nil {
+		return nil
+	}
 
 	logs := make([]string, 0, l.count)
 
