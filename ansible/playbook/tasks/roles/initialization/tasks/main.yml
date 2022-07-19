@@ -39,23 +39,12 @@
     path: /srv/backup
     state: directory
 
-- name: Wait until postgres socket is present before continuing
-  wait_for:
-    path: /var/run/postgresql/.s.PGSQL.5432
+- name: Check if Postgres 11 exists
+  stat:
+    path: /srv/postgres
+  register: is_postgres_11
 
-- name: Get postgres encoding
-  postgresql_query:
-    db: pmm-managed
-    query: SHOW SERVER_ENCODING;
-  register: postgres_encoding
-  become: yes
-  become_user: postgres
-  become_method: su
-
-- debug:
-    var: postgres_encoding.query_result
-
-- name: Change encoding of pmm-managed database
+- name: Upgrade Postgres database
   include_role:
-    name: postgres-ascii-to-utf8
-  when: "'SQL_ASCII' == postgres_encoding.query_result[0].server_encoding"
+    name: postgres
+  when: is_postgres_11.stat.exists

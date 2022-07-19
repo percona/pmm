@@ -46,9 +46,30 @@
           - percona-grafana
         state: latest
 
+    - name: Create supervisor dir
+      file:
+        path: /etc/supervisord.d/
+        state: directory
+
+    - name: Upgrade supervisor config
+      copy:
+        src: pmm.ini
+        dest: /etc/supervisord.d/pmm.ini
+
+    - name: Remove supervisord block from pmm.ini
+      ini_file:
+        path: /etc/supervisord.d/pmm.ini
+        section: supervisord
+        state: absent
+      when: not is_docker
+
     - name: Create grafana config
       include_role:
         name: grafana
+
+    - name: Install postgres
+      include_role:
+        name: postgres
 
     # Start the services
     - name: Supervisord start        | Start supervisord service for AMI/OVF
@@ -192,11 +213,6 @@
           - screen
           - yum-cron
 
-    - name: Check pg_stat_statements extension
-      postgresql_ext:
-        db: postgres
-        name: pg_stat_statements
-
     # https://jira.percona.com/browse/PMM-9298
     - name: Copy rezise-xfs file for lvm
       file:
@@ -244,8 +260,7 @@
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       changed_when: True
       with_nested:
-        - - postgresql
-          - alertmanager
+        - - alertmanager
           - grafana
           - qan-api2
           - pmm-agent
