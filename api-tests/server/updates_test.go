@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -36,6 +35,10 @@ func TestCheckUpdates(t *testing.T) {
 	// do not run this test in parallel with other tests as it also tests timings
 
 	const fast, slow = 5 * time.Second, 60 * time.Second
+
+	if !pmmapitests.RunUpdateTest {
+		t.Skip("skipping PMM Server check update test")
+	}
 
 	// that call should always be fast
 	version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))

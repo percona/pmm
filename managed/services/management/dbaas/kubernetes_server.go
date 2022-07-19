@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -355,6 +354,16 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 
 		if req.Force {
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		}
+
+		_, err = k.dbaasClient.StopMonitoring(ctx, &dbaascontrollerv1beta1.StopMonitoringRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: kubernetesCluster.KubeConfig,
+			},
+		})
+
+		if err != nil {
+			k.l.Warnf("cannot stop monitoring: %s", err)
 		}
 
 		pxcClusters, err := k.dbaasClient.ListPXCClusters(ctx,

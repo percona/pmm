@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,7 +17,6 @@ package main
 
 import (
 	"fmt"
-	"go/build"
 	"os"
 	"os/exec"
 	"sort"
@@ -27,6 +25,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/tools/go/packages"
 )
 
 func TestPackages(t *testing.T) {
@@ -109,34 +108,29 @@ func TestImports(t *testing.T) {
 		constraints[service] = constraint{}
 	}
 
-	allImports := make(map[string]map[string]struct{})
+	config := &packages.Config{
+		Mode:  packages.NeedName | packages.NeedImports,
+		Tests: true,
+	}
+
+	var allPkgs []*packages.Package
 	for path, c := range constraints {
-		p, err := build.Import(path, ".", build.IgnoreVendor)
+		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
 
-		if allImports[path] == nil {
-			allImports[path] = make(map[string]struct{})
-		}
-		for _, i := range p.Imports {
-			allImports[path][i] = struct{}{}
-		}
-		for _, i := range p.TestImports {
-			allImports[path][i] = struct{}{}
-		}
-		for _, i := range p.XTestImports {
-			allImports[path][i] = struct{}{}
-		}
+		for _, p := range pkgs {
+			allPkgs = append(allPkgs, p)
+			for _, b := range c.blacklistPrefixes {
+				for i := range p.Imports {
+					// whitelist own subpackages
+					if strings.HasPrefix(i, path) {
+						continue
+					}
 
-		for _, b := range c.blacklistPrefixes {
-			for i := range allImports[path] {
-				// whitelist own subpackages
-				if strings.HasPrefix(i, path) {
-					continue
-				}
-
-				// check blacklist
-				if strings.HasPrefix(i, b) {
-					t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+					// check blacklist
+					if strings.HasPrefix(i, b) {
+						t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+					}
 				}
 			}
 		}
@@ -146,35 +140,42 @@ func TestImports(t *testing.T) {
 	require.NoError(t, err)
 	defer func() { require.NoError(t, f.Close()) }()
 
-	fmt.Fprintf(f, "digraph packages {\n")
-
-	packages := make([]string, 0, len(allImports))
-	for p := range allImports {
-		packages = append(packages, p)
-	}
-	sort.Strings(packages)
-
-	for _, p := range packages {
-		imports := make([]string, 0, len(allImports[p]))
-		for p := range allImports[p] {
-			imports = append(imports, p)
-		}
-		sort.Strings(imports)
-
-		p = strings.TrimPrefix(p, "github.com/percona/pmm/managed")
-		if p == "" {
-			p = "/"
-		}
-		for _, i := range imports {
-			if strings.Contains(i, "/utils/") {
+	var lines []string
+	for _, p := range allPkgs {
+		pName := formatPkgName(t, p.PkgPath)
+		for _, i := range p.Imports {
+			if strings.Contains(i.PkgPath, "/utils/") {
 				continue
 			}
-			if strings.HasPrefix(i, "github.com/percona/pmm/managed") {
-				i = strings.TrimPrefix(i, "github.com/percona/pmm/managed")
-				fmt.Fprintf(f, "\t%q -> %q;\n", p, i)
+			if strings.HasPrefix(i.PkgPath, "github.com/percona/pmm/managed") {
+				iName := formatPkgName(t, i.PkgPath)
+				if pName == iName {
+					continue
+				}
+				lines = append(lines, fmt.Sprintf("\t%q -> %q;\n", pName, iName))
 			}
 		}
 	}
+	sort.Strings(lines)
 
+	fmt.Fprintf(f, "digraph packages {\n")
+	duplicate := make(map[string]struct{})
+	for _, line := range lines {
+		if _, ok := duplicate[line]; !ok {
+			duplicate[line] = struct{}{}
+			fmt.Fprint(f, line)
+		}
+	}
 	fmt.Fprintf(f, "}\n")
+}
+
+func formatPkgName(t *testing.T, name string) string {
+	t.Helper()
+
+	name = strings.TrimPrefix(name, "github.com/percona/pmm/managed")
+	if name == "" {
+		name = "/"
+	}
+
+	return name
 }

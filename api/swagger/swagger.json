@@ -26,6 +26,14 @@
         ],
         "summary": "Logs",
         "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -15755,11 +15763,6 @@
                     "debug"
                   ],
                   "x-order": 28
-                },
-                "defaults_file": {
-                  "type": "string",
-                  "title": "Path to .cnf file which contains user-name and password",
-                  "x-order": 29
                 }
               }
             }

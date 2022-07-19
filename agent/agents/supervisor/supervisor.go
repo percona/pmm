@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
@@ -212,6 +212,12 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		}
 
 		delete(s.agentProcesses, agentID)
+
+		agentTmp := filepath.Join(s.paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
 	}
 
 	// restart while preserving port

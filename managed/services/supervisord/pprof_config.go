@@ -14,18 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//go:build maincover
-// +build maincover
+package supervisord
 
-package main
+import "time"
 
-import (
-	"testing"
-)
-
-// FIXME Does not currently work due to kingpin/flags clash.
-// https://jira.percona.com/browse/PMM-3484
-
-func TestMainCover(*testing.T) {
-	main()
+// PprofConfig pprof settings.
+type PprofConfig struct {
+	ProfileDuration time.Duration
+	TraceDuration   time.Duration
 }

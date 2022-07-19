@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -34,18 +33,25 @@ var (
 
 // ActionsService handles sending actions to pmm agents.
 type ActionsService struct {
-	r *Registry
+	r         *Registry
+	qanClient qanClient
 }
 
 // NewActionsService creates new actions service.
-func NewActionsService(r *Registry) *ActionsService {
+func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 	return &ActionsService{
-		r: r,
+		r:         r,
+		qanClient: qanClient,
 	}
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	err := s.qanClient.QueryExists(ctx, serviceID, query)
+	if err != nil {
+		return err
+	}
+
 	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err

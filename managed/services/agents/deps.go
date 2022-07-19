@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -37,6 +36,7 @@ type prometheusService interface {
 // We use it instead of real type to avoid dependency cycle.
 type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
+	QueryExists(ctx context.Context, serviceID, query string) error
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
