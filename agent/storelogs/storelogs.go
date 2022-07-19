@@ -18,12 +18,9 @@ package storelogs
 
 import (
 	"container/ring"
-	"fmt"
 	"strings"
 	"sync"
 )
-
-// @TODO rename to tail logs
 
 // LogsStore implement ring save logs.
 type LogsStore struct {
@@ -64,10 +61,20 @@ func (l *LogsStore) UpdateCount(count int) {
 		return
 	}
 
-	l.count = count
+	old := l.log
 
-	// @TODO update log *ring.Ring
-	// ring.New(count) will remove data, need link!!!
+	l.count = count
+	l.log = ring.New(count)
+	if l.log == nil {
+		return
+	}
+
+	old.Do(func(p interface{}) {
+		if p != nil {
+			l.log.Value = p
+			l.log = l.log.Next()
+		}
+	})
 }
 
 // GetLogs return all logs.
@@ -84,9 +91,8 @@ func (l *LogsStore) GetLogs() []string {
 
 	replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
 	l.log.Do(func(p interface{}) {
-		log := fmt.Sprint(p)
 		if p != nil {
-			logs = append(logs, replacer.Replace(log))
+			logs = append(logs, replacer.Replace(p.(string)))
 		}
 	})
 
