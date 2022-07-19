@@ -328,6 +328,7 @@ func initMockDB(t *testing.T, now time.Time, callTimes int) func() *reform.DB {
 			if err := mock.ExpectationsWereMet(); err != nil {
 				t.Errorf("there were unfulfilled expectations for DB mock: %s", err)
 			}
+			defer db.Close()
 		})
 		return reform.NewDB(db, postgresql.Dialect, reform.NewPrintfLogger(l.Printf))
 	}
