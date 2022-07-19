@@ -103,8 +103,15 @@ func TestStarlarkSandbox(t *testing.T) {
 	}
 
 	// since we run the binary as a child process to test it we need to build it first.
-	err := exec.Command("make", "-C", "../..", "release").Run()
-	require.NoError(t, err)
+	var buildStdin, buildStderr bytes.Buffer
+
+	buildCmd := exec.Command("make", "-C", "../..", "release")
+	buildCmd.Stdin = &buildStdin
+	buildCmd.Stderr = &buildStderr
+
+	out, err := buildCmd.Output()
+	assert.NoError(t, err)
+	t.Logf(string(out))
 
 	for _, tc := range testCases {
 		tc := tc
