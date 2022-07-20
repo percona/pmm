@@ -190,6 +190,13 @@ You can now [add the service](#add-service).
 
     You can get a list of other available settings with `SELECT * FROM pg_stat_monitor_settings;`.
 
+    Another important parameter is:
+    ```ini
+    pg_stat_monitor.pgsm_normalized_query
+    ```
+
+    If the value is set to 1, the actual query values are replaced by placeholders. If the value is 0, the examples are given in QAN. Examples can be found in QAN details tab example.
+
     !!! note alert alert-primary ""
         See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
 
