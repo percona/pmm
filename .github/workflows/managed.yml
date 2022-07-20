@@ -86,7 +86,9 @@ jobs:
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
+        run: |
+          df -h
+          docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
 
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
@@ -129,3 +131,4 @@ jobs:
           pwd
           git status
           kubectl version
+          df -h
