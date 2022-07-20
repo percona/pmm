@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,9 +25,12 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 func TestRDSExporterConfig(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.28.0")
+
 	node1 := &models.Node{
 		NodeID:    "/node_id/node1",
 		NodeType:  models.RemoteRDSNodeType,
@@ -76,7 +78,7 @@ func TestRDSExporterConfig(t *testing.T) {
 		node2: agent2,
 		node1: agent1,
 	}
-	actual, err := rdsExporterConfig(pairs, redactSecrets)
+	actual, err := rdsExporterConfig(pairs, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_RDS_EXPORTER,

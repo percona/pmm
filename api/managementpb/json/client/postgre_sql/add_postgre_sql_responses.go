@@ -1013,6 +1013,10 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatements agent
@@ -1020,6 +1024,10 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) Validate(formats str
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1080,6 +1088,60 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(forma
 
 	// value enum
 	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum = append(addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto captures enum value "auto"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto string = "auto"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal string = "fatal"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelError captures enum value "error"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelError string = "error"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn captures enum value "warn"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn string = "warn"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo captures enum value "info"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo string = "info"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug captures enum value "debug"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1153,6 +1215,10 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body QAN postgresql pgstatmonitor agent
@@ -1160,6 +1226,10 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats st
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1220,6 +1290,60 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(form
 
 	// value enum
 	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum = append(addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto captures enum value "auto"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto string = "auto"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal captures enum value "fatal"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal string = "fatal"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError captures enum value "error"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError string = "error"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn captures enum value "warn"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn string = "warn"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo captures enum value "info"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo string = "info"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug captures enum value "debug"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatmonitor_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
