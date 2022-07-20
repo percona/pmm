@@ -141,16 +141,16 @@ func TestNodeHelpers(t *testing.T) {
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			assert.Equal(t, expected, structs[0])
+			assert.Equal(t, expected, structs[1])
 			expected = &models.Node{
-				NodeID:    structs[1].(*models.Node).NodeID,
+				NodeID:    structs[0].(*models.Node).NodeID,
 				NodeType:  models.GenericNodeType,
 				NodeName:  t.Name(),
 				MachineID: &machineID,
 				CreatedAt: now,
 				UpdatedAt: now,
 			}
-			assert.Equal(t, expected, structs[1])
+			assert.Equal(t, expected, structs[0])
 		})
 	})
 
