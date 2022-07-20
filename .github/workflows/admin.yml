@@ -75,7 +75,6 @@ jobs:
         with:
           file: ./src/github.com/percona/pmm/admin/cover.out
           flags: admin-cover
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Upload coverage results
@@ -83,7 +82,6 @@ jobs:
         with:
           file: ./src/github.com/percona/pmm/admin/crosscover.out
           flags: admin-crosscover
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Run debug commands on failure

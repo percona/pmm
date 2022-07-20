@@ -1,9 +1,0 @@
-coverage:
-  range: "60...100"
-  status:
-    project:
-      default:
-        threshold: 1
-
-github_checks:
-  annotations: false
