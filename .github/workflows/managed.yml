@@ -23,6 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        cache: false
         go-version:
           - 1.18.x
         os: [ubuntu-latest]
@@ -58,6 +59,7 @@ jobs:
         run: df -h
 
       - name: Enable Go build cache
+        if: ${{ matrix.cache }}
         uses: percona-platform/cache@v2
         with:
           path: ~/.cache/go-build
@@ -67,6 +69,7 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-build-
 
       - name: Enable Go modules cache
+        if: ${{ matrix.cache }}
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
@@ -75,16 +78,19 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Download Go modules
+        if: ${{ matrix.cache }}
         run: go mod download
 
       - name: Initialize CI environment
         run: make env-compose-up
 
       - name: Restore Go build cache
+        if: ${{ matrix.cache }}
         continue-on-error: true
         run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
+        if: ${{ matrix.cache }}
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
