@@ -58,6 +58,7 @@ services:
       - pmm-bin:/root/go/src/github.com/percona/pmm/bin
       # caching
       - go-modules:/root/go/pkg/mod
+      - ${HOME}/.cache:/root/.cache
 
 volumes:
   go-modules:
