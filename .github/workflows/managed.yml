@@ -54,6 +54,9 @@ jobs:
           fetch-depth: 1
           path: ${{ env.WORKING_DIR }}
 
+      - name: Space available on machine
+        run: df -h
+
       - name: Enable Go build cache
         uses: percona-platform/cache@v2
         with:
