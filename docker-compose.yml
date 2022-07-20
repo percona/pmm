@@ -64,7 +64,6 @@ services:
 volumes:
   go-modules:
   root-cache:
-  pmm-bin:
 
 networks:
   minikube:
