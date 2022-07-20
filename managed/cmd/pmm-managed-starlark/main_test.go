@@ -104,11 +104,7 @@ func TestStarlarkSandbox(t *testing.T) {
 	}
 
 	// since we run the binary as a child process to test it we need to build it first.
-	wd, err := os.Getwd()
-	if err != nil {
-		t.Logf("Working dir [%s]\n",wd)
-	}
-	err = exec.Command("make", "-C", "../..", "release").Run()
+	err := exec.Command("make", "-C", "../..", "release").Run()
 	require.NoError(t, err)
 
 	for _, tc := range testCases {
@@ -126,7 +122,11 @@ func TestStarlarkSandbox(t *testing.T) {
 				QueriesResults: [][]byte{result},
 			}
 
-			cmd := exec.Command("./../../../bin/pmm-managed-starlark")
+			releasePath, present := os.LookupEnv("PMM_RELEASE_PATH")
+			if !present {
+				releasePath = "./../../bin"
+			}
+			cmd := exec.Command(releasePath + "/pmm-managed-starlark")
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin
