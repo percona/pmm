@@ -133,14 +133,15 @@ func TestNodeHelpers(t *testing.T) {
 			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_name", machineID)
 			require.NoError(t, err)
 			require.Len(t, structs, 2)
-			expected := []*models.Node{{
-				NodeID:    structs[0].(*models.Node).NodeID,
-				NodeType:  models.GenericNodeType,
-				NodeName:  "Node for Agents",
-				MachineID: &machineID, // \n trimmed
-				CreatedAt: now,
-				UpdatedAt: now,
-			},
+			expected := []*models.Node{
+				{
+					NodeID:    structs[0].(*models.Node).NodeID,
+					NodeType:  models.GenericNodeType,
+					NodeName:  "Node for Agents",
+					MachineID: &machineID, // \n trimmed
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
 				{
 					NodeID:    structs[1].(*models.Node).NodeID,
 					NodeType:  models.GenericNodeType,
