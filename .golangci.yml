@@ -31,6 +31,18 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        # Disabled because we have too many errors at the moment
+        json: ""
+        # Disabled because we have too many errors at the moment
+        yaml: ""
+        xml: camel
+
   unused:
     check-exported: false #TODO: set true for agent
 
