@@ -18,17 +18,13 @@ package telemetry
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"reflect"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/sirupsen/logrus"
@@ -45,7 +41,6 @@ import (
 
 func TestRunTelemetryService(t *testing.T) {
 	type fields struct {
-		db                  func() *reform.DB
 		l                   *logrus.Entry
 		start               time.Time
 		config              ServiceConfig
@@ -97,7 +92,6 @@ func TestRunTelemetryService(t *testing.T) {
 			name:        "should send metrics only once during start",
 			testTimeout: 2 * time.Second,
 			fields: fields{
-				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 10*time.Second),
 				pmmVersion: pmmVersion,
@@ -109,7 +103,6 @@ func TestRunTelemetryService(t *testing.T) {
 			name:        "should send metrics only once and not send during start",
 			testTimeout: 3 * time.Second,
 			fields: fields{
-				db:         initMockDB(t, now, 1),
 				start:      now,
 				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
@@ -121,7 +114,6 @@ func TestRunTelemetryService(t *testing.T) {
 			name:        "should send metrics during start and once timer is ticked",
 			testTimeout: 3 * time.Second,
 			fields: fields{
-				db:         initMockDB(t, now, 2),
 				start:      now,
 				config:     getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
@@ -132,9 +124,10 @@ func TestRunTelemetryService(t *testing.T) {
 	}
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	defer func() {
+	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
-	}()
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -149,7 +142,7 @@ func TestRunTelemetryService(t *testing.T) {
 			assert.NoError(t, err)
 
 			s := Service{
-				db:                  tt.fields.db(),
+				db:                  db,
 				l:                   logEntry,
 				start:               tt.fields.start,
 				config:              tt.fields.config,
@@ -306,78 +299,4 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			RetryCount:      3,
 		},
 	}
-}
-
-func initMockDB(t *testing.T, now time.Time, callTimes int) func() *reform.DB {
-	return func() *reform.DB {
-		db, mock, err := sqlmock.New()
-		assert.NoError(t, err)
-
-		l := log.New(os.Stderr, "SQL: ", log.Flags())
-
-		var s models.Settings
-		b, err := json.Marshal(s)
-		assert.NoError(t, err)
-
-		for i := 0; i < callTimes; i++ {
-			initGetSettingsSQLMock(mock, b, now)
-		}
-
-		// we make sure that all expectations were met
-		t.Cleanup(func() {
-			if err := mock.ExpectationsWereMet(); err != nil {
-				t.Errorf("there were unfulfilled expectations for DB mock: %s", err)
-			}
-			defer db.Close() //nolint:errcheck
-		})
-		return reform.NewDB(db, postgresql.Dialect, reform.NewPrintfLogger(l.Printf))
-	}
-}
-
-func initGetSettingsSQLMock(mock sqlmock.Sqlmock, b []byte, now time.Time) {
-	mock.ExpectBegin()
-	mock.ExpectQuery("SELECT settings FROM settings").
-		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(b))
-	mock.ExpectQuery(`
-						SELECT 
-							"percona_sso_details"."pmm_managed_client_id",
-							"percona_sso_details"."pmm_managed_client_secret", 
-							"percona_sso_details"."grafana_client_id", 
-							"percona_sso_details"."issuer_url", 
-							"percona_sso_details"."scope", 
-							"percona_sso_details"."access_token", 
-							"percona_sso_details"."organization_id", 
-							"percona_sso_details"."pmm_server_name",
-							"percona_sso_details"."created_at" 
-						FROM "percona_sso_details" `).
-		WillReturnRows(
-			sqlmock.NewRows(
-				[]string{
-					"pmm_managed_client_id",
-					"pmm_managed_client_secret",
-					"grafana_client_id",
-					"issuer_url",
-					"scope",
-					"access_token",
-					"organization_id",
-					"pmm_server_name",
-					"created_at",
-				}).AddRow(
-				"id",
-				"secret",
-				"client_id",
-				"url",
-				"scope",
-				fmt.Sprintf(`
-							{
-								"token_type": "type",
-								"expires_in": 10000,
-								"expires_at": "%s",
-								"access_token":"token",
-								"scope": "scope"
-							}`, now.Add(time.Hour).Format(time.RFC3339)),
-				"id",
-				"server_name",
-				now.Add(-1*time.Hour)))
-	mock.ExpectCommit()
 }

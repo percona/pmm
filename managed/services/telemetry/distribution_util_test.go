@@ -17,12 +17,9 @@
 package telemetry
 
 import (
-	"fmt"
-	"io/fs"
 	"os"
 	"testing"
 
-	"github.com/google/uuid"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -32,9 +29,6 @@ import (
 
 func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 	const (
-		tmpDistributionFilePathPrefix = "/tmp/distribution"
-		tmpOsInfoFilePathPrefix       = "/tmp/version"
-
 		ami          = "ami"
 		ovf          = "ovf"
 		azure        = "azure"
@@ -63,7 +57,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 	tests := []struct {
 		name             string
 		distributionName string
-		dokcerOsVersion  string
+		dockerVersion    string
 		want             serverpb.DistributionMethod
 		want1            pmmv1.DistributionMethod
 		want2            string
@@ -99,7 +93,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		{
 			name:             "should return Docker distribution method",
 			distributionName: docker,
-			dokcerOsVersion:  "ubuntu",
+			dockerVersion:    "ubuntu",
 			want:             DistributionMethodDOCKER,
 			want1:            PmmV1DistributionMethodDOCKER,
 			want2:            "Ubuntu",
@@ -107,7 +101,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		{
 			name:             "should return Docker distribution method",
 			distributionName: "",
-			dokcerOsVersion:  "ubuntu",
+			dockerVersion:    "ubuntu",
 			want:             DistributionMethodDOCKER,
 			want1:            PmmV1DistributionMethodDOCKER,
 			want2:            "Ubuntu",
@@ -121,19 +115,21 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// make sure that each test will run messages in different files
-			suffixFileName := uuid.New().String()
-			tmpDistributionFilePath := fmt.Sprintf("%s%s", tmpDistributionFilePathPrefix, suffixFileName)
-			tmpOsInfoFilePath := fmt.Sprintf("%s%s", tmpOsInfoFilePathPrefix, suffixFileName)
+			f, err := writeToTmpFile(t, "", tt.distributionName)
 
-			err := writeToFile(tmpDistributionFilePath, tt.distributionName)
+			tmpDistributionFilePath := f.Name()
+			tmpOsInfoFilePath := ""
+
 			assert.NoError(t, err)
-			if tt.dokcerOsVersion != "" {
-				err := writeToFile(tmpOsInfoFilePath, tt.dokcerOsVersion)
+			if tt.dockerVersion != "" {
+				f2, err := writeToTmpFile(t, "", tt.dockerVersion)
 				assert.NoError(t, err)
+
+				tmpOsInfoFilePath = f2.Name()
 			}
 
 			d := newDistributionUtilServiceImpl(tmpDistributionFilePath, tmpOsInfoFilePath, logEntry)
@@ -145,12 +141,21 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 	}
 }
 
-func writeToFile(tmpDistributionFile string, s string) error {
-	err := os.WriteFile(tmpDistributionFile, []byte(s), fs.ModePerm)
+func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.File, error) {
+	f, err := os.CreateTemp(tmpDistributionFile, "1")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	_, err = f.Write([]byte(s))
+	if err != nil {
+		return nil, err
+	}
+
+	t.Cleanup(func() {
+		err := os.Remove(f.Name())
+		assert.NoError(t, err)
+	})
+	return f, nil
 }
 
 func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
