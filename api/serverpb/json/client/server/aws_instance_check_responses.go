@@ -59,12 +59,12 @@ type AWSInstanceCheckOK struct {
 func (o *AWSInstanceCheckOK) Error() string {
 	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] awsInstanceCheckOk  %+v", 200, o.Payload)
 }
-
 func (o *AWSInstanceCheckOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AWSInstanceCheckOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *AWSInstanceCheckDefault) Code() int {
 func (o *AWSInstanceCheckDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] AWSInstanceCheck default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AWSInstanceCheckDefault) GetPayload() *AWSInstanceCheckDefaultBody {
 	return o.Payload
 }
 
 func (o *AWSInstanceCheckDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AWSInstanceCheckDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *AWSInstanceCheckDefault) readResponse(response runtime.ClientResponse, 
 swagger:model AWSInstanceCheckBody
 */
 type AWSInstanceCheckBody struct {
+
 	// AWS EC2 instance ID (i-1234567890abcdef0).
 	InstanceID string `json:"instance_id,omitempty"`
 }
@@ -154,6 +155,7 @@ func (o *AWSInstanceCheckBody) UnmarshalBinary(b []byte) error {
 swagger:model AWSInstanceCheckDefaultBody
 */
 type AWSInstanceCheckDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -219,7 +221,9 @@ func (o *AWSInstanceCheckDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AWSInstanceCheckDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -230,6 +234,7 @@ func (o *AWSInstanceCheckDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -338,6 +343,7 @@ func (o *AWSInstanceCheckDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AWSInstanceCheckDefaultBodyDetailsItems0
 */
 type AWSInstanceCheckDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent

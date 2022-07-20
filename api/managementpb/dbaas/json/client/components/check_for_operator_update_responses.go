@@ -59,12 +59,12 @@ type CheckForOperatorUpdateOK struct {
 func (o *CheckForOperatorUpdateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] checkForOperatorUpdateOk  %+v", 200, o.Payload)
 }
-
 func (o *CheckForOperatorUpdateOK) GetPayload() *CheckForOperatorUpdateOKBody {
 	return o.Payload
 }
 
 func (o *CheckForOperatorUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CheckForOperatorUpdateOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *CheckForOperatorUpdateDefault) Code() int {
 func (o *CheckForOperatorUpdateDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] CheckForOperatorUpdate default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CheckForOperatorUpdateDefault) GetPayload() *CheckForOperatorUpdateDefaultBody {
 	return o.Payload
 }
 
 func (o *CheckForOperatorUpdateDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CheckForOperatorUpdateDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *CheckForOperatorUpdateDefault) readResponse(response runtime.ClientResp
 swagger:model CheckForOperatorUpdateDefaultBody
 */
 type CheckForOperatorUpdateDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -185,7 +186,9 @@ func (o *CheckForOperatorUpdateDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *CheckForOperatorUpdateDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -196,6 +199,7 @@ func (o *CheckForOperatorUpdateDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -223,6 +227,7 @@ func (o *CheckForOperatorUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model CheckForOperatorUpdateDefaultBodyDetailsItems0
 */
 type CheckForOperatorUpdateDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -259,6 +264,7 @@ func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
+
 	// The cluster name is used as a key for this map, value contains components and their inforamtion about update.
 	ClusterToComponents map[string]CheckForOperatorUpdateOKBodyClusterToComponentsAnon `json:"cluster_to_components,omitempty"`
 }
@@ -318,12 +324,15 @@ func (o *CheckForOperatorUpdateOKBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *CheckForOperatorUpdateOKBody) contextValidateClusterToComponents(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.ClusterToComponents {
+
 		if val, ok := o.ClusterToComponents[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -351,6 +360,7 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnon struct {
+
 	// component_to_update_information stores, under the name of the component, information about the update.
 	// "pxc-operator", "psmdb-operator" are names used by backend for our operators.
 	ComponentToUpdateInformation map[string]CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon `json:"component_to_update_information,omitempty"`
@@ -411,12 +421,15 @@ func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) ContextValidate(ct
 }
 
 func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) contextValidateComponentToUpdateInformation(ctx context.Context, formats strfmt.Registry) error {
+
 	for k := range o.ComponentToUpdateInformation {
+
 		if val, ok := o.ComponentToUpdateInformation[k]; ok {
 			if err := val.ContextValidate(ctx, formats); err != nil {
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -444,6 +457,7 @@ func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) UnmarshalBinary(b 
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon struct {
+
 	// available version
 	AvailableVersion string `json:"available_version,omitempty"`
 }

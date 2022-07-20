@@ -107,6 +107,7 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLChecksum:  "/usr/local/percona/pmm2/tools/pt-table-checksum"
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
@@ -156,6 +157,7 @@ func TestGet(t *testing.T) {
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+				PTMySQLChecksum:  "/usr/local/percona/pmm2/tools/pt-table-checksum",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
@@ -205,6 +207,7 @@ func TestGet(t *testing.T) {
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLChecksum:  "/usr/local/percona/pmm2/tools/pt-table-checksum",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
@@ -264,6 +267,7 @@ func TestGet(t *testing.T) {
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+				PTMySQLChecksum:  "/usr/local/percona/pmm2/tools/pt-table-checksum",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
@@ -321,6 +325,7 @@ func TestGet(t *testing.T) {
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
+				PTMySQLChecksum:  "/base/tools/pt-table-checksum",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
@@ -375,6 +380,7 @@ func TestGet(t *testing.T) {
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
+				PTMySQLChecksum:  "/base/tools/pt-table-checksum",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
@@ -415,6 +421,7 @@ func TestGet(t *testing.T) {
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+				PTMySQLChecksum:  "/usr/local/percona/pmm2/tools/pt-table-checksum",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{

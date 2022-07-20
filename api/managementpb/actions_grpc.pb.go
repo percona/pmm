@@ -8,7 +8,6 @@ package managementpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -49,6 +48,8 @@ type ActionsClient interface {
 	StartPTPgSummaryAction(ctx context.Context, in *StartPTPgSummaryActionRequest, opts ...grpc.CallOption) (*StartPTPgSummaryActionResponse, error)
 	// StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
 	StartPTMongoDBSummaryAction(ctx context.Context, in *StartPTMongoDBSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMongoDBSummaryActionResponse, error)
+	// StartPTMySQLChecksumAction starts pt-table-checksum Action.
+	StartPTMySQLChecksumAction(ctx context.Context, in *StartPTMySQLChecksumActionRequest, opts ...grpc.CallOption) (*StartPTMySQLChecksumActionResponse, error)
 	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
 	StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
@@ -180,6 +181,15 @@ func (c *actionsClient) StartPTMongoDBSummaryAction(ctx context.Context, in *Sta
 	return out, nil
 }
 
+func (c *actionsClient) StartPTMySQLChecksumAction(ctx context.Context, in *StartPTMySQLChecksumActionRequest, opts ...grpc.CallOption) (*StartPTMySQLChecksumActionResponse, error) {
+	out := new(StartPTMySQLChecksumActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartPTMySQLChecksumAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *actionsClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
 	out := new(StartPTMySQLSummaryActionResponse)
 	err := c.cc.Invoke(ctx, "/management.Actions/StartPTMySQLSummaryAction", in, out, opts...)
@@ -228,6 +238,8 @@ type ActionsServer interface {
 	StartPTPgSummaryAction(context.Context, *StartPTPgSummaryActionRequest) (*StartPTPgSummaryActionResponse, error)
 	// StartPTMongoDBSummaryAction starts pt-mongodb-summary Action.
 	StartPTMongoDBSummaryAction(context.Context, *StartPTMongoDBSummaryActionRequest) (*StartPTMongoDBSummaryActionResponse, error)
+	// StartPTMySQLChecksumAction starts pt-table-checksum Action.
+	StartPTMySQLChecksumAction(context.Context, *StartPTMySQLChecksumActionRequest) (*StartPTMySQLChecksumActionResponse, error)
 	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
 	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
@@ -236,64 +248,54 @@ type ActionsServer interface {
 }
 
 // UnimplementedActionsServer must be embedded to have forward compatible implementations.
-type UnimplementedActionsServer struct{}
+type UnimplementedActionsServer struct {
+}
 
 func (UnimplementedActionsServer) GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainJSONAction(context.Context, *StartMySQLExplainJSONActionRequest) (*StartMySQLExplainJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainJSONAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLExplainTraditionalJSONAction(context.Context, *StartMySQLExplainTraditionalJSONActionRequest) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainTraditionalJSONAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowCreateTableAction(context.Context, *StartMySQLShowCreateTableActionRequest) (*StartMySQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowCreateTableAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowTableStatusAction(context.Context, *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowTableStatusAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowIndexAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowCreateTableAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPostgreSQLShowIndexAction(context.Context, *StartPostgreSQLShowIndexActionRequest) (*StartPostgreSQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowIndexAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMongoDBExplainAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTPgSummaryAction(context.Context, *StartPTPgSummaryActionRequest) (*StartPTPgSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTPgSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) StartPTMongoDBSummaryAction(context.Context, *StartPTMongoDBSummaryActionRequest) (*StartPTMongoDBSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMongoDBSummaryAction not implemented")
 }
-
+func (UnimplementedActionsServer) StartPTMySQLChecksumAction(context.Context, *StartPTMySQLChecksumActionRequest) (*StartPTMySQLChecksumActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLChecksumAction not implemented")
+}
 func (UnimplementedActionsServer) StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
-
 func (UnimplementedActionsServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }
@@ -544,6 +546,24 @@ func _Actions_StartPTMongoDBSummaryAction_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Actions_StartPTMySQLChecksumAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartPTMySQLChecksumActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartPTMySQLChecksumAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartPTMySQLChecksumAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartPTMySQLChecksumAction(ctx, req.(*StartPTMySQLChecksumActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPTMySQLSummaryActionRequest)
 	if err := dec(in); err != nil {
@@ -638,6 +658,10 @@ var Actions_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartPTMongoDBSummaryAction",
 			Handler:    _Actions_StartPTMongoDBSummaryAction_Handler,
+		},
+		{
+			MethodName: "StartPTMySQLChecksumAction",
+			Handler:    _Actions_StartPTMySQLChecksumAction_Handler,
 		},
 		{
 			MethodName: "StartPTMySQLSummaryAction",

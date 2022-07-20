@@ -59,12 +59,12 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPostgreSQLShowCreateTableActionOK) GetPayload() *StartPostgreSQLShowCreateTableActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPostgreSQLShowCreateTableActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPostgreSQLShowCreateTableActionOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPostgreSQLShowCreateTableActionDefault) GetPayload() *StartPostgreSQLShowCreateTableActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPostgreSQLShowCreateTableActionDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runt
 swagger:model StartPostgreSQLShowCreateTableActionBody
 */
 type StartPostgreSQLShowCreateTableActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -165,6 +166,7 @@ func (o *StartPostgreSQLShowCreateTableActionBody) UnmarshalBinary(b []byte) err
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBody
 */
 type StartPostgreSQLShowCreateTableActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,7 +232,9 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) ContextValidate(ctx co
 }
 
 func (o *StartPostgreSQLShowCreateTableActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,6 +245,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) contextValidateDetails
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -268,6 +273,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []by
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) Unmarshal
 swagger:model StartPostgreSQLShowCreateTableActionOKBody
 */
 type StartPostgreSQLShowCreateTableActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

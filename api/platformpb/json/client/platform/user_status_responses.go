@@ -59,12 +59,12 @@ type UserStatusOK struct {
 func (o *UserStatusOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] userStatusOk  %+v", 200, o.Payload)
 }
-
 func (o *UserStatusOK) GetPayload() *UserStatusOKBody {
 	return o.Payload
 }
 
 func (o *UserStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UserStatusOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *UserStatusDefault) Code() int {
 func (o *UserStatusDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] UserStatus default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *UserStatusDefault) GetPayload() *UserStatusDefaultBody {
 	return o.Payload
 }
 
 func (o *UserStatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(UserStatusDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *UserStatusDefault) readResponse(response runtime.ClientResponse, consum
 swagger:model UserStatusDefaultBody
 */
 type UserStatusDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -185,7 +186,9 @@ func (o *UserStatusDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UserStatusDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -196,6 +199,7 @@ func (o *UserStatusDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -223,6 +227,7 @@ func (o *UserStatusDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model UserStatusDefaultBodyDetailsItems0
 */
 type UserStatusDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -259,6 +264,7 @@ func (o *UserStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model UserStatusOKBody
 */
 type UserStatusOKBody struct {
+
 	// is platform user
 	IsPlatformUser bool `json:"is_platform_user,omitempty"`
 }

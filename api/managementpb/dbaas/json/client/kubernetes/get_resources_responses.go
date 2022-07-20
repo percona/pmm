@@ -59,12 +59,12 @@ type GetResourcesOK struct {
 func (o *GetResourcesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Resources/Get][%d] getResourcesOk  %+v", 200, o.Payload)
 }
-
 func (o *GetResourcesOK) GetPayload() *GetResourcesOKBody {
 	return o.Payload
 }
 
 func (o *GetResourcesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetResourcesOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetResourcesDefault) Code() int {
 func (o *GetResourcesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Resources/Get][%d] GetResources default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetResourcesDefault) GetPayload() *GetResourcesDefaultBody {
 	return o.Payload
 }
 
 func (o *GetResourcesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetResourcesDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *GetResourcesDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model GetResourcesBody
 */
 type GetResourcesBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 }
@@ -156,6 +157,7 @@ func (o *GetResourcesBody) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesDefaultBody
 */
 type GetResourcesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -221,7 +223,9 @@ func (o *GetResourcesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetResourcesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -232,6 +236,7 @@ func (o *GetResourcesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -259,6 +264,7 @@ func (o *GetResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesDefaultBodyDetailsItems0
 */
 type GetResourcesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -295,6 +301,7 @@ func (o *GetResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesOKBody
 */
 type GetResourcesOKBody struct {
+
 	// all
 	All *GetResourcesOKBodyAll `json:"all,omitempty"`
 
@@ -377,6 +384,7 @@ func (o *GetResourcesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetResourcesOKBody) contextValidateAll(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.All != nil {
 		if err := o.All.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -392,6 +400,7 @@ func (o *GetResourcesOKBody) contextValidateAll(ctx context.Context, formats str
 }
 
 func (o *GetResourcesOKBody) contextValidateAvailable(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Available != nil {
 		if err := o.Available.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -428,6 +437,7 @@ func (o *GetResourcesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesOKBodyAll
 */
 type GetResourcesOKBodyAll struct {
+
 	// Memory in bytes.
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 
@@ -471,6 +481,7 @@ func (o *GetResourcesOKBodyAll) UnmarshalBinary(b []byte) error {
 swagger:model GetResourcesOKBodyAvailable
 */
 type GetResourcesOKBodyAvailable struct {
+
 	// Memory in bytes.
 	MemoryBytes string `json:"memory_bytes,omitempty"`
 

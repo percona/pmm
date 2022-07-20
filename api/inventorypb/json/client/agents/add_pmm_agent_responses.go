@@ -59,12 +59,12 @@ type AddPMMAgentOK struct {
 func (o *AddPMMAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddPMMAgentOK) GetPayload() *AddPMMAgentOKBody {
 	return o.Payload
 }
 
 func (o *AddPMMAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPMMAgentOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *AddPMMAgentDefault) Code() int {
 func (o *AddPMMAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddPMMAgentDefault) GetPayload() *AddPMMAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddPMMAgentDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model AddPMMAgentBody
 */
 type AddPMMAgentBody struct {
+
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -159,6 +160,7 @@ func (o *AddPMMAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPMMAgentDefaultBody
 */
 type AddPMMAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -224,7 +226,9 @@ func (o *AddPMMAgentDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddPMMAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -235,6 +239,7 @@ func (o *AddPMMAgentDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -262,6 +267,7 @@ func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPMMAgentDefaultBodyDetailsItems0
 */
 type AddPMMAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -298,6 +304,7 @@ func (o *AddPMMAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddPMMAgentOKBody
 */
 type AddPMMAgentOKBody struct {
+
 	// pmm agent
 	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
@@ -350,6 +357,7 @@ func (o *AddPMMAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddPMMAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -386,6 +394,7 @@ func (o *AddPMMAgentOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddPMMAgentOKBodyPMMAgent
 */
 type AddPMMAgentOKBodyPMMAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

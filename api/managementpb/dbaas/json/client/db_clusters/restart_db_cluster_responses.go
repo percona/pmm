@@ -61,12 +61,12 @@ type RestartDBClusterOK struct {
 func (o *RestartDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *RestartDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RestartDBClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *RestartDBClusterDefault) Code() int {
 func (o *RestartDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RestartDBClusterDefault) GetPayload() *RestartDBClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *RestartDBClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RestartDBClusterDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *RestartDBClusterDefault) readResponse(response runtime.ClientResponse, 
 swagger:model RestartDBClusterBody
 */
 type RestartDBClusterBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -221,6 +222,7 @@ func (o *RestartDBClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model RestartDBClusterDefaultBody
 */
 type RestartDBClusterDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -286,7 +288,9 @@ func (o *RestartDBClusterDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *RestartDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -297,6 +301,7 @@ func (o *RestartDBClusterDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -324,6 +329,7 @@ func (o *RestartDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model RestartDBClusterDefaultBodyDetailsItems0
 */
 type RestartDBClusterDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

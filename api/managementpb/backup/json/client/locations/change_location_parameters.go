@@ -58,6 +58,7 @@ func NewChangeLocationParamsWithHTTPClient(client *http.Client) *ChangeLocationP
    Typically these are written to a http.Request.
 */
 type ChangeLocationParams struct {
+
 	// Body.
 	Body ChangeLocationBody
 
@@ -127,6 +128,7 @@ func (o *ChangeLocationParams) SetBody(body ChangeLocationBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeLocationParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

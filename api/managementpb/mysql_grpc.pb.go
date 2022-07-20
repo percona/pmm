@@ -8,7 +8,6 @@ package managementpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -60,7 +59,8 @@ type MySQLServer interface {
 }
 
 // UnimplementedMySQLServer must be embedded to have forward compatible implementations.
-type UnimplementedMySQLServer struct{}
+type UnimplementedMySQLServer struct {
+}
 
 func (UnimplementedMySQLServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")

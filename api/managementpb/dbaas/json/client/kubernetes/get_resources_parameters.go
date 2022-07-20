@@ -58,6 +58,7 @@ func NewGetResourcesParamsWithHTTPClient(client *http.Client) *GetResourcesParam
    Typically these are written to a http.Request.
 */
 type GetResourcesParams struct {
+
 	// Body.
 	Body GetResourcesBody
 
@@ -127,6 +128,7 @@ func (o *GetResourcesParams) SetBody(body GetResourcesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetResourcesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

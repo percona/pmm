@@ -59,12 +59,12 @@ type ConnectOK struct {
 func (o *ConnectOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] connectOk  %+v", 200, o.Payload)
 }
-
 func (o *ConnectOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ConnectOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *ConnectDefault) Code() int {
 func (o *ConnectDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] Connect default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ConnectDefault) GetPayload() *ConnectDefaultBody {
 	return o.Payload
 }
 
 func (o *ConnectDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ConnectDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *ConnectDefault) readResponse(response runtime.ClientResponse, consumer 
 swagger:model ConnectBody
 */
 type ConnectBody struct {
+
 	// User defined human readable PMM Server Name.
 	ServerName string `json:"server_name,omitempty"`
 
@@ -163,6 +164,7 @@ func (o *ConnectBody) UnmarshalBinary(b []byte) error {
 swagger:model ConnectDefaultBody
 */
 type ConnectDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *ConnectDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ConnectDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *ConnectDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -266,6 +271,7 @@ func (o *ConnectDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ConnectDefaultBodyDetailsItems0
 */
 type ConnectDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

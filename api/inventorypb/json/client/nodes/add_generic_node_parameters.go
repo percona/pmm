@@ -58,6 +58,7 @@ func NewAddGenericNodeParamsWithHTTPClient(client *http.Client) *AddGenericNodeP
    Typically these are written to a http.Request.
 */
 type AddGenericNodeParams struct {
+
 	// Body.
 	Body AddGenericNodeBody
 
@@ -127,6 +128,7 @@ func (o *AddGenericNodeParams) SetBody(body AddGenericNodeBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddGenericNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

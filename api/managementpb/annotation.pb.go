@@ -7,14 +7,13 @@
 package managementpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -198,14 +197,11 @@ func file_managementpb_annotation_proto_rawDescGZIP() []byte {
 	return file_managementpb_annotation_proto_rawDescData
 }
 
-var (
-	file_managementpb_annotation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_managementpb_annotation_proto_goTypes  = []interface{}{
-		(*AddAnnotationRequest)(nil),  // 0: management.AddAnnotationRequest
-		(*AddAnnotationResponse)(nil), // 1: management.AddAnnotationResponse
-	}
-)
-
+var file_managementpb_annotation_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_managementpb_annotation_proto_goTypes = []interface{}{
+	(*AddAnnotationRequest)(nil),  // 0: management.AddAnnotationRequest
+	(*AddAnnotationResponse)(nil), // 1: management.AddAnnotationResponse
+}
 var file_managementpb_annotation_proto_depIdxs = []int32{
 	0, // 0: management.Annotation.AddAnnotation:input_type -> management.AddAnnotationRequest
 	1, // 1: management.Annotation.AddAnnotation:output_type -> management.AddAnnotationResponse

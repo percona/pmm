@@ -58,6 +58,7 @@ func NewAddMySQLParamsWithHTTPClient(client *http.Client) *AddMySQLParams {
    Typically these are written to a http.Request.
 */
 type AddMySQLParams struct {
+
 	// Body.
 	Body AddMySQLBody
 
@@ -127,6 +128,7 @@ func (o *AddMySQLParams) SetBody(body AddMySQLBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddMySQLParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

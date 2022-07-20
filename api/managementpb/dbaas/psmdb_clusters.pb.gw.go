@@ -25,14 +25,11 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-
-var (
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx context.Context, marshaler runtime.Marshaler, client PSMDBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetPSMDBClusterCredentialsRequest
@@ -48,6 +45,7 @@ func request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx context.Context, mar
 
 	msg, err := client.GetPSMDBClusterCredentials(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx context.Context, marshaler runtime.Marshaler, server PSMDBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,6 +62,7 @@ func local_request_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx context.Contex
 
 	msg, err := server.GetPSMDBClusterCredentials(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_PSMDBClusters_CreatePSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client PSMDBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -80,6 +79,7 @@ func request_PSMDBClusters_CreatePSMDBCluster_0(ctx context.Context, marshaler r
 
 	msg, err := client.CreatePSMDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_PSMDBClusters_CreatePSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server PSMDBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,6 +96,7 @@ func local_request_PSMDBClusters_CreatePSMDBCluster_0(ctx context.Context, marsh
 
 	msg, err := server.CreatePSMDBCluster(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_PSMDBClusters_UpdatePSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client PSMDBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -112,6 +113,7 @@ func request_PSMDBClusters_UpdatePSMDBCluster_0(ctx context.Context, marshaler r
 
 	msg, err := client.UpdatePSMDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_PSMDBClusters_UpdatePSMDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server PSMDBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -128,6 +130,7 @@ func local_request_PSMDBClusters_UpdatePSMDBCluster_0(ctx context.Context, marsh
 
 	msg, err := server.UpdatePSMDBCluster(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context, marshaler runtime.Marshaler, client PSMDBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -144,6 +147,7 @@ func request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context, marsh
 
 	msg, err := client.GetPSMDBClusterResources(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context, marshaler runtime.Marshaler, server PSMDBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -160,6 +164,7 @@ func local_request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context,
 
 	msg, err := server.GetPSMDBClusterResources(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterPSMDBClustersHandlerServer registers the http handlers for service PSMDBClusters to "mux".
@@ -167,6 +172,7 @@ func local_request_PSMDBClusters_GetPSMDBClusterResources_0(ctx context.Context,
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPSMDBClustersHandlerFromEndpoint instead.
 func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PSMDBClustersServer) error {
+
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -188,6 +194,7 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_CreatePSMDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -211,6 +218,7 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_CreatePSMDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_UpdatePSMDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -234,6 +242,7 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_UpdatePSMDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -257,6 +266,7 @@ func RegisterPSMDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_GetPSMDBClusterResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -299,6 +309,7 @@ func RegisterPSMDBClustersHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "PSMDBClustersClient" to call the correct interceptors.
 func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PSMDBClustersClient) error {
+
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -317,6 +328,7 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_GetPSMDBClusterCredentials_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_CreatePSMDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -337,6 +349,7 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_CreatePSMDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_UpdatePSMDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -357,6 +370,7 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_UpdatePSMDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_PSMDBClusters_GetPSMDBClusterResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -377,6 +391,7 @@ func RegisterPSMDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_PSMDBClusters_GetPSMDBClusterResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

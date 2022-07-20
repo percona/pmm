@@ -60,12 +60,12 @@ type GetHistogramOK struct {
 func (o *GetHistogramOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
 }
-
 func (o *GetHistogramOK) GetPayload() *GetHistogramOKBody {
 	return o.Payload
 }
 
 func (o *GetHistogramOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetHistogramOKBody)
 
 	// response payload
@@ -101,12 +101,12 @@ func (o *GetHistogramDefault) Code() int {
 func (o *GetHistogramDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetHistogramDefault) GetPayload() *GetHistogramDefaultBody {
 	return o.Payload
 }
 
 func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetHistogramDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model GetHistogramBody
 */
 type GetHistogramBody struct {
+
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -223,7 +224,9 @@ func (o *GetHistogramBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *GetHistogramBody) contextValidateLabels(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Labels); i++ {
+
 		if o.Labels[i] != nil {
 			if err := o.Labels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -234,6 +237,7 @@ func (o *GetHistogramBody) contextValidateLabels(ctx context.Context, formats st
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -261,6 +265,7 @@ func (o *GetHistogramBody) UnmarshalBinary(b []byte) error {
 swagger:model GetHistogramDefaultBody
 */
 type GetHistogramDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -326,7 +331,9 @@ func (o *GetHistogramDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetHistogramDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -337,6 +344,7 @@ func (o *GetHistogramDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -364,6 +372,7 @@ func (o *GetHistogramDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetHistogramDefaultBodyDetailsItems0
 */
 type GetHistogramDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -400,6 +409,7 @@ func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetHistogramOKBody
 */
 type GetHistogramOKBody struct {
+
 	// histogram items
 	HistogramItems []*GetHistogramOKBodyHistogramItemsItems0 `json:"histogram_items"`
 }
@@ -459,7 +469,9 @@ func (o *GetHistogramOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetHistogramOKBody) contextValidateHistogramItems(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.HistogramItems); i++ {
+
 		if o.HistogramItems[i] != nil {
 			if err := o.HistogramItems[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -470,6 +482,7 @@ func (o *GetHistogramOKBody) contextValidateHistogramItems(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -497,6 +510,7 @@ func (o *GetHistogramOKBody) UnmarshalBinary(b []byte) error {
 swagger:model GetHistogramOKBodyHistogramItemsItems0
 */
 type GetHistogramOKBodyHistogramItemsItems0 struct {
+
 	// range
 	Range string `json:"range,omitempty"`
 
@@ -536,6 +550,7 @@ func (o *GetHistogramOKBodyHistogramItemsItems0) UnmarshalBinary(b []byte) error
 swagger:model GetHistogramParamsBodyLabelsItems0
 */
 type GetHistogramParamsBodyLabelsItems0 struct {
+
 	// key
 	Key string `json:"key,omitempty"`
 

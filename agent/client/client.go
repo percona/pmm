@@ -391,6 +391,9 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			case *agentpb.StartActionRequest_PtPgSummaryParams:
 				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
+			case *agentpb.StartActionRequest_PtMysqlChecksumParams:
+				action = actions.NewPTMySQLChecksumAction(p.ActionId, c.cfg.Paths.PTMySQLChecksum, params.PtMysqlChecksumParams)
+
 			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
 				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 

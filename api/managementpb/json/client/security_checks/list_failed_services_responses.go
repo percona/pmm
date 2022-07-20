@@ -59,12 +59,12 @@ type ListFailedServicesOK struct {
 func (o *ListFailedServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] listFailedServicesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListFailedServicesOK) GetPayload() *ListFailedServicesOKBody {
 	return o.Payload
 }
 
 func (o *ListFailedServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListFailedServicesOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *ListFailedServicesDefault) Code() int {
 func (o *ListFailedServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ListFailedServices][%d] ListFailedServices default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListFailedServicesDefault) GetPayload() *ListFailedServicesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListFailedServicesDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse
 swagger:model ListFailedServicesDefaultBody
 */
 type ListFailedServicesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -185,7 +186,9 @@ func (o *ListFailedServicesDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -196,6 +199,7 @@ func (o *ListFailedServicesDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -223,6 +227,7 @@ func (o *ListFailedServicesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListFailedServicesDefaultBodyDetailsItems0
 */
 type ListFailedServicesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -259,6 +264,7 @@ func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model ListFailedServicesOKBody
 */
 type ListFailedServicesOKBody struct {
+
 	// result
 	Result []*ListFailedServicesOKBodyResultItems0 `json:"result"`
 }
@@ -318,7 +324,9 @@ func (o *ListFailedServicesOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Result); i++ {
+
 		if o.Result[i] != nil {
 			if err := o.Result[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -329,6 +337,7 @@ func (o *ListFailedServicesOKBody) contextValidateResult(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -356,6 +365,7 @@ func (o *ListFailedServicesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListFailedServicesOKBodyResultItems0
 */
 type ListFailedServicesOKBodyResultItems0 struct {
+
 	// service name
 	ServiceName string `json:"service_name,omitempty"`
 

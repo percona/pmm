@@ -58,6 +58,7 @@ func NewRestoreBackupParamsWithHTTPClient(client *http.Client) *RestoreBackupPar
    Typically these are written to a http.Request.
 */
 type RestoreBackupParams struct {
+
 	// Body.
 	Body RestoreBackupBody
 
@@ -127,6 +128,7 @@ func (o *RestoreBackupParams) SetBody(body RestoreBackupBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RestoreBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

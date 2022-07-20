@@ -59,6 +59,7 @@ func NewLogsParamsWithHTTPClient(client *http.Client) *LogsParams {
    Typically these are written to a http.Request.
 */
 type LogsParams struct {
+
 	/* Pprof.
 
 	   Include performance profiling data,
@@ -131,6 +132,7 @@ func (o *LogsParams) SetPprof(pprof *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -146,6 +148,7 @@ func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry
 		}
 		qPprof := swag.FormatBool(qrPprof)
 		if qPprof != "" {
+
 			if err := r.SetQueryParam("pprof", qPprof); err != nil {
 				return err
 			}

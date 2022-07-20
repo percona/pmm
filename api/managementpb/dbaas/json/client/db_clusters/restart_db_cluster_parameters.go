@@ -58,6 +58,7 @@ func NewRestartDBClusterParamsWithHTTPClient(client *http.Client) *RestartDBClus
    Typically these are written to a http.Request.
 */
 type RestartDBClusterParams struct {
+
 	// Body.
 	Body RestartDBClusterBody
 
@@ -127,6 +128,7 @@ func (o *RestartDBClusterParams) SetBody(body RestartDBClusterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RestartDBClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

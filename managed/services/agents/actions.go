@@ -516,6 +516,32 @@ func (s *ActionsService) StartPTMongoDBSummaryAction(ctx context.Context, id, pm
 	return err
 }
 
+// StartPTMySQLChecksumAction starts pt-table-checksum action on the pmm-agent.
+// The pt-table-checksum's execution may require some of the following params: host, port, socket, username, password.
+func (s *ActionsService) StartPTMySQLChecksumAction(ctx context.Context, id, pmmAgentID, address string, port uint16, socket, username, password string) error {
+	actionRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		// Proper params that'll will be passed to the command on the agent's side.
+		Params: &agentpb.StartActionRequest_PtMysqlChecksumParams{
+			PtMysqlChecksumParams: &agentpb.StartActionRequest_PTMySQLChecksumParams{
+				Host:     address,
+				Port:     uint32(port),
+				Socket:   socket,
+				Username: username,
+				Password: password,
+			},
+		},
+		Timeout: defaultPtActionTimeout,
+	}
+
+	pmmAgent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
+	return err
+}
+
 // StartPTMySQLSummaryAction starts pt-mysql-summary action on the pmm-agent.
 // The pt-mysql-summary's execution may require some of the following params: host, port, socket, username, password.
 func (s *ActionsService) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID, address string, port uint16, socket, username, password string) error {

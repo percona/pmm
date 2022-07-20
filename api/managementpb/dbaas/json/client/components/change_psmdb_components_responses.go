@@ -59,12 +59,12 @@ type ChangePSMDBComponentsOK struct {
 func (o *ChangePSMDBComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangePSMDBComponentsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangePSMDBComponentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *ChangePSMDBComponentsDefault) Code() int {
 func (o *ChangePSMDBComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangePSMDBComponentsDefault) GetPayload() *ChangePSMDBComponentsDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangePSMDBComponentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangePSMDBComponentsDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *ChangePSMDBComponentsDefault) readResponse(response runtime.ClientRespo
 swagger:model ChangePSMDBComponentsBody
 */
 type ChangePSMDBComponentsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -173,6 +174,7 @@ func (o *ChangePSMDBComponentsBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangePSMDBComponentsBody) contextValidateMongod(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mongod != nil {
 		if err := o.Mongod.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -209,6 +211,7 @@ func (o *ChangePSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePSMDBComponentsDefaultBody
 */
 type ChangePSMDBComponentsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -274,7 +277,9 @@ func (o *ChangePSMDBComponentsDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangePSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -285,6 +290,7 @@ func (o *ChangePSMDBComponentsDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -312,6 +318,7 @@ func (o *ChangePSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePSMDBComponentsDefaultBodyDetailsItems0
 */
 type ChangePSMDBComponentsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -348,6 +355,7 @@ func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 swagger:model ChangePSMDBComponentsParamsBodyMongod
 */
 type ChangePSMDBComponentsParamsBodyMongod struct {
+
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
@@ -410,7 +418,9 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) ContextValidate(ctx context.Cont
 }
 
 func (o *ChangePSMDBComponentsParamsBodyMongod) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -421,6 +431,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) contextValidateVersions(ctx cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -448,6 +459,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) UnmarshalBinary(b []byte) error 
 swagger:model ChangePSMDBComponentsParamsBodyMongodVersionsItems0
 */
 type ChangePSMDBComponentsParamsBodyMongodVersionsItems0 struct {
+
 	// version
 	Version string `json:"version,omitempty"`
 

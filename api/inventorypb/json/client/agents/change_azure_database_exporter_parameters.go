@@ -58,6 +58,7 @@ func NewChangeAzureDatabaseExporterParamsWithHTTPClient(client *http.Client) *Ch
    Typically these are written to a http.Request.
 */
 type ChangeAzureDatabaseExporterParams struct {
+
 	// Body.
 	Body ChangeAzureDatabaseExporterBody
 
@@ -127,6 +128,7 @@ func (o *ChangeAzureDatabaseExporterParams) SetBody(body ChangeAzureDatabaseExpo
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeAzureDatabaseExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

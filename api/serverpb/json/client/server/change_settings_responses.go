@@ -59,12 +59,12 @@ type ChangeSettingsOK struct {
 func (o *ChangeSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
 	return o.Payload
 }
 
 func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeSettingsOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *ChangeSettingsDefault) Code() int {
 func (o *ChangeSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeSettingsDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
+
 	// enable updates
 	EnableUpdates bool `json:"enable_updates,omitempty"`
 
@@ -337,6 +338,7 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ChangeSettingsBody) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -352,6 +354,7 @@ func (o *ChangeSettingsBody) contextValidateEmailAlertingSettings(ctx context.Co
 }
 
 func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -367,6 +370,7 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 }
 
 func (o *ChangeSettingsBody) contextValidateSlackAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.SlackAlertingSettings != nil {
 		if err := o.SlackAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -382,6 +386,7 @@ func (o *ChangeSettingsBody) contextValidateSlackAlertingSettings(ctx context.Co
 }
 
 func (o *ChangeSettingsBody) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -418,6 +423,7 @@ func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsDefaultBody
 */
 type ChangeSettingsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -483,7 +489,9 @@ func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -494,6 +502,7 @@ func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -602,6 +611,7 @@ func (o *ChangeSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsDefaultBodyDetailsItems0
 */
 type ChangeSettingsDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -664,6 +674,7 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model ChangeSettingsOKBody
 */
 type ChangeSettingsOKBody struct {
+
 	// settings
 	Settings *ChangeSettingsOKBodySettings `json:"settings,omitempty"`
 }
@@ -716,6 +727,7 @@ func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Settings != nil {
 		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -752,6 +764,7 @@ func (o *ChangeSettingsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
+
 	// True if updates are disabled.
 	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
 
@@ -939,6 +952,7 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -954,6 +968,7 @@ func (o *ChangeSettingsOKBodySettings) contextValidateEmailAlertingSettings(ctx 
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -969,6 +984,7 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateSlackAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.SlackAlertingSettings != nil {
 		if err := o.SlackAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -984,6 +1000,7 @@ func (o *ChangeSettingsOKBodySettings) contextValidateSlackAlertingSettings(ctx 
 }
 
 func (o *ChangeSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1020,6 +1037,7 @@ func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 swagger:model ChangeSettingsOKBodySettingsEmailAlertingSettings
 */
 type ChangeSettingsOKBodySettingsEmailAlertingSettings struct {
+
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
 
@@ -1077,6 +1095,7 @@ func (o *ChangeSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []
 swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
 */
 type ChangeSettingsOKBodySettingsMetricsResolutions struct {
+
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -1119,6 +1138,7 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 swagger:model ChangeSettingsOKBodySettingsSlackAlertingSettings
 */
 type ChangeSettingsOKBodySettingsSlackAlertingSettings struct {
+
 	// Slack API (webhook) URL.
 	URL string `json:"url,omitempty"`
 }
@@ -1155,6 +1175,7 @@ func (o *ChangeSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []
 swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
 */
 type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
+
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -1197,6 +1218,7 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodyEmailAlertingSettings
 */
 type ChangeSettingsParamsBodyEmailAlertingSettings struct {
+
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
 
@@ -1254,6 +1276,7 @@ func (o *ChangeSettingsParamsBodyEmailAlertingSettings) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodyMetricsResolutions
 */
 type ChangeSettingsParamsBodyMetricsResolutions struct {
+
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -1296,6 +1319,7 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) e
 swagger:model ChangeSettingsParamsBodySlackAlertingSettings
 */
 type ChangeSettingsParamsBodySlackAlertingSettings struct {
+
 	// Slack API (webhook) URL.
 	URL string `json:"url,omitempty"`
 }
@@ -1332,6 +1356,7 @@ func (o *ChangeSettingsParamsBodySlackAlertingSettings) UnmarshalBinary(b []byte
 swagger:model ChangeSettingsParamsBodySttCheckIntervals
 */
 type ChangeSettingsParamsBodySttCheckIntervals struct {
+
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 

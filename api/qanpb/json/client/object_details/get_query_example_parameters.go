@@ -58,6 +58,7 @@ func NewGetQueryExampleParamsWithHTTPClient(client *http.Client) *GetQueryExampl
    Typically these are written to a http.Request.
 */
 type GetQueryExampleParams struct {
+
 	// Body.
 	Body GetQueryExampleBody
 
@@ -127,6 +128,7 @@ func (o *GetQueryExampleParams) SetBody(body GetQueryExampleBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetQueryExampleParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

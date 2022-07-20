@@ -58,6 +58,7 @@ func NewChangePXCComponentsParamsWithHTTPClient(client *http.Client) *ChangePXCC
    Typically these are written to a http.Request.
 */
 type ChangePXCComponentsParams struct {
+
 	// Body.
 	Body ChangePXCComponentsBody
 
@@ -127,6 +128,7 @@ func (o *ChangePXCComponentsParams) SetBody(body ChangePXCComponentsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangePXCComponentsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

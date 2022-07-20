@@ -61,12 +61,12 @@ type AddAzureDatabaseOK struct {
 func (o *AddAzureDatabaseOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] addAzureDatabaseOk  %+v", 200, o.Payload)
 }
-
 func (o *AddAzureDatabaseOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AddAzureDatabaseOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *AddAzureDatabaseDefault) Code() int {
 func (o *AddAzureDatabaseDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] AddAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddAzureDatabaseDefault) GetPayload() *AddAzureDatabaseDefaultBody {
 	return o.Payload
 }
 
 func (o *AddAzureDatabaseDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAzureDatabaseDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *AddAzureDatabaseDefault) readResponse(response runtime.ClientResponse, 
 swagger:model AddAzureDatabaseBody
 */
 type AddAzureDatabaseBody struct {
+
 	// Azure database location.
 	Region string `json:"region,omitempty"`
 
@@ -289,6 +290,7 @@ func (o *AddAzureDatabaseBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseDefaultBody
 */
 type AddAzureDatabaseDefaultBody struct {
+
 	// error
 	Error string `json:"error,omitempty"`
 
@@ -357,7 +359,9 @@ func (o *AddAzureDatabaseDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -368,6 +372,7 @@ func (o *AddAzureDatabaseDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -395,6 +400,7 @@ func (o *AddAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddAzureDatabaseDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
+
 	// type url
 	TypeURL string `json:"type_url,omitempty"`
 

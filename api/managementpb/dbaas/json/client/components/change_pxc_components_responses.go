@@ -59,12 +59,12 @@ type ChangePXCComponentsOK struct {
 func (o *ChangePXCComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] changePxcComponentsOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangePXCComponentsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ChangePXCComponentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *ChangePXCComponentsDefault) Code() int {
 func (o *ChangePXCComponentsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] ChangePXCComponents default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangePXCComponentsDefault) GetPayload() *ChangePXCComponentsDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangePXCComponentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangePXCComponentsDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *ChangePXCComponentsDefault) readResponse(response runtime.ClientRespons
 swagger:model ChangePXCComponentsBody
 */
 type ChangePXCComponentsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -233,6 +234,7 @@ func (o *ChangePXCComponentsBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ChangePXCComponentsBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -248,6 +250,7 @@ func (o *ChangePXCComponentsBody) contextValidateHaproxy(ctx context.Context, fo
 }
 
 func (o *ChangePXCComponentsBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -263,6 +266,7 @@ func (o *ChangePXCComponentsBody) contextValidateProxysql(ctx context.Context, f
 }
 
 func (o *ChangePXCComponentsBody) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PXC != nil {
 		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -299,6 +303,7 @@ func (o *ChangePXCComponentsBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePXCComponentsDefaultBody
 */
 type ChangePXCComponentsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -364,7 +369,9 @@ func (o *ChangePXCComponentsDefaultBody) ContextValidate(ctx context.Context, fo
 }
 
 func (o *ChangePXCComponentsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -375,6 +382,7 @@ func (o *ChangePXCComponentsDefaultBody) contextValidateDetails(ctx context.Cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -402,6 +410,7 @@ func (o *ChangePXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangePXCComponentsDefaultBodyDetailsItems0
 */
 type ChangePXCComponentsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -438,6 +447,7 @@ func (o *ChangePXCComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 swagger:model ChangePXCComponentsParamsBodyHaproxy
 */
 type ChangePXCComponentsParamsBodyHaproxy struct {
+
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
@@ -500,7 +510,9 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) ContextValidate(ctx context.Conte
 }
 
 func (o *ChangePXCComponentsParamsBodyHaproxy) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -511,6 +523,7 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) contextValidateVersions(ctx conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -538,6 +551,7 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) UnmarshalBinary(b []byte) error {
 swagger:model ChangePXCComponentsParamsBodyHaproxyVersionsItems0
 */
 type ChangePXCComponentsParamsBodyHaproxyVersionsItems0 struct {
+
 	// version
 	Version string `json:"version,omitempty"`
 
@@ -580,6 +594,7 @@ func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) UnmarshalBinary(b [
 swagger:model ChangePXCComponentsParamsBodyPXC
 */
 type ChangePXCComponentsParamsBodyPXC struct {
+
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
@@ -642,7 +657,9 @@ func (o *ChangePXCComponentsParamsBodyPXC) ContextValidate(ctx context.Context, 
 }
 
 func (o *ChangePXCComponentsParamsBodyPXC) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -653,6 +670,7 @@ func (o *ChangePXCComponentsParamsBodyPXC) contextValidateVersions(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -680,6 +698,7 @@ func (o *ChangePXCComponentsParamsBodyPXC) UnmarshalBinary(b []byte) error {
 swagger:model ChangePXCComponentsParamsBodyPXCVersionsItems0
 */
 type ChangePXCComponentsParamsBodyPXCVersionsItems0 struct {
+
 	// version
 	Version string `json:"version,omitempty"`
 
@@ -722,6 +741,7 @@ func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) UnmarshalBinary(b []byt
 swagger:model ChangePXCComponentsParamsBodyProxysql
 */
 type ChangePXCComponentsParamsBodyProxysql struct {
+
 	// default version
 	DefaultVersion string `json:"default_version,omitempty"`
 
@@ -784,7 +804,9 @@ func (o *ChangePXCComponentsParamsBodyProxysql) ContextValidate(ctx context.Cont
 }
 
 func (o *ChangePXCComponentsParamsBodyProxysql) contextValidateVersions(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Versions); i++ {
+
 		if o.Versions[i] != nil {
 			if err := o.Versions[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -795,6 +817,7 @@ func (o *ChangePXCComponentsParamsBodyProxysql) contextValidateVersions(ctx cont
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -822,6 +845,7 @@ func (o *ChangePXCComponentsParamsBodyProxysql) UnmarshalBinary(b []byte) error 
 swagger:model ChangePXCComponentsParamsBodyProxysqlVersionsItems0
 */
 type ChangePXCComponentsParamsBodyProxysqlVersionsItems0 struct {
+
 	// version
 	Version string `json:"version,omitempty"`
 

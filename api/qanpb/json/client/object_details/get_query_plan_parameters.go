@@ -58,6 +58,7 @@ func NewGetQueryPlanParamsWithHTTPClient(client *http.Client) *GetQueryPlanParam
    Typically these are written to a http.Request.
 */
 type GetQueryPlanParams struct {
+
 	// Body.
 	Body GetQueryPlanBody
 
@@ -127,6 +128,7 @@ func (o *GetQueryPlanParams) SetBody(body GetQueryPlanBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetQueryPlanParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

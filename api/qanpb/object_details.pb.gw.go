@@ -25,14 +25,11 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-
-var (
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq MetricsRequest
@@ -48,6 +45,7 @@ func request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.GetMetrics(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,6 +62,7 @@ func local_request_ObjectDetails_GetMetrics_0(ctx context.Context, marshaler run
 
 	msg, err := server.GetMetrics(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -80,6 +79,7 @@ func request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshaler runt
 
 	msg, err := client.GetQueryExample(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,6 +96,7 @@ func local_request_ObjectDetails_GetQueryExample_0(ctx context.Context, marshale
 
 	msg, err := server.GetQueryExample(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -112,6 +113,7 @@ func request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetLabels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -128,6 +130,7 @@ func local_request_ObjectDetails_GetLabels_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetLabels(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -144,6 +147,7 @@ func request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.GetQueryPlan(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -160,6 +164,7 @@ func local_request_ObjectDetails_GetQueryPlan_0(ctx context.Context, marshaler r
 
 	msg, err := server.GetQueryPlan(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -176,6 +181,7 @@ func request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.GetHistogram(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -192,6 +198,7 @@ func local_request_ObjectDetails_GetHistogram_0(ctx context.Context, marshaler r
 
 	msg, err := server.GetHistogram(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -208,6 +215,7 @@ func request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler runtime.
 
 	msg, err := client.QueryExists(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -224,6 +232,7 @@ func local_request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler ru
 
 	msg, err := server.QueryExists(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterObjectDetailsHandlerServer registers the http handlers for service ObjectDetails to "mux".
@@ -231,6 +240,7 @@ func local_request_ObjectDetails_QueryExists_0(ctx context.Context, marshaler ru
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterObjectDetailsHandlerFromEndpoint instead.
 func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ObjectDetailsServer) error {
+
 	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -252,6 +262,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetMetrics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -275,6 +286,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetQueryExample_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -298,6 +310,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetLabels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -321,6 +334,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetQueryPlan_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -344,6 +358,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetHistogram_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -367,6 +382,7 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_QueryExists_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -409,6 +425,7 @@ func RegisterObjectDetailsHandler(ctx context.Context, mux *runtime.ServeMux, co
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ObjectDetailsClient" to call the correct interceptors.
 func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ObjectDetailsClient) error {
+
 	mux.Handle("POST", pattern_ObjectDetails_GetMetrics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -427,6 +444,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetMetrics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -447,6 +465,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetQueryExample_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -467,6 +486,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetLabels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -487,6 +507,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetQueryPlan_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -507,6 +528,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_GetHistogram_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -527,6 +549,7 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_ObjectDetails_QueryExists_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

@@ -59,12 +59,12 @@ type ToggleCheckAlertOK struct {
 func (o *ToggleCheckAlertOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] toggleCheckAlertOk  %+v", 200, o.Payload)
 }
-
 func (o *ToggleCheckAlertOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ToggleCheckAlertOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *ToggleCheckAlertDefault) Code() int {
 func (o *ToggleCheckAlertDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] ToggleCheckAlert default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ToggleCheckAlertDefault) GetPayload() *ToggleCheckAlertDefaultBody {
 	return o.Payload
 }
 
 func (o *ToggleCheckAlertDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ToggleCheckAlertDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *ToggleCheckAlertDefault) readResponse(response runtime.ClientResponse, 
 swagger:model ToggleCheckAlertBody
 */
 type ToggleCheckAlertBody struct {
+
 	// Alert ID of the check result.
 	AlertID string `json:"alert_id,omitempty"`
 
@@ -157,6 +158,7 @@ func (o *ToggleCheckAlertBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleCheckAlertDefaultBody
 */
 type ToggleCheckAlertDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -222,7 +224,9 @@ func (o *ToggleCheckAlertDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ToggleCheckAlertDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -233,6 +237,7 @@ func (o *ToggleCheckAlertDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -260,6 +265,7 @@ func (o *ToggleCheckAlertDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleCheckAlertDefaultBodyDetailsItems0
 */
 type ToggleCheckAlertDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

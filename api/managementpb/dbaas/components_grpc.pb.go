@@ -8,7 +8,6 @@ package dbaasv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -119,28 +118,24 @@ type ComponentsServer interface {
 }
 
 // UnimplementedComponentsServer must be embedded to have forward compatible implementations.
-type UnimplementedComponentsServer struct{}
+type UnimplementedComponentsServer struct {
+}
 
 func (UnimplementedComponentsServer) GetPSMDBComponents(context.Context, *GetPSMDBComponentsRequest) (*GetPSMDBComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPSMDBComponents not implemented")
 }
-
 func (UnimplementedComponentsServer) GetPXCComponents(context.Context, *GetPXCComponentsRequest) (*GetPXCComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCComponents not implemented")
 }
-
 func (UnimplementedComponentsServer) ChangePSMDBComponents(context.Context, *ChangePSMDBComponentsRequest) (*ChangePSMDBComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePSMDBComponents not implemented")
 }
-
 func (UnimplementedComponentsServer) ChangePXCComponents(context.Context, *ChangePXCComponentsRequest) (*ChangePXCComponentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePXCComponents not implemented")
 }
-
 func (UnimplementedComponentsServer) InstallOperator(context.Context, *InstallOperatorRequest) (*InstallOperatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InstallOperator not implemented")
 }
-
 func (UnimplementedComponentsServer) CheckForOperatorUpdate(context.Context, *CheckForOperatorUpdateRequest) (*CheckForOperatorUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckForOperatorUpdate not implemented")
 }

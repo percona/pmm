@@ -58,6 +58,7 @@ func NewAddPostgreSQLParamsWithHTTPClient(client *http.Client) *AddPostgreSQLPar
    Typically these are written to a http.Request.
 */
 type AddPostgreSQLParams struct {
+
 	// Body.
 	Body AddPostgreSQLBody
 
@@ -127,6 +128,7 @@ func (o *AddPostgreSQLParams) SetBody(body AddPostgreSQLBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddPostgreSQLParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

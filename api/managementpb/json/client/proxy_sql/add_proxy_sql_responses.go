@@ -61,12 +61,12 @@ type AddProxySQLOK struct {
 func (o *AddProxySQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
 }
-
 func (o *AddProxySQLOK) GetPayload() *AddProxySQLOKBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddProxySQLOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddProxySQLDefault) Code() int {
 func (o *AddProxySQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddProxySQLDefault) GetPayload() *AddProxySQLDefaultBody {
 	return o.Payload
 }
 
 func (o *AddProxySQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddProxySQLDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *AddProxySQLDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model AddProxySQLBody
 */
 type AddProxySQLBody struct {
+
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -349,6 +350,7 @@ func (o *AddProxySQLBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *AddProxySQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -385,6 +387,7 @@ func (o *AddProxySQLBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLDefaultBody
 */
 type AddProxySQLDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -450,7 +453,9 @@ func (o *AddProxySQLDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddProxySQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -461,6 +466,7 @@ func (o *AddProxySQLDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -488,6 +494,7 @@ func (o *AddProxySQLDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLDefaultBodyDetailsItems0
 */
 type AddProxySQLDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -524,6 +531,7 @@ func (o *AddProxySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLOKBody
 */
 type AddProxySQLOKBody struct {
+
 	// proxysql exporter
 	ProxysqlExporter *AddProxySQLOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
@@ -606,6 +614,7 @@ func (o *AddProxySQLOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *AddProxySQLOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -621,6 +630,7 @@ func (o *AddProxySQLOKBody) contextValidateProxysqlExporter(ctx context.Context,
 }
 
 func (o *AddProxySQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -657,6 +667,7 @@ func (o *AddProxySQLOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLOKBodyProxysqlExporter
 */
 type AddProxySQLOKBodyProxysqlExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -865,6 +876,7 @@ func (o *AddProxySQLOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLOKBodyService
 */
 type AddProxySQLOKBodyService struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -931,6 +943,7 @@ func (o *AddProxySQLOKBodyService) UnmarshalBinary(b []byte) error {
 swagger:model AddProxySQLParamsBodyAddNode
 */
 type AddProxySQLParamsBodyAddNode struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

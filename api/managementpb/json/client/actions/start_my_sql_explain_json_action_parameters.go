@@ -58,6 +58,7 @@ func NewStartMySQLExplainJSONActionParamsWithHTTPClient(client *http.Client) *St
    Typically these are written to a http.Request.
 */
 type StartMySQLExplainJSONActionParams struct {
+
 	// Body.
 	Body StartMySQLExplainJSONActionBody
 
@@ -127,6 +128,7 @@ func (o *StartMySQLExplainJSONActionParams) SetBody(body StartMySQLExplainJSONAc
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartMySQLExplainJSONActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

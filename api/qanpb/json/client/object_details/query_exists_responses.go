@@ -59,12 +59,12 @@ type QueryExistsOK struct {
 func (o *QueryExistsOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] queryExistsOk  %+v", 200, o.Payload)
 }
-
 func (o *QueryExistsOK) GetPayload() bool {
 	return o.Payload
 }
 
 func (o *QueryExistsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *QueryExistsDefault) Code() int {
 func (o *QueryExistsDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] QueryExists default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *QueryExistsDefault) GetPayload() *QueryExistsDefaultBody {
 	return o.Payload
 }
 
 func (o *QueryExistsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(QueryExistsDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *QueryExistsDefault) readResponse(response runtime.ClientResponse, consu
 swagger:model QueryExistsBody
 */
 type QueryExistsBody struct {
+
 	// serviceid
 	Serviceid string `json:"serviceid,omitempty"`
 
@@ -157,6 +158,7 @@ func (o *QueryExistsBody) UnmarshalBinary(b []byte) error {
 swagger:model QueryExistsDefaultBody
 */
 type QueryExistsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -222,7 +224,9 @@ func (o *QueryExistsDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *QueryExistsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -233,6 +237,7 @@ func (o *QueryExistsDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -260,6 +265,7 @@ func (o *QueryExistsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model QueryExistsDefaultBodyDetailsItems0
 */
 type QueryExistsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

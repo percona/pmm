@@ -59,12 +59,12 @@ type GetMetricsNamesOK struct {
 func (o *GetMetricsNamesOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
 }
-
 func (o *GetMetricsNamesOK) GetPayload() *GetMetricsNamesOKBody {
 	return o.Payload
 }
 
 func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetMetricsNamesOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetMetricsNamesDefault) Code() int {
 func (o *GetMetricsNamesDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetMetricsNamesDefault) GetPayload() *GetMetricsNamesDefaultBody {
 	return o.Payload
 }
 
 func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetMetricsNamesDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, c
 swagger:model GetMetricsNamesDefaultBody
 */
 type GetMetricsNamesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -185,7 +186,9 @@ func (o *GetMetricsNamesDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -196,6 +199,7 @@ func (o *GetMetricsNamesDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -223,6 +227,7 @@ func (o *GetMetricsNamesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetMetricsNamesDefaultBodyDetailsItems0
 */
 type GetMetricsNamesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -261,6 +266,7 @@ func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 swagger:model GetMetricsNamesOKBody
 */
 type GetMetricsNamesOKBody struct {
+
 	// data
 	Data map[string]string `json:"data,omitempty"`
 }

@@ -59,12 +59,12 @@ type GetQueryPlanOK struct {
 func (o *GetQueryPlanOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
 }
-
 func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
 	return o.Payload
 }
 
 func (o *GetQueryPlanOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryPlanOKBody)
 
 	// response payload
@@ -100,12 +100,12 @@ func (o *GetQueryPlanDefault) Code() int {
 func (o *GetQueryPlanDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
 	return o.Payload
 }
 
 func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetQueryPlanDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model GetQueryPlanBody
 */
 type GetQueryPlanBody struct {
+
 	// queryid
 	Queryid string `json:"queryid,omitempty"`
 }
@@ -156,6 +157,7 @@ func (o *GetQueryPlanBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -221,7 +223,9 @@ func (o *GetQueryPlanDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -232,6 +236,7 @@ func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -259,6 +264,7 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryPlanDefaultBodyDetailsItems0
 */
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -295,6 +301,7 @@ func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {
+
 	// planid
 	Planid string `json:"planid,omitempty"`
 

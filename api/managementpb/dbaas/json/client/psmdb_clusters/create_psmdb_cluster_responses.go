@@ -59,12 +59,12 @@ type CreatePSMDBClusterOK struct {
 func (o *CreatePSMDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] createPsmdbClusterOk  %+v", 200, o.Payload)
 }
-
 func (o *CreatePSMDBClusterOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *CreatePSMDBClusterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -98,12 +98,12 @@ func (o *CreatePSMDBClusterDefault) Code() int {
 func (o *CreatePSMDBClusterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] CreatePSMDBCluster default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CreatePSMDBClusterDefault) GetPayload() *CreatePSMDBClusterDefaultBody {
 	return o.Payload
 }
 
 func (o *CreatePSMDBClusterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CreatePSMDBClusterDefaultBody)
 
 	// response payload
@@ -118,6 +118,7 @@ func (o *CreatePSMDBClusterDefault) readResponse(response runtime.ClientResponse
 swagger:model CreatePSMDBClusterBody
 */
 type CreatePSMDBClusterBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -182,6 +183,7 @@ func (o *CreatePSMDBClusterBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *CreatePSMDBClusterBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Params != nil {
 		if err := o.Params.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -218,6 +220,7 @@ func (o *CreatePSMDBClusterBody) UnmarshalBinary(b []byte) error {
 swagger:model CreatePSMDBClusterDefaultBody
 */
 type CreatePSMDBClusterDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -283,7 +286,9 @@ func (o *CreatePSMDBClusterDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *CreatePSMDBClusterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -294,6 +299,7 @@ func (o *CreatePSMDBClusterDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -321,6 +327,7 @@ func (o *CreatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model CreatePSMDBClusterDefaultBodyDetailsItems0
 */
 type CreatePSMDBClusterDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -357,6 +364,7 @@ func (o *CreatePSMDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 swagger:model CreatePSMDBClusterParamsBodyParams
 */
 type CreatePSMDBClusterParamsBodyParams struct {
+
 	// Cluster size.
 	ClusterSize int32 `json:"cluster_size,omitempty"`
 
@@ -415,6 +423,7 @@ func (o *CreatePSMDBClusterParamsBodyParams) ContextValidate(ctx context.Context
 }
 
 func (o *CreatePSMDBClusterParamsBodyParams) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Replicaset != nil {
 		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -452,6 +461,7 @@ func (o *CreatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 */
 type CreatePSMDBClusterParamsBodyParamsReplicaset struct {
+
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
@@ -507,6 +517,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) ContextValidate(ctx conte
 }
 
 func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ComputeResources != nil {
 		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -543,6 +554,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte)
 swagger:model CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 */
 type CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {
+
 	// CPUs in milliCPUs; 1000m = 1 vCPU.
 	CPUm int32 `json:"cpu_m,omitempty"`
 

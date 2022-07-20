@@ -60,12 +60,12 @@ type CheckUpdatesOK struct {
 func (o *CheckUpdatesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
 }
-
 func (o *CheckUpdatesOK) GetPayload() *CheckUpdatesOKBody {
 	return o.Payload
 }
 
 func (o *CheckUpdatesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CheckUpdatesOKBody)
 
 	// response payload
@@ -101,12 +101,12 @@ func (o *CheckUpdatesDefault) Code() int {
 func (o *CheckUpdatesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CheckUpdatesDefault) GetPayload() *CheckUpdatesDefaultBody {
 	return o.Payload
 }
 
 func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CheckUpdatesDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, cons
 swagger:model CheckUpdatesBody
 */
 type CheckUpdatesBody struct {
+
 	// If false, cached information may be returned.
 	Force bool `json:"force,omitempty"`
 
@@ -160,6 +161,7 @@ func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
 swagger:model CheckUpdatesDefaultBody
 */
 type CheckUpdatesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -225,7 +227,9 @@ func (o *CheckUpdatesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -236,6 +240,7 @@ func (o *CheckUpdatesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -344,6 +349,7 @@ func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model CheckUpdatesDefaultBodyDetailsItems0
 */
 type CheckUpdatesDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -406,6 +412,7 @@ func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
+
 	// True if there is a PMM Server update available.
 	UpdateAvailable bool `json:"update_available,omitempty"`
 
@@ -514,6 +521,7 @@ func (o *CheckUpdatesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Installed != nil {
 		if err := o.Installed.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -529,6 +537,7 @@ func (o *CheckUpdatesOKBody) contextValidateInstalled(ctx context.Context, forma
 }
 
 func (o *CheckUpdatesOKBody) contextValidateLatest(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Latest != nil {
 		if err := o.Latest.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -565,6 +574,7 @@ func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model CheckUpdatesOKBodyInstalled
 */
 type CheckUpdatesOKBodyInstalled struct {
+
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 
@@ -629,6 +639,7 @@ func (o *CheckUpdatesOKBodyInstalled) UnmarshalBinary(b []byte) error {
 swagger:model CheckUpdatesOKBodyLatest
 */
 type CheckUpdatesOKBodyLatest struct {
+
 	// User-visible version.
 	Version string `json:"version,omitempty"`
 

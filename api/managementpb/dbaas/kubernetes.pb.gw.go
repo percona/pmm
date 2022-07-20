@@ -25,14 +25,11 @@ import (
 
 // Suppress "imported and not used" errors
 var _ codes.Code
-
-var (
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_Kubernetes_ListKubernetesClusters_0(ctx context.Context, marshaler runtime.Marshaler, client KubernetesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListKubernetesClustersRequest
@@ -48,6 +45,7 @@ func request_Kubernetes_ListKubernetesClusters_0(ctx context.Context, marshaler 
 
 	msg, err := client.ListKubernetesClusters(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Kubernetes_ListKubernetesClusters_0(ctx context.Context, marshaler runtime.Marshaler, server KubernetesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -64,6 +62,7 @@ func local_request_Kubernetes_ListKubernetesClusters_0(ctx context.Context, mars
 
 	msg, err := server.ListKubernetesClusters(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Kubernetes_RegisterKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, client KubernetesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -80,6 +79,7 @@ func request_Kubernetes_RegisterKubernetesCluster_0(ctx context.Context, marshal
 
 	msg, err := client.RegisterKubernetesCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Kubernetes_RegisterKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, server KubernetesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,6 +96,7 @@ func local_request_Kubernetes_RegisterKubernetesCluster_0(ctx context.Context, m
 
 	msg, err := server.RegisterKubernetesCluster(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Kubernetes_UnregisterKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, client KubernetesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -112,6 +113,7 @@ func request_Kubernetes_UnregisterKubernetesCluster_0(ctx context.Context, marsh
 
 	msg, err := client.UnregisterKubernetesCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Kubernetes_UnregisterKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, server KubernetesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -128,6 +130,7 @@ func local_request_Kubernetes_UnregisterKubernetesCluster_0(ctx context.Context,
 
 	msg, err := server.UnregisterKubernetesCluster(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Kubernetes_GetKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, client KubernetesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -144,6 +147,7 @@ func request_Kubernetes_GetKubernetesCluster_0(ctx context.Context, marshaler ru
 
 	msg, err := client.GetKubernetesCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Kubernetes_GetKubernetesCluster_0(ctx context.Context, marshaler runtime.Marshaler, server KubernetesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -160,6 +164,7 @@ func local_request_Kubernetes_GetKubernetesCluster_0(ctx context.Context, marsha
 
 	msg, err := server.GetKubernetesCluster(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Kubernetes_GetResources_0(ctx context.Context, marshaler runtime.Marshaler, client KubernetesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -176,6 +181,7 @@ func request_Kubernetes_GetResources_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.GetResources(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Kubernetes_GetResources_0(ctx context.Context, marshaler runtime.Marshaler, server KubernetesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -192,6 +198,7 @@ func local_request_Kubernetes_GetResources_0(ctx context.Context, marshaler runt
 
 	msg, err := server.GetResources(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterKubernetesHandlerServer registers the http handlers for service Kubernetes to "mux".
@@ -199,6 +206,7 @@ func local_request_Kubernetes_GetResources_0(ctx context.Context, marshaler runt
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterKubernetesHandlerFromEndpoint instead.
 func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server KubernetesServer) error {
+
 	mux.Handle("POST", pattern_Kubernetes_ListKubernetesClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -220,6 +228,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_ListKubernetesClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_RegisterKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -243,6 +252,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_RegisterKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_UnregisterKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -266,6 +276,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_UnregisterKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_GetKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -289,6 +300,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_GetKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_GetResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -312,6 +324,7 @@ func RegisterKubernetesHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_GetResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -354,6 +367,7 @@ func RegisterKubernetesHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "KubernetesClient" to call the correct interceptors.
 func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client KubernetesClient) error {
+
 	mux.Handle("POST", pattern_Kubernetes_ListKubernetesClusters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -372,6 +386,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_ListKubernetesClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_RegisterKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -392,6 +407,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_RegisterKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_UnregisterKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -412,6 +428,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_UnregisterKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_GetKubernetesCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -432,6 +449,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_GetKubernetesCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Kubernetes_GetResources_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -452,6 +470,7 @@ func RegisterKubernetesHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_Kubernetes_GetResources_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

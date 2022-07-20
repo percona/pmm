@@ -61,12 +61,12 @@ type ListScheduledBackupsOK struct {
 func (o *ListScheduledBackupsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] listScheduledBackupsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListScheduledBackupsOK) GetPayload() *ListScheduledBackupsOKBody {
 	return o.Payload
 }
 
 func (o *ListScheduledBackupsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListScheduledBackupsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListScheduledBackupsDefault) Code() int {
 func (o *ListScheduledBackupsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] ListScheduledBackups default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListScheduledBackupsDefault) GetPayload() *ListScheduledBackupsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListScheduledBackupsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListScheduledBackupsDefaultBody)
 
 	// response payload
@@ -122,6 +122,7 @@ func (o *ListScheduledBackupsDefault) readResponse(response runtime.ClientRespon
 swagger:model ListScheduledBackupsDefaultBody
 */
 type ListScheduledBackupsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -187,7 +188,9 @@ func (o *ListScheduledBackupsDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -198,6 +201,7 @@ func (o *ListScheduledBackupsDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -225,6 +229,7 @@ func (o *ListScheduledBackupsDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ListScheduledBackupsDefaultBodyDetailsItems0
 */
 type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -261,6 +266,7 @@ func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 swagger:model ListScheduledBackupsOKBody
 */
 type ListScheduledBackupsOKBody struct {
+
 	// scheduled backups
 	ScheduledBackups []*ListScheduledBackupsOKBodyScheduledBackupsItems0 `json:"scheduled_backups"`
 }
@@ -320,7 +326,9 @@ func (o *ListScheduledBackupsOKBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.ScheduledBackups); i++ {
+
 		if o.ScheduledBackups[i] != nil {
 			if err := o.ScheduledBackups[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -331,6 +339,7 @@ func (o *ListScheduledBackupsOKBody) contextValidateScheduledBackups(ctx context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -358,6 +367,7 @@ func (o *ListScheduledBackupsOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListScheduledBackupsOKBodyScheduledBackupsItems0
 */
 type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
+
 	// Machine-readable ID.
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 

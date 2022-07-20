@@ -61,12 +61,12 @@ type ToggleAlertRuleOK struct {
 func (o *ToggleAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] toggleAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *ToggleAlertRuleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *ToggleAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *ToggleAlertRuleDefault) Code() int {
 func (o *ToggleAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] ToggleAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ToggleAlertRuleDefault) GetPayload() *ToggleAlertRuleDefaultBody {
 	return o.Payload
 }
 
 func (o *ToggleAlertRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ToggleAlertRuleDefaultBody)
 
 	// response payload
@@ -120,6 +120,7 @@ func (o *ToggleAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 swagger:model ToggleAlertRuleBody
 */
 type ToggleAlertRuleBody struct {
+
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 
@@ -219,6 +220,7 @@ func (o *ToggleAlertRuleBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleAlertRuleDefaultBody
 */
 type ToggleAlertRuleDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -284,7 +286,9 @@ func (o *ToggleAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *ToggleAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -295,6 +299,7 @@ func (o *ToggleAlertRuleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -322,6 +327,7 @@ func (o *ToggleAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model ToggleAlertRuleDefaultBodyDetailsItems0
 */
 type ToggleAlertRuleDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

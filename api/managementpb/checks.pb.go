@@ -7,13 +7,12 @@
 package managementpb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1523,38 +1522,35 @@ func file_managementpb_checks_proto_rawDescGZIP() []byte {
 	return file_managementpb_checks_proto_rawDescData
 }
 
-var (
-	file_managementpb_checks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_checks_proto_msgTypes  = make([]protoimpl.MessageInfo, 21)
-	file_managementpb_checks_proto_goTypes   = []interface{}{
-		(SecurityCheckInterval)(0),              // 0: management.SecurityCheckInterval
-		(*SecurityCheckResult)(nil),             // 1: management.SecurityCheckResult
-		(*CheckResultSummary)(nil),              // 2: management.CheckResultSummary
-		(*CheckResult)(nil),                     // 3: management.CheckResult
-		(*SecurityCheck)(nil),                   // 4: management.SecurityCheck
-		(*ChangeSecurityCheckParams)(nil),       // 5: management.ChangeSecurityCheckParams
-		(*GetSecurityCheckResultsRequest)(nil),  // 6: management.GetSecurityCheckResultsRequest
-		(*GetSecurityCheckResultsResponse)(nil), // 7: management.GetSecurityCheckResultsResponse
-		(*StartSecurityChecksRequest)(nil),      // 8: management.StartSecurityChecksRequest
-		(*StartSecurityChecksResponse)(nil),     // 9: management.StartSecurityChecksResponse
-		(*ListSecurityChecksRequest)(nil),       // 10: management.ListSecurityChecksRequest
-		(*ListSecurityChecksResponse)(nil),      // 11: management.ListSecurityChecksResponse
-		(*ChangeSecurityChecksRequest)(nil),     // 12: management.ChangeSecurityChecksRequest
-		(*ChangeSecurityChecksResponse)(nil),    // 13: management.ChangeSecurityChecksResponse
-		(*ListFailedServicesRequest)(nil),       // 14: management.ListFailedServicesRequest
-		(*ListFailedServicesResponse)(nil),      // 15: management.ListFailedServicesResponse
-		(*GetFailedChecksRequest)(nil),          // 16: management.GetFailedChecksRequest
-		(*GetFailedChecksResponse)(nil),         // 17: management.GetFailedChecksResponse
-		(*ToggleCheckAlertRequest)(nil),         // 18: management.ToggleCheckAlertRequest
-		(*ToggleCheckAlertResponse)(nil),        // 19: management.ToggleCheckAlertResponse
-		nil,                                     // 20: management.SecurityCheckResult.LabelsEntry
-		nil,                                     // 21: management.CheckResult.LabelsEntry
-		(Severity)(0),                           // 22: management.Severity
-		(*PageParams)(nil),                      // 23: management.PageParams
-		(*PageTotals)(nil),                      // 24: management.PageTotals
-	}
-)
-
+var file_managementpb_checks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_checks_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_managementpb_checks_proto_goTypes = []interface{}{
+	(SecurityCheckInterval)(0),              // 0: management.SecurityCheckInterval
+	(*SecurityCheckResult)(nil),             // 1: management.SecurityCheckResult
+	(*CheckResultSummary)(nil),              // 2: management.CheckResultSummary
+	(*CheckResult)(nil),                     // 3: management.CheckResult
+	(*SecurityCheck)(nil),                   // 4: management.SecurityCheck
+	(*ChangeSecurityCheckParams)(nil),       // 5: management.ChangeSecurityCheckParams
+	(*GetSecurityCheckResultsRequest)(nil),  // 6: management.GetSecurityCheckResultsRequest
+	(*GetSecurityCheckResultsResponse)(nil), // 7: management.GetSecurityCheckResultsResponse
+	(*StartSecurityChecksRequest)(nil),      // 8: management.StartSecurityChecksRequest
+	(*StartSecurityChecksResponse)(nil),     // 9: management.StartSecurityChecksResponse
+	(*ListSecurityChecksRequest)(nil),       // 10: management.ListSecurityChecksRequest
+	(*ListSecurityChecksResponse)(nil),      // 11: management.ListSecurityChecksResponse
+	(*ChangeSecurityChecksRequest)(nil),     // 12: management.ChangeSecurityChecksRequest
+	(*ChangeSecurityChecksResponse)(nil),    // 13: management.ChangeSecurityChecksResponse
+	(*ListFailedServicesRequest)(nil),       // 14: management.ListFailedServicesRequest
+	(*ListFailedServicesResponse)(nil),      // 15: management.ListFailedServicesResponse
+	(*GetFailedChecksRequest)(nil),          // 16: management.GetFailedChecksRequest
+	(*GetFailedChecksResponse)(nil),         // 17: management.GetFailedChecksResponse
+	(*ToggleCheckAlertRequest)(nil),         // 18: management.ToggleCheckAlertRequest
+	(*ToggleCheckAlertResponse)(nil),        // 19: management.ToggleCheckAlertResponse
+	nil,                                     // 20: management.SecurityCheckResult.LabelsEntry
+	nil,                                     // 21: management.CheckResult.LabelsEntry
+	(Severity)(0),                           // 22: management.Severity
+	(*PageParams)(nil),                      // 23: management.PageParams
+	(*PageTotals)(nil),                      // 24: management.PageTotals
+}
 var file_managementpb_checks_proto_depIdxs = []int32{
 	22, // 0: management.SecurityCheckResult.severity:type_name -> management.Severity
 	20, // 1: management.SecurityCheckResult.labels:type_name -> management.SecurityCheckResult.LabelsEntry

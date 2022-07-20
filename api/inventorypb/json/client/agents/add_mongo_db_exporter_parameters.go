@@ -58,6 +58,7 @@ func NewAddMongoDBExporterParamsWithHTTPClient(client *http.Client) *AddMongoDBE
    Typically these are written to a http.Request.
 */
 type AddMongoDBExporterParams struct {
+
 	// Body.
 	Body AddMongoDBExporterBody
 
@@ -127,6 +128,7 @@ func (o *AddMongoDBExporterParams) SetBody(body AddMongoDBExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddMongoDBExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

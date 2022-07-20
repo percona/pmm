@@ -22,6 +22,7 @@ enum ActionType {
   PT_MYSQL_SUMMARY = 9;
   PT_PG_SUMMARY = 10;
   PT_MONGODB_SUMMARY = 11;
+  PT_MYSQL_CHECKSUM = 12;
 }
 
 message GetActionRequest {
@@ -324,6 +325,22 @@ message StartPTMongoDBSummaryActionResponse {
   string pmm_agent_id = 2;
 }
 
+// Message to prepare pt-table-checksum data
+message StartPTMySQLChecksumActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+}
+
+// Message to retrieve the prepared pt-table-checksum data
+message StartPTMySQLChecksumActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 // Message to prepare pt-mysql-summary data
 message StartPTMySQLSummaryActionRequest {
   // pmm-agent ID where to run this Action.
@@ -494,6 +511,17 @@ service Actions {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start 'PT MongoDB Summary' Action"
       description: "Starts 'Percona Toolkit MongoDB Summary' Action."
+    };
+  }
+  // StartPTMySQLChecksumAction starts pt-table-checksum Action.
+  rpc StartPTMySQLChecksumAction(StartPTMySQLChecksumActionRequest) returns (StartPTMySQLChecksumActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/StartPTMySQLChecksum"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start 'PT MySQL Checksum' Action"
+      description: "Starts 'Percona Toolkit MySQL Checksum' Action."
     };
   }
   // StartPTMySQLSummaryAction starts pt-mysql-summary Action.

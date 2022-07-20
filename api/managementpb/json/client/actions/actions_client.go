@@ -48,6 +48,8 @@ type ClientService interface {
 
 	StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryActionParams, opts ...ClientOption) (*StartPTMongoDBSummaryActionOK, error)
 
+	StartPTMySQLChecksumAction(params *StartPTMySQLChecksumActionParams, opts ...ClientOption) (*StartPTMySQLChecksumActionOK, error)
+
 	StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams, opts ...ClientOption) (*StartPTMySQLSummaryActionOK, error)
 
 	StartPTPgSummaryAction(params *StartPTPgSummaryActionParams, opts ...ClientOption) (*StartPTPgSummaryActionOK, error)
@@ -448,6 +450,45 @@ func (a *Client) StartPTMongoDBSummaryAction(params *StartPTMongoDBSummaryAction
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartPTMongoDBSummaryActionDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+  StartPTMySQLChecksumAction starts PT my SQL checksum action
+
+  Starts 'Percona Toolkit MySQL Checksum' Action.
+*/
+func (a *Client) StartPTMySQLChecksumAction(params *StartPTMySQLChecksumActionParams, opts ...ClientOption) (*StartPTMySQLChecksumActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPTMySQLChecksumActionParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "StartPTMySQLChecksumAction",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Actions/StartPTMySQLChecksum",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPTMySQLChecksumActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*StartPTMySQLChecksumActionOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*StartPTMySQLChecksumActionDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
