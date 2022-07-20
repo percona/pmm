@@ -161,3 +161,22 @@ func TestConnectionUpTime(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkCalculationConnectionUpTime(b *testing.B) {
+	now := time.Now()
+
+	const month = 30 * 24 * time.Hour
+	service := NewService(month)
+
+	monthAgo := now.Add(-1 * month)
+
+	size := int(month.Seconds())
+	for i := 0; i < size; i += 100 {
+		d := time.Duration(i) * time.Second
+		service.RegisterConnectionStatus(monthAgo.Add(d), i%2 == 0)
+	}
+
+	for i := 0; i < b.N; i++ {
+		service.GetConnectedUpTimeSince(now)
+	}
+}
