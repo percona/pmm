@@ -312,6 +312,9 @@ type StatusOKBody struct {
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
+	// node name
+	NodeName string `json:"node_name,omitempty"`
+
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }
