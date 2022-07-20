@@ -18,6 +18,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"os"
 	"os/exec"
 	"testing"
 
@@ -103,7 +105,11 @@ func TestStarlarkSandbox(t *testing.T) {
 	}
 
 	// since we run the binary as a child process to test it we need to build it first.
-	err := exec.Command("make", "-C", "../..", "release").Run()
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("Working dir [%s]\n",wd)
+	}
+	err = exec.Command("make", "-C", "../..", "release").Run()
 	require.NoError(t, err)
 
 	for _, tc := range testCases {
