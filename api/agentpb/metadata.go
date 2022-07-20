@@ -30,6 +30,7 @@ const (
 	mdAgentVersion     = "pmm-agent-version"
 	mdAgentMetricsPort = "pmm-agent-metrics-port"
 	mdAgentNodeID      = "pmm-agent-node-id"
+	mdNodeName         = "pmm-node-name"
 	mdServerVersion    = "pmm-server-version"
 )
 
@@ -43,6 +44,7 @@ type AgentConnectMetadata struct {
 // ServerConnectMetadata represents metadata sent by pmm-managed in response to Connect RPC method call.
 type ServerConnectMetadata struct {
 	AgentRunsOnNodeID string
+	NodeName          string
 	ServerVersion     string
 }
 
@@ -92,7 +94,9 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetadata) error {
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
-		mdServerVersion, md.ServerVersion)
+		mdNodeName, md.NodeName,
+		mdServerVersion, md.ServerVersion,
+	)
 
 	// always return gRPC error or nil
 	err := stream.SendHeader(header)
@@ -119,6 +123,7 @@ func ReceiveServerConnectMetadata(stream grpc.ClientStream) (*ServerConnectMetad
 
 	return &ServerConnectMetadata{
 		AgentRunsOnNodeID: getValue(md, mdAgentNodeID),
+		NodeName:          getValue(md, mdNodeName),
 		ServerVersion:     getValue(md, mdServerVersion),
 	}, nil
 }
