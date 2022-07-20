@@ -100,6 +100,7 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 			StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 			CollectionsLimit:              cmd.CollectionsLimit,
+			LogLevel:                      &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -142,4 +143,5 @@ func init() {
 	AddAgentMongodbExporterC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddAgentMongodbExporter.StatsCollections)
 	AddAgentMongodbExporterC.Flag("max-collections-limit", "Disable collstats & indexstats if there are more than <n> collections").
 		Int32Var(&AddAgentMongodbExporter.CollectionsLimit)
+	addExporterGlobalFlags(AddAgentMongodbExporterC)
 }
