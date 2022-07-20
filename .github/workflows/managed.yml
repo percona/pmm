@@ -72,18 +72,26 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Download Go modules
-        run: go mod download
+        run: |
+          df -h
+          go mod download
 
       - name: Initialize CI environment
-        run: make env-compose-up
+        run: |
+          df -h
+          make env-compose-up
 
       - name: Restore Go build cache
         continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+        run: |
+          df -h
+          docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
         continue-on-error: true
-        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+        run: |
+          df -h
+          docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Run tests
         run: |
@@ -125,10 +133,10 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
+          df -h
           env
           go version
           go env
           pwd
           git status
           kubectl version
-          df -h
