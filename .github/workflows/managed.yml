@@ -79,7 +79,9 @@ jobs:
 
       - name: Restore Go build cache
         continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+        run: |
+          docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+          rm -fr ~/.cache/go-build
 
       - name: Restore Go modules cache
         continue-on-error: true
