@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -154,6 +153,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	return &agentlocalpb.StatusResponse{
 		AgentId:        s.cfg.ID,
 		RunsOnNodeId:   md.AgentRunsOnNodeID,
+		NodeName:       md.NodeName,
 		ServerInfo:     serverInfo,
 		AgentsInfo:     agentsInfo,
 		ConfigFilepath: s.configFilepath,
@@ -322,7 +322,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	_ = server.Close() // call Close() in all cases
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )

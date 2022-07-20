@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -77,7 +76,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 		format = fmt.Sprintf(format, a...)
 	}
 	// We use "assert.Contains" because some error messages include info that changes easily
-	//(e.g. the line number in the proto file).
+	// (e.g. the line number in the proto file).
 	assert.Contains(t, errorField.String(), format)
 }
 
