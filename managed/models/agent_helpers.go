@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -546,6 +545,7 @@ func CreateNodeExporter(q *reform.Querier,
 	pushMetrics bool,
 	disableCollectors []string,
 	agentPassword *string,
+	logLevel string,
 ) (*Agent, error) {
 	// TODO merge into CreateAgent
 
@@ -570,6 +570,7 @@ func CreateNodeExporter(q *reform.Querier,
 		PushMetrics:        pushMetrics,
 		DisabledCollectors: disableCollectors,
 		AgentPassword:      agentPassword,
+		LogLevel:           pointer.ToStringOrNil(logLevel),
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
