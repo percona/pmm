@@ -59,6 +59,7 @@ test-race-crosscover:           ## Run tests with race detector and collect cros
 	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(PMM_TEST_PACKAGES)
 
 test-all: test-race test-cover test-crosscover
+	printenv
 	env PMM_TEST_FLAGS='-timeout=180s -v' \
 		PMM_TEST_PACKAGES=./services/supervisord \
 		PMM_TEST_RUN_UPDATE=1 \
