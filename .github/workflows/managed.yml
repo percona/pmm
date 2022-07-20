@@ -72,31 +72,21 @@ jobs:
             ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
 
       - name: Download Go modules
-        run: |
-          df -h
-          go mod download
+        run: go mod download
 
       - name: Initialize CI environment
-        run: |
-          df -h
-          make env-compose-up
+        run: make env-compose-up
 
       - name: Restore Go build cache
         continue-on-error: true
-        run: |
-          df -h
-          docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
         continue-on-error: true
-        run: |
-          df -h
-          docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Run tests
-        run: |
-          df -h
-          docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
 
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
@@ -133,7 +123,6 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          df -h
           env
           go version
           go env
