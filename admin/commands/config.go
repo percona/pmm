@@ -196,5 +196,5 @@ func init() {
 	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
 	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
 	ConfigC.Flag("log-level", "Logging level").Default("warn").EnumVar(&Config.LogLevel, "debug", "info", "warn", "error", "fatal")
-	ConfigC.Flag("log-lines-count", "Last logs count").Default("1024").UintVar(&Config.LogLinesCount)
+	ConfigC.Flag("log-lines-count", "Show the last N lines of server, exporters and agents logs in logs.zip").Default("1024").UintVar(&Config.LogLinesCount)
 }
