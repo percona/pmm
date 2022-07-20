@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -120,7 +119,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		res.PmmAgent = a.(*inventorypb.PMMAgent)
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
-				pointer.ToStringOrNil(req.AgentPassword))
+				pointer.ToStringOrNil(req.AgentPassword), "")
 		return err
 	}); e != nil {
 		return nil, e

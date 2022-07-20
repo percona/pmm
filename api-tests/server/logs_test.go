@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -66,7 +65,7 @@ func TestDownloadLogs(t *testing.T) {
 		"pmm-version.txt",
 		"pmm.conf",
 		"pmm.ini",
-		"postgresql.log",
+		"postgresql14.log",
 		"prometheus.base.yml",
 		"qan-api2.ini",
 		"qan-api2.log",

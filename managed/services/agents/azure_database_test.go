@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -26,9 +25,12 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 func TestAzureExporterConfig(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.28.0")
+
 	node1 := &models.Node{
 		NodeID:    "/node_id/node1",
 		NodeType:  models.RemoteAzureDatabaseNodeType,
@@ -66,7 +68,7 @@ func TestAzureExporterConfig(t *testing.T) {
 		},
 	}
 
-	actual, err := azureDatabaseExporterConfig(agent, service1, redactSecrets)
+	actual, err := azureDatabaseExporterConfig(agent, service1, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,

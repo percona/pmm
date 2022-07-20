@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -129,6 +128,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 	if pointer.GetString(exporter.MetricsPath) != "" {
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
+
+	args = withLogLevel(args, exporter.LogLevel, agentVersion)
 
 	sort.Strings(args)
 

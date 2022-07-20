@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -130,14 +129,6 @@ func validateNodeParamsOneOf(nodeID, nodeName string, addNodeParams *managementp
 // PUSH or AUTO variant enables pushMode for the agent.
 func isPushMode(variant managementpb.MetricsMode) bool {
 	return variant == managementpb.MetricsMode_PUSH || variant == managementpb.MetricsMode_AUTO
-}
-
-func specifyLogLevel(variant inventorypb.LogLevel) string {
-	if variant == inventorypb.LogLevel_auto {
-		return ""
-	}
-
-	return variant.String()
 }
 
 // Automatically pick metrics mode.

@@ -79,7 +79,7 @@ are talking about and follow the format of `my-topic.md` (no spaces, only
 letters and dashes).
 
 Make sure to create a unique `slug` for your file, for example: `slug:
-authentication`. 
+authentication`.
 
 **Header rules**: in Markdown, the level of a header line is defined by the
 number of hash signs, example: `###` would be equivalent to an H3 header. Please
@@ -117,13 +117,13 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container.
-* To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
+* Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.  
+* To run pmm-managed with a new changes just run `make env TARGET="release-dev-managed run-managed"` to update `pmm-managed` running in container.
 
 ### PMM Client
 
 * Clone [pmm repository](https://github.com/percona/pmm).
-* Navigate to the `/agent` folder in the root of the repository. 
+* Navigate to the `/agent` folder in the root of the repository.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
   * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
 * Once it's connected just use `make run` to run pmm-agent.
@@ -142,19 +142,19 @@ Exporters by themselves are independent applications, so each of them contains i
 See [Grafana Dashboards Contribution Guide](https://github.com/percona/grafana-dashboards/blob/main/CONTRIBUTING.md).
 
 ## Tests
-    
-In a PMM we have 4 kind of tests.
-    
+
+In a PMM we have 3 kind of tests.
+
 ### Unit tests
-    
+
 The first one is a Unit testing, so we have unit tests in each repository mentioned above. each of repositories has it's own instruction how to run unit tests.
-    
+
 ### API tests
-    
+
 API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
-    
+
 ### End to End (E2E) tests
-    
+
 End to End tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
 Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run theese.
 
