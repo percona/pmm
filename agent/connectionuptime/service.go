@@ -25,9 +25,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type bitSet struct {
+	bigInt big.Int
+}
+
+func (bs *bitSet) SetBit(i int, b uint) *bitSet {
+	bs.bigInt = *bs.bigInt.SetBit(&bs.bigInt, i, b)
+	return bs
+}
+
+func (bs *bitSet) Bit(i int) uint {
+	return bs.bigInt.Bit(i)
+}
+
 // Service calculates connection uptime between agent and server
 type Service struct {
-	uptimeSeconds big.Int
+	uptimeSeconds bitSet
 
 	windowPeriodSeconds int64
 	indexLastStatus     int64
@@ -44,6 +57,7 @@ func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriodSeconds: int64(windowPeriod.Seconds()),
 		l:                   logrus.WithField("component", "connection-uptime-service"),
+		uptimeSeconds:       bitSet{},
 	}
 }
 
@@ -62,12 +76,37 @@ func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) 
 	if s.startTime.IsZero() {
 		s.startTime = timestamp
 		s.lastStatusTimestamp = timestamp
-		s.uptimeSeconds.SetBit(&s.uptimeSeconds, 0, toUint(connected))
+		s.uptimeSeconds.SetBit(0, toUint(connected))
 		s.indexLastStatus = 0
 
 		return nil
 	}
 
+	endIndex, err := s.fillBitSetWithStatusUntilTimestamp(timestamp)
+	if err != nil {
+		return err
+	}
+
+	err = s.setLastStatusBitByIndex(endIndex, connected)
+	if err != nil {
+		return err
+	}
+
+	s.lastStatusTimestamp = timestamp
+	return nil
+}
+
+func (s *Service) setLastStatusBitByIndex(endIndex int64, connected bool) error {
+	s.indexLastStatus = endIndex % s.windowPeriodSeconds
+	if s.indexLastStatus > math.MaxInt32 {
+		return errors.Errorf("Index is higher then max int32 value: %d", s.indexLastStatus)
+	}
+
+	s.uptimeSeconds.SetBit(int(s.indexLastStatus), toUint(connected))
+	return nil
+}
+
+func (s *Service) fillBitSetWithStatusUntilTimestamp(timestamp time.Time) (int64, error) {
 	secondsFromLastEvent := timestamp.Unix() - s.lastStatusTimestamp.Unix()
 	endIndex := s.indexLastStatus + secondsFromLastEvent
 	lastConnectedStatusBit := s.uptimeSeconds.Bit(int(s.indexLastStatus))
@@ -76,19 +115,11 @@ func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) 
 		// set the same status to elements of previous connection status
 		index := i % s.windowPeriodSeconds
 		if index > math.MaxInt32 {
-			return errors.Errorf("Index is higher then max int32 value: %d", index)
+			return 0, errors.Errorf("Index is higher then max int32 value: %d", index)
 		}
-		s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(index), lastConnectedStatusBit)
+		s.uptimeSeconds.SetBit(int(index), lastConnectedStatusBit)
 	}
-
-	s.indexLastStatus = endIndex % s.windowPeriodSeconds
-	if s.indexLastStatus > math.MaxInt32 {
-		return errors.Errorf("Index is higher then max int32 value: %d", s.indexLastStatus)
-	}
-
-	s.uptimeSeconds.SetBit(&s.uptimeSeconds, int(s.indexLastStatus), toUint(connected))
-	s.lastStatusTimestamp = timestamp
-	return nil
+	return endIndex, nil
 }
 
 func toUint(b bool) uint {
