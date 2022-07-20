@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,11 +17,8 @@ package management
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -82,34 +78,6 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
-		}
-
-		if req.DefaultsFile != "" {
-			result, err := s.dfp.ParseDefaultsFile(ctx, req.PmmAgentId, req.DefaultsFile, models.MySQLServiceType)
-			if err != nil {
-				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Defaults file error: %s.", err))
-			}
-
-			// set username and password from parsed defaults file by agent
-			if req.Username == "" && result.Username != "" {
-				req.Username = result.Username
-			}
-
-			if req.Password == "" && result.Password != "" {
-				req.Password = result.Password
-			}
-
-			if req.Address == "" && result.Host != "" {
-				req.Address = result.Host
-			}
-
-			if req.Port == 0 && result.Port > 0 {
-				req.Port = result.Port
-			}
-
-			if req.Socket == "" && result.Socket != "" {
-				req.Socket = result.Socket
-			}
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{

@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -19,7 +18,7 @@ package envvars
 
 import (
 	"fmt"
-	"net"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -32,13 +31,14 @@ import (
 )
 
 const (
-	defaultSaaSHost = "check.percona.com"
-	envSaaSHost     = "PERCONA_TEST_SAAS_HOST"
-	envPublicKey    = "PERCONA_TEST_CHECKS_PUBLIC_KEY"
+	defaultPlatformAddress = "https://check.percona.com"
+	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
+	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
+	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
-	envPlatfromAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
+	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
 )
 
@@ -142,8 +142,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
 
-		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST":
-			err = fmt.Errorf("environment variable %q is removed and replaced by %q", k, envSaaSHost)
+		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST", "PERCONA_TEST_SAAS_HOST":
+			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformAddress))
+
+		case "PERCONA_TEST_CHECKS_PUBLIC_KEY":
+			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformPublicKey))
 
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
@@ -160,7 +163,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
 			}
 
-		case envPlatfromAPITimeout:
+		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
@@ -220,7 +223,7 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf("Environment variable %q is not set, using %q as a default timeout for platform API.", envPlatfromAPITimeout, defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf("Environment variable %q is not set, using %q as a default timeout for platform API.", envPlatformAPITimeout, defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
@@ -234,52 +237,43 @@ func parsePlatformAPITimeout(d string) (time.Duration, string) {
 
 // GetPlatformAPITimeout returns timeout duration for requests to Platform.
 func GetPlatformAPITimeout(l *logrus.Entry) time.Duration {
-	d := os.Getenv(envPlatfromAPITimeout)
+	d := os.Getenv(envPlatformAPITimeout)
 	duration, msg := parsePlatformAPITimeout(d)
 	l.Info(msg)
 	return duration
 }
 
-// GetSAASHost returns SaaS host env variable value if it's present and valid.
-// Otherwise returns defaultSaaSHost.
-func GetSAASHost() (string, error) {
-	v := os.Getenv(envSaaSHost)
-	host, err := parseSAASHost(v)
-	if err != nil {
-		return "", err
+// GetPlatformAddress returns Percona Platform address env variable value if it's present and valid.
+// Otherwise returns default Percona Platform address.
+func GetPlatformAddress() (string, error) {
+	address := os.Getenv(envPlatformAddress)
+	if address == "" {
+		logrus.Infof("Using default Percona Platform address %q.", defaultPlatformAddress)
+		return defaultPlatformAddress, nil
 	}
 
-	logrus.Infof("Using SaaS host %q.", host)
-	return host, nil
+	if _, err := url.Parse(address); err != nil {
+		return "", errors.Errorf("invalid percona platform address: %s", err)
+	}
+
+	logrus.Infof("Using Percona Platform address %q.", address)
+	return address, nil
 }
 
-// GetPublicKeys returns public keys used to dowload checks from SaaS.
-func GetPublicKeys() []string {
-	if v := os.Getenv(envPublicKey); v != "" {
+// GetPlatformInsecure returns true if invalid/self-signed TLS certificates allowed. Default is false.
+func GetPlatformInsecure() bool {
+	insecure, _ := strconv.ParseBool(os.Getenv(envPlatformInsecure))
+
+	return insecure
+}
+
+// GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
+func GetPlatformPublicKeys() []string {
+	if v := os.Getenv(envPlatformPublicKey); v != "" {
 		return strings.Split(v, ",")
 	}
 
 	return nil
-}
-
-// parseSAASHost parses, validates and returns SAAS host, otherwise returns error.
-func parseSAASHost(v string) (string, error) {
-	if v == "" {
-		logrus.Infof("Using default SaaS host %q.", defaultSaaSHost)
-		return defaultSaaSHost, nil
-	}
-	if strings.HasPrefix(v, ":") {
-		return "", fmt.Errorf("environment variable %q has invalid format %q. Expected host[:port]", envSaaSHost, v)
-	}
-
-	host, _, err := net.SplitHostPort(v)
-	if err != nil && strings.Count(v, ":") >= 1 {
-		return "", err
-	}
-	if host == "" {
-		host = v
-	}
-	return host, nil
 }
 
 func formatEnvVariableError(err error, env, value string) error {

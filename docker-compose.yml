@@ -2,31 +2,35 @@
 version: '3.7'
 services:
   pmm-managed-server:
-    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    build:
+      context: .
+      args:
+        PMM_VERSION: ${PMM_VERSION:-perconalab/pmm-server:dev-latest}
+      dockerfile: devcontainer.Dockerfile
     container_name: pmm-managed-server
     hostname: pmm-managed-server
     networks:
       - ${NETWORK:-default}
     environment:
-      - PATH=/root/go/bin:$PATH
-      - GO_VERSION=${GO_VERSION:-1.18.x}
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_ALERTING=1
       - ENABLE_BACKUP_MANAGEMENT=1
-#      - PERCONA_TEST_SAAS_HOST=check.localhost
+#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+#      - PERCONA_TEST_PLATFORM_INSECURE=1
+#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
 #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
 #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
 #      - PMM_DEBUG=1
 
-#    extra_hosts:
-#      - host.docker.internal:host-gateway
-#      - portal.localhost:${PORTAL_HOST:-host-gateway}
-#      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-#      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-#      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
+    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -50,11 +54,16 @@ services:
       - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
-      - go-modules:/root/go/pkg/mod # Put modules cache into a separate volume
-      - /root/go/src/github.com/percona/pmm/bin # Let to have different binaries in devcontainer and on local machine
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
+      - pmm-bin:/root/go/src/github.com/percona/pmm/bin
+      # caching
+      - go-modules:/root/go/pkg/mod
+      - root-cache:/root/.cache
+
 volumes:
   go-modules:
+  root-cache:
+  pmm-bin:
 
 networks:
   minikube:

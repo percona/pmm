@@ -61,13 +61,6 @@ def install_go():
         "go env"
     ])
 
-def make_release_dev():
-    """Runs make release-dev."""
-
-    run_commands([
-        "make release-dev",
-    ])
-
 def make_init():
     """Runs make init."""
 
@@ -79,8 +72,8 @@ def setup():
     """Runs various setup commands."""
     run_commands([
         # allow connecting from any host, needed to connect from host to PG running in docker
-        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres/postgresql.conf",
-        "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres/pg_hba.conf",
+        "sed -i -e \"s/#listen_addresses = \'localhost\'/listen_addresses = \'*\'/\" /srv/postgres14/postgresql.conf",
+        "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
         "supervisorctl restart postgresql",
     ])
 
@@ -96,7 +89,6 @@ def main():
     # make install (requires make package)
     install_packages_p.join()
     make_init()
-    make_release_dev()
 
     # do basic setup
     setup()

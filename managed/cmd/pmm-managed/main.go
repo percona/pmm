@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -90,8 +89,10 @@ import (
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
+	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/logger"
+	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
@@ -107,14 +108,32 @@ const (
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
+
+	defaultContextTimeout = 10 * time.Second
+	pProfProfileDuration  = 30 * time.Second
+	pProfTraceDuration    = 10 * time.Second
 )
 
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		contextTimeout := defaultContextTimeout
+		// increase context timeout if pprof query parameter exist in request
+		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
+		if err != nil {
+			l.Debug("Unable to read 'pprof' query param. Using default: pprof=false")
+		}
+		var pprofConfig *supervisord.PprofConfig
+		if pprofQueryParameter {
+			contextTimeout += pProfProfileDuration + pProfTraceDuration
+			pprofConfig = &supervisord.PprofConfig{
+				ProfileDuration: pProfProfileDuration,
+				TraceDuration:   pProfTraceDuration,
+			}
+		}
 		// fail-safe
-		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(req.Context(), contextTimeout)
 		defer cancel()
 
 		filename := fmt.Sprintf("pmm-server_%s.zip", time.Now().UTC().Format("2006-01-02_15-04"))
@@ -123,7 +142,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw); err != nil {
+		if err := logs.Zip(ctx, rw, pprofConfig); err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -132,6 +151,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 type gRPCServerDeps struct {
 	db                   *reform.DB
 	vmdb                 *victoriametrics.Service
+	platformClient       *platformClient.Client
 	server               *server.Server
 	agentsRegistry       *agents.Registry
 	handler              *agents.Handler
@@ -228,7 +248,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
 
-	platformService, err := platform.New(deps.db, deps.supervisord, deps.checksService, deps.grafanaClient, deps.config.Services.Platform)
+	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	if err == nil {
 		platformpb.RegisterPlatformServer(gRPCServer, platformService)
 	} else {
@@ -699,7 +719,17 @@ func main() {
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
 	supervisord := supervisord.New(*supervisordConfigDirF, pmmUpdateCheck, vmParams)
 
-	telemetry, err := telemetry.NewService(db, version.Version, cfg.Config.Services.Telemetry)
+	platformAddress, err := envvars.GetPlatformAddress()
+	if err != nil {
+		l.Fatal(err)
+	}
+
+	platformClient, err := platformClient.NewClient(db, platformAddress)
+	if err != nil {
+		l.Fatalf("Could not create Percona Portal client: %s", err)
+	}
+
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -712,9 +742,9 @@ func main() {
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
-	actionsService := agents.NewActionsService(agentsRegistry)
+	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	checksService, err := checks.New(actionsService, alertManager, db, *victoriaMetricsURLF)
+	checksService, err := checks.New(db, platformClient, actionsService, alertManager, *victoriaMetricsURLF)
 	if err != nil {
 		l.Fatalf("Could not create checks service: %s", err)
 	}
@@ -722,7 +752,7 @@ func main() {
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
-	templatesService, err := ia.NewTemplatesService(db)
+	templatesService, err := ia.NewTemplatesService(db, platformClient)
 	if err != nil {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
@@ -918,6 +948,7 @@ func main() {
 			&gRPCServerDeps{
 				db:                   db,
 				vmdb:                 vmdb,
+				platformClient:       platformClient,
 				server:               server,
 				agentsRegistry:       agentsRegistry,
 				handler:              agentsHandler,

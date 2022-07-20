@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,9 +93,7 @@ type addMySQLCommand struct {
 	ServiceName       string
 	Username          string
 	Password          string
-	DefaultsFile      string
 	AgentPassword     string
-	CredentialsSource string
 	Environment       string
 	Cluster           string
 	ReplicationSet    string
@@ -128,32 +125,11 @@ func (cmd *addMySQLCommand) GetAddress() string {
 }
 
 func (cmd *addMySQLCommand) GetDefaultAddress() string {
-	if cmd.DefaultsFile != "" {
-		// address might be specified in defaults file
-		return ""
-	}
 	return "127.0.0.1:3306"
-}
-
-func (cmd *addMySQLCommand) GetDefaultUsername() string {
-	return "root"
 }
 
 func (cmd *addMySQLCommand) GetSocket() string {
 	return cmd.Socket
-}
-
-func (cmd *addMySQLCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.AgentPassword = creds.AgentPassword
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -203,8 +179,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	username := defaultsFileUsernameCheck(cmd)
-
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
@@ -212,12 +186,6 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 
 		tablestatsGroupTableLimit = -1
-	}
-
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, errors.Wrapf(err, "failed to retrieve credentials from %s", cmd.CredentialsSource)
-		}
 	}
 
 	params := &mysql.AddMySQLParams{
@@ -231,7 +199,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
 			ReplicationSet: cmd.ReplicationSet,
-			Username:       username,
+			Username:       cmd.Username,
 			Password:       cmd.Password,
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
@@ -284,11 +252,9 @@ func init() {
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
 
-	AddMySQLC.Flag("username", "MySQL username").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("defaults-file", "Path to defaults file").StringVar(&AddMySQL.DefaultsFile)
 	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
-	AddMySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddMySQL.CredentialsSource)
 
 	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
 	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
@@ -318,18 +284,4 @@ func init() {
 		EnumVar(&AddMySQL.MetricsMode, metricsModes...)
 	AddMySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMySQL.DisableCollectors)
 	addGlobalFlags(AddMySQLC)
-}
-
-func defaultsFileUsernameCheck(cmd *addMySQLCommand) string {
-	// passed username has higher priority over defaults file
-	if cmd.Username != "" {
-		return cmd.Username
-	}
-
-	// username not specified, but can be in defaults file
-	if cmd.Username == "" && cmd.DefaultsFile != "" {
-		return ""
-	}
-
-	return cmd.GetDefaultUsername()
 }
