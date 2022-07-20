@@ -24,16 +24,16 @@ import (
 
 // Store implement ring save logs.
 type Store struct {
-	log   *ring.Ring
-	count int
-	m     sync.Mutex
+	log      *ring.Ring
+	capacity int
+	m        sync.Mutex
 }
 
 // NewStore creates Store.
-func NewStore(count int) *Store {
+func NewStore(capacity int) *Store {
 	return &Store{
-		log:   ring.New(count),
-		count: count,
+		log:      ring.New(capacity),
+		capacity: capacity,
 	}
 }
 
@@ -52,19 +52,19 @@ func (l *Store) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-// UpdateCount to update max length.
-func (l *Store) UpdateCount(count int) {
+// Resize to update capacity.
+func (l *Store) Resize(capacity int) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
-	if l.count == count {
+	if l.capacity == capacity {
 		return
 	}
 
 	old := l.log
 
-	l.count = count
-	l.log = ring.New(count)
+	l.capacity = capacity
+	l.log = ring.New(capacity)
 	if l.log == nil {
 		return
 	}
@@ -87,7 +87,7 @@ func (l *Store) GetLogs() []string {
 		return nil
 	}
 
-	logs := make([]string, 0, l.count)
+	logs := make([]string, 0, l.capacity)
 
 	replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
 	l.log.Do(func(p interface{}) {

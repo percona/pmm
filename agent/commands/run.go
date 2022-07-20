@@ -62,7 +62,7 @@ func Run() {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
 		config.ConfigureLogger(cfg)
-		logStore.UpdateCount(int(cfg.LogLinesCount))
+		logStore.Resize(int(cfg.LogLinesCount))
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
