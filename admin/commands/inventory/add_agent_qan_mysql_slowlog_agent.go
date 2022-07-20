@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,6 +117,7 @@ func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
 			TLSCa:                tlsCa,
 			TLSCert:              tlsCert,
 			TLSKey:               tlsKey,
+			LogLevel:             &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -152,4 +152,5 @@ func init() {
 	AddAgentQANMySQLSlowlogAgentC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSCaFile)
 	AddAgentQANMySQLSlowlogAgentC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSCertFile)
 	AddAgentQANMySQLSlowlogAgentC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentQANMySQLSlowlogAgent.TLSKeyFile)
+	addExporterGlobalFlags(AddAgentQANMySQLSlowlogAgentC)
 }

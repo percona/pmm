@@ -1,3 +1,18 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package agentpb
 
 import (
@@ -10,6 +25,8 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+//go-sumtype:decl isQueryActionValue_Kind
 
 func makeValue(value interface{}) (*QueryActionValue, error) {
 	// In the future, we may decide to:
@@ -95,7 +112,7 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 
 	// use reflection for slices (except []byte) and maps
 	v := reflect.ValueOf(value)
-	switch v.Kind() { //nolint:exhaustive
+	switch v.Kind() {
 	case reflect.Slice:
 		size := v.Len()
 		s := make([]*QueryActionValue, size)

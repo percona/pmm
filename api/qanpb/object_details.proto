@@ -7,6 +7,7 @@ option go_package = "api/qanpb;qanpb";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qanpb/qan.proto";
+import "google/protobuf/wrappers.proto";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
 service ObjectDetails {
@@ -42,6 +43,13 @@ service ObjectDetails {
   rpc GetHistogram(HistogramRequest) returns (HistogramReply) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/GetHistogram"
+      body: "*"
+    };
+  }
+  // QueryExists check if query exists in clickhouse.
+  rpc QueryExists(QueryExistsRequest) returns (google.protobuf.BoolValue) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/QueryExists"
       body: "*"
     };
   }
@@ -168,4 +176,10 @@ message HistogramReply {
 message HistogramItem {
   string range = 1;
   uint32 frequency = 2;
+}
+
+// QueryExistsRequest check if provided query exists or not.
+message QueryExistsRequest {
+  string serviceid = 1;
+  string query = 2;
 }
