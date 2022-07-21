@@ -243,7 +243,7 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...Cl
 }
 
 /*
-  StartChecksStream starts checks stream executes checks and returns their results as a g RPC stream
+  StartChecksStream starts checks stream executes checks and returns their results as a g RPC stream current implementation expects to handle a websocket connection and the initial websocket request must have the cookie header set with the proper grafana session value otherwise it fails with a 401 error
 */
 func (a *Client) StartChecksStream(params *StartChecksStreamParams, opts ...ClientOption) (*StartChecksStreamOK, error) {
 	// TODO: Validate the params before sending

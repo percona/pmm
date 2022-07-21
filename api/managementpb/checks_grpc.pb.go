@@ -34,7 +34,9 @@ type SecurityChecksClient interface {
 	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
-	// StartChecksStream executes Checks and returns their results as a gRPC stream
+	// StartChecksStream executes Checks and returns their results as a gRPC stream.
+	// Current implementation expects to handle a websocket connection, and the initial websocket request must
+	// have the Cookie header set with the proper `grafana_session` value (otherwise it fails with a 401 error).
 	StartChecksStream(ctx context.Context, opts ...grpc.CallOption) (SecurityChecks_StartChecksStreamClient, error)
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(ctx context.Context, in *ListSecurityChecksRequest, opts ...grpc.CallOption) (*ListSecurityChecksResponse, error)
@@ -160,7 +162,9 @@ type SecurityChecksServer interface {
 	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
-	// StartChecksStream executes Checks and returns their results as a gRPC stream
+	// StartChecksStream executes Checks and returns their results as a gRPC stream.
+	// Current implementation expects to handle a websocket connection, and the initial websocket request must
+	// have the Cookie header set with the proper `grafana_session` value (otherwise it fails with a 401 error).
 	StartChecksStream(SecurityChecks_StartChecksStreamServer) error
 	// ListSecurityChecks returns a list of available Security Thread Tool checks.
 	ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error)

@@ -19947,7 +19947,7 @@
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "StartChecksStream executes Checks and returns their results as a gRPC stream",
+        "summary": "StartChecksStream executes Checks and returns their results as a gRPC stream.\nCurrent implementation expects to handle a websocket connection, and the initial websocket request must\nhave the Cookie header set with the proper `grafana_session` value (otherwise it fails with a 401 error).",
         "operationId": "StartChecksStream",
         "parameters": [
           {

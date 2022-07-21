@@ -211,7 +211,9 @@ service SecurityChecks {
     };
   }
 
-  // StartChecksStream executes Checks and returns their results as a gRPC stream
+  // StartChecksStream executes Checks and returns their results as a gRPC stream.
+  // Current implementation expects to handle a websocket connection, and the initial websocket request must
+  // have the Cookie header set with the proper `grafana_session` value (otherwise it fails with a 401 error).
   rpc StartChecksStream(stream StartSecurityChecksRequest) returns (stream StartChecksStreamResponse) {
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/Stream"
