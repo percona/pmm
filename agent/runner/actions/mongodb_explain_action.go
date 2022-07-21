@@ -60,7 +60,7 @@ func (a *mongodbExplainAction) Timeout() time.Duration {
 	return a.timeout
 }
 
-// Type returns a os.CreateTempAction type.
+// Type returns an Action type.
 func (a *mongodbExplainAction) Type() string {
 	return "mongodb-explain"
 }
