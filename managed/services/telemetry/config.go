@@ -30,21 +30,24 @@ import (
 )
 
 const (
-	envTelemetryDisableSend = "PERCONA_TEST_TELEMETRY_DISABLE_SEND"
+	envDisableSend           = "PERCONA_TEST_TELEMETRY_DISABLE_SEND"
+	envConfigFile            = "PERCONA_TEST_TELEMETRY_FILE"
+	envDisableStartDelay     = "PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY"
+	envReportingInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
+	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 )
 
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
-	l             *logrus.Entry
-	ConfigFileEnv string   `yaml:"config_file_env"` //nolint:tagliatelle
-	Enabled       bool     `yaml:"enabled"`
-	LoadDefaults  bool     `yaml:"load_defaults"` //nolint:tagliatelle
-	telemetry     []Config `yaml:"-"`
-	SaasHostname  string   `yaml:"saas_hostname"` //nolint:tagliatelle
-	DataSources   struct {
+	l            *logrus.Entry
+	Enabled      bool     `yaml:"enabled"`
+	LoadDefaults bool     `yaml:"load_defaults"`
+	telemetry    []Config `yaml:"-"`
+	SaasHostname string   `yaml:"saas_hostname"`
+	DataSources  struct {
 		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
-		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
+		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -72,7 +75,7 @@ type DataSourceVictoriaMetrics struct {
 type DSConfigPMMDB struct {
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
-	UseSeparateCredentials bool          `yaml:"use_separate_credentials"` //nolint:tagliatelle
+	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
 	// Credentials used by PMM
 	DSN struct {
 		Scheme string
@@ -87,7 +90,7 @@ type DSConfigPMMDB struct {
 	SeparateCredentials struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
-	} `yaml:"separate_credentials"` //nolint:tagliatelle
+	} `yaml:"separate_credentials"`
 }
 
 // Config telemetry config.
@@ -101,7 +104,7 @@ type Config struct {
 
 // ConfigData telemetry config.
 type ConfigData struct {
-	MetricName string `yaml:"metric_name"` //nolint:tagliatelle
+	MetricName string `yaml:"metric_name"`
 	Label      string `yaml:"label"`
 	Value      string `yaml:"value"`
 	Column     string `yaml:"column"`
@@ -117,14 +120,12 @@ func (c *Config) mapByColumn() map[string][]ConfigData {
 
 // ReportingConfig reporting config.
 type ReportingConfig struct {
-	SendOnStart     bool          `yaml:"send_on_start"`     //nolint:tagliatelle
-	SendOnStartEnv  string        `yaml:"send_on_start_env"` //nolint:tagliatelle
-	IntervalEnv     string        `yaml:"interval_env"`      //nolint:tagliatelle
-	Interval        time.Duration `yaml:"interval"`
-	RetryBackoffEnv string        `yaml:"retry_backoff_env"` //nolint:tagliatelle
-	RetryBackoff    time.Duration `yaml:"retry_backoff"`     //nolint:tagliatelle
-	SendTimeout     time.Duration `yaml:"send_timeout"`      //nolint:tagliatelle
-	RetryCount      int           `yaml:"retry_count"`       //nolint:tagliatelle
+	Send         bool          `yaml:"send"`
+	SendOnStart  bool          `yaml:"send_on_start"`
+	Interval     time.Duration `yaml:"interval"`
+	RetryBackoff time.Duration `yaml:"retry_backoff"`
+	SendTimeout  time.Duration `yaml:"send_timeout"`
+	RetryCount   int           `yaml:"retry_count"`
 }
 
 //go:embed config.default.yml
@@ -135,11 +136,9 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	c.l = l
 
 	var configFile string
-	if c.ConfigFileEnv != "" {
-		configFileFromEnv, present := os.LookupEnv(c.ConfigFileEnv)
-		if present {
-			configFile = configFileFromEnv
-		}
+	configFileFromEnv, present := os.LookupEnv(envConfigFile)
+	if present {
+		configFile = configFileFromEnv
 	}
 
 	telemetry, err := c.loadConfig(configFile)
@@ -148,11 +147,11 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	}
 	c.telemetry = telemetry
 
-	if d, err := time.ParseDuration(os.Getenv(c.Reporting.IntervalEnv)); err == nil && d > 0 {
+	if d, err := time.ParseDuration(os.Getenv(envReportingInterval)); err == nil && d > 0 {
 		l.Warnf("Interval changed to %s.", d)
 		c.Reporting.Interval = d
 	}
-	if d, err := time.ParseDuration(os.Getenv(c.Reporting.RetryBackoffEnv)); err == nil && d > 0 {
+	if d, err := time.ParseDuration(os.Getenv(envReportingRetryBackoff)); err == nil && d > 0 {
 		l.Warnf("Retry backoff changed to %s.", d)
 		c.Reporting.RetryBackoff = d
 	}
@@ -165,32 +164,28 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
-	telemetryDisabledStr, present := os.LookupEnv(envTelemetryDisableSend)
+	disabledSendStr, present := os.LookupEnv(envDisableSend)
 	if present {
-		telemetryDisabled, err := strconv.ParseBool(telemetryDisabledStr)
+		disabledSend, err := strconv.ParseBool(disabledSendStr)
 		if err != nil {
-			c.l.Warnf("Cannot parse envirounment variable [%s] as bool.", envTelemetryDisableSend)
+			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableSend)
 		} else {
-			c.l.Debugf("Overriding Telemetry.Enabled with envirounment variable [%s] to %t.", envTelemetryDisableSend, telemetryDisabled)
-			c.Enabled = !telemetryDisabled
+			c.l.Debugf("Overriding Telemetry.Enabled with environment variable [%s] to %t.", envDisableSend, disabledSend)
+			c.Reporting.Send = !disabledSend
 		}
 	} else {
-		c.l.Debugf("[%s] is not set", envTelemetryDisableSend)
+		c.l.Debugf("[%s] is not set", envDisableSend)
 	}
 
-	if c.Reporting.SendOnStartEnv != "" {
-		c.l.Debugf("SendOnStartEnv is defined, checking ENV for [%s]", c.Reporting.SendOnStartEnv)
-		sendOnStartStr, present := os.LookupEnv(c.Reporting.SendOnStartEnv)
-		if present {
-			sendOnStart, err := strconv.ParseBool(sendOnStartStr)
-			if err != nil {
-				c.l.Warnf("Cannot parse envirounment variable [%s] as bool.", c.Reporting.SendOnStartEnv)
-			} else {
-				c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with envirounment variable [%s] to %t.", c.Reporting.SendOnStartEnv, sendOnStart)
-				c.Reporting.SendOnStart = sendOnStart
-			}
+	disableOnStartSendStr, present := os.LookupEnv(envDisableStartDelay)
+	if present {
+		disableOnStartSend, err := strconv.ParseBool(disableOnStartSendStr)
+		if err != nil {
+			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableStartDelay)
+		} else {
+			c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with environment variable [%s] to %t.", envDisableStartDelay, disableOnStartSend)
+			c.Reporting.SendOnStart = !disableOnStartSend
 		}
-
 	}
 
 	return nil
@@ -208,12 +203,12 @@ func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) { //noli
 		}
 		config = file
 		if c.LoadDefaults {
-			c.l.Debugf("LoadDefaults is set to TRUE, but ENV var [%s] is set and has priority.", c.ConfigFileEnv)
+			c.l.Debugf("LoadDefaults is set to TRUE, but ENV var [%s] is set and has priority.", envConfigFile)
 		}
 	} else if c.LoadDefaults {
 		config = []byte(defaultConfig)
 	} else {
-		return nil, errors.New("file config should be provided via ENV [" + c.ConfigFileEnv + "] or LoadDefaults should be set to TRUE")
+		return nil, errors.New("file config should be provided via ENV [" + envConfigFile + "] or LoadDefaults should be set to TRUE")
 	}
 	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
 		return nil, errors.Wrap(err, "cannot unmashal default config")
