@@ -16,8 +16,6 @@
 package connectionuptime
 
 import (
-	"fmt"
-	"runtime"
 	"sort"
 	"testing"
 	"time"
@@ -159,49 +157,8 @@ func TestConnectionUpTime(t *testing.T) {
 				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
 
+			service.deleteOldEvents()
 			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
 		})
 	}
-}
-
-func BenchmarkCalculationConnectionUpTime(b *testing.B) {
-	now := time.Now()
-
-	const month = 30 * 24 * time.Hour
-	service := NewService(month)
-
-	monthAgo := now.Add(-1 * month)
-
-	size := int(month.Seconds())
-	for i := 0; i < size; i += 100 {
-		d := time.Duration(i) * time.Second
-		service.RegisterConnectionStatus(monthAgo.Add(d), i%2 == 0)
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		service.GetConnectedUpTimeSince(now)
-	}
-}
-
-func TestCalculationConnectionUpTimeMemoryUsage(t *testing.T) {
-	m := runtime.MemStats{}
-
-	now := time.Now()
-
-	const month = 30 * 24 * time.Hour
-	service := NewService(month)
-
-	monthAgo := now.Add(-1 * month)
-
-	size := int(month.Seconds())
-	for i := 0; i < size; i += 100 {
-		d := time.Duration(i) * time.Second
-		service.RegisterConnectionStatus(monthAgo.Add(d), i%2 == 0)
-	}
-
-	service.GetConnectedUpTimeSince(now)
-	runtime.ReadMemStats(&m)
-
-	fmt.Printf("In use memory %.3f MB\n", float64(m.HeapInuse)/(1024*1024))
 }

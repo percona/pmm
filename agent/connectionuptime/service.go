@@ -16,184 +16,146 @@
 package connectionuptime
 
 import (
-	"math"
-	"math/big"
+	"context"
 	"sync"
 	"time"
-
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 )
 
-type bitSet struct {
-	bigInt big.Int
-}
+const periodForRunningDeletingOldEvents = time.Minute
 
-func (bs *bitSet) SetBit(i int, b uint) *bitSet {
-	bs.bigInt = *bs.bigInt.SetBit(&bs.bigInt, i, b)
-	return bs
-}
-
-func (bs *bitSet) Bit(i int) uint {
-	return bs.bigInt.Bit(i)
-}
-
-// Service calculates connection uptime between agent and server
+// Service calculates connection up time between agent and server
+// based on the connection events events
 type Service struct {
-	uptimeSeconds bitSet
+	mx           sync.Mutex
+	events       []connectionEvent
+	windowPeriod time.Duration
+}
 
-	windowPeriodSeconds int64
-	indexLastStatus     int64
-	startTime           time.Time
-	lastStatusTimestamp time.Time
-
-	mx sync.Mutex
-
-	l *logrus.Entry
+type connectionEvent struct {
+	Timestamp time.Time
+	Connected bool
 }
 
 // NewService creates new instance of Service
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
-		windowPeriodSeconds: int64(windowPeriod.Seconds()),
-		l:                   logrus.WithField("component", "connection-uptime-service"),
-		uptimeSeconds:       bitSet{},
+		windowPeriod: windowPeriod,
 	}
 }
 
-// RegisterConnectionStatus adds new connection status
-func (s *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
-	s.mx.Lock()
-	defer s.mx.Unlock()
-
-	if err := s.registerConnectionStatus(timestamp, connected); err != nil {
-		// only print error here
-		s.l.Error(err.Error())
-	}
+// RegisterConnectionStatus adds connection event
+func (c *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+	c.addEvent(timestamp, connected)
 }
 
-func (s *Service) registerConnectionStatus(timestamp time.Time, connected bool) error {
-	if s.startTime.IsZero() {
-		s.startTime = timestamp
-		s.lastStatusTimestamp = timestamp
-		s.uptimeSeconds.SetBit(0, toUint(connected))
-		s.indexLastStatus = 0
-
-		return nil
+func (c *Service) addEvent(timestamp time.Time, connected bool) {
+	newElem := connectionEvent{
+		Timestamp: timestamp,
+		Connected: connected,
 	}
 
-	endIndex, err := s.fillBitSetWithStatusUntilTimestamp(timestamp)
-	if err != nil {
-		return err
-	}
-
-	err = s.setLastStatusBitByIndex(endIndex, connected)
-	if err != nil {
-		return err
-	}
-
-	s.lastStatusTimestamp = timestamp
-	return nil
-}
-
-func (s *Service) setLastStatusBitByIndex(endIndex int64, connected bool) error {
-	s.indexLastStatus = endIndex % s.windowPeriodSeconds
-	if s.indexLastStatus > math.MaxInt32 {
-		return errors.Errorf("Index is higher then max int32 value: %d", s.indexLastStatus)
-	}
-
-	s.uptimeSeconds.SetBit(int(s.indexLastStatus), toUint(connected))
-	return nil
-}
-
-func (s *Service) fillBitSetWithStatusUntilTimestamp(timestamp time.Time) (int64, error) {
-	secondsFromLastEvent := timestamp.Unix() - s.lastStatusTimestamp.Unix()
-	endIndex := s.indexLastStatus + secondsFromLastEvent
-	lastConnectedStatusBit := s.uptimeSeconds.Bit(int(s.indexLastStatus))
-
-	for i := s.indexLastStatus + 1; i < endIndex; i++ {
-		// set the same status to elements of previous connection status
-		index := i % s.windowPeriodSeconds
-		if index > math.MaxInt32 {
-			return 0, errors.Errorf("Index is higher then max int32 value: %d", index)
+	if len(c.events) != 0 {
+		lastElem := c.events[len(c.events)-1]
+		if lastElem.Connected != connected {
+			c.events = append(c.events, newElem)
 		}
-		s.uptimeSeconds.SetBit(int(index), lastConnectedStatusBit)
+	} else {
+		c.events = append(c.events, newElem)
 	}
-	return endIndex, nil
 }
 
-func toUint(b bool) uint {
-	if b {
-		return 1
+func (c *Service) deleteOldEvents() {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+
+	if len(c.events) == 0 {
+		return
 	}
-	return 0
+
+	// Move first elements which are already expired to the start of the slice
+	// in order to not loose information about previous state of connection.
+	// The latest expired element in the slice will be the first one to calculate
+	// uptime correctly during set up window time
+	lenOfEvents := len(c.events)
+	index := 0
+	for i := 0; i < lenOfEvents; i++ {
+		if time.Since(c.events[0].Timestamp) > c.windowPeriod {
+			c.events[0].Timestamp = time.Now().Add(-1 * c.windowPeriod).Add(time.Second)
+			if len(c.events) > 1 && c.events[0].Timestamp.After(c.events[1].Timestamp) {
+				index++
+			}
+		}
+	}
+
+	if index > 0 {
+		c.removeFirstElements(index)
+	}
 }
 
-// GetConnectedUpTimeSince calculates connected uptime between agent and server
-// based on the connection statuses
-func (s *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
-	err := s.fillStatusesUntil(toTime)
-	if err != nil {
-		s.l.Error(err.Error())
+func (c *Service) removeFirstElements(i int) {
+	c.events = append(c.events[:0], c.events[i:]...)
+}
+
+// RunCleanupGoroutine starts goroutine which removes already expired connection events.
+// Expired event means that it was created more than `windowPeriod` time ago.
+func (c *Service) RunCleanupGoroutine(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
+		for {
+			select {
+			case <-ticker.C:
+				c.deleteOldEvents()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
+// GetConnectedUpTimeSince calculates the connection up time between agent and server
+// based on the stored connection events.
+//
+// In the connection event set we store only when connection status was changed
+// (was it connected or not) in the next format:
+// {<timestamp, is_connected>, <timestamp, is_connected>, ...}
+//
+// For example:
+// {<'2022-01-01 15:00:00', true>, <'2022-01-01 15:20:00', false>, <'2022-01-01 15:20:10', true>}
+//
+// GetConnectionUpTime returns the percentage of connection uptime during
+// set period of time (by default it's 24 hours).
+// Method will calculate connected time as interval between connected and disconneced events
+//
+// Here is example how it works.
+// When we have such set of events in connection set `f1 s1 f2`
+// where f1 - first event of failed connection
+//       s1 - first event of successful connection
+//       f2 - second event of failed connection
+//
+// method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
+// where time_between(s1, f2) - connection up time
+//       time_between(f1, now) - total time betweeen first event (f1) and current moment
+func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
+	if len(c.events) == 1 {
+		if c.events[0].Connected {
+			return 100
+		}
 		return 0
 	}
 
-	res, err := s.calculateConnectionUpTime(toTime)
-	if err != nil {
-		s.l.Error(err.Error())
-		return 0
-	}
-	return res
-}
-
-func (s *Service) calculateConnectionUpTime(toTime time.Time) (float32, error) {
-	numOfSeconds := s.getNumOfSecondsForCalculationUptime(toTime)
-	startIndex := s.getStartIndex(numOfSeconds)
-	connectedSeconds, err := s.getNumOfConnectedSeconds(startIndex, numOfSeconds)
-	if err != nil {
-		return 0, err
-	}
-	return float32(connectedSeconds) / float32(numOfSeconds) * 100, nil
-}
-
-func (s *Service) getNumOfSecondsForCalculationUptime(toTime time.Time) int64 {
-	numOfSeconds := s.windowPeriodSeconds
-	diffInSecondsBetweenStartTimeAndToTime := toTime.Unix() - s.startTime.Unix()
-	if diffInSecondsBetweenStartTimeAndToTime < s.windowPeriodSeconds {
-		numOfSeconds = diffInSecondsBetweenStartTimeAndToTime
-	}
-	return numOfSeconds
-}
-
-func (s *Service) getStartIndex(size int64) int64 {
-	startElement := s.indexLastStatus - size
-	if startElement < 0 {
-		startElement = s.windowPeriodSeconds + startElement
-	}
-	return startElement
-}
-
-func (s *Service) getNumOfConnectedSeconds(startIndex int64, totalNumOfSeconds int64) (int, error) {
-	endIndex := startIndex + totalNumOfSeconds
-	connectedSeconds := 0
-	for i := startIndex; i < endIndex; i++ {
-		index := i % s.windowPeriodSeconds
-		if index > math.MaxInt32 {
-			return 0, errors.Errorf("Index is higher then max int32 value: %d", index)
-		}
-
-		if s.uptimeSeconds.Bit(int(index)) == 1 {
-			connectedSeconds++
+	var connectedTimeMs int64
+	for i, event := range c.events {
+		if event.Connected {
+			if i+1 >= len(c.events) {
+				connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
+			} else {
+				connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
+			}
 		}
 	}
-	return connectedSeconds, nil
-}
 
-// fill values in the slice until toTime
-func (s *Service) fillStatusesUntil(toTime time.Time) error {
-	if s.indexLastStatus > math.MaxInt32 {
-		return errors.Errorf("indexLastStatus is higher then max int32 value: %d", s.indexLastStatus)
-	}
-
-	return s.registerConnectionStatus(toTime, s.uptimeSeconds.Bit(int(s.indexLastStatus)) == 1)
+	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
+	return float32(connectedTimeMs) / float32(totalTime) * 100
 }
