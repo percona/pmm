@@ -176,6 +176,7 @@ func BenchmarkCalculationConnectionUpTime(b *testing.B) {
 		service.RegisterConnectionStatus(monthAgo.Add(d), i%2 == 0)
 	}
 
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		service.GetConnectedUpTimeSince(now)
 	}
