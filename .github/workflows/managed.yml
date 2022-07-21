@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        use-cache: true
+        use-cache: [true]
         go-version:
           - 1.18.x
         os: [ubuntu-latest]
