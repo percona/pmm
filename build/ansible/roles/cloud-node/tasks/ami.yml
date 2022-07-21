@@ -1,0 +1,32 @@
+---
+# Common things for all AWS images
+
+    - name: ami                 | Enable swap on AWS
+      when: ansible_virtualization_type == "xen"
+      command: dd if=/dev/zero of=/var/tmp/swapfile bs=1024 count=1000000
+
+    - name: ami                 | Enable swap on AWS
+      when: ansible_virtualization_type == "xen"
+      file:
+        path: /var/tmp/swapfile
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: ami                 | Enable swap on AWS
+      when: ansible_virtualization_type == "xen"
+      command: mkswap /var/tmp/swapfile
+
+    - name: ami                 | Enable swap on AWS
+      when: ansible_virtualization_type == "xen"
+      mount:
+        path: swap
+        src: /var/tmp/swapfile
+        fstype: swap
+        opts: defaults
+        state: present
+
+    - name: ami                 | Enable swap on AWS
+      when: ansible_virtualization_type == "xen"
+      command: swapon -a
+
