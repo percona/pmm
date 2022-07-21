@@ -170,7 +170,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		if err != nil {
 			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableSend)
 		} else {
-			c.l.Debugf("Overriding Telemetry.Enabled with environment variable [%s] to %t.", envDisableSend, disabledSend)
+			c.l.Debugf("Overriding Telemetry.Reporting.Send with environment variable [%s] to %t.", envDisableSend, disabledSend)
 			c.Reporting.Send = !disabledSend
 		}
 	} else {
