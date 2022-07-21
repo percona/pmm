@@ -1052,6 +1052,10 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql perfschema
@@ -1059,6 +1063,10 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) err
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1119,6 +1127,60 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registr
 
 	// value enum
 	if err := o.validateStatusEnum("addMySqlOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum = append(addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelAuto captures enum value "auto"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelAuto string = "auto"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelFatal captures enum value "fatal"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelFatal string = "fatal"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelError captures enum value "error"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelError string = "error"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelWarn captures enum value "warn"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelWarn string = "warn"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelInfo captures enum value "info"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelInfo string = "info"
+
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelDebug captures enum value "debug"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLOKBodyQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMySqlOk"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1204,6 +1266,10 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add my SQL OK body QAN mysql slowlog
@@ -1211,6 +1277,10 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error 
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1271,6 +1341,60 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) 
 
 	// value enum
 	if err := o.validateStatusEnum("addMySqlOk"+"."+"qan_mysql_slowlog"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum = append(addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelAuto captures enum value "auto"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelAuto string = "auto"
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelFatal captures enum value "fatal"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelFatal string = "fatal"
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelError captures enum value "error"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelError string = "error"
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelWarn captures enum value "warn"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelWarn string = "warn"
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelInfo captures enum value "info"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelInfo string = "info"
+
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelDebug captures enum value "debug"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMySQLOKBodyQANMysqlSlowlog) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySQLOKBodyQANMysqlSlowlog) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMySqlOk"+"."+"qan_mysql_slowlog"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
