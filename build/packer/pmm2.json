@@ -108,7 +108,7 @@
             "inline": [
                 "sudo yum -y update",
                 "sudo yum -y install epel-release",
-                "sudo yum -y install ansible bats"
+                "sudo yum -y install ansible"
             ]
         },
         {
@@ -137,17 +137,6 @@
             "type": "ansible-local",
             "playbook_file": "ansible/pmm2/post-build-actions.yml",
             "extra_arguments": ["-v"]
-        },
-        {
-            "type": "file",
-            "destination": "/tmp",
-            "source": "test/integration/pmm2/bats"
-        },
-        {
-            "type": "shell",
-            "inline": [
-                "sudo bats /tmp/bats/*.bats"
-            ]
         },
         {
             "type": "file",
