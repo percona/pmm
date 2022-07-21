@@ -480,6 +480,10 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change azure database exporter OK body azure database exporter
@@ -487,6 +491,10 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) Validate(format
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -547,6 +555,60 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(
 
 	// value enum
 	if err := o.validateStatusEnum("changeAzureDatabaseExporterOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto captures enum value "auto"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto string = "auto"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal captures enum value "fatal"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal string = "fatal"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError captures enum value "error"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError string = "error"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn captures enum value "warn"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn string = "warn"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo captures enum value "info"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo string = "info"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug captures enum value "debug"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeAzureDatabaseExporterOk"+"."+"azure_database_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
