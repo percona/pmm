@@ -191,7 +191,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	return nil
 }
 
-func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) { //nolint:cyclop
+func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) {
 	var fileConfigs []FileConfig //nolint:prealloc
 	var fileCfg FileConfig
 
