@@ -5,11 +5,11 @@ include Makefile.include
 env-up: 							## Start devcontainer.
 	docker-compose up -d
 
-env-up-rebuild: env-update-image	## Start devcontainer with rebuild.
+env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	docker-compose up --build -d
 
 env-update-image:					## Pull latest dev image
-	docker pull "perconalab/pmm-server:dev-latest"
+	docker-compose pull
 
 env-compose-up: env-update-image
 	docker-compose up --detach --renew-anon-volumes --remove-orphans
