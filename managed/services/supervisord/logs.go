@@ -417,7 +417,7 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	return nil
 }
 
-func maskSensitiveValues(data []byte) ([]byte, error) {
+func maskAlertManagerSensitiveValues(data []byte) ([]byte, error) {
 	var c alertmanager.Config
 	err := yaml.Unmarshal(data, &c)
 	if err != nil {
