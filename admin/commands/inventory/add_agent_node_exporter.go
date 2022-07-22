@@ -59,6 +59,7 @@ func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
 			CustomLabels:      customLabels,
 			PushMetrics:       cmd.PushMetrics,
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:          &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -85,4 +86,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentNodeExporter.PushMetrics)
 	AddAgentNodeExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentNodeExporter.DisableCollectors)
+	addExporterGlobalFlags(AddAgentNodeExporterC)
 }

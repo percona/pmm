@@ -236,6 +236,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
 			ProcessExecPath:    processExecPath,
+			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -313,6 +314,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			ProcessExecPath:       processExecPath,
+			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
@@ -329,6 +331,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			MaxSlowlogFileSize:    agent.MaxQueryLogSize,
 			ProcessExecPath:       processExecPath,
+			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -343,6 +346,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
 			ProcessExecPath: processExecPath,
+			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}, nil
 
@@ -376,6 +380,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
 			ProcessExecPath: processExecPath,
+			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
@@ -391,6 +396,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			ProcessExecPath:       processExecPath,
+			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.RDSExporterType:
@@ -407,6 +413,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			EnhancedMetricsDisabled: agent.RDSEnhancedMetricsDisabled,
 			PushMetricsEnabled:      agent.PushMetrics,
 			ProcessExecPath:         processExecPath,
+			LogLevel:                inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.ExternalExporterType:
@@ -442,6 +449,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
 			ProcessExecPath:             processExecPath,
+			LogLevel:                    inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.VMAgentType:
@@ -456,4 +464,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
 	}
+}
+
+func SpecifyLogLevel(variant inventorypb.LogLevel) string {
+	if variant == inventorypb.LogLevel_auto {
+		return ""
+	}
+
+	return variant.String()
 }
