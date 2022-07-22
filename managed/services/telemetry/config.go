@@ -135,11 +135,7 @@ var defaultConfig string
 func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	c.l = l
 
-	var configFile string
-	configFileFromEnv, present := os.LookupEnv(envConfigFile)
-	if present {
-		configFile = configFileFromEnv
-	}
+	configFile := os.Getenv(envConfigFile)
 
 	telemetry, err := c.loadConfig(configFile)
 	if err != nil {
@@ -164,8 +160,8 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
-	disabledSendStr, present := os.LookupEnv(envDisableSend)
-	if present {
+	disabledSendStr, ok := os.LookupEnv(envDisableSend)
+	if ok {
 		disabledSend, err := strconv.ParseBool(disabledSendStr)
 		if err != nil {
 			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableSend)
@@ -177,8 +173,8 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		c.l.Debugf("[%s] is not set", envDisableSend)
 	}
 
-	disableOnStartSendStr, present := os.LookupEnv(envDisableStartDelay)
-	if present {
+	disableOnStartSendStr, ok := os.LookupEnv(envDisableStartDelay)
+	if ok {
 		disableOnStartSend, err := strconv.ParseBool(disableOnStartSendStr)
 		if err != nil {
 			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableStartDelay)

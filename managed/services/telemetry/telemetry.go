@@ -115,12 +115,18 @@ func (s *Service) Run(ctx context.Context) {
 			}
 			return nil
 		})
+		if err != nil {
+			s.l.Debugf("Failed to retrive settings: %s.", err)
+			return
+		}
 		if settings.Telemetry.Disabled {
 			s.l.Info("disabled via settings")
 			return
 		}
 
 		report := s.prepareReport(ctx)
+
+		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
 
 		if s.config.Reporting.Send {
 			err := s.send(ctx, report)
@@ -284,4 +290,18 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 			return err
 		}
 	}
+}
+
+func (s *Service) Format(report *reporter.ReportRequest) string {
+	builder := strings.Builder{}
+	for _, metrics := range report.Metrics {
+		for _, m := range metrics.Metrics {
+			builder.WriteString(m.Key)
+			builder.WriteString(": ")
+			builder.WriteString(m.Value)
+			builder.WriteString("\n")
+		}
+	}
+
+	return builder.String()
 }
