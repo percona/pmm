@@ -18,6 +18,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"os/exec"
 	"testing"
 
@@ -121,7 +122,11 @@ func TestStarlarkSandbox(t *testing.T) {
 				QueriesResults: [][]byte{result},
 			}
 
-			cmd := exec.Command("./../../../bin/pmm-managed-starlark")
+			releasePath, present := os.LookupEnv("PMM_RELEASE_PATH")
+			if !present {
+				releasePath = "./../../bin"
+			}
+			cmd := exec.Command(releasePath + "/pmm-managed-starlark")
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin
