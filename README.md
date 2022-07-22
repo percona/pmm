@@ -65,7 +65,7 @@ percona/pmm-server:2
 
 <img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
 
-Enter the username and password given to you by your system administrator. The defaults are username: **admin** and password: **admim**
+Enter the username and password. The defaults are username: **admin** and password: **admim**
 
 ## Submitting Bug Reports
 
