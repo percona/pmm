@@ -99,7 +99,7 @@ Before submitting code or documentation contributions, you should first complete
 
 ### 1. Sign the CLA
 
-Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/<linktoCLA>) (CLA). You can do this using your GitHub account and one click.
+Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/percona/grafana-dashboards) (CLA). You can do this using your GitHub account and one click.
 
 ### 2. Code of Conduct
 
