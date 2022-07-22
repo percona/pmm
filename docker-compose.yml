@@ -2,12 +2,11 @@
 version: '3.7'
 services:
   pmm-managed-server:
-    image: perconalab/pmm-server:dev-container
-#    build:
-#      context: .
-#      args:
-#        PMM_VERSION: ${PMM_VERSION:-perconalab/pmm-server:dev-latest}
-#      dockerfile: devcontainer.Dockerfile
+    build:
+      context: .
+      args:
+        PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-container}
+      dockerfile: devcontainer.Dockerfile
     container_name: pmm-managed-server
     hostname: pmm-managed-server
     networks:
