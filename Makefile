@@ -29,10 +29,8 @@ env:										## Run `make TARGET` in devcontainer (`make env TARGET=help`); TAR
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
 
 ext-pmm-env-up:								## Start devcontainer with pmm-managed running outside.
+	docker-compose -f ./docker-compose.external-pmm.yml pull
 	docker-compose -f ./docker-compose.external-pmm.yml up -d
-
-ext-pmm-env-up-rebuild: env-update-image	## Start devcontainer with pmm-managed running outside.
-	docker-compose -f ./docker-compose.external-pmm.yml up -d --build
 
 ext-pmm-env:								## Enter modular devcontainer.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server-external-pmm make $(TARGET)
