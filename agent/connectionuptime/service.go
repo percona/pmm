@@ -90,11 +90,11 @@ func (c *Service) deleteOldEvents() {
 	}
 
 	if index > 0 {
-		c.removeFirstElements(index)
+		c.removeFirstElementsUntilIndex(index)
 	}
 }
 
-func (c *Service) removeFirstElements(i int) {
+func (c *Service) removeFirstElementsUntilIndex(i int) {
 	c.events = append(c.events[:0], c.events[i:]...)
 }
 
