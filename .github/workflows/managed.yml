@@ -55,9 +55,6 @@ jobs:
           fetch-depth: 1
           path: ${{ env.WORKING_DIR }}
 
-      - name: Space available on machine
-        run: df -h
-
       - name: Enable Go build cache
         if: matrix.use-cache
         uses: percona-platform/cache@v2
@@ -93,9 +90,6 @@ jobs:
         if: matrix.use-cache
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
-
-      - name: Space available on machine
-        run: df -h
 
       - name: Run tests
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
