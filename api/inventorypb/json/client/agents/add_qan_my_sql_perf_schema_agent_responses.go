@@ -157,10 +157,77 @@ type AddQANMySQLPerfSchemaAgentBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent body
 func (o *AddQANMySQLPerfSchemaAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum = append(addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelAuto captures enum value "auto"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelAuto string = "auto"
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelFatal captures enum value "fatal"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelFatal string = "fatal"
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelError captures enum value "error"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelError string = "error"
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelWarn captures enum value "warn"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelWarn string = "warn"
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelInfo captures enum value "info"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelInfo string = "info"
+
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelDebug captures enum value "debug"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddQANMySQLPerfSchemaAgentBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANMySQLPerfSchemaAgentBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -467,6 +534,10 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent OK body QAN mysql perfschema agent
@@ -474,6 +545,10 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(forma
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -534,6 +609,60 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 
 	// value enum
 	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum = append(addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto captures enum value "auto"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto string = "auto"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal captures enum value "fatal"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal string = "fatal"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError captures enum value "error"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError string = "error"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn captures enum value "warn"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn string = "warn"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo captures enum value "info"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo string = "info"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug captures enum value "debug"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addQanMySqlPerfSchemaAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

@@ -133,10 +133,77 @@ type AddNodeExporterBody struct {
 
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add node exporter body
 func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addNodeExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addNodeExporterBodyTypeLogLevelPropEnum = append(addNodeExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddNodeExporterBodyLogLevelAuto captures enum value "auto"
+	AddNodeExporterBodyLogLevelAuto string = "auto"
+
+	// AddNodeExporterBodyLogLevelFatal captures enum value "fatal"
+	AddNodeExporterBodyLogLevelFatal string = "fatal"
+
+	// AddNodeExporterBodyLogLevelError captures enum value "error"
+	AddNodeExporterBodyLogLevelError string = "error"
+
+	// AddNodeExporterBodyLogLevelWarn captures enum value "warn"
+	AddNodeExporterBodyLogLevelWarn string = "warn"
+
+	// AddNodeExporterBodyLogLevelInfo captures enum value "info"
+	AddNodeExporterBodyLogLevelInfo string = "info"
+
+	// AddNodeExporterBodyLogLevelDebug captures enum value "debug"
+	AddNodeExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddNodeExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addNodeExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddNodeExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -428,6 +495,10 @@ type AddNodeExporterOKBodyNodeExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add node exporter OK body node exporter
@@ -435,6 +506,10 @@ func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) er
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -495,6 +570,60 @@ func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Regist
 
 	// value enum
 	if err := o.validateStatusEnum("addNodeExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum = append(addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelAuto captures enum value "auto"
+	AddNodeExporterOKBodyNodeExporterLogLevelAuto string = "auto"
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelFatal captures enum value "fatal"
+	AddNodeExporterOKBodyNodeExporterLogLevelFatal string = "fatal"
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelError captures enum value "error"
+	AddNodeExporterOKBodyNodeExporterLogLevelError string = "error"
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelWarn captures enum value "warn"
+	AddNodeExporterOKBodyNodeExporterLogLevelWarn string = "warn"
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelInfo captures enum value "info"
+	AddNodeExporterOKBodyNodeExporterLogLevelInfo string = "info"
+
+	// AddNodeExporterOKBodyNodeExporterLogLevelDebug captures enum value "debug"
+	AddNodeExporterOKBodyNodeExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddNodeExporterOKBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddNodeExporterOKBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addNodeExporterOk"+"."+"node_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

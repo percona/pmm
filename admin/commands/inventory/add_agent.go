@@ -14,7 +14,16 @@
 
 package inventory
 
+import "gopkg.in/alecthomas/kingpin.v2"
+
 // register command
 var (
 	addAgentC = inventoryAddC.Command("agent", "Add agent to inventory").Hide(hide)
+
+	addExporterLogLevel string
 )
+
+func addExporterGlobalFlags(cmd *kingpin.CmdClause) {
+	// Add command global flags
+	cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addExporterLogLevel, "debug", "info", "warn", "error", "fatal")
+}
