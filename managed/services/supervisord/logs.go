@@ -154,7 +154,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	} {
 		b, m, err := readFile(f)
 		if err == nil {
-			b, err = maskSensitiveValues(b)
+			b, err = maskAlertManagerSensitiveValues(b)
 			files = append(files, fileContent{
 				Name:     filepath.Base(f),
 				Modified: m,
