@@ -111,13 +111,28 @@ jobs:
         run: make env-up
 
       - name: Test race
-        run: make test-race
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          retry_on: error
+          command: make test-race
 
       - name: Test cover
-        run: make test-cover
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          retry_on: error
+          command: make test-cover
 
       - name: Test crosscover
-        run: make test-crosscover
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 2
+          retry_on: error
+          command: make test-crosscover
 
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v1
