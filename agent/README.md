@@ -21,7 +21,6 @@ Install one or more exporters:
 - Run `make setup-dev` to configure pmm-agent
 - Run `make run` to run pmm-agent
 
-
 ## Testing
 Run `make env-up` to set-up environment.    
 Run `make test` to run tests.
