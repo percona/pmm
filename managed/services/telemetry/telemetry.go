@@ -17,11 +17,8 @@
 package telemetry
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
-	"io/ioutil"
-	"regexp"
 	"strings"
 	"time"
 
@@ -48,7 +45,7 @@ const (
 type Service struct {
 	db                  *reform.DB
 	l                   *logrus.Entry
-	portalClient        *platform.Client
+	portalClient        sender
 	start               time.Time
 	config              ServiceConfig
 	dsRegistry          DataSourceLocator
@@ -56,11 +53,8 @@ type Service struct {
 	os                  string
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
-}
 
-// LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
-	return s.dsRegistry.LocateTelemetryDataSource(name)
+	dus distributionUtilService
 }
 
 // check interfaces
@@ -80,6 +74,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
+	dus := newDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -88,11 +83,17 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		start:        time.Now(),
 		config:       config,
 		dsRegistry:   registry,
+		dus:          dus,
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = getDistributionMethodAndOS(l)
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
 
 	return s, nil
+}
+
+// LocateTelemetryDataSource retrieves DataSource by name.
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
 // Run start sending telemetry to SaaS.
@@ -106,13 +107,8 @@ func (s *Service) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	doSend := func() {
-		report, err := s.prepareReport(ctx)
-		if err != nil {
-			s.l.Debugf("Failed to prepare report: %s.", err)
-			return
-		}
-
-		err = s.send(ctx, report)
+		report := s.prepareReport(ctx)
+		err := s.send(ctx, report)
 		if err != nil {
 			s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
 			return
@@ -140,7 +136,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 	return s.sDistributionMethod
 }
 
-func (s *Service) prepareReport(ctx context.Context) (*reporter.ReportRequest, error) {
+func (s *Service) prepareReport(ctx context.Context) *reporter.ReportRequest {
 	var reportMetrics []*pmmv1.ServerMetric
 
 	var totalTime time.Duration
@@ -182,7 +178,7 @@ telemetryLoop:
 
 	return &reporter.ReportRequest{
 		Metrics: reportMetrics,
-	}, nil
+	}
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
@@ -224,7 +220,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %q", serverIDToUse)
 	}
-	_, distMethod, _ := getDistributionMethodAndOS(s.l)
+	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{
@@ -246,60 +242,6 @@ func generateUUID() (string, error) {
 	// Old telemetry IDs have only 32 chars in the table but UUIDs + "-" = 36
 	cleanUUID := strings.ReplaceAll(uuid.String(), "-", "")
 	return cleanUUID, nil
-}
-
-func getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
-	b, err := ioutil.ReadFile(distributionInfoFilePath)
-	if err != nil {
-		l.Debugf("Failed to read %s: %s", distributionInfoFilePath, err)
-	}
-
-	b = bytes.ToLower(bytes.TrimSpace(b))
-	switch string(b) {
-	case "ovf":
-		return serverpb.DistributionMethod_OVF, pmmv1.DistributionMethod_OVF, "ovf"
-	case "ami":
-		return serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami"
-	case "azure":
-		return serverpb.DistributionMethod_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
-	case "digitalocean":
-		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
-	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
-		if b, err = ioutil.ReadFile(osInfoFilePath); err != nil {
-			l.Debugf("Failed to read %s: %s", osInfoFilePath, err)
-		}
-		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, getLinuxDistribution(string(b))
-	default:
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_INVALID, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
-	}
-}
-
-type pair struct {
-	re *regexp.Regexp
-	t  string
-}
-
-var procVersionRegexps = []pair{
-	{regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`), "Ubuntu ${version}"},
-	{regexp.MustCompile(`ubuntu`), "Ubuntu"},
-	{regexp.MustCompile(`Debian`), "Debian"},
-	{regexp.MustCompile(`\.fc(?P<version>\d+)\.`), "Fedora ${version}"},
-	{regexp.MustCompile(`\.centos\.`), "CentOS"},
-	{regexp.MustCompile(`\-ARCH`), "Arch"},
-	{regexp.MustCompile(`\-moby`), "Moby"},
-	{regexp.MustCompile(`\.amzn\d+\.`), "Amazon"},
-	{regexp.MustCompile(`Microsoft`), "Microsoft"},
-}
-
-// getLinuxDistribution detects Linux distribution and version from /proc/version information.
-func getLinuxDistribution(procVersion string) string {
-	for _, p := range procVersionRegexps {
-		match := p.re.FindStringSubmatchIndex(procVersion)
-		if match != nil {
-			return string(p.re.ExpandString(nil, p.t, procVersion, match))
-		}
-	}
-	return "unknown"
 }
 
 func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) error {
