@@ -89,7 +89,7 @@ func (l *Store) GetLogs() []string {
 
 	logs := make([]string, 0, l.capacity)
 
-	replacer := strings.NewReplacer("\u001B[36m", "", "\u001B[0m", "", "\u001B[33", "", "\u001B[31m", "", "        ", " ")
+	replacer := getColorReplacer()
 	l.log.Do(func(p interface{}) {
 		if p != nil {
 			logs = append(logs, replacer.Replace(p.(string)))
@@ -97,4 +97,22 @@ func (l *Store) GetLogs() []string {
 	})
 
 	return logs
+}
+
+func getColorReplacer() *strings.Replacer {
+	const (
+		red    = "\x1b[31m"
+		yellow = "\x1b[33m"
+		blue   = "\x1b[36m"
+		gray   = "\x1b[37m"
+		end    = "\x1b[0m"
+	)
+
+	return strings.NewReplacer(
+		red, "",
+		yellow, "",
+		blue, "",
+		gray, "",
+		end, "",
+	)
 }
