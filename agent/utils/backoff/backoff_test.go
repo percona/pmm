@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +14,7 @@
 
 package backoff
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestBackoff(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage

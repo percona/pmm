@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -199,7 +198,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddMongoDB  = new(addMongoDBCommand)
+	AddMongoDB  addMongoDBCommand
 	AddMongoDBC = AddC.Command("mongodb", "Add MongoDB to monitoring")
 )
 

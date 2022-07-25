@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,6 +59,7 @@ func (b *Backoff) Delay() time.Duration {
 	// We could use normal distribution for jitter:
 	// f64 = rand.NormFloat64() / 3.0 (three sigma rule)
 	// but pure random seems to be better overall.
+	//nolint:gosec
 	f64 := rand.Float64()*2.0 - 1.0 // [-1.0,1.0]
 
 	delay += time.Duration(float64(delay) * f64 * delayJitter)

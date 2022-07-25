@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,6 +77,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:            &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -93,7 +93,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentProxysqlExporter  = new(addAgentProxysqlExporterCommand)
+	AddAgentProxysqlExporter  addAgentProxysqlExporterCommand
 	AddAgentProxysqlExporterC = addAgentC.Command("proxysql-exporter", "Add proxysql_exporter to inventory").Hide(hide)
 )
 
@@ -111,4 +111,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
 	AddAgentProxysqlExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentProxysqlExporter.DisableCollectors)
+	addExporterGlobalFlags(AddAgentProxysqlExporterC)
 }

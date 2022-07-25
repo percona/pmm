@@ -213,9 +213,6 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentBody) UnmarshalBinary(b []byte) err
 swagger:model ChangeQANPostgreSQLPgStatementsAgentDefaultBody
 */
 type ChangeQANPostgreSQLPgStatementsAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -319,12 +316,8 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBody) UnmarshalBinary(b []by
 swagger:model ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0
 */
 type ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg statements agent default body details items0
@@ -484,6 +477,10 @@ type ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent st
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change QAN postgre SQL pg statements agent OK body QAN postgresql pgstatements agent
@@ -491,6 +488,10 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgen
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -551,6 +552,60 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgen
 
 	// value enum
 	if err := o.validateStatusEnum("changeQanPostgreSqlPgStatementsAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum = append(changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto captures enum value "auto"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto string = "auto"
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal captures enum value "fatal"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal string = "fatal"
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError captures enum value "error"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError string = "error"
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn captures enum value "warn"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn string = "warn"
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo captures enum value "info"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo string = "info"
+
+	// ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug captures enum value "debug"
+	ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeQanPostgreSqlPgStatementsAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

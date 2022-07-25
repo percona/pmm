@@ -69,6 +69,20 @@
                   },
                   "x-order": 8
                 },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
+                },
                 "node_id": {
                   "description": "Node identifier.",
                   "type": "string",
@@ -137,6 +151,20 @@
                       "format": "int64",
                       "x-order": 8
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -186,33 +214,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -372,33 +392,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -458,6 +470,20 @@
                     "type": "string"
                   },
                   "x-order": 12
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 18
                 },
                 "password": {
                   "description": "MongoDB password for scraping metrics.",
@@ -665,33 +691,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -735,6 +753,20 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 15
                 },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
@@ -953,33 +985,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1018,6 +1042,20 @@
                     "type": "string"
                   },
                   "x-order": 3
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
@@ -1075,6 +1113,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -1119,33 +1171,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1238,33 +1282,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1308,6 +1344,20 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 14
                 },
                 "password": {
                   "description": "PostgreSQL password for scraping metrics.",
@@ -1488,33 +1538,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1558,6 +1600,20 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 },
                 "password": {
                   "description": "ProxySQL password for scraping metrics.",
@@ -1723,33 +1779,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1790,6 +1838,20 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
                 },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
@@ -1873,6 +1935,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -1932,33 +2008,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -1994,6 +2062,20 @@
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
                 },
                 "password": {
                   "description": "MySQL password for getting performance data.",
@@ -2077,6 +2159,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2156,33 +2252,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2218,6 +2306,20 @@
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 9
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
@@ -2307,6 +2409,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
+                    },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
@@ -2392,33 +2508,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2454,6 +2562,20 @@
                   "description": "Disable query examples.",
                   "type": "boolean",
                   "x-order": 6
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat monitor data.",
@@ -2537,6 +2659,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2601,33 +2737,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2658,6 +2786,20 @@
                     "type": "string"
                   },
                   "x-order": 6
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat statements data.",
@@ -2741,6 +2883,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2800,33 +2956,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -2877,6 +3025,20 @@
                   "description": "Disable enhanced metrics.",
                   "type": "boolean",
                   "x-order": 7
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 9
                 },
                 "node_id": {
                   "description": "Node identifier.",
@@ -2951,6 +3113,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -3000,33 +3176,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3142,6 +3310,20 @@
                       "format": "int64",
                       "x-order": 8
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -3191,33 +3373,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3372,33 +3546,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3609,33 +3775,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3853,33 +4011,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -3993,6 +4143,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -4037,33 +4201,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4255,33 +4411,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4473,33 +4621,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4599,6 +4739,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -4658,33 +4812,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4784,6 +4930,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -4863,33 +5023,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -4989,6 +5141,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
+                    },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
@@ -5074,33 +5240,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5200,6 +5358,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5264,33 +5436,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5390,6 +5554,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5449,33 +5627,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5596,6 +5766,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -5645,33 +5829,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -5747,6 +5923,20 @@
                       "type": "integer",
                       "format": "int64",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     },
                     "node_id": {
                       "description": "Node identifier.",
@@ -6139,6 +6329,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6435,6 +6639,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6504,6 +6722,20 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "x-order": 2
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6594,6 +6826,20 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "x-order": 2
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
@@ -6691,6 +6937,20 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6760,6 +7020,20 @@
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "x-order": 2
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6857,6 +7131,20 @@
                       "format": "int64",
                       "x-order": 7
                     },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
+                    },
                     "node_id": {
                       "description": "Node identifier.",
                       "type": "string",
@@ -6904,6 +7192,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6943,33 +7237,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -7081,6 +7367,20 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 8
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 11
                       },
                       "node_id": {
                         "description": "Node identifier.",
@@ -7485,6 +7785,20 @@
                         "format": "int64",
                         "x-order": 7
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 9
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -7793,6 +8107,20 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 10
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -7865,6 +8193,20 @@
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "x-order": 2
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 14
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -7958,6 +8300,20 @@
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "x-order": 2
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 15
                       },
                       "max_slowlog_file_size": {
                         "description": "Slowlog file is rotated at this size if \u003e 0.",
@@ -8058,6 +8414,20 @@
                         "type": "boolean",
                         "x-order": 2
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 10
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8130,6 +8500,20 @@
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "x-order": 2
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 11
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -8230,6 +8614,20 @@
                         "format": "int64",
                         "x-order": 7
                       },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 12
+                      },
                       "node_id": {
                         "description": "Node identifier.",
                         "type": "string",
@@ -8280,6 +8678,12 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8320,33 +8724,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -8398,33 +8794,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -8577,33 +8965,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -8746,33 +9126,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -8895,33 +9267,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9044,33 +9408,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9193,33 +9549,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9519,33 +9867,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9869,33 +10209,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -9948,33 +10280,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10107,33 +10431,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10256,33 +10572,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10437,33 +10745,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10618,33 +10918,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10804,33 +11096,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -10985,33 +11269,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11405,33 +11681,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11863,33 +12131,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11942,33 +12202,25 @@
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
-                },
-                "error": {
-                  "type": "string",
-                  "x-order": 0
+                  "x-order": 2
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }
@@ -11976,5 +12228,16 @@
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Agents"
+    },
+    {
+      "name": "Nodes"
+    },
+    {
+      "name": "Services"
+    }
+  ]
 }

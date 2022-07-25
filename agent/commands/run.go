@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +18,8 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -28,7 +29,9 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -55,10 +58,27 @@ func Run() {
 		config.ConfigureLogger(cfg)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
+		cleanupTmp(cfg.Paths.TempDir, l)
+
 		run(ctx, cfg, configFilepath)
 
 		if ctx.Err() != nil {
 			return
+		}
+	}
+}
+
+func cleanupTmp(tmpRoot string, log *logrus.Entry) {
+	for k := range inventorypb.AgentType_name {
+		agentType := inventorypb.AgentType(k)
+		if agentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+			continue
+		}
+
+		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
 }
@@ -75,8 +95,9 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
+	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v)
+	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 	go func() {

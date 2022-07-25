@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,4 +80,14 @@ func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
 	default:
 		return "", errors.Wrap(errNoNode, "unknown node type")
 	}
+}
+
+// IsOnPmmServer returns true if pmm-admin is running on pmm-server.
+func IsOnPmmServer() (bool, error) {
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return false, errors.Wrap(err, "can't get local pmm-agent status")
+	}
+
+	return status.NodeID == "pmm-server", nil
 }

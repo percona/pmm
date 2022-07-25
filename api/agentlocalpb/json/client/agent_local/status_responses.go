@@ -158,9 +158,6 @@ func (o *StatusBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -264,12 +261,8 @@ func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StatusDefaultBodyDetailsItems0
 */
 type StatusDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this status default body details items0
@@ -318,6 +311,9 @@ type StatusOKBody struct {
 
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
+
+	// node name
+	NodeName string `json:"node_name,omitempty"`
 
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`

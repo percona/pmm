@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +49,7 @@ func TestLoadFromFile(t *testing.T) {
 
 	t.Run("NotExist", func(t *testing.T) {
 		cfg, err := loadFromFile("not-exist.yaml")
-		assert.Equal(t, ErrConfigFileDoesNotExist("not-exist.yaml"), err)
+		assert.Equal(t, ConfigFileDoesNotExistError("not-exist.yaml"), err)
 		assert.Nil(t, cfg)
 	})
 
@@ -107,8 +106,8 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -155,9 +154,9 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
-				PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -205,8 +204,8 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
-				PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
 			Ports: Ports{
@@ -263,9 +262,9 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/base/vmagent",          // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
-				PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -320,9 +319,9 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/base/exporters/vmagent",            // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/base/tools/pt-summary",
-				PTPgSummary:      "/base/tools/pt-pg-summary",
+				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
-				PTMySqlSummary:   "/base/tools/pt-mysql-summary",
+				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -374,9 +373,9 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/foo/exporters/vmagent",           // default value
 				TempDir:          os.TempDir(),
 				PTSummary:        "/base/tools/pt-summary",
-				PTPgSummary:      "/base/tools/pt-pg-summary",
+				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
-				PTMySqlSummary:   "/base/tools/pt-mysql-summary",
+				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -414,9 +413,9 @@ func TestGet(t *testing.T) {
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
 				TempDir:          os.TempDir(),
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
-				PTPgSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
-				PTMySqlSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
 			Ports: Ports{
 				Min: 42000,
@@ -426,7 +425,7 @@ func TestGet(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
-		assert.Equal(t, ErrConfigFileDoesNotExist(filepath.Join(wd, name)), err)
+		assert.Equal(t, ConfigFileDoesNotExistError(filepath.Join(wd, name)), err)
 	})
 }
 

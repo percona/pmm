@@ -1,9 +1,24 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package nodeinfo provides information about current node.
 package nodeinfo
 
 import (
-	"io/ioutil"
 	"net"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -30,7 +45,7 @@ func Get() *NodeInfo {
 
 func checkContainer() bool {
 	// https://stackoverflow.com/a/20012536
-	b, _ := ioutil.ReadFile("/proc/1/cgroup") //nolint:gosec
+	b, _ := os.ReadFile("/proc/1/cgroup")
 	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
 }
 
@@ -45,7 +60,7 @@ func readMachineID() string {
 		"/etc/machine-id",
 		"/var/lib/dbus/machine-id",
 	} {
-		b, _ := ioutil.ReadFile(name) //nolint:gosec
+		b, _ := os.ReadFile(name) //nolint:gosec
 		if len(b) != 0 {
 			return strings.TrimSpace(string(b))
 		}

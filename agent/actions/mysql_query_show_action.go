@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -57,7 +56,7 @@ func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	defer tlshelpers.DeregisterMySQLCerts()
 
 	// use prepared statement to force binary protocol usage that returns correct types
-	stmt, err := db.PrepareContext(ctx, "SHOW /* pmm-agent */ "+a.params.Query) //nolint:gosec
+	stmt, err := db.PrepareContext(ctx, "SHOW /* pmm-agent */ "+a.params.Query)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +34,8 @@ const (
 )
 
 func TestRenderDSN(t *testing.T) {
+	t.Parallel()
+
 	dir := filepath.Join(os.TempDir(), fmt.Sprintf("pg_action_%05d", rand.Int63n(99999))) //nolint:gosec
 	err := os.MkdirAll(dir, os.ModePerm)
 	assert.NoError(t, err)

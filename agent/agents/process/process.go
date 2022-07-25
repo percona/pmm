@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,7 +78,7 @@ type Params struct {
 
 func (p *Params) String() string {
 	res := p.Path + " " + strings.Join(p.Args, " ")
-	if len(p.Env) > 0 {
+	if len(p.Env) != 0 {
 		res += " (environment: " + strings.Join(p.Env, ", ") + ")"
 	}
 
@@ -179,8 +178,8 @@ func (p *Process) toWaiting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
-		// VM_AGENT need recreate config file in temp dir.
-		if p.params.Type == inventorypb.AgentType_VM_AGENT {
+		// recreate config file in temp dir.
+		if p.params.TemplateRenderer != nil {
 			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
 			if err != nil {
 				p.l.Warnf("Process: failed to regenerate config in %s.", p.params.TemplateRenderer.TempDir)

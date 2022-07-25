@@ -1,3 +1,18 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package agentpb
 
 import (
@@ -15,6 +30,7 @@ const (
 	mdAgentVersion     = "pmm-agent-version"
 	mdAgentMetricsPort = "pmm-agent-metrics-port"
 	mdAgentNodeID      = "pmm-agent-node-id"
+	mdNodeName         = "pmm-node-name"
 	mdServerVersion    = "pmm-server-version"
 )
 
@@ -28,6 +44,7 @@ type AgentConnectMetadata struct {
 // ServerConnectMetadata represents metadata sent by pmm-managed in response to Connect RPC method call.
 type ServerConnectMetadata struct {
 	AgentRunsOnNodeID string
+	NodeName          string
 	ServerVersion     string
 }
 
@@ -44,8 +61,7 @@ func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) cont
 	return metadata.AppendToOutgoingContext(ctx,
 		mdAgentID, md.ID,
 		mdAgentVersion, md.Version,
-		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10),
-	)
+		mdAgentMetricsPort, strconv.FormatUint(uint64(md.MetricsPort), 10))
 }
 
 // ReceiveAgentConnectMetadata receives pmm-agent's metadata. Used by pmm-managed.
@@ -78,6 +94,7 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetadata) error {
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
+		mdNodeName, md.NodeName,
 		mdServerVersion, md.ServerVersion,
 	)
 
@@ -106,6 +123,7 @@ func ReceiveServerConnectMetadata(stream grpc.ClientStream) (*ServerConnectMetad
 
 	return &ServerConnectMetadata{
 		AgentRunsOnNodeID: getValue(md, mdAgentNodeID),
+		NodeName:          getValue(md, mdNodeName),
 		ServerVersion:     getValue(md, mdServerVersion),
 	}, nil
 }

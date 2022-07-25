@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,7 +39,7 @@ import (
 func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	t.Helper()
 
-	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 
 	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
@@ -97,7 +97,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		structs = append(structs, str)
 	}
-	if err == reform.ErrNoRows {
+	if errors.Is(err, reform.ErrNoRows) {
 		err = nil
 	}
 	require.NoError(t, err)
@@ -269,7 +269,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", ")) //nolint:gosec
+		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 

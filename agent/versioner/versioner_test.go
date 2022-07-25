@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +27,7 @@ type mockedExec struct {
 	Output []byte
 }
 
-func (m *mockedExec) CombinedOutput() ([]byte, error) { //nolint:unparam
+func (m *mockedExec) CombinedOutput() ([]byte, error) {
 	return m.Output, nil
 }
 

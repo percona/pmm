@@ -1,3 +1,18 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package sqlmetrics
 
 import (
@@ -32,8 +47,7 @@ func NewReform(driver, dbName string, printf reform.Printf) *Reform {
 			Name:        "requests_total",
 			Help:        "Total number of queries started.",
 			ConstLabels: constLabels,
-		}, []string{"statement"},
-		),
+		}, []string{"statement"}),
 		mResponses: prom.NewSummaryVec(prom.SummaryOpts{
 			Namespace:   "go_sql",
 			Subsystem:   "reform",
@@ -41,8 +55,7 @@ func NewReform(driver, dbName string, printf reform.Printf) *Reform {
 			Help:        "Response durations in seconds.",
 			ConstLabels: constLabels,
 			Objectives:  map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
-		}, []string{"statement", "error"},
-		),
+		}, []string{"statement", "error"}),
 	}
 }
 
@@ -100,8 +113,8 @@ func (r *Reform) Reset() {
 	r.mResponses.Reset()
 }
 
-// check interfaces
 var (
+	// check interfaces
 	_ reform.Logger  = (*Reform)(nil)
 	_ prom.Collector = (*Reform)(nil)
 )

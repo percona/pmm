@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,11 +29,9 @@ type TextFormatter struct{}
 
 // Format renders a single log entry.
 func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	var b *bytes.Buffer
+	b := &bytes.Buffer{}
 	if entry.Buffer != nil {
 		b = entry.Buffer
-	} else {
-		b = new(bytes.Buffer)
 	}
 
 	// Remove a single newline if it already exists in the message to keep

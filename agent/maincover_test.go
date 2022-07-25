@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,7 @@
 
 package main
 
-import (
-	"testing"
-)
+import "testing"
 
 // FIXME Does not currently work due to kingpin/flags clash.
 // https://jira.percona.com/browse/PMM-3484

@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +14,7 @@
 
 package parser
 
-import (
-	"testing"
-)
+import "testing"
 
 type testLogger struct {
 	t testing.TB

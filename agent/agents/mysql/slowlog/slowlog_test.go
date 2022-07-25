@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +34,9 @@ import (
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {
-	jsonData, err := os.ReadFile(filePath) //nolint:gosec
+	t.Helper()
+
+	jsonData, err := os.ReadFile(filePath)
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData, &data)
 	require.NoError(t, err)

@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +46,8 @@ func GetMySQLVersion(q *reform.Querier) (string, string, error) {
 	case strings.Contains(strings.ToLower(ven), "percona"):
 		vendor = "percona"
 	case strings.Contains(strings.ToLower(ven), "mariadb"):
+		vendor = "mariadb"
+	case strings.Contains(strings.ToLower(ven), "debian") && strings.Contains(strings.ToLower(ver), "mariadb"):
 		vendor = "mariadb"
 	default:
 		vendor = "oracle"

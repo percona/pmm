@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,10 +103,9 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 		var table map[string]interface{}
-		switch mySQLVendor {
-		case tests.MariaDBMySQL:
+		if mySQLVendor == tests.MariaDBMySQL {
 			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
-		default:
+		} else {
 			table = m.Get("query_block.ordering_operation.table").MSI()
 		}
 
@@ -205,6 +203,8 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		checkCity := func(t *testing.T) {
+			t.Helper()
+
 			var count int
 			err := db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 			require.NoError(t, err)

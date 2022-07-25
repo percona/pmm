@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -157,7 +156,7 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	ListServices  = new(listServicesCommand)
+	ListServices  listServicesCommand
 	ListServicesC = inventoryListC.Command("services", "Show services in inventory").Hide(hide)
 )
 

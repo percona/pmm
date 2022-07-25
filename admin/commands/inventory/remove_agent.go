@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,12 +49,12 @@ func (cmd *removeAgentCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return new(removeAgentResult), nil
+	return &removeAgentResult{}, nil
 }
 
 // register command
 var (
-	RemoveAgent  = new(removeAgentCommand)
+	RemoveAgent  removeAgentCommand
 	RemoveAgentC = inventoryRemoveC.Command("agent", "Remove agent from inventory").Hide(hide)
 )
 

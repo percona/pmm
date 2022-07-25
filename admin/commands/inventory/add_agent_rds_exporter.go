@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,6 +73,7 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 			DisableBasicMetrics:    cmd.DisableBasicMetrics,
 			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 			PushMetrics:            cmd.PushMetrics,
+			LogLevel:               &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -89,7 +89,7 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddAgentRDSExporter  = new(addAgentRDSExporterCommand)
+	AddAgentRDSExporter  addAgentRDSExporterCommand
 	AddAgentRDSExporterC = addAgentC.Command("rds-exporter", "Add rds_exporter to inventory").Hide(hide)
 )
 
@@ -104,4 +104,5 @@ func init() {
 	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
 	AddAgentRDSExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentRDSExporter.PushMetrics)
+	addExporterGlobalFlags(AddAgentRDSExporterC)
 }

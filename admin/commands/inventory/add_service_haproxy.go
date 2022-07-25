@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +85,7 @@ func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddHAProxyService  = new(addHAProxyServiceCommand)
+	AddHAProxyService  addHAProxyServiceCommand
 	AddHAProxyServiceC = addServiceC.Command("haproxy", "Add an haproxy service to the inventory").Hide(hide)
 )
 

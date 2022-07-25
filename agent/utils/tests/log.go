@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// LogTable logs passed structures.
 func LogTable(t *testing.T, structs []reform.Struct) {
 	t.Helper()
 

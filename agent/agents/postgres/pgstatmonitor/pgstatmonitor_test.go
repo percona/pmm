@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +40,7 @@ import (
 func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
-	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
@@ -201,7 +200,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err := db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
-		buckets, err := m.getNewBuckets(context.Background(), 60)
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
+		buckets, err := m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -213,7 +217,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.Equal(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
-		if !m.pgsmNormalizedQuery && !m.disableQueryExamples {
+
+		if !normalizedQuery && !m.disableQueryExamples {
 			example = actual.Common.Example
 		}
 
@@ -264,7 +269,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err = db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
-		buckets, err = m.getNewBuckets(context.Background(), 60)
+		buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -323,11 +328,16 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}
-		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", ")) //nolint:gosec
+		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
-		buckets, err := m.getNewBuckets(context.Background(), 60)
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
+		buckets, err := m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -385,7 +395,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err = db.Exec(q, args...)
 		require.NoError(t, err)
 
-		buckets, err = m.getNewBuckets(context.Background(), 60)
+		buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -439,7 +449,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) // nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -469,13 +479,18 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		}
 		waitGroup.Wait()
 
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
 		var buckets []*agentpb.MetricsBucket
 		for i := 0; i < 100; i++ {
-			buckets, err = m.getNewBuckets(context.Background(), 60)
+			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
 			buckets = filter(buckets)
 			t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
-			if len(buckets) > 0 {
+			if len(buckets) != 0 {
 				break
 			}
 			time.Sleep(100 * time.Millisecond)

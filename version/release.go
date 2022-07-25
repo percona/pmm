@@ -1,3 +1,18 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package version provides helpers for working with versions and build info.
 package version
 
@@ -81,8 +96,8 @@ func FullInfo() string {
 	return strings.Join(res, "\n")
 }
 
-// FullInfoJson returns version information in JSON format.
-func FullInfoJson() string {
+// FullInfoJSON returns version information in JSON format.
+func FullInfoJSON() string {
 	resMap := map[string]string{
 		"ProjectName": ProjectName,
 		"Version":     Version,
@@ -94,9 +109,9 @@ func FullInfoJson() string {
 		resMap["Branch"] = Branch
 	}
 
-	resJson, err := json.Marshal(resMap)
+	bytes, err := json.Marshal(resMap)
 	if err != nil {
 		panic(err)
 	}
-	return string(resJson)
+	return string(bytes)
 }

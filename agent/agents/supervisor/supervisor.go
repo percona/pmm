@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +18,8 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
-	"regexp"
 	"runtime/pprof"
 	"sort"
 	"strings"
@@ -173,12 +172,12 @@ func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentSta
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
-	switch status {
-	case inventorypb.AgentStatus_DONE:
+	if status == inventorypb.AgentStatus_DONE {
 		delete(s.lastStatuses, agentID)
-	default:
-		s.lastStatuses[agentID] = status
+		return
 	}
+
+	s.lastStatuses[agentID] = status
 }
 
 // setAgentProcesses starts/restarts/stops Agent processes.
@@ -213,6 +212,12 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		}
 
 		delete(s.agentProcesses, agentID)
+
+		agentTmp := filepath.Join(s.paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
 	}
 
 	// restart while preserving port
@@ -454,7 +459,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		agent = noop.New()
 
 	default:
-		err = errors.Errorf("unhandled agent type %[1]s (%[1]d).", builtinAgent.Type)
+		err = errors.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
 	}
 
 	if err != nil {
@@ -493,9 +498,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	}
 	return nil
 }
-
-// "_" at the begginging is reserved for possible extensions
-var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gochecknoglobals
 
 // processParams makes *process.Params from SetStateRequest parameters and other data.
 func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {

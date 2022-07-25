@@ -154,9 +154,6 @@ func (o *StartSecurityChecksBody) UnmarshalBinary(b []byte) error {
 swagger:model StartSecurityChecksDefaultBody
 */
 type StartSecurityChecksDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -260,12 +257,8 @@ func (o *StartSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model StartSecurityChecksDefaultBodyDetailsItems0
 */
 type StartSecurityChecksDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this start security checks default body details items0

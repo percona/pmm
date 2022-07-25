@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,6 @@ package commands
 import (
 	"archive/zip"
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -32,7 +30,7 @@ import (
 func TestSummary(t *testing.T) {
 	agentlocal.SetTransport(context.TODO(), true, agentlocal.DefaultPMMAgentListenPort)
 
-	f, err := ioutil.TempFile("", "pmm-admin-test-summary")
+	f, err := os.CreateTemp("", "pmm-admin-test-summary")
 	require.NoError(t, err)
 	filename := f.Name()
 	t.Log(filename)

@@ -415,9 +415,6 @@ func (o *AddMongoDBBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBDefaultBody
 */
 type AddMongoDBDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -521,12 +518,8 @@ func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
 swagger:model AddMongoDBDefaultBodyDetailsItems0
 */
 type AddMongoDBDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add mongo DB default body details items0
@@ -994,6 +987,10 @@ type AddMongoDBOKBodyQANMongodbProfiler struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body QAN mongodb profiler
@@ -1001,6 +998,10 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) Validate(formats strfmt.Registry) e
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1061,6 +1062,60 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Regis
 
 	// value enum
 	if err := o.validateStatusEnum("addMongoDbOk"+"."+"qan_mongodb_profiler"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum = append(addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelAuto captures enum value "auto"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelAuto string = "auto"
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelFatal captures enum value "fatal"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelFatal string = "fatal"
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelError captures enum value "error"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelError string = "error"
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelWarn captures enum value "warn"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelWarn string = "warn"
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelInfo captures enum value "info"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelInfo string = "info"
+
+	// AddMongoDBOKBodyQANMongodbProfilerLogLevelDebug captures enum value "debug"
+	AddMongoDBOKBodyQANMongodbProfilerLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBOKBodyQANMongodbProfiler) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBOKBodyQANMongodbProfiler) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addMongoDbOk"+"."+"qan_mongodb_profiler"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

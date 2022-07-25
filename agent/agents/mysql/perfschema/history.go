@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,7 +73,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		}
 		res[*esh.Digest] = &esh
 	}
-	if err != reform.ErrNoRows {
+	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_history")
 	}
 	return res, nil

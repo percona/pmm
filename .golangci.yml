@@ -10,8 +10,13 @@ linters-settings:
       - github.com/gogo/protobuf/proto
       # use only forked parser
       - github.com/percona/go-mysql/log/slow
+      # use "github.com/percona-platform/saas" instead
+      - github.com/percona-platform/platform
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
+
+  godot:
+    capital: true
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -26,25 +31,53 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        # Disabled because we have too many errors at the moment
+        json: ""
+        # Disabled because we have too many errors at the moment
+        yaml: ""
+        xml: camel
+
   unused:
     check-exported: false #TODO: set true for agent
 
   unparam:
     check-exported: true
 
+  exhaustive:
+    default-signifies-exhaustive: true
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona-platform/dbaas-api
+
 linters:
   enable-all: true
   disable:
     # keep sorted
     - exhaustivestruct  # too annoying
+    - funlen            # useless
     - gochecknoglobals  # mostly useless
+    - gochecknoinits    # we use init functions
+    - gomnd             # we are using numbers in many cases
     - gomoddirectives   # we use replace directives
-    - ifshort           # false positives: https://github.com/esimonov/ifshort/issues/6, 7
-    - nlreturn
+    - gomodguard        # we are not using modules
+    - ifshort           # a lot of false positives
+    - interfacer        # deprecated
+    - maligned          # deprecated
+    - nlreturn          # too annoying
     - scopelint         # too many false positives
+    - varnamelen        # useless
+    - wrapcheck         # we do not use wrapping everywhere
     - wsl               # too annoying
 
 run:
+  timeout: 5m
   skip-dirs:
     - agent/agents/mongodb/internal/
 
@@ -64,6 +97,8 @@ issues:
         # keep sorted
         - exhaustivestruct # very annoying
         - funlen           # tests may be long
+        - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
+

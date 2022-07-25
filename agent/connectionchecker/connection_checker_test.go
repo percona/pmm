@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,10 +32,13 @@ import (
 )
 
 func TestConnectionChecker(t *testing.T) {
-	tt := []struct {
+	t.Parallel()
+
+	testCases := []struct {
 		name        string
 		req         *agentpb.CheckConnectionRequest
 		expectedErr string
+		panic       bool
 	}{
 		{
 			name: "MySQL",
@@ -186,16 +188,47 @@ func TestConnectionChecker(t *testing.T) {
 			},
 			expectedErr: `context deadline exceeded`,
 		},
+		{
+			name: "Invalid service type",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
+				Type:    inventorypb.ServiceType_SERVICE_TYPE_INVALID,
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `unknown service type: SERVICE_TYPE_INVALID`,
+			panic:       true,
+		},
+		{
+			name: "Unknown service type",
+			req: &agentpb.CheckConnectionRequest{
+				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
+				Type:    inventorypb.ServiceType(12345),
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `unknown service type: 12345`,
+			panic:       true,
+		},
 	}
 
-	for _, tt := range tt {
+	for _, tt := range testCases {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			temp, err := os.MkdirTemp("", "pmm-agent-")
 			require.NoError(t, err)
 
 			c := New(&config.Paths{
 				TempDir: temp,
 			})
+
+			if tt.panic {
+				require.PanicsWithValue(t, tt.expectedErr, func() {
+					c.Check(context.Background(), tt.req, 0)
+				})
+				return
+			}
+
 			resp := c.Check(context.Background(), tt.req, 0)
 			require.NotNil(t, resp)
 			if tt.expectedErr == "" {
@@ -235,7 +268,7 @@ func TestConnectionChecker(t *testing.T) {
 			Type:      inventorypb.ServiceType_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),
 			TextFiles: mongoDBTextFiles,
-		}, rand.Uint32())
+		}, rand.Uint32()) //nolint:gosec
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Error)
 	})

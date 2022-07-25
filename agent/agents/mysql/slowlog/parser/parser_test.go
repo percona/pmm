@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,6 +32,8 @@ import (
 var updateF = flag.Bool("update", false, "update golden .json files")
 
 func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
+	t.Helper()
+
 	r, err := NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {
@@ -54,6 +55,8 @@ func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 }
 
 func TestParserGolden(t *testing.T) {
+	t.Parallel()
+
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.log"))
 	require.NoError(t, err)
 	for _, file := range files {
@@ -87,7 +90,11 @@ func TestParserGolden(t *testing.T) {
 }
 
 func TestParserSpecial(t *testing.T) {
+	t.Parallel()
+
 	t.Run("slow009/FilterAdminCommands", func(t *testing.T) {
+		t.Parallel()
+
 		opts := log.Options{
 			DefaultLocation: time.UTC,
 			FilterAdminCommand: map[string]bool{
@@ -130,6 +137,8 @@ func TestParserSpecial(t *testing.T) {
 	})
 
 	t.Run("slow023", func(t *testing.T) {
+		t.Parallel()
+
 		r, err := NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {

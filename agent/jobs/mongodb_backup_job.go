@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,7 +138,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	defer streamCancel()
 	go func() {
 		err := j.streamLogs(streamCtx, send, pbmBackupOut.Name)
-		if err != nil && err != io.EOF && err != context.Canceled {
+		if err != nil && !errors.Is(err, io.EOF) && !errors.Is(err, context.Canceled) {
 			j.l.Errorf("stream logs: %v", err)
 		}
 	}()

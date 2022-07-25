@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +91,7 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddServicePostgreSQL  = new(addServicePostgreSQLCommand)
+	AddServicePostgreSQL  addServicePostgreSQLCommand
 	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory").Hide(hide)
 )
 

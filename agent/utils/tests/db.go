@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,6 +24,8 @@ import (
 
 // waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
 func waitForFixtures(tb testing.TB, db *sql.DB) {
+	tb.Helper()
+
 	var id int
 	var err error
 	for i := 0; i < 30; i++ {

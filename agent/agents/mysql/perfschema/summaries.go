@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,7 +63,7 @@ func getSummaries(q *reform.Querier) (summaryMap, error) {
 
 		res[*ess.Digest] = &ess
 	}
-	if err != reform.ErrNoRows {
+	if !errors.Is(err, reform.ErrNoRows) {
 		return nil, errors.Wrap(err, "failed to fetch events_statements_summary_by_digest")
 	}
 	return res, nil

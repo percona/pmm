@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -219,7 +218,7 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
-	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag) //nolint:gosec
+	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	var path string
 	row := db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_file")
 	if err := row.Scan(&path); err != nil {
@@ -288,7 +287,7 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 		return errors.Wrap(err, "cannot rename old slowlog file")
 	}
 
-	_, err = db.ExecContext(ctx, "FLUSH NO_WRITE_TO_BINLOG SLOW LOGS") //nolint:gosec
+	_, err = db.ExecContext(ctx, "FLUSH NO_WRITE_TO_BINLOG SLOW LOGS")
 	if err != nil {
 		return errors.Wrap(err, "cannot flush logs")
 	}
@@ -330,7 +329,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 				continue
 			}
 
-			if err := parser.Err(); err != io.EOF {
+			if err := parser.Err(); !errors.Is(err, io.EOF) {
 				s.l.Warnf("Parser error: %v.", err)
 			}
 			close(events)

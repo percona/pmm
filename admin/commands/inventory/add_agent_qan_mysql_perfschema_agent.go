@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,6 +105,7 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 			TLSCa:                tlsCa,
 			TLSCert:              tlsCert,
 			TLSKey:               tlsKey,
+			LogLevel:             &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -121,7 +121,7 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 
 // register command
 var (
-	AddAgentQANMySQLPerfSchemaAgent  = new(addAgentQANMySQLPerfSchemaAgentCommand)
+	AddAgentQANMySQLPerfSchemaAgent  addAgentQANMySQLPerfSchemaAgentCommand
 	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory").Hide(hide)
 )
 
@@ -138,4 +138,5 @@ func init() {
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCaFile)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCertFile)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSKeyFile)
+	addExporterGlobalFlags(AddAgentQANMySQLPerfSchemaAgentC)
 }

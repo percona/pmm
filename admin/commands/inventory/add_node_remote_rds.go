@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,7 +80,7 @@ func (cmd *addNodeRemoteRDSCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddNodeRemoteRDS  = new(addNodeRemoteRDSCommand)
+	AddNodeRemoteRDS  addNodeRemoteRDSCommand
 	AddNodeRemoteRDSC = addNodeC.Command("remote-rds", "Add Remote RDS node to inventory").Hide(hide)
 )
 

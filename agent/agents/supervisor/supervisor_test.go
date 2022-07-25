@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -275,6 +274,8 @@ func TestFilter(t *testing.T) {
 
 func TestSupervisorProcessParams(t *testing.T) {
 	setup := func(t *testing.T) (*Supervisor, func()) {
+		t.Helper()
+
 		temp, err := os.MkdirTemp("", "pmm-agent-")
 		require.NoError(t, err)
 

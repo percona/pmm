@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +14,7 @@
 
 package cache
 
-import (
-	"github.com/prometheus/client_golang/prometheus"
-)
+import "github.com/prometheus/client_golang/prometheus"
 
 // MetricsFromStats builds Prometheus metrics from cache.Stats.
 func MetricsFromStats(stats Stats, agentID string, cacheType string) []prometheus.Metric {

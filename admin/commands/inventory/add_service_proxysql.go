@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,7 +90,7 @@ func (cmd *addServiceProxySQLCommand) Run() (commands.Result, error) {
 
 // register command
 var (
-	AddServiceProxySQL  = new(addServiceProxySQLCommand)
+	AddServiceProxySQL  addServiceProxySQLCommand
 	AddServiceProxySQLC = addServiceC.Command("proxysql", "Add ProxySQL service to inventory").Hide(hide)
 )
 

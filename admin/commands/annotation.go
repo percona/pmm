@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -171,12 +170,12 @@ func (cmd *annotationCommand) Run() (Result, error) {
 		return nil, err
 	}
 
-	return new(annotationResult), nil
+	return &annotationResult{}, nil
 }
 
 // register command
 var (
-	Annotation  = new(annotationCommand)
+	Annotation  annotationCommand
 	AnnotationC = kingpin.Command("annotate", "Add an annotation to Grafana charts")
 )
 

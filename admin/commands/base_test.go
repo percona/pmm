@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +17,6 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -31,11 +29,11 @@ import (
 )
 
 func init() {
-	logrus.SetFormatter(new(logger.TextFormatter))
+	logrus.SetFormatter(&logger.TextFormatter{})
 }
 
 func CreateDummyCredentialsSource(data string, p string, exec bool) (string, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "CreateDummyCredentialsSource.*"+p)
+	tmpFile, err := os.CreateTemp(os.TempDir(), "CreateDummyCredentialsSource.*"+p)
 	if err != nil {
 		return "", fmt.Errorf("%w", err)
 	}
@@ -100,6 +98,8 @@ func TestCredentials(t *testing.T) {
 }
 
 func TestParseRenderTemplate(t *testing.T) {
+	t.Parallel()
+
 	var stderr bytes.Buffer
 	logrus.SetOutput(&stderr)
 	defer logrus.SetOutput(os.Stderr)
@@ -121,32 +121,42 @@ Please report this bug.
 }
 
 func TestParseCustomLabel(t *testing.T) {
-	errWrongFormat := fmt.Errorf("wrong custom label format")
-	for _, v := range []struct {
+	t.Parallel()
+	errWrongFormat := "wrong custom label format"
+	for _, tt := range []struct {
 		name     string
 		input    string
 		expected map[string]string
-		expErr   error
+		expErr   string
 	}{
-		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, nil},
-		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, nil},
+		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, ""},
+		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, ""},
 		{"no value", "foo=", nil, errWrongFormat},
 		{"no key", "=foo", nil, errWrongFormat},
 		{"wrong format", "foo=bar,bar+foo", nil, errWrongFormat},
-		{"empty value", "", map[string]string{}, nil},
-		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, nil},
+		{"empty value", "", make(map[string]string), ""},
+		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, ""},
 	} {
-		t.Run(v.name, func(t *testing.T) {
-			customLabels, err := ParseCustomLabels(v.input)
-			assert.Equal(t, v.expected, customLabels)
-			assert.Equal(t, v.expErr, err)
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			customLabels, err := ParseCustomLabels(tt.input)
+			assert.Equal(t, tt.expected, customLabels)
+			if tt.expErr != "" {
+				assert.EqualError(t, err, tt.expErr)
+			}
 		})
 	}
 }
 
 func TestReadFile(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Normal", func(t *testing.T) {
-		cert, err := ioutil.TempFile("", "cert")
+		t.Parallel()
+
+		cert, err := os.CreateTemp("", "cert")
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()
@@ -163,6 +173,8 @@ func TestReadFile(t *testing.T) {
 	})
 
 	t.Run("WrongPath", func(t *testing.T) {
+		t.Parallel()
+
 		filepath := "not-existed-file"
 		certificate, err := ReadFile(filepath)
 		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
@@ -170,6 +182,8 @@ func TestReadFile(t *testing.T) {
 	})
 
 	t.Run("EmptyFilePath", func(t *testing.T) {
+		t.Parallel()
+
 		certificate, err := ReadFile("")
 		require.NoError(t, err)
 		require.Empty(t, certificate)

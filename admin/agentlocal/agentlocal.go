@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,7 +41,7 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	client.Default.SetTransport(transport)
 }
@@ -64,8 +63,9 @@ var ErrNotConnected = fmt.Errorf("pmm-agent is not connected to PMM Server")
 
 // Status represents pmm-agent status.
 type Status struct {
-	AgentID string `json:"agent_id"`
-	NodeID  string `json:"node_id"`
+	AgentID  string `json:"agent_id"`
+	NodeID   string `json:"node_id"`
+	NodeName string `json:"node_name"`
 
 	ServerURL         string `json:"server_url"`
 	ServerInsecureTLS bool   `json:"server_insecure_tls"`
@@ -153,8 +153,9 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 	}
 
 	return &Status{
-		AgentID: p.AgentID,
-		NodeID:  p.RunsOnNodeID,
+		AgentID:  p.AgentID,
+		NodeID:   p.RunsOnNodeID,
+		NodeName: p.NodeName,
 
 		ServerURL:         u.String(),
 		ServerInsecureTLS: p.ServerInfo.InsecureTLS,

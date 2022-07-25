@@ -213,9 +213,6 @@ func (o *ChangeQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBody
 */
 type ChangeQANMySQLSlowlogAgentDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -319,12 +316,8 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error 
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent default body details items0
@@ -499,6 +492,10 @@ type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent OK body QAN mysql slowlog agent
@@ -506,6 +503,10 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) Validate(formats 
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -566,6 +567,60 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(fo
 
 	// value enum
 	if err := o.validateStatusEnum("changeQanMySqlSlowlogAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum = append(changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto captures enum value "auto"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto string = "auto"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal captures enum value "fatal"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal string = "fatal"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelError captures enum value "error"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelError string = "error"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn captures enum value "warn"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn string = "warn"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo captures enum value "info"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo string = "info"
+
+	// ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug captures enum value "debug"
+	ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeQanMySqlSlowlogAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

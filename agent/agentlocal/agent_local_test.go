@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +31,7 @@ import (
 
 func TestServerStatus(t *testing.T) {
 	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, *config.Config) {
+		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
 			AgentType: inventorypb.AgentType_NODE_EXPORTER,

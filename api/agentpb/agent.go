@@ -1,3 +1,18 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package agentpb contains pmm-agent<->pmm-managed protocol messages and helpers.
 package agentpb
 
@@ -115,6 +130,10 @@ func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Pay
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
+func (m *ParseDefaultsFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_ParseDefaultsFile{ParseDefaultsFile: m}
+}
+
 // A list of ServerMessage response payloads.
 
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -175,35 +194,41 @@ func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Pay
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
+func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
+}
+
 // in alphabetical order
-func (*ActionResultRequest) sealed()     {}
-func (*ActionResultResponse) sealed()    {}
-func (*CheckConnectionRequest) sealed()  {}
-func (*CheckConnectionResponse) sealed() {}
-func (*JobProgress) sealed()             {}
-func (*JobResult) sealed()               {}
-func (*JobStatusRequest) sealed()        {}
-func (*JobStatusResponse) sealed()       {}
-func (*Ping) sealed()                    {}
-func (*Pong) sealed()                    {}
-func (*QANCollectRequest) sealed()       {}
-func (*QANCollectResponse) sealed()      {}
-func (*SetStateRequest) sealed()         {}
-func (*SetStateResponse) sealed()        {}
-func (*StartActionRequest) sealed()      {}
-func (*StartActionResponse) sealed()     {}
-func (*StartJobRequest) sealed()         {}
-func (*StartJobResponse) sealed()        {}
-func (*StateChangedRequest) sealed()     {}
-func (*StateChangedResponse) sealed()    {}
-func (*StopActionRequest) sealed()       {}
-func (*StopActionResponse) sealed()      {}
-func (*StopJobRequest) sealed()          {}
-func (*StopJobResponse) sealed()         {}
-func (*GetVersionsRequest) sealed()      {}
-func (*GetVersionsResponse) sealed()     {}
-func (*PBMSwitchPITRRequest) sealed()    {}
-func (*PBMSwitchPITRResponse) sealed()   {}
+func (*ActionResultRequest) sealed()       {}
+func (*ActionResultResponse) sealed()      {}
+func (*CheckConnectionRequest) sealed()    {}
+func (*CheckConnectionResponse) sealed()   {}
+func (*JobProgress) sealed()               {}
+func (*JobResult) sealed()                 {}
+func (*JobStatusRequest) sealed()          {}
+func (*JobStatusResponse) sealed()         {}
+func (*ParseDefaultsFileRequest) sealed()  {}
+func (*ParseDefaultsFileResponse) sealed() {}
+func (*Ping) sealed()                      {}
+func (*Pong) sealed()                      {}
+func (*QANCollectRequest) sealed()         {}
+func (*QANCollectResponse) sealed()        {}
+func (*SetStateRequest) sealed()           {}
+func (*SetStateResponse) sealed()          {}
+func (*StartActionRequest) sealed()        {}
+func (*StartActionResponse) sealed()       {}
+func (*StartJobRequest) sealed()           {}
+func (*StartJobResponse) sealed()          {}
+func (*StateChangedRequest) sealed()       {}
+func (*StateChangedResponse) sealed()      {}
+func (*StopActionRequest) sealed()         {}
+func (*StopActionResponse) sealed()        {}
+func (*StopJobRequest) sealed()            {}
+func (*StopJobResponse) sealed()           {}
+func (*GetVersionsRequest) sealed()        {}
+func (*GetVersionsResponse) sealed()       {}
+func (*PBMSwitchPITRRequest) sealed()      {}
+func (*PBMSwitchPITRResponse) sealed()     {}
 
 // check interfaces
 var (
@@ -225,6 +250,7 @@ var (
 	_ AgentResponsePayload = (*StopJobResponse)(nil)
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
+	_ AgentResponsePayload = (*ParseDefaultsFileResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -243,6 +269,7 @@ var (
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
+	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams
@@ -250,7 +277,7 @@ var (
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
-	sealedAgentParams() //nolint:unused
+	sealedAgentParams()
 }
 
 func (*SetStateRequest_AgentProcess) sealedAgentParams() {}

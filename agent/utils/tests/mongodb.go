@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,8 +23,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -58,10 +57,10 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 
 	dsn := "mongodb://localhost:27018/admin/?ssl=true&tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}"
 
-	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt"))
+	caFile, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "ca.crt")) //nolint:gosec
 	require.NoError(tb, err)
 
-	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem"))
+	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec
 	require.NoError(tb, err)
 
 	return dsn, &agentpb.TextFiles{
@@ -105,7 +104,12 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 	tb.Helper()
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(dsn))
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		require.NoError(tb, err)
+	}
+
+	client, err := mongo.Connect(context.Background(), opts)
 	require.NoError(tb, err)
 
 	require.NoError(tb, client.Ping(context.Background(), nil))
@@ -114,16 +118,18 @@ func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 }
 
 // MongoDBVersion returns Mongo DB version.
-func MongoDBVersion(t testing.TB, client *mongo.Client) string {
+func MongoDBVersion(tb testing.TB, client *mongo.Client) string {
+	tb.Helper()
+
 	res := client.Database("admin").RunCommand(context.Background(), primitive.M{"buildInfo": 1})
 	if res.Err() != nil {
-		t.Fatalf("Cannot get buildInfo: %s", res.Err())
+		tb.Fatalf("Cannot get buildInfo: %s", res.Err())
 	}
 	bi := struct {
 		Version string
 	}{}
 	if err := res.Decode(&bi); err != nil {
-		t.Fatalf("Cannot decode buildInfo response: %s", err)
+		tb.Fatalf("Cannot decode buildInfo response: %s", err)
 	}
 	return bi.Version
 }

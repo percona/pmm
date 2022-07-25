@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +32,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	t.Run("SwitchToTLS1", func(t *testing.T) {
 		u, err := url.Parse("http://127.0.0.1:80")
 		require.NoError(t, err)
-		GlobalFlags = &globalFlagsValues{
+		GlobalFlags = globalFlagsValues{
 			ServerURL: u,
 		}
 		args, switchedToTLS := cmd.args()
@@ -54,7 +53,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = &globalFlagsValues{
+		GlobalFlags = globalFlagsValues{
 			ServerURL: u,
 		}
 		args, switchedToTLS := cmd.args()
@@ -77,7 +76,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = &globalFlagsValues{
+		GlobalFlags = globalFlagsValues{
 			ServerURL: u,
 		}
 		args, switchedToTLS := cmd.args()
@@ -104,7 +103,7 @@ func TestConfigCommandArgs(t *testing.T) {
 
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = &globalFlagsValues{
+		GlobalFlags = globalFlagsValues{
 			ServerURL: u,
 			Debug:     true,
 			Trace:     true,
