@@ -360,14 +360,14 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 			_, err := fileBuffer.WriteString(l + "\n")
 			if err != nil {
 				logrus.Error(err)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
 				return
 			}
 		}
 		err := addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -377,7 +377,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		_, err := fileBuffer.WriteString(serverLog)
 		if err != nil {
 			logrus.Error(err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -385,14 +385,14 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
 	if err != nil {
 		logrus.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
 		return
 	}
 
 	err = zipWriter.Close()
 	if err != nil {
 		logrus.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Cannot close zip writer err: %s", err), http.StatusInternalServerError)
 		return
 	}
 
@@ -401,7 +401,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(zipBuffer.Bytes())
 	if err != nil {
 		logrus.Error(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Cannot dump zip err: %s", err), http.StatusInternalServerError)
 		return
 	}
 }
