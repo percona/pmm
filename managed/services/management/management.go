@@ -131,14 +131,6 @@ func isPushMode(variant managementpb.MetricsMode) bool {
 	return variant == managementpb.MetricsMode_PUSH || variant == managementpb.MetricsMode_AUTO
 }
 
-func specifyLogLevel(variant inventorypb.LogLevel) string {
-	if variant == inventorypb.LogLevel_auto {
-		return ""
-	}
-
-	return variant.String()
-}
-
 // Automatically pick metrics mode.
 func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMode, pmmAgentID string) (managementpb.MetricsMode, error) {
 	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementpb.MetricsMode_PUSH {
