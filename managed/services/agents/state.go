@@ -209,7 +209,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			config, err := azureDatabaseExporterConfig(row, service, redactMode)
+			config, err := azureDatabaseExporterConfig(row, service, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err
 			}
@@ -263,7 +263,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		sort.Strings(rdsExporterIDs)
 
 		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporterIDs)
-		c, err := rdsExporterConfig(rdsExporters, redactMode)
+		c, err := rdsExporterConfig(rdsExporters, redactMode, pmmAgentVersion)
 		if err != nil {
 			return err
 		}
