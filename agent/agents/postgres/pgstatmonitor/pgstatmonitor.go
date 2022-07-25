@@ -126,57 +126,6 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 }
 
 func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, l *logrus.Entry) (*PGStatMonitorQAN, error) {
-	var settings []reform.Struct
-
-	settingsValuesAreText, err := areSettingsTextValues(q)
-	if err != nil {
-		return nil, err
-	}
-	if settingsValuesAreText {
-		settings, err = q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
-	} else {
-		settings, err = q.SelectAllFrom(pgStatMonitorSettingsView, "")
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get settings")
-	}
-
-	var normalizedQuery bool
-	waitTime := defaultWaitTime
-	for _, row := range settings {
-		var name string
-		var value int64
-
-		if settingsValuesAreText {
-			setting := row.(*pgStatMonitorSettingsTextValue)
-			name = setting.Name
-			if !isPropertyValueInt(name) {
-				continue
-			}
-
-			valueInt, err := strconv.ParseInt(setting.Value, 10, 64)
-			if err != nil {
-				return nil, errors.Wrap(err, "value cannot be parsed as integer")
-			}
-			value = valueInt
-		} else {
-			setting := row.(*pgStatMonitorSettings)
-			name = setting.Name
-			value = setting.Value
-		}
-
-		if err == nil {
-			switch name {
-			case "pg_stat_monitor.pgsm_normalized_query":
-				normalizedQuery = value == 1
-			case "pg_stat_monitor.pgsm_bucket_time":
-				if value < int64(defaultWaitTime.Seconds()) {
-					waitTime = time.Duration(value) * time.Second
-				}
-			}
-		}
-	}
-
 	return &PGStatMonitorQAN{
 		q:                    q,
 		dbCloser:             dbCloser,
