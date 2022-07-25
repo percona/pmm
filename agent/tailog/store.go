@@ -108,11 +108,5 @@ func getColorReplacer() *strings.Replacer {
 		end    = "\x1b[0m"
 	)
 
-	return strings.NewReplacer(
-		red, "",
-		yellow, "",
-		blue, "",
-		gray, "",
-		end, "",
-	)
+	return strings.NewReplacer(red, "", yellow, "", blue, "", gray, "", end, "")
 }
