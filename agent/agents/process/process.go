@@ -178,8 +178,8 @@ func (p *Process) toWaiting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
-		// VM_AGENT need recreate config file in temp dir.
-		if p.params.Type == inventorypb.AgentType_VM_AGENT {
+		// recreate config file in temp dir.
+		if p.params.TemplateRenderer != nil {
 			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
 			if err != nil {
 				p.l.Warnf("Process: failed to regenerate config in %s.", p.params.TemplateRenderer.TempDir)
