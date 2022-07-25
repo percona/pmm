@@ -6,11 +6,11 @@ PMM_SERVER_IMAGE ?= "perconalab/pmm-server:dev-latest"
 env-up: 							## Start devcontainer.
 	docker-compose up -d
 
-env-up-rebuild: env-update-image	## Rebuild and start devcontainer
+env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	docker-compose up --build -d
 
 env-update-image:					## Pull latest dev image
-	docker pull ${PMM_SERVER_IMAGE}
+	docker-compose pull
 
 env-compose-up: env-update-image
 	docker-compose up --detach --renew-anon-volumes --remove-orphans
