@@ -372,19 +372,9 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// add server logs after agents to store possible previous logs
-	{
-		fileBuffer.Reset()
-		for _, serverLog := range s.logStore.GetLogs() {
-			_, err := fileBuffer.WriteString(serverLog)
-			if err != nil {
-				logrus.Error(err)
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-		}
-
-		err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
+	fileBuffer.Reset()
+	for _, serverLog := range s.logStore.GetLogs() {
+		_, err := fileBuffer.WriteString(serverLog)
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -392,7 +382,14 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := zipWriter.Close()
+	err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
+	if err != nil {
+		logrus.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = zipWriter.Close()
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
