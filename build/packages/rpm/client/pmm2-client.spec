@@ -1,3 +1,5 @@
+%define debug_package %{nil}
+
 Name:           pmm2-client
 Summary:        Percona Monitoring and Management Client
 Version:        %{version}
