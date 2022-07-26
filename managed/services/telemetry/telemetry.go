@@ -120,7 +120,7 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		}
 		if settings.Telemetry.Disabled {
-			s.l.Info("disabled via settings.")
+			s.l.Info("Disabled via settings.")
 			return
 		}
 
