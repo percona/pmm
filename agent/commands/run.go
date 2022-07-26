@@ -61,10 +61,13 @@ func Run() {
 		l.Debugf("Loaded configuration: %+v", cfg)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
+
+		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 		if connectionUptimeService == nil {
-			logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 			connectionUptimeService = connectionuptime.NewService(cfg.WindowConnectedTime)
 			connectionUptimeService.RunCleanupGoroutine(ctx)
+		} else {
+			connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
 		}
 
 		run(ctx, cfg, configFilepath, connectionUptimeService)

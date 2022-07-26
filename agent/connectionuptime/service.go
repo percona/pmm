@@ -19,6 +19,8 @@ import (
 	"context"
 	"sync"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const periodForRunningDeletingOldEvents = time.Minute
@@ -29,6 +31,7 @@ type Service struct {
 	mx           sync.Mutex
 	events       []connectionEvent
 	windowPeriod time.Duration
+	l            *logrus.Entry
 }
 
 type connectionEvent struct {
@@ -40,6 +43,7 @@ type connectionEvent struct {
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriod: windowPeriod,
+		l:            logrus.WithField("component", "connection-uptime-service"),
 	}
 }
 
@@ -114,8 +118,10 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 		for {
 			select {
 			case <-ticker.C:
+				c.l.Debug("Called delete old events")
 				c.deleteOldEvents()
 			case <-ctx.Done():
+				c.l.Debug("Done")
 				return
 			}
 		}
@@ -146,6 +152,7 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 // where time_between(s1, f2) - connection up time
 //       time_between(f1, now) - total time betweeen first event (f1) and current moment
 func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
+	c.l.Debug("Calculate connection uptime")
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
 			return 100
