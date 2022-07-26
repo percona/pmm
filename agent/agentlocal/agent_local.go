@@ -352,19 +352,17 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 
-	fileBuffer := &bytes.Buffer{}
-
 	for id, logs := range s.supervisor.AgentsLogs() {
-		fileBuffer.Reset()
+		agentFileBuffer := &bytes.Buffer{}
 		for _, l := range logs {
-			_, err := fileBuffer.WriteString(l + "\n")
+			_, err := agentFileBuffer.WriteString(l + "\n")
 			if err != nil {
 				logrus.Error(err)
 				http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
 				return
 			}
 		}
-		err := addData(zipWriter, fmt.Sprintf("%s.txt", id), fileBuffer.Bytes())
+		err := addData(zipWriter, fmt.Sprintf("%s.txt", id), agentFileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
@@ -372,9 +370,9 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fileBuffer.Reset()
+	serverFileBuffer := &bytes.Buffer{}
 	for _, serverLog := range s.logStore.GetLogs() {
-		_, err := fileBuffer.WriteString(serverLog)
+		_, err := serverFileBuffer.WriteString(serverLog)
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
@@ -382,7 +380,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := addData(zipWriter, serverZipFile, fileBuffer.Bytes())
+	err := addData(zipWriter, serverZipFile, serverFileBuffer.Bytes())
 	if err != nil {
 		logrus.Error(err)
 		http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
