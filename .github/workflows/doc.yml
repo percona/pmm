@@ -24,11 +24,6 @@ jobs:
         with:
           rdme: openapi ./api/swagger/swagger.json --id=626badcabbc59c02acc1a53f --key=${{ secrets.README_TOKEN }}
 
-      - name: Sync non-GA API to Readme
-        uses: percona-platform/rdme@7.2.0
-        with:
-          rdme: openapi ./api/swagger/swagger-dev-only.json --id=626badfead30fd02a08cfab8 --key=${{ secrets.README_TOKEN }}
-
       - name: Upload markdown content
         uses: percona-platform/rdme@7.2.0
         with:
