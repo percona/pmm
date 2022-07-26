@@ -53,7 +53,11 @@ message AddMySQLRequest {
   // Replication set name.
   string replication_set = 10;
   // MySQL username for scraping metrics.
-  string username = 11;
+  string username = 11 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // MySQL password for scraping metrics.
   string password = 12;
   // If true, adds qan-mysql-perfschema-agent for provided service.
@@ -94,8 +98,6 @@ message AddMySQLRequest {
   string agent_password = 28;
   // Exporter log level
   inventory.LogLevel log_level = 29;
-  // Path to .cnf file which contains user-name and password
-  string defaults_file = 30;
 }
 
 message AddMySQLResponse {

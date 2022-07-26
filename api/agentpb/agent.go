@@ -1,28 +1,57 @@
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Package agentpb contains pmm-agent<->pmm-managed protocol messages and helpers.
 package agentpb
 
 import "google.golang.org/protobuf/proto"
+
+//go-sumtype:decl isAgentMessage_Payload
+//go-sumtype:decl isServerMessage_Payload
+
+//go-sumtype:decl AgentRequestPayload
+//go-sumtype:decl AgentResponsePayload
+//go-sumtype:decl ServerResponsePayload
+//go-sumtype:decl ServerRequestPayload
+
+//go-sumtype:decl isStartActionRequest_Params
 
 // code below uses the same order as payload types at AgentMessage / ServerMessage
 
 // AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {
 	AgentMessageRequestPayload() isAgentMessage_Payload
+	sealed()
 }
 
 // AgentResponsePayload represents agent's response payload.
 type AgentResponsePayload interface {
 	AgentMessageResponsePayload() isAgentMessage_Payload
+	sealed()
 }
 
 // ServerResponsePayload represents server's response payload.
 type ServerResponsePayload interface {
 	ServerMessageResponsePayload() isServerMessage_Payload
+	sealed()
 }
 
 // ServerRequestPayload represents server's request payload.
 type ServerRequestPayload interface {
 	ServerMessageRequestPayload() isServerMessage_Payload
+	sealed()
 }
 
 // A list of AgentMessage request payloads.
@@ -169,6 +198,38 @@ func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage
 	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
 
+// in alphabetical order
+func (*ActionResultRequest) sealed()       {}
+func (*ActionResultResponse) sealed()      {}
+func (*CheckConnectionRequest) sealed()    {}
+func (*CheckConnectionResponse) sealed()   {}
+func (*JobProgress) sealed()               {}
+func (*JobResult) sealed()                 {}
+func (*JobStatusRequest) sealed()          {}
+func (*JobStatusResponse) sealed()         {}
+func (*ParseDefaultsFileRequest) sealed()  {}
+func (*ParseDefaultsFileResponse) sealed() {}
+func (*Ping) sealed()                      {}
+func (*Pong) sealed()                      {}
+func (*QANCollectRequest) sealed()         {}
+func (*QANCollectResponse) sealed()        {}
+func (*SetStateRequest) sealed()           {}
+func (*SetStateResponse) sealed()          {}
+func (*StartActionRequest) sealed()        {}
+func (*StartActionResponse) sealed()       {}
+func (*StartJobRequest) sealed()           {}
+func (*StartJobResponse) sealed()          {}
+func (*StateChangedRequest) sealed()       {}
+func (*StateChangedResponse) sealed()      {}
+func (*StopActionRequest) sealed()         {}
+func (*StopActionResponse) sealed()        {}
+func (*StopJobRequest) sealed()            {}
+func (*StopJobResponse) sealed()           {}
+func (*GetVersionsRequest) sealed()        {}
+func (*GetVersionsResponse) sealed()       {}
+func (*PBMSwitchPITRRequest) sealed()      {}
+func (*PBMSwitchPITRResponse) sealed()     {}
+
 // check interfaces
 var (
 	// A list of AgentMessage request payloads.
@@ -211,7 +272,13 @@ var (
 	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 )
 
+//go-sumtype:decl AgentParams
+
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
+	sealedAgentParams()
 }
+
+func (*SetStateRequest_AgentProcess) sealedAgentParams() {}
+func (*SetStateRequest_BuiltinAgent) sealedAgentParams() {}

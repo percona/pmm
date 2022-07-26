@@ -1,4 +1,3 @@
-// pmm-agent
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +45,12 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	}()
 
 	m := setup(t, db, false)
-	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, m.pgsmNormalizedQuery)
+	settings, err := m.getSettings()
+	assert.NoError(t, err)
+	normalizedQuery, err := settings.getNormalizedQueryValue()
+	assert.NoError(t, err)
+
+	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery)
 
 	require.NoError(t, err)
 	require.NotNil(t, current)

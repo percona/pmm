@@ -1,0 +1,84 @@
+---
+version: '3.7'
+
+services:
+  pmm-server:
+    image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    container_name: pmm-agent_pmm-server
+    ports:
+      - 127.0.0.1:80:80
+      - 127.0.0.1:443:443
+    environment:
+      - PMM_DEBUG=1
+      - PERCONA_TEST_CHECKS_INTERVAL=10s
+      # for local development
+      # - PERCONA_TEST_CHECKS_FILE=/srv/checks/custom-checks.yml
+      # for check-dev
+      - PERCONA_TEST_SAAS_HOST=check-dev.percona.com
+      - PERCONA_TEST_CHECKS_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+    volumes:
+      - ./testdata/checks:/srv/checks
+
+  test_db:
+    image: aleksi/test_db:1.1.0
+    container_name: pmm-agent_test_db
+    volumes:
+      - test_db_mysql:/test_db/mysql/world:ro
+      - test_db_postgres:/test_db/postgresql/world:ro
+
+  # It is essential to have an extra directory `/slowlogs/` between host and container;
+  # and to not have a trailing slash at `./testdata/mysql`.
+  # Otherwise, MySQL in Docker for Mac completely locks during/after slowlog rotation tests.
+  mysql:
+    image: ${MYSQL_IMAGE:-percona:5.7}
+    container_name: pmm-agent_mysql
+    command: >
+      --sql-mode="ANSI_QUOTES"
+      --performance-schema --innodb_monitor_enable=all
+      --slow_query_log --slow_query_log_file=/mysql/slowlogs/slow.log --long_query_time=0
+    ports:
+      - 127.0.0.1:3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root-password
+      - MYSQL_USER=pmm-agent
+      - MYSQL_PASSWORD=pmm-agent-password
+      - UMASK=0777  # for slowlog file
+    volumes:
+      - test_db_mysql:/docker-entrypoint-initdb.d/:ro
+      - ./testdata/mysql:/mysql
+
+  mongo:
+    image: ${MONGO_IMAGE:-percona/percona-server-mongodb:4.2}
+    container_name: pmm-agent_mongo
+    command: --profile 2
+    ports:
+      - 127.0.0.1:27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root-password
+
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:11}
+    container_name: pmm-agent_postgres
+    command: >
+      -c shared_preload_libraries=pg_stat_statements
+      -c track_activity_query_size=2048
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c track_io_timing=on
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      - POSTGRES_USER=pmm-agent
+      - POSTGRES_PASSWORD=pmm-agent-password
+    volumes:
+      - test_db_postgres:/docker-entrypoint-initdb.d/
+
+  sysbench:
+    image: perconalab/sysbench
+    container_name: pmm-agent_sysbench
+
+volumes:
+  test_db_mysql:
+  test_db_postgres:

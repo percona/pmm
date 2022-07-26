@@ -1,4 +1,3 @@
-// pmm-admin
 // Copyright 2019 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -101,6 +100,7 @@ func (cmd *addAgentQANPostgreSQLPgStatMonitorAgentCommand) Run() (commands.Resul
 			TLSCa:         tlsCa,
 			TLSCert:       tlsCert,
 			TLSKey:        tlsKey,
+			LogLevel:      &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -134,4 +134,5 @@ func init() {
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSCAFile)
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSCertFile)
 	AddAgentQANPostgreSQLPgStatMonitorAgentC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentQANPostgreSQLPgStatMonitorAgent.TLSKeyFile)
+	addExporterGlobalFlags(AddAgentQANPostgreSQLPgStatMonitorAgentC)
 }
