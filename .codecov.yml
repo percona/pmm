@@ -11,12 +11,12 @@ coverage:
       default:
         threshold: 1%
       
-      pmm-admin:
+      admin:
         threshold: 1%
         paths:
           - admin/
 
-      pmm-agent:
+      agent:
         threshold: 1%
         paths:
           - agent/
