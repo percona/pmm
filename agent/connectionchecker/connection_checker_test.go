@@ -62,7 +62,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `context deadline exceeded`,
 		},
@@ -119,7 +119,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `server selection error: context deadline exceeded, current topology: \{ Type: Unknown, Servers: \[\{ Addr: 127.0.0.1:27017, Type: Unknown \}, \] \}`,
 		},
@@ -155,7 +155,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=10&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `context deadline exceeded`,
 		},
@@ -184,7 +184,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `context deadline exceeded`,
 		},
@@ -193,7 +193,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_SERVICE_TYPE_INVALID,
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `unknown service type: SERVICE_TYPE_INVALID`,
 			panic:       true,
@@ -203,7 +203,7 @@ func TestConnectionChecker(t *testing.T) {
 			req: &agentpb.CheckConnectionRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType(12345),
-				Timeout: durationpb.New(time.Nanosecond),
+				Timeout: durationpb.New(time.Second),
 			},
 			expectedErr: `unknown service type: 12345`,
 			panic:       true,
