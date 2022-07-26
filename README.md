@@ -43,20 +43,29 @@ Please check our [Documentation](https://docs.percona.com/percona-monitoring-and
 There are numbers of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/setting-up/index.html) documentation page.
 
 But in a nutshell:
+1. Download PMM server Docker image
 ```bash
 $ docker pull percona/pmm-server:2
-
+```
+2. Create the data volume container
+```bash
 $ docker create --volume /srv \
 --name pmm-data \
 percona/pmm-server:2 /bin/true
-
+```
+3. Run PMM server container
+```bash
 $ docker run --detach --restart always \
 --publish 443:443 \
 --volumes-from pmm-data \
 --name pmm-server \
 percona/pmm-server:2
-
 ```
+4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+
+<img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
+
+Enter the username and password. The defaults are username: **admin** and password: **admim**
 
 ## Submitting Bug Reports
 
