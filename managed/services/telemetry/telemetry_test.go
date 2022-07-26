@@ -172,16 +172,13 @@ func TestRunTelemetryService(t *testing.T) {
 func getServiceConfig() ServiceConfig {
 	serviceConfig := ServiceConfig{
 		Enabled:      true,
-		LoadDefaults: true,
 		SaasHostname: "check.localhost",
 		Reporting: ReportingConfig{
-			SendOnStart:     true,
-			Interval:        time.Second * 10,
-			IntervalEnv:     "PERCONA_TEST_TELEMETRY_INTERVAL",
-			RetryBackoff:    time.Second * 1,
-			RetryBackoffEnv: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF",
-			RetryCount:      2,
-			SendTimeout:     time.Second * 10,
+			SendOnStart:  true,
+			Interval:     time.Second * 10,
+			RetryBackoff: time.Second * 1,
+			RetryCount:   2,
+			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
 			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
@@ -267,9 +264,8 @@ func matchExpectedReport(report *reporter.ReportRequest, expectedReport *reporte
 
 func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {
 	return ServiceConfig{
-		l:            nil,
-		Enabled:      true,
-		LoadDefaults: false,
+		l:       nil,
+		Enabled: true,
 		telemetry: []Config{
 			{
 				ID:      "1",
@@ -291,13 +287,11 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
-			SendOnStart:     sendOnStart,
-			IntervalEnv:     "",
-			Interval:        reportingInterval,
-			RetryBackoffEnv: "",
-			RetryBackoff:    0,
-			SendTimeout:     0,
-			RetryCount:      3,
+			SendOnStart:  sendOnStart,
+			Interval:     reportingInterval,
+			RetryBackoff: 0,
+			SendTimeout:  0,
+			RetryCount:   3,
 		},
 	}
 }
