@@ -58,7 +58,11 @@ func NewGetQueryExampleParamsWithHTTPClient(client *http.Client) *GetQueryExampl
    Typically these are written to a http.Request.
 */
 type GetQueryExampleParams struct {
-	// Body.
+	/* Body.
+
+	     QueryExampleRequest defines filtering of query examples for specific value of
+	dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+	*/
 	Body GetQueryExampleBody
 
 	timeout    time.Duration

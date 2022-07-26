@@ -58,7 +58,10 @@ func NewQueryExistsParamsWithHTTPClient(client *http.Client) *QueryExistsParams 
    Typically these are written to a http.Request.
 */
 type QueryExistsParams struct {
-	// Body.
+	/* Body.
+
+	   QueryExistsRequest check if provided query exists or not.
+	*/
 	Body QueryExistsBody
 
 	timeout    time.Duration
