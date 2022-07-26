@@ -235,7 +235,7 @@ func TestConnectionChecker(t *testing.T) {
 				assert.Empty(t, resp.Error)
 			} else {
 				require.NotEmpty(t, resp.Error)
-				assert.Contains(t, resp.Error, tt.expectedErr)
+				assert.Regexp(t, tt.expectedErr, resp.Error)
 			}
 		})
 	}
