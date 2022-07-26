@@ -58,7 +58,10 @@ func NewAddAnnotationParamsWithHTTPClient(client *http.Client) *AddAnnotationPar
    Typically these are written to a http.Request.
 */
 type AddAnnotationParams struct {
-	// Body.
+	/* Body.
+
+	   AddAnnotationRequest is a params to add new annotation.
+	*/
 	Body AddAnnotationBody
 
 	timeout    time.Duration
