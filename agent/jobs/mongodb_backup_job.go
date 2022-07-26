@@ -49,6 +49,7 @@ type MongoDBBackupJob struct {
 	location   BackupLocationConfig
 	pitr       bool
 	logChunkID uint32
+	dataModel  agentpb.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -59,15 +60,17 @@ func NewMongoDBBackupJob(
 	dbConfig DBConnConfig,
 	locationConfig BackupLocationConfig,
 	pitr bool,
+	dataModel agentpb.DataModel,
 ) *MongoDBBackupJob {
 	return &MongoDBBackupJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
-		name:     name,
-		dbURL:    createDBURL(dbConfig),
-		location: locationConfig,
-		pitr:     pitr,
+		id:        id,
+		timeout:   timeout,
+		l:         logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
+		name:      name,
+		dbURL:     createDBURL(dbConfig),
+		location:  locationConfig,
+		pitr:      pitr,
+		dataModel: dataModel,
 	}
 }
 
@@ -191,7 +194,11 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	j.l.Info("Starting backup.")
 	var result pbmBackup
 
-	if err := execPBMCommand(ctx, j.dbURL, &result, "backup"); err != nil {
+	pbmArgs := []string{"backup"}
+	if j.dataModel == agentpb.DataModel_PHYSICAL {
+		pbmArgs = append(pbmArgs, "--type=physical")
+	}
+	if err := execPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {
 		return nil, err
 	}
 

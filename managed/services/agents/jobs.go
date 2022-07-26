@@ -148,8 +148,11 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
+		if job.Data.MongoDBBackup.DataModel == "" {
+			job.Data.MongoDBBackup.DataModel = models.LogicalDataModel
+		}
 		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
-			job.Data.MongoDBBackup.Mode, locationConfig); err != nil {
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -364,6 +367,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	name string,
 	dbConfig *models.DBConfig,
 	mode models.BackupMode,
+	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 ) error {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
@@ -379,6 +383,10 @@ func (s *JobsService) StartMongoDBBackupJob(
 		Port:       int32(dbConfig.Port),
 		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
+	}
+	mongoDBReq.DataModel = agentpb.DataModel_LOGICAL
+	if dataModel == models.PhysicalDataModel {
+		mongoDBReq.DataModel = agentpb.DataModel_PHYSICAL
 	}
 
 	switch {

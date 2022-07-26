@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
-func TestScheduleBackup(t *testing.T) {
+func TestScheduleBackupForMongo(t *testing.T) {
 	nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 	nodeID, pmmAgentID := management.RegisterGenericNode(t, node.RegisterNodeBody{
 		NodeName: nodeName,
@@ -304,6 +304,14 @@ func TestScheduleBackup(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.", serviceName)
+	})
+
+	t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
+		t.Skip()
+	})
+
+	t.Run("physical backups successful", func(t *testing.T) {
+		t.Skip()
 	})
 }
 

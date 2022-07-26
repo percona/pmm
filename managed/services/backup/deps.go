@@ -55,6 +55,7 @@ type jobsService interface {
 		name string,
 		dbConfig *models.DBConfig,
 		mode models.BackupMode,
+		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
 	) error
 	StartMongoDBRestoreBackupJob(

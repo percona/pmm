@@ -158,9 +158,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		case models.MongoDBServiceType:
 			jobType = models.MongoDBBackupJob
 
-			if params.DataModel != models.LogicalDataModel {
-				return errors.New("the only supported data model for mongoDB is logical")
+			if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
+				return errors.New("Point-in-Time-Recovery is only supported for logical backups at the moment.")
 			}
+
 			if params.Mode != models.Snapshot && params.Mode != models.PITR {
 				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 			}
@@ -208,7 +209,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
-		if job, config, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
+		if job, config, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil {
 			return err
 		}
 		return nil
@@ -227,7 +228,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, config, locationConfig)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, config, params.Mode, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, config, job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -378,14 +379,14 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 				"current service id: %s, service type: %s", serviceID, service.ServiceType)
 		}
 
-		agents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		serviceAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
 		if err != nil {
 			return err
 		}
-		if len(agents) == 0 {
+		if len(serviceAgents) == 0 {
 			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
 		}
-		pmmAgentID = agents[0].AgentID
+		pmmAgentID = serviceAgents[0].AgentID
 
 		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, "")
 		if err != nil {
@@ -535,6 +536,7 @@ func (s *Service) prepareBackupJob(
 	artifactID string,
 	jobType models.JobType,
 	mode models.BackupMode,
+	dataModel models.DataModel,
 	retries uint32,
 	retryInterval time.Duration,
 ) (*models.Job, *models.DBConfig, error) {
@@ -567,6 +569,7 @@ func (s *Service) prepareBackupJob(
 				ServiceID:  service.ServiceID,
 				ArtifactID: artifactID,
 				Mode:       mode,
+				DataModel:  dataModel,
 			},
 		}
 	case models.MySQLRestoreBackupJob,
