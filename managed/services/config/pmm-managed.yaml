@@ -1,7 +1,6 @@
 services:
   telemetry:
     enabled: true
-    load_defaults: true
     datasources:
       VM:
         enabled: true

@@ -41,7 +41,6 @@ const (
 type ServiceConfig struct {
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
-	LoadDefaults bool     `yaml:"load_defaults"`
 	telemetry    []Config `yaml:"-"`
 	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
@@ -137,7 +136,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 
 	configFile := os.Getenv(envConfigFile)
 
-	telemetry, err := c.loadConfig(configFile)
+	telemetry, err := c.loadMetricsConfig(configFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to load telemetry config")
 	}
@@ -187,7 +186,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	return nil
 }
 
-func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) {
+func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 	var fileConfigs []FileConfig //nolint:prealloc
 	var fileCfg FileConfig
 
@@ -198,13 +197,9 @@ func (c *ServiceConfig) loadConfig(configFile string) ([]Config, error) {
 			return nil, err
 		}
 		config = file
-		if c.LoadDefaults {
-			c.l.Debugf("LoadDefaults is set to TRUE, but ENV var [%s] is set and has priority.", envConfigFile)
-		}
-	} else if c.LoadDefaults {
-		config = []byte(defaultConfig)
 	} else {
-		return nil, errors.New("file config should be provided via ENV [" + envConfigFile + "] or LoadDefaults should be set to TRUE")
+		c.l.Info("Using default metrics config")
+		config = []byte(defaultConfig)
 	}
 	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
 		return nil, errors.Wrap(err, "cannot unmashal default config")

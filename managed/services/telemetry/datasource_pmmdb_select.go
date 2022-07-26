@@ -88,7 +88,7 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 	db.SetMaxOpenConns(1)
 
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]", config.DSN.DB)
+		l.Warnf("DB is not reachable [%s]: %s", config.DSN.DB, err)
 	}
 
 	return db, nil

@@ -28,7 +28,6 @@ import (
 func TestServiceConfigUnmarshal(t *testing.T) {
 	input := `
 enabled: true
-load_defaults: true
 saas_hostname: "check.localhost"
 datasources:
   VM:
@@ -59,7 +58,6 @@ reporting:
 	require.Nil(t, err)
 	expected := ServiceConfig{
 		Enabled:      true,
-		LoadDefaults: true,
 		SaasHostname: "check.localhost",
 		Reporting: ReportingConfig{
 			Send:         true,
