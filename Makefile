@@ -23,7 +23,7 @@ env-down:							## Stop devcontainer.
 env-remove:
 	docker-compose down --volumes --remove-orphans
 
-TARGET ?= _bash
+TARGET ?= _bash ## Fake change
 
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
 	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
