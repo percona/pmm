@@ -5,6 +5,9 @@ include Makefile.include
 env-up: 							## Start devcontainer.
 	docker-compose up -d
 
+env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
+	docker-compose up --build -d
+
 env-update-image:					## Pull latest dev image
 	docker-compose pull
 
