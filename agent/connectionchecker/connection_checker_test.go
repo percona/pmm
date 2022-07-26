@@ -121,7 +121,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
 			},
-			expectedErr: `server selection error: context deadline exceeded, current topology: \{ Type: Unknown, Servers: \[\{ Addr: 127.0.0.1:27017, Type: Unknown \}, \] \}`,
+			expectedErr: `context deadline exceeded`,
 		},
 		{
 			name: "MongoDB no database",
@@ -235,7 +235,7 @@ func TestConnectionChecker(t *testing.T) {
 				assert.Empty(t, resp.Error)
 			} else {
 				require.NotEmpty(t, resp.Error)
-				assert.Regexp(t, `^`+tt.expectedErr+`$`, resp.Error)
+				assert.Contains(t, resp.Error, tt.expectedErr)
 			}
 		})
 	}
