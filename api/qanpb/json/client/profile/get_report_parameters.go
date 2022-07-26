@@ -58,7 +58,10 @@ func NewGetReportParamsWithHTTPClient(client *http.Client) *GetReportParams {
    Typically these are written to a http.Request.
 */
 type GetReportParams struct {
-	// Body.
+	/* Body.
+
+	   ReportRequest defines filtering of metrics report for db server or other dimentions.
+	*/
 	Body GetReportBody
 
 	timeout    time.Duration

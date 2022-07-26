@@ -25,6 +25,7 @@
         "operationId": "Get",
         "parameters": [
           {
+            "description": "FiltersRequest contains period for which we need filters.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -158,6 +159,7 @@
         "operationId": "GetMetricsNames",
         "parameters": [
           {
+            "description": "MetricsNamesRequest is emty.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -227,6 +229,7 @@
         "operationId": "GetReport",
         "parameters": [
           {
+            "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -851,6 +854,7 @@
         "operationId": "GetHistogram",
         "parameters": [
           {
+            "description": "HistogramRequest defines filtering by time range, labels and queryid.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -969,6 +973,7 @@
         "operationId": "GetLabels",
         "parameters": [
           {
+            "description": "ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1070,6 +1075,7 @@
         "operationId": "GetMetrics",
         "parameters": [
           {
+            "description": "MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1680,6 +1686,7 @@
         "operationId": "GetQueryExample",
         "parameters": [
           {
+            "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1856,6 +1863,7 @@
         "operationId": "GetQueryPlan",
         "parameters": [
           {
+            "description": "QueryPlanRequest defines filtering by queryid.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1932,6 +1940,7 @@
         "operationId": "QueryExists",
         "parameters": [
           {
+            "description": "QueryExistsRequest check if provided query exists or not.",
             "name": "body",
             "in": "body",
             "required": true,
