@@ -77,6 +77,8 @@ type Status struct {
 	Connected        bool          `json:"connected"`
 	ServerClockDrift time.Duration `json:"server_clock_drift,omitempty"`
 	ServerLatency    time.Duration `json:"server_latency,omitempty"`
+
+	ConnectionUptime float32 `json:"connection_uptime"`
 }
 
 type AgentStatus struct {
@@ -98,7 +100,10 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 
 	res, err := client.Default.AgentLocal.Status(params)
 	if err != nil {
-		return nil, err
+		if res == nil {
+			return nil, err
+		}
+		return res.Payload, err
 	}
 	return res.Payload, nil
 }
@@ -114,10 +119,6 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 
 	if p.AgentID == "" || p.ServerInfo == nil {
 		return nil, ErrNotSetUp
-	}
-
-	if p.RunsOnNodeID == "" {
-		return nil, ErrNotConnected
 	}
 
 	u, err := url.Parse(p.ServerInfo.URL)
@@ -167,5 +168,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		Connected:        p.ServerInfo.Connected,
 		ServerClockDrift: clockDrift,
 		ServerLatency:    latency,
+
+		ConnectionUptime: p.ConnectionUptime,
 	}, nil
 }

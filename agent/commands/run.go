@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/agent/client"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/defaultsfile"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
@@ -50,6 +51,7 @@ func Run() {
 		cancel()
 	}()
 
+	var connectionUptimeService *connectionuptime.Service
 	for {
 		cfg, configFilepath, err := config.Get(l)
 		if err != nil {
@@ -60,7 +62,15 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 
-		run(ctx, cfg, configFilepath)
+		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+		if connectionUptimeService == nil {
+			connectionUptimeService = connectionuptime.NewService(cfg.WindowConnectedTime)
+			connectionUptimeService.RunCleanupGoroutine(ctx)
+		} else {
+			connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
+		}
+
+		run(ctx, cfg, configFilepath, connectionUptimeService)
 
 		if ctx.Err() != nil {
 			return
@@ -85,7 +95,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 
 // run runs all pmm-agent components with given configuration until ctx is cancellled.
 // See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, cfg *config.Config, configFilepath string) {
+func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *connectionuptime.Service) {
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithCancel(ctx)
 
@@ -97,7 +107,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string) {
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser)
+	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser, cs)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath)
 
 	go func() {

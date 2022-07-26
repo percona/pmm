@@ -46,6 +46,7 @@ func TestServerStatus(t *testing.T) {
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
+		client.On("GetConnectionUpTime").Return(float32(100.00))
 		cfg := &config.Config{
 			ID: "/agent_id/00000000-0000-4000-8000-000000000001",
 			Server: config.Server{
@@ -74,8 +75,9 @@ func TestServerStatus(t *testing.T) {
 				Version:   "2.0.0-dev",
 				Connected: true,
 			},
-			AgentsInfo:     agentInfo,
-			ConfigFilepath: "/some/dir/pmm-agent.yaml",
+			AgentsInfo:       agentInfo,
+			ConnectionUptime: 100.00,
+			ConfigFilepath:   "/some/dir/pmm-agent.yaml",
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -102,8 +104,9 @@ func TestServerStatus(t *testing.T) {
 				ClockDrift: durationpb.New(clockDrift),
 				Connected:  true,
 			},
-			AgentsInfo:     agentInfo,
-			ConfigFilepath: "/some/dir/pmm-agent.yaml",
+			ConnectionUptime: 100.00,
+			AgentsInfo:       agentInfo,
+			ConfigFilepath:   "/some/dir/pmm-agent.yaml",
 		}
 		assert.Equal(t, expected, actual)
 	})
