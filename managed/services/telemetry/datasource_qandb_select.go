@@ -44,7 +44,7 @@ func (d *dsQanDBSelect) Enabled() bool {
 
 // NewDsQanDBSelect make new QAN DB Select data source.
 func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
-	db, err := openQANDBConnection(config.DSN, config.Enabled)
+	db, err := openQANDBConnection(config.DSN, config.Enabled, l)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) {
 	}, nil
 }
 
-func openQANDBConnection(dsn string, enabled bool) (*sql.DB, error) {
+func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, error) {
 	if !enabled {
 		return nil, nil //nolint:nilnil
 	}
@@ -65,7 +65,7 @@ func openQANDBConnection(dsn string, enabled bool) (*sql.DB, error) {
 		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
 	}
 	if err := db.Ping(); err != nil {
-		return nil, errors.Wrap(err, "Failed to ping QAN DB")
+		l.Warnf("DB is not reachable [%s]: %s", dsn, err)
 	}
 	return db, nil
 }
