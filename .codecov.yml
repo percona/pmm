@@ -1,6 +1,31 @@
 coverage:
   range: "60...80"
   status:
-    patch:
+    default_rules:
+      flag_coverage_not_uploaded_behavior: exclude
+    
+    # disabled for now until we agree on the thresholds
+    patch: off
+
+    project:
       default:
-        threshold: 1
+        threshold: 1%
+      
+      admin:
+        threshold: 1%
+        paths:
+          - admin/
+
+      agent:
+        threshold: 1%
+        paths:
+          - agent/
+
+      managed:
+        threshold: 1%
+        paths:
+          - managed/
+
+flag_management:
+  default_rules:
+    carryforward: true
