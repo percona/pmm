@@ -293,7 +293,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 }
 
 func (s *Service) Format(report *reporter.ReportRequest) string {
-	builder := strings.Builder{}
+	var builder strings.Builder
 	for _, metrics := range report.Metrics {
 		for _, m := range metrics.Metrics {
 			builder.WriteString(m.Key)
