@@ -140,7 +140,10 @@ message GetFailedChecksResponse {
 }
 
 message StartChecksStreamResponse {
-  repeated CheckResult results = 1;
+  // topic is the stream name for this response. Useful for websocket clients.
+  string topic = 1;
+  // results is a list of processed check results
+  repeated CheckResult results = 2;
 }
 
 message ToggleCheckAlertRequest {

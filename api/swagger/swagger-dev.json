@@ -26078,8 +26078,14 @@
                 "result": {
                   "type": "object",
                   "properties": {
+                    "topic": {
+                      "description": "topic is the stream name for this response. Useful for websocket clients.",
+                      "type": "string",
+                      "x-order": 0
+                    },
                     "results": {
                       "type": "array",
+                      "title": "results is a list of processed check results",
                       "items": {
                         "description": "CheckResult represents the check results for a given service.",
                         "type": "object",
@@ -26148,7 +26154,7 @@
                           }
                         }
                       },
-                      "x-order": 0
+                      "x-order": 1
                     }
                   }
                 }

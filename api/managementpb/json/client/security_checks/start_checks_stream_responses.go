@@ -533,7 +533,10 @@ func (o *StartChecksStreamOKBodyErrorDetailsItems0) UnmarshalBinary(b []byte) er
 swagger:model StartChecksStreamOKBodyResult
 */
 type StartChecksStreamOKBodyResult struct {
-	// results
+	// topic is the stream name for this response. Useful for websocket clients.
+	Topic string `json:"topic,omitempty"`
+
+	// results is a list of processed check results
 	Results []*StartChecksStreamOKBodyResultResultsItems0 `json:"results"`
 }
 

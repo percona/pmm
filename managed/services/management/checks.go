@@ -251,6 +251,7 @@ func (s *ChecksAPIService) StartChecksStream(stream managementpb.SecurityChecks_
 				})
 			}
 			err := stream.Send(&managementpb.StartChecksStreamResponse{
+				Topic:   "checks",
 				Results: results,
 			})
 			if err != nil {

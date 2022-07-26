@@ -10,7 +10,7 @@ replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_que
 
 replace golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
 
-replace github.com/tmc/grpc-websocket-proxy  => ../wsproxy
+replace github.com/tmc/grpc-websocket-proxy => ../wsproxy
 
 require (
 	github.com/AlekSi/pointer v1.2.0
@@ -37,6 +37,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.10.3
 	github.com/hashicorp/go-version v1.6.0
+	github.com/idoqo/grpc-websocket-proxy v0.0.0-20220726050942-4346b6758092
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.31
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -57,7 +58,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/objx v0.4.0
 	github.com/stretchr/testify v1.8.0
-	github.com/tmc/grpc-websocket-proxy v0.0.0-20220101234140-673ab2c3ae75
 	go.mongodb.org/mongo-driver v1.9.1
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
