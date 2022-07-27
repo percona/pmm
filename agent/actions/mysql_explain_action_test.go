@@ -62,12 +62,12 @@ id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
 		case mySQLVendor == tests.MariaDBMySQL:
 			expected = strings.TrimSpace(`
 id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
-1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |4188 |Using filesort
+1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |4117 |Using filesort
 			`)
 		default:
 			expected = strings.TrimSpace(`
 id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |rows |filtered |Extra
-1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |4188 |100.00   |Using filesort
+1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |4117 |100.00   |Using filesort
 			`)
 		}
 
@@ -164,7 +164,7 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 				"id", "select_type", "table", "partitions",
 				"type", "possible_keys", "key", "key_len", "ref", "rows", "filtered", "Extra",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", nil, "ALL", nil, nil, nil, nil, "4188", "100.00", "Using filesort"}, actual[1])
+			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", nil, "ALL", nil, nil, nil, nil, "4117", "100.00", "Using filesort"}, actual[1])
 		}
 	})
 

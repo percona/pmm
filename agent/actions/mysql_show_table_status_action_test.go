@@ -63,8 +63,8 @@ func TestShowTableStatus(t *testing.T) {
 			}, actual[0])
 			actual[1][11] = createTime
 			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Compact", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
+				"city", "InnoDB", 10.0, "Compact", 4117.0, 97.0, 409600.0, 0.0,
+				81920.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
 				nil, "", "",
 			}, actual[1])
 
@@ -76,7 +76,7 @@ func TestShowTableStatus(t *testing.T) {
 			}, actual[0])
 			actual[1][11] = createTime
 			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
+				"city", "InnoDB", 10.0, "Dynamic", 4117.0, 95.0, 409600.0, 0.0,
 				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
 				nil, "", "",
 			}, actual[1])
@@ -89,8 +89,8 @@ func TestShowTableStatus(t *testing.T) {
 			}, actual[0])
 			actual[1][11] = createTime
 			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
+				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 393216.0, 0.0,
+				81920.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
 				nil, "", "",
 			}, actual[1])
 
