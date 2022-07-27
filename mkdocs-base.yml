@@ -135,7 +135,7 @@ nav:
           - how-to/secure.md
           - how-to/optimize.md
           - how-to/annotate.md
-          - how-to/render-dashboard-images.md
+          - how-to/share-dashboard.md
           - how-to/extend-metrics.md
           - how-to/troubleshoot.md
           - Integrate with Percona Platform:
