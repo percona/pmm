@@ -26,15 +26,17 @@ import (
 func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
 	tb.Helper()
 
+	var id int
 	var err error
 	for i := 0; i < 30; i++ {
-		if _, err = db.Exec("ALTER TABLE city ENGINE=INNODB"); err == nil {
+		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ id FROM city LIMIT 1").Scan(&id); err == nil {
 			return
 		}
 
 		time.Sleep(time.Second)
 	}
 	require.NoError(tb, err)
+	time.Sleep(6 * time.Second)
 }
 
 // waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
