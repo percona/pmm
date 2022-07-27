@@ -42,8 +42,7 @@ func (l *Store) Write(b []byte) (int, error) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
-	// when store 0 logs
-	if l.log == nil {
+	if l.capacity == 0 {
 		return len(b), nil
 	}
 
@@ -63,9 +62,9 @@ func (l *Store) Resize(capacity int) {
 
 	old := l.log
 
-	l.capacity = capacity
 	l.log = ring.New(capacity)
-	if l.log == nil {
+	l.capacity = capacity
+	if l.capacity == 0 {
 		return
 	}
 
@@ -82,8 +81,7 @@ func (l *Store) GetLogs() []string {
 	l.m.Lock()
 	defer l.m.Unlock()
 
-	// when store 0 logs
-	if l.log == nil {
+	if l.capacity == 0 {
 		return nil
 	}
 
