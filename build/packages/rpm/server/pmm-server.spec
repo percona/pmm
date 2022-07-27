@@ -7,7 +7,7 @@
 %global pmm_provider    github.com/percona/%{pmm_repo}
 %global pmm_commit      @@pmm_commit@@
 %global pmm_shortcommit %(c=%{pmm_commit}; echo ${c:0:7})
-%define release         31
+%define release         32
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		%{repo}
@@ -43,7 +43,6 @@ install -d %{buildroot}%{_datadir}/percona-dashboards
 mv alertmanager.yml %{buildroot}%{_sysconfdir}/alertmanager.yml
 
 install -d %{buildroot}%{_datadir}/%{name}
-cp -pav ./entrypoint.sh %{buildroot}%{_datadir}/%{name}/entrypoint.sh
 cp -pav ./installation-wizard/build %{buildroot}%{_datadir}/%{name}/installation-wizard-page
 cp -pav ./%{pmm_repo}-%{pmm_commit}/api/swagger %{buildroot}%{_datadir}/%{name}/swagger
 rm -rf %{pmm_repo}-%{pmm_commit}
@@ -57,6 +56,9 @@ rm -rf %{pmm_repo}-%{pmm_commit}
 
 
 %changelog
+* Wed Jul 27 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.30.0-1
+- PMM-10036 migrate to monorepo
+
 * Mon May 31 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.29.0-2
 - PMM-10027 Remove supervisor config from package
 
