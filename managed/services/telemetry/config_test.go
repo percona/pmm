@@ -28,15 +28,7 @@ import (
 func TestServiceConfigUnmarshal(t *testing.T) {
 	input := `
 enabled: true
-load_defaults: true
-# priority is as follows, from the highest priority
-#   1. this config value
-#   2. PERCONA_TEST_SAAS_HOST env variable
-#   3. check.percona.com
 saas_hostname: "check.localhost"
-endpoints:
-  # %s is substituted with 'saas_hostname'
-  report: https://%s/v1/telemetry/Report
 datasources:
   VM:
     enabled: true
@@ -54,34 +46,31 @@ datasources:
       username: pmm-managed
       password: pmm-managed
 reporting:
-  skip_tls_verification: true
+  send: true
   send_on_start: true
   interval: 10s
-  interval_env: "PERCONA_TEST_TELEMETRY_INTERVAL"
   retry_backoff: 1s
-  retry_backoff_env: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
   retry_count: 2
-  send_timeout: 10s`
+  send_timeout: 10s
+`
 	var actual ServiceConfig
 	err := yaml.Unmarshal([]byte(input), &actual)
 	require.Nil(t, err)
 	expected := ServiceConfig{
 		Enabled:      true,
-		LoadDefaults: true,
 		SaasHostname: "check.localhost",
 		Reporting: ReportingConfig{
-			SendOnStart:     true,
-			Interval:        time.Second * 10,
-			IntervalEnv:     "PERCONA_TEST_TELEMETRY_INTERVAL",
-			RetryBackoff:    time.Second * 1,
-			RetryBackoffEnv: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF",
-			RetryCount:      2,
-			SendTimeout:     time.Second * 10,
+			Send:         true,
+			SendOnStart:  true,
+			Interval:     time.Second * 10,
+			RetryBackoff: time.Second * 1,
+			RetryCount:   2,
+			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
 			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
