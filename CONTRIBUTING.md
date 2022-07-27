@@ -99,7 +99,7 @@ Before submitting code or documentation contributions, you should first complete
 
 ### 1. Sign the CLA
 
-Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/<linktoCLA>) (CLA). You can do this using your GitHub account and one click.
+Before you can contribute, we kindly ask you to sign our [Contributor License Agreement](https://cla-assistant.percona.com/percona/pmm) (CLA). You can do this using your GitHub account and one click.
 
 ### 2. Code of Conduct
 
@@ -117,8 +117,8 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container.
-* To run pmm-managed with a new changes just run `make env TARGET=run` to update `pmm-managed` running in container.
+* Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.  
+* To run pmm-managed with a new changes just run `make env TARGET="release-dev-managed run-managed"` to update `pmm-managed` running in container.
 
 ### PMM Client
 

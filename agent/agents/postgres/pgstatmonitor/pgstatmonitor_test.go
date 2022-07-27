@@ -200,7 +200,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err := db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
-		buckets, err := m.getNewBuckets(context.Background(), 60)
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
+		buckets, err := m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -212,7 +217,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.Equal(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
-		if !m.pgsmNormalizedQuery && !m.disableQueryExamples {
+
+		if !normalizedQuery && !m.disableQueryExamples {
 			example = actual.Common.Example
 		}
 
@@ -263,7 +269,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err = db.Exec(selectAllCountries)
 		require.NoError(t, err)
 
-		buckets, err = m.getNewBuckets(context.Background(), 60)
+		buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -326,7 +332,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err := db.Exec(q, args...)
 		require.NoError(t, err)
 
-		buckets, err := m.getNewBuckets(context.Background(), 60)
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
+		buckets, err := m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -384,7 +395,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		_, err = db.Exec(q, args...)
 		require.NoError(t, err)
 
-		buckets, err = m.getNewBuckets(context.Background(), 60)
+		buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 		require.NoError(t, err)
 		buckets = filter(buckets)
 		t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))
@@ -468,9 +479,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		}
 		waitGroup.Wait()
 
+		settings, err := m.getSettings()
+		require.NoError(t, err)
+		normalizedQuery, err := settings.getNormalizedQueryValue()
+		require.NoError(t, err)
+
 		var buckets []*agentpb.MetricsBucket
 		for i := 0; i < 100; i++ {
-			buckets, err = m.getNewBuckets(context.Background(), 60)
+			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
 			buckets = filter(buckets)
 			t.Logf("Actual:\n%s", tests.FormatBuckets(buckets))

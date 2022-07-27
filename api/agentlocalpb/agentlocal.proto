@@ -50,6 +50,7 @@ message StatusResponse {
   string config_filepath = 5;
   // PMM Agent version.
   string agent_version = 6;
+  string node_name = 7;
 }
 
 message ReloadRequest {}

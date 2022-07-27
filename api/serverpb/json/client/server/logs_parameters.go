@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // NewLogsParams creates a new LogsParams object,
@@ -58,6 +59,12 @@ func NewLogsParamsWithHTTPClient(client *http.Client) *LogsParams {
    Typically these are written to a http.Request.
 */
 type LogsParams struct {
+	/* Pprof.
+
+	   Include performance profiling data,
+	*/
+	Pprof *bool
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -111,12 +118,39 @@ func (o *LogsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithPprof adds the pprof to the logs params
+func (o *LogsParams) WithPprof(pprof *bool) *LogsParams {
+	o.SetPprof(pprof)
+	return o
+}
+
+// SetPprof adds the pprof to the logs params
+func (o *LogsParams) SetPprof(pprof *bool) {
+	o.Pprof = pprof
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *LogsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
 	var res []error
+
+	if o.Pprof != nil {
+
+		// query param pprof
+		var qrPprof bool
+
+		if o.Pprof != nil {
+			qrPprof = *o.Pprof
+		}
+		qPprof := swag.FormatBool(qrPprof)
+		if qPprof != "" {
+			if err := r.SetQueryParam("pprof", qPprof); err != nil {
+				return err
+			}
+		}
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
