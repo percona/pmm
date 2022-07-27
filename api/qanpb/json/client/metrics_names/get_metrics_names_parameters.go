@@ -58,7 +58,10 @@ func NewGetMetricsNamesParamsWithHTTPClient(client *http.Client) *GetMetricsName
    Typically these are written to a http.Request.
 */
 type GetMetricsNamesParams struct {
-	// Body.
+	/* Body.
+
+	   MetricsNamesRequest is emty.
+	*/
 	Body interface{}
 
 	timeout    time.Duration
