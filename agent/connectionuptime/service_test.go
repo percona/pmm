@@ -139,7 +139,7 @@ func TestConnectionUpTime(t *testing.T) {
 		},
 		{
 			name:             "should return 0% uptime for 5 second period when there is no events",
-			setOfConnections: map[time.Time]bool{},
+			setOfConnections: nil,
 			expectedUpTime:   0,
 			windowPeriod:     5 * time.Second,
 			toTime:           now,

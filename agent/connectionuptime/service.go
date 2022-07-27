@@ -80,7 +80,7 @@ func (c *Service) deleteOldEvents() {
 	}
 
 	// Move first elements which are already expired to the start of the slice
-	// in order to not loose information about previous state of connection.
+	// in order to not lose information about previous state of connection.
 	// The latest expired element in the slice will be the first one to calculate
 	// uptime correctly during set up window time
 	expired := time.Now().Add(-c.windowPeriod)
