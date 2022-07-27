@@ -58,7 +58,10 @@ func NewGetHistogramParamsWithHTTPClient(client *http.Client) *GetHistogramParam
    Typically these are written to a http.Request.
 */
 type GetHistogramParams struct {
-	// Body.
+	/* Body.
+
+	   HistogramRequest defines filtering by time range, labels and queryid.
+	*/
 	Body GetHistogramBody
 
 	timeout    time.Duration

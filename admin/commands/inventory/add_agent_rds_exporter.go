@@ -73,6 +73,7 @@ func (cmd *addAgentRDSExporterCommand) Run() (commands.Result, error) {
 			DisableBasicMetrics:    cmd.DisableBasicMetrics,
 			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 			PushMetrics:            cmd.PushMetrics,
+			LogLevel:               &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -103,4 +104,5 @@ func init() {
 	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
 	AddAgentRDSExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentRDSExporter.PushMetrics)
+	addExporterGlobalFlags(AddAgentRDSExporterC)
 }

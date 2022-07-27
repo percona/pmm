@@ -174,9 +174,9 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	if err != nil {
 		return nil, err
 	}
-	var runsOnNodeID string
+	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		runsOnNodeID, err = authenticate(agentMD, tx.Querier)
+		node, err = authenticate(agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,8 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
 
 	serverMD := agentpb.ServerConnectMetadata{
-		AgentRunsOnNodeID: runsOnNodeID,
+		AgentRunsOnNodeID: node.NodeID,
+		NodeName:          node.NodeName,
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
@@ -219,42 +220,50 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, error) {
+func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
-		return "", status.Error(codes.PermissionDenied, "Empty Agent ID.")
+		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
 
+	// Get agent ID
 	agent, err := models.FindAgentByID(q, md.ID)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			return "", status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
+			return nil, status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
 		}
-		return "", errors.Wrap(err, "failed to find agent")
+		return nil, errors.Wrap(err, "failed to find agent")
 	}
 
 	if agent.AgentType != models.PMMAgentType {
-		return "", status.Errorf(codes.PermissionDenied, "No pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.PermissionDenied, "No pmm-agent with ID %q.", md.ID)
 	}
 
-	if pointer.GetString(agent.RunsOnNodeID) == "" {
-		return "", status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
+	runsOnNodeID := pointer.GetString(agent.RunsOnNodeID)
+	if runsOnNodeID == "" {
+		return nil, status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
 	}
 
+	// Get agent version
 	agentVersion, err := version.Parse(md.Version)
 	if err != nil {
-		return "", status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := addOrRemoveVMAgent(q, md.ID, pointer.GetString(agent.RunsOnNodeID), agentVersion); err != nil {
-		return "", err
+	if err := addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+		return nil, err
 	}
 
 	agent.Version = &md.Version
 	if err := q.Update(agent); err != nil {
-		return "", errors.Wrap(err, "failed to update agent")
+		return nil, errors.Wrap(err, "failed to update agent")
 	}
 
-	return pointer.GetString(agent.RunsOnNodeID), nil
+	node, err := models.FindNodeByID(q, runsOnNodeID)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Can't retrieve node ID for pmm-agent with ID %q.", md.ID)
+	}
+
+	return node, nil
 }
 
 // unregister removes pmm-agent with given ID from the registry.
@@ -420,7 +429,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mClockDrift.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*Registry)(nil)
 )

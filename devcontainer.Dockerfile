@@ -1,10 +1,10 @@
-ARG PMM_VERSION="perconalab/pmm-server:dev-latest"
-FROM $PMM_VERSION
+ARG PMM_SERVER_IMAGE="perconalab/pmm-server:dev-latest"
+FROM $PMM_SERVER_IMAGE
 
-ARG PMM_VERSION
+ARG PMM_SERVER_IMAGE
 ARG GO_VERSION="1.18.x"
 
-RUN echo "Building with: GO: ${GO_VERSION}, PMM: ${PMM_VERSION}"
+RUN echo "Building with: GO: ${GO_VERSION}, PMM: ${PMM_SERVER_IMAGE}"
 
 ENV PATH="/root/go/bin:${PATH}"
 

@@ -97,6 +97,7 @@ func (cmd *addAgentQANPostgreSQLPgStatementsAgentCommand) Run() (commands.Result
 			TLSCa:         tlsCa,
 			TLSCert:       tlsCert,
 			TLSKey:        tlsKey,
+			LogLevel:      &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -129,4 +130,5 @@ func init() {
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCAFile)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSCertFile)
 	AddAgentQANPostgreSQLPgStatementsAgentC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentQANPostgreSQLPgStatementsAgent.TLSKeyFile)
+	addExporterGlobalFlags(AddAgentQANPostgreSQLPgStatementsAgentC)
 }

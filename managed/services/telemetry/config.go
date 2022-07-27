@@ -19,6 +19,7 @@ package telemetry
 import (
 	_ "embed" //nolint:golint
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,17 +29,24 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
+const (
+	envDisableSend           = "PERCONA_TEST_TELEMETRY_DISABLE_SEND"
+	envConfigFile            = "PERCONA_TEST_TELEMETRY_FILE"
+	envDisableStartDelay     = "PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY"
+	envReportingInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
+	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
+)
+
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
 	l            *logrus.Entry
 	Enabled      bool     `yaml:"enabled"`
-	LoadDefaults bool     `yaml:"load_defaults"` //nolint:tagliatelle
 	telemetry    []Config `yaml:"-"`
-	SaasHostname string   `yaml:"saas_hostname"` //nolint:tagliatelle
+	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
 		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
-		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
+		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -66,7 +74,7 @@ type DataSourceVictoriaMetrics struct {
 type DSConfigPMMDB struct {
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
-	UseSeparateCredentials bool          `yaml:"use_separate_credentials"` //nolint:tagliatelle
+	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
 	// Credentials used by PMM
 	DSN struct {
 		Scheme string
@@ -81,7 +89,7 @@ type DSConfigPMMDB struct {
 	SeparateCredentials struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
-	} `yaml:"separate_credentials"` //nolint:tagliatelle
+	} `yaml:"separate_credentials"`
 }
 
 // Config telemetry config.
@@ -95,7 +103,7 @@ type Config struct {
 
 // ConfigData telemetry config.
 type ConfigData struct {
-	MetricName string `yaml:"metric_name"` //nolint:tagliatelle
+	MetricName string `yaml:"metric_name"`
 	Label      string `yaml:"label"`
 	Value      string `yaml:"value"`
 	Column     string `yaml:"column"`
@@ -111,13 +119,12 @@ func (c *Config) mapByColumn() map[string][]ConfigData {
 
 // ReportingConfig reporting config.
 type ReportingConfig struct {
-	SendOnStart     bool          `yaml:"send_on_start"` //nolint:tagliatelle
-	IntervalEnv     string        `yaml:"interval_env"`  //nolint:tagliatelle
-	Interval        time.Duration `yaml:"interval"`
-	RetryBackoffEnv string        `yaml:"retry_backoff_env"` //nolint:tagliatelle
-	RetryBackoff    time.Duration `yaml:"retry_backoff"`     //nolint:tagliatelle
-	SendTimeout     time.Duration `yaml:"send_timeout"`      //nolint:tagliatelle
-	RetryCount      int           `yaml:"retry_count"`       //nolint:tagliatelle
+	Send         bool          `yaml:"send"`
+	SendOnStart  bool          `yaml:"send_on_start"`
+	Interval     time.Duration `yaml:"interval"`
+	RetryBackoff time.Duration `yaml:"retry_backoff"`
+	SendTimeout  time.Duration `yaml:"send_timeout"`
+	RetryCount   int           `yaml:"retry_count"`
 }
 
 //go:embed config.default.yml
@@ -127,17 +134,19 @@ var defaultConfig string
 func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 	c.l = l
 
-	telemetry, err := c.loadConfig()
+	configFile := os.Getenv(envConfigFile)
+
+	telemetry, err := c.loadMetricsConfig(configFile)
 	if err != nil {
 		return errors.Wrap(err, "failed to load telemetry config")
 	}
 	c.telemetry = telemetry
 
-	if d, err := time.ParseDuration(os.Getenv(c.Reporting.IntervalEnv)); err == nil && d > 0 {
+	if d, err := time.ParseDuration(os.Getenv(envReportingInterval)); err == nil && d > 0 {
 		l.Warnf("Interval changed to %s.", d)
 		c.Reporting.Interval = d
 	}
-	if d, err := time.ParseDuration(os.Getenv(c.Reporting.RetryBackoffEnv)); err == nil && d > 0 {
+	if d, err := time.ParseDuration(os.Getenv(envReportingRetryBackoff)); err == nil && d > 0 {
 		l.Warnf("Retry backoff changed to %s.", d)
 		c.Reporting.RetryBackoff = d
 	}
@@ -150,20 +159,52 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
+	disabledSendStr, ok := os.LookupEnv(envDisableSend)
+	if ok {
+		disabledSend, err := strconv.ParseBool(disabledSendStr)
+		if err != nil {
+			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableSend)
+		} else {
+			c.l.Debugf("Overriding Telemetry.Reporting.Send with environment variable [%s] to %t.", envDisableSend, disabledSend)
+			c.Reporting.Send = !disabledSend
+		}
+	} else {
+		c.l.Debugf("[%s] is not set", envDisableSend)
+	}
+
+	disableOnStartSendStr, ok := os.LookupEnv(envDisableStartDelay)
+	if ok {
+		disableOnStartSend, err := strconv.ParseBool(disableOnStartSendStr)
+		if err != nil {
+			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableStartDelay)
+		} else {
+			c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with environment variable [%s] to %t.", envDisableStartDelay, disableOnStartSend)
+			c.Reporting.SendOnStart = !disableOnStartSend
+		}
+	}
+
 	return nil
 }
 
-func (c *ServiceConfig) loadConfig() ([]Config, error) { //nolint:cyclop
+func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 	var fileConfigs []FileConfig //nolint:prealloc
 	var fileCfg FileConfig
 
-	if c.LoadDefaults {
-		defaultConfigBytes := []byte(defaultConfig)
-		if err := yaml.Unmarshal(defaultConfigBytes, &fileCfg); err != nil {
-			return nil, errors.Wrap(err, "cannot unmashal default config")
+	var config []byte
+	if configFile != "" {
+		file, err := os.ReadFile(configFile)
+		if err != nil {
+			return nil, err
 		}
-		fileConfigs = append(fileConfigs, fileCfg)
+		config = file
+	} else {
+		c.l.Info("Using default metrics config")
+		config = []byte(defaultConfig)
 	}
+	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
+		return nil, errors.Wrap(err, "cannot unmashal default config")
+	}
+	fileConfigs = append(fileConfigs, fileCfg)
 
 	if err := c.validateConfig(fileConfigs); err != nil {
 		c.l.Errorf(err.Error())
