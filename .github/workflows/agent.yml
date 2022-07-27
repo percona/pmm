@@ -120,18 +120,18 @@ jobs:
         run: make test-crosscover
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: cover.out
-          flags: cover
+          file: ./src/github.com/percona/pmm/agent/cover.out
+          flags: agent-cover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: crosscover.out
-          flags: crosscover
+          file: ./src/github.com/percona/pmm/agent/crosscover.out
+          flags: agent-crosscover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 

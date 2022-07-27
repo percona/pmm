@@ -19,7 +19,6 @@ package telemetry
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"net/url"
 	"time"
 
@@ -46,7 +45,7 @@ func (d *dsPmmDBSelect) Enabled() bool {
 
 // NewDsPmmDBSelect make new PMM DB Select data source.
 func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
-	db, err := openPMMDBConnection(config)
+	db, err := openPMMDBConnection(config, l)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +57,7 @@ func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error)
 	}, nil
 }
 
-func openPMMDBConnection(config DSConfigPMMDB) (*sql.DB, error) {
+func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error) {
 	if !config.Enabled {
 		return nil, nil //nolint:nilnil
 	}
@@ -89,7 +88,7 @@ func openPMMDBConnection(config DSConfigPMMDB) (*sql.DB, error) {
 	db.SetMaxOpenConns(1)
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("connection to PMM DB failed: %s", err)
+		l.Warnf("DB is not reachable [%s]: %s", config.DSN.DB, err)
 	}
 
 	return db, nil
