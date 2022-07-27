@@ -137,6 +137,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
 			PushMetrics:               cmd.PushMetrics,
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:                  &addExporterLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -177,4 +178,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentMysqldExporter.PushMetrics)
 	AddAgentMysqldExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentMysqldExporter.DisableCollectors)
+	addExporterGlobalFlags(AddAgentMysqldExporterC)
 }

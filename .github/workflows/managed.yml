@@ -29,11 +29,13 @@ jobs:
   test:
     name: Test pmm-managed
     runs-on: ubuntu-22.04
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
+        use-cache: [false]
         go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
-    timeout-minutes: 30
+
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
@@ -59,6 +61,7 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Enable Go build cache
+        if: matrix.use-cache
         uses: percona-platform/cache@v2
         with:
           path: ~/.cache/go-build
@@ -68,6 +71,7 @@ jobs:
             ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-
 
       - name: Enable Go modules cache
+        if: matrix.use-cache
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
@@ -76,16 +80,19 @@ jobs:
             ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
+        if: matrix.use-cache
         run: go mod download
 
       - name: Initialize CI environment
         run: make env-compose-up
 
       - name: Restore Go build cache
+        if: matrix.use-cache
         continue-on-error: true
         run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
+        if: matrix.use-cache
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
@@ -93,33 +100,31 @@ jobs:
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: cover.out
-          flags: all,cover
-          functionalities: fix
+          file: ./src/github.com/percona/pmm/managed/cover.out
+          flags: managed-cover
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: crosscover.out
-          flags: all,crosscover
-          functionalities: fix
+          file: ./src/github.com/percona/pmm/managed/crosscover.out
+          flags: managed-crosscover
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: race-crosscover.out
-          flags: update,crosscover
-          functionalities: fix
+          file: ./src/github.com/percona/pmm/managed/race-crosscover.out
+          flags: managed-race-crosscover
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Cache
+        if: matrix.use-cache
         run: |
           docker exec pmm-managed-server go clean -testcache
           docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +

@@ -130,7 +130,7 @@ func TestNodeHelpers(t *testing.T) {
 			})
 			assert.NoError(t, err)
 
-			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
+			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id DESC", machineID)
 			require.NoError(t, err)
 			require.Len(t, structs, 2)
 			expected := &models.Node{
