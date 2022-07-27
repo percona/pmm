@@ -60,7 +60,7 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(0)
 
-	waitForFixtures(tb, db)
+	waitForFixturesMYSQL(tb, db)
 
 	// to make Actions tests more stable
 	_, err = db.Exec(`ANALYZE /* pmm-agent-tests:OpenTestMySQL */ TABLE city`)

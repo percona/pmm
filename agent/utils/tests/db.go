@@ -23,12 +23,28 @@ import (
 )
 
 // waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
-func waitForFixtures(tb testing.TB, db *sql.DB) {
+func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
 	tb.Helper()
 
 	var err error
 	for i := 0; i < 30; i++ {
 		if _, err = db.Exec("ANALYZE /* pmm-agent-tests:waitForFixtures */ TABLE city"); err == nil {
+			return
+		}
+
+		time.Sleep(time.Second)
+	}
+	require.NoError(tb, err)
+}
+
+// waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
+func waitForFixturesPG(tb testing.TB, db *sql.DB) {
+	tb.Helper()
+
+	var id int
+	var err error
+	for i := 0; i < 30; i++ {
+		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ id FROM city LIMIT 1").Scan(&id); err == nil {
 			return
 		}
 

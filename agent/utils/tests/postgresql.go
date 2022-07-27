@@ -59,7 +59,7 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(0)
 
-	waitForFixtures(tb, db)
+	waitForFixturesPG(tb, db)
 
 	return db
 }
