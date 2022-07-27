@@ -16,6 +16,8 @@
 package connectionuptime
 
 import (
+	"fmt"
+	"math"
 	"sort"
 	"testing"
 	"time"
@@ -95,15 +97,14 @@ func TestConnectionUpTime(t *testing.T) {
 		{
 			name: "should count uptime only during 1 minute and should be only 10% uptime",
 			setOfConnections: map[time.Time]bool{
-				now.Add(-2 * time.Minute):                true,
-				now.Add(-1*time.Minute - 20*time.Second): false,
-				now.Add(-1*time.Minute - 6*time.Second):  true,
-				now.Add(-1 * time.Minute):                false,
-				now.Add(-40 * time.Second):               false,
+				now.Add(-2 * time.Minute):                false,
+				now.Add(-1*time.Minute - 30*time.Second): true,
+				now.Add(-1*time.Minute - 10*time.Second): false,
+				now.Add(-6 * time.Second):                true,
 			},
 			expectedUpTime: 10,
 			windowPeriod:   time.Minute,
-			toTime:         now.Add(-20 * time.Second),
+			toTime:         now,
 		},
 		{
 			name: "should return 100% uptime",
@@ -166,7 +167,9 @@ func TestConnectionUpTime(t *testing.T) {
 			}
 
 			service.deleteOldEvents()
-			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
+			got := service.GetConnectedUpTimeSince(tt.toTime)
+			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
 		})
 	}
 }
@@ -240,14 +243,27 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 
 			// delete expired events
 			service.deleteOldEvents()
-			assert.EqualValues(t, tt.expectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
+			got := service.GetConnectedUpTimeSince(tt.toTime)
+			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
 
 			// updated window uptime
 			service.SetWindowPeriod(tt.newWindowPeriod)
 
 			// delete expired events
 			service.deleteOldEvents()
-			assert.EqualValues(t, tt.newExpectedUpTime, service.GetConnectedUpTimeSince(tt.toTime))
+			got = service.GetConnectedUpTimeSince(tt.toTime)
+			assert.True(t, compareFloatWithTolerance(tt.newExpectedUpTime, got),
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
 		})
 	}
+}
+
+func compareFloatWithTolerance(a, b float32) bool {
+	// here is big tolerance because sometimes we can't exactly know
+	// the calculation uptime
+	tolerance := 0.2
+	diff := math.Abs(float64(a) - float64(b))
+
+	return diff < tolerance
 }
