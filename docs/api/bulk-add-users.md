@@ -79,7 +79,7 @@ This can be achieved in Ansible with a task such as:
 ```yaml
 - name: Create a new API token
   uri:
-    url: https://127.0.0.1/graph/api/admin/users
+    url: https://127.0.0.1/graph/api/auth/keys
     method: POST
     user: admin
     password: admin
@@ -124,7 +124,7 @@ For simplicity, we will only be using Ansible for this example.
 
 - name: Create a new API token
   uri:
-    url: https://127.0.0.1/graph/api/admin/users
+    url: https://127.0.0.1/graph/api/auth/keys
     method: POST
     user: admin
     password: admin
