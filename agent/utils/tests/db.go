@@ -28,7 +28,7 @@ func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
 
 	var err error
 	for i := 0; i < 30; i++ {
-		if _, err = db.Exec("ANALYZE /* pmm-agent-tests:waitForFixtures */ TABLE city"); err == nil {
+		if _, err = db.Exec("ALTER TABLE city ENGINE=INNODB"); err == nil {
 			return
 		}
 
