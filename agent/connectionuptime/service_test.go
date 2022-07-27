@@ -136,9 +136,17 @@ func TestConnectionUpTime(t *testing.T) {
 			windowPeriod:   5 * time.Second,
 			toTime:         now,
 		},
+		{
+			name:             "should return 0% uptime for 5 second period when there is no events",
+			setOfConnections: map[time.Time]bool{},
+			expectedUpTime:   0,
+			windowPeriod:     5 * time.Second,
+			toTime:           now,
+		},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -211,6 +219,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

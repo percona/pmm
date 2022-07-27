@@ -63,18 +63,11 @@ func (c *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) 
 }
 
 func (c *Service) addEvent(timestamp time.Time, connected bool) {
-	newElem := connectionEvent{
-		Timestamp: timestamp,
-		Connected: connected,
-	}
-
-	if len(c.events) != 0 {
-		lastElem := c.events[len(c.events)-1]
-		if lastElem.Connected != connected {
-			c.events = append(c.events, newElem)
-		}
-	} else {
-		c.events = append(c.events, newElem)
+	if len(c.events) == 0 || c.events[len(c.events)-1].Connected != connected {
+		c.events = append(c.events, connectionEvent{
+			Timestamp: timestamp,
+			Connected: connected,
+		})
 	}
 }
 
@@ -153,6 +146,10 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 //       time_between(f1, now) - total time betweeen first event (f1) and current moment
 func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
 	c.l.Debug("Calculate connection uptime")
+	if len(c.events) == 0 {
+		return 0
+	}
+
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
 			return 100
