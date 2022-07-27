@@ -1,4 +1,9 @@
+%define copying() \
+%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 \
 %license %{*} \
+%else \
+%doc %{*} \
+%endif
 
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
