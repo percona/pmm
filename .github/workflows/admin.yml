@@ -70,6 +70,20 @@ jobs:
       - name: Test crosscover
         run: make test-crosscover
 
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v3
+        with:
+          file: ./src/github.com/percona/pmm/admin/cover.out
+          flags: admin-cover
+          fail_ci_if_error: false
+
+      - name: Upload coverage results
+        uses: percona-platform/codecov-action@v3
+        with:
+          file: ./src/github.com/percona/pmm/admin/crosscover.out
+          flags: admin-crosscover
+          fail_ci_if_error: false
+
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
