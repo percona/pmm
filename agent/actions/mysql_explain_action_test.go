@@ -158,7 +158,7 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 				"id", "select_type", "table",
 				"type", "possible_keys", "key", "key_len", "ref", "rows", "Extra",
 			}, actual[0])
-			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", "ALL", nil, nil, nil, nil, "4188", "Using filesort"}, actual[1])
+			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", "ALL", nil, nil, nil, nil, "4117", "Using filesort"}, actual[1])
 		default:
 			assert.Equal(t, []interface{}{
 				"id", "select_type", "table", "partitions",
