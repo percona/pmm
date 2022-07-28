@@ -1,4 +1,5 @@
 *                           @BupycHuk @percona/pmm-review-be
+/build/                     @nikita-b @atymchuk 
 /admin/                     @michal-kralik
 /agent/agents/postgres/     @JiriCtvrtka
 /agent/actions/             @artemgavrilov
