@@ -22,38 +22,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
-func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
+// waitForTestDataLoad waits up to 30 seconds to test dataset to be loaded.
+func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 	tb.Helper()
 
 	var count int
 	var err error
 	for i := 0; i < 30; i++ {
-		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ COUNT(*) FROM city").Scan(&count); err == nil {
+		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count); err == nil {
 			return
 		}
 
-		if count >= 4079 {
+		// Size on test dataset https://github.com/AlekSi/test_db/blob/4c673cc28648568fc23d35e86f280f411498620e/mysql/world/world.sql#L4125
+		if count == 4079 {
 			return
 		}
-
-		time.Sleep(time.Second)
-	}
-	require.NoError(tb, err)
-	// time.Sleep(6 * time.Second)
-}
-
-// waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
-func waitForFixturesPG(tb testing.TB, db *sql.DB) {
-	tb.Helper()
-
-	var id int
-	var err error
-	for i := 0; i < 30; i++ {
-		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ id FROM city LIMIT 1").Scan(&id); err == nil {
-			return
-		}
-
 		time.Sleep(time.Second)
 	}
 	require.NoError(tb, err)
