@@ -58,10 +58,7 @@ func NewGetQueryPlanParamsWithHTTPClient(client *http.Client) *GetQueryPlanParam
    Typically these are written to a http.Request.
 */
 type GetQueryPlanParams struct {
-	/* Body.
-
-	   QueryPlanRequest defines filtering by queryid.
-	*/
+	// Body.
 	Body GetQueryPlanBody
 
 	timeout    time.Duration

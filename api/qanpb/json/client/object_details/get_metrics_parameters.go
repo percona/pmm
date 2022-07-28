@@ -58,10 +58,7 @@ func NewGetMetricsParamsWithHTTPClient(client *http.Client) *GetMetricsParams {
    Typically these are written to a http.Request.
 */
 type GetMetricsParams struct {
-	/* Body.
-
-	   MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
-	*/
+	// Body.
 	Body GetMetricsBody
 
 	timeout    time.Duration

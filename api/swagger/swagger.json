@@ -14826,7 +14826,6 @@
         "operationId": "AddAnnotation",
         "parameters": [
           {
-            "description": "AddAnnotationRequest is a params to add new annotation.",
             "name": "body",
             "in": "body",
             "required": true,

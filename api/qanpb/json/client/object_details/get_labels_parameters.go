@@ -58,11 +58,7 @@ func NewGetLabelsParamsWithHTTPClient(client *http.Client) *GetLabelsParams {
    Typically these are written to a http.Request.
 */
 type GetLabelsParams struct {
-	/* Body.
-
-	     ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
-	dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
-	*/
+	// Body.
 	Body GetLabelsBody
 
 	timeout    time.Duration

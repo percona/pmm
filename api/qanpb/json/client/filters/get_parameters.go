@@ -58,10 +58,7 @@ func NewGetParamsWithHTTPClient(client *http.Client) *GetParams {
    Typically these are written to a http.Request.
 */
 type GetParams struct {
-	/* Body.
-
-	   FiltersRequest contains period for which we need filters.
-	*/
+	// Body.
 	Body GetBody
 
 	timeout    time.Duration
