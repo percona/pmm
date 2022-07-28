@@ -28,7 +28,6 @@ import (
 )
 
 func TestShowTableStatus(t *testing.T) {
-	t.Skip() // todo: tmp skip tests
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)

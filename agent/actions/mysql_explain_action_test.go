@@ -30,7 +30,6 @@ import (
 )
 
 func TestMySQLExplain(t *testing.T) {
-	t.Skip() // todo: tmp skip
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)
