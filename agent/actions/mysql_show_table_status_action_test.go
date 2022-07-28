@@ -33,7 +33,6 @@ func TestShowTableStatus(t *testing.T) {
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
 	defer db.Close() //nolint:errcheck
-	mySQLVersion, _ := tests.MySQLVersion(t, db)
 
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
@@ -48,68 +47,35 @@ func TestShowTableStatus(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual map[string]interface{}
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		const createTime = "2019-06-10 12:04:29"
-		switch mySQLVersion {
-		case "5.6":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Compact", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
+		// Check some columns names
+		assert.Contains(t, actual, "Name")
+		assert.Contains(t, actual, "Engine")
+		assert.Contains(t, actual, "Version")
+		assert.Contains(t, actual, "Row_format")
+		assert.Contains(t, actual, "Rows")
+		assert.Contains(t, actual, "Avg_row_length")
+		assert.Contains(t, actual, "Data_length")
+		assert.Contains(t, actual, "Max_data_length")
+		assert.Contains(t, actual, "Index_length")
+		assert.Contains(t, actual, "Data_free")
+		assert.Contains(t, actual, "Auto_increment")
+		assert.Contains(t, actual, "Create_time")
+		assert.Contains(t, actual, "Update_time")
+		assert.Contains(t, actual, "Check_time")
+		assert.Contains(t, actual, "Collation")
+		assert.Contains(t, actual, "Checksum")
+		assert.Contains(t, actual, "Create_options")
+		assert.Contains(t, actual, "Comment")
 
-		case "5.7", "8.0":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
-
-		case "10.2":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
-
-		case "10.3", "10.4":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment", "Max_index_length", "Temporary",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "", 0.0, "N",
-			}, actual[1])
-
-		default:
-			t.Fatal("Unhandled version.")
-		}
+		// Checks some stable values
+		assert.Equal(t, "city", actual["Name"])
+		assert.Equal(t, "InnoDB", actual["Engine"])
+		assert.Equal(t, 10.0, actual["Version"])
 	})
 
 	t.Run("Error", func(t *testing.T) {
