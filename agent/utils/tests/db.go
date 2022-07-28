@@ -40,7 +40,7 @@ func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
 		time.Sleep(time.Second)
 	}
 	require.NoError(tb, err)
-	time.Sleep(6 * time.Second)
+	// time.Sleep(6 * time.Second)
 }
 
 // waitForFixtures waits up to 30 seconds to database fixtures (test_db) to be loaded.
