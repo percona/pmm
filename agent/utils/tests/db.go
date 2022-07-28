@@ -26,10 +26,14 @@ import (
 func waitForFixturesMYSQL(tb testing.TB, db *sql.DB) {
 	tb.Helper()
 
-	var id int
+	var count int
 	var err error
 	for i := 0; i < 30; i++ {
-		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ id FROM city LIMIT 1").Scan(&id); err == nil {
+		if err = db.QueryRow("SELECT /* pmm-agent-tests:waitForFixtures */ COUNT(*) FROM city").Scan(&count); err == nil {
+			return
+		}
+
+		if count >= 4079 {
 			return
 		}
 
