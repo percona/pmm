@@ -67,9 +67,9 @@ plugins:
       - "setting-up/client/docker.md"
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "_pdf/PerconaMonitoringAndManagement-2.29.0.pdf"
+    output_path: "_pdf/PerconaMonitoringAndManagement-2.29.1.pdf"
     cover_title: "Documentation"
-    cover_subtitle: 2.29.0 (July 19, 2022)
+    cover_subtitle: 2.29.1 (July 27, 2022)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/PMM_Logo.svg
     custom_template_path: _resources/templates
@@ -234,6 +234,7 @@ nav:
     
     - Release Notes:
           - release-notes/index.md
+          - "PMM 2.29.1": release-notes/2.29.1.md
           - "PMM 2.29.0": release-notes/2.29.0.md
           - "PMM 2.28.0": release-notes/2.28.0.md
           - "PMM 2.27.0": release-notes/2.27.0.md
