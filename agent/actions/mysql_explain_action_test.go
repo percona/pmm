@@ -58,7 +58,8 @@ func TestMySQLExplain(t *testing.T) {
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
 		// Check some columns names
-		assert.Contains(t, actual, "id |select_type |table |type |possible_keys |key  |key_len |ref  |rows")
+		assert.Contains(t, actual, "id |select_type |table")
+		assert.Contains(t, actual, "|type |possible_keys |key  |key_len |ref  |rows")
 
 		// Checks some stable values
 		assert.Contains(t, actual, "1  |SIMPLE      |city  |ALL")
