@@ -9,6 +9,9 @@ RUN groupadd -g 1002 pmm-agent && \
 
 FROM redhat/ubi9-micro
 
+ARG VERSION
+ARG BUILD_DATE
+
 LABEL org.label-schema.build-date ${BUILD_DATE}
 LABEL org.label-schema.license Apache-2.0
 LABEL org.label-schema.name Percona Monitoring and Management Client
