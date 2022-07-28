@@ -47,35 +47,35 @@ func TestShowTableStatus(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual map[string]interface{}
+		var actual [][]interface{}
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
 		// Check some columns names
-		assert.Contains(t, actual, "Name")
-		assert.Contains(t, actual, "Engine")
-		assert.Contains(t, actual, "Version")
-		assert.Contains(t, actual, "Row_format")
-		assert.Contains(t, actual, "Rows")
-		assert.Contains(t, actual, "Avg_row_length")
-		assert.Contains(t, actual, "Data_length")
-		assert.Contains(t, actual, "Max_data_length")
-		assert.Contains(t, actual, "Index_length")
-		assert.Contains(t, actual, "Data_free")
-		assert.Contains(t, actual, "Auto_increment")
-		assert.Contains(t, actual, "Create_time")
-		assert.Contains(t, actual, "Update_time")
-		assert.Contains(t, actual, "Check_time")
-		assert.Contains(t, actual, "Collation")
-		assert.Contains(t, actual, "Checksum")
-		assert.Contains(t, actual, "Create_options")
-		assert.Contains(t, actual, "Comment")
+		assert.Contains(t, actual[0], "Name")
+		assert.Contains(t, actual[0], "Engine")
+		assert.Contains(t, actual[0], "Version")
+		assert.Contains(t, actual[0], "Row_format")
+		assert.Contains(t, actual[0], "Rows")
+		assert.Contains(t, actual[0], "Avg_row_length")
+		assert.Contains(t, actual[0], "Data_length")
+		assert.Contains(t, actual[0], "Max_data_length")
+		assert.Contains(t, actual[0], "Index_length")
+		assert.Contains(t, actual[0], "Data_free")
+		assert.Contains(t, actual[0], "Auto_increment")
+		assert.Contains(t, actual[0], "Create_time")
+		assert.Contains(t, actual[0], "Update_time")
+		assert.Contains(t, actual[0], "Check_time")
+		assert.Contains(t, actual[0], "Collation")
+		assert.Contains(t, actual[0], "Checksum")
+		assert.Contains(t, actual[0], "Create_options")
+		assert.Contains(t, actual[0], "Comment")
 
 		// Checks some stable values
-		assert.Equal(t, "city", actual["Name"])
-		assert.Equal(t, "InnoDB", actual["Engine"])
-		assert.Equal(t, 10.0, actual["Version"])
+		assert.Equal(t, "city", actual[1][0])   // Name
+		assert.Equal(t, "InnoDB", actual[1][1]) // Engine
+		assert.Equal(t, 10.0, actual[1][2])     // Version
 	})
 
 	t.Run("Error", func(t *testing.T) {

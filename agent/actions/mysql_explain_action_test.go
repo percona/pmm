@@ -58,7 +58,7 @@ func TestMySQLExplain(t *testing.T) {
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
 		// Check some columns names
-		assert.Contains(t, actual, "id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra")
+		assert.Contains(t, actual, "id |select_type |table |type |possible_keys |key  |key_len |ref  |rows")
 
 		// Checks some stable values
 		assert.Contains(t, actual, "1  |SIMPLE      |city  |ALL")
@@ -126,28 +126,28 @@ func TestMySQLExplain(t *testing.T) {
 		err = json.Unmarshal(b, &er)
 		assert.NoError(t, err)
 
-		var actual map[string]interface{}
+		var actual [][]interface{}
 		err = json.Unmarshal(er.ExplainResult, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
 		// Check some columns names
-		assert.Contains(t, actual, "id")
-		assert.Contains(t, actual, "select_type")
-		assert.Contains(t, actual, "table")
-		assert.Contains(t, actual, "type")
-		assert.Contains(t, actual, "possible_keys")
-		assert.Contains(t, actual, "key")
-		assert.Contains(t, actual, "key_len")
-		assert.Contains(t, actual, "ref")
-		assert.Contains(t, actual, "rows")
-		assert.Contains(t, actual, "Extra")
+		assert.Contains(t, actual[0], "id")
+		assert.Contains(t, actual[0], "select_type")
+		assert.Contains(t, actual[0], "table")
+		assert.Contains(t, actual[0], "type")
+		assert.Contains(t, actual[0], "possible_keys")
+		assert.Contains(t, actual[0], "key")
+		assert.Contains(t, actual[0], "key_len")
+		assert.Contains(t, actual[0], "ref")
+		assert.Contains(t, actual[0], "rows")
+		assert.Contains(t, actual[0], "Extra")
 
 		// Checks some stable values
-		assert.Equal(t, actual["id"], "1")
-		assert.Equal(t, actual["select_type"], "SIMPLE")
-		assert.Equal(t, actual["table"], "city")
-		assert.Equal(t, actual["type"], "ALL")
+		assert.Equal(t, actual[1][0], "1")      // id
+		assert.Equal(t, actual[1][1], "SIMPLE") // select_type
+		assert.Equal(t, actual[1][2], "city")   // table
+		assert.Equal(t, actual[1][3], "ALL")    // type
 	})
 
 	t.Run("Error", func(t *testing.T) {
