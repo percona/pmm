@@ -148,7 +148,6 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Equal(t, actual[1][0], "1")      // id
 		assert.Equal(t, actual[1][1], "SIMPLE") // select_type
 		assert.Equal(t, actual[1][2], "city")   // table
-		assert.Equal(t, actual[1][3], "ALL")    // type
 	})
 
 	t.Run("Error", func(t *testing.T) {
