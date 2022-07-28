@@ -1566,6 +1566,10 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN mysql perfschema
@@ -1573,6 +1577,10 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1633,6 +1641,60 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry)
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum = append(addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelError captures enum value "error"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelError string = "error"
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelInfo captures enum value "info"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelInfo string = "info"
+
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyQANMysqlPerfschema) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyQANMysqlPerfschema) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"qan_mysql_perfschema"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1703,6 +1765,10 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body QAN postgresql pgstatements
@@ -1710,6 +1776,10 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) Validate(formats strfmt.Registry
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1770,6 +1840,60 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Re
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"qan_postgresql_pgstatements"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum = append(addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelError captures enum value "error"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelError string = "error"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelInfo captures enum value "info"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelInfo string = "info"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"qan_postgresql_pgstatements"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
@@ -1846,6 +1970,10 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter
@@ -1853,6 +1981,10 @@ func (o *AddRDSOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1913,6 +2045,60 @@ func (o *AddRDSOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error 
 
 	// value enum
 	if err := o.validateStatusEnum("addRdsOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addRdsOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addRdsOkBodyRdsExporterTypeLogLevelPropEnum = append(addRdsOkBodyRdsExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddRDSOKBodyRDSExporterLogLevelAuto captures enum value "auto"
+	AddRDSOKBodyRDSExporterLogLevelAuto string = "auto"
+
+	// AddRDSOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
+	AddRDSOKBodyRDSExporterLogLevelFatal string = "fatal"
+
+	// AddRDSOKBodyRDSExporterLogLevelError captures enum value "error"
+	AddRDSOKBodyRDSExporterLogLevelError string = "error"
+
+	// AddRDSOKBodyRDSExporterLogLevelWarn captures enum value "warn"
+	AddRDSOKBodyRDSExporterLogLevelWarn string = "warn"
+
+	// AddRDSOKBodyRDSExporterLogLevelInfo captures enum value "info"
+	AddRDSOKBodyRDSExporterLogLevelInfo string = "info"
+
+	// AddRDSOKBodyRDSExporterLogLevelDebug captures enum value "debug"
+	AddRDSOKBodyRDSExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddRDSOKBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addRdsOkBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addRdsOk"+"."+"rds_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

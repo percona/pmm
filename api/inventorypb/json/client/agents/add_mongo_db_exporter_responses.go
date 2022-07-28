@@ -178,10 +178,77 @@ type AddMongoDBExporterBody struct {
 	// Collections limit. Only get Databases and collection stats if the total number of collections in the server
 	// is less than this value. 0: no limit
 	CollectionsLimit int32 `json:"collections_limit,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add mongo DB exporter body
 func (o *AddMongoDBExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addMongoDbExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMongoDbExporterBodyTypeLogLevelPropEnum = append(addMongoDbExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMongoDBExporterBodyLogLevelAuto captures enum value "auto"
+	AddMongoDBExporterBodyLogLevelAuto string = "auto"
+
+	// AddMongoDBExporterBodyLogLevelFatal captures enum value "fatal"
+	AddMongoDBExporterBodyLogLevelFatal string = "fatal"
+
+	// AddMongoDBExporterBodyLogLevelError captures enum value "error"
+	AddMongoDBExporterBodyLogLevelError string = "error"
+
+	// AddMongoDBExporterBodyLogLevelWarn captures enum value "warn"
+	AddMongoDBExporterBodyLogLevelWarn string = "warn"
+
+	// AddMongoDBExporterBodyLogLevelInfo captures enum value "info"
+	AddMongoDBExporterBodyLogLevelInfo string = "info"
+
+	// AddMongoDBExporterBodyLogLevelDebug captures enum value "debug"
+	AddMongoDBExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddMongoDBExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addMongoDbExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMongoDBExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

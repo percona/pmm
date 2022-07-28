@@ -62,7 +62,7 @@ telemetry:
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
-    summary: "Version of monitored MongoDB services"
+    summary: "Monitored MongoDB services version"
     data:
       - metric_name: "mongodb_version"
         label: "mongodb"
@@ -70,7 +70,7 @@ telemetry:
   - id: PostgresDBVersion
     source: VM
     query: pg_static{service_type="postgresql"}
-    summary: "Version of monitored PostgreSQL services"
+    summary: "Monitored PostgreSQL services version"
     data:
       - metric_name: "postgresql_version"
         label: "short_version"
@@ -79,7 +79,7 @@ telemetry:
   - id: GrafanaStatTotalUsers
     source: VM
     query: grafana_stat_total_users
-    summary: "Grafana total users"
+    summary: "Total Grafana users"
     data:
       - metric_name: "grafana_stat_total_users"
         value: 1
@@ -105,7 +105,7 @@ telemetry:
   - id: NodesInfoAgentsVersions
     source: PMMDB_SELECT
     query: agent_type, version FROM agents
-    summary: "Agents Versions"
+    summary: "Agents version"
     data:
       - metric_name: "nodes_info_agent"
         column: "agent_type"

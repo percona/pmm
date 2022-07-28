@@ -1,0 +1,32 @@
+#!/bin/bash
+# postrm script for pmm-agent
+#
+
+set -e
+
+if [ -f /usr/share/debconf/confmodule ]; then
+  . /usr/share/debconf/confmodule
+fi
+
+case "$1" in
+
+  purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+  ;;
+
+  *)
+    echo "postrm called with unknown argument '$1'" 1>&2
+    exit 1
+  ;;
+
+esac
+
+if [ "$1" = "purge" ]; then
+    userdel pmm-agent || true
+    if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
+        rm -f /usr/local/percona/pmm2/config/pmm-agent.yaml
+    fi
+fi
+
+#DEBHELPER#
+
+exit 0

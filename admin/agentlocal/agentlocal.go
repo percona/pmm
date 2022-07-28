@@ -63,8 +63,9 @@ var ErrNotConnected = fmt.Errorf("pmm-agent is not connected to PMM Server")
 
 // Status represents pmm-agent status.
 type Status struct {
-	AgentID string `json:"agent_id"`
-	NodeID  string `json:"node_id"`
+	AgentID  string `json:"agent_id"`
+	NodeID   string `json:"node_id"`
+	NodeName string `json:"node_name"`
 
 	ServerURL         string `json:"server_url"`
 	ServerInsecureTLS bool   `json:"server_insecure_tls"`
@@ -152,8 +153,9 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 	}
 
 	return &Status{
-		AgentID: p.AgentID,
-		NodeID:  p.RunsOnNodeID,
+		AgentID:  p.AgentID,
+		NodeID:   p.RunsOnNodeID,
+		NodeName: p.NodeName,
 
 		ServerURL:         u.String(),
 		ServerInsecureTLS: p.ServerInfo.InsecureTLS,

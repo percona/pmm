@@ -11,8 +11,8 @@ on:
     paths:
       - "api/**"
       - "third_party/**"
-      - "*"
-      - "!docs/**"
+      - "tools/**"
+      - "golangci*"
 
 jobs:
   check:

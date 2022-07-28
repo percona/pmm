@@ -47,8 +47,9 @@ import (
 )
 
 const (
-	defaultClickhouseDatabase = "pmm"
-	defaultClickhouseAddr     = "127.0.0.1:9000"
+	defaultClickhouseDatabase       = "pmm"
+	defaultClickhouseAddr           = "127.0.0.1:9000"
+	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -402,38 +403,33 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
+func getValueFromENV(envName string, defaultValue string) string {
+	value, ok := os.LookupEnv(envName)
+	if !ok {
+		value = defaultValue
+	}
+	return value
+}
+
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
-	clickhouseDatabase, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE")
-	if !ok {
-		clickhouseDatabase = defaultClickhouseDatabase
-	}
-
-	clickhouseAddr, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_ADDR")
-	if !ok {
-		clickhouseAddr = defaultClickhouseAddr
-	}
-
-	clickhousePoolSize, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE")
-	if !ok {
-		clickhousePoolSize = ""
-	}
-
-	clickhouseBlockSize, ok := os.LookupEnv("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE")
-	if !ok {
-		clickhouseBlockSize = ""
-	}
+	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
+	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
+	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
+	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 
 	templateParams := map[string]interface{}{
-		"DataRetentionHours":  int(settings.DataRetention.Hours()),
-		"DataRetentionDays":   int(settings.DataRetention.Hours() / 24),
-		"VMAlertFlags":        s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":    !settings.VictoriaMetrics.CacheEnabled,
-		"PerconaTestDbaas":    settings.DBaaS.Enabled,
-		"ClickhouseAddr":      clickhouseAddr,
-		"ClickhouseDatabase":  clickhouseDatabase,
-		"ClickhousePoolSize":  clickhousePoolSize,
-		"ClickhouseBlockSize": clickhouseBlockSize,
+		"DataRetentionHours":       int(settings.DataRetention.Hours()),
+		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
+		"VMAlertFlags":             s.vmParams.VMAlertFlags,
+		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
+		"PerconaTestDbaas":         settings.DBaaS.Enabled,
+		"ClickhouseAddr":           clickhouseAddr,
+		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
+		"ClickhouseDatabase":       clickhouseDatabase,
+		"ClickhousePoolSize":       clickhousePoolSize,
+		"ClickhouseBlockSize":      clickhouseBlockSize,
 	}
 
 	if ssoDetails != nil {
@@ -755,7 +751,7 @@ command =
 environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
         {{- end}}
 environment =
-    PERCONA_TEST_PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+    PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
 	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
 user = grafana
 directory = /usr/share/grafana
