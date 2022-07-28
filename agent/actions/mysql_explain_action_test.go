@@ -61,7 +61,7 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Contains(t, actual, "id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra")
 
 		// Checks some stable values
-		assert.Equal(t, actual, "1  |SIMPLE      |city  |ALL")
+		assert.Contains(t, actual, "1  |SIMPLE      |city  |ALL")
 	})
 
 	t.Run("JSON", func(t *testing.T) {
