@@ -61,7 +61,7 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 	return agent
 }
 
-func TestBackup(t *testing.T) {
+func TestMySQLBackup(t *testing.T) {
 	t.Run("test MySQL backup", func(t *testing.T) {
 		ctx := context.Background()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)

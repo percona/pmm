@@ -18,6 +18,7 @@ package agents
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -27,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -384,9 +386,9 @@ func (s *JobsService) StartMongoDBBackupJob(
 		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
 	}
-	mongoDBReq.DataModel = agentpb.DataModel_LOGICAL
-	if dataModel == models.PhysicalDataModel {
-		mongoDBReq.DataModel = agentpb.DataModel_PHYSICAL
+	mongoDBReq.DataModel = backupv1beta1.DataModel_LOGICAL
+	if strings.ToLower(string(dataModel)) == string(models.PhysicalDataModel) {
+		mongoDBReq.DataModel = backupv1beta1.DataModel_PHYSICAL
 	}
 
 	switch {

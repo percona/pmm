@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -49,7 +50,7 @@ type MongoDBBackupJob struct {
 	location   BackupLocationConfig
 	pitr       bool
 	logChunkID uint32
-	dataModel  agentpb.DataModel
+	dataModel  backupv1beta1.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -60,7 +61,7 @@ func NewMongoDBBackupJob(
 	dbConfig DBConnConfig,
 	locationConfig BackupLocationConfig,
 	pitr bool,
-	dataModel agentpb.DataModel,
+	dataModel backupv1beta1.DataModel,
 ) *MongoDBBackupJob {
 	return &MongoDBBackupJob{
 		id:        id,
@@ -195,7 +196,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	var result pbmBackup
 
 	pbmArgs := []string{"backup"}
-	if j.dataModel == agentpb.DataModel_PHYSICAL {
+	if j.dataModel == backupv1beta1.DataModel_PHYSICAL {
 		pbmArgs = append(pbmArgs, "--type=physical")
 	}
 	if err := execPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {

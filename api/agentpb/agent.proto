@@ -11,6 +11,7 @@ import "google/rpc/status.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -459,12 +460,6 @@ message S3LocationConfig {
   string bucket_region = 5;
 }
 
-// DataModel represents the data model used for the backup. Can be either of 'physical' or 'logical'.
-enum DataModel {
-  LOGICAL = 0;
-  PHYSICAL = 1;
-}
-
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
@@ -514,7 +509,7 @@ message StartJobRequest {
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
     // Data model to use for the backup (physical or logical).
-    DataModel data_model = 8;
+    backup.v1beta1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;

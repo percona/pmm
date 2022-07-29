@@ -151,8 +151,8 @@ func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) {
 		return nil, errors.Errorf("unsupported backup mode for mongoDB: %s", params.Mode)
 	}
 
-	if params.DataModel != models.LogicalDataModel {
-		return nil, errors.Errorf("unsupported backup data model for mongoDB: %s", params.DataModel)
+	if params.DataModel != models.LogicalDataModel && params.Mode == models.PITR {
+		return nil, errors.Errorf("PITR can only be enabled for logical backups")
 	}
 
 	return &mongoDBBackupTask{

@@ -115,6 +115,9 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		dataModel = models.PhysicalDataModel
 	case models.MongoDBServiceType:
 		dataModel = models.LogicalDataModel
+		if req.DataModel == backupv1beta1.DataModel_PHYSICAL {
+			dataModel = models.PhysicalDataModel
+		}
 	}
 
 	artifactID, err := s.backupService.PerformBackup(ctx, backup.PerformBackupParams{
@@ -230,6 +233,9 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 			}
 		case models.MongoDBServiceType:
 			backupParams.DataModel = models.LogicalDataModel
+			if req.DataModel == backupv1beta1.DataModel_PHYSICAL {
+				backupParams.DataModel = models.PhysicalDataModel
+			}
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)
