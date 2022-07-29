@@ -66,7 +66,6 @@ linters:
     - gochecknoinits    # we use init functions
     - gomnd             # we are using numbers in many cases
     - gomoddirectives   # we use replace directives
-    - gomodguard        # we are not using modules
     - ifshort           # a lot of false positives
     - interfacer        # deprecated
     - maligned          # deprecated
