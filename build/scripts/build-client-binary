@@ -113,7 +113,7 @@ main() {
     copy_component "pmm" "build/packages/rpm/client" "rpm"
     copy_component "pmm" "build/packages/config" "config"
     copy_component "pmm" "build/packages/deb" "debian"
-    copy_component "pmm-submodules" "install_tarball"
+    copy_component "pmm" "build/scripts/install_tarball" "install_tarball"
     copy_component "node_exporter" "example.prom"
     copy_component "mysqld_exporter" "queries-mysqld.yml"
     copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
