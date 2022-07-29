@@ -33,7 +33,6 @@ func TestShowTableStatus(t *testing.T) {
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
 	defer db.Close() //nolint:errcheck
-	mySQLVersion, _ := tests.MySQLVersion(t, db)
 
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
@@ -53,63 +52,30 @@ func TestShowTableStatus(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		const createTime = "2019-06-10 12:04:29"
-		switch mySQLVersion {
-		case "5.6":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Compact", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
+		// Check some columns names
+		assert.Contains(t, actual[0], "Name")
+		assert.Contains(t, actual[0], "Engine")
+		assert.Contains(t, actual[0], "Version")
+		assert.Contains(t, actual[0], "Row_format")
+		assert.Contains(t, actual[0], "Rows")
+		assert.Contains(t, actual[0], "Avg_row_length")
+		assert.Contains(t, actual[0], "Data_length")
+		assert.Contains(t, actual[0], "Max_data_length")
+		assert.Contains(t, actual[0], "Index_length")
+		assert.Contains(t, actual[0], "Data_free")
+		assert.Contains(t, actual[0], "Auto_increment")
+		assert.Contains(t, actual[0], "Create_time")
+		assert.Contains(t, actual[0], "Update_time")
+		assert.Contains(t, actual[0], "Check_time")
+		assert.Contains(t, actual[0], "Collation")
+		assert.Contains(t, actual[0], "Checksum")
+		assert.Contains(t, actual[0], "Create_options")
+		assert.Contains(t, actual[0], "Comment")
 
-		case "5.7", "8.0":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
-
-		case "10.2":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "",
-			}, actual[1])
-
-		case "10.3", "10.4":
-			assert.Equal(t, []interface{}{
-				"Name", "Engine", "Version", "Row_format", "Rows", "Avg_row_length", "Data_length", "Max_data_length",
-				"Index_length", "Data_free", "Auto_increment", "Create_time", "Update_time", "Check_time", "Collation",
-				"Checksum", "Create_options", "Comment", "Max_index_length", "Temporary",
-			}, actual[0])
-			actual[1][11] = createTime
-			assert.Equal(t, []interface{}{
-				"city", "InnoDB", 10.0, "Dynamic", 4188.0, 97.0, 409600.0, 0.0,
-				131072.0, 0.0, 4080.0, "2019-06-10 12:04:29", nil, nil, "latin1_swedish_ci",
-				nil, "", "", 0.0, "N",
-			}, actual[1])
-
-		default:
-			t.Fatal("Unhandled version.")
-		}
+		// Checks some stable values
+		assert.Equal(t, "city", actual[1][0])   // Name
+		assert.Equal(t, "InnoDB", actual[1][1]) // Engine
+		assert.Equal(t, 10.0, actual[1][2])     // Version
 	})
 
 	t.Run("Error", func(t *testing.T) {
