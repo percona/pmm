@@ -9,6 +9,22 @@ RUN groupadd -g 1002 pmm-agent && \
 
 FROM redhat/ubi9-micro
 
+ARG VERSION
+ARG BUILD_DATE
+
+LABEL org.label-schema.build-date ${BUILD_DATE}
+LABEL org.label-schema.license Apache-2.0
+LABEL org.label-schema.name Percona Monitoring and Management Client
+LABEL org.label-schema.vendor Percona
+LABEL org.label-schema.version ${VERSION}
+LABEL org.label-schema.schema-version "1.0"
+LABEL org.opencontainers.image.created ${BUILD_DATE}
+LABEL org.opencontainers.image.licenses Apache-2.0
+LABEL org.opencontainers.image.title Percona Monitoring and Management Client
+LABEL org.opencontainers.image.vendor Percona
+LABEL org.opencontainers.image.version ${VERSION}
+
+COPY LICENSE /licenses/
 COPY --from=users --chown=0:0 /etc/passwd /etc/passwd
 COPY --from=users --chown=0:0 /etc/group /etc/group
 

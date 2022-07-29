@@ -52,31 +52,17 @@ func TestMySQLExplain(t *testing.T) {
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 
-		var expected string
-		switch {
-		case mySQLVersion == "5.6":
-			expected = strings.TrimSpace(`
-id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
-1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |4188 |Using filesort
-			`)
-		case mySQLVendor == tests.MariaDBMySQL:
-			expected = strings.TrimSpace(`
-id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
-1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |4188 |Using filesort
-			`)
-		default:
-			expected = strings.TrimSpace(`
-id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |rows |filtered |Extra
-1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |4188 |100.00   |Using filesort
-			`)
-		}
-
 		var er explainResponse
 		err = json.Unmarshal(b, &er)
 		assert.NoError(t, err)
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
-		assert.Equal(t, expected, actual)
+		// Check some columns names
+		assert.Contains(t, actual, "id |select_type |table")
+		assert.Contains(t, actual, "|type |possible_keys |key  |key_len |ref  |rows")
+
+		// Checks some stable values
+		assert.Contains(t, actual, "1  |SIMPLE      |city")
 	})
 
 	t.Run("JSON", func(t *testing.T) {
@@ -146,26 +132,22 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		switch {
-		case mySQLVersion == "5.6":
-			assert.Equal(t, []interface{}{
-				"id", "select_type", "table",
-				"type", "possible_keys", "key", "key_len", "ref", "rows", "Extra",
-			}, actual[0])
-			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", "ALL", nil, nil, nil, nil, "4188", "Using filesort"}, actual[1])
-		case mySQLVendor == tests.MariaDBMySQL:
-			assert.Equal(t, []interface{}{
-				"id", "select_type", "table",
-				"type", "possible_keys", "key", "key_len", "ref", "rows", "Extra",
-			}, actual[0])
-			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", "ALL", nil, nil, nil, nil, "4188", "Using filesort"}, actual[1])
-		default:
-			assert.Equal(t, []interface{}{
-				"id", "select_type", "table", "partitions",
-				"type", "possible_keys", "key", "key_len", "ref", "rows", "filtered", "Extra",
-			}, actual[0])
-			assert.Equal(t, []interface{}{"1", "SIMPLE", "city", nil, "ALL", nil, nil, nil, nil, "4188", "100.00", "Using filesort"}, actual[1])
-		}
+		// Check some columns names
+		assert.Contains(t, actual[0], "id")
+		assert.Contains(t, actual[0], "select_type")
+		assert.Contains(t, actual[0], "table")
+		assert.Contains(t, actual[0], "type")
+		assert.Contains(t, actual[0], "possible_keys")
+		assert.Contains(t, actual[0], "key")
+		assert.Contains(t, actual[0], "key_len")
+		assert.Contains(t, actual[0], "ref")
+		assert.Contains(t, actual[0], "rows")
+		assert.Contains(t, actual[0], "Extra")
+
+		// Checks some stable values
+		assert.Equal(t, actual[1][0], "1")      // id
+		assert.Equal(t, actual[1][1], "SIMPLE") // select_type
+		assert.Equal(t, actual[1][2], "city")   // table
 	})
 
 	t.Run("Error", func(t *testing.T) {
