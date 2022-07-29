@@ -26,7 +26,6 @@ prepare_tarball() {
         echo ${tarball} already exists, skipping build
     else
         if [ ${repo_name} = 'pmm-submodules' ]; then
-            cp -f build/bin/install_tarball ${git_dir}/
             tar -C sources -zcf ${repo_name}-${commit}.tar.gz  ${repo_name}
             mv ${repo_name}-${commit}.tar.gz  ${source_dir}/
         else
