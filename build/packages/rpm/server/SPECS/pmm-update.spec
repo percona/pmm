@@ -3,6 +3,7 @@
 # we need to remove it as soon as we remove all noarch pmm-update rpms
 # from 'pmm2-components/yum/laboratory'
 %define _binaries_in_noarch_packages_terminate_build   0
+%define _unpackaged_files_terminate_build   0
 
 %global repo            pmm-update
 %global provider        github.com/percona/%{repo}
