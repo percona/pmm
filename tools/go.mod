@@ -22,8 +22,8 @@ require (
 	github.com/reviewdog/reviewdog v0.14.1
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.1.12-0.20220630195555-6178576f8ba1
-	golang.org/x/tools/gopls v0.9.0
+	golang.org/x/tools v0.1.12-0.20220713141851-7464a5a40219
+	golang.org/x/tools/gopls v0.9.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/reform.v1 v1.5.1
