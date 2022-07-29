@@ -89,7 +89,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	}
 	ssc.l.Infof("pg version = %d", pgMonitorVersion)
 
-	row, view := NewPgStatMonitorStructs(pgMonitorVersion)
+	row, view := NewPgStatMonitorStructs(pgMonitorVersion, prerelease)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
 	if pgMonitorVersion >= pgStatMonitorVersion09 && pgMonitorVersion <= pgStatMonitorVersion10PG14 && prerelease != "" {
 		// only pg_stat_monitor 0.9.0, 1.0.0-beta-2, 1.0.0-rc.1, 1.0.0-rc.2 supports state_code. It tells what is the query's current state.
@@ -120,10 +120,12 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			c.Database = databases[row.DBID]
 			c.Username = usernames[row.UserID]
 		default:
-			row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
-			if e != nil {
-				err = e
-				break
+			if pgMonitorVersion >= pgStatMonitorVersion08 && pgMonitorVersion <= pgStatMonitorVersion10PG14 && prerelease != "" {
+				row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
+				if e != nil {
+					err = e
+					break
+				}
 			}
 			c.pgStatMonitor = *row
 			c.Database = row.DatName

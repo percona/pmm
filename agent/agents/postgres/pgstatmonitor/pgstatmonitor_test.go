@@ -113,10 +113,10 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	version, _, err := getPGMonitorVersion(db.Querier)
+	version, prerelease, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
 
-	_, view := NewPgStatMonitorStructs(version)
+	_, view := NewPgStatMonitorStructs(version, prerelease)
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
