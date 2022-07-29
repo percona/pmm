@@ -4,9 +4,9 @@
 # from 'pmm2-components/yum/laboratory'
 %define _binaries_in_noarch_packages_terminate_build   0
 
-%global repo		        pmm-update
-%global provider	      github.com/percona/%{repo}
-%global import_path	    %{provider}
+%global repo            pmm-update
+%global provider        github.com/percona/%{repo}
+%global import_path     %{provider}
 %global commit	        592eddf656bce32a11bd958af0a32c62bd5ea34c
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
@@ -80,7 +80,7 @@ install -p -m 0755 bin/pmm-update %{buildroot}%{_sbindir}/
 * Tue Jul 27 2021 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 2.20.0-60
 - https://per.co.na/pmm/2.20.0
 
-* Thu Jun 30 2021 Denys Kondratenko <denys.kondratenko@percona.com> - 2.19.0-59
+* Wed Jun 30 2021 Denys Kondratenko <denys.kondratenko@percona.com> - 2.19.0-59
 - https://per.co.na/pmm/2.19.0
 
 * Tue Jun 01 2021 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 2.18.0-57
