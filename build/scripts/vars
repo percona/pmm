@@ -1,5 +1,5 @@
 bin_dir=$(cd $(dirname $0); pwd -P)
-root_dir=$(cd $(dirname $0)/../..; pwd -P)
+root_dir=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 tmp_dir=${root_dir}/tmp
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
