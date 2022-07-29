@@ -6,7 +6,7 @@
 %global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         17
+%define release         18
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		percona-dashboards
