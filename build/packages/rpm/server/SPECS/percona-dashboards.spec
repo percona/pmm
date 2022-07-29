@@ -6,7 +6,7 @@
 %global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         18
+%define release         19
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		percona-dashboards
@@ -45,7 +45,7 @@ install -d %{buildroot}%{_datadir}/%{name}/setup-page
 
 cp -pa ./panels %{buildroot}%{_datadir}/%{name}
 cp -pa ./pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
-cp -pa ./setup-page/build/ %{buildroot}%{_datadir}/%{name}/setup-page
+cp -rpa ./setup-page/build/* %{buildroot}%{_datadir}/%{name}/setup-page
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
