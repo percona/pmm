@@ -3,11 +3,7 @@
 %global commit          0dbbc0ca255591000f0371012cd4e7515624a059
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%global pmm_repo        pmm
-%global pmm_provider    github.com/percona/%{pmm_repo}
-%global pmm_commit      @@pmm_commit@@
-%global pmm_shortcommit %(c=%{pmm_commit}; echo ${c:0:7})
-%define release         32
+%define release         33
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		%{repo}
@@ -16,9 +12,8 @@ Release:	%{rpm_release}
 Summary:	Percona Monitoring and Management Server
 
 License:	AGPLv3
-URL:		https://%{provider}
+URL:		  https://%{provider}
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
-Source1:	https://%{pmm_provider}/archive/%{pmm_commit}/%{pmm_repo}-%{pmm_shortcommit}.tar.gz
 
 BuildArch:	noarch
 BuildRequires:	openssl
@@ -32,30 +27,21 @@ See the PMM docs for more information.
 %setup -q -n %{repo}-%{commit}
 
 
-%build
-make build-installation-wizard
-
 %install
-tar -zxvf %SOURCE1
 install -d %{buildroot}%{_sysconfdir}/nginx/conf.d
-install -d %{buildroot}%{_datadir}/percona-dashboards
-
-mv alertmanager.yml %{buildroot}%{_sysconfdir}/alertmanager.yml
-
-install -d %{buildroot}%{_datadir}/%{name}
-cp -pav ./installation-wizard/build %{buildroot}%{_datadir}/%{name}/installation-wizard-page
-cp -pav ./%{pmm_repo}-%{pmm_commit}/api/swagger %{buildroot}%{_datadir}/%{name}/swagger
-rm -rf %{pmm_repo}-%{pmm_commit}
+install -p -m 0644 alertmanager.yml %{buildroot}%{_sysconfdir}/alertmanager.yml
 
 
 %files
 %license LICENSE
 %doc README.md CHANGELOG.md
 %{_sysconfdir}/alertmanager.yml
-%{_datadir}/%{name}
 
 
 %changelog
+* Thu Jul 28 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.30.0-2
+- PMM-10036 migrate to monorepo, part 2
+
 * Wed Jul 27 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.30.0-1
 - PMM-10036 migrate to monorepo
 
