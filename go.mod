@@ -12,7 +12,7 @@ replace golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e => github.com/per
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/Azure/azure-sdk-for-go v65.0.0+incompatible
+	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.27
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
@@ -62,7 +62,7 @@ require (
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c
 	golang.org/x/tools v0.1.11
 	google.golang.org/genproto v0.0.0-20220617124728-180714bec0ad
-	google.golang.org/grpc v1.47.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.66.6

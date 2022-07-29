@@ -5,13 +5,14 @@ services:
     build:
       context: .
       args:
-        PMM_VERSION: ${PMM_VERSION:-perconalab/pmm-server:dev-latest}
+        PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-container}
       dockerfile: devcontainer.Dockerfile
     container_name: pmm-managed-server
     hostname: pmm-managed-server
     networks:
       - ${NETWORK:-default}
     environment:
+      - PMM_RELEASE_PATH=/root/go/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
@@ -55,7 +56,6 @@ services:
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
-      - pmm-bin:/root/go/src/github.com/percona/pmm/bin
       # caching
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
@@ -63,7 +63,6 @@ services:
 volumes:
   go-modules:
   root-cache:
-  pmm-bin:
 
 networks:
   minikube:
