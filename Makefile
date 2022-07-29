@@ -63,7 +63,7 @@ FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 format:                         ## Format source code.
 	$(BIN_PATH)/gofumpt -l -w $(FILES)
 	$(BIN_PATH)/goimports -local github.com/percona/pmm-update -l -w $(FILES)
-	$(BIN_PATH)/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm-update)" $(FILES)
+	$(BIN_PATH)/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm-update)" $(FILES)
 
 RUN_FLAGS ?=
 
