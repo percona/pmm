@@ -17,7 +17,6 @@ cp ${root_dir}/results/rpm/*.rpm ${rpms_dir}/
 ${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
 ${bin_dir}/build-server-rpm pmm-managed pmm
 ${bin_dir}/build-server-rpm percona-qan-api2 qan-api2
-${bin_dir}/build-server-rpm pmm-server
 ${bin_dir}/build-server-rpm pmm-update
 ${bin_dir}/build-server-rpm dbaas-controller
 ${bin_dir}/build-server-rpm dbaas-tools
