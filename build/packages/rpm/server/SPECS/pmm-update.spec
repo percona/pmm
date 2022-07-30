@@ -5,9 +5,9 @@
 %define _binaries_in_noarch_packages_terminate_build   0
 %define _unpackaged_files_terminate_build   0
 
-%global repo		    pmm-update
-%global provider	    github.com/percona/%{repo}
-%global import_path	    %{provider}
+%global repo            pmm-update
+%global provider        github.com/percona/%{repo}
+%global import_path     %{provider}
 %global commit	        592eddf656bce32a11bd958af0a32c62bd5ea34c
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
