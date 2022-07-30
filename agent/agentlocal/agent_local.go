@@ -56,7 +56,7 @@ import (
 
 const (
 	shutdownTimeout = 1 * time.Second
-	serverZipFile   = "pmm-agent.txt"
+	serverZipFile   = "pmm-agent.log"
 )
 
 // Server represents local pmm-agent API server.
@@ -362,7 +362,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		err := addData(zipWriter, fmt.Sprintf("%s.txt", id), agentFileBuffer.Bytes())
+		err := addData(zipWriter, fmt.Sprintf("%s.log", id), agentFileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)
