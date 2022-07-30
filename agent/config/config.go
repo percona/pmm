@@ -139,9 +139,10 @@ type Setup struct {
 type Config struct {
 	// no config file there
 
-	ID            string `yaml:"id"`
-	ListenAddress string `yaml:"listen-address"`
-	ListenPort    uint16 `yaml:"listen-port"`
+	ID             string `yaml:"id"`
+	ListenAddress  string `yaml:"listen-address"`
+	ListenPort     uint16 `yaml:"listen-port"`
+	RunnerCapacity uint16 `yaml:"runner-capacity,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`

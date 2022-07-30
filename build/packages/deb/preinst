@@ -1,0 +1,14 @@
+#!/bin/sh
+# preinst script for pmm-agent
+#
+# see: dh_installdeb(1)
+
+# create group and user
+
+if ! getent passwd pmm-agent >/dev/null 2>&1; then
+  adduser --system --home /usr/local/percona --group pmm-agent
+fi
+
+#DEBHELPER#
+
+exit 0
