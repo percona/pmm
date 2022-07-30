@@ -355,7 +355,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	for id, logs := range s.supervisor.AgentsLogs() {
 		agentFileBuffer := &bytes.Buffer{}
 		for _, l := range logs {
-			_, err := agentFileBuffer.WriteString(l + "\n")
+			_, err := agentFileBuffer.WriteString(l)
 			if err != nil {
 				logrus.Error(err)
 				http.Error(w, fmt.Sprintf("Cannot write to buffer err: %s", err), http.StatusInternalServerError)
