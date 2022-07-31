@@ -9,7 +9,6 @@
       - percona-qan-api2
       - percona-alertmanager
       - pmm-managed
-      - pmm-server
       - pmm-update
       - dbaas-controller
       - dbaas-tools
