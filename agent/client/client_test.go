@@ -27,7 +27,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/encoding/prototext"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/config"
@@ -191,33 +190,6 @@ func TestClient(t *testing.T) {
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
 	})
-}
-
-func TestGetActionTimeout(t *testing.T) {
-	type testStartActionReq struct {
-		req      *agentpb.StartActionRequest
-		expected time.Duration
-	}
-
-	testCases := []*testStartActionReq{{
-		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(0 * time.Second)},
-		expected: 10 * time.Second,
-	}, {
-		req:      &agentpb.StartActionRequest{Timeout: nil},
-		expected: 10 * time.Second,
-	}, {
-		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(15 * time.Second)},
-		expected: 15 * time.Second,
-	}}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(prototext.Format(tc.req), func(t *testing.T) {
-			client := New(nil, nil, nil, nil, nil)
-			actual := client.getActionTimeout(tc.req)
-			assert.Equal(t, tc.expected, actual)
-		})
-	}
 }
 
 func TestUnexpectedActionType(t *testing.T) {
