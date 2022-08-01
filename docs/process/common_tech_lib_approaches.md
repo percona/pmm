@@ -73,6 +73,8 @@ Currently, our development team has fewer people than components/repositories. I
   * avoid repeating package name in method name (`log.Info() // good` ; `log.LogInfo() // bad`)
   * Don’t name like `getters` or `setters`
   * Add `er` to Interface* (with exceptions. For example when we use Interface as a template to generate mocks )
+* If we need to make a set it's better to use `map[string]struct{}` instead of `map[string]bool` or something else.
+* In case we need enums it's better to create a new custom type inherited from string or iota 
 
 ## Open questions
 

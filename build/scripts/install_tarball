@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+set -eu
+
+CURRENT_DIR="$(pwd)"
+WORKING_DIR="$(dirname "${0}")"
+cd "${WORKING_DIR}" || exit 2
+
+PMM_DIR=${PMM_DIR:-/usr/local/percona/pmm2}
+
+PMM_USER=${PMM_USER:-}
+PMM_GROUP=${PMM_GROUP:-}
+
+if [ -z "${PMM_USER}" ] || [ -z "${PMM_GROUP}" ]; then
+    INSTALL_COMMAND="install"
+else
+    INSTALL_COMMAND="install -o ${PMM_USER} -g ${PMM_GROUP}"
+fi
+
+echo "Installing into ${PMM_DIR}..."
+
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/bin
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/tools
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/exporters
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/config
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/textfile-collector
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/textfile-collector/low-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/textfile-collector/medium-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/textfile-collector/high-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/mysql
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/mysql/low-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/mysql/medium-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
+${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
+${INSTALL_COMMAND} -m 0755 queries-postgres-uptime.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
+${INSTALL_COMMAND} -m 0755 queries.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
+${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
+
+for FILE in $( ls ${PWD}/bin ); do
+    if [ "x${FILE}" = "xpmm-admin" ] || [ "x${FILE}" = "xpmm-agent" ] || [ "x${FILE}" = "xpmm-agent-entrypoint" ]; then
+        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/${FILE} "${PMM_DIR}"/bin
+    elif [ "x${FILE}" = "xpt-summary" ] || [ "x${FILE}" = "xpt-mysql-summary" ] || [ "x${FILE}" = "xpt-pg-summary" ] || [ "x${FILE}" = "xpt-mongodb-summary" ]; then
+        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/tools
+    else
+        ${INSTALL_COMMAND} -m 0755 ${PWD}/bin/"${FILE}" "${PMM_DIR}"/exporters
+    fi
+done
+
+for FILE in example.prom queries-mysqld.yml example-queries-postgres.yml; do
+    for RESOLUTION in low medium high; do
+        if [ "x${FILE}" = "xexample.prom" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/textfile-collector/${RESOLUTION}-resolution
+        elif [ "x${FILE}" = "xqueries-mysqld.yml" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/custom-queries/mysql/${RESOLUTION}-resolution
+        elif [ "x${FILE}" = "xexample-queries-postgres.yml" ]; then
+            ${INSTALL_COMMAND} -m 0755 ${FILE} "${PMM_DIR}"/collectors/custom-queries/postgresql/${RESOLUTION}-resolution
+        fi
+    done
+done
+
+update=0
+while getopts :u flag
+do
+  case "${flag}" in
+    u) update=1;;
+    *) echo "Invalid option: -$flag" ;;
+  esac
+done
+
+if [ "${update}" = "1" ]; then
+  echo "Config file was not removed!"
+else
+  ${INSTALL_COMMAND} -m 0660 /dev/null "${PMM_DIR}"/config/pmm-agent.yaml
+fi
+
+cd "${CURRENT_DIR}" || true
