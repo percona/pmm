@@ -25,7 +25,7 @@ LD_FLAGS = -ldflags " \
 			"
 
 release:                        ## Build pmm-admin release binary.
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
+	env CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
 
 install:                        ## Install pmm-admin binary.
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin
