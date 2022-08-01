@@ -65,8 +65,7 @@ func TestProfiler(t *testing.T) {
 	defer logrus.SetLevel(logrus.InfoLevel)
 
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
-	tempDir, err := os.MkdirTemp("", "pmm-agent-mongodb-")
-	require.NoError(t, err)
+	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
 	for _, url := range []string{
