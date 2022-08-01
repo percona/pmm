@@ -43,6 +43,8 @@ var (
 	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
 	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
+	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters
+	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
 )
 
 // Service represents core logic for db backup.
@@ -151,7 +153,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			jobType = models.MySQLBackupJob
 
 			if params.DataModel != models.PhysicalDataModel {
-				return errors.New("the only supported data model for mySQL is physical")
+				return errors.Wrap(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
 			}
 			if params.Mode != models.Snapshot {
 				return errors.New("the only supported backup mode for mySQL is snapshot")
@@ -160,7 +162,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			jobType = models.MongoDBBackupJob
 
 			if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-				return errors.New("Point-in-Time-Recovery is only supported for logical backups at the moment.")
+				return errors.Wrap(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
 			}
 
 			if params.Mode != models.Snapshot && params.Mode != models.PITR {
@@ -708,7 +710,7 @@ func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) er
 }
 
 // checkSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
-// and they are compatible with the db version.
+// and they are compatible with the db version, currently only supports backup tools for MySQL
 // Returns db version.
 func (s *Service) checkSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	pmmAgent, err := s.findPMMAgentForService(ctx, serviceID)

@@ -307,11 +307,45 @@ func TestScheduleBackupForMongo(t *testing.T) {
 	})
 
 	t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
-		t.Skip()
+		client := backupClient.Default.Backups
+		backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
+			Body: backups.ScheduleBackupBody{
+				ServiceID:      serviceID,
+				LocationID:     locationID,
+				CronExpression: "0 1 1 1 1",
+				Name:           "testing",
+				Description:    "testing",
+				Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+				Enabled:        false,
+				DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+			},
+			Context: pmmapitests.Context,
+		})
+
+		require.NoError(t, err)
+		assert.NotNil(t, backupRes.Payload)
+		defer removeScheduledBackup(t, backupRes.Payload.ScheduledBackupID)
 	})
 
-	t.Run("physical backups successful", func(t *testing.T) {
-		t.Skip()
+	t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
+		client := backupClient.Default.Backups
+		backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
+			Body: backups.ScheduleBackupBody{
+				ServiceID:      serviceID,
+				LocationID:     locationID,
+				CronExpression: "0 1 1 1 1",
+				Name:           "testing",
+				Description:    "testing",
+				Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+				Enabled:        false,
+				DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+			},
+			Context: pmmapitests.Context,
+		})
+
+		require.NoError(t, err)
+		assert.NotNil(t, backupRes.Payload)
+		defer removeScheduledBackup(t, backupRes.Payload.ScheduledBackupID)
 	})
 }
 
