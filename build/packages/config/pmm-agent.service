@@ -1,0 +1,12 @@
+[Unit]
+Description=pmm-agent
+After=time-sync.target network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
