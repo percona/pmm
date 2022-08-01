@@ -9,6 +9,7 @@ coverage:
 
     project:
       default:
+        flag_coverage_not_uploaded_behavior: pass
         threshold: 1%
       
       admin:
