@@ -15084,6 +15084,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 17
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 18
                 }
               }
             }
@@ -15417,6 +15422,11 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 16
                 }
               }
             }
@@ -15831,6 +15841,11 @@
                     "debug"
                   ],
                   "x-order": 29
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 30
                 }
               }
             }
@@ -16394,6 +16409,11 @@
                     "debug"
                   ],
                   "x-order": 28
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 29
                 }
               }
             }
@@ -17402,6 +17422,11 @@
                     "debug"
                   ],
                   "x-order": 27
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 28
                 }
               }
             }
@@ -17998,6 +18023,11 @@
                     "debug"
                   ],
                   "x-order": 20
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 21
                 }
               }
             }

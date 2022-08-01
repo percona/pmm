@@ -61,18 +61,6 @@ type addHAProxyCommand struct {
 	SkipConnectionCheck bool
 }
 
-func (cmd *addHAProxyCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
-}
-
 func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
@@ -98,12 +86,6 @@ func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
-		}
-	}
-
 	params := &ha_proxy.AddHAProxyParams{
 		Body: ha_proxy.AddHAProxyBody{
 			ServiceName:         cmd.ServiceName,
@@ -119,6 +101,7 @@ func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
 			CustomLabels:        customLabels,
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			CredentialsSource:   cmd.CredentialsSource,
 		},
 		Context: commands.Ctx,
 	}
@@ -146,7 +129,7 @@ func init() {
 
 	AddHAProxyC.Flag("username", "HAProxy username").StringVar(&AddHAProxy.Username)
 	AddHAProxyC.Flag("password", "HAProxy password").StringVar(&AddHAProxy.Password)
-	AddHAProxyC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddHAProxy.CredentialsSource)
+	AddHAProxyC.Flag("credentials-source", "Credentials provider").StringVar(&AddHAProxy.CredentialsSource)
 
 	AddHAProxyC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").
 		PlaceHolder("http or https").StringVar(&AddHAProxy.Scheme)

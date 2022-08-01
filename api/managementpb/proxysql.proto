@@ -78,6 +78,9 @@ message AddProxySQLRequest {
   string agent_password = 20;
   // Exporter log level
   inventory.LogLevel log_level = 21;
+  // Credentials provider
+  string credentials_source = 22;
+
 }
 
 message AddProxySQLResponse {

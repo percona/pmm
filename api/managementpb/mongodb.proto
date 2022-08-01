@@ -98,6 +98,8 @@ message AddMongoDBRequest {
   bool enable_all_collectors = 30;
   // Exporter log level
   inventory.LogLevel log_level = 31;
+  // Credentials provider
+  string credentials_source = 32;
 }
 
 message AddMongoDBResponse {

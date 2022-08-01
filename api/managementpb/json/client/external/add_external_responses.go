@@ -180,6 +180,9 @@ type AddExternalBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Credentials provider
+	CredentialsSource string `json:"credentials_source,omitempty"`
+
 	// add node
 	AddNode *AddExternalParamsBodyAddNode `json:"add_node,omitempty"`
 }

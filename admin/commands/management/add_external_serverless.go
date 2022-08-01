@@ -75,18 +75,6 @@ type addExternalServerlessCommand struct {
 	SkipConnectionCheck bool
 }
 
-func (cmd *addExternalServerlessCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
-}
-
 func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -105,12 +93,6 @@ func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
-	}
-
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
-		}
 	}
 
 	params := &external.AddExternalParams{
@@ -141,6 +123,7 @@ func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModePULL),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			CredentialsSource:   cmd.CredentialsSource,
 		},
 		Context: commands.Ctx,
 	}
@@ -224,7 +207,7 @@ func init() {
 
 	AddExternalServerlessC.Flag("username", "External username").StringVar(&AddExternalServerless.Username)
 	AddExternalServerlessC.Flag("password", "External password").StringVar(&AddExternalServerless.Password)
-	AddExternalServerlessC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddExternalServerless.CredentialsSource)
+	AddExternalServerlessC.Flag("credentials-source", "Credentials provider").StringVar(&AddExternalServerless.CredentialsSource)
 
 	AddExternalServerlessC.Flag("address", "External exporter address and port").
 		PlaceHolder("1.2.3.4:9000").StringVar(&AddExternalServerless.Address)

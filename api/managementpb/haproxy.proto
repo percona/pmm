@@ -65,6 +65,8 @@ message AddHAProxyRequest {
   MetricsMode metrics_mode = 16;
   // Skip connection check.
   bool skip_connection_check = 21;
+  // Credentials provider
+  string credentials_source = 22;
 }
 
 message AddHAProxyResponse {

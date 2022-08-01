@@ -172,6 +172,9 @@ type AddHAProxyBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Credentials provider
+	CredentialsSource string `json:"credentials_source,omitempty"`
+
 	// add node
 	AddNode *AddHAProxyParamsBodyAddNode `json:"add_node,omitempty"`
 }

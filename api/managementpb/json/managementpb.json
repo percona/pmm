@@ -1528,6 +1528,11 @@
                   "type": "string",
                   "x-order": 12
                 },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 18
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -1870,6 +1875,11 @@
                   "description": "Cluster name.",
                   "type": "string",
                   "x-order": 11
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 16
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -2219,6 +2229,11 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 30
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -2773,6 +2788,11 @@
                   "description": "Cluster name.",
                   "type": "string",
                   "x-order": 9
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 29
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -3789,6 +3809,11 @@
                   "type": "string",
                   "x-order": 10
                 },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 28
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -4419,6 +4444,11 @@
                   "description": "Cluster name.",
                   "type": "string",
                   "x-order": 9
+                },
+                "credentials_source": {
+                  "type": "string",
+                  "title": "Credentials provider",
+                  "x-order": 21
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",

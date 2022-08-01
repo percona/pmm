@@ -68,18 +68,6 @@ type addExternalCommand struct {
 	SkipConnectionCheck bool
 }
 
-func (cmd *addExternalCommand) GetCredentials() error {
-	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
-	if err != nil {
-		return fmt.Errorf("%w", err)
-	}
-
-	cmd.Password = creds.Password
-	cmd.Username = creds.Username
-
-	return nil
-}
-
 func (cmd *addExternalCommand) Run() (commands.Result, error) {
 	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
@@ -110,12 +98,6 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
-	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
-			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
-		}
-	}
-
 	params := &external.AddExternalParams{
 		Body: external.AddExternalBody{
 			RunsOnNodeID:        cmd.RunsOnNodeID,
@@ -133,6 +115,7 @@ func (cmd *addExternalCommand) Run() (commands.Result, error) {
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			CredentialsSource:   cmd.CredentialsSource,
 		},
 		Context: commands.Ctx,
 	}
@@ -162,7 +145,7 @@ func init() {
 
 	AddExternalC.Flag("username", "External username").StringVar(&AddExternal.Username)
 	AddExternalC.Flag("password", "External password").StringVar(&AddExternal.Password)
-	AddExternalC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddExternal.CredentialsSource)
+	AddExternalC.Flag("credentials-source", "Credentials provider").StringVar(&AddExternal.CredentialsSource)
 
 	AddExternalC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").
 		PlaceHolder("http or https").StringVar(&AddExternal.Scheme)

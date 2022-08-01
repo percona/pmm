@@ -220,6 +220,9 @@ type AddMongoDBBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Credentials provider
+	CredentialsSource string `json:"credentials_source,omitempty"`
+
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
 }
