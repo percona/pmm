@@ -9,12 +9,12 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
 	github.com/bufbuild/buf v1.6.0
-	github.com/daixiang0/gci v0.3.4
+	github.com/daixiang0/gci v0.5.0
 	github.com/go-delve/delve v1.9.0
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
-	github.com/golangci/golangci-lint v1.46.3-0.20220706155712-9317da6cf0b0
+	github.com/golangci/golangci-lint v1.47.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.0
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/mwitkow/go-proto-validators v0.3.2
@@ -48,6 +48,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/alexkohler/prealloc v1.0.0 // indirect
+	github.com/alingse/asasalint v0.0.10 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/ashanbrown/forbidigo v1.3.0 // indirect
 	github.com/ashanbrown/makezero v1.1.1 // indirect
@@ -231,7 +232,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/sivchari/containedctx v1.0.2 // indirect
 	github.com/sivchari/nosnakecase v1.5.0 // indirect
-	github.com/sivchari/tenv v1.6.0 // indirect
+	github.com/sivchari/tenv v1.7.0 // indirect
 	github.com/sonatard/noctx v0.0.1 // indirect
 	github.com/sourcegraph/go-diff v0.6.1 // indirect
 	github.com/spf13/afero v1.8.2 // indirect
@@ -269,7 +270,7 @@ require (
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/build v0.0.0-20200616162219-07bebbe343e9 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/exp/typeparams v0.0.0-20220414153411-bcd21879b8fd // indirect
+	golang.org/x/exp/typeparams v0.0.0-20220613132600-b0d781184e0d // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92 // indirect
@@ -291,6 +292,6 @@ require (
 	honnef.co/go/tools v0.3.2 // indirect
 	mvdan.cc/interfacer v0.0.0-20180901003855-c20040233aed // indirect
 	mvdan.cc/lint v0.0.0-20170908181259-adc824a0674b // indirect
-	mvdan.cc/unparam v0.0.0-20220316160445-06cc5682983b // indirect
+	mvdan.cc/unparam v0.0.0-20220706161116-678bad134442 // indirect
 	mvdan.cc/xurls/v2 v2.4.0 // indirect
 )
