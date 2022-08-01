@@ -307,25 +307,6 @@ func TestMongoDBBackups(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.", serviceName)
 	})
 
-	t.Run("create one-time physical backup", func(t *testing.T) {
-		client := backupClient.Default.Backups
-		backupRes, err := client.StartBackup(&backups.StartBackupParams{
-			Body: backups.StartBackupBody{
-				ServiceID:   serviceID,
-				LocationID:  locationID,
-				Name:        t.Name(),
-				Description: "test snapshot",
-				DataModel:   pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
-			},
-			Context: pmmapitests.Context,
-		})
-
-		require.NoError(t, err)
-		assert.NotNil(t, backupRes.Payload)
-		assert.NotEmpty(t, backupRes.Payload.ArtifactID)
-		removeArtifact(t, backupRes.Payload.ArtifactID)
-	})
-
 	t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
 		client := backupClient.Default.Backups
 		_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
