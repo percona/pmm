@@ -74,7 +74,6 @@ To spin-up k8s cluster, run
 
 ### Building and Packaging
 
-* [percona/pmm-server](https://github.com/percona/pmm-server)
 * [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules)
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
