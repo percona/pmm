@@ -3,6 +3,8 @@
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
+[![Discord](https://img.shields.io/discord/808660945513611334?label=Discord&logo=Discord&style=flat)](https://discord.gg/mQEyGPkNbR)
+[![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
