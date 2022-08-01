@@ -27,6 +27,7 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api-tests/management"
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
@@ -34,7 +35,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
-func TestScheduleBackupForMongo(t *testing.T) {
+func TestMongoDBBackups(t *testing.T) {
 	nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 	nodeID, pmmAgentID := management.RegisterGenericNode(t, node.RegisterNodeBody{
 		NodeName: nodeName,
@@ -51,7 +52,7 @@ func TestScheduleBackupForMongo(t *testing.T) {
 			PMMAgentID:  pmmAgentID,
 			ServiceName: serviceName,
 			Address:     "10.10.10.10",
-			Port:        3306,
+			Port:        27017,
 			Username:    "username",
 
 			SkipConnectionCheck: true,
@@ -306,25 +307,42 @@ func TestScheduleBackupForMongo(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Can't make a backup because service %s already has scheduled PITR backups. Please disable them if you want to make another backup.", serviceName)
 	})
 
-	t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
+	t.Run("create one-time physical backup", func(t *testing.T) {
 		client := backupClient.Default.Backups
-		backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
-			Body: backups.ScheduleBackupBody{
-				ServiceID:      serviceID,
-				LocationID:     locationID,
-				CronExpression: "0 1 1 1 1",
-				Name:           "testing",
-				Description:    "testing",
-				Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
-				Enabled:        false,
-				DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+		backupRes, err := client.StartBackup(&backups.StartBackupParams{
+			Body: backups.StartBackupBody{
+				ServiceID:   serviceID,
+				LocationID:  locationID,
+				Name:        t.Name(),
+				Description: "test snapshot",
+				DataModel:   pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
 			},
 			Context: pmmapitests.Context,
 		})
 
 		require.NoError(t, err)
 		assert.NotNil(t, backupRes.Payload)
-		defer removeScheduledBackup(t, backupRes.Payload.ScheduledBackupID)
+		assert.NotEmpty(t, backupRes.Payload.ArtifactID)
+		removeArtifact(t, backupRes.Payload.ArtifactID)
+	})
+
+	t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
+		client := backupClient.Default.Backups
+		_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
+			Body: backups.ScheduleBackupBody{
+				ServiceID:      serviceID,
+				LocationID:     locationID,
+				CronExpression: "0 1 1 1 1",
+				Name:           t.Name(),
+				Description:    "testing",
+				Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+				Enabled:        true,
+				DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+			},
+			Context: pmmapitests.Context,
+		})
+
+		assert.Error(t, err)
 	})
 
 	t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
@@ -337,7 +355,7 @@ func TestScheduleBackupForMongo(t *testing.T) {
 				Name:           "testing",
 				Description:    "testing",
 				Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
-				Enabled:        false,
+				Enabled:        true,
 				DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
 			},
 			Context: pmmapitests.Context,
@@ -345,7 +363,7 @@ func TestScheduleBackupForMongo(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.NotNil(t, backupRes.Payload)
-		defer removeScheduledBackup(t, backupRes.Payload.ScheduledBackupID)
+		removeScheduledBackup(t, backupRes.Payload.ScheduledBackupID)
 	})
 }
 
@@ -353,6 +371,17 @@ func removeScheduledBackup(t *testing.T, id string) {
 	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+}
+
+func removeArtifact(t *testing.T, id string) {
+	_, err := backupClient.Default.Artifacts.DeleteArtifact(&artifacts.DeleteArtifactParams{
+		Body: artifacts.DeleteArtifactBody{
+			ArtifactID:  id,
+			RemoveFiles: true,
 		},
 		Context: pmmapitests.Context,
 	})

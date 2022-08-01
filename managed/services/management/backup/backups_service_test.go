@@ -355,6 +355,7 @@ func TestScheduledBackups(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
 
 		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, schedulerService)
@@ -375,6 +376,7 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
+			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, schedulerService)
