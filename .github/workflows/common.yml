@@ -22,12 +22,11 @@ jobs:
   check:
     name: Checks
     runs-on: ubuntu-22.04
-    continue-on-error: ${{ matrix.may-fail }}
     strategy:
       fail-fast: false
       matrix:
-        may-fail: [false]
         go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
+        may-fail: [false]
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
