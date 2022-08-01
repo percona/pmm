@@ -64,7 +64,7 @@ type AddAgentMongodbExporterCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
-	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
+	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {

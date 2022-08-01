@@ -61,7 +61,7 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCAFile           string            `help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
-	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
+	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {

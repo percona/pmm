@@ -47,7 +47,7 @@ type AddAgentNodeExporterCommand struct {
 	CustomLabels      map[string]string `help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	LogLevel          string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
+	LogLevel          string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
