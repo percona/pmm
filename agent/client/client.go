@@ -745,6 +745,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeSince(time.Now())
 }
