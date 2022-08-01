@@ -53,7 +53,7 @@ This project is built from several repositories:
 #### Prerequisites
 
 1. Installed minikube
-1. Installed docker
+2. Installed docker
 
 #### Running minikube
 
