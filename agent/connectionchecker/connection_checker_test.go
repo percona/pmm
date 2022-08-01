@@ -17,7 +17,6 @@ package connectionchecker
 import (
 	"context"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 
@@ -121,7 +120,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
 			},
-			expectedErr: `server selection error: context deadline exceeded, current topology: \{ Type: Unknown, Servers: \[\{ Addr: 127.0.0.1:27017, Type: Unknown \}, \] \}`,
+			expectedErr: `.*context deadline exceeded.*`,
 		},
 		{
 			name: "MongoDB no database",
@@ -215,11 +214,8 @@ func TestConnectionChecker(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			temp, err := os.MkdirTemp("", "pmm-agent-")
-			require.NoError(t, err)
-
 			c := New(&config.Paths{
-				TempDir: temp,
+				TempDir: t.TempDir(),
 			})
 
 			if tt.panic {
@@ -241,11 +237,8 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	t.Run("TableCount", func(t *testing.T) {
-		temp, err := os.MkdirTemp("", "pmm-agent-")
-		require.NoError(t, err)
-
 		c := New(&config.Paths{
-			TempDir: temp,
+			TempDir: t.TempDir(),
 		})
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
@@ -257,11 +250,9 @@ func TestConnectionChecker(t *testing.T) {
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
 		mongoDBDSNWithSSL, mongoDBTextFiles := tests.GetTestMongoDBWithSSLDSN(t, "../")
-		temp, err := os.MkdirTemp("", "pmm-agent-")
-		require.NoError(t, err)
 
 		c := New(&config.Paths{
-			TempDir: temp,
+			TempDir: t.TempDir(),
 		})
 		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
 			Dsn:       mongoDBDSNWithSSL,

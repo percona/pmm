@@ -30,9 +30,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/actions"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/api/agentpb"
@@ -65,8 +65,7 @@ func TestProfiler(t *testing.T) {
 	defer logrus.SetLevel(logrus.InfoLevel)
 
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
-	tempDir, err := os.MkdirTemp("", "pmm-agent-mongodb-")
-	require.NoError(t, err)
+	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
 	for _, url := range []string{
@@ -216,14 +215,15 @@ func testProfiler(t *testing.T, url string) {
 	// This test is here to ensure the query example the profiler captures is valid to be used in Explain.
 	t.Run("TestMongoDBExplain", func(t *testing.T) {
 		id := "abcd1234"
-		ctx := context.TODO()
 
 		params := &agentpb.StartActionRequest_MongoDBExplainParams{
 			Dsn:   tests.GetTestMongoDBDSN(t),
 			Query: findBucket.Common.Example,
 		}
 
-		ex := actions.NewMongoDBExplainAction(id, params, os.TempDir())
+		ex := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
+		defer cancel()
 		res, err := ex.Run(ctx)
 		assert.Nil(t, err)
 

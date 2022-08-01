@@ -3,12 +3,14 @@
 # See CONTRIBUTING.md.
 
 from __future__ import print_function, unicode_literals
-import multiprocessing, os, subprocess, time
+import os
+import subprocess
+import time
 
 
 GO_VERSION = os.getenv("GO_VERSION")
 if GO_VERSION is None:
-    raise("GO_VERSION is not set")
+    raise "GO_VERSION is not set"
 
 
 def run_commands(commands):
@@ -35,7 +37,10 @@ def install_packages():
             ansible-lint \
             mc tmux psmisc lsof which iproute \
             bash-completion bash-completion-extras \
-            man man-pages",
+            man man-pages \
+            dh-autoreconf \
+            openssl-devel \
+            wget"
     ])
 
 
@@ -47,12 +52,23 @@ def install_go():
         "chmod +x /usr/local/bin/gimme"
     ])
 
-    go_version = subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip()
+    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip())
+
+    if GO_VERSION == "tip":
+        run_commands([
+            "mkdir $HOME/git_source",
+            "wget https://github.com/git/git/archive/refs/tags/v2.34.4.tar.gz -O $HOME/git.tar.gz",
+            "tar -xzf $HOME/git.tar.gz -C $HOME/git_source --strip-components 1",
+            "cd $HOME/git_source && make configure && ./configure --prefix=/usr && make all && make install",
+        ])
+        gimme_go_dir = "go"
+    else:
+        gimme_go_dir = "go{go_version}.linux.amd64".format(go_version=go_version)
 
     run_commands([
         "gimme " + go_version,
         "rm -fr /usr/local/go",
-        "mv -f /root/.gimme/versions/go{go_version}.linux.amd64 /usr/local/go".format(go_version=go_version),
+        "mv -f /root/.gimme/versions/{gimme_go_dir} /usr/local/go".format(gimme_go_dir=gimme_go_dir),
         "update-alternatives --install '/usr/bin/go' 'go' '/usr/local/go/bin/go' 0",
         "update-alternatives --set go /usr/local/go/bin/go",
         "update-alternatives --install '/usr/bin/gofmt' 'gofmt' '/usr/local/go/bin/gofmt' 0",
@@ -62,12 +78,14 @@ def install_go():
         "go env"
     ])
 
+
 def make_init():
     """Runs make init."""
 
     run_commands([
         "make init",
     ])
+
 
 def setup():
     """Runs various setup commands."""
@@ -80,15 +98,8 @@ def setup():
 
 
 def main():
-    # install packages early as they will be required below
-    install_packages_p = multiprocessing.Process(target=install_packages)
-    install_packages_p.start()
-
-    # install Go and wait for it
+    install_packages()
     install_go()
-
-    # make install (requires make package)
-    install_packages_p.join()
     make_init()
 
     # do basic setup
