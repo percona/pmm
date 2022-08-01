@@ -92,7 +92,7 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 
 	switch err := err.(type) {
 	case nil:
-		printNilError(opts, res)
+		printSuccessResult(opts, res)
 		os.Exit(0)
 
 	case commands.ErrorResponse:
@@ -107,7 +107,7 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 	return err
 }
 
-func printNilError(opts *flags.GlobalFlags, res commands.Result) {
+func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
 	if opts.JSON {
 		b, jErr := json.Marshal(res)
 		if jErr != nil {
