@@ -146,7 +146,6 @@ format:               ## Format source code.
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
-	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c api/nginx/nginx.conf
 
 descriptors:          ## Update API compatibility descriptors.
