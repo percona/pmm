@@ -27,7 +27,6 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api-tests/management"
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
@@ -352,17 +351,6 @@ func removeScheduledBackup(t *testing.T, id string) {
 	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-}
-
-func removeArtifact(t *testing.T, id string) {
-	_, err := backupClient.Default.Artifacts.DeleteArtifact(&artifacts.DeleteArtifactParams{
-		Body: artifacts.DeleteArtifactBody{
-			ArtifactID:  id,
-			RemoveFiles: true,
 		},
 		Context: pmmapitests.Context,
 	})
