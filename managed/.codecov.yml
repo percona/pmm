@@ -1,9 +1,0 @@
-coverage:
-  range: "60...80"
-  status:
-    patch:
-      default:
-        threshold: 1
-
-github_checks:
-  annotations: false

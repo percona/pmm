@@ -28,8 +28,9 @@ import (
 )
 
 var statusResultT = ParseTemplate(`
-Agent ID: {{ .PMMAgentStatus.AgentID }}
-Node ID : {{ .PMMAgentStatus.NodeID }}
+Agent ID : {{ .PMMAgentStatus.AgentID }}
+Node ID  : {{ .PMMAgentStatus.NodeID }}
+Node name: {{ .PMMAgentStatus.NodeName }}
 
 PMM Server:
 	URL    : {{ .PMMAgentStatus.ServerURL }}

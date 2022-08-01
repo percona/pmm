@@ -29,6 +29,7 @@ func TestStatus(t *testing.T) {
 	res := newStatusResult(&agentlocal.Status{
 		AgentID:       "pmm-server",
 		NodeID:        "pmm-server",
+		NodeName:      "pmm-server-node",
 		ServerURL:     "https://username:password@address/",
 		ServerVersion: "2.4.0",
 		AgentVersion:  "2.5.1",
@@ -50,8 +51,9 @@ func TestStatus(t *testing.T) {
 	})
 
 	expected := strings.TrimSpace(`
-Agent ID: pmm-server
-Node ID : pmm-server
+Agent ID : pmm-server
+Node ID  : pmm-server
+Node name: pmm-server-node
 
 PMM Server:
 	URL    : https://address/

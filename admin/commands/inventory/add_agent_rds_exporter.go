@@ -55,6 +55,7 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	LogLevel               string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
 }
 
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
@@ -70,6 +71,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 			DisableBasicMetrics:    cmd.DisableBasicMetrics,
 			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 			PushMetrics:            cmd.PushMetrics,
+			LogLevel:               &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}

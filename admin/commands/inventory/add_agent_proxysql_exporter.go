@@ -58,6 +58,7 @@ type AddAgentProxysqlExporterCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
 }
 
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
@@ -75,6 +76,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:            &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}

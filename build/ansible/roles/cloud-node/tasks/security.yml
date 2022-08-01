@@ -1,0 +1,12 @@
+---
+    - name: security                   | Disable root SSH access
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: security                   | Remove authorized_keys file
+      file:
+        path: /root/.ssh/authorized_keys
+        state: absent

@@ -19,17 +19,12 @@ jobs:
     steps:
       - uses: percona-platform/checkout@v3
 
-      - name: Sync GA API to Readme
-        uses: percona-platform/rdme@7.2.0
+      - name: Sync API to Readme.io
+        uses: readmeio/rdme@7.4.0
         with:
           rdme: openapi ./api/swagger/swagger.json --id=626badcabbc59c02acc1a53f --key=${{ secrets.README_TOKEN }}
 
-      - name: Sync non-GA API to Readme
-        uses: percona-platform/rdme@7.2.0
-        with:
-          rdme: openapi ./api/swagger/swagger-dev-only.json --id=626badfead30fd02a08cfab8 --key=${{ secrets.README_TOKEN }}
-
-      - name: Upload markdown content
-        uses: percona-platform/rdme@7.2.0
+      - name: Sync markdown docs to Readme.io
+        uses: readmeio/rdme@7.4.0
         with:
           rdme: docs docs/api --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}

@@ -483,6 +483,10 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this change RDS exporter OK body RDS exporter
@@ -490,6 +494,10 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) e
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -550,6 +558,60 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Regis
 
 	// value enum
 	if err := o.validateStatusEnum("changeRdsExporterOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum = append(changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelAuto captures enum value "auto"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelAuto string = "auto"
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelFatal string = "fatal"
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelError captures enum value "error"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelError string = "error"
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelWarn captures enum value "warn"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelWarn string = "warn"
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelInfo captures enum value "info"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelInfo string = "info"
+
+	// ChangeRDSExporterOKBodyRDSExporterLogLevelDebug captures enum value "debug"
+	ChangeRDSExporterOKBodyRDSExporterLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *ChangeRDSExporterOKBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeRDSExporterOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeRdsExporterOk"+"."+"rds_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 

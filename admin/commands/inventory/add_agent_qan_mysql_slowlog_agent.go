@@ -77,6 +77,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
+	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level"`
 }
 
 func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error) {
@@ -118,6 +119,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 			TLSCa:                tlsCa,
 			TLSCert:              tlsCert,
 			TLSKey:               tlsKey,
+			LogLevel:             &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
