@@ -31,6 +31,18 @@ linters-settings:
     line-length: 170
     tab-width: 4
 
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        # Disabled because we have too many errors at the moment
+        json: ""
+        # Disabled because we have too many errors at the moment
+        yaml: ""
+        xml: camel
+
   unused:
     check-exported: false #TODO: set true for agent
 
@@ -54,7 +66,6 @@ linters:
     - gochecknoinits    # we use init functions
     - gomnd             # we are using numbers in many cases
     - gomoddirectives   # we use replace directives
-    - gomodguard        # we are not using modules
     - ifshort           # a lot of false positives
     - interfacer        # deprecated
     - maligned          # deprecated
