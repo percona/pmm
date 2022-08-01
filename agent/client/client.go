@@ -34,11 +34,12 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/agent/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
-	"github.com/percona/pmm/agent/jobs"
+	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
+	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -46,11 +47,10 @@ import (
 )
 
 const (
-	dialTimeout          = 5 * time.Second
-	backoffMinDelay      = 1 * time.Second
-	backoffMaxDelay      = 15 * time.Second
-	clockDriftWarning    = 5 * time.Second
-	defaultActionTimeout = 10 * time.Second // default timeout for compatibility with an older server
+	dialTimeout       = 5 * time.Second
+	backoffMinDelay   = 1 * time.Second
+	backoffMaxDelay   = 15 * time.Second
+	clockDriftWarning = 5 * time.Second
 )
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
@@ -68,8 +68,7 @@ type Client struct {
 	// for unit tests only
 	dialTimeout time.Duration
 
-	actionsRunner *actions.ConcurrentRunner
-	jobsRunner    *jobs.Runner
+	runner *runner.Runner
 
 	rw      sync.RWMutex
 	md      *agentpb.ServerConnectMetadata
@@ -91,6 +90,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
 		done:               make(chan struct{}),
 		dialTimeout:        dialTimeout,
+		runner:             runner.New(cfg.RunnerCapacity),
 		defaultsFileParser: dfp,
 		cus:                cus,
 	}
@@ -105,9 +105,6 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
-
-	c.actionsRunner = actions.NewConcurrentRunner(ctx)
-	c.jobsRunner = jobs.NewRunner()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -187,7 +184,7 @@ func (c *Client) Run(ctx context.Context) error {
 
 	oneDone := make(chan struct{}, 5)
 	go func() {
-		c.jobsRunner.Run(ctx)
+		c.runner.Run(ctx)
 		oneDone <- struct{}{}
 	}()
 	go func() {
@@ -225,13 +222,8 @@ func (c *Client) Done() <-chan struct{} {
 }
 
 func (c *Client) processActionResults() {
-	for result := range c.actionsRunner.Results() {
-		resp, err := c.channel.SendAndWaitResponse(&agentpb.ActionResultRequest{
-			ActionId: result.ID,
-			Output:   result.Output,
-			Done:     true,
-			Error:    result.Error,
-		})
+	for result := range c.runner.ActionsResults() {
+		resp, err := c.channel.SendAndWaitResponse(result)
 		if err != nil {
 			c.l.Error(err)
 			continue
@@ -244,8 +236,11 @@ func (c *Client) processActionResults() {
 }
 
 func (c *Client) processJobsResults() {
-	for message := range c.jobsRunner.Messages() {
-		c.channel.Send(message)
+	for message := range c.runner.JobsMessages() {
+		c.channel.Send(&channel.AgentResponse{
+			ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
+			Payload: message,
+		})
 	}
 	c.l.Debugf("Jobs runner Messages() channel drained.")
 }
@@ -294,7 +289,6 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 	for req := range c.channel.Requests() {
 		var responsePayload agentpb.AgentResponsePayload
 		var status *grpcstatus.Status
-	outerSwitch:
 		switch p := req.Payload.(type) {
 		case *agentpb.Ping:
 			responsePayload = &agentpb.Pong{
@@ -305,115 +299,15 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.SetStateResponse{}
 
 		case *agentpb.StartActionRequest:
-			var action actions.Action
-			switch params := p.Params.(type) {
-			case *agentpb.StartActionRequest_MysqlExplainParams:
-				action = actions.NewMySQLExplainAction(p.ActionId, params.MysqlExplainParams)
-
-			case *agentpb.StartActionRequest_MysqlShowCreateTableParams:
-				action = actions.NewMySQLShowCreateTableAction(p.ActionId, params.MysqlShowCreateTableParams)
-
-			case *agentpb.StartActionRequest_MysqlShowTableStatusParams:
-				action = actions.NewMySQLShowTableStatusAction(p.ActionId, params.MysqlShowTableStatusParams)
-
-			case *agentpb.StartActionRequest_MysqlShowIndexParams:
-				action = actions.NewMySQLShowIndexAction(p.ActionId, params.MysqlShowIndexParams)
-
-			case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-				action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, params.PostgresqlShowCreateTableParams, c.cfg.Paths.TempDir)
-
-			case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-				action = actions.NewPostgreSQLShowIndexAction(p.ActionId, params.PostgresqlShowIndexParams, c.cfg.Paths.TempDir)
-
-			case *agentpb.StartActionRequest_MongodbExplainParams:
-				action = actions.NewMongoDBExplainAction(p.ActionId, params.MongodbExplainParams, c.cfg.Paths.TempDir)
-
-			case *agentpb.StartActionRequest_MysqlQueryShowParams:
-				action = actions.NewMySQLQueryShowAction(p.ActionId, params.MysqlQueryShowParams)
-
-			case *agentpb.StartActionRequest_MysqlQuerySelectParams:
-				action = actions.NewMySQLQuerySelectAction(p.ActionId, params.MysqlQuerySelectParams)
-
-			case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-				action = actions.NewPostgreSQLQueryShowAction(p.ActionId, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
-
-			case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-				action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, params.PostgresqlQuerySelectParams, c.cfg.Paths.TempDir)
-
-			case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
-					ID:      p.ActionId,
-					DSN:     params.MongodbQueryGetparameterParams.Dsn,
-					Files:   params.MongodbQueryGetparameterParams.TextFiles,
-					Command: "getParameter",
-					Arg:     "*",
-					TempDir: c.cfg.Paths.TempDir,
-				})
-
-			case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
-					ID:      p.ActionId,
-					DSN:     params.MongodbQueryBuildinfoParams.Dsn,
-					Files:   params.MongodbQueryBuildinfoParams.TextFiles,
-					Command: "buildInfo",
-					Arg:     1,
-					TempDir: c.cfg.Paths.TempDir,
-				})
-
-			case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
-					ID:      p.ActionId,
-					DSN:     params.MongodbQueryGetcmdlineoptsParams.Dsn,
-					Files:   params.MongodbQueryGetcmdlineoptsParams.TextFiles,
-					Command: "getCmdLineOpts",
-					Arg:     1,
-					TempDir: c.cfg.Paths.TempDir,
-				})
-
-			case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
-					ID:      p.ActionId,
-					DSN:     params.MongodbQueryReplsetgetstatusParams.Dsn,
-					Files:   params.MongodbQueryReplsetgetstatusParams.TextFiles,
-					Command: "replSetGetStatus",
-					Arg:     1,
-					TempDir: c.cfg.Paths.TempDir,
-				})
-
-			case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
-				action = actions.NewMongoDBQueryAdmincommandAction(actions.MongoDBQueryAdmincommandActionParams{
-					ID:      p.ActionId,
-					DSN:     params.MongodbQueryGetdiagnosticdataParams.Dsn,
-					Files:   params.MongodbQueryGetdiagnosticdataParams.TextFiles,
-					Command: "getDiagnosticData",
-					Arg:     1,
-					TempDir: c.cfg.Paths.TempDir,
-				})
-
-			case *agentpb.StartActionRequest_PtSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTSummary, []string{})
-
-			case *agentpb.StartActionRequest_PtPgSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
-
-			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-				action = actions.NewPTMySQLSummaryAction(p.ActionId, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
-
-			case *agentpb.StartActionRequest_PtMongodbSummaryParams:
-				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
-
-			default:
-				c.l.Errorf("Unhandled StartAction request: %v.", req)
+			responsePayload = &agentpb.StartActionResponse{}
+			if err := c.handleStartActionRequest(p); err != nil {
 				responsePayload = nil
 				status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
-				break outerSwitch
+				break
 			}
 
-			c.actionsRunner.Start(action, c.getActionTimeout(p))
-			responsePayload = &agentpb.StartActionResponse{}
-
 		case *agentpb.StopActionRequest:
-			c.actionsRunner.Stop(p.ActionId)
+			c.runner.Stop(p.ActionId)
 			responsePayload = &agentpb.StopActionResponse{}
 
 		case *agentpb.CheckConnectionRequest:
@@ -427,11 +321,11 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &resp
 
 		case *agentpb.StopJobRequest:
-			c.jobsRunner.Stop(p.JobId)
+			c.runner.Stop(p.JobId)
 			responsePayload = &agentpb.StopJobResponse{}
 
 		case *agentpb.JobStatusRequest:
-			alive := c.jobsRunner.IsRunning(p.JobId)
+			alive := c.runner.IsRunning(p.JobId)
 			responsePayload = &agentpb.JobStatusResponse{Alive: alive}
 
 		case *agentpb.GetVersionsRequest:
@@ -464,6 +358,116 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		return
 	}
 	c.l.Debug("Channel closed.")
+}
+
+func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
+	timeout := p.Timeout.AsDuration()
+	if err := p.Timeout.CheckValid(); err != nil {
+		timeout = 0
+	}
+
+	var action actions.Action
+	switch params := p.Params.(type) {
+	case *agentpb.StartActionRequest_MysqlExplainParams:
+		action = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
+
+	case *agentpb.StartActionRequest_MysqlShowCreateTableParams:
+		action = actions.NewMySQLShowCreateTableAction(p.ActionId, timeout, params.MysqlShowCreateTableParams)
+
+	case *agentpb.StartActionRequest_MysqlShowTableStatusParams:
+		action = actions.NewMySQLShowTableStatusAction(p.ActionId, timeout, params.MysqlShowTableStatusParams)
+
+	case *agentpb.StartActionRequest_MysqlShowIndexParams:
+		action = actions.NewMySQLShowIndexAction(p.ActionId, timeout, params.MysqlShowIndexParams)
+
+	case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
+		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
+		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbExplainParams:
+		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MysqlQueryShowParams:
+		action = actions.NewMySQLQueryShowAction(p.ActionId, timeout, params.MysqlQueryShowParams)
+
+	case *agentpb.StartActionRequest_MysqlQuerySelectParams:
+		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
+
+	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
+		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
+		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
+		action = actions.NewMongoDBQueryAdmincommandAction(
+			p.ActionId,
+			timeout,
+			params.MongodbQueryGetparameterParams.Dsn,
+			params.MongodbQueryGetparameterParams.TextFiles,
+			"getParameter",
+			"*",
+			c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
+		action = actions.NewMongoDBQueryAdmincommandAction(
+			p.ActionId,
+			timeout,
+			params.MongodbQueryBuildinfoParams.Dsn,
+			params.MongodbQueryBuildinfoParams.TextFiles,
+			"buildInfo",
+			1,
+			c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
+		action = actions.NewMongoDBQueryAdmincommandAction(
+			p.ActionId,
+			timeout,
+			params.MongodbQueryGetcmdlineoptsParams.Dsn,
+			params.MongodbQueryGetcmdlineoptsParams.TextFiles,
+			"getCmdLineOpts",
+			1,
+			c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
+		action = actions.NewMongoDBQueryAdmincommandAction(
+			p.ActionId,
+			timeout,
+			params.MongodbQueryReplsetgetstatusParams.Dsn,
+			params.MongodbQueryReplsetgetstatusParams.TextFiles,
+			"replSetGetStatus",
+			1,
+			c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
+		action = actions.NewMongoDBQueryAdmincommandAction(
+			p.ActionId,
+			timeout,
+			params.MongodbQueryGetdiagnosticdataParams.Dsn,
+			params.MongodbQueryGetdiagnosticdataParams.TextFiles,
+			"getDiagnosticData",
+			1,
+			c.cfg.Paths.TempDir)
+
+	case *agentpb.StartActionRequest_PtSummaryParams:
+		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTSummary, []string{})
+
+	case *agentpb.StartActionRequest_PtPgSummaryParams:
+		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
+
+	case *agentpb.StartActionRequest_PtMysqlSummaryParams:
+		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
+
+	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
+		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+
+	default:
+		return errors.Errorf("unknown action type request: %T", params)
+	}
+
+	return c.runner.StartAction(action)
 }
 
 func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
@@ -566,20 +570,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		return errors.Errorf("unknown job type: %T", j)
 	}
 
-	return c.jobsRunner.Start(job)
-}
-
-func (c *Client) getActionTimeout(req *agentpb.StartActionRequest) time.Duration {
-	duration := req.Timeout.AsDuration()
-	err := req.Timeout.CheckValid()
-	if err == nil && duration == 0 {
-		err = errors.New("timeout can't be zero")
-	}
-	if err != nil {
-		c.l.Warnf("Invalid timeout, using default value instead: %s.", err)
-		duration = defaultActionTimeout
-	}
-	return duration
+	return c.runner.StartJob(job)
 }
 
 type dialResult struct {

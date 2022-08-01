@@ -2,8 +2,7 @@
 /build/                     @nikita-b @atymchuk 
 /admin/                     @michal-kralik
 /agent/agents/postgres/     @JiriCtvrtka
-/agent/actions/             @artemgavrilov
-/agent/jobs/                @artemgavrilov
+/agent/runner/              @artemgavrilov
 /api/                       @BupycHuk
 /docs/api/                  @atymchuk
 /managed/services/checks/   @idoqo
