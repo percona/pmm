@@ -174,7 +174,7 @@ jobs:
 
     steps:
       - uses: percona-platform/checkout@v3
-      - uses: percona-platform/setup-node@v2
+      - uses: percona-platform/setup-node@v3
       - name: Slack Notification
         uses: percona-platform/action-slack-notify@v2
 
