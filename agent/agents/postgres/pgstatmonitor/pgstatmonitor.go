@@ -473,7 +473,6 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 
