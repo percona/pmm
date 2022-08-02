@@ -1,7 +1,6 @@
 services:
   telemetry:
     enabled: true
-    load_defaults: true
     datasources:
       VM:
         enabled: true
@@ -19,10 +18,9 @@ services:
           username: pmm
           password: pmm
     reporting:
+      send: true
       send_on_start: false
       interval: 24h
-      interval_env: "PERCONA_TEST_TELEMETRY_INTERVAL"
       retry_backoff: 1h
-      retry_backoff_env: "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
       retry_count: 20
       send_timeout: 5s

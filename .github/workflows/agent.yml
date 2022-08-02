@@ -7,11 +7,20 @@ on:
       - release-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+
   pull_request:
     paths-ignore:
       - "admin/**"
       - "managed/**"
       - "docs/**"
+
+  workflow_call:
+    inputs:
+      go-version:
+        description: An array of Go versions to be tested against, in a format of json string.
+        required: false
+        type: string
+        default: '["tip"]'
 
 jobs:
   test-agent:
@@ -19,11 +28,8 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go-version: [ 1.18.x ]
+        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
         may-fail: [ true ]
-        #        include:
-        #          - go-version: tip
-        #            may-fail: true
 
         images:
           - { mysql: 'mysql:5.6', mongo: 'mongo:3.6', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
@@ -51,6 +57,7 @@ jobs:
     continue-on-error: ${{ matrix.may-fail }}
 
     env:
+      GO_VERSION: ${{ matrix.go-version }}
       GOPATH: ${{ github.workspace }}
       GOBIN: ${{ github.workspace }}/bin
       WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
@@ -72,13 +79,13 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
-        if: matrix.go-version != 'tip'
+        if: env.GO_VERSION != 'tip'
         uses: percona-platform/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Set up Go tip
-        if: matrix.go-version == 'tip'
+        if: env.GO_VERSION == 'tip'
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
@@ -86,18 +93,13 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
-      - name: Set GO_VERSION environment variable
-        run: |
-          go version
-          echo "GO_VERSION=$(go version)" >> $GITHUB_ENV
-
       - name: Enable Go modules cache
         uses: percona-platform/cache@v2
         with:
           path: ~/go/pkg/mod
-          key: ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ matrix.os }}-go-${{ matrix.go-version }}-modules-
+            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
         run: go mod download
@@ -120,18 +122,18 @@ jobs:
         run: make test-crosscover
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: cover.out
-          flags: cover
+          file: ./src/github.com/percona/pmm/agent/cover.out
+          flags: agent-cover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v1
+        uses: percona-platform/codecov-action@v3
         with:
-          file: crosscover.out
-          flags: crosscover
+          file: ./src/github.com/percona/pmm/agent/crosscover.out
+          flags: agent-crosscover
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 

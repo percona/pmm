@@ -14,18 +14,21 @@ _bash:
 
 PMM_RELEASE_PATH ?= ./bin
 
-run-managed:                      ## Replace pmm-managed from build, restart and tail logs
+run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
 	supervisorctl stop pmm-managed
 	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
 	supervisorctl start pmm-managed &
 	supervisorctl tail -f pmm-managed
 
-run-agent:                        ## Replace pmm-agent from build and restart
+run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
 	supervisorctl stop pmm-agent
 	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
 	supervisorctl start pmm-agent
 
-run: release-dev-agent run-agent release-dev-managed run-managed       ## Run pmm-managed and pmm-agent
+run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
+
+run:                                 ## Deprecated
+	echo "Deprecated: please use run-all"
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
