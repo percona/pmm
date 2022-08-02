@@ -39,7 +39,7 @@ func AddToFuzzCorpus(t testing.TB, prefix string, data []byte) {
 	_, file, _, ok := runtime.Caller(1)
 	require.True(t, ok)
 	dir := filepath.Join(filepath.Dir(file), "fuzzdata", "corpus")
-	err := os.MkdirAll(dir, 0o754)
+	err := os.MkdirAll(dir, 0o750)
 	require.NoError(t, err)
 
 	// go-fuzz uses SHA1 for non-cryptographic hashing
@@ -49,6 +49,6 @@ func AddToFuzzCorpus(t testing.TB, prefix string, data []byte) {
 	}
 
 	path := filepath.Join(dir, file)
-	err = ioutil.WriteFile(path, data, 0o644) //nolint:gosec
+	err = ioutil.WriteFile(path, data, 0o640) //nolint:gosec
 	require.NoError(t, err)
 }
