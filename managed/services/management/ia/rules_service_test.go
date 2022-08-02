@@ -78,12 +78,7 @@ func TestCreateAlertRule(t *testing.T) {
 	templates.CollectTemplates(ctx)
 
 	t.Run("normal", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -161,12 +156,7 @@ groups:
 	})
 
 	t.Run("wrong parameter value", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -202,12 +192,7 @@ groups:
 	})
 
 	t.Run("wrong parameter", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -243,12 +228,7 @@ groups:
 	})
 
 	t.Run("missing parameter", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -280,12 +260,7 @@ groups:
 	})
 
 	t.Run("wrong parameter type", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -322,12 +297,7 @@ groups:
 	})
 
 	t.Run("missing template", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		// Create test rule
 		rules := NewRulesService(db, templates, &vmAlert, &alertManager)
@@ -359,12 +329,7 @@ groups:
 	})
 
 	t.Run("disabled", func(t *testing.T) {
-		testDir, err := ioutil.TempDir("", "")
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			err = os.RemoveAll(testDir)
-			require.NoError(t, err)
-		})
+		testDir := t.TempDir()
 
 		vmAlert = mockVmAlert{}
 		vmAlert.On("RequestConfigurationUpdate").Return()
