@@ -208,7 +208,7 @@ telemetry:
 
   - id: NodesInfoRDSExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE agent_type = 'rds-exporter' and pmm_agent_id != 'pmm-server'
+    query: version FROM agents WHERE agent_type = 'rds_exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version RDS_EXPORTER"
     data:
       - metric_name: "pmm_client_rds_exporter_version"
@@ -224,7 +224,7 @@ telemetry:
 
   - id: NodesInfoAzureDatabaseExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE agent_type = 'azure-database-exporter' and pmm_agent_id != 'pmm-server'
+    query: version FROM agents WHERE agent_type = 'azure_database_exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version AZURE_DATABASE_EXPORTER"
     data:
       - metric_name: "pmm_client_azure_database_exporter_version"
