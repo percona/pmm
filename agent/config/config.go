@@ -327,6 +327,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
+	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
+		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
