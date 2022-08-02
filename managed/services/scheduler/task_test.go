@@ -282,17 +282,6 @@ func TestValidation(t *testing.T) {
 				errMsg: "invalid argument: invalid backup mode 'invalid'",
 			},
 			{
-				name: "unsupported data model",
-				params: &BackupTaskParams{
-					ServiceID:  "service-id",
-					LocationID: "location-id",
-					Name:       "name",
-					DataModel:  models.DataModel("invalid"),
-					Mode:       models.Snapshot,
-				},
-				errMsg: "unsupported backup data model for mongoDB: invalid",
-			},
-			{
 				name: "unsupported incremental backup mode",
 				params: &BackupTaskParams{
 					ServiceID:  "service-id",
