@@ -112,28 +112,14 @@ jobs:
           ENV_UP_FLAGS: "--detach"
         run: make env-up
 
-      - name: Test race
-        run: make test-race
-
-      - name: Test cover
+      - name: Run tests
         run: make test-cover
-
-      - name: Test crosscover
-        run: make test-crosscover
 
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
         with:
           file: ./src/github.com/percona/pmm/agent/cover.out
-          flags: agent-cover
-          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-
-      - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
-        with:
-          file: ./src/github.com/percona/pmm/agent/crosscover.out
-          flags: agent-crosscover
+          flags: agent
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 

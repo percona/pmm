@@ -97,29 +97,16 @@ jobs:
         run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-all
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-cover
+
+      - name: Run PMM server update test
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-update
 
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
         with:
           file: ./src/github.com/percona/pmm/managed/cover.out
-          flags: managed-cover
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-
-      - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
-        with:
-          file: ./src/github.com/percona/pmm/managed/crosscover.out
-          flags: managed-crosscover
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-
-      - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
-        with:
-          file: ./src/github.com/percona/pmm/managed/race-crosscover.out
-          flags: managed-race-crosscover
+          flags: managed
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
