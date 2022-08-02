@@ -375,7 +375,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PORTS_MIN").Uint16Var(&cfg.Ports.Min)
 	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
 		Envar("PMM_AGENT_PORTS_MAX").Uint16Var(&cfg.Ports.Max)
-	app.Flag("window-connected-time", "Window time for which we tracke the status of connection between agent and server").
+	app.Flag("window-connected-time", "Window time for which we track the status of connection between agent and server").
 		Envar("PMM_AGENT_WINDOW_CONNECTED_TIME").DurationVar(&cfg.WindowConnectedTime)
 
 	app.Flag("log-level", "Set logging level [PMM_AGENT_LOG_LEVEL]").

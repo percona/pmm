@@ -747,7 +747,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 
 // GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
 func (c *Client) GetConnectionUpTime() float32 {
-	return c.cus.GetConnectedUpTimeSince(time.Now())
+	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
 
 // Describe implements "unchecked" prometheus.Collector.

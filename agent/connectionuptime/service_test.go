@@ -133,7 +133,7 @@ func TestConnectionUpTime(t *testing.T) {
 				now.Add(-2 * time.Second): true,
 				now.Add(-1 * time.Second): true,
 			},
-			expectedUpTime: 100,
+			expectedUpTime: 80,
 			windowPeriod:   5 * time.Second,
 			toTime:         now,
 		},
@@ -167,7 +167,7 @@ func TestConnectionUpTime(t *testing.T) {
 			}
 
 			service.deleteOldEvents()
-			got := service.GetConnectedUpTimeSince(tt.toTime)
+			got := service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
 				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
 		})
@@ -201,7 +201,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 			expectedUpTime: 50,
 			windowPeriod:   10 * time.Second,
 
-			newExpectedUpTime: 100,
+			newExpectedUpTime: 80,
 			newWindowPeriod:   5 * time.Second,
 			toTime:            now,
 		},
@@ -243,7 +243,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 
 			// delete expired events
 			service.deleteOldEvents()
-			got := service.GetConnectedUpTimeSince(tt.toTime)
+			got := service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
 				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
 
@@ -252,9 +252,9 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 
 			// delete expired events
 			service.deleteOldEvents()
-			got = service.GetConnectedUpTimeSince(tt.toTime)
+			got = service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.newExpectedUpTime, got),
-				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.newExpectedUpTime, got))
 		})
 	}
 }

@@ -86,7 +86,7 @@ func (c *Service) deleteOldEvents() {
 	expired := time.Now().Add(-c.windowPeriod)
 	for i := len(c.events) - 1; i >= 0; i-- {
 		if c.events[i].Timestamp.Before(expired) {
-			c.events[i].Timestamp = expired.Add(time.Second)
+			c.events[i].Timestamp = expired
 			c.removeFirstElementsUntilIndex(i)
 
 			return
@@ -116,7 +116,7 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 	}()
 }
 
-// GetConnectedUpTimeSince calculates the connection up time between agent and server
+// GetConnectedUpTimeUntil calculates the connection uptime between agent and server
 // based on the stored connection events.
 //
 // In the connection event set we store only when connection status was changed
@@ -128,7 +128,7 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 //
 // GetConnectionUpTime returns the percentage of connection uptime during
 // set period of time (by default it's 24 hours).
-// Method will calculate connected time as interval between connected and disconneced events
+// Method will calculate connected time as interval between connected and disconnected events
 //
 // Here is example how it works.
 // When we have such set of events in connection set `f1 s1 f2`
@@ -138,8 +138,8 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 //
 // method will return result using next formula `time_between(s1, f2)/time_between(f1, now)*100`
 // where time_between(s1, f2) - connection up time
-//       time_between(f1, now) - total time betweeen first event (f1) and current moment
-func (c *Service) GetConnectedUpTimeSince(toTime time.Time) float32 {
+//       time_between(f1, now) - total time between first event (f1) and current moment
+func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 	c.l.Debug("Calculate connection uptime")
 	if len(c.events) == 0 {
 		return 0
