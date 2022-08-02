@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
-func TestMongoDBBackups(t *testing.T) {
+func TestMongoBackup(t *testing.T) {
 	nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 	nodeID, pmmAgentID := management.RegisterGenericNode(t, node.RegisterNodeBody{
 		NodeName: nodeName,

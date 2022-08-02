@@ -287,10 +287,10 @@ func TestValidation(t *testing.T) {
 					ServiceID:  "service-id",
 					LocationID: "location-id",
 					Name:       "name",
-					DataModel:  models.PhysicalDataModel,
+					DataModel:  models.DataModel("invalid"),
 					Mode:       models.Snapshot,
 				},
-				errMsg: "unsupported backup data model for mongoDB: physical",
+				errMsg: "unsupported backup data model for mongoDB: invalid",
 			},
 			{
 				name: "unsupported incremental backup mode",
