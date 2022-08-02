@@ -35,17 +35,11 @@ install-race:                   ## Install pmm-admin binary with race detector.
 
 TEST_FLAGS ?= -timeout=20s
 
-test: install                   ## Run tests.
-	go test $(TEST_FLAGS) ./...
-
-test-race:                      ## Run tests with race detector.
+test:                           ## Run tests.
 	go test $(TEST_FLAGS) -race ./...
 
-test-cover:                     ## Run tests and collect per-package coverage information.
-	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
-
-test-crosscover:                ## Run tests and collect cross-package coverage information.
-	go test $(TEST_FLAGS) -coverprofile=crosscover.out -covermode=count -coverpkg=./... ./...
+test-cover:                     ## Run tests and collect cross-package coverage information.
+	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
 env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
