@@ -40,4 +40,5 @@ type client interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
 	AgentsList() []*agentlocalpb.AgentInfo
+	AgentsLogs() map[string][]string
 }
