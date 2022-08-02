@@ -47,8 +47,7 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
-	tempDir, err := os.MkdirTemp("", "pmm-agent-")
-	require.NoError(t, err)
+	tempDir := t.TempDir()
 	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, 1)
 
 	t.Run("Start13", func(t *testing.T) {
