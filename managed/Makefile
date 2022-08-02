@@ -39,30 +39,17 @@ release:                        ## Build pmm-managed release binaries.
 release-dev:
 	go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
-PMM_TEST_PACKAGES ?= $(shell go list ./...)
 PMM_TEST_FLAGS ?= -timeout=90s
 PMM_TEST_RUN_UPDATE ?= 0
 
 test:                           ## Run tests.
-	go test $(PMM_TEST_FLAGS) -p 1 $(PMM_TEST_PACKAGES)
-
-test-race:                      ## Run tests with race detector.
-	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_PACKAGES)
+	go test $(PMM_TEST_FLAGS) -p 1 -race ./...
 
 test-cover:                     ## Run tests and collect per-package coverage information.
-	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count $(PMM_TEST_PACKAGES)
+	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
-test-crosscover:                ## Run tests and collect cross-package coverage information.
-	go test $(PMM_TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(PMM_TEST_PACKAGES)
-
-test-race-crosscover:           ## Run tests with race detector and collect cross-package coverage information.
-	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=race-crosscover.out -covermode=atomic -coverpkg=./... $(PMM_TEST_PACKAGES)
-
-test-all: test-race test-cover test-crosscover
-	env PMM_TEST_FLAGS='-timeout=180s -v' \
-		PMM_TEST_PACKAGES=./services/supervisord \
-		PMM_TEST_RUN_UPDATE=1 \
-		make test-race-crosscover
+test-update:                   ## Run pmm update test
+	PMM_TEST_RUN_UPDATE=1 go test -timeout=180s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$
 
 fuzz-grafana:                   ## Run fuzzer for services/grafana package.
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
