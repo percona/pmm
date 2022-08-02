@@ -158,7 +158,7 @@ type gRPCServerDeps struct {
 	actions              *agents.ActionsService
 	agentsStateUpdater   *agents.StateUpdater
 	connectionCheck      *agents.ConnectionChecker
-	defaultsFileParser   *agents.DefaultsFileParser
+	defaultsFileParser   *agents.CredentialsSourceAgentInvoker
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
@@ -769,7 +769,7 @@ func main() {
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
-	defaultsFileParser := agents.NewDefaultsFileParser(agentsRegistry)
+	defaultsFileParser := agents.NewCredentialsSourceAgentInvoker(agentsRegistry)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 

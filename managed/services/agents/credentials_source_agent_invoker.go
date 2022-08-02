@@ -27,20 +27,20 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
-// DefaultsFileParser requests from agent to parse defaultsFile.
-type DefaultsFileParser struct {
+// CredentialsSourceAgentInvoker requests from agent to parse defaultsFile.
+type CredentialsSourceAgentInvoker struct {
 	r *Registry
 }
 
-// NewDefaultsFileParser creates new ParseDefaultsFile request.
-func NewDefaultsFileParser(r *Registry) *DefaultsFileParser {
-	return &DefaultsFileParser{
+// NewCredentialsSourceAgentInvoker creates new CredentialsSourceAgentInvoker request.
+func NewCredentialsSourceAgentInvoker(r *Registry) *CredentialsSourceAgentInvoker {
+	return &CredentialsSourceAgentInvoker{
 		r: r,
 	}
 }
 
 // ParseDefaultsFile sends request (with file path) to pmm-agent to parse defaults file.
-func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) {
+func (p *CredentialsSourceAgentInvoker) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) {
 	l := logger.Get(ctx)
 
 	pmmAgent, err := p.r.get(pmmAgentID)
@@ -67,7 +67,7 @@ func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, 
 	}
 
 	l.Infof("ParseDefaultsFile response from agent: %+v.", resp)
-	parserResponse, ok := resp.(*agentpb.ParseDefaultsFileResponse)
+	parserResponse, ok := resp.(*agentpb.ParseCredentialsSourceResponse)
 	if !ok {
 		return nil, errors.New("wrong response from agent (not ParseDefaultsFileResponse model)")
 	}
@@ -84,11 +84,11 @@ func (p *DefaultsFileParser) ParseDefaultsFile(ctx context.Context, pmmAgentID, 
 	}, nil
 }
 
-func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseDefaultsFileRequest, error) {
+func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseCredentialsSourceRequest, error) {
 	if serviceType == models.MySQLServiceType {
-		request := &agentpb.ParseDefaultsFileRequest{
+		request := &agentpb.ParseCredentialsSourceRequest{
 			ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
-			ConfigPath:  configPath,
+			FilePath:    configPath,
 		}
 		return request, nil
 	} else {

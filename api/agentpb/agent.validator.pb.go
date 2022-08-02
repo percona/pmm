@@ -501,11 +501,11 @@ func (this *PBMSwitchPITRResponse) Validate() error {
 	return nil
 }
 
-func (this *ParseDefaultsFileRequest) Validate() error {
+func (this *ParseCredentialsSourceRequest) Validate() error {
 	return nil
 }
 
-func (this *ParseDefaultsFileResponse) Validate() error {
+func (this *ParseCredentialsSourceResponse) Validate() error {
 	return nil
 }
 
@@ -944,10 +944,10 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_ParseDefaultsFile); ok {
-		if oneOfNester.ParseDefaultsFile != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseDefaultsFile); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ParseDefaultsFile", err)
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_ParseCredentialsSource); ok {
+		if oneOfNester.ParseCredentialsSource != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseCredentialsSource); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ParseCredentialsSource", err)
 			}
 		}
 	}
@@ -1058,10 +1058,10 @@ func (this *ServerMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_ParseDefaultsFile); ok {
-		if oneOfNester.ParseDefaultsFile != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseDefaultsFile); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ParseDefaultsFile", err)
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_ParseCredentialsSource); ok {
+		if oneOfNester.ParseCredentialsSource != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ParseCredentialsSource); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ParseCredentialsSource", err)
 			}
 		}
 	}

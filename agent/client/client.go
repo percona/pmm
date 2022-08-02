@@ -54,11 +54,11 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                *config.Config
-	supervisor         supervisor
-	connectionChecker  connectionChecker
-	softwareVersioner  softwareVersioner
-	defaultsFileParser defaultsFileParser
+	cfg                     *config.Config
+	supervisor              supervisor
+	connectionChecker       connectionChecker
+	softwareVersioner       softwareVersioner
+	credentialsSourceParser credentialsSourceParser
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -77,18 +77,18 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp credentialsSourceParser) *Client {
 	return &Client{
-		cfg:                cfg,
-		supervisor:         supervisor,
-		connectionChecker:  connectionChecker,
-		softwareVersioner:  sv,
-		l:                  logrus.WithField("component", "client"),
-		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:               make(chan struct{}),
-		dialTimeout:        dialTimeout,
-		runner:             runner.New(cfg.RunnerCapacity),
-		defaultsFileParser: dfp,
+		cfg:                     cfg,
+		supervisor:              supervisor,
+		connectionChecker:       connectionChecker,
+		softwareVersioner:       sv,
+		l:                       logrus.WithField("component", "client"),
+		backoff:                 backoff.New(backoffMinDelay, backoffMaxDelay),
+		done:                    make(chan struct{}),
+		dialTimeout:             dialTimeout,
+		runner:                  runner.New(cfg.RunnerCapacity),
+		credentialsSourceParser: dfp,
 	}
 }
 
@@ -331,8 +331,8 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				resp.Error = err.Error()
 			}
 			responsePayload = &resp
-		case *agentpb.ParseDefaultsFileRequest:
-			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
+		case *agentpb.ParseCredentialsSourceRequest:
+			responsePayload = c.credentialsSourceParser.ParseCredentialsSource(p)
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}

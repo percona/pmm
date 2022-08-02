@@ -44,25 +44,25 @@ type defaultsFile struct {
 	socket   string
 }
 
-// ParseDefaultsFile parses given defaultsFile in request. It returns the database specs.
-func (d *Parser) ParseDefaultsFile(req *agentpb.ParseDefaultsFileRequest) *agentpb.ParseDefaultsFileResponse {
-	var res agentpb.ParseDefaultsFileResponse
-	defaultsFile, err := parseDefaultsFile(req.ConfigPath, req.ServiceType)
+// ParseCredentialsSource parses given file in request. It returns the database specs.
+func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceRequest) *agentpb.ParseCredentialsSourceResponse {
+	var res agentpb.ParseCredentialsSourceResponse
+	credentialsSource, err := parseCredentialsSourceFile(req.FilePath, req.ServiceType)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
 	}
 
-	res.Username = defaultsFile.username
-	res.Password = defaultsFile.password
-	res.Host = defaultsFile.host
-	res.Port = defaultsFile.port
-	res.Socket = defaultsFile.socket
+	res.Username = credentialsSource.username
+	res.Password = credentialsSource.password
+	res.Host = credentialsSource.host
+	res.Port = credentialsSource.port
+	res.Socket = credentialsSource.socket
 
 	return &res
 }
 
-func parseDefaultsFile(configPath string, serviceType inventorypb.ServiceType) (*defaultsFile, error) {
+func parseCredentialsSourceFile(configPath string, serviceType inventorypb.ServiceType) (*defaultsFile, error) {
 	if len(configPath) == 0 {
 		return nil, errors.New("configPath for DefaultsFile is empty")
 	}

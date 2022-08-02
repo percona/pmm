@@ -32,29 +32,29 @@ func TestDefaultsFileParser(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		req         *agentpb.ParseDefaultsFileRequest
+		req         *agentpb.ParseCredentialsSourceRequest
 		expectedErr string
 	}{
 		{
 			name: "Valid MySQL file",
-			req: &agentpb.ParseDefaultsFileRequest{
+			req: &agentpb.ParseCredentialsSourceRequest{
 				ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
-				ConfigPath:  cnfFilePath,
+				FilePath:    cnfFilePath,
 			},
 		},
 		{
 			name: "File not found",
-			req: &agentpb.ParseDefaultsFileRequest{
+			req: &agentpb.ParseCredentialsSourceRequest{
 				ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
-				ConfigPath:  "path/to/invalid/file.cnf",
+				FilePath:    "path/to/invalid/file.cnf",
 			},
 			expectedErr: `no such file or directory`,
 		},
 		{
 			name: "Service type not supported",
-			req: &agentpb.ParseDefaultsFileRequest{
+			req: &agentpb.ParseCredentialsSourceRequest{
 				ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
-				ConfigPath:  cnfFilePath,
+				FilePath:    cnfFilePath,
 			},
 			expectedErr: `unimplemented service type HAPROXY_SERVICE`,
 		},

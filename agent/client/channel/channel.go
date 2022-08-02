@@ -277,10 +277,10 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.PbmSwitchPitr,
 			}
-		case *agentpb.ServerMessage_ParseDefaultsFile:
+		case *agentpb.ServerMessage_ParseCredentialsSource:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
-				Payload: p.ParseDefaultsFile,
+				Payload: p.ParseCredentialsSource,
 			}
 
 		// responses
