@@ -153,7 +153,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: percona-platform/merge-gatekeeper@v1.0.2
+        uses: percona-platform/merge-gatekeeper@v1.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           interval: 45
