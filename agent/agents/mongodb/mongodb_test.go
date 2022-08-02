@@ -16,7 +16,6 @@ package mongodb
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -31,8 +30,7 @@ import (
 
 func TestMongoRun(t *testing.T) {
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../")
-	tempDir, err := os.MkdirTemp("", "pmm-agent-mongodb-")
-	require.NoError(t, err)
+	tempDir := t.TempDir()
 	sslDSN, err := templates.RenderDSN(sslDSNTemplate, files, tempDir)
 	require.NoError(t, err)
 	for _, params := range []*Params{

@@ -47,6 +47,31 @@ This project is built from several repositories:
 * [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
 
+
+### PMM DBaaS
+
+#### Prerequisites
+
+1. Installed minikube
+2. Installed docker
+
+#### Running minikube
+
+To spin-up k8s cluster, run
+```
+    minikube start --cpus=4 --memory=7G --apiserver-names host.docker.internal --kubernetes-version=v1.23.0
+    ENABLE_DBAAS=1 NETWORK=minikube make env-up # Run PMM with DBaaS feature enabled
+```
+
+[Read the documentation](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/dbaas.html) how to run DBaaS on GKE or EKS
+
+##### Troubleshooting
+
+1. You can face with pod failing with `Init:CrashLoopBackOff` issue. Once you get logs by running `kubectl logs pxc-cluster-pxc-0 -c pxc-init` you get the error `install: cannot create regular file '/var/lib/mysql/pxc-entrypoint.sh': Permission denied`. You can fix it using [this solution](https://github.com/kubernetes/minikube/issues/12360#issuecomment-1123794143). Also, check [this issue](https://jira.percona.com/browse/K8SPXC-879)
+2. Multinode PXC Cluster can't be created on ARM CPUs. You can have single node installation.
+3. Operators are not supported. It means that the PMM version <-> operator version pair does not exist in the Version service. This issue can happen in two different scenarios. You can have a PMM version higher than the current release, or you installed a higher version of operators. You can check compatibility using https://check.percona.com/versions/v1/pmm-server/PMM-version
+
+
 ### Building and Packaging
 
 * [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules)
@@ -116,7 +141,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.  
+* Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.
 * To run pmm-managed with a new changes just run `make env TARGET="release-dev-managed run-managed"` to update `pmm-managed` running in container.
 
 ### PMM Client
