@@ -52,20 +52,13 @@ install-race:                   ## Install pmm-admin binary with race detector.
 # TEST_PARALLEL_PACKAGES ?= foo bar
 # go test $(TEST_FLAGS) $(TEST_PARALLEL_PACKAGES) - without `-p 1`
 
-TEST_PACKAGES ?= ./...
 TEST_FLAGS ?= -timeout=60s
 
 test:                           ## Run tests.
-	go test $(TEST_FLAGS) -p 1 $(TEST_PACKAGES)
+	go test $(TEST_FLAGS) -p 1 -race ./...
 
-test-race:                      ## Run tests with race detector.
-	go test $(TEST_FLAGS) -p 1 -race $(TEST_PACKAGES)
-
-test-cover:                     ## Run tests and collect per-package coverage information.
-	go test $(TEST_FLAGS) -p 1 -coverprofile=cover.out -covermode=count $(TEST_PACKAGES)
-
-test-crosscover:                ## Run tests and collect cross-package coverage information.
-	go test $(TEST_FLAGS) -p 1 -coverprofile=crosscover.out -covermode=count -coverpkg=./... $(TEST_PACKAGES)
+test-cover:                     ## Run tests and collect cross-package coverage information.
+	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
 fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package.
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
