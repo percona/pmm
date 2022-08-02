@@ -62,7 +62,7 @@ telemetry:
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
-    summary: "Monitored PostgreSQL services version"
+    summary: "PostgreSQL version inside PMM server"
     data:
       - metric_name: "pmm_server_postgresql_version"
         label: "short_version"
