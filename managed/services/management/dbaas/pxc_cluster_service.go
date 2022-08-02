@@ -35,14 +35,12 @@ import (
 )
 
 const (
-	pxcDefaultClusterSize      = 3
-	pxcDefaultCPUM             = 1000
-	pxcDefaultMemoryBytes      = 2000000000
-	pxcDefaultDiskSize         = 25000000000
-	proxyDefaultCPUM           = 500
-	proxyDefaultMemoryBytes    = 500000000
-	proxySQLDefaultCPUM        = 1000
-	proxySQLDefaultMemoryBytes = 2000000000
+	pxcDefaultClusterSize   = 3
+	pxcDefaultCPUM          = 1000
+	pxcDefaultMemoryBytes   = 2000000000
+	pxcDefaultDiskSize      = 25000000000
+	proxyDefaultCPUM        = 500
+	proxyDefaultMemoryBytes = 500000000
 )
 
 var errInvalidClusterName = errors.New("invalid cluster name. It must start with a letter and have only letters, numbers and -")
@@ -277,15 +275,15 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 	if req.Params.Proxysql != nil {
 		if req.Params.Proxysql.ComputeResources == nil {
 			req.Params.Proxysql.ComputeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        proxySQLDefaultCPUM,
-				MemoryBytes: proxySQLDefaultMemoryBytes,
+				CpuM:        proxyDefaultCPUM,
+				MemoryBytes: proxyDefaultMemoryBytes,
 			}
 		}
 		if req.Params.Proxysql.ComputeResources.CpuM == 0 {
-			req.Params.Proxysql.ComputeResources.CpuM = proxySQLDefaultCPUM
+			req.Params.Proxysql.ComputeResources.CpuM = proxyDefaultCPUM
 		}
 		if req.Params.Proxysql.ComputeResources.MemoryBytes == 0 {
-			req.Params.Proxysql.ComputeResources.MemoryBytes = proxySQLDefaultMemoryBytes
+			req.Params.Proxysql.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
 		}
 	}
 
