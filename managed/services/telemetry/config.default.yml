@@ -105,7 +105,7 @@ telemetry:
   - id: NodesInfoPMMAgentEmbedded
     source: PMMDB_SELECT
     query: version FROM agents WHERE agent_type = 'pmm-agent' and runs_on_node_id = 'pmm-server'
-    summary: "Agents version PMM_AGENT"
+    summary: "Agents version PMM_AGENT running on PMM server"
     data:
       - metric_name: "pmm_server_pmm_agent_version"
         column: "version"
