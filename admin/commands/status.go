@@ -113,6 +113,11 @@ func (cmd *statusCommand) Run() (Result, error) {
 					"Please run `pmm-admin config` with --server-url flag.", err)
 			}
 
+			// return response in case when agent can't connect to server
+			if err == agentlocal.ErrNotConnected {
+				return newStatusResult(status), nil
+			}
+
 			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
 		default:
 			time.Sleep(1 * time.Second)
