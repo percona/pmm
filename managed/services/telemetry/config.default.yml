@@ -16,17 +16,9 @@ telemetry:
       - metric_name: "pmm_server_stt_enabled"
         column: "stt_enabled"
 
-  - id: PMMServerBackupEnabled
-    source: PMMDB_SELECT
-    query: (CASE WHEN bm->'enabled' = 'true' THEN '1' ELSE '0' END) AS bm_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS bm
-    summary: "PMM Server Backup feature enabled/disabled"
-    data:
-      - metric_name: "pmm_server_backup_management_enabled"
-        column: "bm_enabled"
-
   - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: (CASE backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
     summary: "PMM Server Backup Management feature enabled"
     data:
       - metric_name: "pmm_server_backup_management_enabled"
@@ -34,7 +26,7 @@ telemetry:
 
   - id: PMMServerDBaaSEnabled
     source: PMMDB_SELECT
-    query: (CASE dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
+    query: (CASE WHEN dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
     summary: "PMM Server DBaaS feature enabled/disabled"
     data:
       - metric_name: "pmm_server_dbaas_enabled"
@@ -42,7 +34,7 @@ telemetry:
 
   - id: PMMServerUpdatesDisabled
     source: PMMDB_SELECT
-    query: (CASE updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
     summary: "PMM Server Check Updates feature disabled"
     data:
       - metric_name: "pmm_server_updates_disabled"
@@ -64,15 +56,23 @@ telemetry:
     query: mongodb_version_info{service_type="mongodb"}
     summary: "Monitored MongoDB services version"
     data:
-      - metric_name: "pmm_server_mongodb_version"
+      - metric_name: "mongodb_version"
         label: "mongodb"
 
-  - id: PostgresDBVersion
+  - id: PMMPostgresDBVersion
     source: VM
-    query: pg_static{service_type="postgresql"}
+    query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
     summary: "Monitored PostgreSQL services version"
     data:
       - metric_name: "pmm_server_postgresql_version"
+        label: "short_version"
+
+  - id: PostgresDBVersion
+    source: VM
+    query: pg_static{service_name!="pmm-server-postgresql", service_type="postgresql"}
+    summary: "Monitored PostgreSQL services version"
+    data:
+      - metric_name: "postgresql_version"
         label: "short_version"
 
   #
@@ -90,7 +90,7 @@ telemetry:
     query: count(*) AS nodes_count FROM nodes
     summary: "Monitored nodes count"
     data:
-      - metric_name: "pmm_server_pmm_usage_nodes_count"
+      - metric_name: "pmm_server_usage_nodes_count"
         column: "nodes_count"
 
   - id: PMMUsageServicesCount
@@ -98,29 +98,37 @@ telemetry:
     query: count(*) AS services_count FROM services
     summary: "Monitored services count"
     data:
-      - metric_name: "pmm_server_pmm_usage_services_count"
+      - metric_name: "pmm_server_usage_services_count"
         column: "services_count"
 
   # Nodes information
-  - id: NodesInfoPMMAgent
+  - id: NodesInfoPMMAgentEmbedded
     source: PMMDB_SELECT
-    query: version FROM agents WHERE agent_type = 'pmm-agent'
+    query: version FROM agents WHERE agent_type = 'pmm-agent' and runs_on_node_id = 'pmm-server'
     summary: "Agents version PMM_AGENT"
     data:
-      - metric_name: "pmm_server_pmm_agent"
+      - metric_name: "pmm_server_pmm_agent_version"
+        column: "version"
+
+  - id: NodesInfoPMMAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'pmm-agent' and runs_on_node_id != 'pmm-server'
+    summary: "Agents version PMM_AGENT"
+    data:
+      - metric_name: "pmm_agent_pmm_agent_version"
         column: "version"
 
   - id: NodesInfoVMAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE agent_type = 'vm-agent'
+    query: version FROM agents WHERE agent_type = 'vm-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version VM_AGENT"
     data:
-      - metric_name: "pmm_server_vm_agent"
+      - metric_name: "pmm_agent_vm_agent_version"
         column: "version"
 
   - id: NodesInfoNodeExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'node-exporter'
+    query: version FROM agents WHERE 'agent_type = 'node-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version NODE_EXPORTER"
     data:
       - metric_name: "pmm_server_node_exporter"
@@ -128,7 +136,7 @@ telemetry:
 
   - id: NodesInfoMysqldExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'mysqld-exporter'
+    query: version FROM agents WHERE 'agent_type = 'mysqld-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version MYSQLD_EXPORTER"
     data:
       - metric_name: "pmm_server_mysqld_exporter"
@@ -136,7 +144,7 @@ telemetry:
 
   - id: NodesInfoMongodbExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'mongodb-exporter'
+    query: version FROM agents WHERE 'agent_type = 'mongodb-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version MONGODB_EXPORTER"
     data:
       - metric_name: "pmm_server_mongodb_exporter"
@@ -144,7 +152,7 @@ telemetry:
 
   - id: NodesInfoPostgresExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'postgres-exporter'
+    query: version FROM agents WHERE 'agent_type = 'postgres-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version POSTGRES_EXPORTER"
     data:
       - metric_name: "pmm_server_postgres_exporter"
@@ -152,7 +160,7 @@ telemetry:
 
   - id: NodesInfoProxysqlExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'proxysql-exporter'
+    query: version FROM agents WHERE 'agent_type = 'proxysql-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version PROXYSQL_EXPORTER"
     data:
       - metric_name: "pmm_server_proxysql_exporter"
@@ -160,7 +168,7 @@ telemetry:
 
   - id: NodesInfoQANMysqlPerfschemaAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'qan-mysql-perfschema-agent'
+    query: version FROM agents WHERE 'agent_type = 'qan-mysql-perfschema-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version QAN_MYSQL_PERFSCHEMA_AGENT"
     data:
       - metric_name: "pmm_server_qan_mysql_perfschema_agent"
@@ -168,7 +176,7 @@ telemetry:
 
   - id: NodesInfoQANMysqlSlowlogAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'qan-mysql-slowlog-agent'
+    query: version FROM agents WHERE 'agent_type = 'qan-mysql-slowlog-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version QAN_MYSQL_SLOWLOG_AGENT"
     data:
       - metric_name: "pmm_server_qan_mysql_slowlog_agent"
@@ -176,7 +184,7 @@ telemetry:
 
   - id: NodesInfoQANMongodbProfilerAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'qan-mongodb-profiler-agent'
+    query: version FROM agents WHERE 'agent_type = 'qan-mongodb-profiler-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version QAN_MONGODB_PROFILER_AGENT"
     data:
       - metric_name: "pmm_server_qan_mongodb_profiler_agent"
@@ -184,7 +192,7 @@ telemetry:
 
   - id: NodesInfoQANPostgresqlPgstatementsAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'qan-postgresql-pgstatements-agent'
+    query: version FROM agents WHERE 'agent_type = 'qan-postgresql-pgstatements-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
     data:
       - metric_name: "pmm_server_qan_postgresql_pgstatements_agent"
@@ -192,7 +200,7 @@ telemetry:
 
   - id: NodesInfoQANPostgresqlPgstatmonitorAgent
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'qan-postgresql-pgstatmonitor-agent'
+    query: version FROM agents WHERE 'agent_type = 'qan-postgresql-pgstatmonitor-agent' and pmm_agent_id != 'pmm-server'
     summary: "Agents version QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
     data:
       - metric_name: "pmm_server_qan_postgresql_pgstatmonitor_agent"
@@ -200,7 +208,7 @@ telemetry:
 
   - id: NodesInfoRDSExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'rds-exporter'
+    query: version FROM agents WHERE 'agent_type = 'rds-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version RDS_EXPORTER"
     data:
       - metric_name: "pmm_server_rds_exporter"
@@ -208,7 +216,7 @@ telemetry:
 
   - id: NodesInfoExternalExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'external-exporter'
+    query: version FROM agents WHERE 'agent_type = 'external-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version EXTERNAL_EXPORTER"
     data:
       - metric_name: "pmm_server_external_exporter"
@@ -216,16 +224,24 @@ telemetry:
 
   - id: NodesInfoAzureDatabaseExporter
     source: PMMDB_SELECT
-    query: version FROM agents WHERE 'agent_type = 'azure-database-exporter'
+    query: version FROM agents WHERE 'agent_type = 'azure-database-exporter' and pmm_agent_id != 'pmm-server'
     summary: "Agents version AZURE_DATABASE_EXPORTER"
     data:
       - metric_name: "pmm_server_azure_database_exporter"
         column: "version"
 
-  - id: NodesInfoNodeType
+  - id: PMMNodesInfoNodeType
     source: PMMDB_SELECT
-    query: node_type FROM nodes
-    summary: "Node type"
+    query: node_type FROM nodes WHERE node_name = 'pmm-server'
+    summary: "PMM Node type"
     data:
       - metric_name: "pmm_server_nodes_info_node_type"
+        column: "node_type"
+
+  - id: NodesInfoNodeType
+    source: PMMDB_SELECT
+    query: node_type FROM nodes WHERE node_name != 'pmm-server'
+    summary: "Node type"
+    data:
+      - metric_name: "nodes_info_node_type"
         column: "node_type"
