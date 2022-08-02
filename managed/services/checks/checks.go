@@ -352,6 +352,7 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 					"min version: %s, reason: %s.", serviceType, pmmAgentVersion, err)
 				continue
 			}
+
 			serviceResults := make([]services.CheckResult, 0, len(targets))
 			for _, target := range targets {
 				results, err := s.executeCheck(ctx, target, ch)
@@ -359,10 +360,26 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 					s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", ch.Name, ch.Type, target.AgentID, err)
 					continue
 				}
-				serviceResults = append(serviceResults, results...)
 
 				s.mScriptsExecuted.WithLabelValues(string(models.MySQLServiceType)).Inc()
 				s.mAlertsGenerated.WithLabelValues(string(models.MySQLServiceType), string(ch.Type)).Add(float64(len(results)))
+
+				if len(results) == 0 {
+					results = []services.CheckResult{
+						{
+							CheckName: ch.Name,
+							Target:    target,
+						},
+					}
+				}
+				serviceResults = append(serviceResults, results...)
+			}
+
+			// if check was skipped, then results will be empty, we return only the check name
+			if len(serviceResults) == 0 {
+				serviceResults = append(serviceResults, services.CheckResult{
+					CheckName: ch.Name,
+				})
 			}
 
 			watcher <- serviceResults

@@ -10,7 +10,7 @@ replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_que
 
 replace golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e => github.com/percona-lab/crypto v0.0.0-20220413143500-70ef7e9f1813
 
-replace github.com/tmc/grpc-websocket-proxy => ../wsproxy
+replace github.com/idoqo/grpc-websocket-proxy => ../wsproxy
 
 require (
 	github.com/AlekSi/pointer v1.2.0
