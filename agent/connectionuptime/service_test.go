@@ -166,7 +166,7 @@ func TestConnectionUpTime(t *testing.T) {
 				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
 			}
 
-			service.deleteOldEvents()
+			service.deleteOldEvents(tt.toTime)
 			got := service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
 				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
@@ -242,7 +242,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 			}
 
 			// delete expired events
-			service.deleteOldEvents()
+			service.deleteOldEvents(tt.toTime)
 			got := service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
 				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
@@ -251,7 +251,7 @@ func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
 			service.SetWindowPeriod(tt.newWindowPeriod)
 
 			// delete expired events
-			service.deleteOldEvents()
+			service.deleteOldEvents(tt.toTime)
 			got = service.GetConnectedUpTimeUntil(tt.toTime)
 			assert.True(t, compareFloatWithTolerance(tt.newExpectedUpTime, got),
 				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.newExpectedUpTime, got))
@@ -266,4 +266,69 @@ func compareFloatWithTolerance(a, b float32) bool {
 	diff := math.Abs(float64(a) - float64(b))
 
 	return diff < tolerance
+}
+
+func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
+	now := time.Now()
+	tests := []struct {
+		name             string
+		setOfConnections map[time.Time]bool
+		expectedUpTime   float32
+		windowPeriod     time.Duration
+		toTime           time.Time
+	}{
+		{
+			name: "should return 50% uptime when window period is 10s, and 100% uptime when window period is 5s",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-8 * time.Second): false,
+				now.Add(-7 * time.Second): false,
+				now.Add(-6 * time.Second): false,
+				now.Add(-5 * time.Second): false,
+				now.Add(-4 * time.Second): true,
+				now.Add(-3 * time.Second): true,
+				now.Add(-2 * time.Second): true,
+				now.Add(-1 * time.Second): true,
+			},
+			expectedUpTime: 50,
+			windowPeriod:   10 * time.Second,
+			toTime:         now,
+		},
+		{
+			name: "should return 100% uptime when window period is 5s, and 100% uptime when window period is 10s",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-4 * time.Second): true,
+				now.Add(-3 * time.Second): true,
+				now.Add(-2 * time.Second): true,
+				now.Add(-1 * time.Second): true,
+			},
+			expectedUpTime: 100,
+			windowPeriod:   5 * time.Second,
+			toTime:         now,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			service := NewService(tt.windowPeriod)
+
+			var sortedTime []time.Time
+			for k := range tt.setOfConnections {
+				sortedTime = append(sortedTime, k)
+			}
+
+			sort.Slice(sortedTime, func(i, j int) bool {
+				return sortedTime[i].Before(sortedTime[j])
+			})
+
+			for _, t := range sortedTime {
+				service.RegisterConnectionStatus(t, tt.setOfConnections[t])
+			}
+
+			got := service.GetConnectedUpTimeUntil(tt.toTime)
+			assert.True(t, compareFloatWithTolerance(tt.expectedUpTime, got),
+				fmt.Sprintf("expected = %f and got = %f aren't equal with tolerance", tt.expectedUpTime, got))
+		})
+	}
 }

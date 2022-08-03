@@ -71,7 +71,7 @@ func (c *Service) addEvent(timestamp time.Time, connected bool) {
 	}
 }
 
-func (c *Service) deleteOldEvents() {
+func (c *Service) deleteOldEvents(toTime time.Time) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 
@@ -83,15 +83,11 @@ func (c *Service) deleteOldEvents() {
 	// in order to not lose information about previous state of connection.
 	// The latest expired element in the slice will be the first one to calculate
 	// uptime correctly during set up window time
-	boundaryTimestamp := time.Now().Add(-c.windowPeriod)
+	boundaryTimestamp := toTime.Add(-c.windowPeriod)
 	for i := len(c.events) - 1; i >= 0; i-- {
 		if c.events[i].Timestamp.Before(boundaryTimestamp) {
 			c.removeFirstElementsUntilIndex(i)
 
-			c.events[0] = connectionEvent{
-				Timestamp: boundaryTimestamp,
-				Connected: c.events[0].Connected,
-			}
 			return
 		}
 	}
@@ -110,7 +106,7 @@ func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 			select {
 			case <-ticker.C:
 				c.l.Debug("Called delete old events")
-				c.deleteOldEvents()
+				c.deleteOldEvents(time.Now())
 			case <-ctx.Done():
 				c.l.Debug("Done")
 				return
@@ -156,26 +152,36 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 	}
 
 	var connectedTimeMs int64
+	expiredTime := toTime.Add(-c.windowPeriod)
 	for i, event := range c.events {
 		if event.Connected {
+			from := maxTime(expiredTime, event.Timestamp)
+
+			var to time.Time
 			if i+1 >= len(c.events) {
-				connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
+				to = toTime
 			} else {
-				connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
+				to = maxTime(expiredTime, c.events[i+1].Timestamp)
 			}
+
+			// don't consider both events which are already expired
+			if from.After(to) || from.Equal(to) {
+				continue
+			}
+
+			connectedTimeMs += to.UnixMilli() - from.UnixMilli()
 		}
 	}
 
-	//for i, event := range c.events {
-	//	if event.Connected {
-	//		if i+1 >= len(c.events) {
-	//			connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
-	//		} else {
-	//			connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
-	//		}
-	//	}
-	//}
+	startTime := maxTime(expiredTime, c.events[0].Timestamp)
+	totalTime := toTime.Sub(startTime).Milliseconds()
 
-	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
 	return float32(connectedTimeMs) / float32(totalTime) * 100
+}
+
+func maxTime(t1, t2 time.Time) time.Time {
+	if t1.After(t2) {
+		return t1
+	}
+	return t2
 }
