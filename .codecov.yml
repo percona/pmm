@@ -28,7 +28,7 @@ coverage:
           - managed/
 
 ignore:
-  - 'managed/services/grafana/fuzzdata'
+  - 'src/github.com/percona/pmm/managed/services/grafana/fuzzdata'
 
 flag_management:
   default_rules:
