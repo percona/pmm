@@ -48,7 +48,7 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentpb.StateChange
 func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	tempDir := t.TempDir()
-	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"})
+	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, 1)
 
 	t.Run("Start13", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
@@ -284,7 +284,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 			TempDir:        temp,
 		}
 
-		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}) //nolint:varnamelen
+		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, 1) //nolint:varnamelen
 
 		teardown := func() {
 			cancel()
