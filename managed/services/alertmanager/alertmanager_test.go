@@ -687,6 +687,7 @@ receivers:
                 cert_file: %[10]s
                 key_file: %[11]s
                 insecure_skip_verify: false
+            follow_redirects: false
           url: https://example.com
           max_alerts: 0
 templates: []`, channel1.ID, channel2.ID, rule1.ID, rule2.ID, rule4.ID, channel1.ID, channel2.ID, channel4.ID,
