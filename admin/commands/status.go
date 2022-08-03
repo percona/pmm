@@ -114,7 +114,7 @@ func (cmd *statusCommand) Run() (Result, error) {
 			}
 
 			// return response in case when agent can't connect to server
-			if err == agentlocal.ErrNotConnected { //nolint:errorlint
+			if err == agentlocal.ErrNotConnected { //nolint:errorlint,goerr113
 				return newStatusResult(status), nil
 			}
 
