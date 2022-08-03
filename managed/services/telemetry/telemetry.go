@@ -39,6 +39,7 @@ import (
 const (
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+	sendChSize               = 10
 )
 
 // Service reports telemetry.
@@ -53,6 +54,7 @@ type Service struct {
 	os                  string
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
+	sendCh              chan *pmmv1.ServerMetric
 
 	dus distributionUtilService
 }
@@ -84,6 +86,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		config:       config,
 		dsRegistry:   registry,
 		dus:          dus,
+		sendCh:       make(chan *pmmv1.ServerMetric, sendChSize),
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
@@ -129,12 +132,7 @@ func (s *Service) Run(ctx context.Context) {
 		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
 
 		if s.config.Reporting.Send {
-			err := s.send(ctx, report)
-			if err != nil {
-				s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
-				return
-			}
-			s.l.Debug("Telemetry info sent.")
+			s.sendCh <- report
 		} else {
 			s.l.Info("Telemetry sent is disabled.")
 		}
@@ -144,6 +142,8 @@ func (s *Service) Run(ctx context.Context) {
 		s.l.Debug("Telemetry on start is enabled, sending...")
 		doSend()
 	}
+
+	go s.processSendCh(ctx)
 
 	for {
 		select {
@@ -160,7 +160,47 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 	return s.sDistributionMethod
 }
 
-func (s *Service) prepareReport(ctx context.Context) *reporter.ReportRequest {
+func (s *Service) processSendCh(ctx context.Context) {
+	var inflightReports []*pmmv1.ServerMetric
+	var sendCtx context.Context
+	var cancel context.CancelFunc
+
+	for {
+		select {
+		case report, ok := <-s.sendCh:
+			if ok {
+				inflightReports = append(inflightReports, report)
+				if sendCtx != nil {
+					cancel()
+				}
+				sendCtx, cancel = context.WithCancel(context.Background())
+
+				go func(ctx context.Context, reports *[]*pmmv1.ServerMetric) {
+					reportsCopy := make([]*pmmv1.ServerMetric, len(*reports))
+					copy(reportsCopy, *reports)
+					err := s.send(ctx, &reporter.ReportRequest{
+						Metrics: reportsCopy,
+					})
+					if err != nil {
+						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
+						return
+					}
+					*reports = nil
+					sendCtx = nil
+					cancel = nil
+					s.l.Debug("Telemetry info sent.")
+				}(sendCtx, &inflightReports)
+			}
+		case <-ctx.Done():
+			if cancel != nil {
+				cancel()
+			}
+			return
+		}
+	}
+}
+
+func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	telemetryMetric, _ := s.makeMetric(ctx)
 
 	var totalTime time.Duration
@@ -198,9 +238,7 @@ telemetryLoop:
 	}
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
-	return &reporter.ReportRequest{
-		Metrics: []*pmmv1.ServerMetric{telemetryMetric},
-	}
+	return telemetryMetric
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
@@ -275,7 +313,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 		}
 
 		if attempt >= s.config.Reporting.RetryCount {
-			s.l.Debug("Failed to send v2 event, will not retry (too much attempts).")
+			s.l.Debug("Failed to send v2 event, will not retry (too many attempts).")
 			return err
 		}
 
@@ -290,15 +328,13 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 	}
 }
 
-func (s *Service) Format(report *reporter.ReportRequest) string {
+func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	var builder strings.Builder
-	for _, metrics := range report.Metrics {
-		for _, m := range metrics.Metrics {
-			builder.WriteString(m.Key)
-			builder.WriteString(": ")
-			builder.WriteString(m.Value)
-			builder.WriteString("\n")
-		}
+	for _, m := range report.Metrics {
+		builder.WriteString(m.Key)
+		builder.WriteString(": ")
+		builder.WriteString(m.Value)
+		builder.WriteString("\n")
 	}
 
 	return builder.String()
