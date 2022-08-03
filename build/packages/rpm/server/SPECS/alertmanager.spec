@@ -6,7 +6,7 @@
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           percona-%{repo}
-Version:        0.21.0
+Version:        0.22.0
 Release:        3%{?dist}
 Summary:        The Prometheus monitoring system and time series database
 License:        ASL 2.0
