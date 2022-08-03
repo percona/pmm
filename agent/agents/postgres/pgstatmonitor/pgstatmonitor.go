@@ -377,6 +377,11 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 		return nil, err
 	}
 
+	err = m.checkErrorsView(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	buckets := m.makeBuckets(current, prev)
 	m.l.Debugf("Made %d buckets out of %d stat monitor in %d interval.",
 		len(buckets), len(current), periodLengthSecs)
@@ -394,6 +399,45 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 	}
 
 	return buckets, nil
+}
+
+func (m *PGStatMonitorQAN) checkErrorsView(ctx context.Context) error {
+	row := &pgStatMonitorErrors{}
+	rows, err := m.q.SelectRows(pgStatMonitorErrorsView, "")
+	if err != nil {
+		return errors.Wrap(err, "failed to query pg_stat_monitor_errors view")
+	}
+
+	now := time.Now()
+	for ctx.Err() == nil {
+		if err = m.q.NextRow(row, rows); err != nil {
+			if errors.Is(err, reform.ErrNoRows) {
+				break
+			}
+
+			return errors.Wrap(err, "cannot read row from errors view")
+		}
+
+		messageTime, err := time.Parse("2006-01-02 15:04:05", row.MessageTime)
+		if err != nil {
+			return errors.Wrap(err, "cannot parse messageTime")
+		}
+		if now.After(messageTime) {
+			continue
+		}
+
+		template := "Message: %s, Calls: %d"
+		switch row.Severity {
+		case "INFO":
+			m.l.Infof(template, row.Message, row.Calls)
+		case "WARNING":
+			m.l.Warningf(template, row.Message, row.Calls)
+		case "ERROR":
+			m.l.Errorf(template, row.Message, row.Calls)
+		}
+	}
+
+	return nil
 }
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
