@@ -295,7 +295,7 @@
     - name: Check other services
       debug: var=update_result.stdout_lines
 
-    # SIGUSR2 is sent to supervisord by pmm-managed right before the update to for logging to work correctly.
+    # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord log
       shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
