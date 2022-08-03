@@ -368,7 +368,11 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 					results = []services.CheckResult{
 						{
 							CheckName: ch.Name,
-							Target:    target,
+							Result: check.Result{
+								Summary:     ch.Summary,
+								Description: ch.Description,
+							},
+							Target: target,
 						},
 					}
 				}
@@ -379,6 +383,10 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 			if len(serviceResults) == 0 {
 				serviceResults = append(serviceResults, services.CheckResult{
 					CheckName: ch.Name,
+					Result: check.Result{
+						Summary:     ch.Summary,
+						Description: ch.Description,
+					},
 				})
 			}
 
