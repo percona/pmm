@@ -114,9 +114,13 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 	case models.MySQLServiceType:
 		dataModel = models.PhysicalDataModel
 	case models.MongoDBServiceType:
-		dataModel = models.LogicalDataModel
-		if req.DataModel == backupv1beta1.DataModel_PHYSICAL {
+		switch req.DataModel {
+		case backupv1beta1.DataModel_LOGICAL:
+			dataModel = models.LogicalDataModel
+		case backupv1beta1.DataModel_PHYSICAL:
 			dataModel = models.PhysicalDataModel
+		default:
+			return nil, status.Errorf(codes.InvalidArgument, "unknown data model: %s", req.DataModel.String())
 		}
 	}
 
@@ -232,9 +236,13 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			backupParams.DataModel = models.LogicalDataModel
-			if req.DataModel == backupv1beta1.DataModel_PHYSICAL {
+			switch req.DataModel {
+			case backupv1beta1.DataModel_LOGICAL:
+				backupParams.DataModel = models.LogicalDataModel
+			case backupv1beta1.DataModel_PHYSICAL:
 				backupParams.DataModel = models.PhysicalDataModel
+			default:
+				return status.Errorf(codes.InvalidArgument, "unknown data model: %s", req.DataModel.String())
 			}
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {

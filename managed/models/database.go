@@ -714,6 +714,9 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ADD COLUMN log_level VARCHAR`,
 	},
+	64: {
+		`UPDATE artifacts SET data_model = 'logical'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

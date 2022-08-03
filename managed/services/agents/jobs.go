@@ -18,7 +18,6 @@ package agents
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -150,9 +149,6 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
-		if job.Data.MongoDBBackup.DataModel == "" {
-			job.Data.MongoDBBackup.DataModel = models.LogicalDataModel
-		}
 		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig); err != nil {
 			return errors.WithStack(err)
@@ -372,7 +368,8 @@ func (s *JobsService) StartMongoDBBackupJob(
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+	var err error
+	if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mongodb backup", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
 		return err
 	}
@@ -386,9 +383,8 @@ func (s *JobsService) StartMongoDBBackupJob(
 		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
 	}
-	mongoDBReq.DataModel = backupv1beta1.DataModel_LOGICAL
-	if strings.ToLower(string(dataModel)) == string(models.PhysicalDataModel) {
-		mongoDBReq.DataModel = backupv1beta1.DataModel_PHYSICAL
+	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
+		return err
 	}
 
 	switch {
@@ -556,5 +552,16 @@ func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationCo
 		SecretKey:    config.SecretKey,
 		BucketName:   config.BucketName,
 		BucketRegion: config.BucketRegion,
+	}
+}
+
+func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+	switch model {
+	case models.PhysicalDataModel:
+		return backupv1beta1.DataModel_PHYSICAL, nil
+	case models.LogicalDataModel:
+		return backupv1beta1.DataModel_LOGICAL, nil
+	default:
+		return 0, errors.Errorf("unknown data model: %s", model)
 	}
 }

@@ -18,7 +18,6 @@ package backup
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -190,7 +189,6 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 		}
 
-		params.DataModel = models.DataModel(strings.ToLower(string(params.DataModel)))
 		if artifact == nil {
 			if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
 				Name:       name,
