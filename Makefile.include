@@ -119,9 +119,6 @@ clean: clean_swagger  ## Remove generated files.
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
-test:                 ## Run tests from all packages
-	go test ./...
-
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests)
 
