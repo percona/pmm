@@ -356,7 +356,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	<-stop
 }
 
-func TestChannelForDefaultsFileParser(t *testing.T) {
+func TestChannelForCredentialsSourceParser(t *testing.T) {
 	const count = 50
 	require.True(t, count > agentRequestsCap)
 
@@ -364,9 +364,9 @@ func TestChannelForDefaultsFileParser(t *testing.T) {
 		testValue := "test"
 		testPort := uint32(123123)
 		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(&agentpb.ParseDefaultsFileRequest{})
+			resp, err := ch.SendAndWaitResponse(&agentpb.ParseCredentialsSourceRequest{})
 			assert.NotNil(t, resp)
-			parserResponse := resp.(*agentpb.ParseDefaultsFileResponse)
+			parserResponse := resp.(*agentpb.ParseCredentialsSourceResponse)
 			assert.Equal(t, parserResponse.Username, testValue)
 			assert.Equal(t, parserResponse.Password, testValue)
 			assert.Equal(t, parserResponse.Socket, testValue)
@@ -385,11 +385,11 @@ func TestChannelForDefaultsFileParser(t *testing.T) {
 		msg, err := stream.Recv()
 		assert.NoError(t, err)
 		assert.Equal(t, i, msg.Id)
-		assert.NotNil(t, msg.GetParseDefaultsFile())
+		assert.NotNil(t, msg.GetParseCredentialsSource())
 
 		err = stream.Send(&agentpb.AgentMessage{
 			Id: i,
-			Payload: (&agentpb.ParseDefaultsFileResponse{
+			Payload: (&agentpb.ParseCredentialsSourceResponse{
 				Username: "test",
 				Password: "test",
 				Port:     123123,

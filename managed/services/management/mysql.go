@@ -38,17 +38,17 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
-	dfp   defaultsFileParser
+	csai  credentialsSourceAgentInvoker
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, dfp defaultsFileParser) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, csai credentialsSourceAgentInvoker) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
 		vc:    vc,
-		dfp:   dfp,
+		csai:  csai,
 	}
 }
 

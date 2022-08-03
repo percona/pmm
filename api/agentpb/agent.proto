@@ -401,7 +401,7 @@ message ParseCredentialsSourceRequest {
   string file_path = 2;
 }
 
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parsing credentials source file.
+// ParseCredentialsSourceResponse is an AgentMessage containing a result of parsing credentials source file.
 message ParseCredentialsSourceResponse {
 
   // Error message if parse failed.

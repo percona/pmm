@@ -149,35 +149,35 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                   *reform.DB
-	vmdb                 *victoriametrics.Service
-	platformClient       *platformClient.Client
-	server               *server.Server
-	agentsRegistry       *agents.Registry
-	handler              *agents.Handler
-	actions              *agents.ActionsService
-	agentsStateUpdater   *agents.StateUpdater
-	connectionCheck      *agents.ConnectionChecker
-	defaultsFileParser   *agents.CredentialsSourceAgentInvoker
-	grafanaClient        *grafana.Client
-	checksService        *checks.Service
-	dbaasClient          *dbaas.Client
-	alertmanager         *alertmanager.Service
-	vmalert              *vmalert.Service
-	settings             *models.Settings
-	alertsService        *ia.AlertsService
-	templatesService     *ia.TemplatesService
-	rulesService         *ia.RulesService
-	jobsService          *agents.JobsService
-	versionServiceClient *managementdbaas.VersionServiceClient
-	schedulerService     *scheduler.Service
-	backupService        *backup.Service
-	backupRemovalService *backup.RemovalService
-	minioService         *minio.Service
-	versionCache         *versioncache.Service
-	supervisord          *supervisord.Service
-	config               *config.Config
-	componentsService    *managementdbaas.ComponentsService
+	db                            *reform.DB
+	vmdb                          *victoriametrics.Service
+	platformClient                *platformClient.Client
+	server                        *server.Server
+	agentsRegistry                *agents.Registry
+	handler                       *agents.Handler
+	actions                       *agents.ActionsService
+	agentsStateUpdater            *agents.StateUpdater
+	connectionCheck               *agents.ConnectionChecker
+	credentialsSourceAgentInvoker *agents.CredentialsSourceAgentInvoker
+	grafanaClient                 *grafana.Client
+	checksService                 *checks.Service
+	dbaasClient                   *dbaas.Client
+	alertmanager                  *alertmanager.Service
+	vmalert                       *vmalert.Service
+	settings                      *models.Settings
+	alertsService                 *ia.AlertsService
+	templatesService              *ia.TemplatesService
+	rulesService                  *ia.RulesService
+	jobsService                   *agents.JobsService
+	versionServiceClient          *managementdbaas.VersionServiceClient
+	schedulerService              *scheduler.Service
+	backupService                 *backup.Service
+	backupRemovalService          *backup.RemovalService
+	minioService                  *minio.Service
+	versionCache                  *versioncache.Service
+	supervisord                   *supervisord.Service
+	config                        *config.Config
+	componentsService             *managementdbaas.ComponentsService
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -212,7 +212,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodeSvc := management.NewNodeService(deps.db)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache, deps.defaultsFileParser)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache, deps.credentialsSourceAgentInvoker)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
@@ -769,7 +769,7 @@ func main() {
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
-	defaultsFileParser := agents.NewCredentialsSourceAgentInvoker(agentsRegistry)
+	credentialsSourceAgentInvoker := agents.NewCredentialsSourceAgentInvoker(agentsRegistry)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 
@@ -946,35 +946,35 @@ func main() {
 		defer wg.Done()
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				db:                   db,
-				vmdb:                 vmdb,
-				platformClient:       platformClient,
-				server:               server,
-				agentsRegistry:       agentsRegistry,
-				handler:              agentsHandler,
-				actions:              actionsService,
-				agentsStateUpdater:   agentsStateUpdater,
-				connectionCheck:      connectionCheck,
-				grafanaClient:        grafanaClient,
-				checksService:        checksService,
-				dbaasClient:          dbaasClient,
-				alertmanager:         alertManager,
-				vmalert:              vmalert,
-				settings:             settings,
-				alertsService:        alertsService,
-				templatesService:     templatesService,
-				rulesService:         rulesService,
-				jobsService:          jobsService,
-				versionServiceClient: versionService,
-				schedulerService:     schedulerService,
-				backupService:        backupService,
-				backupRemovalService: backupRemovalService,
-				minioService:         minioService,
-				versionCache:         versionCache,
-				supervisord:          supervisord,
-				config:               &cfg.Config,
-				defaultsFileParser:   defaultsFileParser,
-				componentsService:    componentsService,
+				db:                            db,
+				vmdb:                          vmdb,
+				platformClient:                platformClient,
+				server:                        server,
+				agentsRegistry:                agentsRegistry,
+				handler:                       agentsHandler,
+				actions:                       actionsService,
+				agentsStateUpdater:            agentsStateUpdater,
+				connectionCheck:               connectionCheck,
+				grafanaClient:                 grafanaClient,
+				checksService:                 checksService,
+				dbaasClient:                   dbaasClient,
+				alertmanager:                  alertManager,
+				vmalert:                       vmalert,
+				settings:                      settings,
+				alertsService:                 alertsService,
+				templatesService:              templatesService,
+				rulesService:                  rulesService,
+				jobsService:                   jobsService,
+				versionServiceClient:          versionService,
+				schedulerService:              schedulerService,
+				backupService:                 backupService,
+				backupRemovalService:          backupRemovalService,
+				minioService:                  minioService,
+				versionCache:                  versionCache,
+				supervisord:                   supervisord,
+				config:                        &cfg.Config,
+				credentialsSourceAgentInvoker: credentialsSourceAgentInvoker,
+				componentsService:             componentsService,
 			})
 	}()
 

@@ -1707,7 +1707,7 @@ func (x *ParseCredentialsSourceRequest) GetFilePath() string {
 	return ""
 }
 
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parsing credentials source file.
+// ParseCredentialsSourceResponse is an AgentMessage containing a result of parsing credentials source file.
 type ParseCredentialsSourceResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

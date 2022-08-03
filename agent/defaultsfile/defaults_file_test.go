@@ -65,7 +65,7 @@ func TestDefaultsFileParser(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 			c := New()
-			resp := c.ParseDefaultsFile(testCase.req)
+			resp := c.ParseCredentialsSource(testCase.req)
 			require.NotNil(t, resp)
 			if testCase.expectedErr == "" {
 				assert.Empty(t, resp.Error)

@@ -28,13 +28,13 @@ func TestCreateRequest(t *testing.T) {
 	response, err := createRequest("/path/to/file", models.MySQLServiceType)
 
 	require.NoError(t, err)
-	require.NotNil(t, response, "ParseDefaultsFileRequest is nil")
+	require.NotNil(t, response, "ParseCredentialsSourceRequest is nil")
 }
 
 func TestCreateRequestNotSupported(t *testing.T) {
 	t.Parallel()
-	response, err := createRequest("/path/to/file", models.PostgreSQLServiceType)
+	response, err := createRequest("/path/to/file", "unsupported")
 
 	require.Error(t, err)
-	require.Nil(t, response, "ParseDefaultsFileRequest is not nil")
+	require.Nil(t, response, "ParseCredentialsSourceRequest is not nil")
 }

@@ -15,8 +15,8 @@
 
 package models
 
-// ParseDefaultsFileResult contains result of parsing defaults file.
-type ParseDefaultsFileResult struct {
+// CredentialsSourceParsingResult contains result of parsing defaults file.
+type CredentialsSourceParsingResult struct {
 	Username string
 	Password string
 	Host     string

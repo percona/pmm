@@ -27,7 +27,7 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
-// CredentialsSourceAgentInvoker requests from agent to parse defaultsFile.
+// CredentialsSourceAgentInvoker requests from agent to parse credentials-source passed in request.
 type CredentialsSourceAgentInvoker struct {
 	r *Registry
 }
@@ -39,8 +39,8 @@ func NewCredentialsSourceAgentInvoker(r *Registry) *CredentialsSourceAgentInvoke
 	}
 }
 
-// ParseDefaultsFile sends request (with file path) to pmm-agent to parse defaults file.
-func (p *CredentialsSourceAgentInvoker) ParseDefaultsFile(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ParseDefaultsFileResult, error) {
+// InvokeAgent sends request (with file path) to pmm-agent to parse credentials-source file.
+func (p *CredentialsSourceAgentInvoker) InvokeAgent(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error) {
 	l := logger.Get(ctx)
 
 	pmmAgent, err := p.r.get(pmmAgentID)
@@ -51,13 +51,13 @@ func (p *CredentialsSourceAgentInvoker) ParseDefaultsFile(ctx context.Context, p
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > 5*time.Second {
-			l.Warnf("ParseDefaultsFile took %s.", dur)
+			l.Warnf("Invoking agent took %s.", dur)
 		}
 	}()
 
 	request, err := createRequest(filePath, serviceType)
 	if err != nil {
-		l.Debugf("can't create ParseDefaultsFileRequest %s", err)
+		l.Debugf("can't create ParseCredentialsSourceRequest %s", err)
 		return nil, err
 	}
 
@@ -66,16 +66,16 @@ func (p *CredentialsSourceAgentInvoker) ParseDefaultsFile(ctx context.Context, p
 		return nil, err
 	}
 
-	l.Infof("ParseDefaultsFile response from agent: %+v.", resp)
+	l.Infof("ParseCredentialsSource response from agent: %+v.", resp)
 	parserResponse, ok := resp.(*agentpb.ParseCredentialsSourceResponse)
 	if !ok {
-		return nil, errors.New("wrong response from agent (not ParseDefaultsFileResponse model)")
+		return nil, errors.New("wrong response from agent (not ParseCredentialsSourceResponse model)")
 	}
 	if parserResponse.Error != "" {
 		return nil, errors.New(parserResponse.Error)
 	}
 
-	return &models.ParseDefaultsFileResult{
+	return &models.CredentialsSourceParsingResult{
 		Username: parserResponse.Username,
 		Password: parserResponse.Password,
 		Host:     parserResponse.Host,
@@ -85,13 +85,38 @@ func (p *CredentialsSourceAgentInvoker) ParseDefaultsFile(ctx context.Context, p
 }
 
 func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseCredentialsSourceRequest, error) {
-	if serviceType == models.MySQLServiceType {
-		request := &agentpb.ParseCredentialsSourceRequest{
+	switch serviceType {
+	case models.MySQLServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
 			ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
 			FilePath:    configPath,
-		}
-		return request, nil
-	} else {
-		return nil, errors.Errorf("unhandled service type %s", serviceType)
+		}, nil
+	case models.PostgreSQLServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
+			ServiceType: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			FilePath:    configPath,
+		}, nil
+	case models.HAProxyServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
+			ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
+			FilePath:    configPath,
+		}, nil
+	case models.ExternalServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
+			ServiceType: inventorypb.ServiceType_EXTERNAL_SERVICE,
+			FilePath:    configPath,
+		}, nil
+	case models.MongoDBServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
+			ServiceType: inventorypb.ServiceType_MONGODB_SERVICE,
+			FilePath:    configPath,
+		}, nil
+	case models.ProxySQLServiceType:
+		return &agentpb.ParseCredentialsSourceRequest{
+			ServiceType: inventorypb.ServiceType_PROXYSQL_SERVICE,
+			FilePath:    configPath,
+		}, nil
 	}
+
+	return nil, errors.Errorf("unhandled service type %s", serviceType)
 }
