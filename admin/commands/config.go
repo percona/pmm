@@ -57,6 +57,8 @@ type configCommand struct {
 	ListenPort        uint32
 	LogLevel          string
 
+	LogLinesCount uint
+
 	Force bool
 }
 
@@ -96,6 +98,10 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 	}
 	if GlobalFlags.Trace {
 		res = append(res, "--trace")
+	}
+
+	if cmd.LogLinesCount > 0 {
+		res = append(res, fmt.Sprintf("--log-lines-count=%d", cmd.LogLinesCount))
 	}
 
 	res = append(res, "setup")
@@ -190,4 +196,5 @@ func init() {
 	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
 	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
 	ConfigC.Flag("log-level", "Logging level").Default("warn").EnumVar(&Config.LogLevel, "debug", "info", "warn", "error", "fatal")
+	ConfigC.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents").Default("1024").UintVar(&Config.LogLinesCount)
 }
