@@ -83,12 +83,15 @@ func (c *Service) deleteOldEvents() {
 	// in order to not lose information about previous state of connection.
 	// The latest expired element in the slice will be the first one to calculate
 	// uptime correctly during set up window time
-	expired := time.Now().Add(-c.windowPeriod)
+	boundaryTimestamp := time.Now().Add(-c.windowPeriod)
 	for i := len(c.events) - 1; i >= 0; i-- {
-		if c.events[i].Timestamp.Before(expired) {
-			c.events[i].Timestamp = expired
+		if c.events[i].Timestamp.Before(boundaryTimestamp) {
 			c.removeFirstElementsUntilIndex(i)
 
+			c.events[0] = connectionEvent{
+				Timestamp: boundaryTimestamp,
+				Connected: c.events[0].Connected,
+			}
 			return
 		}
 	}
@@ -162,6 +165,16 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 			}
 		}
 	}
+
+	//for i, event := range c.events {
+	//	if event.Connected {
+	//		if i+1 >= len(c.events) {
+	//			connectedTimeMs += toTime.Sub(event.Timestamp).Milliseconds()
+	//		} else {
+	//			connectedTimeMs += c.events[i+1].Timestamp.Sub(event.Timestamp).Milliseconds()
+	//		}
+	//	}
+	//}
 
 	totalTime := toTime.Sub(c.events[0].Timestamp).Milliseconds()
 	return float32(connectedTimeMs) / float32(totalTime) * 100
