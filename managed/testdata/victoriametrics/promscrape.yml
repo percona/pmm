@@ -14,6 +14,7 @@ scrape_configs:
             - 127.0.0.1:9090
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
@@ -24,6 +25,7 @@ scrape_configs:
             - 127.0.0.1:8880
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: alertmanager
       honor_timestamps: false
       scrape_interval: 10s
@@ -34,6 +36,7 @@ scrape_configs:
             - 127.0.0.1:9093
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: grafana
       honor_timestamps: false
       scrape_interval: 10s
@@ -44,6 +47,7 @@ scrape_configs:
             - 127.0.0.1:3000
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: pmm-managed
       honor_timestamps: false
       scrape_interval: 10s
@@ -54,6 +58,7 @@ scrape_configs:
             - 127.0.0.1:7773
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: qan-api2
       honor_timestamps: false
       scrape_interval: 10s
@@ -64,3 +69,4 @@ scrape_configs:
             - 127.0.0.1:9933
           labels:
             instance: pmm-server
+      follow_redirects: false
