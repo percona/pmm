@@ -61,6 +61,8 @@
     supervisorctl:
       name: grafana
       state: stopped
+    ignore_errors: True # TODO we have race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist on this stage
+
   - name: Remove old DBaaS dashboard (Before provisioning times)
     command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
     changed_when: True
@@ -86,14 +88,7 @@
   supervisorctl:
     name: grafana
     state: restarted
-
-- name: Display grafana.log content
-  command: cat /srv/logs/grafana.log
-  register: command_output
-
-- name: Print to console
-  debug:
-    msg: "{{command_output.stdout}}"
+  ignore_errors: True # TODO we have race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist on this stage
 
 - name: Copy file with image version
   copy:

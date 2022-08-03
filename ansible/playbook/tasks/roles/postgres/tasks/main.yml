@@ -155,6 +155,11 @@
         state: absent
       when: is_upgrade.stat.exists
 
+    - name: Reread supervisord configuration
+      command: supervisorctl reread
+      register: supervisor_result
+      changed_when: "'No config updates to processes' not in supervisor_result.stdout"
+
     - name: Restart Postgres
       command: supervisorctl {{ item }} postgresql
       changed_when: True
