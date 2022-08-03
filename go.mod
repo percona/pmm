@@ -22,7 +22,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.66
 	github.com/brianvoe/gofakeit/v6 v6.18.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.15.0
+	github.com/go-co-op/gocron v1.16.1
 	github.com/go-openapi/errors v0.20.2
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.2
@@ -64,7 +64,7 @@ require (
 	golang.org/x/tools v0.1.12
 	google.golang.org/genproto v0.0.0-20220617124728-180714bec0ad
 	google.golang.org/grpc v1.48.0
-	google.golang.org/protobuf v1.28.0
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.66.6
 	gopkg.in/reform.v1 v1.5.1
