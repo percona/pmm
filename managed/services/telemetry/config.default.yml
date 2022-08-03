@@ -24,6 +24,14 @@ telemetry:
       - metric_name: "backup_management_enabled"
         column: "bm_enabled"
 
+  - id: PMMServerAlertManagerUsed
+    source: PMMDB_SELECT
+    query: (CASE a WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS a
+    summary: "PMM Server alert manager integration  - used/not used "
+    data:
+      - metric_name: "alert_manager_enabled"
+        column: "alert_manager_set"
+
   - id: PMMServerDBaaSEnabled
     source: PMMDB_SELECT
     query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
@@ -83,6 +91,30 @@ telemetry:
     data:
       - metric_name: "grafana_stat_total_users"
         value: 1
+
+  - id: GrafanaStatActiveMonthlyUsers
+    source: VM
+    query: grafana_stat_active_users
+    summary: "Active monthly users"
+    data:
+      - metric_name: "grafana_stat_active_users"
+        value: 1
+
+  - id: GrafanaStatTotalsAnnotations
+    source: VM
+    query: grafana_stat_totals_annotations
+    summary: "Total amount of annotations in the database"
+    data:
+      - metric_name: "grafana_stat_totals_annotations"
+        value: 1
+
+  - id: PMMDataRetentionPeriod
+    source: PMMDB_SELECT
+    query: data_retention FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention
+    summary: "Total amount of annotations in the database"
+    data:
+      - metric_name: "data_retention_period"
+        column: "data_retention"
 
 # PMM - Usage
   - id: PMMUsageNodesCount
