@@ -28,7 +28,7 @@ coverage:
           - managed/
 
 ignore:
-  - '*/**/fuzzdata'
+  - 'managed/services/grafana/fuzzdata'
 
 flag_management:
   default_rules:
