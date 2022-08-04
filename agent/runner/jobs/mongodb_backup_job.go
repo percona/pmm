@@ -17,7 +17,6 @@ package jobs
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"net/url"
@@ -100,7 +99,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 
 	if j.dataModel != backupv1beta1.DataModel_PHYSICAL && j.dataModel != backupv1beta1.DataModel_LOGICAL {
-		return errors.New(fmt.Sprintf("'%s' is not a supported data model for backups", j.dataModel.String()))
+		return errors.Errorf("'%s' is not a supported data model for backups", j.dataModel.String())
 	}
 
 	conf := &PBMConfig{
