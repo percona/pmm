@@ -87,7 +87,7 @@ telemetry:
   # PMM - Usage
   - id: PMMUsageNodesCount
     source: PMMDB_SELECT
-    query: count(*) AS nodes_count FROM nodes
+    query: count(*) AS nodes_count FROM nodes where node_name != 'pmm-server'
     summary: "Monitored nodes count"
     data:
       - metric_name: "pmm_server_usage_nodes_count"
@@ -95,7 +95,7 @@ telemetry:
 
   - id: PMMUsageServicesCount
     source: PMMDB_SELECT
-    query: count(*) AS services_count FROM services
+    query: count(*) AS services_count FROM services where node_id != 'pmm-server'
     summary: "Monitored services count"
     data:
       - metric_name: "pmm_server_usage_services_count"
