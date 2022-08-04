@@ -35,8 +35,9 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMySQLBackupAndRestore   = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoDBBackupAndRestore = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore        = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMongoPhysicalBackup          = version.Must(version.NewVersion("2.30"))
 )
 
 const (
@@ -369,8 +370,17 @@ func (s *JobsService) StartMongoDBBackupJob(
 	locationConfig *models.BackupLocationConfig,
 ) error {
 	var err error
-	if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mongodb backup", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb backup", pmmAgentMinVersionForMongoPhysicalBackup)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
 		return err
 	}
 
@@ -477,7 +487,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	locationConfig *models.BackupLocationConfig,
 ) error {
 	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mongodb restore", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
+		"mongodb restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore); err != nil {
 		return err
 	}
 
