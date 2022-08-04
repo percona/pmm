@@ -78,7 +78,7 @@ jobs:
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
         with:
-          file: ./src/github.com/percona/pmm/admin/cover.out
+          file: cover.out
           flags: admin
           fail_ci_if_error: false
 

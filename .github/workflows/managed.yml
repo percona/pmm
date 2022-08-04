@@ -36,7 +36,6 @@ jobs:
         use-cache: [false]
         go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
 
-
     env:
       GO_VERSION: ${{ matrix.go-version }}
       PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
@@ -96,7 +95,7 @@ jobs:
       - name: Upload coverage results
         uses: percona-platform/codecov-action@v3
         with:
-          file: ./src/github.com/percona/pmm/managed/cover.out
+          file: managed/cover.out
           flags: managed
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
