@@ -46,10 +46,8 @@ jobs:
       OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
 
     steps:
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
 
       - name: Enable Go build cache
         if: matrix.use-cache
