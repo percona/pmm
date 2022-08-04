@@ -37,7 +37,7 @@ var (
 
 	pmmAgentMinVersionForMySQLBackupAndRestore        = version.Must(version.NewVersion("2.23"))
 	pmmAgentMinVersionForMongoLogicalBackupAndRestore = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMongoPhysicalBackup          = version.Must(version.NewVersion("2.30"))
+	pmmAgentMinVersionForMongoPhysicalBackup          = version.Must(version.NewVersion("2.30.0-0"))
 )
 
 const (
