@@ -245,3 +245,29 @@ telemetry:
     data:
       - metric_name: "pmm_client_node_type"
         column: "node_type"
+
+  # DBaaS
+  - id: DBaaSServicesCount
+    source: PMMDB_SELECT
+    query: select count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|psmdb)-\d+')
+    summary: "DBaaS Services Count"
+    data:
+      - metric_name: "dbaas_services_count"
+        column: "count"
+
+  - id: DBaaSClustersCount
+    source: PMMDB_SELECT
+    query: select count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|psmdb)-\d+')
+    summary: "DBaaS Clusters Count"
+    data:
+      - metric_name: "dbaas_clusters_count"
+        column: "count"
+
+  # K8s Clusters
+  - id: K8sClustersCount
+    source: PMMDB_SELECT
+    query: SELECT count(*) AS count FROM kubernetes_clusters
+    summary: "K8s Clusters Count"
+    data:
+      - metric_name: "k8s_clusters_count"
+        column: "count"
