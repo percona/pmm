@@ -58,7 +58,6 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      GOBIN: ${{ github.workspace }}/bin
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
