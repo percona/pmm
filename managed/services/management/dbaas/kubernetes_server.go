@@ -31,6 +31,11 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -100,8 +105,74 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
 }
 
+func (k kubernetesServer) checkInCluster() error {
+
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return err
+	}
+	// creates the clientset
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	secretList, err := clientset.CoreV1().Secrets("default").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	secret := secretList.Items[1]
+
+	clusters := make(map[string]*clientcmdapi.Cluster)
+	clusters["default-cluster"] = &clientcmdapi.Cluster{
+		Server:                   config.Host,
+		CertificateAuthorityData: secret.Data["ca.crt"],
+	}
+
+	contexts := make(map[string]*clientcmdapi.Context)
+	contexts["default-context"] = &clientcmdapi.Context{
+		Cluster:   "default-cluster",
+		Namespace: "default",
+		AuthInfo:  "default",
+	}
+
+	authinfos := make(map[string]*clientcmdapi.AuthInfo)
+	authinfos["default"] = &clientcmdapi.AuthInfo{
+		Token: string(secret.Data["token"]),
+	}
+
+	clientConfig := clientcmdapi.Config{
+		Kind:           "Config",
+		APIVersion:     "v1",
+		Clusters:       clusters,
+		Contexts:       contexts,
+		CurrentContext: "default-context",
+		AuthInfos:      authinfos,
+	}
+	if err := clientcmdapi.MinifyConfig(&clientConfig); err != nil {
+		return err
+	}
+	if err := clientcmdapi.FlattenConfig(&clientConfig); err != nil {
+		return err
+	}
+	c, err := yaml.Marshal(&clientConfig)
+	if err != nil {
+		return err
+	}
+	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
+		KubernetesClusterName: "default",
+		KubeAuth: &dbaasv1beta1.KubeAuth{
+			Kubeconfig: string(c),
+		},
+	}
+	_, err = k.RegisterKubernetesCluster(context.TODO(), req)
+	return err
+}
+
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
+	_ = k.checkInCluster()
+
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
 	if err != nil {
 		return nil, err
