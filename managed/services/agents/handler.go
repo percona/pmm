@@ -244,6 +244,8 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 		switch status {
 		case inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE:
 			return nil
+		default:
+			// nothing
 		}
 
 		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)

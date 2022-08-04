@@ -394,6 +394,8 @@ func checkMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 		if len(tasks) != 0 {
 			return status.Error(codes.FailedPrecondition, "A scheduled snapshot backup can be enabled only if there are no enabled PITR backup.")
 		}
+	default:
+		// nothing
 	}
 
 	return nil

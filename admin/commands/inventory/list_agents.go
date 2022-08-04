@@ -18,6 +18,8 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
@@ -69,7 +71,7 @@ type listAgentsResult struct {
 
 func (a listResultAgent) NiceAgentStatus() string {
 	res := a.Status
-	res = strings.Title(strings.ToLower(res))
+	res = cases.Title(language.Und).String(strings.ToLower(res))
 	if a.Disabled {
 		res += " (disabled)"
 	}

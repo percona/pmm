@@ -211,7 +211,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
-		running = true
+		running = true // nolint: ineffassign
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 	} else {
 		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
@@ -473,7 +473,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
+				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE // nolint:staticcheck
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 

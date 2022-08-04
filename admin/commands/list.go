@@ -25,6 +25,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -64,7 +66,7 @@ func (a listResultAgent) NiceAgentStatus() string {
 	if res == "" {
 		res = "unknown"
 	}
-	res = strings.Title(strings.ToLower(res))
+	res = cases.Title(language.Und).String(strings.ToLower(res))
 	if a.Disabled {
 		res += " (disabled)"
 	}

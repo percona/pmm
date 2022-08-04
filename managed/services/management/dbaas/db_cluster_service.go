@@ -259,6 +259,8 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 		if err != nil {
 			return nil, err
 		}
+	default:
+		s.l.Debugf("not supported cluster type %s", req.ClusterType)
 	}
 
 	return &dbaasv1beta1.RestartDBClusterResponse{}, nil

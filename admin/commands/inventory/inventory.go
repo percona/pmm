@@ -43,7 +43,7 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 	for value, variations := range acceptableTypeValues {
 		variations = append(variations, value)
 		for _, variation := range variations {
-			if strings.ToLower(variation) == strings.ToLower(input) {
+			if strings.EqualFold(variation, input) {
 				return &value, nil
 			}
 		}

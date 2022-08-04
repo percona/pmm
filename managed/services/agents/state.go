@@ -248,6 +248,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
 				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row)
+			default:
+				// nothing
 			}
 
 		default:

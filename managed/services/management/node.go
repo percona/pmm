@@ -55,6 +55,8 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 		case codes.NotFound:
 			err = nil
+		default:
+			// nothing
 		}
 		if err != nil {
 			return err
@@ -69,6 +71,8 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 				return err
 			}
 			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+		default:
+			// nothing
 		}
 		if err != nil {
 			return err

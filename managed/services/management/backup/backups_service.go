@@ -110,11 +110,13 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		return nil, err
 	}
 	var dataModel models.DataModel
-	switch svc.ServiceType { //nolint:exhaustive
+	switch svc.ServiceType {
 	case models.MySQLServiceType:
 		dataModel = models.PhysicalDataModel
 	case models.MongoDBServiceType:
 		dataModel = models.LogicalDataModel
+	default:
+		s.l.Debugf("not supported service type %s", svc.ServiceType)
 	}
 
 	artifactID, err := s.backupService.PerformBackup(ctx, backup.PerformBackupParams{

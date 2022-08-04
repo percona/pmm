@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
