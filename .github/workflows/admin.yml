@@ -33,7 +33,6 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      GOBIN: ${{ github.workspace }}/bin
 
     defaults:
       run:
