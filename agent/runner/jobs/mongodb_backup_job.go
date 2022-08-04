@@ -99,7 +99,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 
 	if j.dataModel != backupv1beta1.DataModel_PHYSICAL && j.dataModel != backupv1beta1.DataModel_LOGICAL {
-		return errors.Errorf("'%s' is not a supported data model for backups", j.dataModel.String())
+		return errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
 	conf := &PBMConfig{
@@ -200,9 +200,16 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 	var result pbmBackup
 
 	pbmArgs := []string{"backup"}
-	if j.dataModel == backupv1beta1.DataModel_PHYSICAL {
+	switch j.dataModel {
+	case backupv1beta1.DataModel_PHYSICAL:
 		pbmArgs = append(pbmArgs, "--type=physical")
+	case backupv1beta1.DataModel_LOGICAL:
+		pbmArgs = append(pbmArgs, "--type=logical")
+	case backupv1beta1.DataModel_DATA_MODEL_INVALID:
+	default:
+		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
+
 	if err := execPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {
 		return nil, err
 	}
