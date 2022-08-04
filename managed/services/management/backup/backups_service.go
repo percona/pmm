@@ -120,7 +120,7 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		case backupv1beta1.DataModel_PHYSICAL:
 			dataModel = models.PhysicalDataModel
 		default:
-			return nil, status.Errorf(codes.InvalidArgument, "unknown data model: %s", req.DataModel.String())
+			return nil, status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
 		}
 	}
 
@@ -242,7 +242,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 			case backupv1beta1.DataModel_PHYSICAL:
 				backupParams.DataModel = models.PhysicalDataModel
 			default:
-				return status.Errorf(codes.InvalidArgument, "unknown data model: %s", req.DataModel.String())
+				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
 			}
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
