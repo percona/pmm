@@ -36,10 +36,8 @@ jobs:
       GO_VERSION: ${{ matrix.go-version }}
 
     steps:
-      - name: Check out code into the working directory under the GOPATH
+      - name: Check out code
         uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
