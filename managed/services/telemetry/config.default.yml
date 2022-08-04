@@ -249,7 +249,7 @@ telemetry:
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
-    query: select count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|psmdb)-\d+')
+    query: select count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
     summary: "DBaaS Services Count"
     data:
       - metric_name: "dbaas_services_count"
@@ -257,7 +257,7 @@ telemetry:
 
   - id: DBaaSClustersCount
     source: PMMDB_SELECT
-    query: select count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|psmdb)-\d+')
+    query: select count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
     summary: "DBaaS Clusters Count"
     data:
       - metric_name: "dbaas_clusters_count"
