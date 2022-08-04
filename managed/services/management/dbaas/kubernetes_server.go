@@ -171,7 +171,8 @@ func (k kubernetesServer) checkInCluster() error {
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
-	_ = k.checkInCluster()
+	err := k.checkInCluster()
+	fmt.Println(err)
 
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
 	if err != nil {
