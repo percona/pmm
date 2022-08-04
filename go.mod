@@ -43,7 +43,7 @@ require (
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
-	github.com/percona/promconfig v0.2.4-0.20211110115058-98687f586f54
+	github.com/percona/promconfig v0.2.5
 	github.com/pganalyze/pg_query_go v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
