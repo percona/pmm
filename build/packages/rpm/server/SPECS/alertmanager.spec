@@ -2,11 +2,11 @@
 
 %global repo            alertmanager
 %global provider        github.com/prometheus/%{repo}
-%global commit          4c6c03ebfe21009c546e4d1e9b92c371d67c021d
+%global commit          5ad7a105d7a310171d99e4cdcd418b8556401fae
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 
 Name:           percona-%{repo}
-Version:        0.21.0
+Version:        0.22.0
 Release:        3%{?dist}
 Summary:        The Prometheus monitoring system and time series database
 License:        ASL 2.0
