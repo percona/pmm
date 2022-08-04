@@ -367,9 +367,9 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 				if len(results) == 0 {
 					results = []services.CheckResult{
 						{
-							CheckName: ch.Name,
+							CheckName:    ch.Name,
+							CheckSummary: ch.Summary,
 							Result: check.Result{
-								Summary:     ch.Summary,
 								Description: ch.Description,
 							},
 							Target: target,
@@ -382,9 +382,9 @@ func (s *Service) WatchChecksStream(ctx context.Context, checkNames []string) (<
 			// if check was skipped, then results will be empty, we return only the check name
 			if len(serviceResults) == 0 {
 				serviceResults = append(serviceResults, services.CheckResult{
-					CheckName: ch.Name,
+					CheckName:    ch.Name,
+					CheckSummary: ch.Summary,
 					Result: check.Result{
-						Summary:     ch.Summary,
 						Description: ch.Description,
 					},
 				})
@@ -1346,10 +1346,11 @@ func (s *Service) processResults(ctx context.Context, sttCheck check.Check, targ
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: sttCheck.Name,
-			Interval:  sttCheck.Interval,
-			Target:    target,
-			Result:    result,
+			CheckName:    sttCheck.Name,
+			CheckSummary: sttCheck.Summary,
+			Interval:     sttCheck.Interval,
+			Target:       target,
+			Result:       result,
 		}
 	}
 	return checkResults, nil

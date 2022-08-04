@@ -69,6 +69,8 @@ message CheckResult {
   string alert_id = 9;
   // Silence status of the check result
   bool silenced = 10;
+  // alert or message sent by the check after execution.
+  string alert_message = 11;
 }
 
 // SecurityCheck contains check name and status.

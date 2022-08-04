@@ -242,7 +242,7 @@ func (s *ChecksAPIService) StartChecksStream(stream managementpb.SecurityChecks_
 			for _, res := range targetResults {
 				results = append(results, &managementpb.CheckResult{
 					CheckName:   res.CheckName,
-					Summary:     res.Result.Summary,
+					Summary:     res.CheckSummary,
 					Description: res.Result.Description,
 					ReadMoreUrl: res.Result.ReadMoreURL,
 					Severity:    managementpb.Severity(res.Result.Severity),

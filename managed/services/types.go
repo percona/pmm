@@ -36,12 +36,13 @@ type Target struct {
 
 // CheckResult contains the output from the check file and other information.
 type CheckResult struct {
-	CheckName string
-	Silenced  bool
-	AlertID   string
-	Interval  check.Interval
-	Target    Target
-	Result    check.Result
+	CheckName    string
+	CheckSummary string
+	Silenced     bool
+	AlertID      string
+	Interval     check.Interval
+	Target       Target
+	Result       check.Result
 }
 
 // CheckResultSummary contains the summary of failed checks for a service.
