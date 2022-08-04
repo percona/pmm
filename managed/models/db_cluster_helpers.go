@@ -2,12 +2,13 @@ package models
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"strings"
 )
 
 type DBClusterFilters struct {
@@ -60,10 +61,7 @@ func FindDBClusters(q *reform.Querier, filters DBClusterFilters) ([]*DBCluster, 
 type DBClusterParams struct {
 	KubernetesClusterID string
 	Name                string
-	Exposed             bool
 	InstalledImage      string
-	PSMDBClusterParams  *PSMDBClusterParams
-	PXCClusterParams    *PXCClusterParams
 }
 
 // CreateOrUpdateDBCluster creates DB Cluster with given type.
@@ -86,10 +84,7 @@ func CreateOrUpdateDBCluster(q *reform.Querier, dbClusterType DBClusterType, par
 		ClusterType:         dbClusterType,
 		KubernetesClusterID: params.KubernetesClusterID,
 		Name:                params.Name,
-		Exposed:             params.Exposed,
 		InstalledImage:      params.InstalledImage,
-		PSMDBClusterParams:  params.PSMDBClusterParams,
-		PXCClusterParams:    params.PXCClusterParams,
 	}
 
 	if len(dbClusters) == 0 {

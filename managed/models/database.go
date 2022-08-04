@@ -720,9 +720,6 @@ var databaseSchema = [][]string{
 			cluster_type VARCHAR NOT NULL CHECK (cluster_type <> ''),
 			kubernetes_cluster_id VARCHAR CHECK (kubernetes_cluster_id <> ''),
 			name VARCHAR NOT NULL,
-			pxc_cluster_params JSONB,
-			psmdb_cluster_params JSONB,
-			exposed BOOLEAN NOT NULL,
 			installed_image VARCHAR NOT NULL,
 
 			created_at TIMESTAMP NOT NULL,

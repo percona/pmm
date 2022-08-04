@@ -15,6 +15,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
+export PATH := $(PMM_RELEASE_PATH):$(PATH)
 
 PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' \

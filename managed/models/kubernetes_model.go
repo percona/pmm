@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate reform
 
 // ComponentSettings stores info about DBaaS ComponentSettings
 type ComponentSettings struct {

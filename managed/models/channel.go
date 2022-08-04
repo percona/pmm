@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate reform
 
 // ChannelType represents notificaion channel type.
 type ChannelType string

@@ -177,20 +177,11 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	_, err = models.CreateOrUpdateDBCluster(s.db.Querier, models.PSMDBType, &models.DBClusterParams{
 		KubernetesClusterID: kubernetesCluster.ID,
 		Name:                req.Name,
-		Exposed:             req.Expose,
 		InstalledImage:      req.Params.Image,
-		PSMDBClusterParams: &models.PSMDBClusterParams{
-			ClusterSize: req.Params.ClusterSize,
-			Psmdb: &models.ComponentParams{
-				Image: req.Params.Image,
-				ComputeResources: &models.ComputeResources{
-					CpuM:        req.Params.Replicaset.ComputeResources.CpuM,
-					MemoryBytes: req.Params.Replicaset.ComputeResources.MemoryBytes,
-				},
-				DiskSize: req.Params.Replicaset.DiskSize,
-			},
-		},
 	})
+	if err != nil {
+		s.l.Warnf("couldn't store db cluster to database: %s", err)
+	}
 
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
 }
@@ -308,6 +299,14 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	_, err = s.controllerClient.UpdatePSMDBCluster(ctx, &in)
 	if err != nil {
 		return nil, err
+	}
+	_, err = models.CreateOrUpdateDBCluster(s.db.Querier, models.PSMDBType, &models.DBClusterParams{
+		KubernetesClusterID: kubernetesCluster.ID,
+		Name:                req.Name,
+		InstalledImage:      req.Params.Image,
+	})
+	if err != nil {
+		s.l.Warnf("couldn't store db cluster to database: %s", err)
 	}
 
 	return &dbaasv1beta1.UpdatePSMDBClusterResponse{}, nil

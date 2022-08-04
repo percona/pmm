@@ -32,10 +32,7 @@ func (v *dBClusterTableType) Columns() []string {
 		"cluster_type",
 		"kubernetes_cluster_id",
 		"name",
-		"exposed",
 		"installed_image",
-		"psmdb_cluster_params",
-		"pxc_cluster_params",
 		"created_at",
 		"updated_at",
 	}
@@ -66,10 +63,7 @@ var DBClusterTable = &dBClusterTableType{
 			{Name: "ClusterType", Type: "DBClusterType", Column: "cluster_type"},
 			{Name: "KubernetesClusterID", Type: "string", Column: "kubernetes_cluster_id"},
 			{Name: "Name", Type: "string", Column: "name"},
-			{Name: "Exposed", Type: "bool", Column: "exposed"},
 			{Name: "InstalledImage", Type: "string", Column: "installed_image"},
-			{Name: "PSMDBClusterParams", Type: "*PSMDBClusterParams", Column: "psmdb_cluster_params"},
-			{Name: "PXCClusterParams", Type: "*PXCClusterParams", Column: "pxc_cluster_params"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -80,17 +74,14 @@ var DBClusterTable = &dBClusterTableType{
 
 // String returns a string representation of this struct or record.
 func (s DBCluster) String() string {
-	res := make([]string, 10)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "ClusterType: " + reform.Inspect(s.ClusterType, true)
 	res[2] = "KubernetesClusterID: " + reform.Inspect(s.KubernetesClusterID, true)
 	res[3] = "Name: " + reform.Inspect(s.Name, true)
-	res[4] = "Exposed: " + reform.Inspect(s.Exposed, true)
-	res[5] = "InstalledImage: " + reform.Inspect(s.InstalledImage, true)
-	res[6] = "PSMDBClusterParams: " + reform.Inspect(s.PSMDBClusterParams, true)
-	res[7] = "PXCClusterParams: " + reform.Inspect(s.PXCClusterParams, true)
-	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[4] = "InstalledImage: " + reform.Inspect(s.InstalledImage, true)
+	res[5] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[6] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -102,10 +93,7 @@ func (s *DBCluster) Values() []interface{} {
 		s.ClusterType,
 		s.KubernetesClusterID,
 		s.Name,
-		s.Exposed,
 		s.InstalledImage,
-		s.PSMDBClusterParams,
-		s.PXCClusterParams,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -119,10 +107,7 @@ func (s *DBCluster) Pointers() []interface{} {
 		&s.ClusterType,
 		&s.KubernetesClusterID,
 		&s.Name,
-		&s.Exposed,
 		&s.InstalledImage,
-		&s.PSMDBClusterParams,
-		&s.PXCClusterParams,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

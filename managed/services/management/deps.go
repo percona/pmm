@@ -26,15 +26,15 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=checksService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=defaultsFileParser -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
+//go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
+//go:generate mockery -name=checksService -case=snake -inpkg -testonly
+//go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate mockery -name=jobsService -case=snake -inpkg -testonly
+//go:generate mockery -name=connectionChecker -case=snake -inpkg -testonly
+//go:generate mockery -name=defaultsFileParser -case=snake -inpkg -testonly
+//go:generate mockery -name=versionCache -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

@@ -65,16 +65,13 @@ const (
 // DBCluster represents a Database cluster as stored in database.
 //reform:db_clusters
 type DBCluster struct {
-	ID                  string              `reform:"id,pk"`
-	ClusterType         DBClusterType       `reform:"cluster_type"`
-	KubernetesClusterID string              `reform:"kubernetes_cluster_id"`
-	Name                string              `reform:"name"`
-	Exposed             bool                `reform:"exposed"`
-	InstalledImage      string              `reform:"installed_image"`
-	PSMDBClusterParams  *PSMDBClusterParams `reform:"psmdb_cluster_params"`
-	PXCClusterParams    *PXCClusterParams   `reform:"pxc_cluster_params"`
-	CreatedAt           time.Time           `reform:"created_at"`
-	UpdatedAt           time.Time           `reform:"updated_at"`
+	ID                  string        `reform:"id,pk"`
+	ClusterType         DBClusterType `reform:"cluster_type"`
+	KubernetesClusterID string        `reform:"kubernetes_cluster_id"`
+	Name                string        `reform:"name"`
+	InstalledImage      string        `reform:"installed_image"`
+	CreatedAt           time.Time     `reform:"created_at"`
+	UpdatedAt           time.Time     `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

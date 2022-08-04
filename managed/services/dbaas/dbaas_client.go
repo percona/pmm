@@ -126,6 +126,19 @@ func (c *Client) ListPXCClusters(ctx context.Context, in *controllerv1beta1.List
 	return c.pxcClusterClient.ListPXCClusters(ctx, in, opts...)
 }
 
+// GetPXCCluster gets a PXC cluster.
+func (c *Client) GetPXCCluster(ctx context.Context, kubeconfig, name string) (*controllerv1beta1.GetPXCClusterResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	in := &controllerv1beta1.GetPXCClusterRequest{
+		KubeAuth: &controllerv1beta1.KubeAuth{
+			Kubeconfig: kubeconfig,
+		},
+		Name: name,
+	}
+	return c.pxcClusterClient.GetPXCCluster(ctx, in)
+}
+
 // CreatePXCCluster creates a new PXC cluster.
 func (c *Client) CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error) {
 	c.connM.RLock()
@@ -194,6 +207,19 @@ func (c *Client) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.
 	c.connM.RLock()
 	defer c.connM.RUnlock()
 	return c.psmdbClusterClient.RestartPSMDBCluster(ctx, in, opts...)
+}
+
+// GetPSMDBCluster gets a PSMDB cluster.
+func (c *Client) GetPSMDBCluster(ctx context.Context, kubeconfig, name string) (*controllerv1beta1.GetPSMDBClusterResponse, error) {
+	c.connM.RLock()
+	defer c.connM.RUnlock()
+	in := &controllerv1beta1.GetPSMDBClusterRequest{
+		KubeAuth: &controllerv1beta1.KubeAuth{
+			Kubeconfig: kubeconfig,
+		},
+		Name: name,
+	}
+	return c.psmdbClusterClient.GetPSMDBCluster(ctx, in)
 }
 
 // GetPSMDBClusterCredentials gets PSMDB cluster credentials.

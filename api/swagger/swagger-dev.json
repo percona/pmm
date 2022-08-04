@@ -18808,313 +18808,46 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pxc_clusters": {
-                  "description": "PXC clusters information.",
+                "db_clusters": {
+                  "description": "DB clusters information.",
                   "type": "array",
                   "items": {
-                    "description": "PXCCluster represents PXC cluster information.",
                     "type": "object",
                     "properties": {
-                      "name": {
-                        "description": "Cluster name.",
+                      "id": {
+                        "description": "Cluster ID.",
                         "type": "string",
                         "x-order": 0
                       },
-                      "state": {
-                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                      "name": {
+                        "description": "Cluster name.",
                         "type": "string",
-                        "default": "DB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "DB_CLUSTER_STATE_INVALID",
-                          "DB_CLUSTER_STATE_CHANGING",
-                          "DB_CLUSTER_STATE_READY",
-                          "DB_CLUSTER_STATE_FAILED",
-                          "DB_CLUSTER_STATE_DELETING",
-                          "DB_CLUSTER_STATE_PAUSED",
-                          "DB_CLUSTER_STATE_UPGRADING"
-                        ],
                         "x-order": 1
                       },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
+                      "cluster_type": {
+                        "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                        "type": "string",
+                        "default": "DB_CLUSTER_TYPE_INVALID",
+                        "enum": [
+                          "DB_CLUSTER_TYPE_INVALID",
+                          "DB_CLUSTER_TYPE_PXC",
+                          "DB_CLUSTER_TYPE_PSMDB"
+                        ],
                         "x-order": 2
                       },
-                      "params": {
-                        "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "pxc": {
-                            "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for PXC.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "proxysql": {
-                            "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for ProxySQL.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 2
-                          },
-                          "haproxy": {
-                            "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for HAProxy.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 3
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      },
                       "installed_image": {
-                        "description": "Installed XtraDB image.",
+                        "description": "Installed DB image.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 3
                       },
                       "available_image": {
                         "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 4
                       }
                     }
                   },
                   "x-order": 0
-                },
-                "psmdb_clusters": {
-                  "description": "PSMDB clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "PSMDBCluster represents PSMDB cluster information.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
-                        "type": "string",
-                        "default": "DB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "DB_CLUSTER_STATE_INVALID",
-                          "DB_CLUSTER_STATE_CHANGING",
-                          "DB_CLUSTER_STATE_READY",
-                          "DB_CLUSTER_STATE_FAILED",
-                          "DB_CLUSTER_STATE_DELETING",
-                          "DB_CLUSTER_STATE_PAUSED",
-                          "DB_CLUSTER_STATE_UPGRADING"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "replicaset": {
-                            "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 0
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "image": {
-                            "description": "Docker image used for PSMDB.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      },
-                      "installed_image": {
-                        "description": "Installed PSMDB image.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "available_image": {
-                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
-                        "type": "string",
-                        "x-order": 6
-                      }
-                    }
-                  },
-                  "x-order": 1
                 }
               }
             }
@@ -20857,6 +20590,369 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/DBaaS/PXCClusters/Get": {
+      "post": {
+        "tags": [
+          "DBClusters"
+        ],
+        "summary": "GetDBCluster returns a DB cluster by cluster name.",
+        "operationId": "GetDBCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "kubernetes_cluster_name": {
+                  "description": "Kubernetes cluster name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "name": {
+                  "description": "PSMDB cluster name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster_type": {
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
+                  "type": "string",
+                  "default": "DB_CLUSTER_TYPE_INVALID",
+                  "enum": [
+                    "DB_CLUSTER_TYPE_INVALID",
+                    "DB_CLUSTER_TYPE_PXC",
+                    "DB_CLUSTER_TYPE_PSMDB"
+                  ],
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pxc_cluster": {
+                  "description": "PXCCluster represents PXC cluster information.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "state": {
+                      "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                      "type": "string",
+                      "default": "DB_CLUSTER_STATE_INVALID",
+                      "enum": [
+                        "DB_CLUSTER_STATE_INVALID",
+                        "DB_CLUSTER_STATE_CHANGING",
+                        "DB_CLUSTER_STATE_READY",
+                        "DB_CLUSTER_STATE_FAILED",
+                        "DB_CLUSTER_STATE_DELETING",
+                        "DB_CLUSTER_STATE_PAUSED",
+                        "DB_CLUSTER_STATE_UPGRADING"
+                      ],
+                      "x-order": 1
+                    },
+                    "operation": {
+                      "description": "RunningOperation respresents a long-running operation.",
+                      "type": "object",
+                      "properties": {
+                        "finished_steps": {
+                          "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "message": {
+                          "description": "Text describing the current operation progress step.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "total_steps": {
+                          "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "params": {
+                      "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
+                      "type": "object",
+                      "properties": {
+                        "cluster_size": {
+                          "description": "Cluster size.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "pxc": {
+                          "description": "PXC container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for PXC.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "proxysql": {
+                          "description": "ProxySQL container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for ProxySQL.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 2
+                            }
+                          },
+                          "x-order": 2
+                        },
+                        "haproxy": {
+                          "description": "HAProxy container parameters.\nNOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.",
+                          "type": "object",
+                          "properties": {
+                            "image": {
+                              "description": "Docker image used for HAProxy.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "exposed": {
+                      "description": "DB cluster accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 0
+                },
+                "psmdb_cluster": {
+                  "description": "PSMDBCluster represents PSMDB cluster information.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "state": {
+                      "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
+                      "type": "string",
+                      "default": "DB_CLUSTER_STATE_INVALID",
+                      "enum": [
+                        "DB_CLUSTER_STATE_INVALID",
+                        "DB_CLUSTER_STATE_CHANGING",
+                        "DB_CLUSTER_STATE_READY",
+                        "DB_CLUSTER_STATE_FAILED",
+                        "DB_CLUSTER_STATE_DELETING",
+                        "DB_CLUSTER_STATE_PAUSED",
+                        "DB_CLUSTER_STATE_UPGRADING"
+                      ],
+                      "x-order": 1
+                    },
+                    "operation": {
+                      "description": "RunningOperation respresents a long-running operation.",
+                      "type": "object",
+                      "properties": {
+                        "finished_steps": {
+                          "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "message": {
+                          "description": "Text describing the current operation progress step.",
+                          "type": "string",
+                          "x-order": 1
+                        },
+                        "total_steps": {
+                          "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 2
+                    },
+                    "params": {
+                      "description": "PSMDBClusterParams represents PSMDB cluster parameters that can be updated.",
+                      "type": "object",
+                      "properties": {
+                        "cluster_size": {
+                          "description": "Cluster size.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "replicaset": {
+                          "description": "ReplicaSet container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
+                          "type": "object",
+                          "properties": {
+                            "compute_resources": {
+                              "description": "ComputeResources represents container computer resources requests or limits.",
+                              "type": "object",
+                              "properties": {
+                                "cpu_m": {
+                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "memory_bytes": {
+                                  "description": "Memory in bytes.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 1
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "disk_size": {
+                              "description": "Disk size in bytes.",
+                              "type": "string",
+                              "format": "int64",
+                              "x-order": 1
+                            }
+                          },
+                          "x-order": 1
+                        },
+                        "image": {
+                          "description": "Docker image used for PSMDB.",
+                          "type": "string",
+                          "x-order": 2
+                        }
+                      },
+                      "x-order": 3
+                    },
+                    "exposed": {
+                      "description": "DB cluster accessible outside of K8s cluster.",
+                      "type": "boolean",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {

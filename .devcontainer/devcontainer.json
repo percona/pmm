@@ -7,7 +7,7 @@
 	"dockerComposeFile": "../docker-compose.yml",
 	"service": "pmm-managed-server",
 	// "/" burns CPU by file indexing
-	"workspaceFolder": "/root/go/src/github.com/percona/pmm-managed",
+	"workspaceFolder": "/root/go/src/github.com/percona/pmm",
 	"name": "pmm-managed",
 	"extensions": [
 		"bungcip.better-toml",

@@ -34,10 +34,11 @@ digraph packages {
 	"/agents/supervisor" -> "/agents/process";
 	"/agents/supervisor" -> "/config";
 	"/agents/supervisor.test" -> "/agents/supervisor";
-	"/client" -> "/actions";
 	"/client" -> "/client/channel";
 	"/client" -> "/config";
-	"/client" -> "/jobs";
+	"/client" -> "/runner";
+	"/client" -> "/runner/actions";
+	"/client" -> "/runner/jobs";
 	"/client" -> "/versioner";
 	"/client.test" -> "/client";
 	"/commands" -> "/agentlocal";

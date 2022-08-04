@@ -22,8 +22,8 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../../bin/mockery -name=alertManager -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=vmAlert -case=snake -inpkg -testonly
+//go:generate mockery -name=alertManager -case=snake -inpkg -testonly
+//go:generate mockery -name=vmAlert -case=snake -inpkg -testonly
 
 // alertManager is is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

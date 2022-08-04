@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate reform
 
 // BackupLocationType represents BackupLocation type as stored in database.
 type BackupLocationType string

@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate reform
 
 // PerconaSSODetails stores everything what we need to issue access_token from Percona SSO API.
 // It is intended to have only one row in this table as PMM can be connected to Portal only once.

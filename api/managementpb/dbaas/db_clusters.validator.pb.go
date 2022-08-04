@@ -21,15 +21,23 @@ var (
 	_ = math.Inf
 )
 
-func (this *PSMDBCluster) Validate() error {
-	if this.Operation != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Operation", err)
-		}
+func (this *DBCluster) Validate() error {
+	return nil
+}
+
+func (this *ListDBClustersRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
 	}
-	if this.Params != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+	return nil
+}
+
+func (this *ListDBClustersResponse) Validate() error {
+	for _, item := range this.DbClusters {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("DbClusters", err)
+			}
 		}
 	}
 	return nil
@@ -49,25 +57,42 @@ func (this *PXCCluster) Validate() error {
 	return nil
 }
 
-func (this *ListDBClustersRequest) Validate() error {
-	if this.KubernetesClusterName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+func (this *PSMDBCluster) Validate() error {
+	if this.Operation != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Operation); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Operation", err)
+		}
+	}
+	if this.Params != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Params); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Params", err)
+		}
 	}
 	return nil
 }
 
-func (this *ListDBClustersResponse) Validate() error {
-	for _, item := range this.PxcClusters {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PxcClusters", err)
+func (this *GetDBClusterRequest) Validate() error {
+	if this.KubernetesClusterName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("KubernetesClusterName", fmt.Errorf(`value '%v' must not be an empty string`, this.KubernetesClusterName))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	return nil
+}
+
+func (this *GetDBClusterResponse) Validate() error {
+	if oneOfNester, ok := this.GetCluster().(*GetDBClusterResponse_PxcCluster); ok {
+		if oneOfNester.PxcCluster != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PxcCluster); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PxcCluster", err)
 			}
 		}
 	}
-	for _, item := range this.PsmdbClusters {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PsmdbClusters", err)
+	if oneOfNester, ok := this.GetCluster().(*GetDBClusterResponse_PsmdbCluster); ok {
+		if oneOfNester.PsmdbCluster != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PsmdbCluster); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PsmdbCluster", err)
 			}
 		}
 	}

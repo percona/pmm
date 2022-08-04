@@ -21,7 +21,7 @@ import (
 	"github.com/percona/pmm/managed/services/backup"
 )
 
-//go:generate ../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
+//go:generate mockery -name=backupService -case=snake -inpkg -testonly
 
 type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)

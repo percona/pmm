@@ -29,6 +29,7 @@ import (
 //go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
 //go:generate mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
@@ -43,6 +44,8 @@ type dbaasClient interface {
 	DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error)
 	// RestartPXCCluster restarts PXC cluster.
 	RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error)
+	// GetPXCCluster gets a PXC cluster.
+	GetPXCCluster(ctx context.Context, kubeconfig, name string) (*controllerv1beta1.GetPXCClusterResponse, error)
 	// GetPXCClusterCredentials returns an PXC cluster credentials.
 	GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error)
 	// ListPSMDBClusters returns a list of PSMDB clusters.
@@ -55,7 +58,9 @@ type dbaasClient interface {
 	DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error)
 	// RestartPSMDBCluster restarts PSMDB cluster.
 	RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error)
-	// GetPSMDBClusterCredentials gets a PSMDB cluster.
+	// GetPSMDBCluster gets a PSMDB cluster.
+	GetPSMDBCluster(ctx context.Context, kubeconfig, name string) (*controllerv1beta1.GetPSMDBClusterResponse, error)
+	// GetPSMDBClusterCredentials gets a PSMDB cluster credentials.
 	GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error)
 	// GetLogs gets logs out of cluster containers and events out of pods.
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)

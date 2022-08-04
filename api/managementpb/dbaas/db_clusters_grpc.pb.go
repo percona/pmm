@@ -25,6 +25,8 @@ const _ = grpc.SupportPackageIsVersion7
 type DBClustersClient interface {
 	// ListDBClusters returns a list of DB clusters.
 	ListDBClusters(ctx context.Context, in *ListDBClustersRequest, opts ...grpc.CallOption) (*ListDBClustersResponse, error)
+	// GetDBCluster returns a DB cluster by cluster name.
+	GetDBCluster(ctx context.Context, in *GetDBClusterRequest, opts ...grpc.CallOption) (*GetDBClusterResponse, error)
 	// RestartDBCluster restarts DB cluster.
 	RestartDBCluster(ctx context.Context, in *RestartDBClusterRequest, opts ...grpc.CallOption) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
@@ -42,6 +44,15 @@ func NewDBClustersClient(cc grpc.ClientConnInterface) DBClustersClient {
 func (c *dBClustersClient) ListDBClusters(ctx context.Context, in *ListDBClustersRequest, opts ...grpc.CallOption) (*ListDBClustersResponse, error) {
 	out := new(ListDBClustersResponse)
 	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/ListDBClusters", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dBClustersClient) GetDBCluster(ctx context.Context, in *GetDBClusterRequest, opts ...grpc.CallOption) (*GetDBClusterResponse, error) {
+	out := new(GetDBClusterResponse)
+	err := c.cc.Invoke(ctx, "/dbaas.v1beta1.DBClusters/GetDBCluster", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +83,8 @@ func (c *dBClustersClient) DeleteDBCluster(ctx context.Context, in *DeleteDBClus
 type DBClustersServer interface {
 	// ListDBClusters returns a list of DB clusters.
 	ListDBClusters(context.Context, *ListDBClustersRequest) (*ListDBClustersResponse, error)
+	// GetDBCluster returns a DB cluster by cluster name.
+	GetDBCluster(context.Context, *GetDBClusterRequest) (*GetDBClusterResponse, error)
 	// RestartDBCluster restarts DB cluster.
 	RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error)
 	// DeleteDBCluster deletes DB cluster.
@@ -84,6 +97,10 @@ type UnimplementedDBClustersServer struct{}
 
 func (UnimplementedDBClustersServer) ListDBClusters(context.Context, *ListDBClustersRequest) (*ListDBClustersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListDBClusters not implemented")
+}
+
+func (UnimplementedDBClustersServer) GetDBCluster(context.Context, *GetDBClusterRequest) (*GetDBClusterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDBCluster not implemented")
 }
 
 func (UnimplementedDBClustersServer) RestartDBCluster(context.Context, *RestartDBClusterRequest) (*RestartDBClusterResponse, error) {
@@ -120,6 +137,24 @@ func _DBClusters_ListDBClusters_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DBClustersServer).ListDBClusters(ctx, req.(*ListDBClustersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DBClusters_GetDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDBClusterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DBClustersServer).GetDBCluster(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dbaas.v1beta1.DBClusters/GetDBCluster",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DBClustersServer).GetDBCluster(ctx, req.(*GetDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -170,6 +205,10 @@ var DBClusters_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListDBClusters",
 			Handler:    _DBClusters_ListDBClusters_Handler,
+		},
+		{
+			MethodName: "GetDBCluster",
+			Handler:    _DBClusters_GetDBCluster_Handler,
 		},
 		{
 			MethodName: "RestartDBCluster",

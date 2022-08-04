@@ -66,6 +66,38 @@ func local_request_DBClusters_ListDBClusters_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
+func request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetDBClusterRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetDBCluster(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_DBClusters_GetDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, server DBClustersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetDBClusterRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetDBCluster(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_DBClusters_RestartDBCluster_0(ctx context.Context, marshaler runtime.Marshaler, client DBClustersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RestartDBClusterRequest
 	var metadata runtime.ServerMetadata
@@ -156,6 +188,29 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_DBClusters_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
+	mux.Handle("POST", pattern_DBClusters_GetDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/Get"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_DBClusters_GetDBCluster_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_DBClusters_GetDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_DBClusters_RestartDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -264,6 +319,26 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		forward_DBClusters_ListDBClusters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
+	mux.Handle("POST", pattern_DBClusters_GetDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/Get"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_DBClusters_GetDBCluster_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_DBClusters_GetDBCluster_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+
 	mux.Handle("POST", pattern_DBClusters_RestartDBCluster_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -310,6 +385,8 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 var (
 	pattern_DBClusters_ListDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "List"}, ""))
 
+	pattern_DBClusters_GetDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PXCClusters", "Get"}, ""))
+
 	pattern_DBClusters_RestartDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Restart"}, ""))
 
 	pattern_DBClusters_DeleteDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Delete"}, ""))
@@ -317,6 +394,8 @@ var (
 
 var (
 	forward_DBClusters_ListDBClusters_0 = runtime.ForwardResponseMessage
+
+	forward_DBClusters_GetDBCluster_0 = runtime.ForwardResponseMessage
 
 	forward_DBClusters_RestartDBCluster_0 = runtime.ForwardResponseMessage
 

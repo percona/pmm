@@ -23,10 +23,10 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 )
 
-//go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
+//go:generate mockery -name=jobsService -case=snake -inpkg -testonly
+//go:generate mockery -name=s3 -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate mockery -name=versioner -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

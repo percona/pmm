@@ -9,7 +9,7 @@ git, make, curl, go, gcc, pmm-server, pmm-agent
 
 ## Local setup
 ### To run pmm-admin commands
-- Run [pmm-server docker container](https://hub.docker.com/r/percona/pmm-server) or [pmm-managed](https://github.com/percona/pmm-managed).  
+- Run [pmm-server docker container](https://hub.docker.com/r/percona/pmm-server) or [pmm-managed]([percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed)).  
 - Run pmm-agent `cd ../agent`.
 - Run pmm-admin commands.
     ```shell script

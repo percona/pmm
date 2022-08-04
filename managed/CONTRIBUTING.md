@@ -23,7 +23,7 @@ Please use `make <target>` where <target> is one of:
 `make env-up` starts devcontainer with all tools and mounts source code from the host. You can change code with your editor/IDE of choice as usual, or run editor inside devcontainer (see below for some special support of VSCode). To run make targets inside devcontainer use `make env TARGET=target-name`. For example:
 ```
 $ make env TARGET=help
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make help
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make help
 Please use `make <target>` where <target> is one of:
   gen                       Generate files.
   install                   Install pmm-managed binary.
@@ -36,10 +36,10 @@ Run run tests, use `make env TARGET=test`, etc.
 Alternatively, it is possible to run `make env` to get inside devcontainer and run make targets as usual:
 ```
 $ make env
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make _bash
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make _bash
 /bin/bash
 [root@pmm-managed-server pmm-managed]# make test
-make[1]: Entering directory `/root/go/src/github.com/percona/pmm-managed'
+make[1]: Entering directory `/root/go/src/github.com/percona/pmm'
 go test -timeout=30s -p 1 ./...
 ...
 ```

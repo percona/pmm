@@ -297,22 +297,15 @@ func (o *ListDBClustersDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 swagger:model ListDBClustersOKBody
 */
 type ListDBClustersOKBody struct {
-	// PXC clusters information.
-	PXCClusters []*ListDBClustersOKBodyPXCClustersItems0 `json:"pxc_clusters"`
-
-	// PSMDB clusters information.
-	PSMDBClusters []*ListDBClustersOKBodyPSMDBClustersItems0 `json:"psmdb_clusters"`
+	// DB clusters information.
+	DBClusters []*ListDBClustersOKBodyDBClustersItems0 `json:"db_clusters"`
 }
 
 // Validate validates this list DB clusters OK body
 func (o *ListDBClustersOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validatePXCClusters(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePSMDBClusters(formats); err != nil {
+	if err := o.validateDBClusters(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -322,48 +315,22 @@ func (o *ListDBClustersOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListDBClustersOKBody) validatePXCClusters(formats strfmt.Registry) error {
-	if swag.IsZero(o.PXCClusters) { // not required
+func (o *ListDBClustersOKBody) validateDBClusters(formats strfmt.Registry) error {
+	if swag.IsZero(o.DBClusters) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.PXCClusters); i++ {
-		if swag.IsZero(o.PXCClusters[i]) { // not required
+	for i := 0; i < len(o.DBClusters); i++ {
+		if swag.IsZero(o.DBClusters[i]) { // not required
 			continue
 		}
 
-		if o.PXCClusters[i] != nil {
-			if err := o.PXCClusters[i].Validate(formats); err != nil {
+		if o.DBClusters[i] != nil {
+			if err := o.DBClusters[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "pxc_clusters" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listDbClustersOk" + "." + "db_clusters" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listDbClustersOk" + "." + "pxc_clusters" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBody) validatePSMDBClusters(formats strfmt.Registry) error {
-	if swag.IsZero(o.PSMDBClusters) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.PSMDBClusters); i++ {
-		if swag.IsZero(o.PSMDBClusters[i]) { // not required
-			continue
-		}
-
-		if o.PSMDBClusters[i] != nil {
-			if err := o.PSMDBClusters[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "psmdb_clusters" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listDbClustersOk" + "." + "psmdb_clusters" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listDbClustersOk" + "." + "db_clusters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -378,11 +345,7 @@ func (o *ListDBClustersOKBody) validatePSMDBClusters(formats strfmt.Registry) er
 func (o *ListDBClustersOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidatePXCClusters(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePSMDBClusters(ctx, formats); err != nil {
+	if err := o.contextValidateDBClusters(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -392,31 +355,14 @@ func (o *ListDBClustersOKBody) ContextValidate(ctx context.Context, formats strf
 	return nil
 }
 
-func (o *ListDBClustersOKBody) contextValidatePXCClusters(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.PXCClusters); i++ {
-		if o.PXCClusters[i] != nil {
-			if err := o.PXCClusters[i].ContextValidate(ctx, formats); err != nil {
+func (o *ListDBClustersOKBody) contextValidateDBClusters(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.DBClusters); i++ {
+		if o.DBClusters[i] != nil {
+			if err := o.DBClusters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "pxc_clusters" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listDbClustersOk" + "." + "db_clusters" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listDbClustersOk" + "." + "pxc_clusters" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBody) contextValidatePSMDBClusters(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.PSMDBClusters); i++ {
-		if o.PSMDBClusters[i] != nil {
-			if err := o.PSMDBClusters[i].ContextValidate(ctx, formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listDbClustersOk" + "." + "psmdb_clusters" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("listDbClustersOk" + "." + "psmdb_clusters" + "." + strconv.Itoa(i))
+					return ce.ValidateName("listDbClustersOk" + "." + "db_clusters" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -444,56 +390,37 @@ func (o *ListDBClustersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListDBClustersOKBodyPSMDBClustersItems0 PSMDBCluster represents PSMDB cluster information.
-swagger:model ListDBClustersOKBodyPSMDBClustersItems0
+/*ListDBClustersOKBodyDBClustersItems0 list DB clusters OK body DB clusters items0
+swagger:model ListDBClustersOKBodyDBClustersItems0
 */
-type ListDBClustersOKBodyPSMDBClustersItems0 struct {
+type ListDBClustersOKBodyDBClustersItems0 struct {
+	// Cluster ID.
+	ID string `json:"id,omitempty"`
+
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
-	// DBClusterState represents DB cluster CR state.
+	// DBClusterType represents database cluster type.
 	//
-	//  - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.
-	//  - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
-	//  - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.
-	//  - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.
-	//  - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	//  - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	//  - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.
-	// It indicates database cluster upgrade is ongoing.
-	// Enum: [DB_CLUSTER_STATE_INVALID DB_CLUSTER_STATE_CHANGING DB_CLUSTER_STATE_READY DB_CLUSTER_STATE_FAILED DB_CLUSTER_STATE_DELETING DB_CLUSTER_STATE_PAUSED DB_CLUSTER_STATE_UPGRADING]
-	State *string `json:"state,omitempty"`
+	//  - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.
+	//  - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.
+	//  - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.
+	// Enum: [DB_CLUSTER_TYPE_INVALID DB_CLUSTER_TYPE_PXC DB_CLUSTER_TYPE_PSMDB]
+	ClusterType *string `json:"cluster_type,omitempty"`
 
-	// DB cluster accessible outside of K8s cluster.
-	Exposed bool `json:"exposed,omitempty"`
-
-	// Installed PSMDB image.
+	// Installed DB image.
 	InstalledImage string `json:"installed_image,omitempty"`
 
 	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
 	// If it's empty, no upgrade is available.
 	AvailableImage string `json:"available_image,omitempty"`
-
-	// operation
-	Operation *ListDBClustersOKBodyPSMDBClustersItems0Operation `json:"operation,omitempty"`
-
-	// params
-	Params *ListDBClustersOKBodyPSMDBClustersItems0Params `json:"params,omitempty"`
 }
 
-// Validate validates this list DB clusters OK body PSMDB clusters items0
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this list DB clusters OK body DB clusters items0
+func (o *ListDBClustersOKBodyDBClustersItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateState(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateOperation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateParams(formats); err != nil {
+	if err := o.validateClusterType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -503,151 +430,58 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) Validate(formats strfmt.Regist
 	return nil
 }
 
-var listDbClustersOkBodyPsmdbClustersItems0TypeStatePropEnum []interface{}
+var listDbClustersOkBodyDbClustersItems0TypeClusterTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DB_CLUSTER_STATE_INVALID","DB_CLUSTER_STATE_CHANGING","DB_CLUSTER_STATE_READY","DB_CLUSTER_STATE_FAILED","DB_CLUSTER_STATE_DELETING","DB_CLUSTER_STATE_PAUSED","DB_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DB_CLUSTER_TYPE_INVALID","DB_CLUSTER_TYPE_PXC","DB_CLUSTER_TYPE_PSMDB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		listDbClustersOkBodyPsmdbClustersItems0TypeStatePropEnum = append(listDbClustersOkBodyPsmdbClustersItems0TypeStatePropEnum, v)
+		listDbClustersOkBodyDbClustersItems0TypeClusterTypePropEnum = append(listDbClustersOkBodyDbClustersItems0TypeClusterTypePropEnum, v)
 	}
 }
 
 const (
 
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEINVALID captures enum value "DB_CLUSTER_STATE_INVALID"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEINVALID string = "DB_CLUSTER_STATE_INVALID"
+	// ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEINVALID captures enum value "DB_CLUSTER_TYPE_INVALID"
+	ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEINVALID string = "DB_CLUSTER_TYPE_INVALID"
 
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATECHANGING captures enum value "DB_CLUSTER_STATE_CHANGING"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATECHANGING string = "DB_CLUSTER_STATE_CHANGING"
+	// ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPXC captures enum value "DB_CLUSTER_TYPE_PXC"
+	ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPXC string = "DB_CLUSTER_TYPE_PXC"
 
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEREADY captures enum value "DB_CLUSTER_STATE_READY"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEREADY string = "DB_CLUSTER_STATE_READY"
-
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEFAILED captures enum value "DB_CLUSTER_STATE_FAILED"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEFAILED string = "DB_CLUSTER_STATE_FAILED"
-
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEDELETING captures enum value "DB_CLUSTER_STATE_DELETING"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEDELETING string = "DB_CLUSTER_STATE_DELETING"
-
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEPAUSED captures enum value "DB_CLUSTER_STATE_PAUSED"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEPAUSED string = "DB_CLUSTER_STATE_PAUSED"
-
-	// ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEUPGRADING captures enum value "DB_CLUSTER_STATE_UPGRADING"
-	ListDBClustersOKBodyPSMDBClustersItems0StateDBCLUSTERSTATEUPGRADING string = "DB_CLUSTER_STATE_UPGRADING"
+	// ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPSMDB captures enum value "DB_CLUSTER_TYPE_PSMDB"
+	ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPSMDB string = "DB_CLUSTER_TYPE_PSMDB"
 )
 
 // prop value enum
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateStateEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listDbClustersOkBodyPsmdbClustersItems0TypeStatePropEnum, true); err != nil {
+func (o *ListDBClustersOKBodyDBClustersItems0) validateClusterTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listDbClustersOkBodyDbClustersItems0TypeClusterTypePropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateState(formats strfmt.Registry) error {
-	if swag.IsZero(o.State) { // not required
+func (o *ListDBClustersOKBodyDBClustersItems0) validateClusterType(formats strfmt.Registry) error {
+	if swag.IsZero(o.ClusterType) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStateEnum("state", "body", *o.State); err != nil {
+	if err := o.validateClusterTypeEnum("cluster_type", "body", *o.ClusterType); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateOperation(formats strfmt.Registry) error {
-	if swag.IsZero(o.Operation) { // not required
-		return nil
-	}
-
-	if o.Operation != nil {
-		if err := o.Operation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) validateParams(formats strfmt.Registry) error {
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	if o.Params != nil {
-		if err := o.Params.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PSMDB clusters items0 based on the context it is used
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateOperation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateParams(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
-	if o.Operation != nil {
-		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-	if o.Params != nil {
-		if err := o.Params.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params")
-			}
-			return err
-		}
-	}
-
+// ContextValidate validates this list DB clusters OK body DB clusters items0 based on context it is used
+func (o *ListDBClustersOKBodyDBClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) MarshalBinary() ([]byte, error) {
+func (o *ListDBClustersOKBodyDBClustersItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -655,1117 +489,8 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) MarshalBinary() ([]byte, error
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPSMDBClustersItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPSMDBClustersItems0Operation RunningOperation respresents a long-running operation.
-swagger:model ListDBClustersOKBodyPSMDBClustersItems0Operation
-*/
-type ListDBClustersOKBodyPSMDBClustersItems0Operation struct {
-	// Finished steps of the operaion; can decrease or increase compared to the previous value.
-	FinishedSteps int32 `json:"finished_steps,omitempty"`
-
-	// Text describing the current operation progress step.
-	Message string `json:"message,omitempty"`
-
-	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
-	TotalSteps int32 `json:"total_steps,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PSMDB clusters items0 operation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Operation) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PSMDB clusters items0 operation based on context it is used
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Operation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Operation) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Operation) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPSMDBClustersItems0Operation
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPSMDBClustersItems0Params PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
-swagger:model ListDBClustersOKBodyPSMDBClustersItems0Params
-*/
-type ListDBClustersOKBodyPSMDBClustersItems0Params struct {
-	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
-
-	// Docker image used for PSMDB.
-	Image string `json:"image,omitempty"`
-
-	// replicaset
-	Replicaset *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset `json:"replicaset,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PSMDB clusters items0 params
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateReplicaset(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) validateReplicaset(formats strfmt.Registry) error {
-	if swag.IsZero(o.Replicaset) { // not required
-		return nil
-	}
-
-	if o.Replicaset != nil {
-		if err := o.Replicaset.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "replicaset")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "replicaset")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PSMDB clusters items0 params based on the context it is used
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateReplicaset(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) contextValidateReplicaset(ctx context.Context, formats strfmt.Registry) error {
-	if o.Replicaset != nil {
-		if err := o.Replicaset.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "replicaset")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "replicaset")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPSMDBClustersItems0Params
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset ReplicaSet container parameters.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset
-*/
-type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset struct {
-	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
-
-	// compute resources
-	ComputeResources *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources `json:"compute_resources,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PSMDB clusters items0 params replicaset
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateComputeResources(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) validateComputeResources(formats strfmt.Registry) error {
-	if swag.IsZero(o.ComputeResources) { // not required
-		return nil
-	}
-
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "replicaset" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "replicaset" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PSMDB clusters items0 params replicaset based on the context it is used
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "replicaset" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "replicaset" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
-*/
-type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources struct {
-	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
-
-	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PSMDB clusters items0 params replicaset compute resources
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PSMDB clusters items0 params replicaset compute resources based on context it is used
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0 PXCCluster represents PXC cluster information.
-swagger:model ListDBClustersOKBodyPXCClustersItems0
-*/
-type ListDBClustersOKBodyPXCClustersItems0 struct {
-	// Cluster name.
-	Name string `json:"name,omitempty"`
-
-	// DBClusterState represents DB cluster CR state.
-	//
-	//  - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.
-	//  - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.
-	//  - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.
-	//  - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.
-	//  - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.
-	//  - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.
-	//  - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.
-	// It indicates database cluster upgrade is ongoing.
-	// Enum: [DB_CLUSTER_STATE_INVALID DB_CLUSTER_STATE_CHANGING DB_CLUSTER_STATE_READY DB_CLUSTER_STATE_FAILED DB_CLUSTER_STATE_DELETING DB_CLUSTER_STATE_PAUSED DB_CLUSTER_STATE_UPGRADING]
-	State *string `json:"state,omitempty"`
-
-	// DB cluster accessible outside of K8s cluster.
-	Exposed bool `json:"exposed,omitempty"`
-
-	// Installed XtraDB image.
-	InstalledImage string `json:"installed_image,omitempty"`
-
-	// Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.
-	// If it's empty, no upgrade is available.
-	AvailableImage string `json:"available_image,omitempty"`
-
-	// operation
-	Operation *ListDBClustersOKBodyPXCClustersItems0Operation `json:"operation,omitempty"`
-
-	// params
-	Params *ListDBClustersOKBodyPXCClustersItems0Params `json:"params,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0
-func (o *ListDBClustersOKBodyPXCClustersItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateState(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateOperation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateParams(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listDbClustersOkBodyPxcClustersItems0TypeStatePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["DB_CLUSTER_STATE_INVALID","DB_CLUSTER_STATE_CHANGING","DB_CLUSTER_STATE_READY","DB_CLUSTER_STATE_FAILED","DB_CLUSTER_STATE_DELETING","DB_CLUSTER_STATE_PAUSED","DB_CLUSTER_STATE_UPGRADING"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listDbClustersOkBodyPxcClustersItems0TypeStatePropEnum = append(listDbClustersOkBodyPxcClustersItems0TypeStatePropEnum, v)
-	}
-}
-
-const (
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEINVALID captures enum value "DB_CLUSTER_STATE_INVALID"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEINVALID string = "DB_CLUSTER_STATE_INVALID"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATECHANGING captures enum value "DB_CLUSTER_STATE_CHANGING"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATECHANGING string = "DB_CLUSTER_STATE_CHANGING"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEREADY captures enum value "DB_CLUSTER_STATE_READY"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEREADY string = "DB_CLUSTER_STATE_READY"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEFAILED captures enum value "DB_CLUSTER_STATE_FAILED"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEFAILED string = "DB_CLUSTER_STATE_FAILED"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEDELETING captures enum value "DB_CLUSTER_STATE_DELETING"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEDELETING string = "DB_CLUSTER_STATE_DELETING"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEPAUSED captures enum value "DB_CLUSTER_STATE_PAUSED"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEPAUSED string = "DB_CLUSTER_STATE_PAUSED"
-
-	// ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEUPGRADING captures enum value "DB_CLUSTER_STATE_UPGRADING"
-	ListDBClustersOKBodyPXCClustersItems0StateDBCLUSTERSTATEUPGRADING string = "DB_CLUSTER_STATE_UPGRADING"
-)
-
-// prop value enum
-func (o *ListDBClustersOKBodyPXCClustersItems0) validateStateEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listDbClustersOkBodyPxcClustersItems0TypeStatePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0) validateState(formats strfmt.Registry) error {
-	if swag.IsZero(o.State) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStateEnum("state", "body", *o.State); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0) validateOperation(formats strfmt.Registry) error {
-	if swag.IsZero(o.Operation) { // not required
-		return nil
-	}
-
-	if o.Operation != nil {
-		if err := o.Operation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0) validateParams(formats strfmt.Registry) error {
-	if swag.IsZero(o.Params) { // not required
-		return nil
-	}
-
-	if o.Params != nil {
-		if err := o.Params.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PXC clusters items0 based on the context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateOperation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateParams(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateOperation(ctx context.Context, formats strfmt.Registry) error {
-	if o.Operation != nil {
-		if err := o.Operation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
-	if o.Params != nil {
-		if err := o.Params.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0Operation RunningOperation respresents a long-running operation.
-swagger:model ListDBClustersOKBodyPXCClustersItems0Operation
-*/
-type ListDBClustersOKBodyPXCClustersItems0Operation struct {
-	// Finished steps of the operaion; can decrease or increase compared to the previous value.
-	FinishedSteps int32 `json:"finished_steps,omitempty"`
-
-	// Text describing the current operation progress step.
-	Message string `json:"message,omitempty"`
-
-	// Total steps needed to finish the operation; can decrease or increase compared to the previous value.
-	TotalSteps int32 `json:"total_steps,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 operation
-func (o *ListDBClustersOKBodyPXCClustersItems0Operation) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PXC clusters items0 operation based on context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0Operation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0Operation) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0Operation) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0Operation
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0Params PXCClusterParams represents PXC cluster parameters that can be updated.
-swagger:model ListDBClustersOKBodyPXCClustersItems0Params
-*/
-type ListDBClustersOKBodyPXCClustersItems0Params struct {
-	// Cluster size.
-	ClusterSize int32 `json:"cluster_size,omitempty"`
-
-	// haproxy
-	Haproxy *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy `json:"haproxy,omitempty"`
-
-	// proxysql
-	Proxysql *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql `json:"proxysql,omitempty"`
-
-	// pxc
-	PXC *ListDBClustersOKBodyPXCClustersItems0ParamsPXC `json:"pxc,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHaproxy(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateProxysql(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePXC(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) validateHaproxy(formats strfmt.Registry) error {
-	if swag.IsZero(o.Haproxy) { // not required
-		return nil
-	}
-
-	if o.Haproxy != nil {
-		if err := o.Haproxy.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "haproxy")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) validateProxysql(formats strfmt.Registry) error {
-	if swag.IsZero(o.Proxysql) { // not required
-		return nil
-	}
-
-	if o.Proxysql != nil {
-		if err := o.Proxysql.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "proxysql")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) validatePXC(formats strfmt.Registry) error {
-	if swag.IsZero(o.PXC) { // not required
-		return nil
-	}
-
-	if o.PXC != nil {
-		if err := o.PXC.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "pxc")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "pxc")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PXC clusters items0 params based on the context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateHaproxy(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidateProxysql(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.contextValidatePXC(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-	if o.Haproxy != nil {
-		if err := o.Haproxy.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "haproxy")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "haproxy")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-	if o.Proxysql != nil {
-		if err := o.Proxysql.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "proxysql")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "proxysql")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) contextValidatePXC(ctx context.Context, formats strfmt.Registry) error {
-	if o.PXC != nil {
-		if err := o.PXC.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "pxc")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "pxc")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0Params) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0Params
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy HAProxy container parameters.
-// NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy struct {
-	// Docker image used for HAProxy.
-	Image string `json:"image,omitempty"`
-
-	// compute resources
-	ComputeResources *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources `json:"compute_resources,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params haproxy
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateComputeResources(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) validateComputeResources(formats strfmt.Registry) error {
-	if swag.IsZero(o.ComputeResources) { // not required
-		return nil
-	}
-
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PXC clusters items0 params haproxy based on the context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "haproxy" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources struct {
-	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
-
-	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params haproxy compute resources
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PXC clusters items0 params haproxy compute resources based on context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsPXC PXC container parameters.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXC
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsPXC struct {
-	// Docker image used for PXC.
-	Image string `json:"image,omitempty"`
-
-	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
-
-	// compute resources
-	ComputeResources *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources `json:"compute_resources,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params PXC
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateComputeResources(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) validateComputeResources(formats strfmt.Registry) error {
-	if swag.IsZero(o.ComputeResources) { // not required
-		return nil
-	}
-
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "pxc" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "pxc" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PXC clusters items0 params PXC based on the context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "pxc" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "pxc" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsPXC
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources struct {
-	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
-
-	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params PXC compute resources
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PXC clusters items0 params PXC compute resources based on context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsProxysql ProxySQL container parameters.
-// TODO Do not use inner messages in all public APIs (for consistency).
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysql
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsProxysql struct {
-	// Docker image used for ProxySQL.
-	Image string `json:"image,omitempty"`
-
-	// Disk size in bytes.
-	DiskSize string `json:"disk_size,omitempty"`
-
-	// compute resources
-	ComputeResources *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources `json:"compute_resources,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params proxysql
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateComputeResources(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) validateComputeResources(formats strfmt.Registry) error {
-	if swag.IsZero(o.ComputeResources) { // not required
-		return nil
-	}
-
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "proxysql" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "proxysql" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list DB clusters OK body PXC clusters items0 params proxysql based on the context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.contextValidateComputeResources(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) contextValidateComputeResources(ctx context.Context, formats strfmt.Registry) error {
-	if o.ComputeResources != nil {
-		if err := o.ComputeResources.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("params" + "." + "proxysql" + "." + "compute_resources")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("params" + "." + "proxysql" + "." + "compute_resources")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsProxysql
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
-swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources
-*/
-type ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources struct {
-	// CPUs in milliCPUs; 1000m = 1 vCPU.
-	CPUm int32 `json:"cpu_m,omitempty"`
-
-	// Memory in bytes.
-	MemoryBytes string `json:"memory_bytes,omitempty"`
-}
-
-// Validate validates this list DB clusters OK body PXC clusters items0 params proxysql compute resources
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list DB clusters OK body PXC clusters items0 params proxysql compute resources based on context it is used
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources) UnmarshalBinary(b []byte) error {
-	var res ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources
+func (o *ListDBClustersOKBodyDBClustersItems0) UnmarshalBinary(b []byte) error {
+	var res ListDBClustersOKBodyDBClustersItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
