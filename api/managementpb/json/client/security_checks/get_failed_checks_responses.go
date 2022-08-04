@@ -563,6 +563,9 @@ type GetFailedChecksOKBodyResultsItems0 struct {
 
 	// Silence status of the check result
 	Silenced bool `json:"silenced,omitempty"`
+
+	// alert or message sent by the check after execution.
+	AlertMessage string `json:"alert_message,omitempty"`
 }
 
 // Validate validates this get failed checks OK body results items0

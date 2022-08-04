@@ -5961,6 +5961,11 @@
                         "title": "ID of the check result as stored in AlertManager",
                         "x-order": 8
                       },
+                      "alert_message": {
+                        "description": "alert or message sent by the check after execution.",
+                        "type": "string",
+                        "x-order": 10
+                      },
                       "check_name": {
                         "type": "string",
                         "title": "Name of the check that failed",
@@ -6539,6 +6544,11 @@
                             "type": "string",
                             "title": "ID of the check result as stored in AlertManager",
                             "x-order": 8
+                          },
+                          "alert_message": {
+                            "description": "alert or message sent by the check after execution.",
+                            "type": "string",
+                            "x-order": 10
                           },
                           "check_name": {
                             "type": "string",

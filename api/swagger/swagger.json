@@ -19470,6 +19470,11 @@
                         "type": "boolean",
                         "title": "Silence status of the check result",
                         "x-order": 9
+                      },
+                      "alert_message": {
+                        "description": "alert or message sent by the check after execution.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -20073,6 +20078,11 @@
                             "type": "boolean",
                             "title": "Silence status of the check result",
                             "x-order": 9
+                          },
+                          "alert_message": {
+                            "description": "alert or message sent by the check after execution.",
+                            "type": "string",
+                            "x-order": 10
                           }
                         }
                       },

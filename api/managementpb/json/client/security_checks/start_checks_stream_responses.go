@@ -663,6 +663,9 @@ type StartChecksStreamOKBodyResultResultsItems0 struct {
 
 	// Silence status of the check result
 	Silenced bool `json:"silenced,omitempty"`
+
+	// alert or message sent by the check after execution.
+	AlertMessage string `json:"alert_message,omitempty"`
 }
 
 // Validate validates this start checks stream OK body result results items0

@@ -241,13 +241,14 @@ func (s *ChecksAPIService) StartChecksStream(stream managementpb.SecurityChecks_
 			results := make([]*managementpb.CheckResult, 0, len(targetResults))
 			for _, res := range targetResults {
 				results = append(results, &managementpb.CheckResult{
-					CheckName:   res.CheckName,
-					Summary:     res.CheckSummary,
-					Description: res.Result.Description,
-					ReadMoreUrl: res.Result.ReadMoreURL,
-					Severity:    managementpb.Severity(res.Result.Severity),
-					Labels:      res.Result.Labels,
-					ServiceName: res.Target.ServiceName,
+					CheckName:    res.CheckName,
+					Summary:      res.CheckSummary,
+					AlertMessage: res.Result.Summary,
+					Description:  res.Result.Description,
+					ReadMoreUrl:  res.Result.ReadMoreURL,
+					Severity:     managementpb.Severity(res.Result.Severity),
+					Labels:       res.Result.Labels,
+					ServiceName:  res.Target.ServiceName,
 				})
 			}
 			err := stream.Send(&managementpb.StartChecksStreamResponse{
