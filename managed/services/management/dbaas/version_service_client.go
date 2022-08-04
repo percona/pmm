@@ -147,6 +147,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	c.cacheLock.Lock()
 	defer c.cacheLock.Unlock()
 	if val, ok := c.cache[fullURL]; ok && val.updateTime.After(time.Now().Add(-30*time.Minute)) {
+		c.l.Debugf("cache for %s is used", fullURL)
 		return &val.response, nil
 	}
 	req, err := http.NewRequestWithContext(ctx, "GET", fullURL, nil)

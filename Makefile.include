@@ -29,7 +29,7 @@ release:              ## Build release versions of all components
 	make -C admin release
 	make -C managed release
 
-gen-api:              ## Generate API
+gen-api: clean        ## Generate API
 
 	$(PMM_RELEASE_PATH)/buf generate -v api
 
@@ -98,8 +98,8 @@ gen-api:              ## Generate API
 	#./bin/prototool break check api -f api/api.descriptor
 	# $(PMM_RELEASE_PATH)/buf breaking --against descriptor.bin api
 
-gen: clean            ## Generate files.
-	# make gen-api
+gen:                  ## Generate files.
+	make gen-api
 	make -C agent gen
 	make -C managed gen
 

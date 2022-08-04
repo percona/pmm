@@ -59,6 +59,8 @@ message ListDBClustersResponse {
 
 // PXCCluster represents PXC cluster information.
 message PXCCluster {
+  // Cluster ID.
+  string id = 6;
   // Cluster name.
   string name = 1;
   // Cluster state.

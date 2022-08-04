@@ -5786,10 +5786,15 @@
                   "description": "PXCCluster represents PXC cluster information.",
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "description": "Cluster ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
                     "name": {
                       "description": "Cluster name.",
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 1
                     },
                     "state": {
                       "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
@@ -5804,7 +5809,7 @@
                         "DB_CLUSTER_STATE_PAUSED",
                         "DB_CLUSTER_STATE_UPGRADING"
                       ],
-                      "x-order": 1
+                      "x-order": 2
                     },
                     "operation": {
                       "description": "RunningOperation respresents a long-running operation.",
@@ -5828,7 +5833,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 2
+                      "x-order": 3
                     },
                     "params": {
                       "description": "PXCClusterParams represents PXC cluster parameters that can be updated.",
@@ -5946,12 +5951,12 @@
                           "x-order": 3
                         }
                       },
-                      "x-order": 3
+                      "x-order": 4
                     },
                     "exposed": {
                       "description": "DB cluster accessible outside of K8s cluster.",
                       "type": "boolean",
-                      "x-order": 4
+                      "x-order": 5
                     }
                   },
                   "x-order": 0

@@ -975,6 +975,9 @@ func (o *GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources) Unmarsh
 swagger:model GetDBClusterOKBodyPXCCluster
 */
 type GetDBClusterOKBodyPXCCluster struct {
+	// Cluster ID.
+	ID string `json:"id,omitempty"`
+
 	// Cluster name.
 	Name string `json:"name,omitempty"`
 
