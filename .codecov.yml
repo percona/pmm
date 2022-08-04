@@ -28,7 +28,7 @@ coverage:
           - managed/
 
 ignore:
-  - "**/fuzzdata/**/*"
+  - "**/fuzzdata"
 
 flag_management:
   default_rules:
