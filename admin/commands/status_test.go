@@ -61,6 +61,7 @@ PMM Server:
 
 PMM Client:
 	Connected        : false
+	Connection uptime: 0
 	pmm-admin version: unknown
 	pmm-agent version: 2.5.1
 Agents:
