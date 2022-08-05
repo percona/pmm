@@ -161,7 +161,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *reporter.ReportRequest {
-	var reportMetrics []*pmmv1.ServerMetric
+	telemetryMetric, _ := s.makeMetric(ctx)
 
 	var totalTime time.Duration
 telemetryLoop:
@@ -188,20 +188,18 @@ telemetryLoop:
 		}
 
 		for _, each := range metrics {
-			telemetryMetric, err := s.makeMetric(ctx)
 			if err != nil {
 				s.l.Debugf("failed to make Metric %v", err)
 				continue telemetryLoop
 			}
 
-			telemetryMetric.Metrics = each
-			reportMetrics = append(reportMetrics, telemetryMetric)
+			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
 		}
 	}
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
 	return &reporter.ReportRequest{
-		Metrics: reportMetrics,
+		Metrics: []*pmmv1.ServerMetric{telemetryMetric},
 	}
 }
 
