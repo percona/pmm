@@ -214,6 +214,7 @@ func (k kubernetesServer) checkInCluster() error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(string(data))
 	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: "default",
 		KubeAuth: &dbaasv1beta1.KubeAuth{
