@@ -42,9 +42,12 @@ func TestSummary(t *testing.T) {
 		cmd := &summaryCommand{
 			Filename: filename,
 		}
-		// connecting to pmm-server without skipServer causes connection error
-		_, err := cmd.Run()
-		require.Error(t, err)
+		res, err := cmd.Run()
+		require.NoError(t, err)
+		expected := &summaryResult{
+			Filename: filename,
+		}
+		assert.Equal(t, expected, res)
 	})
 
 	t.Run("Summary skip server", func(t *testing.T) {

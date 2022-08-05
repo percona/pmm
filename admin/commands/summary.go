@@ -157,18 +157,19 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 }
 
 // addServerData adds logs.zip from PMM Server to zip file.
-func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) error {
+func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 	var buf bytes.Buffer
 	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
 	if err != nil {
-		return err
+		logrus.Errorf("%s", err)
+		return
 	}
 
 	bufR := bytes.NewReader(buf.Bytes())
 	zipR, err := zip.NewReader(bufR, bufR.Size())
 	if err != nil {
 		logrus.Errorf("%s", err)
-		return err
+		return
 	}
 
 	for _, rf := range zipR.File {
@@ -182,8 +183,6 @@ func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) error {
 
 		rc.Close() //nolint:errcheck
 	}
-
-	return nil
 }
 
 func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agents_info.StatusOKBodyAgentsInfoItems0) {
@@ -371,7 +370,7 @@ func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
 	}
 
 	if !cmd.SkipServer {
-		err = addServerData(ctx, zipW, cmd.Pprof)
+		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
 	return //nolint:nakedret
