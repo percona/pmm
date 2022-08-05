@@ -163,11 +163,18 @@ func (k kubernetesServer) checkInCluster() error {
 	if err != nil {
 		return err
 	}
-	secretList, err := clientset.CoreV1().Secrets("default").List(context.TODO(), metav1.ListOptions{})
+	serviceAccount, err := clientset.CoreV1().ServiceAccounts("default").Get(context.TODO(), "pmm-service-account", metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
-	secret := secretList.Items[1]
+	secret, err := clientset.CoreV1().Secrets("default").Get(
+		context.TODO(),
+		serviceAccount.Secrets[0].Name,
+		metav1.GetOptions{},
+	)
+	if err != nil {
+		return err
+	}
 	c := &Config{
 		Kind:           "Config",
 		APIVersion:     "v1",
@@ -187,7 +194,7 @@ func (k kubernetesServer) checkInCluster() error {
 			Name: "default",
 			Context: Context{
 				Cluster:   "default-cluster",
-				User:      "incluster",
+				User:      "pmm-service-account",
 				Namespace: "default",
 			},
 		},
