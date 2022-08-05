@@ -17,6 +17,7 @@ package dbaas
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -35,7 +36,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -106,6 +106,52 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 }
 
 func (k kubernetesServer) checkInCluster() error {
+	type (
+		Cluster struct {
+			CertificateAuthorityData []byte `json:"certificate-authority-data"`
+			Server                   string `json:"server"`
+		}
+		ClusterInfo struct {
+			Name    string  `json:"name"`
+			Cluster Cluster `json:"cluster"`
+		}
+		User struct {
+			Token string `json:"token"`
+		}
+		UserInfo struct {
+			Name string `json:"name"`
+			User User   `json:"user"`
+		}
+		Context struct {
+			Cluster   string `json:"cluster"`
+			User      string `json:"user"`
+			Namespace string `json:"namespace"`
+		}
+		ContextInfo struct {
+			Name    string  `json:"name"`
+			Context Context `json:"context"`
+		}
+		Config struct {
+			// Legacy field from pkg/api/types.go TypeMeta.
+			// TODO(jlowdermilk): remove this after eliminating downstream dependencies.
+			// +k8s:conversion-gen=false
+			// +optional
+			Kind string `json:"kind,omitempty"`
+			// Legacy field from pkg/api/types.go TypeMeta.
+			// TODO(jlowdermilk): remove this after eliminating downstream dependencies.
+			// +k8s:conversion-gen=false
+			// +optional
+			APIVersion string `json:"apiVersion,omitempty"`
+			// Preferences holds general information to be use for cli interactions
+			Clusters []ClusterInfo `json:"clusters"`
+			// AuthInfos is a map of referencable names to user configs
+			Users []UserInfo `json:"users"`
+			// Contexts is a map of referencable names to context configs
+			Contexts []ContextInfo `json:"contexts"`
+			// CurrentContext is the name of the context that you would like to use by default
+			CurrentContext string `json:"current-context"`
+		}
+	)
 
 	// creates the in-cluster config
 	config, err := rest.InClusterConfig()
@@ -122,147 +168,60 @@ func (k kubernetesServer) checkInCluster() error {
 		return err
 	}
 	secret := secretList.Items[1]
-
-	clusters := make(map[string]*clientcmdapi.Cluster)
-	clusters["default-cluster"] = &clientcmdapi.Cluster{
-		Server:                   config.Host,
-		CertificateAuthorityData: secret.Data["ca.crt"],
-	}
-
-	contexts := make(map[string]*clientcmdapi.Context)
-	contexts["default-context"] = &clientcmdapi.Context{
-		Cluster:   "default-cluster",
-		Namespace: "default",
-		AuthInfo:  "default",
-	}
-
-	authinfos := make(map[string]*clientcmdapi.AuthInfo)
-	authinfos["default"] = &clientcmdapi.AuthInfo{
-		Token: string(secret.Data["token"]),
-	}
-
-	clientConfig := clientcmdapi.Config{
+	c := &Config{
 		Kind:           "Config",
 		APIVersion:     "v1",
-		Clusters:       clusters,
-		Contexts:       contexts,
-		CurrentContext: "default-context",
-		AuthInfos:      authinfos,
+		CurrentContext: "default",
 	}
-	if err := clientcmdapi.MinifyConfig(&clientConfig); err != nil {
+	c.Clusters = []ClusterInfo{
+		{
+			Name: "default-cluster",
+			Cluster: Cluster{
+				CertificateAuthorityData: secret.Data["ca.crt"],
+				Server:                   config.Host,
+			},
+		},
+	}
+	c.Contexts = []ContextInfo{
+		{
+			Name: "default",
+			Context: Context{
+				Cluster:   "default-cluster",
+				User:      "incluster",
+				Namespace: "default",
+			},
+		},
+	}
+	c.Users = []UserInfo{
+		{
+			Name: "incluster",
+			User: User{
+				Token: string(secret.Data["token"]),
+			},
+		},
+	}
+
+	conf, err := json.Marshal(&c)
+	if err != nil {
 		return err
 	}
-	if err := clientcmdapi.FlattenConfig(&clientConfig); err != nil {
+	var jsonObj interface{}
+	err = yaml.Unmarshal(conf, &jsonObj)
+	if err != nil {
 		return err
 	}
-	c, err := yaml.Marshal(&clientConfig)
+	data, err := yaml.Marshal(jsonObj)
 	if err != nil {
 		return err
 	}
 	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: "default",
 		KubeAuth: &dbaasv1beta1.KubeAuth{
-			Kubeconfig: string(c),
+			Kubeconfig: string(data),
 		},
 	}
-	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
-	if err != nil {
-		if errors.Is(err, errKubeconfigIsEmpty) {
-			return status.Error(codes.InvalidArgument, "Kubeconfig can't be empty")
-		} else if errors.Is(err, errMissingRequiredKubeconfigEnvVar) {
-			return status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to transform kubeconfig to work with aws-iam-authenticator: %s", err))
-		}
-		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
-		return status.Error(codes.Internal, "Internal server error")
-	}
-
-	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
-	ctx := context.TODO()
-	err = k.db.InTransaction(func(t *reform.TX) error {
-		var e error
-		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
-		if e != nil {
-			return e
-		}
-
-		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
-			KubernetesClusterName: req.KubernetesClusterName,
-			KubeConfig:            req.KubeAuth.Kubeconfig,
-		})
-		return err
-	})
-	if err != nil {
-		return err
-	}
-
-	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
-	if err != nil {
-		return status.Error(codes.Internal, err.Error())
-	}
-
-	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
-	if err != nil {
-		return err
-	}
-
-	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
-		_, err = k.dbaasClient.InstallPXCOperator(ctx, &dbaascontrollerv1beta1.InstallPXCOperatorRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Version: pxcOperatorVersion.String(),
-		})
-		if err != nil {
-			return err
-		}
-	}
-	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
-		_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Version: psmdbOperatorVersion.String(),
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	settings, err := models.GetSettings(k.db.Querier)
-	if err != nil {
-		return err
-	}
-	if settings.PMMPublicAddress != "" {
-		var apiKeyID int64
-		var apiKey string
-		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
-		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
-		if err != nil {
-			return err
-		}
-		pmmParams := &dbaascontrollerv1beta1.PMMParams{
-			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
-			Login:         "api_key",
-			Password:      apiKey,
-		}
-
-		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Pmm: pmmParams,
-		})
-		if err != nil {
-			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
-			if e != nil {
-				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
-			}
-			k.l.Warnf("couldn't start monitoring of the kubernetes cluster: %s", err)
-			return status.Errorf(codes.Internal, "couldn't start monitoring of the kubernetes cluster: %s", err.Error())
-		}
-	}
-
-	return nil
+	_, err = k.RegisterKubernetesCluster(context.TODO(), req)
+	return err
 }
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
