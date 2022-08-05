@@ -41,6 +41,7 @@ PMM Client:
 	Connected        : {{ .PMMAgentStatus.Connected }}{{ if .PMMAgentStatus.Connected }}
 	Time drift       : {{ .PMMAgentStatus.ServerClockDrift }}
 	Latency          : {{ .PMMAgentStatus.ServerLatency }}{{ end }}
+	Connection uptime: {{ .PMMAgentStatus.ConnectionUptime }}
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
@@ -110,6 +111,11 @@ func (cmd *statusCommand) Run() (Result, error) {
 			if err == agentlocal.ErrNotSetUp { //nolint:errorlint,goerr113
 				return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.\n"+
 					"Please run `pmm-admin config` with --server-url flag.", err)
+			}
+
+			// return response in case when agent can't connect to server
+			if err == agentlocal.ErrNotConnected { //nolint:errorlint,goerr113
+				return newStatusResult(status), nil
 			}
 
 			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
