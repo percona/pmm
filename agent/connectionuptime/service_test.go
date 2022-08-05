@@ -294,7 +294,7 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 			toTime:         now,
 		},
 		{
-			name: "should return 50% uptime when window period is 5s and when we have some events which are out of time window",
+			name: "should return 80% uptime when window period is 5s and when we have some events which are out of time window",
 			setOfConnections: map[time.Time]bool{
 				now.Add(-8 * time.Second): false,
 				now.Add(-7 * time.Second): false,
@@ -322,7 +322,7 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 			toTime:         now,
 		},
 		{
-			name: "should return 100% uptime when window period is 5s and when we have some events which are out of time window",
+			name: "should return 80% uptime when window period is 5s and when we have some events which are out of time window",
 			setOfConnections: map[time.Time]bool{
 				now.Add(-10 * time.Second): false,
 				now.Add(-4 * time.Second):  true,
