@@ -106,11 +106,13 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
 			var value string
-			if strs[idx] != nil && *strs[idx] != "" {
-				value = *strs[idx]
-				// According to spec we need to skip empty data, but it will break composed metrics
-				// https://confluence.percona.com/display/PMM/Telemetry+Service+v2?focusedCommentId=114514247#comment-114514247
+
+			// skip empty values
+			if strs[idx] == nil || *strs[idx] == "" {
+				continue
 			}
+
+			value = *strs[idx]
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
 					metric = append(metric, &pmmv1.ServerMetric_Metric{
