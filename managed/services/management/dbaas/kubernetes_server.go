@@ -201,7 +201,7 @@ func (k kubernetesServer) checkInCluster() error {
 	}
 	c.Users = []UserInfo{
 		{
-			Name: "incluster",
+			Name: "pmm-service-account",
 			User: User{
 				Token: string(secret.Data["token"]),
 			},
