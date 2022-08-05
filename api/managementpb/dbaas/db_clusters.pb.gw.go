@@ -197,7 +197,7 @@ func RegisterDBClustersHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/Get"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -324,7 +324,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/PXCClusters/Get"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/dbaas.v1beta1.DBClusters/GetDBCluster", runtime.WithHTTPPathPattern("/v1/management/DBaaS/DBClusters/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -385,7 +385,7 @@ func RegisterDBClustersHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 var (
 	pattern_DBClusters_ListDBClusters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "List"}, ""))
 
-	pattern_DBClusters_GetDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "PXCClusters", "Get"}, ""))
+	pattern_DBClusters_GetDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Get"}, ""))
 
 	pattern_DBClusters_RestartDBCluster_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "DBaaS", "DBClusters", "Restart"}, ""))
 

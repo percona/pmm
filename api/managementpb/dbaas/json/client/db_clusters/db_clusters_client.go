@@ -87,7 +87,7 @@ func (a *Client) GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) 
 	op := &runtime.ClientOperation{
 		ID:                 "GetDBCluster",
 		Method:             "POST",
-		PathPattern:        "/v1/management/DBaaS/PXCClusters/Get",
+		PathPattern:        "/v1/management/DBaaS/DBClusters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

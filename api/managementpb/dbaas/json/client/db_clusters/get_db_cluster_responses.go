@@ -59,7 +59,7 @@ type GetDBClusterOK struct {
 }
 
 func (o *GetDBClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/Get][%d] getDbClusterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Get][%d] getDbClusterOk  %+v", 200, o.Payload)
 }
 
 func (o *GetDBClusterOK) GetPayload() *GetDBClusterOKBody {
@@ -100,7 +100,7 @@ func (o *GetDBClusterDefault) Code() int {
 }
 
 func (o *GetDBClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/Get][%d] GetDBCluster default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Get][%d] GetDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetDBClusterDefault) GetPayload() *GetDBClusterDefaultBody {

@@ -146,10 +146,10 @@ check-all: check      ## Run golang ci linter to check new changes from main.
 FILES = $(shell find . -type f -name '*.go')
 
 format:               ## Format source code.
-	$(PMM_RELEASE_PATH)/gofumpt -l -w $(FILES)
 	$(PMM_RELEASE_PATH)/goimports -local github.com/percona/pmm -l -w $(FILES)
 	$(PMM_RELEASE_PATH)/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 	$(PMM_RELEASE_PATH)/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
+	$(PMM_RELEASE_PATH)/gofumpt -l -w $(FILES)
 
 serve:                ## Serve API documentation with nginx.
 	nginx -p . -c api/nginx/nginx.conf

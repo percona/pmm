@@ -176,7 +176,7 @@ service DBClusters {
   // GetDBCluster returns a DB cluster by cluster name.
   rpc GetDBCluster(GetDBClusterRequest) returns (GetDBClusterResponse) {
     option (google.api.http) = {
-      post: "/v1/management/DBaaS/PXCClusters/Get"
+      post: "/v1/management/DBaaS/DBClusters/Get"
       body: "*"
     };
   }
