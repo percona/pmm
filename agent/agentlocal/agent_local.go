@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"math"
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
@@ -133,7 +134,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		connected = false
 		md = &agentpb.ServerConnectMetadata{}
 	}
-
+	upTime := s.client.GetConnectionUpTime()
 	var serverInfo *agentlocalpb.ServerInfo
 	if u := s.cfg.Server.URL(); u != nil {
 		serverInfo = &agentlocalpb.ServerInfo{
@@ -157,14 +158,19 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	agentsInfo := s.supervisor.AgentsList()
 
 	return &agentlocalpb.StatusResponse{
-		AgentId:        s.cfg.ID,
-		RunsOnNodeId:   md.AgentRunsOnNodeID,
-		NodeName:       md.NodeName,
-		ServerInfo:     serverInfo,
-		AgentsInfo:     agentsInfo,
-		ConfigFilepath: s.configFilepath,
-		AgentVersion:   version.Version,
+		AgentId:          s.cfg.ID,
+		RunsOnNodeId:     md.AgentRunsOnNodeID,
+		NodeName:         md.NodeName,
+		ServerInfo:       serverInfo,
+		AgentsInfo:       agentsInfo,
+		ConfigFilepath:   s.configFilepath,
+		AgentVersion:     version.Version,
+		ConnectionUptime: roundFloat(upTime, 2),
 	}, nil
+}
+
+func roundFloat(upTime float32, numAfterDot int) float32 {
+	return float32(math.Round(float64(upTime)*math.Pow10(numAfterDot)) / math.Pow10(numAfterDot))
 }
 
 // Reload reloads pmm-agent and it configuration.
