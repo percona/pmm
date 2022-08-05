@@ -294,6 +294,22 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 			toTime:         now,
 		},
 		{
+			name: "should return 50% uptime when window period is 5s and when we have some events which are out of time window",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-8 * time.Second): false,
+				now.Add(-7 * time.Second): false,
+				now.Add(-6 * time.Second): false,
+				now.Add(-5 * time.Second): false,
+				now.Add(-4 * time.Second): true,
+				now.Add(-3 * time.Second): true,
+				now.Add(-2 * time.Second): true,
+				now.Add(-1 * time.Second): true,
+			},
+			expectedUpTime: 80,
+			windowPeriod:   5 * time.Second,
+			toTime:         now,
+		},
+		{
 			name: "should return 100% uptime when window period is 5s",
 			setOfConnections: map[time.Time]bool{
 				now.Add(-4 * time.Second): true,
@@ -302,6 +318,19 @@ func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
 				now.Add(-1 * time.Second): true,
 			},
 			expectedUpTime: 100,
+			windowPeriod:   5 * time.Second,
+			toTime:         now,
+		},
+		{
+			name: "should return 100% uptime when window period is 5s and when we have some events which are out of time window",
+			setOfConnections: map[time.Time]bool{
+				now.Add(-10 * time.Second): false,
+				now.Add(-4 * time.Second):  true,
+				now.Add(-3 * time.Second):  true,
+				now.Add(-2 * time.Second):  true,
+				now.Add(-1 * time.Second):  true,
+			},
+			expectedUpTime: 80,
 			windowPeriod:   5 * time.Second,
 			toTime:         now,
 		},
