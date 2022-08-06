@@ -43,8 +43,12 @@ import (
 
 func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
+	isSupportedService := func() bool {
+		return serviceType == models.MySQLServiceType || serviceType == models.MongoDBServiceType
+	}
+	require.True(t, isSupportedService())
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
-		NodeName: fmt.Sprintf("test-node-%s", serviceName),
+		NodeName: "test-node-" + t.Name(),
 	})
 	require.NoError(t, err)
 

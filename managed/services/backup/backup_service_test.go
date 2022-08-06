@@ -32,28 +32,38 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
+	isSupportedService := func() bool {
+		return serviceType == models.MySQLServiceType || serviceType == models.MongoDBServiceType
+	}
+	require.True(t, isSupportedService())
+
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
-		NodeName: "test-node",
+		NodeName: "test-node-" + t.Name(),
 	})
 	require.NoError(t, err)
 
 	pmmAgent, err := models.CreatePMMAgent(q, node.NodeID, nil)
 	require.NoError(t, err)
-	require.NoError(t, q.Update(pmmAgent))
 
-	mysql, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+	var service *models.Service
+	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
+		Port:        pointer.ToUint16(60000),
 	})
 	require.NoError(t, err)
 
-	agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+	agentType := models.MySQLdExporterType
+	if serviceType == models.MongoDBServiceType {
+		agentType = models.MongoDBExporterType
+	}
+
+	agent, err := models.CreateAgent(q, agentType, &models.CreateAgentParams{
 		PMMAgentID: pmmAgent.AgentID,
-		ServiceID:  mysql.ServiceID,
+		ServiceID:  service.ServiceID,
 		Username:   "user",
 		Password:   "password",
 	})
@@ -61,22 +71,15 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 	return agent
 }
 
-func TestMySQLBackup(t *testing.T) {
+func TestPerformBackup(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedVersioner := &mockVersioner{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
 
-	t.Cleanup(func() {
-		_ = sqlDB.Close()
-	})
-
-	agent := setup(t, db.Querier, "test-service")
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
@@ -92,84 +95,112 @@ func TestMySQLBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	softwares := []agents.Software{
-		&agents.Mysqld{},
-		&agents.Xtrabackup{},
-		&agents.Xbcloud{},
-		&agents.Qpress{},
-	}
+	t.Cleanup(func() {
+		_ = sqlDB.Close()
+	})
 
-	for _, tc := range []struct {
-		versions      []agents.Version
-		expectedError error
-	}{
-		{
-			versions: []agents.Version{
-				{Version: "8.0.25"},
-				{Version: ""},
-				{Version: ""},
-				{Version: "1.1"},
+	t.Run("mysql", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-service")
+		mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+		softwares := []agents.Software{
+			&agents.Mysqld{},
+			&agents.Xtrabackup{},
+			&agents.Xbcloud{},
+			&agents.Qpress{},
+		}
+
+		for _, tc := range []struct {
+			versions      []agents.Version
+			expectedError error
+		}{
+			{
+				versions: []agents.Version{
+					{Version: "8.0.25"},
+					{Version: ""},
+					{Version: ""},
+					{Version: "1.1"},
+				},
+				expectedError: ErrXtrabackupNotInstalled,
 			},
-			expectedError: ErrXtrabackupNotInstalled,
-		},
-		{
-			versions: []agents.Version{
+			{
+				versions: []agents.Version{
+					{Version: "8.0.25"},
+					{Version: "8.0.24"},
+					{Version: "8.0.25"},
+					{Version: "1.1"},
+				},
+				expectedError: ErrInvalidXtrabackup,
+			},
+			{
+				versions: []agents.Version{
+					{Version: "8.0.25"},
+					{Version: "8.0.24"},
+					{Version: "8.0.24"},
+					{Version: "1.1"},
+				},
+				expectedError: ErrIncompatibleXtrabackup,
+			},
+		} {
+			t.Run(tc.expectedError.Error(), func(t *testing.T) {
+				mockedVersioner.On("GetVersions", *agent.PMMAgentID, softwares).Return(tc.versions, nil).Once()
+				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+					ServiceID:  pointer.GetString(agent.ServiceID),
+					LocationID: locationRes.ID,
+					Name:       "test_backup",
+				})
+				assert.True(t, errors.Is(err, tc.expectedError))
+				assert.Empty(t, artifactID)
+			})
+		}
+
+		t.Run("success", func(t *testing.T) {
+			versions1 := []agents.Version{
 				{Version: "8.0.25"},
-				{Version: "8.0.24"},
+				{Version: "8.0.25"},
 				{Version: "8.0.25"},
 				{Version: "1.1"},
-			},
-			expectedError: ErrInvalidXtrabackup,
-		},
-		{
-			versions: []agents.Version{
-				{Version: "8.0.25"},
-				{Version: "8.0.24"},
-				{Version: "8.0.24"},
-				{Version: "1.1"},
-			},
-			expectedError: ErrIncompatibleXtrabackup,
-		},
-	} {
-		t.Run(tc.expectedError.Error(), func(t *testing.T) {
-			mockedVersioner.On("GetVersions", *agent.PMMAgentID, softwares).Return(tc.versions, nil).Once()
+			}
+
+			mockedVersioner.On("GetVersions", *agent.PMMAgentID, softwares).Return(versions1, nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 				ServiceID:  pointer.GetString(agent.ServiceID),
 				LocationID: locationRes.ID,
 				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.Snapshot,
 			})
-			assert.True(t, errors.Is(err, tc.expectedError))
-			assert.Empty(t, artifactID)
+			require.NoError(t, err)
+
+			var artifact models.Artifact
+			err = db.SelectOneTo(&artifact, "WHERE id = $1", artifactID)
+			require.NoError(t, err)
+			assert.Equal(t, locationRes.ID, artifact.LocationID)
+			assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
+			assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
 		})
-	}
 
-	t.Run("success", func(t *testing.T) {
-		versions1 := []agents.Version{
-			{Version: "8.0.25"},
-			{Version: "8.0.25"},
-			{Version: "8.0.25"},
-			{Version: "1.1"},
-		}
-
-		mockedVersioner.On("GetVersions", *agent.PMMAgentID, softwares).Return(versions1, nil).Once()
-		artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-			ServiceID:  pointer.GetString(agent.ServiceID),
-			LocationID: locationRes.ID,
-			Name:       "test_backup",
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-		})
-		require.NoError(t, err)
-
-		var artifact models.Artifact
-		err = db.SelectOneTo(&artifact, "WHERE id = $1", artifactID)
-		require.NoError(t, err)
-		assert.Equal(t, locationRes.ID, artifact.LocationID)
-		assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
-		assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
+		mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentsRegistry)
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentsRegistry)
+	t.Run("mongodb", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-service")
+
+		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
+			mockedVersioner.On("GetVersions", *agent.PMMAgentID, mock.Anything).Return(nil, nil).Once()
+
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  pointer.GetString(agent.ServiceID),
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.PITR,
+			})
+			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
+			assert.Empty(t, artifactID)
+		})
+	})
 }
 
 func TestRestoreBackup(t *testing.T) {
@@ -185,7 +216,7 @@ func TestRestoreBackup(t *testing.T) {
 		_ = sqlDB.Close()
 	})
 
-	agent := setup(t, db.Querier, "test-service")
+	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
