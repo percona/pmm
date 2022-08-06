@@ -35,9 +35,9 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMySQLBackupAndRestore        = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoLogicalBackupAndRestore = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMongoPhysicalBackup          = version.Must(version.NewVersion("2.30.0-0"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.30.0-0"))
 )
 
 const (
@@ -373,7 +373,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	switch dataModel {
 	case models.PhysicalDataModel:
 		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-			"mongodb backup", pmmAgentMinVersionForMongoPhysicalBackup)
+			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
 		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
