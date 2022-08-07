@@ -22,6 +22,9 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type agentsServer struct {
@@ -157,6 +160,12 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
 	return res, nil
+}
+
+// GetAgentLogs returns Agent logs by ID.
+func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventorypb.GetAgentLogsRequest) (*inventorypb.GetAgentLogsResponse, error) {
+	// @TODO PMM-6289
+	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
 
 // AddPMMAgent adds pmm-agent Agent.
