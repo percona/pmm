@@ -179,6 +179,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 		select {
 		case report, ok := <-s.sendCh:
 			if ok {
+				s.l.Debug("Processing telemetry report.")
 				reportsSync.Lock()
 				inflightReports = append(inflightReports, report)
 				if sendCtx != nil {
