@@ -36,6 +36,7 @@ import (
 
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/runner/jobs"
@@ -72,12 +73,14 @@ type Client struct {
 	rw      sync.RWMutex
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
+
+	cus *connectionuptime.Service
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp credentialsSourceParser) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, csp credentialsSourceParser, cus *connectionuptime.Service) *Client {
 	return &Client{
 		cfg:                     cfg,
 		supervisor:              supervisor,
@@ -88,7 +91,8 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		done:                    make(chan struct{}),
 		dialTimeout:             dialTimeout,
 		runner:                  runner.New(cfg.RunnerCapacity),
-		credentialsSourceParser: dfp,
+		credentialsSourceParser: csp,
+		cus:                     cus,
 	}
 }
 
@@ -123,6 +127,8 @@ func (c *Client) Run(ctx context.Context) error {
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
+
+		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -288,7 +294,6 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			}
-
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
 			responsePayload = &agentpb.SetStateResponse{}
@@ -336,6 +341,8 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
+		c.cus.RegisterConnectionStatus(time.Now(), true)
+
 		response := &channel.AgentResponse{
 			ID:      req.ID,
 			Payload: responsePayload,
@@ -736,6 +743,11 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	md := c.md
 	c.rw.RUnlock()
 	return md
+}
+
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+func (c *Client) GetConnectionUpTime() float32 {
+	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
 
 // Describe implements "unchecked" prometheus.Collector.

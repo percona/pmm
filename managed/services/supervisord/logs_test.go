@@ -182,7 +182,7 @@ func TestZip(t *testing.T) {
 			continue
 		}
 
-		// skip with dynamic IDs now
+		// skip with dynamic IDs now @TODO use regex to match ~ "client/pmm-agent/NODE_EXPORTER 297b465c-a767-4bc5-809d-d394a83c7086.log"
 		if strings.Contains(f.Name, "client/pmm-agent/") && f.Name != "client/pmm-agent/pmm-agent.log" {
 			continue
 		}
