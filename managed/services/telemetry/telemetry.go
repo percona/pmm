@@ -175,9 +175,10 @@ func (s *Service) processSendCh(ctx context.Context) {
 				}
 				sendCtx, cancel = context.WithCancel(ctx)
 
+				reportsCopy := make([]*pmmv1.ServerMetric, len(inflightReports))
+				copy(reportsCopy, inflightReports)
+
 				go func(ctx context.Context, reports *[]*pmmv1.ServerMetric) {
-					reportsCopy := make([]*pmmv1.ServerMetric, len(*reports))
-					copy(reportsCopy, *reports)
 					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reportsCopy,
 					})
@@ -189,7 +190,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 					sendCtx = nil
 					cancel = nil
 					s.l.Debug("Telemetry info sent.")
-				}(sendCtx, &inflightReports)
+				}(sendCtx, &reportsCopy)
 			}
 		case <-ctx.Done():
 			if cancel != nil {
