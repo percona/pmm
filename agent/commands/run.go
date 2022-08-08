@@ -114,7 +114,7 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *con
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser, cs)
+	client := client.New(cfg, supervisor, connectionChecker, v, defaultsFileParser, cs, logStore)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, logStore)
 
 	go func() {

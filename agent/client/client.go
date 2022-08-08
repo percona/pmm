@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/runner/jobs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -74,13 +75,14 @@ type Client struct {
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
 
-	cus *connectionuptime.Service
+	cus      *connectionuptime.Service
+	logStore *tailog.Store
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -93,6 +95,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		runner:             runner.New(cfg.RunnerCapacity),
 		defaultsFileParser: dfp,
 		cus:                cus,
+		logStore:           logStore,
 	}
 }
 
@@ -338,6 +341,10 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &resp
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
+		case *agentpb.AgentLogsRequest:
+			responsePayload = &agentpb.AgentLogsResponse{
+				Logs: c.agentLogByID(p.AgentId),
+			}
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}

@@ -170,6 +170,26 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 	return res
 }
 
+// AgentLogByID returns logs by Agent ID.
+func (s *Supervisor) AgentLogByID(id string) []string {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	s.arw.RLock()
+	defer s.arw.RUnlock()
+
+	agentProcess, ok := s.agentProcesses[id]
+	if ok {
+		return agentProcess.logStore.GetLogs()
+	}
+
+	builtinAgent, ok := s.builtinAgents[id]
+	if ok {
+		return builtinAgent.logStore.GetLogs()
+	}
+
+	return nil
+}
+
 // Changes returns channel with Agent's state changes.
 func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
 	return s.changes
