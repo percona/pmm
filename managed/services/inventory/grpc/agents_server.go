@@ -166,6 +166,50 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventorypb.GetAgentLogsRequest) (*inventorypb.GetAgentLogsResponse, error) {
 	// @TODO PMM-6289
 
+	agent, err := s.s.Get(ctx, req.AgentId)
+	if err != nil {
+		return nil, err
+	}
+
+	var pmmAgentID string
+
+	switch agent := agent.(type) {
+	case *inventorypb.PMMAgent:
+		pmmAgentID = agent.AgentId
+	case *inventorypb.NodeExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.MySQLdExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.MongoDBExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.QANMySQLPerfSchemaAgent:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.QANMySQLSlowlogAgent:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.PostgresExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.QANMongoDBProfilerAgent:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.ProxySQLExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.QANPostgreSQLPgStatementsAgent:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.QANPostgreSQLPgStatMonitorAgent:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.RDSExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.ExternalExporter:
+		// @TODO unknown
+	case *inventorypb.AzureDatabaseExporter:
+		pmmAgentID = agent.PmmAgentId
+	case *inventorypb.VMAgent:
+		pmmAgentID = agent.PmmAgentId
+	default:
+		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
+	}
+
+	_ = pmmAgentID
+
 	return &inventorypb.GetAgentLogsResponse{
 		Logs: nil,
 	}, nil
