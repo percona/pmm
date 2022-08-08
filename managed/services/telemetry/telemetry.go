@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/hex"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -161,6 +162,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 }
 
 func (s *Service) processSendCh(ctx context.Context) {
+	var reportsSync sync.Mutex
 	var inflightReports []*pmmv1.ServerMetric
 	var sendCtx context.Context
 	var cancel context.CancelFunc
@@ -169,6 +171,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 		select {
 		case report, ok := <-s.sendCh:
 			if ok {
+				reportsSync.Lock()
 				inflightReports = append(inflightReports, report)
 				if sendCtx != nil {
 					cancel()
@@ -177,6 +180,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 
 				reportsCopy := make([]*pmmv1.ServerMetric, len(inflightReports))
 				copy(reportsCopy, inflightReports)
+				reportsSync.Unlock()
 
 				go func(ctx context.Context, reports *[]*pmmv1.ServerMetric) {
 					err := s.send(ctx, &reporter.ReportRequest{
@@ -186,9 +190,12 @@ func (s *Service) processSendCh(ctx context.Context) {
 						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
 						return
 					}
+					reportsSync.Lock()
 					*reports = nil
 					sendCtx = nil
 					cancel = nil
+					reportsSync.Unlock()
+
 					s.l.Debug("Telemetry info sent.")
 				}(sendCtx, &reportsCopy)
 			}
