@@ -17,8 +17,11 @@ package management
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -73,6 +76,36 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		}
 		if maxSlowlogFileSize < 0 {
 			maxSlowlogFileSize = 0
+		}
+
+		if req.CredentialsSource != "" {
+			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MySQLServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			}
+			if req.Username == "" && result.Username != "" {
+				req.Username = result.Username
+			}
+
+			if req.Password == "" && result.Password != "" {
+				req.Password = result.Password
+			}
+
+			if req.AgentPassword == "" && result.AgentPassword != "" {
+				req.AgentPassword = result.AgentPassword
+			}
+
+			if req.Address == "" && result.Host != "" {
+				req.Address = result.Host
+			}
+
+			if req.Port == 0 && result.Port > 0 {
+				req.Port = result.Port
+			}
+
+			if req.Socket == "" && result.Socket != "" {
+				req.Socket = result.Socket
+			}
 		}
 
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)

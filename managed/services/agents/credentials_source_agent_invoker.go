@@ -76,11 +76,12 @@ func (p *CredentialsSourceAgentInvoker) InvokeAgent(ctx context.Context, pmmAgen
 	}
 
 	return &models.CredentialsSourceParsingResult{
-		Username: parserResponse.Username,
-		Password: parserResponse.Password,
-		Host:     parserResponse.Host,
-		Port:     parserResponse.Port,
-		Socket:   parserResponse.Socket,
+		Username:      parserResponse.Username,
+		Password:      parserResponse.Password,
+		AgentPassword: parserResponse.AgentPassword,
+		Host:          parserResponse.Host,
+		Port:          parserResponse.Port,
+		Socket:        parserResponse.Socket,
 	}, nil
 }
 

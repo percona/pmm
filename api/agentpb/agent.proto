@@ -409,9 +409,10 @@ message ParseCredentialsSourceResponse {
 
   string username = 2;
   string password = 3;
-  string host = 4;
-  uint32 port = 5;
-  string socket = 6;
+  string agent_password = 4;
+  string host = 5;
+  uint32 port = 6;
+  string socket = 7;
 }
 
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.

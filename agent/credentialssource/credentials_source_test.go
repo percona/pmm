@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package defaultsfile
+package credentialssource
 
 import (
 	"path/filepath"
@@ -27,7 +27,7 @@ import (
 
 func TestDefaultsFileParser(t *testing.T) {
 	t.Parallel()
-	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/defaultsfile/.my.cnf")
+	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/.my.cnf")
 	assert.NoError(t, err)
 
 	testCases := []struct {

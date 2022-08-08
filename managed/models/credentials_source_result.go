@@ -17,9 +17,10 @@ package models
 
 // CredentialsSourceParsingResult contains result of parsing defaults file.
 type CredentialsSourceParsingResult struct {
-	Username string
-	Password string
-	Host     string
-	Port     uint32
-	Socket   string
+	Username      string
+	Password      string
+	AgentPassword string
+	Host          string
+	Port          uint32
+	Socket        string
 }
