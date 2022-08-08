@@ -167,7 +167,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	var sendCtx context.Context
 	var cancel context.CancelFunc
 
-	cleanup:= func() {
+	cleanup := func() {
 		reportsSync.Lock()
 		inflightReports = nil
 		sendCtx = nil
