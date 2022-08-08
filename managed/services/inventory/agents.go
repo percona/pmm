@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -156,6 +157,55 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 		return err
 	})
 	return res, e
+}
+
+// Logs by Agent ID.
+//nolint:unparam
+func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) {
+	agent, err := models.FindAgentByID(as.db.Querier, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var pmmAgentID string
+
+	switch agent.AgentType {
+	case models.PMMAgentType:
+		pmmAgentID = agent.AgentID
+	case models.NodeExporterType:
+		pmmAgentID = agent.AgentID
+	case models.MySQLdExporterType:
+		pmmAgentID = agent.AgentID
+	case models.MongoDBExporterType:
+		pmmAgentID = agent.AgentID
+	case models.PostgresExporterType:
+		pmmAgentID = agent.AgentID
+	case models.ProxySQLExporterType:
+		pmmAgentID = agent.AgentID
+	case models.RDSExporterType:
+		pmmAgentID = agent.AgentID
+	case models.AzureDatabaseExporterType:
+		pmmAgentID = agent.AgentID
+	case models.QANMySQLPerfSchemaAgentType:
+		pmmAgentID = agent.AgentID
+	case models.QANMySQLSlowlogAgentType:
+		pmmAgentID = agent.AgentID
+	case models.QANMongoDBProfilerAgentType:
+		pmmAgentID = agent.AgentID
+	case models.QANPostgreSQLPgStatementsAgentType:
+		pmmAgentID = agent.AgentID
+	case models.QANPostgreSQLPgStatMonitorAgentType:
+		pmmAgentID = agent.AgentID
+	case models.ExternalExporterType:
+		// @TODO PMM-6289 is need logs???
+		return nil, nil
+	case models.VMAgentType:
+		pmmAgentID = agent.AgentID
+	default:
+		panic(fmt.Errorf("unhandled inventory Agent type %s", agent.AgentType))
+	}
+
+	return as.r.Logs(pmmAgentID, id)
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.

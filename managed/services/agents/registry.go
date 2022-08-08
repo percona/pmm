@@ -165,6 +165,18 @@ func (r *Registry) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string
 	return err
 }
 
+// Logs by Agent ID.
+func (r *Registry) Logs(pmmAgentID, agentID string) ([]string, error) {
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	_ = agent
+
+	return nil, nil
+}
+
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
