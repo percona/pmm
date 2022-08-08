@@ -167,6 +167,14 @@ func (s *Service) processSendCh(ctx context.Context) {
 	var sendCtx context.Context
 	var cancel context.CancelFunc
 
+	cleanup:= func() {
+		reportsSync.Lock()
+		inflightReports = nil
+		sendCtx = nil
+		cancel = nil
+		reportsSync.Unlock()
+	}
+
 	for {
 		select {
 		case report, ok := <-s.sendCh:
@@ -182,22 +190,19 @@ func (s *Service) processSendCh(ctx context.Context) {
 				copy(reportsCopy, inflightReports)
 				reportsSync.Unlock()
 
-				go func(ctx context.Context, reports *[]*pmmv1.ServerMetric) {
+				go func(ctx context.Context, reports []*pmmv1.ServerMetric, cleanup func()) {
 					err := s.send(ctx, &reporter.ReportRequest{
-						Metrics: reportsCopy,
+						Metrics: reports,
 					})
 					if err != nil {
 						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
 						return
 					}
-					reportsSync.Lock()
-					*reports = nil
-					sendCtx = nil
-					cancel = nil
-					reportsSync.Unlock()
+
+					cleanup()
 
 					s.l.Debug("Telemetry info sent.")
-				}(sendCtx, &reportsCopy)
+				}(sendCtx, reportsCopy, cleanup)
 			}
 		case <-ctx.Done():
 			if cancel != nil {
