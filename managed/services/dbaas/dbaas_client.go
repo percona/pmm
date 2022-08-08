@@ -55,7 +55,7 @@ func NewClient(dbaasControllerAPIAddress string) *Client {
 	return c
 }
 
-func (c *Client) InitializeInClusterK8sClient() error {
+func (c *Client) initializeInClusterK8sClient() error {
 	client, err := NewK8sInclusterClient()
 	if err != nil {
 		return err
@@ -64,6 +64,10 @@ func (c *Client) InitializeInClusterK8sClient() error {
 	return nil
 }
 func (c *Client) GetKubeConfig() (string, error) {
+	err := c.initializeInClusterK8sClient()
+	if err != nil {
+		return "", err
+	}
 	secret, err := c.k8sClient.GetSecretsForServiceAccount(context.Background(), "default", "pmm-service-account")
 	if err != nil {
 		return "", err

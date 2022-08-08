@@ -64,13 +64,29 @@ type kubernetesServer struct {
 // NewKubernetesServer creates Kubernetes Server.
 func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
-	return &kubernetesServer{
+	k := &kubernetesServer{
 		l:              l,
 		db:             db,
 		dbaasClient:    dbaasClient,
 		grafanaClient:  grafanaClient,
 		versionService: versionService,
 	}
+	kubeConfig, err := dbaasClient.GetKubeConfig()
+	if err != nil {
+		l.Errorf("failed to get kubeconfig automatically: %v", err)
+	}
+	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
+		KubernetesClusterName: "default",
+		KubeAuth: &dbaasv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+	}
+	_, err := k.RegisterKubernetesServer(context.Background(), req)
+	if err != nil {
+		l.Errorf("failed to automatically register k8s cluster: %v", err)
+	}
+	return k
+
 }
 
 // Enabled returns if service is enabled and can be used.
