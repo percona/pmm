@@ -58,7 +58,7 @@ type (
 		CurrentContext string `json:"current-context"`
 	}
 
-	K8sClient struct {
+	k8sClient struct {
 		conf      *rest.Config
 		clientSet *kubernetes.Clientset
 	}
@@ -67,7 +67,7 @@ type (
 // NewK8sInclusterClient initializes a new k8s client which
 // uses the service account and automatically gets config to
 // communicate within cluster if we're running inside k8s cluster
-func NewK8sInclusterClient() (*K8sClient, error) {
+func NewK8sInclusterClient() (*k8sClient, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -76,10 +76,10 @@ func NewK8sInclusterClient() (*K8sClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &K8sClient{clientSet: clientSet, conf: config}, nil
+	return &k8sClient{clientSet: clientSet, conf: config}, nil
 }
 
-func (k *K8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, accountName string) (*v1.Secret, error) {
+func (k *k8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, accountName string) (*v1.Secret, error) {
 	serviceAccount, err := k.clientSet.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), accountName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (k *K8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, 
 	)
 }
 
-func (k *K8sClient) GenerateKubeConfig(secret *v1.Secret) ([]byte, error) {
+func (k *k8sClient) GenerateKubeConfig(secret *v1.Secret) ([]byte, error) {
 	c := &Config{
 		Kind:           "Config",
 		APIVersion:     "v1",
@@ -126,7 +126,7 @@ func (k *K8sClient) GenerateKubeConfig(secret *v1.Secret) ([]byte, error) {
 	}
 	return k.marshalKubeConfig(c)
 }
-func (k *K8sClient) marshalKubeConfig(c *Config) ([]byte, error) {
+func (k *k8sClient) marshalKubeConfig(c *Config) ([]byte, error) {
 	conf, err := json.Marshal(&c)
 	if err != nil {
 		return nil, err
