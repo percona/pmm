@@ -184,21 +184,6 @@ type gRPCServerDeps struct {
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
-	var kubeConfig string
-	k8sClient, err := managementdbaas.NewK8sInclusterClient()
-	if err == nil {
-		secret, err := k8sClient.GetSecretsForServiceAccount(context.Background(), "default", "pmm-service-account")
-		if err != nil {
-			l.Errorf("cannot get service account credentials: %v", err)
-		}
-		kubeConfigRaw, err := k8sClient.GenerateKubeConfig(secret)
-		if err != nil {
-			l.Errorf("failed generating kubeconfig: %v", err)
-		}
-		kubeConfig = string(kubeConfigRaw)
-	} else {
-		l.Errorf("Failed initialize k8s client: %v", err)
-	}
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
