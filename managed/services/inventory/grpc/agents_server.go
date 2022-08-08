@@ -165,7 +165,10 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventorypb.GetAgentLogsRequest) (*inventorypb.GetAgentLogsResponse, error) {
 	// @TODO PMM-6289
-	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
+
+	return &inventorypb.GetAgentLogsResponse{
+		Logs: nil,
+	}, nil
 }
 
 // AddPMMAgent adds pmm-agent Agent.
