@@ -17,7 +17,6 @@ package dbaas
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"regexp"
@@ -32,10 +31,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v3"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/rest"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -105,137 +101,8 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED, nil
 }
 
-func (k kubernetesServer) checkInCluster() error {
-	type (
-		Cluster struct {
-			CertificateAuthorityData []byte `json:"certificate-authority-data"`
-			Server                   string `json:"server"`
-		}
-		ClusterInfo struct {
-			Name    string  `json:"name"`
-			Cluster Cluster `json:"cluster"`
-		}
-		User struct {
-			Token string `json:"token"`
-		}
-		UserInfo struct {
-			Name string `json:"name"`
-			User User   `json:"user"`
-		}
-		Context struct {
-			Cluster   string `json:"cluster"`
-			User      string `json:"user"`
-			Namespace string `json:"namespace"`
-		}
-		ContextInfo struct {
-			Name    string  `json:"name"`
-			Context Context `json:"context"`
-		}
-		Config struct {
-			// Legacy field from pkg/api/types.go TypeMeta.
-			// TODO(jlowdermilk): remove this after eliminating downstream dependencies.
-			// +k8s:conversion-gen=false
-			// +optional
-			Kind string `json:"kind,omitempty"`
-			// Legacy field from pkg/api/types.go TypeMeta.
-			// TODO(jlowdermilk): remove this after eliminating downstream dependencies.
-			// +k8s:conversion-gen=false
-			// +optional
-			APIVersion string `json:"apiVersion,omitempty"`
-			// Preferences holds general information to be use for cli interactions
-			Clusters []ClusterInfo `json:"clusters"`
-			// AuthInfos is a map of referencable names to user configs
-			Users []UserInfo `json:"users"`
-			// Contexts is a map of referencable names to context configs
-			Contexts []ContextInfo `json:"contexts"`
-			// CurrentContext is the name of the context that you would like to use by default
-			CurrentContext string `json:"current-context"`
-		}
-	)
-
-	// creates the in-cluster config
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return err
-	}
-	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return err
-	}
-	serviceAccount, err := clientset.CoreV1().ServiceAccounts("default").Get(context.TODO(), "pmm-service-account", metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-	secret, err := clientset.CoreV1().Secrets("default").Get(
-		context.TODO(),
-		serviceAccount.Secrets[0].Name,
-		metav1.GetOptions{},
-	)
-	if err != nil {
-		return err
-	}
-	c := &Config{
-		Kind:           "Config",
-		APIVersion:     "v1",
-		CurrentContext: "default",
-	}
-	c.Clusters = []ClusterInfo{
-		{
-			Name: "default-cluster",
-			Cluster: Cluster{
-				CertificateAuthorityData: secret.Data["ca.crt"],
-				Server:                   config.Host,
-			},
-		},
-	}
-	c.Contexts = []ContextInfo{
-		{
-			Name: "default",
-			Context: Context{
-				Cluster:   "default-cluster",
-				User:      "pmm-service-account",
-				Namespace: "default",
-			},
-		},
-	}
-	c.Users = []UserInfo{
-		{
-			Name: "pmm-service-account",
-			User: User{
-				Token: string(secret.Data["token"]),
-			},
-		},
-	}
-
-	conf, err := json.Marshal(&c)
-	if err != nil {
-		return err
-	}
-	var jsonObj interface{}
-	err = yaml.Unmarshal(conf, &jsonObj)
-	if err != nil {
-		return err
-	}
-	data, err := yaml.Marshal(jsonObj)
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(data))
-	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
-		KubernetesClusterName: "default",
-		KubeAuth: &dbaasv1beta1.KubeAuth{
-			Kubeconfig: string(data),
-		},
-	}
-	_, err = k.RegisterKubernetesCluster(context.TODO(), req)
-	return err
-}
-
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
-	err := k.checkInCluster()
-	fmt.Println(err)
 
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
 	if err != nil {
