@@ -173,7 +173,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 				if sendCtx != nil {
 					cancel()
 				}
-				sendCtx, cancel = context.WithCancel(context.Background())
+				sendCtx, cancel = context.WithCancel(ctx)
 
 				go func(ctx context.Context, reports *[]*pmmv1.ServerMetric) {
 					reportsCopy := make([]*pmmv1.ServerMetric, len(*reports))
