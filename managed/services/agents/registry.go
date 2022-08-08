@@ -172,9 +172,15 @@ func (r *Registry) Logs(pmmAgentID, agentID string) ([]string, error) {
 		return nil, err
 	}
 
-	_ = agent
+	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+		AgentId: agentID,
+	})
+	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
+	if !ok {
+		return nil, errors.New("wrong response from agent (not AgentLogsResponse model)")
+	}
 
-	return nil, nil
+	return agentLogsResponse.GetLogs(), nil
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
