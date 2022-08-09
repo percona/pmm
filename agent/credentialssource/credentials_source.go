@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-// Parser is a struct which is responsible for parsing credentialsJson source/defaults file.
+// Parser is a struct which is responsible for parsing credentialsJSON source/defaults file.
 type Parser struct{}
 
 // New creates new Parser.
@@ -47,10 +47,10 @@ type credentialsSource struct {
 	socket        string
 }
 
-// credentialsJson provides access to an external provider so that
+// credentialsJSON provides access to an external provider so that
 // the username, password, or agent password can be managed
 // externally, e.g. HashiCorp Vault, Ansible Vault, etc.
-type credentialsJson struct {
+type credentialsJSON struct {
 	AgentPassword string `json:"agentpassword"`
 	Password      string `json:"password"`
 	Username      string `json:"username"`
@@ -87,23 +87,23 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 
 	// check if file exist
 	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		return nil, fmt.Errorf("file doesn't exist: %s", filePath)
+		return nil, errors.Errorf("file doesn't exist: %s", filePath)
 	}
 
-	credentialsJsonFile, err := parseJsonFile(filePath)
+	credentialsJSONFile, err := parseJsonFile(filePath)
 	if err == nil {
-		return credentialsJsonFile, nil
+		return credentialsJSONFile, nil
 	}
 
 	if serviceType == inventorypb.ServiceType_MYSQL_SERVICE {
 		return parseMySQLDefaultsFile(filePath)
 	}
 
-	return nil, fmt.Errorf("unrecognized file type %s", filePath)
+	return nil, errors.Errorf("unrecognized file type %s", filePath)
 }
 
 func parseJsonFile(filePath string) (*credentialsSource, error) {
-	creds := credentialsJson{"", "", ""}
+	creds := credentialsJSON{"", "", ""}
 
 	f, err := os.Lstat(filePath)
 	if err != nil {
