@@ -74,6 +74,11 @@ func (cmd *addProxySQLCommand) GetAddress() string {
 }
 
 func (cmd *addProxySQLCommand) GetDefaultAddress() string {
+	if cmd.CredentialsSource != "" {
+		// address might be specified in credentials source file
+		return ""
+	}
+
 	return "127.0.0.1:6032"
 }
 

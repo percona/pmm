@@ -126,6 +126,11 @@ func (cmd *addMySQLCommand) GetAddress() string {
 }
 
 func (cmd *addMySQLCommand) GetDefaultAddress() string {
+	if cmd.CredentialsSource != "" {
+		// address might be specified in credentials source file
+		return ""
+	}
+
 	return "127.0.0.1:3306"
 }
 

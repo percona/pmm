@@ -82,6 +82,11 @@ func (cmd *addPostgreSQLCommand) GetAddress() string {
 }
 
 func (cmd *addPostgreSQLCommand) GetDefaultAddress() string {
+	if cmd.CredentialsSource != "" {
+		// address might be specified in credentials source file
+		return ""
+	}
+
 	return "127.0.0.1:5432"
 }
 
