@@ -5,7 +5,6 @@ After=network.target
 RequiresMountsFor=/srv
 
 [Service]
-Type=forking
 # we need to wait till time is synchronized
 ExecStartPre=/usr/bin/sleep 10
 ExecStart=/usr/bin/supervisord -c /etc/supervisord.conf

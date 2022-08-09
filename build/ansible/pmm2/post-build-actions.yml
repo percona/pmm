@@ -57,16 +57,21 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
+      ignore_errors: True
+
 
     - name: Remove pmm-managed database from postgres
       postgresql_db:
         name: pmm-managed
         state: absent
+      ignore_errors: True
+
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
         name: pmm-managed
         state: absent
+      ignore_errors: True
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
