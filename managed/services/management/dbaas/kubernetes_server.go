@@ -81,7 +81,7 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient g
 			Kubeconfig: kubeConfig,
 		},
 	}
-	_, err := k.RegisterKubernetesServer(context.Background(), req)
+	_, err = k.RegisterKubernetesCluster(context.Background(), req)
 	if err != nil {
 		l.Errorf("failed to automatically register k8s cluster: %v", err)
 	}
