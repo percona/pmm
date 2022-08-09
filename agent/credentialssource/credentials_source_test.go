@@ -30,6 +30,7 @@ func TestDefaultsFileParser(t *testing.T) {
 	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/.my.cnf")
 	assert.NoError(t, err)
 	jsonFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/credentials.json")
+	assert.NoError(t, err)
 
 	testCases := []struct {
 		name        string
@@ -56,7 +57,7 @@ func TestDefaultsFileParser(t *testing.T) {
 				ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
 				FilePath:    "path/to/invalid/file.cnf",
 			},
-			expectedErr: `no such file or directory`,
+			expectedErr: `file doesn't exist`,
 		},
 		{
 			name: "Unrecognized file type (haproxy not implemented yet)",
