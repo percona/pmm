@@ -287,6 +287,7 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+
 		// responses
 		case *agentpb.ServerMessage_Pong:
 			c.publish(msg.Id, msg.Status, p.Pong)
