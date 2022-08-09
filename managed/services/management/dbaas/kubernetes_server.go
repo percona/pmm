@@ -71,19 +71,21 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient g
 		grafanaClient:  grafanaClient,
 		versionService: versionService,
 	}
-	kubeConfig, err := dbaasClient.GetKubeConfig()
-	if err != nil {
-		l.Errorf("failed to get kubeconfig automatically: %v", err)
-	}
-	req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
-		KubernetesClusterName: "default",
-		KubeAuth: &dbaasv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-	}
-	_, err = k.RegisterKubernetesCluster(context.Background(), req)
-	if err != nil {
-		l.Errorf("failed to automatically register k8s cluster: %v", err)
+	if k.Enabled() {
+		kubeConfig, err := dbaasClient.GetKubeConfig()
+		if err != nil {
+			l.Errorf("failed to get kubeconfig automatically: %v", err)
+		}
+		req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
+			KubernetesClusterName: "default",
+			KubeAuth: &dbaasv1beta1.KubeAuth{
+				Kubeconfig: kubeConfig,
+			},
+		}
+		_, err = k.RegisterKubernetesCluster(context.Background(), req)
+		if err != nil {
+			l.Errorf("failed to automatically register k8s cluster: %v", err)
+		}
 	}
 	return k
 
