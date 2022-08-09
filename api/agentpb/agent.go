@@ -261,6 +261,7 @@ var (
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 	_ AgentResponsePayload = (*ParseDefaultsFileResponse)(nil)
+	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)

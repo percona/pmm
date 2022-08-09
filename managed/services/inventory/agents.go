@@ -167,45 +167,45 @@ func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) 
 		return nil, err
 	}
 
-	var pmmAgentID string
+	var pmmAgentID *string
 
 	switch agent.AgentType {
 	case models.PMMAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.NodeExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.MySQLdExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.MongoDBExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.PostgresExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.ProxySQLExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.RDSExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.AzureDatabaseExporterType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.QANMySQLPerfSchemaAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.QANMySQLSlowlogAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.QANMongoDBProfilerAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.QANPostgreSQLPgStatementsAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.QANPostgreSQLPgStatMonitorAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	case models.ExternalExporterType:
 		// @TODO PMM-6289 is need logs???
 		return nil, nil
 	case models.VMAgentType:
-		pmmAgentID = agent.AgentID
+		pmmAgentID = agent.PMMAgentID
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %s", agent.AgentType))
 	}
 
-	return as.r.Logs(pmmAgentID, id)
+	return as.r.Logs(ctx, pointer.GetString(pmmAgentID), id)
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.

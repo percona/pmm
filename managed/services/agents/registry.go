@@ -166,7 +166,7 @@ func (r *Registry) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string
 }
 
 // Logs by Agent ID.
-func (r *Registry) Logs(pmmAgentID, agentID string) ([]string, error) {
+func (r *Registry) Logs(ctx context.Context, pmmAgentID, agentID string) ([]string, error) {
 	agent, err := r.get(pmmAgentID)
 	if err != nil {
 		return nil, err
@@ -175,6 +175,10 @@ func (r *Registry) Logs(pmmAgentID, agentID string) ([]string, error) {
 	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
 		AgentId: agentID,
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
 	if !ok {
 		return nil, errors.New("wrong response from agent (not AgentLogsResponse model)")
