@@ -197,8 +197,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
 		pmmAgentID = agent.PMMAgentID
 	case models.ExternalExporterType:
-		// @TODO PMM-6289 is need logs???
-		return nil, nil
+		pmmAgentID = agent.PMMAgentID
 	case models.VMAgentType:
 		pmmAgentID = agent.PMMAgentID
 	default:
