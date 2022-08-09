@@ -282,7 +282,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.ParseDefaultsFile,
 			}
-
+		case *agentpb.ServerMessage_AgentLogs:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.AgentLogs,
+			}
 		// responses
 		case *agentpb.ServerMessage_Pong:
 			c.publish(msg.Id, msg.Status, p.Pong)

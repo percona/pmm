@@ -171,7 +171,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) 
 
 	switch agent.AgentType {
 	case models.PMMAgentType:
-		pmmAgentID = agent.PMMAgentID
+		pmmAgentID = &agent.AgentID
 	case models.NodeExporterType:
 		pmmAgentID = agent.PMMAgentID
 	case models.MySQLdExporterType:
