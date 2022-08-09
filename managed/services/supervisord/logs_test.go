@@ -167,6 +167,7 @@ func TestZip(t *testing.T) {
 		"client/pmm-agent-config.yaml",
 		"client/pmm-agent-version.txt",
 		"client/status.json",
+		"client/pmm-agent/pmm-agent.log",
 		"systemctl_status.log",
 		"prometheus.base.yml",
 	}
@@ -178,6 +179,11 @@ func TestZip(t *testing.T) {
 	for _, f := range r.File {
 		// present only after update
 		if f.Name == "pmm-update-perform.log" {
+			continue
+		}
+
+		// skip with dynamic IDs now @TODO use regex to match ~ "client/pmm-agent/NODE_EXPORTER 297b465c-a767-4bc5-809d-d394a83c7086.log"
+		if strings.Contains(f.Name, "client/pmm-agent/") && f.Name != "client/pmm-agent/pmm-agent.log" {
 			continue
 		}
 

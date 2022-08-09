@@ -18,12 +18,15 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
+
+const defaultWindowPeriod = time.Hour
 
 func writeConfig(t *testing.T, cfg *Config) string {
 	f, err := os.CreateTemp("", "pmm-agent-test-")
@@ -110,10 +113,12 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Empty(t, configFilepath)
@@ -158,10 +163,12 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -208,12 +215,14 @@ func TestGet(t *testing.T) {
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
-			LogLevel: "info",
-			Debug:    true,
+			LogLevel:      "info",
+			Debug:         true,
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -266,11 +275,13 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:         true,
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -323,11 +334,13 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:         true,
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -377,11 +390,13 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/base/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:         true,
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -417,11 +432,13 @@ func TestGet(t *testing.T) {
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
 			},
+			WindowConnectedTime: defaultWindowPeriod,
 			Ports: Ports{
 				Min: 42000,
 				Max: 51999,
 			},
-			Debug: true,
+			Debug:         true,
+			LogLinesCount: 1024,
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
