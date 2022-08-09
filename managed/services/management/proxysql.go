@@ -17,6 +17,9 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -32,14 +35,16 @@ type ProxySQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	csai  credentialsSourceAgentInvoker
 }
 
 // NewProxySQLService creates new ProxySQL Management Service.
-func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *ProxySQLService {
+func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *ProxySQLService {
 	return &ProxySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		csai:  csai,
 	}
 }
 
@@ -48,6 +53,15 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 	res := &managementpb.AddProxySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		if req.CredentialsSource != "" {
+			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.ProxySQLServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			}
+
+			s.applyCredentialsSource(req, result)
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -113,4 +127,32 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 
 	s.state.RequestStateUpdate(ctx, req.PmmAgentId)
 	return res, nil
+}
+
+// applyCredentialsSource apply strategy: passed username/password/...etc in request have higher priority than
+// credentials from credentialsSource file
+func (s *ProxySQLService) applyCredentialsSource(req *managementpb.AddProxySQLRequest, result *models.CredentialsSourceParsingResult) {
+	if req.Username == "" && result.Username != "" {
+		req.Username = result.Username
+	}
+
+	if req.Password == "" && result.Password != "" {
+		req.Password = result.Password
+	}
+
+	if req.AgentPassword == "" && result.AgentPassword != "" {
+		req.AgentPassword = result.AgentPassword
+	}
+
+	if req.Address == "" && result.Host != "" {
+		req.Address = result.Host
+	}
+
+	if req.Port == 0 && result.Port > 0 {
+		req.Port = result.Port
+	}
+
+	if req.Socket == "" && result.Socket != "" {
+		req.Socket = result.Socket
+	}
 }

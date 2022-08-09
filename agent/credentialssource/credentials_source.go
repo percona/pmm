@@ -18,7 +18,6 @@ package credentialssource
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -31,7 +30,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-// Parser is a struct which is responsible for parsing credentials source/defaults file.
+// Parser is a struct which is responsible for parsing credentialsJson source/defaults file.
 type Parser struct{}
 
 // New creates new Parser.
@@ -43,15 +42,15 @@ type credentialsSource struct {
 	username      string
 	password      string
 	host          string
-	agetnPassword string
+	agentPassword string
 	port          uint32
 	socket        string
 }
 
-// credentials provides access to an external provider so that
+// credentialsJson provides access to an external provider so that
 // the username, password, or agent password can be managed
 // externally, e.g. HashiCorp Vault, Ansible Vault, etc.
-type credentials struct {
+type credentialsJson struct {
 	AgentPassword string `json:"agentpassword"`
 	Password      string `json:"password"`
 	Username      string `json:"username"`
@@ -60,17 +59,18 @@ type credentials struct {
 // ParseCredentialsSource parses given file in request. It returns the database specs.
 func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceRequest) *agentpb.ParseCredentialsSourceResponse {
 	var res agentpb.ParseCredentialsSourceResponse
-	creds, err := parseCredentialsSourceFile(req.FilePath, req.ServiceType)
+	parsedData, err := parseCredentialsSourceFile(req.FilePath, req.ServiceType)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
 	}
 
-	res.Username = creds.username
-	res.Password = creds.password
-	res.Host = creds.host
-	res.Port = creds.port
-	res.Socket = creds.socket
+	res.Username = parsedData.username
+	res.Password = parsedData.password
+	res.AgentPassword = parsedData.agentPassword
+	res.Host = parsedData.host
+	res.Port = parsedData.port
+	res.Socket = parsedData.socket
 
 	return &res
 }
@@ -85,56 +85,52 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 		return nil, fmt.Errorf("fail to normalize path: %w", err)
 	}
 
-	// open file
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, err
+	credentialsJsonFile, err := parseJsonFile(filePath)
+	if err == nil {
+		return credentialsJsonFile, nil
 	}
 
-	defer file.Close()
-
-	contentType, err := getFileContentType(file)
-	if err != nil {
-		return nil, err
+	if serviceType == inventorypb.ServiceType_MYSQL_SERVICE {
+		return parseMySQLDefaultsFile(filePath)
 	}
 
-	switch contentType {
-	case "application/json":
-		return parseJsonFile(filePath)
-	case "application/ini":
-		return parseIniFile(filePath, serviceType)
-	default:
-		return nil, errors.Errorf("unsupported file type %s", contentType)
-	}
+	return nil, fmt.Errorf("unrecognized file type %s", filePath)
 }
 
 func parseJsonFile(filePath string) (*credentialsSource, error) {
-	creds, err := readCredentialsFromSource(filePath)
+	creds := credentialsJson{"", "", ""}
+
+	f, err := os.Lstat(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if f.Mode()&0o111 != 0 {
+		return nil, fmt.Errorf("%w: %s", errors.New("file execution is not supported"), filePath)
+	}
+
+	// Read the file
+	content, err := readFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	parsedData := &credentialsSource{
+		username:      creds.Username,
+		password:      creds.Password,
+		agentPassword: creds.AgentPassword,
+	}
+
+	err = validateResults(parsedData)
 	if err != nil {
 		return nil, err
 	}
 
-	return &credentialsSource{
-		username:      creds.Username,
-		password:      creds.Password,
-		agetnPassword: creds.AgentPassword,
-	}, nil
-}
-
-func parseIniFile(filePath string, serviceType inventorypb.ServiceType) (*credentialsSource, error) {
-	switch serviceType {
-	case inventorypb.ServiceType_MYSQL_SERVICE:
-		return parseMySQLDefaultsFile(filePath)
-	case inventorypb.ServiceType_EXTERNAL_SERVICE:
-	case inventorypb.ServiceType_HAPROXY_SERVICE:
-	case inventorypb.ServiceType_MONGODB_SERVICE:
-	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
-	case inventorypb.ServiceType_PROXYSQL_SERVICE:
-	case inventorypb.ServiceType_SERVICE_TYPE_INVALID:
-		return nil, errors.Errorf("unimplemented service type %s", serviceType)
-	}
-
-	return nil, errors.Errorf("unimplemented service type %s", serviceType)
+	return parsedData, nil
 }
 
 func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
@@ -154,7 +150,7 @@ func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 		socket:   cfgSection.Key("socket").String(),
 	}
 
-	err = validateDefaultsFileResults(parsedData)
+	err = validateResults(parsedData)
 	if err != nil {
 		return nil, err
 	}
@@ -162,9 +158,9 @@ func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 	return parsedData, nil
 }
 
-func validateDefaultsFileResults(data *credentialsSource) error {
-	if data.username == "" && data.password == "" && data.host == "" && data.port == 0 && data.socket == "" {
-		return errors.New("no data found in defaults file")
+func validateResults(data *credentialsSource) error {
+	if data.username == "" && data.password == "" && data.host == "" && data.port == 0 && data.socket == "" && data.agentPassword == "" {
+		return errors.New("no data found in file")
 	}
 	return nil
 }
@@ -180,33 +176,6 @@ func expandPath(path string) (string, error) {
 	return path, nil
 }
 
-// readCredentialsFromSource parses a JSON file src and return
-// a credentials pointer containing the data.
-func readCredentialsFromSource(src string) (*credentials, error) {
-	creds := credentials{"", "", ""}
-
-	f, err := os.Lstat(src)
-	if err != nil {
-		return nil, fmt.Errorf("%w", err)
-	}
-
-	if f.Mode()&0o111 != 0 {
-		return nil, fmt.Errorf("%w: %s", errors.New("execution is not supported"), src)
-	}
-
-	// Read the file
-	content, err := readFile(src)
-	if err != nil {
-		return nil, fmt.Errorf("%w", err)
-	}
-
-	if err := json.Unmarshal([]byte(content), &creds); err != nil {
-		return nil, fmt.Errorf("%w", err)
-	}
-
-	return &creds, nil
-}
-
 // readFile reads file from filepath if filepath is not empty.
 func readFile(filePath string) (string, error) {
 	if filePath == "" {
@@ -219,20 +188,4 @@ func readFile(filePath string) (string, error) {
 	}
 
 	return string(content), nil
-}
-
-//
-func getFileContentType(file *os.File) (string, error) {
-
-	buf := make([]byte, 512)
-
-	_, err := file.Read(buf)
-
-	if err != nil {
-		return "", err
-	}
-
-	contentType := http.DetectContentType(buf)
-
-	return contentType, nil
 }

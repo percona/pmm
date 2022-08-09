@@ -17,6 +17,9 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -33,14 +36,16 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	csai  credentialsSourceAgentInvoker
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		csai:  csai,
 	}
 }
 
@@ -49,6 +54,36 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	res := &managementpb.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		if req.CredentialsSource != "" {
+			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			}
+			if req.Username == "" && result.Username != "" {
+				req.Username = result.Username
+			}
+
+			if req.Password == "" && result.Password != "" {
+				req.Password = result.Password
+			}
+
+			if req.AgentPassword == "" && result.AgentPassword != "" {
+				req.AgentPassword = result.AgentPassword
+			}
+
+			if req.Address == "" && result.Host != "" {
+				req.Address = result.Host
+			}
+
+			if req.Port == 0 && result.Port > 0 {
+				req.Port = result.Port
+			}
+
+			if req.Socket == "" && result.Socket != "" {
+				req.Socket = result.Socket
+			}
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err

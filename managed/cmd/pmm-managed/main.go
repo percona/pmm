@@ -213,9 +213,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	nodeSvc := management.NewNodeService(deps.db)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsStateUpdater, deps.vmdb)
 	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache, deps.credentialsSourceAgentInvoker)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.credentialsSourceAgentInvoker)
+	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.credentialsSourceAgentInvoker)
+	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.credentialsSourceAgentInvoker)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	managementpb.RegisterServiceServer(gRPCServer, managementgrpc.NewManagementServiceServer(serviceSvc))

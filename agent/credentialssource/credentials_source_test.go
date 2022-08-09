@@ -81,7 +81,7 @@ func TestValidateResults(t *testing.T) {
 	t.Parallel()
 	t.Run("validation error", func(t *testing.T) {
 		t.Parallel()
-		err := validateDefaultsFileResults(&defaultsFile{
+		err := validateResults(&defaultsFile{
 			"",
 			"",
 			"",
@@ -94,7 +94,7 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - user and password", func(t *testing.T) {
 		t.Parallel()
-		err := validateDefaultsFileResults(&defaultsFile{
+		err := validateResults(&defaultsFile{
 			"root",
 			"root123",
 			"",
@@ -107,7 +107,7 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - only port", func(t *testing.T) {
 		t.Parallel()
-		err := validateDefaultsFileResults(&defaultsFile{
+		err := validateResults(&defaultsFile{
 			"",
 			"",
 			"",
