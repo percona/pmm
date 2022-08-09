@@ -168,11 +168,9 @@ func (s *Service) processSendCh(ctx context.Context) {
 	var cancel context.CancelFunc
 
 	cleanup := func() {
-		reportsSync.Lock()
 		inflightReports = nil
 		sendCtx = nil
 		cancel = nil
-		reportsSync.Unlock()
 	}
 
 	for {
@@ -192,6 +190,9 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsSync.Unlock()
 
 				go func(ctx context.Context, reports []*pmmv1.ServerMetric, cleanup func()) {
+					reportsSync.Lock()
+					defer reportsSync.Unlock()
+
 					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reports,
 					})
