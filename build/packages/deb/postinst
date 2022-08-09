@@ -1,0 +1,35 @@
+#!/bin/bash
+# postinst script for pmm-agent
+#
+# see: dh_installdeb(1)
+
+if [ -f /usr/share/debconf/confmodule ]; then
+    . /usr/share/debconf/confmodule
+fi
+
+for file in pmm-admin pmm-agent
+do
+    ln -s -f /usr/local/percona/pmm2/bin/$file /usr/bin/$file
+    ln -s -f /usr/local/percona/pmm2/bin/$file /usr/sbin/$file
+done
+case "$1" in
+    configure)
+      chown -R pmm-agent:pmm-agent /usr/local/percona/pmm2
+      if [ ! -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
+          install -d -m 0755 /usr/local/percona/pmm2/config
+          install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm2/config/pmm-agent.yaml
+      fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+#DEBHELPER#
+
+exit 0

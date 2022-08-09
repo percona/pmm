@@ -77,6 +77,8 @@ type Status struct {
 	Connected        bool          `json:"connected"`
 	ServerClockDrift time.Duration `json:"server_clock_drift,omitempty"`
 	ServerLatency    time.Duration `json:"server_latency,omitempty"`
+
+	ConnectionUptime float32 `json:"connection_uptime"`
 }
 
 type AgentStatus struct {
@@ -98,7 +100,10 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 
 	res, err := client.Default.AgentLocal.Status(params)
 	if err != nil {
-		return nil, err
+		if res == nil {
+			return nil, err
+		}
+		return res.Payload, err
 	}
 	return res.Payload, nil
 }
@@ -107,6 +112,7 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 // As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
 // If pmm-agent is set up, but not connected ErrNotConnected is returned.
 func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
+	var err error
 	p, err := GetRawStatus(context.TODO(), requestNetworkInfo)
 	if err != nil {
 		return nil, err
@@ -116,13 +122,15 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		return nil, ErrNotSetUp
 	}
 
-	if p.RunsOnNodeID == "" {
-		return nil, ErrNotConnected
-	}
-
 	u, err := url.Parse(p.ServerInfo.URL)
 	if err != nil {
 		return nil, err
+	}
+
+	if p.RunsOnNodeID == "" {
+		// set error but not return it immediately because we want
+		// in this case to get some information from agent
+		err = ErrNotConnected
 	}
 
 	agents := make([]AgentStatus, len(p.AgentsInfo))
@@ -167,5 +175,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 		Connected:        p.ServerInfo.Connected,
 		ServerClockDrift: clockDrift,
 		ServerLatency:    latency,
-	}, nil
+
+		ConnectionUptime: p.ConnectionUptime,
+	}, err
 }

@@ -266,6 +266,7 @@ scrape_configs:
             - 127.0.0.1:9090
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
@@ -276,6 +277,7 @@ scrape_configs:
             - 127.0.0.1:8880
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: alertmanager
       honor_timestamps: false
       scrape_interval: 10s
@@ -286,6 +288,7 @@ scrape_configs:
             - 127.0.0.1:9093
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: grafana
       honor_timestamps: false
       scrape_interval: 10s
@@ -296,6 +299,7 @@ scrape_configs:
             - 127.0.0.1:3000
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: pmm-managed
       honor_timestamps: false
       scrape_interval: 10s
@@ -306,6 +310,7 @@ scrape_configs:
             - 127.0.0.1:7773
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: qan-api2
       honor_timestamps: false
       scrape_interval: 10s
@@ -316,6 +321,7 @@ scrape_configs:
             - 127.0.0.1:9933
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
       scrape_interval: 5s
@@ -340,6 +346,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8
+      follow_redirects: false
     - job_name: mongodb_exporter_agent_id_ecd8995a-d479-4b4d-bfb7-865bac4ac2fb_hr
       honor_timestamps: false
       params:
@@ -369,6 +376,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
+      follow_redirects: false
     - job_name: mongodb_exporter_agent_id_ecd8995a-d479-4b4d-bfb7-865bac4ac2fb_lr
       honor_timestamps: false
       params:
@@ -398,6 +406,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr
       honor_timestamps: false
       params:
@@ -429,6 +438,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr
       honor_timestamps: false
       params:
@@ -465,6 +475,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr
       honor_timestamps: false
       params:
@@ -506,6 +517,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_hr
       honor_timestamps: false
       params:
@@ -537,6 +549,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_mr
       honor_timestamps: false
       params:
@@ -573,6 +586,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      follow_redirects: false
     - job_name: mysqld_exporter_agent_id_f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a_lr
       honor_timestamps: false
       params:
@@ -614,6 +628,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
+      follow_redirects: false
     - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_hr
       honor_timestamps: false
       params:
@@ -644,6 +659,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      follow_redirects: false
       stream_parse: true
     - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_mr
       honor_timestamps: false
@@ -672,6 +688,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      follow_redirects: false
       stream_parse: true
     - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac_lr
       honor_timestamps: false
@@ -700,6 +717,7 @@ scrape_configs:
       basic_auth:
         username: pmm
         password: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      follow_redirects: false
       stream_parse: true
 `) + "\n"
 		actual, err := ioutil.ReadFile(configPath)
@@ -729,6 +747,7 @@ scrape_configs:
     - 127.0.0.1:9090
     labels:
       instance: pmm-server
+  follow_redirects: false
 - job_name: vmalert
   honor_timestamps: false
   scrape_interval: 5s
@@ -739,6 +758,7 @@ scrape_configs:
     - 127.0.0.1:8880
     labels:
       instance: pmm-server
+  follow_redirects: false
 - job_name: alertmanager
   honor_timestamps: false
   scrape_interval: 10s
@@ -748,7 +768,8 @@ scrape_configs:
   - targets:
     - 127.0.0.1:9093
     labels:
-      instance: pmm-server`)))
+      instance: pmm-server
+  follow_redirects: false`)))
 		assert.NoError(t, err)
 	})
 
@@ -798,6 +819,7 @@ scrape_configs:
             - 127.0.0.1:1234
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: victoriametrics
       honor_timestamps: false
       scrape_interval: 5s
@@ -808,6 +830,7 @@ scrape_configs:
             - 127.0.0.1:9090
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: vmalert
       honor_timestamps: false
       scrape_interval: 5s
@@ -818,6 +841,7 @@ scrape_configs:
             - 127.0.0.1:8880
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: alertmanager
       honor_timestamps: false
       scrape_interval: 10s
@@ -828,6 +852,7 @@ scrape_configs:
             - 127.0.0.1:9093
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: grafana
       honor_timestamps: false
       scrape_interval: 10s
@@ -838,6 +863,7 @@ scrape_configs:
             - 127.0.0.1:3000
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: pmm-managed
       honor_timestamps: false
       scrape_interval: 10s
@@ -848,6 +874,7 @@ scrape_configs:
             - 127.0.0.1:7773
           labels:
             instance: pmm-server
+      follow_redirects: false
     - job_name: qan-api2
       honor_timestamps: false
       scrape_interval: 10s
@@ -858,6 +885,7 @@ scrape_configs:
             - 127.0.0.1:9933
           labels:
             instance: pmm-server
+      follow_redirects: false
 `) + "\n"
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	assert.NoError(t, err)
