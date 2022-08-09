@@ -616,7 +616,7 @@ type ScheduleBackupRequest struct {
 	Retention uint32 `protobuf:"varint,10,opt,name=retention,proto3" json:"retention,omitempty"`
 	// Backup mode.
 	Mode BackupMode `protobuf:"varint,11,opt,name=mode,proto3,enum=backup.v1beta1.BackupMode" json:"mode,omitempty"`
-	// Data model to use for the backup
+	// Backup data model.
 	DataModel DataModel `protobuf:"varint,12,opt,name=data_model,json=dataModel,proto3,enum=backup.v1beta1.DataModel" json:"data_model,omitempty"`
 }
 

@@ -5175,7 +5175,7 @@ type StartJobRequest_MongoDBBackup struct {
 	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
 	// Enable Point-in-Time recovery feature.
 	EnablePitr bool `protobuf:"varint,7,opt,name=enable_pitr,json=enablePitr,proto3" json:"enable_pitr,omitempty"`
-	// Data model to use for the backup (physical or logical).
+	// Backup data model (physical or logical).
 	DataModel backup.DataModel `protobuf:"varint,8,opt,name=data_model,json=dataModel,proto3,enum=backup.v1beta1.DataModel" json:"data_model,omitempty"`
 	// Backup target location.
 	//

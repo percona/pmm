@@ -376,7 +376,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
 		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-			"mongodb backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+			"mongodb logical backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
 	default:
 		err = errors.Errorf("unknown data model: %s", dataModel)
 	}

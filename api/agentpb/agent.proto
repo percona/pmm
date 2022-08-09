@@ -508,7 +508,7 @@ message StartJobRequest {
     string name = 6;
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
-    // Data model to use for the backup (physical or logical).
+    // Backup data model (physical or logical).
     backup.v1beta1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {

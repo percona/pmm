@@ -79,7 +79,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 	return agent
 }
 
-func TestStartBackupErrors(t *testing.T) {
+func TestStartBackup(t *testing.T) {
 	t.Run("mysql", func(t *testing.T) {
 		backupService := &mockBackupService{}
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)

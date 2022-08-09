@@ -153,7 +153,7 @@ message ScheduleBackupRequest {
   // Backup mode.
   BackupMode mode = 11;
 
-  // Data model to use for the backup
+  // Backup data model.
   DataModel data_model = 12;
 }
 

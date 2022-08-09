@@ -292,6 +292,28 @@ func TestValidation(t *testing.T) {
 				},
 				errMsg: "unsupported backup mode for mongoDB: incremental",
 			},
+			{
+				name: "no error on physical snapshot backups",
+				params: &BackupTaskParams{
+					ServiceID:  "service-id",
+					LocationID: "location-id",
+					Name:       "name",
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.Snapshot,
+				},
+				errMsg: "",
+			},
+			{
+				name: "unsupported PITR backup mode",
+				params: &BackupTaskParams{
+					ServiceID:  "service-id",
+					LocationID: "location-id",
+					Name:       "name",
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.PITR,
+				},
+				errMsg: "PITR is only supported for logical backups: the specified backup model is not compatible with other parameters",
+			},
 		}
 
 		for _, tt := range tests {
