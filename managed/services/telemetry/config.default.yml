@@ -246,6 +246,46 @@ telemetry:
       - metric_name: "pmm_client_node_type"
         column: "node_type"
 
+  - id: NodesCPUUsage
+    source: VM
+    query: avg by (node_name) (clamp_max(((avg by (mode,node_name) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle"}[5m]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle"}[5m]),1)) ))*100),100))
+    summary: "CPU Usage"
+    data:
+      - metric_name: "node_cpu_usage"
+        value: 1
+
+  - id: NodesCPUArchitecture
+    source: VM
+    query: node_uname_info
+    summary: "CPU Architecture"
+    data:
+      - metric_name: "node_cpu_architecture"
+        label: "machine"
+
+  - id: NodesMemorySize
+    source: VM
+    query: avg by (node_name) (avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]))
+    summary: "Memory total size"
+    data:
+      - metric_name: "node_memory_total_size"
+        value: 1
+
+  - id: NodesMemoryUsage
+    source: VM
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    summary: "Memory usage"
+    data:
+      - metric_name: "node_memory_usage"
+        value: 1
+
+  - id: NodesDiskCapacity
+    source: VM
+    query: topk(1, node_filesystem_size_bytes{node_name=~"pmm-server",fstype!="fuse.grpcfuse"})
+    summary: "Disk capacity"
+    data:
+      - metric_name: "node_disk_capacity"
+        value: 1
+
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
