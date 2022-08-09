@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -35,17 +36,19 @@ type ExternalService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
+	csai  credentialsSourceAgentInvoker
 
 	managementpb.UnimplementedExternalServer
 }
 
 // NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *ExternalService {
+func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *ExternalService {
 	return &ExternalService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
+		csai:  csai,
 	}
 }
 
@@ -67,6 +70,18 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		runsOnNodeId := req.RunsOnNodeId
 		if req.AddNode != nil && runsOnNodeId == "" {
 			runsOnNodeId = nodeID
+		}
+		if req.CredentialsSource != "" {
+			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents:  %s.", err))
+			}
+			result, err := e.csai.InvokeAgent(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			}
+
+			e.applyCredentialsSource(req, result)
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
@@ -142,4 +157,18 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		e.vmdb.RequestConfigurationUpdate()
 	}
 	return res, nil
+}
+
+func (e *ExternalService) applyCredentialsSource(req *managementpb.AddExternalRequest, result *models.CredentialsSourceParsingResult) {
+	if req.Username == "" && result.Username != "" {
+		req.Username = result.Username
+	}
+
+	if req.Password == "" && result.Password != "" {
+		req.Password = result.Password
+	}
+
+	if req.Address == "" && result.Host != "" {
+		req.Address = result.Host
+	}
 }

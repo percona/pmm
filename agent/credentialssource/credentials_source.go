@@ -85,6 +85,11 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 		return nil, fmt.Errorf("fail to normalize path: %w", err)
 	}
 
+	// check if file exist
+	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("file doesn't exist: %s", filePath)
+	}
+
 	credentialsJsonFile, err := parseJsonFile(filePath)
 	if err == nil {
 		return credentialsJsonFile, nil

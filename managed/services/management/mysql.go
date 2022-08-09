@@ -83,29 +83,8 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 			}
-			if req.Username == "" && result.Username != "" {
-				req.Username = result.Username
-			}
 
-			if req.Password == "" && result.Password != "" {
-				req.Password = result.Password
-			}
-
-			if req.AgentPassword == "" && result.AgentPassword != "" {
-				req.AgentPassword = result.AgentPassword
-			}
-
-			if req.Address == "" && result.Host != "" {
-				req.Address = result.Host
-			}
-
-			if req.Port == 0 && result.Port > 0 {
-				req.Port = result.Port
-			}
-
-			if req.Socket == "" && result.Socket != "" {
-				req.Socket = result.Socket
-			}
+			s.applyCredentialsSource(req, result)
 		}
 
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
@@ -226,4 +205,30 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	s.vc.RequestSoftwareVersionsUpdate()
 
 	return res, nil
+}
+
+func (s *MySQLService) applyCredentialsSource(req *managementpb.AddMySQLRequest, result *models.CredentialsSourceParsingResult) {
+	if req.Username == "" && result.Username != "" {
+		req.Username = result.Username
+	}
+
+	if req.Password == "" && result.Password != "" {
+		req.Password = result.Password
+	}
+
+	if req.AgentPassword == "" && result.AgentPassword != "" {
+		req.AgentPassword = result.AgentPassword
+	}
+
+	if req.Address == "" && result.Host != "" {
+		req.Address = result.Host
+	}
+
+	if req.Port == 0 && result.Port > 0 {
+		req.Port = result.Port
+	}
+
+	if req.Socket == "" && result.Socket != "" {
+		req.Socket = result.Socket
+	}
 }

@@ -29,12 +29,20 @@ func TestDefaultsFileParser(t *testing.T) {
 	t.Parallel()
 	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/.my.cnf")
 	assert.NoError(t, err)
+	jsonFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/credentials.json")
 
 	testCases := []struct {
 		name        string
 		req         *agentpb.ParseCredentialsSourceRequest
 		expectedErr string
 	}{
+		{
+			name: "Test json parser",
+			req: &agentpb.ParseCredentialsSourceRequest{
+				ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
+				FilePath:    jsonFilePath,
+			},
+		},
 		{
 			name: "Valid MySQL file",
 			req: &agentpb.ParseCredentialsSourceRequest{
@@ -51,12 +59,12 @@ func TestDefaultsFileParser(t *testing.T) {
 			expectedErr: `no such file or directory`,
 		},
 		{
-			name: "Service type not supported",
+			name: "Unrecognized file type (haproxy not implemented yet)",
 			req: &agentpb.ParseCredentialsSourceRequest{
 				ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
 				FilePath:    cnfFilePath,
 			},
-			expectedErr: `unimplemented service type HAPROXY_SERVICE`,
+			expectedErr: `unrecognized file type`,
 		},
 	}
 
@@ -81,7 +89,8 @@ func TestValidateResults(t *testing.T) {
 	t.Parallel()
 	t.Run("validation error", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&defaultsFile{
+		err := validateResults(&credentialsSource{
+			"",
 			"",
 			"",
 			"",
@@ -94,9 +103,10 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - user and password", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&defaultsFile{
+		err := validateResults(&credentialsSource{
 			"root",
 			"root123",
+			"",
 			"",
 			0,
 			"",
@@ -107,7 +117,8 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - only port", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&defaultsFile{
+		err := validateResults(&credentialsSource{
+			"",
 			"",
 			"",
 			"",

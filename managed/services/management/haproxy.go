@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,17 +35,19 @@ type HAProxyService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
+	csai  credentialsSourceAgentInvoker
 
 	managementpb.UnimplementedHAProxyServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.
-func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker) *HAProxyService {
+func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *HAProxyService {
 	return &HAProxyService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
+		csai:  csai,
 	}
 }
 
@@ -58,6 +61,19 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
+		}
+
+		if req.CredentialsSource != "" {
+			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents: %s.", err))
+			}
+			result, err := e.csai.InvokeAgent(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			if err != nil {
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			}
+
+			e.applyCredentialsSource(req, result)
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.HAProxyServiceType, &models.AddDBMSServiceParams{
@@ -132,4 +148,18 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		e.vmdb.RequestConfigurationUpdate()
 	}
 	return res, nil
+}
+
+func (e HAProxyService) applyCredentialsSource(req *managementpb.AddHAProxyRequest, result *models.CredentialsSourceParsingResult) {
+	if req.Username == "" && result.Username != "" {
+		req.Username = result.Username
+	}
+
+	if req.Password == "" && result.Password != "" {
+		req.Password = result.Password
+	}
+
+	if req.Address == "" && result.Host != "" {
+		req.Address = result.Host
+	}
 }
