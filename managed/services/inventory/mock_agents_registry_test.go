@@ -32,25 +32,32 @@ func (_m *mockAgentsRegistry) Kick(ctx context.Context, pmmAgentID string) {
 	_m.Called(ctx, pmmAgentID)
 }
 
-// Logs provides a mock function with given fields: ctx, pmmAgentID, agentID
-func (_m *mockAgentsRegistry) Logs(ctx context.Context, pmmAgentID string, agentID string) ([]string, error) {
-	ret := _m.Called(ctx, pmmAgentID, agentID)
+// Logs provides a mock function with given fields: ctx, pmmAgentID, agentID, limit
+func (_m *mockAgentsRegistry) Logs(ctx context.Context, pmmAgentID string, agentID string, limit uint32) ([]string, uint32, error) {
+	ret := _m.Called(ctx, pmmAgentID, agentID, limit)
 
 	var r0 []string
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) []string); ok {
-		r0 = rf(ctx, pmmAgentID, agentID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, uint32) []string); ok {
+		r0 = rf(ctx, pmmAgentID, agentID, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = rf(ctx, pmmAgentID, agentID)
+	var r1 uint32
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, uint32) uint32); ok {
+		r1 = rf(ctx, pmmAgentID, agentID, limit)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(uint32)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(context.Context, string, string, uint32) error); ok {
+		r2 = rf(ctx, pmmAgentID, agentID, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

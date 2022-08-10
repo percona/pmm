@@ -14,7 +14,7 @@
 
 package client
 
-func (c *Client) agentLogByID(agentID string) []string {
+func (c *Client) agentLogByID(agentID string) ([]string, uint) {
 	if c.cfg.ID == agentID {
 		return c.logStore.GetLogs()
 	}

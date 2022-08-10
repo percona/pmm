@@ -15,7 +15,7 @@ type mockSupervisor struct {
 }
 
 // AgentLogByID provides a mock function with given fields: _a0
-func (_m *mockSupervisor) AgentLogByID(_a0 string) []string {
+func (_m *mockSupervisor) AgentLogByID(_a0 string) ([]string, uint) {
 	ret := _m.Called(_a0)
 
 	var r0 []string
@@ -27,7 +27,14 @@ func (_m *mockSupervisor) AgentLogByID(_a0 string) []string {
 		}
 	}
 
-	return r0
+	var r1 uint
+	if rf, ok := ret.Get(1).(func(string) uint); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Get(1).(uint)
+	}
+
+	return r0, r1
 }
 
 // Changes provides a mock function with given fields:

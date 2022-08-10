@@ -8565,6 +8565,11 @@
                     "type": "string"
                   },
                   "x-order": 0
+                },
+                "agent_config_log_lines_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }

@@ -300,6 +300,9 @@ swagger:model GetAgentLogsOKBody
 type GetAgentLogsOKBody struct {
 	// logs
 	Logs []string `json:"logs"`
+
+	// agent config log lines count
+	AgentConfigLogLinesCount int64 `json:"agent_config_log_lines_count,omitempty"`
 }
 
 // Validate validates this get agent logs OK body

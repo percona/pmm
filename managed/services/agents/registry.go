@@ -166,25 +166,26 @@ func (r *Registry) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string
 }
 
 // Logs by Agent ID.
-func (r *Registry) Logs(ctx context.Context, pmmAgentID, agentID string) ([]string, error) {
+func (r *Registry) Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
 	agent, err := r.get(pmmAgentID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
 		AgentId: agentID,
+		Limit:   limit,
 	})
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
 	if !ok {
-		return nil, errors.New("wrong response from agent (not AgentLogsResponse model)")
+		return nil, 0, errors.New("wrong response from agent (not AgentLogsResponse model)")
 	}
 
-	return agentLogsResponse.GetLogs(), nil
+	return agentLogsResponse.GetLogs(), agentLogsResponse.GetAgentConfigLogLinesCount(), nil
 }
 
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {

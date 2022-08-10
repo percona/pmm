@@ -342,8 +342,13 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 		case *agentpb.AgentLogsRequest:
+			logs, configLogLinesCount := c.agentLogByID(p.AgentId)
+			if p.Limit > 0 && len(logs) > int(p.Limit) {
+				logs = logs[:p.Limit]
+			}
 			responsePayload = &agentpb.AgentLogsResponse{
-				Logs: c.agentLogByID(p.AgentId),
+				Logs:                     logs,
+				AgentConfigLogLinesCount: uint32(configLogLinesCount),
 			}
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)

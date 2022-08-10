@@ -160,50 +160,37 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 
 // Logs by Agent ID.
 //nolint:unparam
-func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) {
+func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]string, uint32, error) {
 	agent, err := models.FindAgentByID(as.db.Querier, id)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	var pmmAgentID *string
+	var pmmAgentID string
 
 	switch agent.AgentType {
 	case models.PMMAgentType:
-		pmmAgentID = &agent.AgentID
-	case models.NodeExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.MySQLdExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.MongoDBExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.PostgresExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.ProxySQLExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.RDSExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.AzureDatabaseExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.QANMySQLPerfSchemaAgentType:
-		pmmAgentID = agent.PMMAgentID
-	case models.QANMySQLSlowlogAgentType:
-		pmmAgentID = agent.PMMAgentID
-	case models.QANMongoDBProfilerAgentType:
-		pmmAgentID = agent.PMMAgentID
-	case models.QANPostgreSQLPgStatementsAgentType:
-		pmmAgentID = agent.PMMAgentID
-	case models.QANPostgreSQLPgStatMonitorAgentType:
-		pmmAgentID = agent.PMMAgentID
-	case models.ExternalExporterType:
-		pmmAgentID = agent.PMMAgentID
-	case models.VMAgentType:
-		pmmAgentID = agent.PMMAgentID
+		pmmAgentID = agent.AgentID
+	case models.NodeExporterType,
+		models.MySQLdExporterType,
+		models.MongoDBExporterType,
+		models.PostgresExporterType,
+		models.ProxySQLExporterType,
+		models.RDSExporterType,
+		models.AzureDatabaseExporterType,
+		models.QANMySQLPerfSchemaAgentType,
+		models.QANMySQLSlowlogAgentType,
+		models.QANMongoDBProfilerAgentType,
+		models.QANPostgreSQLPgStatementsAgentType,
+		models.QANPostgreSQLPgStatMonitorAgentType,
+		models.ExternalExporterType,
+		models.VMAgentType:
+		pmmAgentID = pointer.GetString(agent.PMMAgentID)
 	default:
-		return nil, status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
+		return nil, 0, status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
 	}
 
-	return as.r.Logs(ctx, pointer.GetString(pmmAgentID), id)
+	return as.r.Logs(ctx, pmmAgentID, id, limit)
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.

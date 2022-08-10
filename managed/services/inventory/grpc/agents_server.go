@@ -161,13 +161,14 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventorypb.GetAgentLogsRequest) (*inventorypb.GetAgentLogsResponse, error) {
-	logs, err := s.s.Logs(ctx, req.AgentId)
+	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.AgentId, req.Limit)
 	if err != nil {
 		return nil, err
 	}
 
 	return &inventorypb.GetAgentLogsResponse{
-		Logs: logs,
+		Logs:                     logs,
+		AgentConfigLogLinesCount: agentConfigLogLinesCount,
 	}, nil
 }
 

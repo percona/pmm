@@ -622,6 +622,7 @@ message GetAgentLogsRequest {
 
 message GetAgentLogsResponse {
   repeated string logs = 1;
+  uint32 agent_config_log_lines_count = 2;
 }
 
 // Add PMMAgent

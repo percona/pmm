@@ -34,7 +34,7 @@ import (
 type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
-	Logs(ctx context.Context, pmmAgentID, agentID string) ([]string, error)
+	Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error)
 }
 
 // agentsRegistry is a subset of methods of agents.StateUpdater used by this package.
