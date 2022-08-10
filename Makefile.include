@@ -1,3 +1,5 @@
+SWAGGER_UI_VERSION?=latest
+
 .PHONY: default init release gen test clean all
 default: help
 
@@ -109,6 +111,20 @@ gen-alertmanager:     # Generate Alertmanager client.
 
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
+
+LATEST_SWAGGER = $(shell curl --silent --head https://github.com/swagger-api/swagger-ui/releases/latest | grep -E '^[lL]ocation:' | grep -oE 'v[0-9.]+[[:space:]]*' | tr -d ' ')
+
+download_swagger:
+ifeq ($(shell test "${SWAGGER_UI_VERSION}" = "latest" && echo 1 || echo 0), 1)
+	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/$(LATEST_SWAGGER).tar.gz"
+else
+	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
+endif
+
+update_swagger: download_swagger
+	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;api/swagger/;g'
+	rm -f api/swagger/.npmrc
+	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' api/swagger/swagger-initializer.js
 
 clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
