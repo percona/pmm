@@ -86,7 +86,6 @@ func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient g
 		l.Errorf("failed to automatically register k8s cluster: %v", err)
 	}
 	return k
-
 }
 
 // Enabled returns if service is enabled and can be used.
@@ -119,7 +118,6 @@ func (k kubernetesServer) convertToOperatorStatus(ctx context.Context, operatorT
 
 // ListKubernetesClusters returns a list of all registered Kubernetes clusters.
 func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1beta1.ListKubernetesClustersRequest) (*dbaasv1beta1.ListKubernetesClustersResponse, error) {
-
 	kubernetesClusters, err := models.FindAllKubernetesClusters(k.db.Querier)
 	if err != nil {
 		return nil, err

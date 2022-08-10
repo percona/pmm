@@ -158,6 +158,27 @@ func (_m *mockDbaasClient) DeletePXCCluster(ctx context.Context, in *controllerv
 	return r0, r1
 }
 
+// GetKubeConfig provides a mock function with given fields:
+func (_m *mockDbaasClient) GetKubeConfig() (string, error) {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLogs provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error) {
 	_va := make([]interface{}, len(opts))

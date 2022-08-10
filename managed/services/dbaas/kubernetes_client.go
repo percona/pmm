@@ -126,6 +126,7 @@ func (k *k8sClient) GenerateKubeConfig(secret *v1.Secret) ([]byte, error) {
 	}
 	return k.marshalKubeConfig(c)
 }
+
 func (k *k8sClient) marshalKubeConfig(c *Config) ([]byte, error) {
 	conf, err := json.Marshal(&c)
 	if err != nil {

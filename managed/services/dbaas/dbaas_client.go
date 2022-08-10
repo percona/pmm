@@ -63,8 +63,8 @@ func (c *Client) initializeInClusterK8sClient() error {
 	c.k8sClient = client
 	return nil
 }
-func (c *Client) GetKubeConfig() (string, error) {
 
+func (c *Client) GetKubeConfig() (string, error) {
 	if err := c.initializeInClusterK8sClient(); err != nil {
 		return "", err
 	}
