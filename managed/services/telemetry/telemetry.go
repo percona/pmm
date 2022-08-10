@@ -178,11 +178,11 @@ func (s *Service) processSendCh(ctx context.Context) {
 		case report, ok := <-s.sendCh:
 			if ok {
 				s.l.Debug("Processing telemetry report.")
-				reportsSync.Lock()
-				inflightReports = append(inflightReports, report)
 				if sendCtx != nil {
 					cancel()
 				}
+				reportsSync.Lock()
+				inflightReports = append(inflightReports, report)
 				sendCtx, cancel = context.WithCancel(ctx)
 
 				reportsCopy := make([]*pmmv1.ServerMetric, len(inflightReports))
