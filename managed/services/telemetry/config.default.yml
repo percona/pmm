@@ -29,8 +29,8 @@ telemetry:
     query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
     summary: "PMM Server alert manager integration  - used/not used"
     data:
-      - metric_name: "alert_manager_enabled"
-        column: "pmm_server_alert_manager_set"
+      - metric_name: "pmm_server_alert_manager_enabled"
+        column: "alert_manager_set"
 
 
   - id: PMMServerDBaaSEnabled
