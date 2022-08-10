@@ -30,7 +30,7 @@ telemetry:
     summary: "PMM Server alert manager integration  - used/not used"
     data:
       - metric_name: "alert_manager_enabled"
-        column: "alert_manager_set"
+        column: "pmm_server_alert_manager_set"
 
 
   - id: PMMServerDBaaSEnabled
@@ -99,7 +99,7 @@ telemetry:
     query: grafana_stat_active_users
     summary: "Active monthly users"
     data:
-      - metric_name: "grafana_stat_active_users"
+      - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
 
   - id: GrafanaStatTotalsAnnotations
@@ -107,7 +107,7 @@ telemetry:
     query: grafana_stat_totals_annotations
     summary: "Total amount of annotations in the database"
     data:
-      - metric_name: "grafana_stat_totals_annotations"
+      - metric_name: "pmm_server_grafana_stat_totals_annotations"
         value: 1
 
   - id: PMMDataRetentionPeriod
@@ -115,7 +115,7 @@ telemetry:
     query: data_retention FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention
     summary: "Total amount of annotations in the database"
     data:
-      - metric_name: "data_retention_period"
+      - metric_name: "pmm_server_data_retention_period"
         column: "data_retention"
 
   # PMM - Usage
