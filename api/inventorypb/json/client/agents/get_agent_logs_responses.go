@@ -122,6 +122,9 @@ swagger:model GetAgentLogsBody
 type GetAgentLogsBody struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
+
+	// is less than this value. 0: no limit
+	Limit int64 `json:"limit,omitempty"`
 }
 
 // Validate validates this get agent logs body

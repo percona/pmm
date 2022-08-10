@@ -7283,6 +7283,12 @@
                   "description": "Unique randomly generated instance identifier.",
                   "type": "string",
                   "x-order": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "is less than this value. 0: no limit",
+                  "x-order": 1
                 }
               }
             }

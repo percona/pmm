@@ -616,6 +616,8 @@ message GetAgentLogsRequest {
       string_not_empty: true
     }
   ];
+  // is less than this value. 0: no limit
+  uint32 limit = 2;
 }
 
 message GetAgentLogsResponse {
