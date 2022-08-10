@@ -42,6 +42,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -114,6 +115,8 @@ const (
 	pProfTraceDuration    = 10 * time.Second
 )
 
+var pprofSemaphore = semaphore.NewWeighted(1)
+
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
@@ -126,6 +129,16 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		}
 		var pprofConfig *supervisord.PprofConfig
 		if pprofQueryParameter {
+			if !pprofSemaphore.TryAcquire(1) {
+				rw.WriteHeader(http.StatusLocked)
+				_, err := rw.Write([]byte("Pprof is already running. Please try again later."))
+				if err != nil {
+					l.Errorf("%+v", err)
+				}
+				return
+			}
+			defer pprofSemaphore.Release(1)
+
 			contextTimeout += pProfProfileDuration + pProfTraceDuration
 			pprofConfig = &supervisord.PprofConfig{
 				ProfileDuration: pProfProfileDuration,
