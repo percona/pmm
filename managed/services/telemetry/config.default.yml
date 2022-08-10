@@ -289,7 +289,7 @@ telemetry:
   - id: NodesOSName
     source: VM
     query: node_uname_info{node_id=~"pmm-server"}
-    summary: "Disk capacity"
+    summary: "OS name"
     data:
       - metric_name: "pmm_server_node_os_name"
         label: "sysname"
@@ -297,7 +297,7 @@ telemetry:
   - id: NodesOSVersion
     source: VM
     query: node_uname_info{node_id=~"pmm-server"}
-    summary: "Disk capacity"
+    summary: "OS version"
     data:
       - metric_name: "pmm_server_node_os_version"
         label: "version"
