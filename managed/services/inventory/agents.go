@@ -17,7 +17,6 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -201,7 +200,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string) ([]string, error) 
 	case models.VMAgentType:
 		pmmAgentID = agent.PMMAgentID
 	default:
-		panic(fmt.Errorf("unhandled inventory Agent type %s", agent.AgentType))
+		return nil, status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
 	}
 
 	return as.r.Logs(ctx, pointer.GetString(pmmAgentID), id)
