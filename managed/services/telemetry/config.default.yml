@@ -101,6 +101,22 @@ telemetry:
       - metric_name: "pmm_server_usage_services_count"
         column: "services_count"
 
+  - id: PMMUsageEnvironmentsCount
+    source: PMMDB_SELECT
+    query: count(distinct environment) as environments_count from services where environment != ''
+    summary: "Monitored environments count"
+    data:
+      - metric_name: "pmm_server_usage_environments_count"
+        column: "environments_count"
+
+  - id: PMMUsageClustersCount
+    source: PMMDB_SELECT
+    query: count(distinct cluster) as clusters_count from services where cluster != '';
+    summary: "Monitored clusters count"
+    data:
+      - metric_name: "pmm_server_usage_clusters_count"
+        column: "clusters_count"
+
   # Nodes information
   - id: NodesInfoPMMAgentEmbedded
     source: PMMDB_SELECT
