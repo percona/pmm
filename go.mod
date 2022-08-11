@@ -13,7 +13,7 @@ replace golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa => github.com/per
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.27
+	github.com/Azure/go-autorest/autorest v0.11.28
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
