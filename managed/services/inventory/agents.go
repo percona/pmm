@@ -166,28 +166,9 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 		return nil, 0, err
 	}
 
-	var pmmAgentID string
-
-	switch agent.AgentType {
-	case models.PMMAgentType:
-		pmmAgentID = agent.AgentID
-	case models.NodeExporterType,
-		models.MySQLdExporterType,
-		models.MongoDBExporterType,
-		models.PostgresExporterType,
-		models.ProxySQLExporterType,
-		models.RDSExporterType,
-		models.AzureDatabaseExporterType,
-		models.QANMySQLPerfSchemaAgentType,
-		models.QANMySQLSlowlogAgentType,
-		models.QANMongoDBProfilerAgentType,
-		models.QANPostgreSQLPgStatementsAgentType,
-		models.QANPostgreSQLPgStatMonitorAgentType,
-		models.ExternalExporterType,
-		models.VMAgentType:
-		pmmAgentID = pointer.GetString(agent.PMMAgentID)
-	default:
-		return nil, 0, status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
+	pmmAgentID, err := models.ExtractPmmAgentID(agent)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	return as.r.Logs(ctx, pmmAgentID, id, limit)
