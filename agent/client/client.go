@@ -342,10 +342,7 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 		case *agentpb.AgentLogsRequest:
-			logs, configLogLinesCount := c.agentLogByID(p.AgentId)
-			if p.Limit > 0 && len(logs) > int(p.Limit) {
-				logs = logs[:p.Limit]
-			}
+			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 			responsePayload = &agentpb.AgentLogsResponse{
 				Logs:                     logs,
 				AgentConfigLogLinesCount: uint32(configLogLinesCount),
@@ -583,6 +580,25 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	}
 
 	return c.runner.StartJob(job)
+}
+
+func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
+	var (
+		logs     []string
+		capacity uint
+	)
+
+	if c.cfg.ID == agentID {
+		logs, capacity = c.logStore.GetLogs()
+	} else {
+		logs, capacity = c.supervisor.AgentLogByID(agentID)
+	}
+
+	if limit > 0 && len(logs) > int(limit) {
+		return logs[:limit], capacity
+	}
+
+	return logs, capacity
 }
 
 type dialResult struct {
