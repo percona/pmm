@@ -9,7 +9,7 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
 	github.com/bufbuild/buf v1.7.0
-	github.com/daixiang0/gci v0.5.0
+	github.com/daixiang0/gci v0.6.3
 	github.com/go-delve/delve v1.9.0
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.4
