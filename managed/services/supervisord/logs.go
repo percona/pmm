@@ -233,38 +233,45 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 
 	// add pprof
 	if pprofConfig != nil {
+		filesSync := &sync.Mutex{}
 		var wg sync.WaitGroup
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
+			filesSync.Lock()
 			files = append(files, fileContent{
 				Name: "pprof/trace.out",
 				Data: traceBytes,
 				Err:  err,
 			})
+			filesSync.Unlock()
 		}()
 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
+			filesSync.Lock()
 			files = append(files, fileContent{
 				Name: "pprof/profile.pb.gz",
 				Data: profileBytes,
 				Err:  err,
 			})
+			filesSync.Unlock()
 		}()
 
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			heapBytes, err := pprofUtils.Heap(true)
+			filesSync.Lock()
 			files = append(files, fileContent{
 				Name: "pprof/heap.pb.gz",
 				Data: heapBytes,
 				Err:  err,
 			})
+			filesSync.Unlock()
 		}()
 
 		wg.Wait()
