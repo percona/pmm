@@ -26,3 +26,19 @@ func (_m *mockTelemetryService) DistributionMethod() serverpb.DistributionMethod
 
 	return r0
 }
+
+// GetSummaries provides a mock function with given fields:
+func (_m *mockTelemetryService) GetSummaries() []string {
+	ret := _m.Called()
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func() []string); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	return r0
+}
