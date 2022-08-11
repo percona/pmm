@@ -66,6 +66,9 @@ func NewMongoDBBackupJob(
 	if dataModel != backupv1beta1.DataModel_PHYSICAL && dataModel != backupv1beta1.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
+	if dataModel != backupv1beta1.DataModel_LOGICAL && pitr {
+		return nil, errors.Errorf("PITR is only supported for logical backups")
+	}
 	return &MongoDBBackupJob{
 		id:        id,
 		timeout:   timeout,
