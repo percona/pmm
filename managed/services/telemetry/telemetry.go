@@ -162,7 +162,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 }
 
 func (s *Service) processSendCh(ctx context.Context) {
-	var reportsSync sync.Mutex
+	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
 	var sendCtx context.Context
 	var cancel context.CancelFunc
@@ -177,11 +177,11 @@ func (s *Service) processSendCh(ctx context.Context) {
 				}
 				sendCtx, cancel = context.WithTimeout(ctx, s.config.Reporting.SendTimeout)
 
-				reportsSync.Lock()
+				reportsBufSync.Lock()
 				reportsBuf = append(reportsBuf, report)
 				reportsToSend := reportsBuf
 				reportsBuf = []*pmmv1.ServerMetric{}
-				reportsSync.Unlock()
+				reportsBufSync.Unlock()
 
 				go func() {
 					err := s.send(sendCtx, &reporter.ReportRequest{
@@ -189,9 +189,9 @@ func (s *Service) processSendCh(ctx context.Context) {
 					})
 					if err != nil {
 						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
-						reportsSync.Lock()
+						reportsBufSync.Lock()
 						reportsBuf = append(reportsBuf, reportsToSend...)
-						reportsSync.Unlock()
+						reportsBufSync.Unlock()
 						return
 					}
 
