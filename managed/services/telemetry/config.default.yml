@@ -113,7 +113,7 @@ telemetry:
   - id: PMMDataRetentionPeriod
     source: PMMDB_SELECT
     query: data_retention FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention
-    summary: "Total amount of annotations in the database"
+    summary: "Data retention period"
     data:
       - metric_name: "pmm_server_data_retention_period"
         column: "data_retention"
