@@ -499,6 +499,9 @@ type GetSettingsOKBodySettings struct {
 	// True if the PMM instance is connected to Platform
 	ConnectedToPlatform bool `json:"connected_to_platform,omitempty"`
 
+	// Includes list of collected telemetry
+	TelemetrySummaries []string `json:"telemetry_summaries"`
+
 	// email alerting settings
 	EmailAlertingSettings *GetSettingsOKBodySettingsEmailAlertingSettings `json:"email_alerting_settings,omitempty"`
 
