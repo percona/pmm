@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -152,6 +153,10 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
+	LogLinesCount uint `json:"log-lines-count"`
+
+	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
+
 	Setup Setup `yaml:"-"`
 }
 
@@ -194,6 +199,10 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 		if cfg.Ports.Max == 0 {
 			cfg.Ports.Max = 51999
 		}
+		if cfg.WindowConnectedTime == 0 {
+			cfg.WindowConnectedTime = time.Hour
+		}
+
 		for sp, v := range map[*string]string{
 			&cfg.Paths.NodeExporter:     "node_exporter",
 			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
@@ -325,6 +334,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
+	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
+		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
 
 	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
@@ -368,6 +379,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PORTS_MIN").Uint16Var(&cfg.Ports.Min)
 	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
 		Envar("PMM_AGENT_PORTS_MAX").Uint16Var(&cfg.Ports.Max)
+	app.Flag("window-connected-time", "Window time for which we track the status of connection between agent and server").
+		Envar("PMM_AGENT_WINDOW_CONNECTED_TIME").DurationVar(&cfg.WindowConnectedTime)
 
 	app.Flag("log-level", "Set logging level [PMM_AGENT_LOG_LEVEL]").
 		Envar("PMM_AGENT_LOG_LEVEL").EnumVar(&cfg.LogLevel, "debug", "info", "warn", "error", "fatal")
@@ -375,6 +388,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
+	app.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
+		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 		return nil

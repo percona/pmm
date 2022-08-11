@@ -1,0 +1,22 @@
+name: Go-tip
+
+on:
+  schedule:
+    # Every Sunday at 13:00
+    - cron: "0 13 * * 0"
+
+jobs:
+  common:
+    uses: percona/pmm/.github/workflows/common.yml@main
+
+  admin:
+    uses: percona/pmm/.github/workflows/admin.yml@main
+
+  agent:
+    uses: percona/pmm/.github/workflows/agent.yml@main
+
+  api:
+    uses: percona/pmm/.github/workflows/api.yml@main
+
+  managed:
+    uses: percona/pmm/.github/workflows/managed.yml@main

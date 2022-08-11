@@ -225,7 +225,7 @@ func main() {
 
 		if *pmmAgentPrerunScript != "" {
 			l.Infof("Running prerun shell script %s...", *pmmAgentPrerunScript)
-			cmd := exec.CommandContext(ctx, "/bin/sh", *pmmAgentPrerunScript)
+			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript)
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {

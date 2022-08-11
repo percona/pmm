@@ -54,6 +54,7 @@ type ConfigCommand struct {
 	CustomLabels      string   `help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
+	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
@@ -92,6 +93,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switch
 	}
 	if globals.EnableTrace {
 		res = append(res, "--trace")
+	}
+
+	if cmd.LogLinesCount > 0 {
+		res = append(res, fmt.Sprintf("--log-lines-count=%d", cmd.LogLinesCount))
 	}
 
 	res = append(res, "setup")
