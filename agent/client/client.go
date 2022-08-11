@@ -595,7 +595,7 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 	}
 
 	if limit > 0 && len(logs) > int(limit) {
-		return logs[:limit], capacity
+		return logs[len(logs)-int(limit):], capacity
 	}
 
 	return logs, capacity
