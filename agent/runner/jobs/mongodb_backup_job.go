@@ -64,7 +64,7 @@ func NewMongoDBBackupJob(
 	dataModel backupv1beta1.DataModel,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backupv1beta1.DataModel_PHYSICAL && dataModel != backupv1beta1.DataModel_LOGICAL {
-		return nil, errors.Errorf("'%s' is not a supported data model for backups", dataModel)
+		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
 	return &MongoDBBackupJob{
 		id:        id,

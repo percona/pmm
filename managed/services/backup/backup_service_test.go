@@ -97,7 +97,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-service")
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
 		mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
 			mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
@@ -182,7 +182,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-service")
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
 
 		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
 			mockedVersioner.On("GetVersions", *agent.PMMAgentID, mock.Anything).Return(nil, nil).Once()
@@ -230,7 +230,7 @@ func TestRestoreBackup(t *testing.T) {
 		mockedVersioner := &mockVersioner{}
 		backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
 
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "artifact-name",
@@ -372,7 +372,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-service")
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "artifact-name",
