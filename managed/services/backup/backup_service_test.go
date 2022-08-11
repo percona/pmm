@@ -233,7 +233,7 @@ func TestRestoreBackup(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "artifact-name",
+			Name:       "mysql-artifact-name",
 			Vendor:     string(models.MySQLServiceType),
 			DBVersion:  "8.0.26",
 			LocationID: locationRes.ID,
@@ -375,7 +375,7 @@ func TestRestoreBackup(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "artifact-name",
+			Name:       "mongo-artifact-name",
 			Vendor:     string(models.MySQLServiceType),
 			LocationID: locationRes.ID,
 			ServiceID:  *agent.ServiceID,
