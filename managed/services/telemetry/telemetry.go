@@ -163,15 +163,9 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsSync sync.Mutex
-	var inflightReports []*pmmv1.ServerMetric
+	var reportsBuf []*pmmv1.ServerMetric
 	var sendCtx context.Context
 	var cancel context.CancelFunc
-
-	cleanup := func() {
-		inflightReports = nil
-		sendCtx = nil
-		cancel = nil
-	}
 
 	for {
 		select {
@@ -181,30 +175,28 @@ func (s *Service) processSendCh(ctx context.Context) {
 				if sendCtx != nil {
 					cancel()
 				}
-				reportsSync.Lock()
-				inflightReports = append(inflightReports, report)
-				sendCtx, cancel = context.WithCancel(ctx)
+				sendCtx, cancel = context.WithTimeout(ctx, s.config.Reporting.SendTimeout)
 
-				reportsCopy := make([]*pmmv1.ServerMetric, len(inflightReports))
-				copy(reportsCopy, inflightReports)
+				reportsSync.Lock()
+				reportsBuf = append(reportsBuf, report)
+				reportsToSend := reportsBuf
+				reportsBuf = []*pmmv1.ServerMetric{}
 				reportsSync.Unlock()
 
-				go func(ctx context.Context, reports []*pmmv1.ServerMetric, cleanup func()) {
-					reportsSync.Lock()
-					defer reportsSync.Unlock()
-
-					err := s.send(ctx, &reporter.ReportRequest{
-						Metrics: reports,
+				go func() {
+					err := s.send(sendCtx, &reporter.ReportRequest{
+						Metrics: reportsToSend,
 					})
 					if err != nil {
 						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
+						reportsSync.Lock()
+						reportsBuf = append(reportsBuf, reportsToSend...)
+						reportsSync.Unlock()
 						return
 					}
 
-					cleanup()
-
 					s.l.Debug("Telemetry info sent.")
-				}(sendCtx, reportsCopy, cleanup)
+				}()
 			}
 		case <-ctx.Done():
 			if cancel != nil {
