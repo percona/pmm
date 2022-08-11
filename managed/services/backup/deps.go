@@ -64,6 +64,7 @@ type jobsService interface {
 		timeout time.Duration,
 		name string,
 		dbConfig *models.DBConfig,
+		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
 	) error
 }

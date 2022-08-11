@@ -273,6 +273,7 @@ type prepareRestoreJobParams struct {
 	Location     *models.BackupLocation
 	ServiceType  models.ServiceType
 	DBConfig     *models.DBConfig
+	DataModel    models.DataModel
 }
 
 // RestoreBackup starts restore backup job.
@@ -489,6 +490,7 @@ func (s *Service) prepareRestoreJob(
 		Location:     location,
 		ServiceType:  service.ServiceType,
 		DBConfig:     dbConfig,
+		DataModel:    artifact.DataModel,
 	}, nil
 }
 
@@ -517,6 +519,7 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			0,
 			params.ArtifactName,
 			params.DBConfig,
+			params.DataModel,
 			locationConfig); err != nil {
 			return err
 		}

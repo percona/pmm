@@ -37,7 +37,7 @@ var (
 
 	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
 	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.30.0-0"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
 )
 
 const (
@@ -484,10 +484,21 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	dbConfig *models.DBConfig,
+	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mongodb restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore); err != nil {
+	var err error
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb physical restore", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb logical restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
 		return err
 	}
 

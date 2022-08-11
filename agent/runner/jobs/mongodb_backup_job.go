@@ -62,7 +62,10 @@ func NewMongoDBBackupJob(
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backupv1beta1.DataModel,
-) *MongoDBBackupJob {
+) (*MongoDBBackupJob, error) {
+	if dataModel != backupv1beta1.DataModel_PHYSICAL && dataModel != backupv1beta1.DataModel_LOGICAL {
+		return nil, errors.Errorf("'%s' is not a supported data model for backups", dataModel)
+	}
 	return &MongoDBBackupJob{
 		id:        id,
 		timeout:   timeout,
@@ -72,7 +75,7 @@ func NewMongoDBBackupJob(
 		location:  locationConfig,
 		pitr:      pitr,
 		dataModel: dataModel,
-	}
+	}, nil
 }
 
 // ID returns Job id.
@@ -96,10 +99,6 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 
 	if _, err := exec.LookPath(pbmBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
-	}
-
-	if j.dataModel != backupv1beta1.DataModel_PHYSICAL && j.dataModel != backupv1beta1.DataModel_LOGICAL {
-		return errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
 	conf := &PBMConfig{
