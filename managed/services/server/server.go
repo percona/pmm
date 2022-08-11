@@ -453,6 +453,8 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
 		ConnectedToPlatform:     connectedToPlatform,
+
+		TelemetrySummaries: s.telemetryService.GetSummaries(),
 	}
 
 	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
