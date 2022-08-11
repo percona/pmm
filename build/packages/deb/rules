@@ -1,0 +1,77 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh $@ --with=systemd
+
+export DH_VERBOSE=1
+export CFLAGS=
+export CXXFLAGS=
+
+TMP=$(CURDIR)/debian/tmp/
+TMPD=$(CURDIR)/debian/tmp-debug/
+prefix=/usr
+ARCH = $(shell dpkg-architecture -qDEB_BUILD_ARCH)
+ARCH_OS = $(shell dpkg-architecture -qDEB_BUILD_ARCH_OS)
+NCPU = $(shell grep -c processor /proc/cpuinfo)
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+
+DEB_SOURCE_PACKAGE ?= $(strip $(shell egrep '^Source: ' debian/control | cut -f 2 -d ':'))
+DEB_VERSION ?= $(shell dpkg-parsechangelog | egrep '^Version:' | cut -f 2 -d ' ')
+DEB_NOEPOCH_VERSION ?= $(shell echo $(DEB_VERSION) | cut -d: -f2-)
+DEB_UPSTREAM_VERSION ?= $(shell echo $(DEB_NOEPOCH_VERSION) | sed 's/-[^-]*$$//')
+DEB_UPSTREAM_VERSION_MAJOR_MINOR := $(shell echo $(DEB_UPSTREAM_VERSION) | sed -r -n 's/^([0-9]+\.[0-9]+).*/\1/p')
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+DISTRIBUTION = $(shell lsb_release -i -s)
+DISTRELEASE = $(shell lsb_release -c -s)
+
+override_dh_usrlocal:
+	dh $@
+
+override_dh_auto_build:
+	dh $@
+
+override_dh_strip:
+	@echo "RULES.$@"
+
+override_dh_auto_install:
+	@echo "RULES.$@"
+	mkdir -p $(TMP)
+	cp distro/pmm-admin $(TMP)/pmm-admin
+	cp distro/pmm-agent $(TMP)/pmm-agent
+	cp -f distro/node_exporter $(TMP)/node_exporter
+	cp -f distro/mysqld_exporter $(TMP)/mysqld_exporter
+	cp -f distro/postgres_exporter $(TMP)/postgres_exporter
+	cp -f distro/mongodb_exporter $(TMP)/mongodb_exporter
+	cp -f distro/proxysql_exporter $(TMP)/proxysql_exporter
+	cp -f distro/rds_exporter $(TMP)/rds_exporter
+	cp -f distro/azure_exporter $(TMP)/azure_exporter
+	cp -f distro/vmagent $(TMP)/vmagent
+	cp -f distro/example.prom $(TMP)/example.prom
+	cp -f distro/queries-mysqld.yml $(TMP)/queries-mysqld.yml
+	cp -f distro/queries-mysqld-group-replication.yml $(TMP)/queries-mysqld-group-replication.yml
+	cp -f distro/example-queries-postgres.yml $(TMP)/example-queries-postgres.yml
+	cp -f distro/queries-postgres-uptime.yml $(TMP)/queries-postgres-uptime.yml
+	cp -f distro/pt-summary $(TMP)/pt-summary
+	cp -f distro/pt-mysql-summary $(TMP)/pt-mysql-summary
+	cp -f distro/pt-mongodb-summary $(TMP)/pt-mongodb-summary
+	cp -f distro/pt-pg-summary $(TMP)/pt-pg-summary
+
+override_dh_installinit:
+	dh_systemd_start --restart-after-upgrade
+
+override_dh_systemd_enable:
+	dh_systemd_enable --name=pmm-agent
+
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip

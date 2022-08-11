@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+set -o xtrace
+
+bin_dir=$(dirname $0)
+
+${bin_dir}/build-client
+${bin_dir}/build-server
+
+# vim: expandtab shiftwidth=4 tabstop=4
