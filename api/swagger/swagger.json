@@ -562,6 +562,14 @@
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
+                    },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -810,6 +818,14 @@
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
+                    },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
