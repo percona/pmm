@@ -24,6 +24,15 @@ telemetry:
       - metric_name: "pmm_server_backup_management_enabled"
         column: "backup_management_enabled"
 
+  - id: PMMServerAlertManagerUsed
+    source: PMMDB_SELECT
+    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
+    summary: "PMM Server alert manager integration  - used/not used"
+    data:
+      - metric_name: "pmm_server_alert_manager_enabled"
+        column: "alert_manager_set"
+
+
   - id: PMMServerDBaaSEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
@@ -83,6 +92,31 @@ telemetry:
     data:
       - metric_name: "pmm_server_grafana_stat_total_users"
         value: 1
+
+  # PMM - Usage
+  - id: GrafanaStatActiveMonthlyUsers
+    source: VM
+    query: grafana_stat_active_users
+    summary: "Active monthly users"
+    data:
+      - metric_name: "pmm_server_grafana_stat_active_users"
+        value: 1
+
+  - id: GrafanaStatTotalsAnnotations
+    source: VM
+    query: grafana_stat_totals_annotations
+    summary: "Total amount of annotations in the database"
+    data:
+      - metric_name: "pmm_server_grafana_stat_totals_annotations"
+        value: 1
+
+  - id: PMMDataRetentionPeriod
+    source: PMMDB_SELECT
+    query: data_retention FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention
+    summary: "Data retention period"
+    data:
+      - metric_name: "pmm_server_data_retention_period"
+        column: "data_retention"
 
   # PMM - Usage
   - id: PMMUsageNodesCount
@@ -305,7 +339,7 @@ telemetry:
   # DBaaS
   - id: DBaaSServicesCount
     source: PMMDB_SELECT
-    query: select count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
+    query: count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
     summary: "DBaaS Services Count"
     data:
       - metric_name: "dbaas_services_count"
@@ -313,7 +347,7 @@ telemetry:
 
   - id: DBaaSClustersCount
     source: PMMDB_SELECT
-    query: select count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
+    query: count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
     summary: "DBaaS Clusters Count"
     data:
       - metric_name: "dbaas_clusters_count"
@@ -322,7 +356,7 @@ telemetry:
   # K8s Clusters
   - id: K8sClustersCount
     source: PMMDB_SELECT
-    query: SELECT count(*) AS count FROM kubernetes_clusters
+    query: count(*) AS count FROM kubernetes_clusters
     summary: "K8s Clusters Count"
     data:
       - metric_name: "k8s_clusters_count"
