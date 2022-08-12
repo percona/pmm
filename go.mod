@@ -13,7 +13,7 @@ replace golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa => github.com/per
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.27
+	github.com/Azure/go-autorest/autorest v0.11.28
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
@@ -22,11 +22,11 @@ require (
 	github.com/aws/aws-sdk-go v1.44.73
 	github.com/brianvoe/gofakeit/v6 v6.18.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.16.1
-	github.com/go-openapi/errors v0.20.2
+	github.com/go-co-op/gocron v1.16.2
+	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.2
-	github.com/go-openapi/swag v0.21.1
+	github.com/go-openapi/swag v0.22.0
 	github.com/go-openapi/validate v0.22.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
@@ -36,7 +36,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.2
 	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.6
-	github.com/minio/minio-go/v7 v7.0.32
+	github.com/minio/minio-go/v7 v7.0.34
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20220627132007-e6e85c6e26dc
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
@@ -48,7 +48,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.24.0
-	github.com/prometheus/client_golang v1.12.2
+	github.com/prometheus/client_golang v1.13.0
 	github.com/prometheus/common v0.37.0
 	github.com/ramr/go-reaper v0.2.1
 	github.com/robfig/cron/v3 v3.0.1
@@ -65,7 +65,7 @@ require (
 	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
-	gopkg.in/ini.v1 v1.66.6
+	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -109,8 +109,8 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.15.6 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.13 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/klauspost/cpuid/v2 v2.1.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/miekg/dns v1.1.49 // indirect
@@ -130,7 +130,7 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
 	github.com/prometheus/exporter-toolkit v0.7.1 // indirect
-	github.com/prometheus/procfs v0.7.3 // indirect
+	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
