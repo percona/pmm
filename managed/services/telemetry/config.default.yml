@@ -314,7 +314,7 @@ telemetry:
 
   - id: NodesDiskCapacity
     source: VM
-    query: topk(1, node_filesystem_size_bytes{node_name=~"pmm-server",fstype!="fuse.grpcfuse"})
+    query: sum(sum(avg(node_filesystem_size_bytes{node_name=~"pmm-server",fstype=~"(ext.|xfs|vfat|)"}) without (mountpoint)) without (device,fstype))
     summary: "Disk capacity"
     data:
       - metric_name: "pmm_server_node_disk_capacity"
