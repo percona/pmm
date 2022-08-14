@@ -105,7 +105,7 @@ telemetry:
   - id: GrafanaStatTotalsAnnotations
     source: VM
     query: grafana_stat_totals_annotations
-    summary: "Total amount of annotations in the database"
+    summary: "Grafana annotation count"
     data:
       - metric_name: "pmm_server_grafana_stat_totals_annotations"
         value: 1
