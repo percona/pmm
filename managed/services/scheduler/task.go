@@ -152,7 +152,7 @@ func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) {
 	}
 
 	if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-		return nil, errors.Wrap(backup.ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+		return nil, errors.WithMessage(backup.ErrIncompatibleDataModel, "PITR is only supported for logical backups")
 	}
 
 	return &mongoDBBackupTask{

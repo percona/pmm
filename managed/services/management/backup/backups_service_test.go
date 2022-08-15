@@ -371,7 +371,7 @@ func TestScheduledBackups(t *testing.T) {
 				Mode:          backupv1beta1.BackupMode_PITR,
 			})
 			require.Error(t, err)
-			assert.Contains(t, err.Error(), backup.ErrIncompatibleDataModel.Error())
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
 		})
 
 		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {

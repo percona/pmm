@@ -152,7 +152,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			jobType = models.MySQLBackupJob
 
 			if params.DataModel != models.PhysicalDataModel {
-				return errors.Wrap(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
+				return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
 			}
 			if params.Mode != models.Snapshot {
 				return errors.New("the only supported backup mode for mySQL is snapshot")
@@ -161,7 +161,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			jobType = models.MongoDBBackupJob
 
 			if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-				return errors.Wrap(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+				return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
 			}
 
 			if params.Mode != models.Snapshot && params.Mode != models.PITR {
