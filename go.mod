@@ -19,7 +19,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.73
+	github.com/aws/aws-sdk-go v1.44.76
 	github.com/brianvoe/gofakeit/v6 v6.18.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.16.2
