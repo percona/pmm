@@ -417,7 +417,7 @@ type ScheduledBackup struct {
 	Retries uint32 `protobuf:"varint,12,opt,name=retries,proto3" json:"retries,omitempty"`
 	// If scheduling is enabled.
 	Enabled bool `protobuf:"varint,13,opt,name=enabled,proto3" json:"enabled,omitempty"`
-	// Backup data model.
+	// Backup data model (physical or logical).
 	DataModel DataModel `protobuf:"varint,14,opt,name=data_model,json=dataModel,proto3,enum=backup.v1beta1.DataModel" json:"data_model,omitempty"`
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
 	Vendor string `protobuf:"bytes,15,opt,name=vendor,proto3" json:"vendor,omitempty"`
@@ -616,7 +616,7 @@ type ScheduleBackupRequest struct {
 	Retention uint32 `protobuf:"varint,10,opt,name=retention,proto3" json:"retention,omitempty"`
 	// Backup mode.
 	Mode BackupMode `protobuf:"varint,11,opt,name=mode,proto3,enum=backup.v1beta1.BackupMode" json:"mode,omitempty"`
-	// Backup data model.
+	// Backup data model (physical or logical).
 	DataModel DataModel `protobuf:"varint,12,opt,name=data_model,json=dataModel,proto3,enum=backup.v1beta1.DataModel" json:"data_model,omitempty"`
 }
 

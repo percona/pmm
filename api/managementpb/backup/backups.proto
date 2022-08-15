@@ -103,7 +103,7 @@ message ScheduledBackup {
   uint32 retries = 12;
   // If scheduling is enabled.
   bool enabled = 13;
-  // Backup data model.
+  // Backup data model (physical or logical).
   DataModel data_model = 14;
   // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
   string vendor = 15;
@@ -153,7 +153,7 @@ message ScheduleBackupRequest {
   // Backup mode.
   BackupMode mode = 11;
 
-  // Backup data model.
+  // Backup data model (physical or logical).
   DataModel data_model = 12;
 }
 

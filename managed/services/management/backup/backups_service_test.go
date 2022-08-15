@@ -43,10 +43,7 @@ import (
 
 func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
-	isSupportedService := func() bool {
-		return serviceType == models.MySQLServiceType || serviceType == models.MongoDBServiceType
-	}
-	require.True(t, isSupportedService())
+	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
 		NodeName: "test-node-" + t.Name(),
 	})
@@ -226,7 +223,6 @@ func TestRestoreBackupErrors(t *testing.T) {
 }
 
 func TestScheduledBackups(t *testing.T) {
-	t.Parallel()
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -359,7 +355,6 @@ func TestScheduledBackups(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
 
 		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
-			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, schedulerService)
@@ -380,7 +375,6 @@ func TestScheduledBackups(t *testing.T) {
 		})
 
 		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
-			t.Parallel()
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
 			backupSvc := NewBackupsService(db, nil, schedulerService)
