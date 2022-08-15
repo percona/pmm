@@ -67,7 +67,7 @@ type AddPostgreSQLCommand struct {
 	TLSKeyFile           string            `help:"TLS certificate key file"`
 	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
-	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags

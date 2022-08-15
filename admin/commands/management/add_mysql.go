@@ -114,7 +114,7 @@ type AddMySQLCommand struct {
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
-	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags

@@ -66,7 +66,7 @@ type AddExternalCommand struct {
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
-	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 }

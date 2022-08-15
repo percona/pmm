@@ -56,8 +56,8 @@ type AddExternalServerlessCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Address             string            `placeholder:"1.2.3.4:9000" help:"External exporter address and port"`
 	Host                string            `placeholder:"1.2.3.4" help:"External exporters hostname or IP address"`
-	ListenPort          uint16            `placeholder:"9999" help:"Listen port of external exporter for scraping metrics."`
-	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URL."`
+	ListenPort          uint16            `placeholder:"9999" help:"Listen port of external exporter for scraping metrics"`
+	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URL"`
 	Environment         string            `placeholder:"testing" help:"Environment name"`
 	Cluster             string            `help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`

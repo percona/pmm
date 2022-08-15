@@ -60,7 +60,7 @@ type AddProxySQLCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
-	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server."`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
