@@ -154,8 +154,7 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 func (s *Supervisor) AgentsLogs() map[string][]string {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	s.arw.RLock()
-	defer s.arw.RUnlock()
+
 	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
@@ -174,8 +173,6 @@ func (s *Supervisor) AgentsLogs() map[string][]string {
 func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	s.arw.RLock()
-	defer s.arw.RUnlock()
 
 	agentProcess, ok := s.agentProcesses[id]
 	if ok {
