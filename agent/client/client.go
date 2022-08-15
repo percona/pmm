@@ -595,7 +595,11 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 	}
 
 	if limit > 0 && len(logs) > int(limit) {
-		return logs[len(logs)-int(limit):], capacity
+		logs = logs[len(logs)-int(limit):]
+	}
+
+	for i, log := range logs {
+		logs[i] = strings.TrimSuffix(log, "\n")
 	}
 
 	return logs, capacity
