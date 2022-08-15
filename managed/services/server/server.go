@@ -453,6 +453,8 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
 		ConnectedToPlatform:     connectedToPlatform,
+
+		TelemetrySummaries: s.telemetryService.GetSummaries(),
 	}
 
 	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
@@ -875,15 +877,15 @@ func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
 	return true
 }
 
-// check interfaces.
-var (
-	_ serverpb.ServerServer = (*Server)(nil)
-)
-
-func canUpdateDurationSetting(valueToBeSet, valueFromEnvironmentVariable time.Duration) bool {
-	if valueToBeSet == 0 || valueFromEnvironmentVariable == 0 || valueToBeSet == valueFromEnvironmentVariable {
+func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
+	if newValue == 0 || envValue == 0 || newValue == envValue {
 		return true
 	}
 
 	return false
 }
+
+// check interfaces.
+var (
+	_ serverpb.ServerServer = (*Server)(nil)
+)

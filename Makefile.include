@@ -15,6 +15,9 @@ init:                 ## Install tools.
 	rm -rf bin/*
 	cd tools && go generate -x -tags=tools
 
+	# Install golangci-lint
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.46.2
+
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
 	curl --create-dirs -L https://raw.githubusercontent.com/mwitkow/go-proto-validators/$(GO_PROTO_VALIDATOR)/validator.proto -o ../third_party/github.com/mwitkow/go-proto-validators/validator.proto
@@ -122,9 +125,6 @@ clean: clean_swagger  ## Remove generated files.
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
 
-test:                 ## Run tests from all packages
-	go test ./...
-
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests)
 
@@ -152,7 +152,6 @@ format:               ## Format source code.
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
-	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c api/nginx/nginx.conf
 
 descriptors:          ## Update API compatibility descriptors.

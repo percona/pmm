@@ -1,4 +1,4 @@
-name: Sync OAS to ReadMe
+name: Docs
 on:
   push:
     branches:
@@ -14,17 +14,19 @@ on:
         default: "v1.0" # v0.0 stands for the dev version
 
 jobs:
-  build:
+  sync:
+    name: Sync
     runs-on: ubuntu-latest
     steps:
-      - uses: percona-platform/checkout@v3
+      - name: Check out code
+        uses: percona-platform/checkout@v3
 
-      - name: Sync API to Readme.io
-        uses: readmeio/rdme@7.4.0
+      - name: API
+        uses: readmeio/rdme@7.5.0
         with:
           rdme: openapi ./api/swagger/swagger.json --id=626badcabbc59c02acc1a53f --key=${{ secrets.README_TOKEN }}
 
-      - name: Sync markdown docs to Readme.io
-        uses: readmeio/rdme@7.4.0
+      - name: Markdown docs
+        uses: readmeio/rdme@7.5.0
         with:
           rdme: docs docs/api --version=${{ github.event.inputs.version || 'v1.0' }}  --key=${{ secrets.README_TOKEN }}
