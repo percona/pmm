@@ -143,6 +143,7 @@ telemetry:
       - metric_name: "pmm_server_usage_environments_count"
         column: "environments_count"
 
+
   - id: PMMUsageClustersCount
     source: PMMDB_SELECT
     query: count(distinct cluster) as clusters_count from services where cluster != '';
