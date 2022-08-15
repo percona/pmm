@@ -313,20 +313,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_ListFailedServices_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_ListFailedServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ListFailedServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -336,20 +337,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_GetFailedChecks_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_GetFailedChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_GetFailedChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ToggleCheckAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -359,20 +361,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ToggleCheckAlert", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ToggleCheckAlert"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ToggleCheckAlert", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ToggleCheckAlert"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_ToggleCheckAlert_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_ToggleCheckAlert_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ToggleCheckAlert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ToggleCheckAlert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetSecurityCheckResults_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -382,20 +385,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/GetSecurityCheckResults", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/GetCheckResults"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/GetSecurityCheckResults", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/GetCheckResults"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_GetSecurityCheckResults_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_GetSecurityCheckResults_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -405,20 +409,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_StartSecurityChecks_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_StartSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_StartSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartChecksStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -435,20 +440,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_ListSecurityChecks_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_ListSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ListSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -458,20 +464,21 @@ func RegisterSecurityChecksHandlerServer(ctx context.Context, mux *runtime.Serve
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.SecurityChecks/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityChecks_ChangeSecurityChecks_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ChangeSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -519,19 +526,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ListFailedServices", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ListFailedServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_ListFailedServices_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_ListFailedServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ListFailedServices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ListFailedServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetFailedChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -539,19 +547,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/GetFailedChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/FailedChecks"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_GetFailedChecks_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_GetFailedChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_GetFailedChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_GetFailedChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ToggleCheckAlert_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -559,19 +568,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ToggleCheckAlert", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ToggleCheckAlert"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ToggleCheckAlert", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/ToggleCheckAlert"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_ToggleCheckAlert_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_ToggleCheckAlert_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ToggleCheckAlert_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ToggleCheckAlert_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_GetSecurityCheckResults_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -579,19 +589,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/GetSecurityCheckResults", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/GetCheckResults"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/GetSecurityCheckResults", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/GetCheckResults"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_GetSecurityCheckResults_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_GetSecurityCheckResults_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_GetSecurityCheckResults_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -599,19 +610,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/StartSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_StartSecurityChecks_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_StartSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_StartSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_StartSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_StartChecksStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -639,19 +651,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ListSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_ListSecurityChecks_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_ListSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ListSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ListSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_SecurityChecks_ChangeSecurityChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -659,19 +672,20 @@ func RegisterSecurityChecksHandlerClient(ctx context.Context, mux *runtime.Serve
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.SecurityChecks/ChangeSecurityChecks", runtime.WithHTTPPathPattern("/v1/management/SecurityChecks/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityChecks_ChangeSecurityChecks_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityChecks_ChangeSecurityChecks_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityChecks_ChangeSecurityChecks_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
