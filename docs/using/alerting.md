@@ -130,7 +130,11 @@ To test expressions for custom templates:
 1. On the left menu of PMM, choose **Explore > Metrics**.
 2. Enter your expression in the **Metrics** field and click **Run query**.
 
-For example, to validate that a MongoDB instance is down, shut down a member of a three-node replica set, then check that the expression **{service_type="mongodb"}** returns **0** in **Explore > Metrics**.
+For example, to validate that a MongoDB instance is down, shut down a member of a three-node replica set, then check that the following expression returns **0** in **Explore > Metrics**:
+
+```sh
+{service_type="mongodb"}
+```
 
 ## Template compatibility
 ### With previous PMM versions
