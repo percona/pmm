@@ -153,7 +153,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Run Merge Gatekeeper
-        uses: upsidr/merge-gatekeeper@v1.1.0
+        uses: upsidr/merge-gatekeeper@v1.1.1
         with:
           self: Merge Gatekeeper
           token: ${{ secrets.GITHUB_TOKEN }}
