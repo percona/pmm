@@ -72,6 +72,9 @@ const (
 	pgStatMonitorVersion10PG12
 	pgStatMonitorVersion10PG13
 	pgStatMonitorVersion10PG14
+	pgStatMonitorVersion11PG12
+	pgStatMonitorVersion11PG13
+	pgStatMonitorVersion11PG14
 )
 
 const (
