@@ -21,10 +21,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -55,6 +57,11 @@ func (res *summaryResult) Result() {}
 
 func (res *summaryResult) String() string {
 	return RenderTemplate(summaryResultT, res)
+}
+
+type sourceConfig struct {
+	url    string
+	client *http.Client
 }
 
 // addData adds data from io.Reader to zip file with given name and time.
@@ -108,7 +115,7 @@ func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 }
 
 // addClientData adds all PMM Client data to zip file.
-func addClientData(ctx context.Context, zipW *zip.Writer) {
+func addClientData(ctx context.Context, zipW *zip.Writer, globals *flags.GlobalFlags) {
 	status, err := agentlocal.GetRawStatus(ctx, agentlocal.RequestNetworkInfo)
 	if err != nil {
 		logrus.Errorf("%s", err)
@@ -138,7 +145,14 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
-	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "client/pmm-agent")
+	hostname := agentlocal.GetHostname(agentlocal.Localhost, globals.PMMAgentListenPort, globals.PMMAgentSocket)
+	err = downloadFile(
+		ctx,
+		zipW,
+		fmt.Sprintf("http://%s/logs.zip", hostname),
+		"client/pmm-agent",
+		agentlocal.DefaultClient,
+	)
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}
@@ -184,7 +198,8 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 	for _, agent := range agentsInfo {
 		if pointer.GetString(agent.AgentType) == types.AgentTypeVMAgent {
-			b, err := getURL(ctx, fmt.Sprintf("http://%s:%d/api/v1/targets", agentlocal.Localhost, agent.ListenPort))
+			hostname := net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(agent.ListenPort)))
+			b, err := getURL(ctx, fmt.Sprintf("http://%s/api/v1/targets", hostname), nil)
 			if err != nil {
 				logrus.Debugf("%s", err)
 				b = []byte(err.Error())
@@ -192,7 +207,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 
 			addData(zipW, "client/vmagent-targets.json", now, bytes.NewReader(b))
 			var html []byte
-			req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf("http://%s:%d/targets", agentlocal.Localhost, agent.ListenPort), nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("http://%s/targets", hostname), nil)
 			if err != nil {
 				logrus.Debugf("%s", err)
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
@@ -218,12 +233,17 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 }
 
 // getURL returns `GET url` response body.
-func getURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+func getURL(ctx context.Context, url string, client *http.Client) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	resp, err := http.DefaultClient.Do(req)
+
+	cl := http.DefaultClient
+	if client != nil {
+		cl = client
+	}
+	resp, err := cl.Do(req)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -240,9 +260,9 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
-// downloadFile download file and includes into zip file
-func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
-	b, err := getURL(ctx, url)
+// downloadFile download file and includes into zip file.
+func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string, client *http.Client) error {
+	b, err := getURL(ctx, url, client)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -290,14 +310,20 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		},
 	}
 
-	sources := map[string]string{
-		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, globals.PMMAgentListenPort),
+	hostname := agentlocal.GetHostname(agentlocal.Localhost, globals.PMMAgentListenPort, globals.PMMAgentSocket)
+	sources := map[string]sourceConfig{
+		"client/pprof/pmm-agent": {
+			url:    fmt.Sprintf("http://%s/debug/pprof", hostname),
+			client: agentlocal.DefaultClient,
+		},
 	}
 
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
 
 	if !skipServer && isRunOnPmmServer {
-		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
+		sources["server/pprof/qan-api2"] = sourceConfig{
+			url: fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(agentlocal.Localhost, "9933")),
+		}
 	}
 
 	for _, p := range profiles {
@@ -306,14 +332,14 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		var wg sync.WaitGroup
 		ch := make(chan pprofData, len(sources))
 
-		for dir, urlPrefix := range sources {
+		for dir, source := range sources {
 			wg.Add(1)
 
-			go func(url, name string) {
+			go func(url, name string, source sourceConfig) {
 				defer wg.Done()
 
 				logrus.Infof("Getting %s ...", url)
-				data, err := getURL(ctx, url)
+				data, err := getURL(ctx, url, source.client)
 				if err != nil {
 					logrus.Warnf("%s", err)
 					return
@@ -323,7 +349,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 					name: name,
 					data: data,
 				}
-			}(urlPrefix+p.urlPath, dir+"/"+p.name)
+			}(source.url+p.urlPath, dir+"/"+p.name, source)
 		}
 
 		wg.Wait()
@@ -364,7 +390,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 		}
 	}()
 
-	addClientData(ctx, zipW)
+	addClientData(ctx, zipW, globals)
 
 	if cmd.Pprof {
 		addPprofData(ctx, zipW, cmd.SkipServer, globals)

@@ -28,6 +28,7 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli"
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/base"
 	"github.com/percona/pmm/admin/commands/management"
@@ -73,7 +74,7 @@ func main() {
 			NoExpandSubcommands: true,
 		}),
 		kong.Vars{
-			"defaultListenPort":            fmt.Sprintf("%d", agentlocal.DefaultPMMAgentListenPort),
+			"socketPath":                   flags.SocketPath,
 			"nodeIp":                       nodeinfo.PublicAddress,
 			"nodeTypeDefault":              nodeTypeDefault,
 			"hostname":                     hostname,
@@ -113,7 +114,12 @@ func main() {
 		cancel()
 	}()
 
-	agentlocal.SetTransport(ctx, opts.EnableDebug || opts.EnableTrace, opts.PMMAgentListenPort)
+	agentlocal.SetTransport(
+		ctx,
+		opts.EnableDebug || opts.EnableTrace,
+		opts.PMMAgentListenPort,
+		opts.PMMAgentSocket,
+	)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {

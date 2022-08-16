@@ -143,6 +143,7 @@ type Config struct {
 	ID             string `yaml:"id"`
 	ListenAddress  string `yaml:"listen-address"`
 	ListenPort     uint16 `yaml:"listen-port"`
+	ListenSocket   string `yaml:"listen-socket"`
 	RunnerCapacity uint16 `yaml:"runner-capacity,omitempty"`
 
 	Server Server `yaml:"server"`
@@ -182,105 +183,7 @@ func Get(l *logrus.Entry) (*Config, string, error) {
 func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err error) {
 	// tweak configuration on exit to cover all return points
 	defer func() {
-		if cfg == nil {
-			return
-		}
-
-		// set default values
-		if cfg.ListenAddress == "" {
-			cfg.ListenAddress = "127.0.0.1"
-		}
-		if cfg.ListenPort == 0 {
-			cfg.ListenPort = 7777
-		}
-		if cfg.Ports.Min == 0 {
-			cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
-		}
-		if cfg.Ports.Max == 0 {
-			cfg.Ports.Max = 51999
-		}
-		if cfg.WindowConnectedTime == 0 {
-			cfg.WindowConnectedTime = time.Hour
-		}
-
-		for sp, v := range map[*string]string{
-			&cfg.Paths.NodeExporter:     "node_exporter",
-			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
-			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
-			&cfg.Paths.PostgresExporter: "postgres_exporter",
-			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
-			&cfg.Paths.RDSExporter:      "rds_exporter",
-			&cfg.Paths.AzureExporter:    "azure_exporter",
-			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.TempDir:          os.TempDir(),
-			&cfg.Paths.PTSummary:        "tools/pt-summary",
-			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
-			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-		} {
-			if *sp == "" {
-				*sp = v
-			}
-		}
-
-		if cfg.Paths.PathsBase == "" {
-			cfg.Paths.PathsBase = pathBaseDefault
-		}
-		if cfg.Paths.ExportersBase == "" {
-			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
-		}
-
-		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
-			cfg.Paths.PathsBase = abs
-		}
-		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-			cfg.Paths.ExportersBase = abs
-		}
-
-		if !filepath.IsAbs(cfg.Paths.PTSummary) {
-			cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
-			cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
-			cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
-		}
-		if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
-			cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
-		}
-
-		for _, sp := range []*string{
-			&cfg.Paths.NodeExporter,
-			&cfg.Paths.MySQLdExporter,
-			&cfg.Paths.MongoDBExporter,
-			&cfg.Paths.PostgresExporter,
-			&cfg.Paths.ProxySQLExporter,
-			&cfg.Paths.RDSExporter,
-			&cfg.Paths.AzureExporter,
-			&cfg.Paths.VMAgent,
-		} {
-			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
-				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
-			}
-			l.Infof("Using %s", *sp)
-		}
-
-		if cfg.Server.Address != "" {
-			if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
-				host := cfg.Server.Address
-				cfg.Server.Address = net.JoinHostPort(host, "443")
-				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
-			}
-		}
-
-		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
-			cfg.Debug = true
-		}
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
-			cfg.Trace = true
-		}
+		setDefaults(cfg, l)
 	}()
 
 	// parse command-line flags and environment variables
@@ -312,6 +215,109 @@ func get(args []string, l *logrus.Entry) (cfg *Config, configFileF string, err e
 	return //nolint:nakedret
 }
 
+func setDefaults(cfg *Config, l *logrus.Entry) {
+	if cfg == nil {
+		return
+	}
+
+	// set default values
+	if cfg.ListenSocket == "" && cfg.ListenAddress == "" && cfg.ListenPort == 0 {
+		cfg.ListenSocket = "/var/run/pmm-agent.sock"
+	}
+	if cfg.Ports.Min == 0 {
+		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
+	}
+	if cfg.Ports.Max == 0 {
+		cfg.Ports.Max = 51999
+	}
+	if cfg.WindowConnectedTime == 0 {
+		cfg.WindowConnectedTime = time.Hour
+	}
+
+	configurePaths(cfg, l)
+
+	if cfg.Server.Address != "" {
+		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+			host := cfg.Server.Address
+			cfg.Server.Address = net.JoinHostPort(host, "443")
+			l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
+		}
+	}
+
+	// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
+		cfg.Debug = true
+	}
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
+		cfg.Trace = true
+	}
+}
+
+func configurePaths(cfg *Config, l *logrus.Entry) {
+	for sp, v := range map[*string]string{
+		&cfg.Paths.NodeExporter:     "node_exporter",
+		&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
+		&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
+		&cfg.Paths.PostgresExporter: "postgres_exporter",
+		&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+		&cfg.Paths.RDSExporter:      "rds_exporter",
+		&cfg.Paths.AzureExporter:    "azure_exporter",
+		&cfg.Paths.VMAgent:          "vmagent",
+		&cfg.Paths.TempDir:          os.TempDir(),
+		&cfg.Paths.PTSummary:        "tools/pt-summary",
+		&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
+		&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
+		&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+	} {
+		if *sp == "" {
+			*sp = v
+		}
+	}
+
+	if cfg.Paths.PathsBase == "" {
+		cfg.Paths.PathsBase = pathBaseDefault
+	}
+	if cfg.Paths.ExportersBase == "" {
+		cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
+	}
+
+	if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
+		cfg.Paths.PathsBase = abs
+	}
+	if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+		cfg.Paths.ExportersBase = abs
+	}
+
+	if !filepath.IsAbs(cfg.Paths.PTSummary) {
+		cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
+	}
+	if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
+		cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
+	}
+	if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
+		cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
+	}
+	if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
+		cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
+	}
+
+	for _, sp := range []*string{
+		&cfg.Paths.NodeExporter,
+		&cfg.Paths.MySQLdExporter,
+		&cfg.Paths.MongoDBExporter,
+		&cfg.Paths.PostgresExporter,
+		&cfg.Paths.ProxySQLExporter,
+		&cfg.Paths.RDSExporter,
+		&cfg.Paths.AzureExporter,
+		&cfg.Paths.VMAgent,
+	} {
+		if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
+		}
+		l.Infof("Using %s", *sp)
+	}
+}
+
 // Application returns kingpin application that will parse command-line flags and environment variables
 // (but not configuration file) into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
@@ -334,6 +340,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_ADDRESS").StringVar(&cfg.ListenAddress)
 	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
+	app.Flag("listen-socket", "Agent socket to listen on [PMM_AGENT_LISTEN_SOCKET]").
+		Envar("PMM_AGENT_LISTEN_SOCKET").StringVar(&cfg.ListenSocket)
 	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
 		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
 

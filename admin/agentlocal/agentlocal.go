@@ -19,8 +19,10 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -31,16 +33,42 @@ import (
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 )
 
+// DefaultClient is http client configured either for socket or tcp connection to local pmm-agent.
+var DefaultClient = http.DefaultClient
+
 // SetTransport configures transport for accessing local pmm-agent API.
-func SetTransport(ctx context.Context, debug bool, port uint32) {
+func SetTransport(ctx context.Context, debug bool, port uint32, socket string) {
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(fmt.Sprintf("%s:%d", Localhost, port), "/", []string{"http"})
+	transport := httptransport.New(GetHostname(Localhost, port, ""), "/", []string{"http"})
+	if socket != "" {
+		// In order to connect via socket, we need to override DialContext.
+		// The rest of the configuration is from http.DefaultTransport.
+		tr, ok := http.DefaultTransport.(*http.Transport)
+		if !ok {
+			panic("Cannot assert http.DefaultTransport to *http.Transport")
+		}
+
+		t := tr.Clone()
+		t.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+			dialer := net.Dialer{}
+			return dialer.DialContext(ctx, "unix", socket)
+		}
+		cl := &http.Client{
+			Transport: t,
+		}
+		transport = httptransport.NewWithClient(GetHostname("", 0, socket), "/", []string{"http"}, cl)
+		DefaultClient = cl
+	}
+
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 	transport.Context = ctx
 
 	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport, ok := transport.Transport.(*http.Transport)
+	if !ok {
+		panic("Cannot assert transport to *http.Transport")
+	}
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	client.Default.SetTransport(transport)
@@ -178,4 +206,13 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 
 		ConnectionUptime: p.ConnectionUptime,
 	}, err
+}
+
+// GetHostname returns hostname for HTTP request depending on socket or host/port arguments.
+func GetHostname(host string, port uint32, socket string) string {
+	if socket != "" {
+		return "unix-socket"
+	}
+
+	return net.JoinHostPort(host, strconv.Itoa(int(port)))
 }
