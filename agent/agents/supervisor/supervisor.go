@@ -64,7 +64,7 @@ type Supervisor struct {
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
 
-	logLinesCount int
+	logLinesCount uint
 }
 
 // agentProcessInfo describes Agent process.
@@ -92,7 +92,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount int) *Supervisor {
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount uint) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
@@ -154,20 +154,37 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 func (s *Supervisor) AgentsLogs() map[string][]string {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	s.arw.RLock()
-	defer s.arw.RUnlock()
+
 	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
 		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logStore.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
 	}
 
 	for id, agent := range s.builtinAgents {
 		newID := strings.ReplaceAll(id, "/agent_id/", "")
-		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)] = agent.logStore.GetLogs()
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
 	}
 	return res
+}
+
+// AgentLogByID returns logs by Agent ID.
+func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	agentProcess, ok := s.agentProcesses[id]
+	if ok {
+		return agentProcess.logStore.GetLogs()
+	}
+
+	builtinAgent, ok := s.builtinAgents[id]
+	if ok {
+		return builtinAgent.logStore.GetLogs()
+	}
+
+	return nil, 0
 }
 
 // Changes returns channel with Agent's state changes.
