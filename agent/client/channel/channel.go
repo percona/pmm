@@ -282,6 +282,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.ParseCredentialsSource,
 			}
+		case *agentpb.ServerMessage_AgentLogs:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.AgentLogs,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:

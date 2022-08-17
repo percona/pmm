@@ -135,6 +135,10 @@ func (m *ParseCredentialsSourceResponse) AgentMessageResponsePayload() isAgentMe
 	return &AgentMessage_ParseCredentialsSource{ParseCredentialsSource: m}
 }
 
+func (m *AgentLogsResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_AgentLogs{AgentLogs: m}
+}
+
 // A list of ServerMessage response payloads.
 
 func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
@@ -200,6 +204,10 @@ func (m *ParseCredentialsSourceRequest) ServerMessageRequestPayload() isServerMe
 	return &ServerMessage_ParseCredentialsSource{ParseCredentialsSource: m}
 }
 
+func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_AgentLogs{AgentLogs: m}
+}
+
 // in alphabetical order
 func (*ActionResultRequest) sealed()            {}
 func (*ActionResultResponse) sealed()           {}
@@ -211,6 +219,8 @@ func (*JobStatusRequest) sealed()               {}
 func (*JobStatusResponse) sealed()              {}
 func (*ParseCredentialsSourceRequest) sealed()  {}
 func (*ParseCredentialsSourceResponse) sealed() {}
+func (*AgentLogsRequest) sealed()               {}
+func (*AgentLogsResponse) sealed()              {}
 func (*Ping) sealed()                           {}
 func (*Pong) sealed()                           {}
 func (*QANCollectRequest) sealed()              {}
@@ -253,6 +263,7 @@ var (
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 	_ AgentResponsePayload = (*ParseCredentialsSourceResponse)(nil)
+	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -272,6 +283,7 @@ var (
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 	_ ServerRequestPayload = (*ParseCredentialsSourceRequest)(nil)
+	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams
