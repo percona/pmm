@@ -23,10 +23,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-var (
-	// ErrIncompatibleAgentVersion is returned when the agent version is incompatible for making a backup or restore.
-	ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
-)
+// ErrIncompatibleAgentVersion is returned when the agent version is incompatible for making a backup or restore.
+var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
