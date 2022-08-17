@@ -31,3 +31,33 @@ func (_m *mockAgentsRegistry) IsConnected(pmmAgentID string) bool {
 func (_m *mockAgentsRegistry) Kick(ctx context.Context, pmmAgentID string) {
 	_m.Called(ctx, pmmAgentID)
 }
+
+// Logs provides a mock function with given fields: ctx, pmmAgentID, agentID, limit
+func (_m *mockAgentsRegistry) Logs(ctx context.Context, pmmAgentID string, agentID string, limit uint32) ([]string, uint32, error) {
+	ret := _m.Called(ctx, pmmAgentID, agentID, limit)
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, uint32) []string); ok {
+		r0 = rf(ctx, pmmAgentID, agentID, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 uint32
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, uint32) uint32); ok {
+		r1 = rf(ctx, pmmAgentID, agentID, limit)
+	} else {
+		r1 = ret.Get(1).(uint32)
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(context.Context, string, string, uint32) error); ok {
+		r2 = rf(ctx, pmmAgentID, agentID, limit)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
