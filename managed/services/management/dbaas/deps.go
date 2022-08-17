@@ -26,12 +26,16 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 )
 
-//go:generate mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=dbaasClient -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=versionService -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=grafanaClient -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
+	// Connect connects the client to dbaas-controller API.
+	Connect(ctx context.Context) error
+	// Disconnect disconnects the client from dbaas-controller API.
+	Disconnect() error
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
 	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// ListPXCClusters returns a list of PXC clusters.

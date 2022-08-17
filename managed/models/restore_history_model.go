@@ -21,7 +21,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // RestoreStatus shows current status of restore.
 type RestoreStatus string

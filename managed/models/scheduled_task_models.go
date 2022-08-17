@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // ScheduledTaskType represents scheduled task type.
 type ScheduledTaskType string

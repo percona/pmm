@@ -149,35 +149,37 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                   *reform.DB
-	vmdb                 *victoriametrics.Service
-	platformClient       *platformClient.Client
-	server               *server.Server
-	agentsRegistry       *agents.Registry
-	handler              *agents.Handler
-	actions              *agents.ActionsService
-	agentsStateUpdater   *agents.StateUpdater
-	connectionCheck      *agents.ConnectionChecker
-	defaultsFileParser   *agents.DefaultsFileParser
-	grafanaClient        *grafana.Client
-	checksService        *checks.Service
-	dbaasClient          *dbaas.Client
-	alertmanager         *alertmanager.Service
-	vmalert              *vmalert.Service
-	settings             *models.Settings
-	alertsService        *ia.AlertsService
-	templatesService     *ia.TemplatesService
-	rulesService         *ia.RulesService
-	jobsService          *agents.JobsService
-	versionServiceClient *managementdbaas.VersionServiceClient
-	schedulerService     *scheduler.Service
-	backupService        *backup.Service
-	backupRemovalService *backup.RemovalService
-	minioService         *minio.Service
-	versionCache         *versioncache.Service
-	supervisord          *supervisord.Service
-	config               *config.Config
-	componentsService    *managementdbaas.ComponentsService
+	db                     *reform.DB
+	vmdb                   *victoriametrics.Service
+	platformClient         *platformClient.Client
+	server                 *server.Server
+	agentsRegistry         *agents.Registry
+	handler                *agents.Handler
+	actions                *agents.ActionsService
+	agentsStateUpdater     *agents.StateUpdater
+	connectionCheck        *agents.ConnectionChecker
+	defaultsFileParser     *agents.DefaultsFileParser
+	grafanaClient          *grafana.Client
+	checksService          *checks.Service
+	dbaasClient            *dbaas.Client
+	alertmanager           *alertmanager.Service
+	vmalert                *vmalert.Service
+	settings               *models.Settings
+	alertsService          *ia.AlertsService
+	templatesService       *ia.TemplatesService
+	rulesService           *ia.RulesService
+	jobsService            *agents.JobsService
+	versionServiceClient   *managementdbaas.VersionServiceClient
+	schedulerService       *scheduler.Service
+	backupService          *backup.Service
+	backupRemovalService   *backup.RemovalService
+	minioService           *minio.Service
+	versionCache           *versioncache.Service
+	supervisord            *supervisord.Service
+	config                 *config.Config
+	componentsService      *managementdbaas.ComponentsService
+	dbClustersSynchronizer *managementdbaas.DBClustersSynchronizer
+	dbaasInitializer       *managementdbaas.Initializer
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -241,8 +243,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
-	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient, deps.dbClustersSynchronizer))
+	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient, deps.dbClustersSynchronizer))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
@@ -772,6 +774,8 @@ func main() {
 	defaultsFileParser := agents.NewDefaultsFileParser(agentsRegistry)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
+	dbClustersSynchronizer := managementdbaas.NewDBClustersSynchronizer(db, dbaasClient)
+	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient, dbClustersSynchronizer)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -787,7 +791,7 @@ func main() {
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
-		DbaasClient:          dbaasClient,
+		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
 	}
 
@@ -869,14 +873,12 @@ func main() {
 			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
 		} else {
 			l.Debug("DBaaS is enabled - creating a DBaaS client.")
-			ctx, cancel := context.WithTimeout(ctx, time.Second*20)
-			err := dbaasClient.Connect(ctx)
-			cancel()
+			err := dbaasInitializer.Enable(ctx)
 			if err != nil {
-				l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
+				l.Fatalf("Failed to enable DBaaS: %v", err)
 			}
 			defer func() {
-				err := dbaasClient.Disconnect()
+				err := dbaasInitializer.Disable(context.Background())
 				if err != nil {
 					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
 				}
@@ -946,35 +948,37 @@ func main() {
 		defer wg.Done()
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				db:                   db,
-				vmdb:                 vmdb,
-				platformClient:       platformClient,
-				server:               server,
-				agentsRegistry:       agentsRegistry,
-				handler:              agentsHandler,
-				actions:              actionsService,
-				agentsStateUpdater:   agentsStateUpdater,
-				connectionCheck:      connectionCheck,
-				grafanaClient:        grafanaClient,
-				checksService:        checksService,
-				dbaasClient:          dbaasClient,
-				alertmanager:         alertManager,
-				vmalert:              vmalert,
-				settings:             settings,
-				alertsService:        alertsService,
-				templatesService:     templatesService,
-				rulesService:         rulesService,
-				jobsService:          jobsService,
-				versionServiceClient: versionService,
-				schedulerService:     schedulerService,
-				backupService:        backupService,
-				backupRemovalService: backupRemovalService,
-				minioService:         minioService,
-				versionCache:         versionCache,
-				supervisord:          supervisord,
-				config:               &cfg.Config,
-				defaultsFileParser:   defaultsFileParser,
-				componentsService:    componentsService,
+				db:                     db,
+				vmdb:                   vmdb,
+				platformClient:         platformClient,
+				server:                 server,
+				agentsRegistry:         agentsRegistry,
+				handler:                agentsHandler,
+				actions:                actionsService,
+				agentsStateUpdater:     agentsStateUpdater,
+				connectionCheck:        connectionCheck,
+				grafanaClient:          grafanaClient,
+				checksService:          checksService,
+				dbaasClient:            dbaasClient,
+				alertmanager:           alertManager,
+				vmalert:                vmalert,
+				settings:               settings,
+				alertsService:          alertsService,
+				templatesService:       templatesService,
+				rulesService:           rulesService,
+				jobsService:            jobsService,
+				versionServiceClient:   versionService,
+				schedulerService:       schedulerService,
+				backupService:          backupService,
+				backupRemovalService:   backupRemovalService,
+				minioService:           minioService,
+				versionCache:           versionCache,
+				supervisord:            supervisord,
+				config:                 &cfg.Config,
+				defaultsFileParser:     defaultsFileParser,
+				componentsService:      componentsService,
+				dbClustersSynchronizer: dbClustersSynchronizer,
+				dbaasInitializer:       dbaasInitializer,
 			})
 	}()
 

@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // ComponentSettings stores info about DBaaS ComponentSettings
 type ComponentSettings struct {

@@ -205,6 +205,14 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		return nil, err
 	}
+	_, err = models.CreateOrUpdateDBCluster(s.db.Querier, models.PXCType, &models.DBClusterParams{
+		KubernetesClusterID: kubernetesCluster.ID,
+		Name:                req.Name,
+		InstalledImage:      req.Params.Pxc.Image,
+	})
+	if err != nil {
+		s.l.Warnf("couldn't store db cluster to database: %s", err)
+	}
 
 	return &dbaasv1beta1.CreatePXCClusterResponse{}, nil
 }

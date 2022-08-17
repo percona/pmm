@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // Rule represents alert rule configuration.
 //reform:ia_rules

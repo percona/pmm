@@ -15,7 +15,7 @@
 
 package grafana
 
-//go:generate mockery -name=awsInstanceChecker -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=awsInstanceChecker -case=snake -inpkg -testonly
 
 // checker is a subset of methods of server.AWSInstanceChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

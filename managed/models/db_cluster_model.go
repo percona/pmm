@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // ComputeResources represents container computer resources requests or limits.
 type ComputeResources struct {

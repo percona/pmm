@@ -16,6 +16,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -130,11 +132,31 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 }
 
 // RemoveKubernetesCluster removes Kubernetes cluster with provided name.
-func RemoveKubernetesCluster(q *reform.Querier, name string) error {
+func RemoveKubernetesCluster(q *reform.Querier, name string, mode RemoveMode) error {
 	c, err := FindKubernetesClusterByName(q, name)
 	if err != nil {
 		return err
 	}
 
-	return errors.Wrap(q.Delete(c), "failed to delete Kubernetes Cluster")
+	dbClusters, err := FindDBClusters(q, DBClusterFilters{KubernetesClusterID: c.ID})
+	if len(dbClusters) != 0 {
+		switch mode {
+		case RemoveRestrict:
+			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster with ID %q has DB clusters.", c.ID)
+		case RemoveCascade:
+			for _, str := range dbClusters {
+				if _, err = RemoveDBCluster(q, str.ID); err != nil {
+					return err
+				}
+			}
+		default:
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+		}
+	}
+
+	if err = q.Delete(c); err != nil {
+		return errors.Wrap(err, "failed to delete Kubernetes Cluster")
+	}
+
+	return nil
 }

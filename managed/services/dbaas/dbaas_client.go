@@ -74,7 +74,7 @@ func (c *Client) Connect(ctx context.Context) error {
 
 	conn, err := grpc.DialContext(ctx, c.dbaasControllerAPIAddress, opts...)
 	if err != nil {
-		return errors.Errorf("failed to connect to dbaas-controller API: %v", err)
+		return errors.Errorf("failed to connect to dbaas-controller API on %s: %v", c.dbaasControllerAPIAddress, err)
 	}
 	c.conn = conn
 

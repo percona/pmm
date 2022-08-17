@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // SoftwareName represents software name.
 type SoftwareName string

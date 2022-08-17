@@ -36,7 +36,7 @@ var (
 	minCheckInterval          = 5 * time.Second
 )
 
-//go:generate mockery -name=Versioner -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=Versioner -case=snake -inpkg -testonly
 
 // Versioner contains method for retrieving versions of different software.
 type Versioner interface {

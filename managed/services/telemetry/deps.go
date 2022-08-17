@@ -25,10 +25,10 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-//go:generate mockery -name=distributionUtilService -case=snake -inpkg -testonly
-//go:generate mockery -name=sender -case=snake -inpkg -testonly
-//go:generate mockery -name=DataSourceLocator -case=snake -inpkg -testonly
-//go:generate mockery -name=DataSource -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=distributionUtilService -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=sender -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=DataSourceLocator -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=DataSource -case=snake -inpkg -testonly
 
 // distributionUtilService service to get info about OS on which pmm server is running
 type distributionUtilService interface {

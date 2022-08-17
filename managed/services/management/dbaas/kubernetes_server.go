@@ -51,24 +51,26 @@ var (
 )
 
 type kubernetesServer struct {
-	l              *logrus.Entry
-	db             *reform.DB
-	dbaasClient    dbaasClient
-	versionService versionService
-	grafanaClient  grafanaClient
+	l                 *logrus.Entry
+	db                *reform.DB
+	dbaasClient       dbaasClient
+	versionService    versionService
+	grafanaClient     grafanaClient
+	dbClusterImporter *DBClustersSynchronizer
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService, dbClusterImporter *DBClustersSynchronizer) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:              l,
-		db:             db,
-		dbaasClient:    dbaasClient,
-		grafanaClient:  grafanaClient,
-		versionService: versionService,
+		l:                 l,
+		db:                db,
+		dbaasClient:       dbaasClient,
+		grafanaClient:     grafanaClient,
+		versionService:    versionService,
+		dbClusterImporter: dbClusterImporter,
 	}
 }
 
@@ -263,22 +265,17 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
 
-	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
-	err = k.db.InTransaction(func(t *reform.TX) error {
-		var e error
-		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
-		if e != nil {
-			return e
-		}
+	clusterInfo, err := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
-			KubernetesClusterName: req.KubernetesClusterName,
-			KubeConfig:            req.KubeAuth.Kubeconfig,
-		})
-		return err
+	kubernetesCluster, err := models.CreateKubernetesCluster(k.db.Querier, &models.CreateKubernetesClusterParams{
+		KubernetesClusterName: req.KubernetesClusterName,
+		KubeConfig:            req.KubeAuth.Kubeconfig,
 	})
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
@@ -348,6 +345,13 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		}
 	}
 
+	go func() {
+		err := k.dbClusterImporter.SyncDBClusters(context.Background(), kubernetesCluster)
+		if err != nil {
+			k.l.Errorf("Error during sync with Kubernetes Cluster: %q", err)
+		}
+	}()
+
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
@@ -359,10 +363,6 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 			return err
 		}
 
-		if req.Force {
-			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
-		}
-
 		_, err = k.dbaasClient.StopMonitoring(ctx, &dbaascontrollerv1beta1.StopMonitoringRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
 				Kubeconfig: kubernetesCluster.KubeConfig,
@@ -371,6 +371,10 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 
 		if err != nil {
 			k.l.Warnf("cannot stop monitoring: %s", err)
+		}
+
+		if req.Force {
+			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName, models.RemoveCascade)
 		}
 
 		pxcClusters, err := k.dbaasClient.ListPXCClusters(ctx,
@@ -401,7 +405,7 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		case len(psmdbClusters.Clusters) != 0:
 			return status.Errorf(codes.FailedPrecondition, "Kubernetes cluster %s has PSMDB clusters", req.KubernetesClusterName)
 		}
-		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName, models.RemoveCascade)
 	})
 	if err != nil {
 		return nil, err

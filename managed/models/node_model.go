@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // NodeType represents Node type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.

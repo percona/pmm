@@ -21,7 +21,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // DataModel represents a data model used for performing a backup.
 type DataModel string

@@ -108,6 +108,57 @@ func CreateOrUpdateDBCluster(q *reform.Querier, dbClusterType DBClusterType, par
 	return row, nil
 }
 
+// FindDBClusterByID finds DB cluster by ID.
+func FindDBClusterByID(q *reform.Querier, id string) (*DBCluster, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty DB Cluster ID.")
+	}
+
+	dbCluster := &DBCluster{ID: id}
+	switch err := q.Reload(dbCluster); err {
+	case nil:
+		return dbCluster, nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "DB Cluster with ID %q not found.", id)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
+// FindDBClusterByName finds DB cluster by Name and Kubernetes cluster ID.
+func FindDBClusterByName(q *reform.Querier, kubernetesClusterID string, dbClusterName string) (*DBCluster, error) {
+	if kubernetesClusterID == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty K8S Cluster ID.")
+	}
+	if dbClusterName == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty DB Cluster Name.")
+	}
+
+	dbCluster, err := q.SelectOneFrom(DBClusterTable, "WHERE kubernetes_cluster_id = $1 AND name = $2 ORDER BY created_at DESC", kubernetesClusterID, dbClusterName)
+	switch err {
+	case nil:
+		return dbCluster.(*DBCluster), nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "DB Cluster with name %q not found in kubernetes cluster with ID %q.", dbClusterName, kubernetesClusterID)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
+// RemoveDBCluster removes DB cluster by ID.
+func RemoveDBCluster(q *reform.Querier, id string) (*DBCluster, error) {
+	c, err := FindDBClusterByID(q, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = q.Delete(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to delete Kubernetes Cluster")
+	}
+	return c, nil
+}
+
 func checkUniqueDBClusterID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty DB Cluster ID")

@@ -15,7 +15,7 @@
 
 package models
 
-//go:generate reform
+//go:generate $PMM_RELEASE_PATH/reform
 
 // Interval represents check execution interval.
 type Interval string

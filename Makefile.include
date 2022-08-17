@@ -1,7 +1,7 @@
 .PHONY: default init release gen test clean all
 default: help
 
-PMM_RELEASE_PATH ?= ./bin
+PMM_RELEASE_PATH ?= $(PWD)/bin
 
 help:                           ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"

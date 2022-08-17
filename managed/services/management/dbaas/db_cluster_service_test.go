@@ -118,7 +118,7 @@ func TestDBClusterService(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("BasicListPXCClusters", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		//mockPXCResp := controllerv1beta1.ListPXCClustersResponse{
 		//	Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
 		//		{
@@ -210,7 +210,7 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartPXCCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		mockReq := controllerv1beta1.RestartPXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: dbKubeconfigTest,
@@ -231,7 +231,7 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicRestartPSMDBCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		mockReq := controllerv1beta1.RestartPSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: dbKubeconfigTest,
@@ -252,7 +252,7 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePXCCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		dbClusterName := "delete-pxc-test"
 		mockReq := controllerv1beta1.DeletePXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
@@ -275,7 +275,7 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		dbClusterName := "delete-psmdb-test"
 		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
