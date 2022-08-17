@@ -30,11 +30,13 @@ import (
 
 const (
 	// How many times check if backup/restore operation was started
-	maxBackupChecks     = 10
-	maxRestoreChecks    = 10
+	maxBackupChecks  = 10
+	maxRestoreChecks = 10
+
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 3 * time.Second
+	maxLogsChunkSize    = 50
 )
 
 type pbmSeverity int
@@ -331,4 +333,44 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	}
 
 	return tmp.Name(), tmp.Close()
+}
+
+// Serialization helpers
+
+// Storage represents target storage parameters.
+type Storage struct {
+	Type         string       `yaml:"type"`
+	S3           S3           `yaml:"s3"`
+	LocalStorage LocalStorage `yaml:"filesystem"`
+}
+
+// S3 represents S3 storage parameters.
+type S3 struct {
+	Region      string      `yaml:"region"`
+	Bucket      string      `yaml:"bucket"`
+	Prefix      string      `yaml:"prefix"`
+	EndpointURL string      `yaml:"endpointUrl"`
+	Credentials Credentials `yaml:"credentials"`
+}
+
+// LocalStorage represents local storage parameters.
+type LocalStorage struct {
+	Path string `yaml:"path"`
+}
+
+// Credentials contains S3 credentials.
+type Credentials struct {
+	AccessKeyID     string `yaml:"access-key-id"`
+	SecretAccessKey string `yaml:"secret-access-key"`
+}
+
+// PITR contains Point-in-Time recovery reature related parameters.
+type PITR struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// PBMConfig represents pbm configuration file.
+type PBMConfig struct {
+	Storage Storage `yaml:"storage"`
+	PITR    PITR    `yaml:"pitr"`
 }

@@ -34,8 +34,9 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMySQLBackupAndRestore   = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoDBBackupAndRestore = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMongoDBBackupAndRestore         = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore           = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage = version.Must(version.NewVersion("2.30.0-0"))
 )
 
 const (
@@ -64,7 +65,7 @@ func NewJobsService(db *reform.DB, registry *Registry, retention retentionServic
 func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	var job *models.Job
 	var artifact *models.Artifact
-	var location *models.BackupLocation
+	var locationModel *models.BackupLocation
 	var locationConfig *models.BackupLocationConfig
 	var dbConfig *models.DBConfig
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
@@ -90,7 +91,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 				return errors.WithStack(err)
 			}
 
-			location, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+			locationModel, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -104,7 +105,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 				return errors.WithStack(err)
 			}
 
-			location, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
+			locationModel, err = models.FindBackupLocationByID(tx.Querier, artifact.LocationID)
 			if err != nil {
 				return errors.WithStack(err)
 			}
@@ -126,11 +127,11 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 		return errTx
 	}
 
-	if location != nil {
+	if locationModel != nil {
 		locationConfig = &models.BackupLocationConfig{
-			PMMServerConfig: location.PMMServerConfig,
-			PMMClientConfig: location.PMMClientConfig,
-			S3Config:        location.S3Config,
+			PMMServerConfig: locationModel.PMMServerConfig,
+			PMMClientConfig: locationModel.PMMClientConfig,
+			S3Config:        locationModel.S3Config,
 		}
 	}
 
@@ -386,6 +387,15 @@ func (s *JobsService) StartMongoDBBackupJob(
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
+	case locationConfig.PMMClientConfig != nil:
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb backup to client local storage",
+			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			return err
+		}
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig{
+			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
+		}
 	default:
 		return errors.Errorf("unsupported location config")
 	}
@@ -488,6 +498,15 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	case locationConfig.S3Config != nil:
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
+		}
+	case locationConfig.PMMClientConfig != nil:
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb restore from client local storage",
+			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			return err
+		}
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig{
+			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
 		}
 	default:
 		return errors.Errorf("unsupported location config")

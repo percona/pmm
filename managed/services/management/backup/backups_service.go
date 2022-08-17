@@ -33,6 +33,7 @@ import (
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
@@ -81,6 +82,10 @@ func convertBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
 	default:
 		return restoreError
 	}
@@ -548,7 +553,7 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
-	locations map[string]*models.BackupLocation,
+	locationModels map[string]*models.BackupLocation,
 ) (*backupv1beta1.ScheduledBackup, error) {
 	scheduledBackup := &backupv1beta1.ScheduledBackup{
 		ScheduledBackupId: task.ID,
@@ -600,7 +605,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 
 	scheduledBackup.ServiceName = services[scheduledBackup.ServiceId].ServiceName
 	scheduledBackup.Vendor = string(services[scheduledBackup.ServiceId].ServiceType)
-	scheduledBackup.LocationName = locations[scheduledBackup.LocationId].Name
+	scheduledBackup.LocationName = locationModels[scheduledBackup.LocationId].Name
 
 	return scheduledBackup, nil
 }

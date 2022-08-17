@@ -122,10 +122,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	}
 
 	var artifact *models.Artifact
-	var location *models.BackupLocation
+	var locationModel *models.BackupLocation
 	var svc *models.Service
 	var job *models.Job
-	var config *models.DBConfig
+	var dbConfig *models.DBConfig
 
 	name := params.Name
 	if params.Mode == models.Snapshot {
@@ -139,7 +139,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			return err
 		}
 
-		location, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
+		locationModel, err = models.FindBackupLocationByID(tx.Querier, params.LocationID)
 		if err != nil {
 			return err
 		}
@@ -191,7 +191,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				Name:       name,
 				Vendor:     string(svc.ServiceType),
 				DBVersion:  dbVersion,
-				LocationID: location.ID,
+				LocationID: locationModel.ID,
 				ServiceID:  svc.ServiceID,
 				DataModel:  params.DataModel,
 				Mode:       params.Mode,
@@ -208,36 +208,33 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
-		if job, config, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
+		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
 			return err
 		}
-		return nil
+
+		locationConfig := &models.BackupLocationConfig{
+			PMMServerConfig: locationModel.PMMServerConfig,
+			PMMClientConfig: locationModel.PMMClientConfig,
+			S3Config:        locationModel.S3Config,
+		}
+
+		switch svc.ServiceType {
+		case models.MySQLServiceType:
+			return s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
+		case models.MongoDBServiceType:
+			return s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, params.Mode, locationConfig)
+		case models.PostgreSQLServiceType,
+			models.ProxySQLServiceType,
+			models.HAProxyServiceType,
+			models.ExternalServiceType:
+			return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+		default:
+			return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
+		}
 	})
+
 	if errTX != nil {
 		return "", errTX
-	}
-
-	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: location.PMMServerConfig,
-		PMMClientConfig: location.PMMClientConfig,
-		S3Config:        location.S3Config,
-	}
-
-	switch svc.ServiceType {
-	case models.MySQLServiceType:
-		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, config, locationConfig)
-	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, config, params.Mode, locationConfig)
-	case models.PostgreSQLServiceType,
-		models.ProxySQLServiceType,
-		models.HAProxyServiceType,
-		models.ExternalServiceType:
-		return "", status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
-	default:
-		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
-	}
-	if err != nil {
-		return "", err
 	}
 
 	return artifact.ID, nil
@@ -264,12 +261,12 @@ func checkMongoBackupPreconditions(q *reform.Querier, service *models.Service, s
 }
 
 type prepareRestoreJobParams struct {
-	AgentID      string
-	ArtifactName string
-	DBVersion    string
-	Location     *models.BackupLocation
-	ServiceType  models.ServiceType
-	DBConfig     *models.DBConfig
+	AgentID       string
+	ArtifactName  string
+	DBVersion     string
+	LocationModel *models.BackupLocation
+	ServiceType   models.ServiceType
+	DBConfig      *models.DBConfig
 }
 
 // RestoreBackup starts restore backup job.
@@ -480,20 +477,20 @@ func (s *Service) prepareRestoreJob(
 	}
 
 	return &prepareRestoreJobParams{
-		AgentID:      pmmAgents[0].AgentID,
-		ArtifactName: artifact.Name,
-		DBVersion:    artifact.DBVersion,
-		Location:     location,
-		ServiceType:  service.ServiceType,
-		DBConfig:     dbConfig,
+		AgentID:       pmmAgents[0].AgentID,
+		ArtifactName:  artifact.Name,
+		DBVersion:     artifact.DBVersion,
+		LocationModel: location,
+		ServiceType:   service.ServiceType,
+		DBConfig:      dbConfig,
 	}, nil
 }
 
 func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestoreJobParams) error {
 	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: params.Location.PMMServerConfig,
-		PMMClientConfig: params.Location.PMMClientConfig,
-		S3Config:        params.Location.S3Config,
+		PMMServerConfig: params.LocationModel.PMMServerConfig,
+		PMMClientConfig: params.LocationModel.PMMClientConfig,
+		S3Config:        params.LocationModel.S3Config,
 	}
 
 	switch params.ServiceType {

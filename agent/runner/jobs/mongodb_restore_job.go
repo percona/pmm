@@ -29,24 +29,24 @@ import (
 
 // MongoDBRestoreJob implements Job for MongoDB restore.
 type MongoDBRestoreJob struct {
-	id        string
-	timeout   time.Duration
-	l         *logrus.Entry
-	name      string
-	timestamp *time.Time
-	dbURL     *url.URL
-	location  BackupLocationConfig
+	id             string
+	timeout        time.Duration
+	l              *logrus.Entry
+	name           string
+	timestamp      *time.Time
+	dbURL          *url.URL
+	locationConfig BackupLocationConfig
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
 func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
-		name:     name,
-		dbURL:    createDBURL(dbConfig),
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
+		name:           name,
+		dbURL:          createDBURL(dbConfig),
+		locationConfig: locationConfig,
 	}
 }
 
@@ -77,18 +77,25 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		},
 	}
 	switch {
-	case j.location.S3Config != nil:
+	case j.locationConfig.Type == S3BackupLocationType:
 		conf.Storage = Storage{
 			Type: "s3",
 			S3: S3{
-				EndpointURL: j.location.S3Config.Endpoint,
-				Region:      j.location.S3Config.BucketRegion,
-				Bucket:      j.location.S3Config.BucketName,
+				EndpointURL: j.locationConfig.S3Config.Endpoint,
+				Region:      j.locationConfig.S3Config.BucketRegion,
+				Bucket:      j.locationConfig.S3Config.BucketName,
 				Prefix:      j.name,
 				Credentials: Credentials{
-					AccessKeyID:     j.location.S3Config.AccessKey,
-					SecretAccessKey: j.location.S3Config.SecretKey,
+					AccessKeyID:     j.locationConfig.S3Config.AccessKey,
+					SecretAccessKey: j.locationConfig.S3Config.SecretKey,
 				},
+			},
+		}
+	case j.locationConfig.Type == PMMClientBackupLocationType:
+		conf.Storage = Storage{
+			Type: "filesystem",
+			LocalStorage: LocalStorage{
+				Path: j.locationConfig.LocalStorageConfig.Path,
 			},
 		}
 	default:

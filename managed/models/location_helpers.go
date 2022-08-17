@@ -29,7 +29,7 @@ import (
 
 func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	if id == "" {
-		panic("empty Location ID")
+		panic("empty Location ID") // Why should we panic here?
 	}
 
 	location := &BackupLocation{ID: id}
@@ -45,7 +45,7 @@ func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 
 func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	if name == "" {
-		panic("empty Location Name")
+		panic("empty Location Name") // Why should we panic here?
 	}
 
 	var location BackupLocation
@@ -245,24 +245,24 @@ func (c BackupLocationConfig) Validate(params BackupLocationValidationParams) er
 	return err
 }
 
-// FillLocationConfig fills provided location according to backup config.
-func (c BackupLocationConfig) FillLocationConfig(location *BackupLocation) {
+// FillLocationModel fills provided location model according to backup config.
+func (c BackupLocationConfig) FillLocationModel(locationModel *BackupLocation) {
 	switch {
 	case c.S3Config != nil:
-		location.Type = S3BackupLocationType
-		location.S3Config = c.S3Config
-		location.PMMClientConfig = nil
-		location.PMMServerConfig = nil
+		locationModel.Type = S3BackupLocationType
+		locationModel.S3Config = c.S3Config
+		locationModel.PMMClientConfig = nil
+		locationModel.PMMServerConfig = nil
 	case c.PMMServerConfig != nil:
-		location.Type = PMMServerBackupLocationType
-		location.PMMServerConfig = c.PMMServerConfig
-		location.PMMClientConfig = nil
-		location.S3Config = nil
+		locationModel.Type = PMMServerBackupLocationType
+		locationModel.PMMServerConfig = c.PMMServerConfig
+		locationModel.PMMClientConfig = nil
+		locationModel.S3Config = nil
 	case c.PMMClientConfig != nil:
-		location.Type = PMMClientBackupLocationType
-		location.PMMClientConfig = c.PMMClientConfig
-		location.PMMServerConfig = nil
-		location.S3Config = nil
+		locationModel.Type = PMMClientBackupLocationType
+		locationModel.PMMClientConfig = c.PMMClientConfig
+		locationModel.PMMServerConfig = nil
+		locationModel.S3Config = nil
 	}
 }
 
@@ -299,7 +299,7 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 		Description: params.Description,
 	}
 
-	params.FillLocationConfig(row)
+	params.FillLocationModel(row)
 
 	if err := q.Insert(row); err != nil {
 		return nil, errors.Wrap(err, "failed to create backup location")
@@ -342,7 +342,7 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 	}
 
 	// Replace old configuration by config from params
-	params.FillLocationConfig(row)
+	params.FillLocationModel(row)
 
 	if err := q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update backup location")

@@ -119,10 +119,10 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		params.S3Config.BucketRegion = bucketLocation
 	}
 
-	var loc *models.BackupLocation
+	var locationModel *models.BackupLocation
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		loc, err = models.CreateBackupLocation(tx.Querier, params)
+		locationModel, err = models.CreateBackupLocation(tx.Querier, params)
 		if err != nil {
 			return err
 		}
@@ -133,7 +133,7 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 	}
 
 	return &backupv1beta1.AddLocationResponse{
-		LocationId: loc.ID,
+		LocationId: locationModel.ID,
 	}, nil
 }
 
@@ -199,10 +199,10 @@ func (s *LocationsService) TestLocationConfig(
 	ctx context.Context,
 	req *backupv1beta1.TestLocationConfigRequest,
 ) (*backupv1beta1.TestLocationConfigResponse, error) {
-	var params models.BackupLocationConfig
+	var locationConfig models.BackupLocationConfig
 
 	if req.S3Config != nil {
-		params.S3Config = &models.S3LocationConfig{
+		locationConfig.S3Config = &models.S3LocationConfig{
 			Endpoint:   req.S3Config.Endpoint,
 			AccessKey:  req.S3Config.AccessKey,
 			SecretKey:  req.S3Config.SecretKey,
@@ -211,18 +211,18 @@ func (s *LocationsService) TestLocationConfig(
 	}
 
 	if req.PmmServerConfig != nil {
-		params.PMMServerConfig = &models.PMMServerLocationConfig{
+		locationConfig.PMMServerConfig = &models.PMMServerLocationConfig{
 			Path: req.PmmServerConfig.Path,
 		}
 	}
 
 	if req.PmmClientConfig != nil {
-		params.PMMClientConfig = &models.PMMClientLocationConfig{
+		locationConfig.PMMClientConfig = &models.PMMClientLocationConfig{
 			Path: req.PmmClientConfig.Path,
 		}
 	}
 
-	if err := params.Validate(models.BackupLocationValidationParams{
+	if err := locationConfig.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: false,
 	}); err != nil {
@@ -230,7 +230,7 @@ func (s *LocationsService) TestLocationConfig(
 	}
 
 	if req.S3Config != nil {
-		if err := s.checkBucket(ctx, params.S3Config); err != nil {
+		if err := s.checkBucket(ctx, locationConfig.S3Config); err != nil {
 			return nil, err
 		}
 	}
@@ -255,29 +255,29 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 	return &backupv1beta1.RemoveLocationResponse{}, nil
 }
 
-func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, error) {
+func convertLocation(locationModel *models.BackupLocation) (*backupv1beta1.Location, error) {
 	loc := &backupv1beta1.Location{
-		LocationId:  location.ID,
-		Name:        location.Name,
-		Description: location.Description,
+		LocationId:  locationModel.ID,
+		Name:        locationModel.Name,
+		Description: locationModel.Description,
 	}
-	switch location.Type {
+	switch locationModel.Type {
 	case models.PMMClientBackupLocationType:
-		config := location.PMMClientConfig
+		config := locationModel.PMMClientConfig
 		loc.Config = &backupv1beta1.Location_PmmClientConfig{
 			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: config.Path,
 			},
 		}
 	case models.PMMServerBackupLocationType:
-		config := location.PMMServerConfig
+		config := locationModel.PMMServerConfig
 		loc.Config = &backupv1beta1.Location_PmmServerConfig{
 			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
 				Path: config.Path,
 			},
 		}
 	case models.S3BackupLocationType:
-		config := location.S3Config
+		config := locationModel.S3Config
 		loc.Config = &backupv1beta1.Location_S3Config{
 			S3Config: &backupv1beta1.S3LocationConfig{
 				Endpoint:   config.Endpoint,
@@ -287,7 +287,7 @@ func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, 
 			},
 		}
 	default:
-		return nil, errors.Errorf("unknown backup location type %s", location.Type)
+		return nil, errors.Errorf("unknown backup location type %s", locationModel.Type)
 	}
 	return loc, nil
 }
