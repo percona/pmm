@@ -129,7 +129,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
-	args = withLogLevel(args, exporter.LogLevel, agentVersion)
+	args = withLogLevel(args, exporter.LogLevel, agentVersion, true)
 
 	sort.Strings(args)
 
