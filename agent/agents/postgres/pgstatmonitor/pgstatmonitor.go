@@ -50,6 +50,7 @@ type PGStatMonitorQAN struct {
 	changes              chan agents.Change
 	monitorCache         *statMonitorCache
 	disableQueryExamples bool
+	waitTime             time.Duration
 }
 
 // Params represent Agent parameters.
@@ -224,6 +225,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 	running = m.checkDefaultWaitTime(waitTime)
 
+	m.waitTime = waitTime
+
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
@@ -268,6 +271,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.resetWaitTime(t, waitTime)
 				continue
 			}
+
+			m.waitTime = waitTime
 
 			lengthS := uint32(waitTime.Seconds())
 			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
@@ -422,7 +427,8 @@ func (m *PGStatMonitorQAN) checkErrorsView(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "cannot parse messageTime")
 		}
-		if now.After(messageTime) {
+
+		if now.After(messageTime.Add(m.waitTime)) {
 			continue
 		}
 
