@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/runner/jobs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -74,13 +75,14 @@ type Client struct {
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
 
-	cus *connectionuptime.Service
+	cus      *connectionuptime.Service
+	logStore *tailog.Store
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -93,6 +95,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		runner:             runner.New(cfg.RunnerCapacity),
 		defaultsFileParser: dfp,
 		cus:                cus,
+		logStore:           logStore,
 	}
 }
 
@@ -338,6 +341,12 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &resp
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
+		case *agentpb.AgentLogsRequest:
+			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
+			responsePayload = &agentpb.AgentLogsResponse{
+				Logs:                     logs,
+				AgentConfigLogLinesCount: uint32(configLogLinesCount),
+			}
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
@@ -575,6 +584,29 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	}
 
 	return c.runner.StartJob(job)
+}
+
+func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
+	var (
+		logs     []string
+		capacity uint
+	)
+
+	if c.cfg.ID == agentID {
+		logs, capacity = c.logStore.GetLogs()
+	} else {
+		logs, capacity = c.supervisor.AgentLogByID(agentID)
+	}
+
+	if limit > 0 && len(logs) > int(limit) {
+		logs = logs[len(logs)-int(limit):]
+	}
+
+	for i, log := range logs {
+		logs[i] = strings.TrimSuffix(log, "\n")
+	}
+
+	return logs, capacity
 }
 
 type dialResult struct {
