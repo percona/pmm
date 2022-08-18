@@ -17,14 +17,14 @@ package dbaas
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"sync"
 	"time"
 
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -33,6 +33,7 @@ import (
 type deletingDBCluster struct {
 	kubernetesClusterID string
 	dbClusterName       string
+	clusterType         models.DBClusterType
 }
 
 // DBClustersSynchronizer synchronizes DB Clusters between real kubernetes cluster and our DB.
@@ -85,6 +86,7 @@ func (s *DBClustersSynchronizer) Run(ctx context.Context) {
 		}
 	}
 }
+
 func (s *DBClustersSynchronizer) syncAllDBClusters(ctx context.Context) {
 	clusters, err := models.FindAllKubernetesClusters(s.db.Querier)
 	if err != nil {
@@ -147,7 +149,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 	}
 
 	for _, c := range pxc.Clusters {
-		_, err := models.CreateOrUpdateDBCluster(s.db.Querier, models.PXCType, &models.DBClusterParams{
+		cluster, err := models.CreateOrUpdateDBCluster(s.db.Querier, models.PXCType, &models.DBClusterParams{
 			KubernetesClusterID: kubernetesCluster.ID,
 			Name:                c.Name,
 			InstalledImage:      c.Params.Pxc.Image,
@@ -156,7 +158,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			return errors.Wrapf(err, "couldn't store PXC cluster to DB")
 		}
 		if c.State == dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING {
-			s.WaitForDBClusterDeletion(kubernetesCluster.ID, c.Name)
+			s.WaitForDBClusterDeletion(cluster)
 		}
 	}
 
@@ -170,9 +172,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			return errors.Wrapf(err, "couldn't store PSMDB cluster to DB")
 		}
 	}
-	clusters, err := models.FindDBClusters(s.db.Querier, models.DBClusterFilters{
-		KubernetesClusterID: kubernetesCluster.ID,
-	})
+	clusters, err := models.FindDBClustersForKubernetesCluster(s.db.Querier, kubernetesCluster.ID)
 	for _, cluster := range clusters {
 		var found bool
 		switch cluster.ClusterType {
@@ -202,14 +202,15 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 	return nil
 }
 
-func (s *DBClustersSynchronizer) WaitForDBClusterDeletion(kubernetesClusterID string, name string) {
+func (s *DBClustersSynchronizer) WaitForDBClusterDeletion(cluster *models.DBCluster) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
-	cluster := deletingDBCluster{
-		kubernetesClusterID: kubernetesClusterID,
-		dbClusterName:       name,
+	c := deletingDBCluster{
+		kubernetesClusterID: cluster.KubernetesClusterID,
+		dbClusterName:       cluster.Name,
+		clusterType:         cluster.ClusterType,
 	}
-	s.deletingClusters[cluster] = struct{}{}
+	s.deletingClusters[c] = struct{}{}
 }
 
 func (s *DBClustersSynchronizer) syncDeletingDBClusters(ctx context.Context) {
@@ -224,7 +225,7 @@ func (s *DBClustersSynchronizer) syncDeletingDBClusters(ctx context.Context) {
 			defer wg.Done()
 			if exist, err := s.checkDBClusterExists(c, ctx); err != nil {
 				s.l.Warn(err)
-				// Remove
+				// Remove non-existing clusters.
 				if errors.Is(err, reform.ErrNoRows) {
 					ch <- c
 				}
@@ -245,7 +246,7 @@ func (s *DBClustersSynchronizer) checkDBClusterExists(c deletingDBCluster, ctx c
 	if err != nil {
 		return false, errors.Wrap(err, "can't get kubernetes cluster")
 	}
-	dbCluster, err := models.FindDBClusterByName(s.db.Querier, c.kubernetesClusterID, c.dbClusterName)
+	dbCluster, err := models.FindDBCluster(s.db.Querier, c.kubernetesClusterID, c.dbClusterName, c.clusterType)
 	if err != nil {
 		return false, errors.Wrap(err, "can't get DB cluster")
 	}

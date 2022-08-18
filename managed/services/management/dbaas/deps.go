@@ -24,12 +24,14 @@ import (
 	"google.golang.org/grpc"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
 //go:generate $PMM_RELEASE_PATH/mockery -name=dbaasClient -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=versionService -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=dbClusterSynchronizer -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -114,4 +116,9 @@ type componentsService interface {
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
+}
+
+type dbClusterSynchronizer interface {
+	WaitForDBClusterDeletion(cluster *models.DBCluster)
+	SyncDBClusters(ctx context.Context, kubernetesCluster *models.KubernetesCluster) error
 }

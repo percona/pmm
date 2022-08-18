@@ -38,6 +38,20 @@ func (_m *mockDbaasClient) CheckKubernetesClusterConnection(ctx context.Context,
 	return r0, r1
 }
 
+// Connect provides a mock function with given fields: ctx
+func (_m *mockDbaasClient) Connect(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreatePSMDBCluster provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -156,6 +170,20 @@ func (_m *mockDbaasClient) DeletePXCCluster(ctx context.Context, in *controllerv
 	}
 
 	return r0, r1
+}
+
+// Disconnect provides a mock function with given fields:
+func (_m *mockDbaasClient) Disconnect() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // GetLogs provides a mock function with given fields: ctx, in, opts

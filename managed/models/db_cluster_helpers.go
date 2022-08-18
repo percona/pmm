@@ -1,9 +1,6 @@
 package models
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -17,36 +14,8 @@ type DBClusterFilters struct {
 	ClusterType         DBClusterType
 }
 
-func FindDBClusters(q *reform.Querier, filters DBClusterFilters) ([]*DBCluster, error) {
-	var args []interface{}
-	var andConds []string
-	idx := 1
-	if filters.Name != "" {
-		andConds = append(andConds, fmt.Sprintf("name = %s", q.Placeholder(idx)))
-		args = append(args, filters.Name)
-		idx += 1
-	}
-	if filters.KubernetesClusterID != "" {
-		andConds = append(andConds, fmt.Sprintf("kubernetes_cluster_id = %s", q.Placeholder(idx)))
-		args = append(args, filters.KubernetesClusterID)
-		idx += 1
-	}
-	if filters.ClusterType != "" {
-		andConds = append(andConds, fmt.Sprintf("cluster_type = %s", q.Placeholder(idx)))
-		args = append(args, filters.ClusterType)
-		idx += 1
-	}
-
-	var tail strings.Builder
-
-	if len(andConds) != 0 {
-		tail.WriteString("WHERE ")
-		tail.WriteString(strings.Join(andConds, " AND "))
-		tail.WriteRune(' ')
-	}
-	tail.WriteString("ORDER BY created_at DESC")
-
-	structs, err := q.SelectAllFrom(DBClusterTable, tail.String(), args...)
+func FindDBClustersForKubernetesCluster(q *reform.Querier, kubernetesClusterID string) ([]*DBCluster, error) {
+	structs, err := q.SelectAllFrom(DBClusterTable, "WHERE kubernetes_cluster_id = %s ORDER BY created_at DESC", kubernetesClusterID)
 	if err != nil {
 		return nil, err
 	}
@@ -71,15 +40,6 @@ func CreateOrUpdateDBCluster(q *reform.Querier, dbClusterType DBClusterType, par
 		return nil, err
 	}
 
-	dbClusters, err := FindDBClusters(q, DBClusterFilters{
-		Name:                params.Name,
-		KubernetesClusterID: params.KubernetesClusterID,
-		ClusterType:         dbClusterType,
-	})
-	if err != nil {
-		return nil, err
-	}
-
 	row := &DBCluster{
 		ClusterType:         dbClusterType,
 		KubernetesClusterID: params.KubernetesClusterID,
@@ -87,7 +47,13 @@ func CreateOrUpdateDBCluster(q *reform.Querier, dbClusterType DBClusterType, par
 		InstalledImage:      params.InstalledImage,
 	}
 
-	if len(dbClusters) == 0 {
+	dbCluster, err := FindDBCluster(q, params.KubernetesClusterID, params.Name, dbClusterType)
+	if err == nil {
+		row.ID = dbCluster.ID
+		if err := q.Save(row); err != nil {
+			return nil, err
+		}
+	} else if s, ok := status.FromError(err); ok && s.Code() == codes.NotFound {
 		id := "/dbcluster_id/" + uuid.New().String()
 		if err := checkUniqueDBClusterID(q, id); err != nil {
 			return nil, err
@@ -99,10 +65,7 @@ func CreateOrUpdateDBCluster(q *reform.Querier, dbClusterType DBClusterType, par
 			return nil, errors.WithStack(err)
 		}
 	} else {
-		row.ID = dbClusters[0].ID
-		if err := q.Save(row); err != nil {
-			return nil, err
-		}
+		return nil, errors.WithStack(err)
 	}
 
 	return row, nil
@@ -125,8 +88,8 @@ func FindDBClusterByID(q *reform.Querier, id string) (*DBCluster, error) {
 	}
 }
 
-// FindDBClusterByName finds DB cluster by Name and Kubernetes cluster ID.
-func FindDBClusterByName(q *reform.Querier, kubernetesClusterID string, dbClusterName string) (*DBCluster, error) {
+// FindDBCluster finds DB cluster by Kubernetes cluster ID, DB name and DB type.
+func FindDBCluster(q *reform.Querier, kubernetesClusterID string, dbClusterName string, clusterType DBClusterType) (*DBCluster, error) {
 	if kubernetesClusterID == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty K8S Cluster ID.")
 	}
@@ -134,7 +97,8 @@ func FindDBClusterByName(q *reform.Querier, kubernetesClusterID string, dbCluste
 		return nil, status.Error(codes.InvalidArgument, "Empty DB Cluster Name.")
 	}
 
-	dbCluster, err := q.SelectOneFrom(DBClusterTable, "WHERE kubernetes_cluster_id = $1 AND name = $2 ORDER BY created_at DESC", kubernetesClusterID, dbClusterName)
+	tail := "WHERE kubernetes_cluster_id = $1 AND name = $2 and cluster_type = $3 ORDER BY created_at DESC"
+	dbCluster, err := q.SelectOneFrom(DBClusterTable, tail, kubernetesClusterID, dbClusterName, clusterType)
 	switch err {
 	case nil:
 		return dbCluster.(*DBCluster), nil

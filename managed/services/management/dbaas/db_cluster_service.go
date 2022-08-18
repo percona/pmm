@@ -18,14 +18,14 @@ package dbaas
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"strings"
-
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -68,7 +68,7 @@ func (s *DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1
 		return nil, err
 	}
 
-	clusters, err := models.FindDBClusters(s.db.Querier, models.DBClusterFilters{KubernetesClusterID: kubernetesCluster.ID})
+	clusters, err := models.FindDBClustersForKubernetesCluster(s.db.Querier, kubernetesCluster.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +121,11 @@ func (s *DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.G
 		return nil, err
 	}
 
+	dbCluster, err := models.FindDBCluster(s.db.Querier, kubernetesCluster.ID, req.Name, dbTypes()[req.ClusterType])
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.ClusterType {
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:
 		pxcCluster, err := s.controllerClient.GetPXCCluster(ctx, kubernetesCluster.KubeConfig, req.Name)
@@ -132,6 +137,10 @@ func (s *DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.G
 			}
 			return nil, err
 		}
+
+		go func() {
+			_, _ = models.RemoveDBCluster(s.db.Querier, dbCluster.ID)
+		}()
 
 		return s.convertPXCCluster(pxcCluster.Cluster)
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
@@ -284,6 +293,10 @@ func (s *DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta
 	if err != nil {
 		return nil, err
 	}
+	cluster, err := models.FindDBCluster(s.db.Querier, kubernetesCluster.ID, req.Name, dbTypes()[req.ClusterType])
+	if err != nil {
+		return nil, err
+	}
 
 	var clusterType string
 	switch req.ClusterType {
@@ -324,7 +337,7 @@ func (s *DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta
 	}
 
 	go func() {
-		s.dbClustersSynchronizer.WaitForDBClusterDeletion(kubernetesCluster.ID, req.Name)
+		s.dbClustersSynchronizer.WaitForDBClusterDeletion(cluster)
 	}()
 
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil
@@ -339,5 +352,12 @@ func dbClusterStates() map[dbaascontrollerv1beta1.DBClusterState]dbaasv1beta1.DB
 		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING:  dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING,
 		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED:    dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_PAUSED,
 		dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING: dbaasv1beta1.DBClusterState_DB_CLUSTER_STATE_UPGRADING,
+	}
+}
+
+func dbTypes() map[dbaasv1beta1.DBClusterType]models.DBClusterType {
+	return map[dbaasv1beta1.DBClusterType]models.DBClusterType{
+		dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:   models.PXCType,
+		dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB: models.PSMDBType,
 	}
 }

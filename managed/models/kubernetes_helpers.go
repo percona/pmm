@@ -138,7 +138,7 @@ func RemoveKubernetesCluster(q *reform.Querier, name string, mode RemoveMode) er
 		return err
 	}
 
-	dbClusters, err := FindDBClusters(q, DBClusterFilters{KubernetesClusterID: c.ID})
+	dbClusters, err := FindDBClustersForKubernetesCluster(q, c.ID)
 	if len(dbClusters) != 0 {
 		switch mode {
 		case RemoveRestrict:

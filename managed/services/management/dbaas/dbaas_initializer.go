@@ -17,11 +17,13 @@ package dbaas
 
 import (
 	"context"
-	"github.com/percona/pmm/managed/models"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/reform.v1"
 	"sync"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 type Initializer struct {
