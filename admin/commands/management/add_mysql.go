@@ -134,6 +134,10 @@ func (cmd *addMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
+func (cmd *addMySQLCommand) GetDefaultUsername() string {
+	return "root"
+}
+
 func (cmd *addMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
@@ -192,6 +196,10 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 
 		tablestatsGroupTableLimit = -1
+	}
+
+	if cmd.CredentialsSource == "" && cmd.Username == "" {
+		cmd.Username = cmd.GetDefaultUsername()
 	}
 
 	params := &mysql.AddMySQLParams{
@@ -259,7 +267,7 @@ func init() {
 	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
 	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
 
-	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("username", "MySQL username").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
 	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
 	AddMySQLC.Flag("credentials-source", "Credentials provider").StringVar(&AddMySQL.CredentialsSource)

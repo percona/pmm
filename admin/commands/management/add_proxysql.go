@@ -82,6 +82,14 @@ func (cmd *addProxySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:6032"
 }
 
+func (cmd *addProxySQLCommand) GetDefaultUsername() string {
+	return "admin"
+}
+
+func (cmd *addProxySQLCommand) GetDefaultPassword() string {
+	return "admin"
+}
+
 func (cmd *addProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
@@ -102,6 +110,16 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 		}
 		if cmd.NodeID == "" {
 			cmd.NodeID = status.NodeID
+		}
+	}
+
+	if cmd.CredentialsSource == "" {
+		if cmd.Username == "" {
+			cmd.Username = cmd.GetDefaultUsername()
+		}
+
+		if cmd.Password == "" {
+			cmd.Password = cmd.GetDefaultPassword()
 		}
 	}
 
@@ -164,8 +182,8 @@ func init() {
 	AddProxySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddProxySQL.NodeID)
 	AddProxySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddProxySQL.PMMAgentID)
 
-	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)
-	AddProxySQLC.Flag("password", "ProxySQL password").Default("admin").StringVar(&AddProxySQL.Password)
+	AddProxySQLC.Flag("username", "ProxySQL username").StringVar(&AddProxySQL.Username)
+	AddProxySQLC.Flag("password", "ProxySQL password").StringVar(&AddProxySQL.Password)
 	AddProxySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddProxySQL.AgentPassword)
 	AddProxySQLC.Flag("credentials-source", "Credentials provider").StringVar(&AddProxySQL.CredentialsSource)
 

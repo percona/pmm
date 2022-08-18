@@ -55,11 +55,7 @@ message AddPostgreSQLRequest {
   // Replication set name.
   string replication_set = 10;
   // PostgreSQL username for scraping metrics.
-  string username = 11 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 11;
   // PostgreSQL password for scraping metrics.
   string password = 12;
   // If true, adds qan-postgresql-pgstatements-agent for provided service.

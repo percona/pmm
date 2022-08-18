@@ -90,6 +90,10 @@ func (cmd *addPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
+func (cmd *addPostgreSQLCommand) GetDefaultUsername() string {
+	return "root"
+}
+
 func (cmd *addPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
@@ -146,6 +150,10 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if cmd.CredentialsSource == "" && cmd.Username == "" {
+		cmd.Username = cmd.GetDefaultUsername()
 	}
 
 	params := &postgresql.AddPostgreSQLParams{
@@ -209,7 +217,7 @@ func init() {
 
 	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").StringVar(&AddPostgreSQL.Address)
 	AddPostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddPostgreSQL.Socket)
-	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
+	AddPostgreSQLC.Flag("username", "PostgreSQL username").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
 	AddPostgreSQLC.Flag("database", "PostgreSQL database").StringVar(&AddPostgreSQL.Database)
 	AddPostgreSQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddPostgreSQL.AgentPassword)

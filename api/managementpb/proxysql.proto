@@ -53,11 +53,7 @@ message AddProxySQLRequest {
   // Replication set name.
   string replication_set = 10;
   // ProxySQL username for scraping metrics.
-  string username = 11 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 11;
   // ProxySQL password for scraping metrics.
   string password = 12;
   // Custom user-assigned labels for Service.
