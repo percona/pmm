@@ -197,6 +197,8 @@ message Settings {
   bool azurediscover_enabled = 17;
   // True if the PMM instance is connected to Platform
   bool connected_to_platform = 19;
+  // Includes list of collected telemetry
+  repeated string telemetry_summaries = 20;
 }
 
 message GetSettingsRequest {}

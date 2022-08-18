@@ -238,20 +238,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_GetMetrics_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_GetMetrics_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetMetrics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -261,20 +262,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_GetQueryExample_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_GetQueryExample_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetQueryExample_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -284,20 +286,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_GetLabels_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_GetLabels_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetLabels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -307,20 +310,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_GetQueryPlan_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_GetQueryPlan_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetQueryPlan_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -330,20 +334,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_GetHistogram_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_GetHistogram_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetHistogram_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -353,20 +358,21 @@ func RegisterObjectDetailsHandlerServer(ctx context.Context, mux *runtime.ServeM
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ObjectDetails_QueryExists_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ObjectDetails_QueryExists_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_QueryExists_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -414,19 +420,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetMetrics", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetMetrics"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_GetMetrics_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_GetMetrics_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetMetrics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetMetrics_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryExample_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -434,19 +441,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryExample", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryExample"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_GetQueryExample_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_GetQueryExample_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetQueryExample_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetQueryExample_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -454,19 +462,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetLabels", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetLabels"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_GetLabels_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_GetLabels_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetLabels_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetQueryPlan_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -474,19 +483,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetQueryPlan", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetQueryPlan"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_GetQueryPlan_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_GetQueryPlan_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetQueryPlan_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetQueryPlan_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_GetHistogram_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -494,19 +504,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/GetHistogram", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/GetHistogram"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_GetHistogram_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_GetHistogram_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_GetHistogram_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_GetHistogram_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_ObjectDetails_QueryExists_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -514,19 +525,20 @@ func RegisterObjectDetailsHandlerClient(ctx context.Context, mux *runtime.ServeM
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ObjectDetails/QueryExists", runtime.WithHTTPPathPattern("/v0/qan/ObjectDetails/QueryExists"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ObjectDetails_QueryExists_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_ObjectDetails_QueryExists_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ObjectDetails_QueryExists_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ObjectDetails_QueryExists_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil

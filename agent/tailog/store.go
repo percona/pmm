@@ -25,14 +25,14 @@ import (
 // Store implement ring save logs.
 type Store struct {
 	log      *ring.Ring
-	capacity int
+	capacity uint
 	m        sync.Mutex
 }
 
 // NewStore creates Store.
-func NewStore(capacity int) *Store {
+func NewStore(capacity uint) *Store {
 	return &Store{
-		log:      ring.New(capacity),
+		log:      ring.New(int(capacity)),
 		capacity: capacity,
 	}
 }
@@ -52,7 +52,7 @@ func (l *Store) Write(b []byte) (int, error) {
 }
 
 // Resize to update capacity.
-func (l *Store) Resize(capacity int) {
+func (l *Store) Resize(capacity uint) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
@@ -62,7 +62,7 @@ func (l *Store) Resize(capacity int) {
 
 	old := l.log
 
-	l.log = ring.New(capacity)
+	l.log = ring.New(int(capacity))
 	l.capacity = capacity
 	if l.capacity == 0 {
 		return
@@ -77,12 +77,12 @@ func (l *Store) Resize(capacity int) {
 }
 
 // GetLogs return all logs.
-func (l *Store) GetLogs() []string {
+func (l *Store) GetLogs() ([]string, uint) {
 	l.m.Lock()
 	defer l.m.Unlock()
 
 	if l.capacity == 0 {
-		return nil
+		return nil, l.capacity
 	}
 
 	logs := make([]string, 0, l.capacity)
@@ -94,7 +94,7 @@ func (l *Store) GetLogs() []string {
 		}
 	})
 
-	return logs
+	return logs, l.capacity
 }
 
 func getColorReplacer() *strings.Replacer {

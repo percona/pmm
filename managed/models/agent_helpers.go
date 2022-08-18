@@ -503,6 +503,31 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 	return "", status.Errorf(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 }
 
+// ExtractPmmAgentID extract pmm-agent-id from Agent by type.
+func ExtractPmmAgentID(agent *Agent) (string, error) {
+	switch agent.AgentType {
+	case PMMAgentType:
+		return agent.AgentID, nil
+	case NodeExporterType,
+		MySQLdExporterType,
+		MongoDBExporterType,
+		PostgresExporterType,
+		ProxySQLExporterType,
+		RDSExporterType,
+		AzureDatabaseExporterType,
+		QANMySQLPerfSchemaAgentType,
+		QANMySQLSlowlogAgentType,
+		QANMongoDBProfilerAgentType,
+		QANPostgreSQLPgStatementsAgentType,
+		QANPostgreSQLPgStatMonitorAgentType,
+		ExternalExporterType,
+		VMAgentType:
+		return pointer.GetString(agent.PMMAgentID), nil
+	default:
+		return "", status.Errorf(codes.Internal, "Unhandled inventory Agent type %s", agent.AgentType)
+	}
+}
+
 // createPMMAgentWithID creates PMMAgent with given ID.
 func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
 	if err := checkUniqueAgentID(q, id); err != nil {
