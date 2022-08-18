@@ -86,5 +86,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentNodeExporter.PushMetrics)
 	AddAgentNodeExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentNodeExporter.DisableCollectors)
-	addExporterGlobalFlags(AddAgentNodeExporterC, true)
+	addExporterGlobalFlags(AddAgentNodeExporterC, false)
 }
