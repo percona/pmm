@@ -595,6 +595,7 @@ func TestAddMySQL(t *testing.T) {
 		assert.Nil(t, addMySQLOK)
 	})
 
+	// according to credentials-source parameter, passing empty username is allowed
 	t.Run("Empty username", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
@@ -613,11 +614,16 @@ func TestAddMySQL(t *testing.T) {
 				Address:     "10.10.10.10",
 				Port:        3306,
 				PMMAgentID:  pmmAgentID,
+
+				SkipConnectionCheck: true,
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Username: value '' must not be an empty string")
-		assert.Nil(t, addMySQLOK)
+		require.NoError(t, err)
+		require.NotNil(t, addMySQLOK)
+		require.NotNil(t, addMySQLOK.Payload.Service)
+		serviceID := addMySQLOK.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
 	})
 
 	t.Run("With MetricsModePush", func(t *testing.T) {

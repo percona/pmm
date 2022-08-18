@@ -565,6 +565,7 @@ func TestAddProxySQL(t *testing.T) {
 		assert.Nil(t, addProxySQLOK)
 	})
 
+	// according to credentials-source parameter, passing empty username is allowed
 	t.Run("Empty username", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
@@ -583,11 +584,16 @@ func TestAddProxySQL(t *testing.T) {
 				Address:     "10.10.10.10",
 				Port:        3306,
 				PMMAgentID:  pmmAgentID,
+
+				SkipConnectionCheck: true,
 			},
 		}
 		addProxySQLOK, err := client.Default.ProxySQL.AddProxySQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Username: value '' must not be an empty string")
-		assert.Nil(t, addProxySQLOK)
+		require.NoError(t, err)
+		require.NotNil(t, addProxySQLOK)
+		require.NotNil(t, addProxySQLOK.Payload.Service)
+		serviceID := addProxySQLOK.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
 	})
 }
 
