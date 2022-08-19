@@ -233,9 +233,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return "", status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+		err = status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
 	default:
-		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
+		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
 		return "", err

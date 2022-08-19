@@ -33,7 +33,6 @@ type MongoDBRestoreJob struct {
 	timeout        time.Duration
 	l              *logrus.Entry
 	name           string
-	timestamp      *time.Time
 	dbURL          *url.URL
 	locationConfig BackupLocationConfig
 }
