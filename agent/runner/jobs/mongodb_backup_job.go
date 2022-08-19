@@ -92,7 +92,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := j.makeMarshalableLocationConfig()
+	conf, err := makeMarshalableLocationConfig(&j.locationConfig, j.name, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -138,41 +138,6 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	case <-time.After(waitForLogs):
 	}
 	return nil
-}
-
-func (j *MongoDBBackupJob) makeMarshalableLocationConfig() (*PBMConfig, error) {
-	conf := &PBMConfig{
-		PITR: PITR{
-			Enabled: j.pitr,
-		},
-	}
-
-	switch j.locationConfig.Type {
-	case S3BackupLocationType:
-		conf.Storage = Storage{
-			Type: "s3",
-			S3: S3{
-				EndpointURL: j.locationConfig.S3Config.Endpoint,
-				Region:      j.locationConfig.S3Config.BucketRegion,
-				Bucket:      j.locationConfig.S3Config.BucketName,
-				Prefix:      j.name,
-				Credentials: Credentials{
-					AccessKeyID:     j.locationConfig.S3Config.AccessKey,
-					SecretAccessKey: j.locationConfig.S3Config.SecretKey,
-				},
-			},
-		}
-	case PMMClientBackupLocationType:
-		conf.Storage = Storage{
-			Type: "filesystem",
-			LocalStorage: LocalStorage{
-				Path: j.locationConfig.LocalStorageConfig.Path,
-			},
-		}
-	default:
-		return nil, errors.New("unknown location config")
-	}
-	return conf, nil
 }
 
 func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) {

@@ -70,37 +70,10 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf := &PBMConfig{
-		PITR: PITR{
-			Enabled: false,
-		},
+	conf, err := makeMarshalableLocationConfig(&j.locationConfig, j.name, false)
+	if err != nil {
+		return errors.WithStack(err)
 	}
-	switch {
-	case j.locationConfig.Type == S3BackupLocationType:
-		conf.Storage = Storage{
-			Type: "s3",
-			S3: S3{
-				EndpointURL: j.locationConfig.S3Config.Endpoint,
-				Region:      j.locationConfig.S3Config.BucketRegion,
-				Bucket:      j.locationConfig.S3Config.BucketName,
-				Prefix:      j.name,
-				Credentials: Credentials{
-					AccessKeyID:     j.locationConfig.S3Config.AccessKey,
-					SecretAccessKey: j.locationConfig.S3Config.SecretKey,
-				},
-			},
-		}
-	case j.locationConfig.Type == PMMClientBackupLocationType:
-		conf.Storage = Storage{
-			Type: "filesystem",
-			LocalStorage: LocalStorage{
-				Path: j.locationConfig.LocalStorageConfig.Path,
-			},
-		}
-	default:
-		return errors.New("unknown location config")
-	}
-
 	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}

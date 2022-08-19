@@ -374,3 +374,39 @@ type PBMConfig struct {
 	Storage Storage `yaml:"storage"`
 	PITR    PITR    `yaml:"pitr"`
 }
+
+// makeMarshalableLocationConfig returns object that is ready to be serialized into YAML.
+func makeMarshalableLocationConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
+	conf := &PBMConfig{
+		PITR: PITR{
+			Enabled: pitr,
+		},
+	}
+
+	switch locationConfig.Type {
+	case S3BackupLocationType:
+		conf.Storage = Storage{
+			Type: "s3",
+			S3: S3{
+				EndpointURL: locationConfig.S3Config.Endpoint,
+				Region:      locationConfig.S3Config.BucketRegion,
+				Bucket:      locationConfig.S3Config.BucketName,
+				Prefix:      prefix,
+				Credentials: Credentials{
+					AccessKeyID:     locationConfig.S3Config.AccessKey,
+					SecretAccessKey: locationConfig.S3Config.SecretKey,
+				},
+			},
+		}
+	case PMMClientBackupLocationType:
+		conf.Storage = Storage{
+			Type: "filesystem",
+			LocalStorage: LocalStorage{
+				Path: locationConfig.LocalStorageConfig.Path,
+			},
+		}
+	default:
+		return nil, errors.New("unknown location config")
+	}
+	return conf, nil
+}
