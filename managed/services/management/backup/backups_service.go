@@ -157,6 +157,10 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
 	default:
 		return restoreError
 	}
