@@ -29,6 +29,8 @@ func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Pars
 	level := pointer.GetString(logLevel)
 
 	if level != "" && !pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
+		// exists exporters that not support --log.level=fatal anymore after last update
+		// so replace "fatal" to "error" for previous stored state
 		if !supportLogLevelFatal && level == "fatal" {
 			level = "error"
 		}
