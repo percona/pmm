@@ -211,30 +211,31 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
 			return err
 		}
-
-		locationConfig := &models.BackupLocationConfig{
-			PMMServerConfig: locationModel.PMMServerConfig,
-			PMMClientConfig: locationModel.PMMClientConfig,
-			S3Config:        locationModel.S3Config,
-		}
-
-		switch svc.ServiceType {
-		case models.MySQLServiceType:
-			return s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
-		case models.MongoDBServiceType:
-			return s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, params.Mode, locationConfig)
-		case models.PostgreSQLServiceType,
-			models.ProxySQLServiceType,
-			models.HAProxyServiceType,
-			models.ExternalServiceType:
-			return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
-		default:
-			return status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
-		}
+		return nil
 	})
 
 	if errTX != nil {
 		return "", errTX
+	}
+
+	locationConfig := &models.BackupLocationConfig{
+		PMMServerConfig: locationModel.PMMServerConfig,
+		PMMClientConfig: locationModel.PMMClientConfig,
+		S3Config:        locationModel.S3Config,
+	}
+
+	switch svc.ServiceType {
+	case models.MySQLServiceType:
+		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
+	case models.MongoDBServiceType:
+		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, params.Mode, locationConfig)
+	case models.PostgreSQLServiceType,
+		models.ProxySQLServiceType,
+		models.HAProxyServiceType,
+		models.ExternalServiceType:
+		return "", status.Errorf(codes.Unimplemented, "Unimplemented service: %s", svc.ServiceType)
+	default:
+		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 
 	return artifact.ID, nil
