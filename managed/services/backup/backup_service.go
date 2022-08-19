@@ -237,6 +237,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	default:
 		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
+	if err != nil {
+		return "", err
+	}
 
 	return artifact.ID, nil
 }
@@ -376,14 +379,14 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 				"current service id: %s, service type: %s", serviceID, service.ServiceType)
 		}
 
-		agents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
 		if err != nil {
 			return err
 		}
-		if len(agents) == 0 {
+		if len(pmmAgents) == 0 {
 			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
 		}
-		pmmAgentID = agents[0].AgentID
+		pmmAgentID = pmmAgents[0].AgentID
 
 		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, "")
 		if err != nil {
