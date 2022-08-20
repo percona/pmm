@@ -125,7 +125,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
 
 	// Redact user credentials if they exist
-	if u, err := url.Parse(status.ServerInfo.URL); err != nil {
+	if u, err := url.Parse(status.ServerInfo.URL); err == nil {
 		if u.User.String() != "" {
 			u.User = url.UserPassword("xxxxx", "xxxxx")
 			status.ServerInfo.URL = u.String()
