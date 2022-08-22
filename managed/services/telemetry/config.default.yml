@@ -84,6 +84,14 @@ telemetry:
       - metric_name: "postgresql_version"
         label: "short_version"
 
+  - id: HAProxyVersion
+    source: VM
+    query: haproxy_version_info
+    summary: "Monitored HAProxy services version"
+    data:
+      - metric_name: "haproxy_version"
+        label: "version"
+
   #
   - id: GrafanaStatTotalUsers
     source: VM
