@@ -1,5 +1,5 @@
 ---
-# This role contains tasks executed during initialization PMM Server
+# This role contains tasks executed during the initialization of PMM Server
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -13,15 +13,15 @@
 
 - name: Set current version if VERSION fail doen't exist
   set_fact:
-      pmm_current_version: "0.0"
+    pmm_current_version: "0.0"
   when: current_version_file['failed'] == true
 
-- name: Setting current and image version
+- name: Setting current version
   set_fact:
     pmm_current_version: "{{ current_version_file['content'] | b64decode | trim }}"
   when: current_version_file['failed'] != true
 
-- name: Setting current and image version
+- name: Setting image version
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
