@@ -27,6 +27,8 @@ import (
 )
 
 var (
+	v20 = version.Must(version.NewVersion("2.0.0"))
+	v11 = version.Must(version.NewVersion("1.1.0"))
 	v10 = version.Must(version.NewVersion("1.0.0"))
 	v09 = version.Must(version.NewVersion("0.9"))
 	v08 = version.Must(version.NewVersion("0.8"))
