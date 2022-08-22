@@ -159,6 +159,19 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 	return res, nil
 }
 
+// GetAgentLogs returns Agent logs by ID.
+func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventorypb.GetAgentLogsRequest) (*inventorypb.GetAgentLogsResponse, error) {
+	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.AgentId, req.Limit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &inventorypb.GetAgentLogsResponse{
+		Logs:                     logs,
+		AgentConfigLogLinesCount: agentConfigLogLinesCount,
+	}, nil
+}
+
 // AddPMMAgent adds pmm-agent Agent.
 func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.AddPMMAgentResponse, error) {
 	agent, err := s.s.AddPMMAgent(ctx, req)
