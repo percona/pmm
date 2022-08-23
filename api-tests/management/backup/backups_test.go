@@ -310,6 +310,7 @@ func TestScheduleBackup(t *testing.T) {
 					LocationID:  locationID,
 					Name:        "test-snapshot",
 					Description: "Test snapshot.",
+					DataModel:   pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
