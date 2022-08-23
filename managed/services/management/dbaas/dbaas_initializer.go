@@ -96,7 +96,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
 			if err != nil {
-				return err
+				return nil // Dirty hack
 			}
 			if cluster != nil {
 				return errClusterExists
