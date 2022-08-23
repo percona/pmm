@@ -90,11 +90,6 @@ func (cmd *addMongoDBCommand) GetAddress() string {
 }
 
 func (cmd *addMongoDBCommand) GetDefaultAddress() string {
-	if cmd.CredentialsSource != "" {
-		// address might be specified in credentials source file
-		return ""
-	}
-
 	return "127.0.0.1:27017"
 }
 
