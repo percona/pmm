@@ -63,7 +63,7 @@ type Server struct {
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
 	rulesService         rulesService
-	dbaasClient          dbaasClient
+	dbaasInitializer     dbaasInitializer
 	emailer              emailer
 
 	l *logrus.Entry
@@ -79,9 +79,9 @@ type Server struct {
 	serverpb.UnimplementedServerServer
 }
 
-type dbaasClient interface {
-	Connect(ctx context.Context) error
-	Disconnect() error
+type dbaasInitializer interface {
+	Enable(ctx context.Context) error
+	Disable(ctx context.Context) error
 }
 
 type pmmUpdateAuth struct {
@@ -103,7 +103,7 @@ type Params struct {
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
-	DbaasClient          dbaasClient
+	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
 }
 
@@ -129,7 +129,7 @@ func NewServer(params *Params) (*Server, error) {
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
 		rulesService:         params.RulesService,
-		dbaasClient:          params.DbaasClient,
+		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
@@ -728,7 +728,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	// When DBaaS is enabled, connect to the dbaas-controller API.
 	if !oldSettings.DBaaS.Enabled && newSettings.DBaaS.Enabled {
-		err := s.dbaasClient.Connect(ctx)
+		err := s.dbaasInitializer.Enable(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -736,7 +736,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	// When DBaaS is disabled, disconnect from the dbaas-controller API.
 	if oldSettings.DBaaS.Enabled && !newSettings.DBaaS.Enabled {
-		err := s.dbaasClient.Disconnect()
+		err := s.dbaasInitializer.Disable(ctx)
 		if err != nil {
 			return nil, err
 		}

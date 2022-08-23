@@ -32,6 +32,10 @@ import (
 //go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
 
 type dbaasClient interface {
+	// Connect connects the client to dbaas-controller API.
+	Connect(ctx context.Context) error
+	// Disconnect disconnects the client from dbaas-controller API.
+	Disconnect() error
 	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
 	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
 	// ListPXCClusters returns a list of PXC clusters.
