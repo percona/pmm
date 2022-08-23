@@ -48,6 +48,10 @@ type Initializer struct {
 	m       sync.Mutex
 }
 
+const defaultClusterName = "default-pmm-cluster"
+
+var errClusterExists = errors.New("cluster already exists")
+
 func NewInitializer(db *reform.DB, client dbaasClient, grafanaClient grafanaClient, versionService versionService) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
@@ -89,8 +93,25 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig()
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
+		err := in.db.InTransaction(func(t *reform.TX) error {
+			cluster, err := models.FindKubernetesClusterByName(t, defaultClusterName)
+			if err != nil {
+				return err
+			}
+			if cluster != nil {
+				return errClusterExists
+			}
+			return nil
+		})
+		if err != nil {
+			if err == errClusterExists {
+				return nil
+			}
+			return err
+		}
+
 		req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
-			KubernetesClusterName: "default",
+			KubernetesClusterName: defaultClusterName,
 			KubeAuth: &dbaasv1beta1.KubeAuth{
 				Kubeconfig: kubeConfig,
 			},
