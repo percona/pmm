@@ -94,7 +94,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
-			cluster, err := models.FindKubernetesClusterByName(t, defaultClusterName)
+			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
 			if err != nil {
 				return err
 			}
@@ -116,7 +116,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 				Kubeconfig: kubeConfig,
 			},
 		}
-		_, err := in.RegisterCluster(context.Background(), req)
+		_, err = in.RegisterCluster(context.Background(), req)
 		if err != nil {
 			return err
 		}
