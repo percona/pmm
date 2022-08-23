@@ -62,7 +62,7 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	args = collectors.FilterOutCollectors("-collect.", args, exporter.DisabledCollectors)
 
-	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion)
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
 	sort.Strings(args)
 

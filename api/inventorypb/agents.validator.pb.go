@@ -330,6 +330,17 @@ func (this *GetAgentResponse) Validate() error {
 	return nil
 }
 
+func (this *GetAgentLogsRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
+	return nil
+}
+
+func (this *GetAgentLogsResponse) Validate() error {
+	return nil
+}
+
 func (this *AddPMMAgentRequest) Validate() error {
 	if this.RunsOnNodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
