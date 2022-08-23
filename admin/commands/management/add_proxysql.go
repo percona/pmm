@@ -197,5 +197,5 @@ func init() {
 
 	AddProxySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddProxySQL.DisableCollectors)
 
-	addGlobalFlags(AddProxySQLC)
+	addGlobalFlags(AddProxySQLC, true)
 }
