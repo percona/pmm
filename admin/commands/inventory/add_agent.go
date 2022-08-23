@@ -23,7 +23,11 @@ var (
 	addExporterLogLevel string
 )
 
-func addExporterGlobalFlags(cmd *kingpin.CmdClause) {
+func addExporterGlobalFlags(cmd *kingpin.CmdClause, supportLogLevelFatal bool) {
 	// Add command global flags
-	cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addExporterLogLevel, "debug", "info", "warn", "error", "fatal")
+	if supportLogLevelFatal {
+		cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addExporterLogLevel, "debug", "info", "warn", "error", "fatal")
+	} else {
+		cmd.Flag("log-level", "Service logging level").Default("warn").EnumVar(&addExporterLogLevel, "debug", "info", "warn", "error")
+	}
 }

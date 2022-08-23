@@ -250,5 +250,5 @@ func init() {
 		EnumVar(&AddPostgreSQL.MetricsMode, metricsModes...)
 	AddPostgreSQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddPostgreSQL.DisableCollectors)
 
-	addGlobalFlags(AddPostgreSQLC)
+	addGlobalFlags(AddPostgreSQLC, true)
 }

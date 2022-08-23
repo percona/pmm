@@ -231,7 +231,7 @@ func init() {
 		EnumVar(&AddMongoDB.MetricsMode, metricsModes...)
 	AddMongoDBC.Flag("enable-all-collectors", "Enable all collectors").BoolVar(&AddMongoDB.EnableAllCollectors)
 	AddMongoDBC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMongoDB.DisableCollectors)
-	addGlobalFlags(AddMongoDBC)
+	addGlobalFlags(AddMongoDBC, true)
 	AddMongoDBC.Flag("socket", "Path to socket").StringVar(&AddMongoDB.Socket)
 
 	AddMongoDBC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddMongoDB.StatsCollections)
