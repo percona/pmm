@@ -99,6 +99,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		in.l.Info("Cluster is successfully initialized")
 	} else {
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
