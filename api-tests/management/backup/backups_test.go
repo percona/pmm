@@ -78,7 +78,7 @@ func TestScheduleBackup(t *testing.T) {
 		locationID := resp.Payload.LocationID
 		defer deleteLocation(t, backupClient.Default.Locations, locationID)
 
-		t.Run("normal", func(t *testing.T) {
+		t.Run("schedule logical backup", func(t *testing.T) {
 			client := backupClient.Default.Backups
 			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
@@ -89,6 +89,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        false,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -167,6 +168,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -183,6 +185,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -203,6 +206,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
 					Enabled:        false,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -219,6 +223,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        false,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -235,6 +240,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -254,6 +260,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -270,6 +277,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -288,6 +296,7 @@ func TestScheduleBackup(t *testing.T) {
 					Description:    "testing",
 					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
 					Enabled:        true,
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -323,7 +332,7 @@ func TestScheduleBackup(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "the specified backup model is not compatible with other parameters")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "the specified backup model is not compatible with other parameters")
 		})
 
 		t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
