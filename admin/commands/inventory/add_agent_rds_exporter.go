@@ -104,5 +104,5 @@ func init() {
 	AddAgentRDSExporterC.Flag("disable-enhanced-metrics", "Disable enhanced metrics").BoolVar(&AddAgentRDSExporter.DisableEnhancedMetrics)
 	AddAgentRDSExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
 		" it will be sent to the server by an agent").BoolVar(&AddAgentRDSExporter.PushMetrics)
-	addExporterGlobalFlags(AddAgentRDSExporterC)
+	addExporterGlobalFlags(AddAgentRDSExporterC, true)
 }

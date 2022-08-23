@@ -105,7 +105,7 @@ telemetry:
   - id: GrafanaStatTotalsAnnotations
     source: VM
     query: grafana_stat_totals_annotations
-    summary: "Total amount of annotations in the database"
+    summary: "Grafana annotation count"
     data:
       - metric_name: "pmm_server_grafana_stat_totals_annotations"
         value: 1
@@ -295,6 +295,70 @@ telemetry:
     data:
       - metric_name: "pmm_client_node_type"
         column: "node_type"
+
+  - id: PMMNodeCPUUsage
+    source: VM
+    query: clamp_max(sum by () ((avg by (mode) (  (clamp_max(rate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle",mode!="iowait"}[5m]),1)) or  (clamp_max(irate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle",mode!="iowait"}[5m]),1)) )) *100 or  sum by () (avg_over_time(node_cpu_average{node_name=~"pmm-server",mode!="total",mode!="idle"}[5m]) or   avg_over_time(node_cpu_average{node_name=~"pmm-server",mode!="total",mode!="idle"}[5m])) unless   (avg_over_time(node_cpu_average{node_name=~"pmm-server",mode="total",job="rds-basic"}[5m]) or  avg_over_time(node_cpu_average{node_name=~"pmm-server",mode="total",job="rds-basic"}[5m]))   ),100)
+    summary: "PMM node CPU Usage"
+    data:
+      - metric_name: "pmm_server_node_cpu_usage"
+        value: 1
+
+  - id: PMMNodeCPUArchitecture
+    source: VM
+    query: node_uname_info
+    summary: "PMM node CPU Architecture"
+    data:
+      - metric_name: "pmm_server_node_cpu_architecture"
+        label: "machine"
+
+  - id: PMMNodeCPUCoreCount
+    source: VM
+    query: sum by (value) (count by(cpu) (node_cpu_seconds_total{mode="idle",node_id="pmm-server"}))
+    summary: "PMM node CPU core count"
+    data:
+      - metric_name: "pmm_server_node_cpu_core_count"
+        value: 1
+
+  - id: PMMNodeMemorySize
+    source: VM
+    query: avg by (node_name) (avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]))
+    summary: "PMM node memory size"
+    data:
+      - metric_name: "pmm_server_node_memory_size"
+        value: 1
+
+  - id: PMMNodeMemoryUsage
+    source: VM
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    summary: "PMM node memory usage"
+    data:
+      - metric_name: "pmm_server_node_memory_usage"
+        value: 1
+
+  - id: PMMNodeDiskCapacity
+    source: VM
+    query: sum(sum(avg(node_filesystem_size_bytes{node_name=~"pmm-server",fstype=~"(ext.|xfs|vfat|)"}) without (mountpoint)) without (device,fstype))
+    summary: "PMM node disk capacity"
+    data:
+      - metric_name: "pmm_server_node_disk_capacity"
+        value: 1
+
+  - id: PMMNodeOSName
+    source: VM
+    query: node_uname_info{node_id=~"pmm-server"}
+    summary: "PMM node OS name"
+    data:
+      - metric_name: "pmm_server_node_os_name"
+        label: "sysname"
+
+  - id: PMMNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id=~"pmm-server"}
+    summary: "PMM node OS version"
+    data:
+      - metric_name: "pmm_server_node_os_version"
+        label: "release"
 
   # DBaaS
   - id: DBaaSServicesCount
