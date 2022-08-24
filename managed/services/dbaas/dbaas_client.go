@@ -68,9 +68,6 @@ func (c *Client) GetKubeConfig() (string, error) {
 	if err := c.initializeInClusterK8sClient(); err != nil {
 		return "", err
 	}
-	if err := c.Connect(context.Background()); err != nil {
-		return "", err
-	}
 	secret, err := c.k8sClient.GetSecretsForServiceAccount(context.Background(), "default", "pmm-service-account")
 	if err != nil {
 		return "", err
