@@ -4,6 +4,7 @@
 |-------------------|------------------------------------------------------------------------------------------|:-------------------------------------:|
 | Insight           | [Advanced Data Exploration]                                                              | 7
 | Insight           | [Home Dashboard]                                                                         | 26
+| Insight           | [Experimental Home Dashboard]                                                            | 26
 | Insight           | [Prometheus Exporter Status]                                                             | 57
 | Insight           | [Prometheus Exporters Overview]                                                          | 27
 | Insight           | [VictoriaMetrics]                                                                        | 52
@@ -40,10 +41,11 @@
 | MySQL             | [MySQL Group Replication Summary]                                                        | 18
 | MySQL             | [MySQL Table Details]                                                                    | 45
 | MySQL             | [MySQL User Details]                                                                     | 62
-| MySQL             | [MySQL TokuDB Details]                                                                   | 172
+| MongoDB           | [Experimental MongoDB Collection Overview]                                                             | 100
+| MongoDB           | [Experimental MongoDB Collection Details]                                                             | 100
+| MongoDB           | [Experimental MongoDB Oplog Details]                                                             | 100
 | MongoDB           | [MongoDB Cluster Summary]                                                                | 55
 | MongoDB           | [MongoDB Instance Summary]                                                               | 42
-| MongoDB           | [MongoDB Instances Overview]                                                             | 100
 | MongoDB           | [MongoDB Instances Compare]                                                              | 19
 | MongoDB           | [MongoDB ReplSet Summary]                                                                | 130
 | MongoDB           | [MongoDB InMemory Details]                                                               | 46
@@ -61,6 +63,7 @@
 
 [Advanced Data Exploration]: dashboard-advanced-data-exploration.md
 [Home Dashboard]: dashboard-home.md
+[Experimental Home Dashbaord]: dashboard-home-experimental.md
 [DB Cluster Summary]: dashboard-cluster-summary.md
 [Prometheus Exporter Status]: dashboard-prometheus-exporter-status.md
 [Prometheus Exporters Overview]: dashboard-prometheus-exporters-overview.md
@@ -98,6 +101,9 @@
 [MySQL Table Details]: dashboard-mysql-table-details.md
 [MySQL User Details]: dashboard-mysql-user-details.md
 [MySQL TokuDB Details]: dashboard-mysql-tokudb-details.md
+[Experimental MongoDB Collection Overview]: dashboard-mongodb-experimental_collection_overview.md
+[Experimental MongoDB Collection Details]: dashboard-mongodb-experimental_collection_details.md
+[Experimental MongoDB Oplog Details]: dashboard-mongodb-experimental_oplog.md
 [MongoDB Cluster Summary]: dashboard-mongodb-cluster-summary.md
 [MongoDB Instance Summary]: dashboard-mongodb-instance-summary.md
 [MongoDB Instances Overview]: dashboard-mongodb-instances-overview.md

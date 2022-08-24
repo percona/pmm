@@ -28,9 +28,10 @@ To ensure that PMM can establish a connection to Percona Platform:
 Contact your account administrator or create a new organization for your Percona Account if this is the case.
 
 ### Set the public address of your PMM server 
-1. In PMM, go to **Settings > Advanced Settings**.
-2. Enter your address/hostname or click **Get from browser** so that your browser automatically detects and populates this field.
-3. Save the changes.
+
+PMM automatically detects and populates the public address of the PMM server when this is not set up. 
+If you need to set it differently, go to **Settings > Advanced Settings** and edit the 
+**Public Address** field.
 
 ## Connect PMM to Percona Platform
 To connect your PMM server to Percona Platform, copy your personal access token from Platform Portal and paste it into PMM. You will find your access token in Platform Portal as part of your user profile page.
