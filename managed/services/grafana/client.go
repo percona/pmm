@@ -181,6 +181,22 @@ func (r role) String() string {
 	}
 }
 
+// getUserID returns user ID from Grafana for given user
+func (c *Client) getUserID(ctx context.Context, authHeaders http.Header) (int, error) {
+	var m map[string]interface{}
+	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+
+	if err != nil {
+		return -1, err
+	}
+
+	if val, ok := m["id"].(int); ok {
+		return val, nil
+	} else {
+		return -1, errors.New("Unable to find User ID")
+	}
+}
+
 // getRole returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // ctx is used only for cancelation.
