@@ -138,5 +138,5 @@ func init() {
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCaFile)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCertFile)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSKeyFile)
-	addExporterGlobalFlags(AddAgentQANMySQLPerfSchemaAgentC)
+	addExporterGlobalFlags(AddAgentQANMySQLPerfSchemaAgentC, false)
 }
