@@ -243,7 +243,6 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
 	return k.dbaasInitializer.RegisterCluster(ctx, req)
-
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.

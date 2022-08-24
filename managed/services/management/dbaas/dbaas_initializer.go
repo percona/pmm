@@ -241,5 +241,4 @@ func (in *Initializer) RegisterCluster(ctx context.Context, req *dbaasv1beta1.Re
 	}
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
-
 }
