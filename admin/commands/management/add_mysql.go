@@ -118,6 +118,7 @@ type AddMySQLCommand struct {
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
+	AddLogLevelNoFatalFlags
 }
 
 func (cmd *AddMySQLCommand) GetServiceName() string {

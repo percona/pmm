@@ -27,6 +27,8 @@ type AgentsClient interface {
 	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	// GetAgent returns a single Agent by ID.
 	GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error)
+	// GetAgentLogs returns Agent logs by ID.
+	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error)
 	// AddNodeExporter adds node_exporter Agent.
@@ -105,6 +107,15 @@ func (c *agentsClient) ListAgents(ctx context.Context, in *ListAgentsRequest, op
 func (c *agentsClient) GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error) {
 	out := new(GetAgentResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Agents/GetAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error) {
+	out := new(GetAgentLogsResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/GetAgentLogs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,6 +382,8 @@ type AgentsServer interface {
 	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	// GetAgent returns a single Agent by ID.
 	GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error)
+	// GetAgentLogs returns Agent logs by ID.
+	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error)
 	// AddNodeExporter adds node_exporter Agent.
@@ -439,6 +452,10 @@ func (UnimplementedAgentsServer) ListAgents(context.Context, *ListAgentsRequest)
 
 func (UnimplementedAgentsServer) GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgent not implemented")
+}
+
+func (UnimplementedAgentsServer) GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
 
 func (UnimplementedAgentsServer) AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error) {
@@ -597,6 +614,24 @@ func _Agents_GetAgent_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServer).GetAgent(ctx, req.(*GetAgentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_GetAgentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAgentLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).GetAgentLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/GetAgentLogs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).GetAgentLogs(ctx, req.(*GetAgentLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1119,6 +1154,10 @@ var Agents_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAgent",
 			Handler:    _Agents_GetAgent_Handler,
+		},
+		{
+			MethodName: "GetAgentLogs",
+			Handler:    _Agents_GetAgentLogs_Handler,
 		},
 		{
 			MethodName: "AddPMMAgent",

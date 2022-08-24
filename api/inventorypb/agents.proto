@@ -607,6 +607,24 @@ message GetAgentResponse {
   }
 }
 
+// Get logs
+
+message GetAgentLogsRequest {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // is less than this value. 0: no limit
+  uint32 limit = 2;
+}
+
+message GetAgentLogsResponse {
+  repeated string logs = 1;
+  uint32 agent_config_log_lines_count = 2;
+}
+
 // Add PMMAgent
 
 message AddPMMAgentRequest {
@@ -1423,6 +1441,17 @@ service Agents {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Agent"
       description: "Returns a single Agent by ID."
+    };
+  }
+  // GetAgentLogs returns Agent logs by ID.
+  rpc GetAgentLogs(GetAgentLogsRequest) returns (GetAgentLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/GetLogs"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Agent logs"
+      description: "Returns Agent logs by ID."
     };
   }
   // AddPMMAgent adds pmm-agent Agent.
