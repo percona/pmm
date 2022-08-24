@@ -53,16 +53,16 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
 	res := &managementpb.AddMongoDBResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		if req.CredentialsSource != "" {
-			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
-			if err != nil {
-				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
-			}
-
-			s.applyCredentialsSource(req, result)
+	if req.CredentialsSource != "" {
+		result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 		}
 
+		s.applyCredentialsSource(req, result)
+	}
+
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err

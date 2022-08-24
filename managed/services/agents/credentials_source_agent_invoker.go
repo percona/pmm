@@ -48,12 +48,11 @@ func (p *CredentialsSourceAgentInvoker) InvokeAgent(ctx context.Context, pmmAgen
 		return nil, err
 	}
 
-	start := time.Now()
-	defer func() {
-		if dur := time.Since(start); dur > 5*time.Second {
+	defer func(t time.Time) {
+		if dur := time.Since(t); dur > 5*time.Second {
 			l.Warnf("Invoking agent took %s.", dur)
 		}
-	}()
+	}(time.Now())
 
 	request, err := createRequest(filePath, serviceType)
 	if err != nil {

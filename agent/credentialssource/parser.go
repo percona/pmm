@@ -17,7 +17,6 @@ package credentialssource
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -65,6 +64,12 @@ func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceReque
 		return &res
 	}
 
+	err = validateResults(parsedData)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
 	res.Username = parsedData.username
 	res.Password = parsedData.password
 	res.AgentPassword = parsedData.agentPassword
@@ -76,13 +81,13 @@ func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceReque
 }
 
 func parseCredentialsSourceFile(filePath string, serviceType inventorypb.ServiceType) (*credentialsSource, error) {
-	if len(filePath) == 0 {
+	if filePath == "" {
 		return nil, errors.New("configPath for parseCredentialsSourceFile is empty")
 	}
 
 	filePath, err := expandPath(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("fail to normalize path: %w", err)
+		return nil, errors.Wrapf(err, "fail to normalize path: %s", filePath)
 	}
 
 	// check if file exist
@@ -90,7 +95,7 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 		return nil, errors.Errorf("file doesn't exist: %s", filePath)
 	}
 
-	credentialsJSONFile, err := parseJsonFile(filePath)
+	credentialsJSONFile, err := parseJSONFile(filePath)
 	if err == nil {
 		return credentialsJSONFile, nil
 	}
@@ -99,29 +104,19 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 		return parseMySQLDefaultsFile(filePath)
 	}
 
-	return nil, errors.Errorf("unrecognized file type %s", filePath)
+	return nil, errors.Wrapf(err, "unrecognized file type %s", filePath)
 }
 
-func parseJsonFile(filePath string) (*credentialsSource, error) {
-	creds := credentialsJSON{"", "", ""}
-
-	f, err := os.Lstat(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("%w", err)
-	}
-
-	if f.Mode()&0o111 != 0 {
-		return nil, fmt.Errorf("%w: %s", errors.New("file execution is not supported"), filePath)
-	}
-
+func parseJSONFile(filePath string) (*credentialsSource, error) {
 	// Read the file
 	content, err := readFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w", err)
+		return nil, errors.Wrapf(err, "cannot read file %s", filePath)
 	}
 
+	var creds credentialsJSON
 	if err := json.Unmarshal([]byte(content), &creds); err != nil {
-		return nil, fmt.Errorf("%w", err)
+		return nil, errors.Wrapf(err, "cannot umarshal file %s", filePath)
 	}
 
 	parsedData := &credentialsSource{
@@ -130,18 +125,13 @@ func parseJsonFile(filePath string) (*credentialsSource, error) {
 		agentPassword: creds.AgentPassword,
 	}
 
-	err = validateResults(parsedData)
-	if err != nil {
-		return nil, err
-	}
-
 	return parsedData, nil
 }
 
 func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 	cfg, err := ini.Load(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("fail to read config file: %w", err)
+		return nil, errors.Wrapf(err, "fail to read config file: %s", configPath)
 	}
 
 	cfgSection := cfg.Section("client")
@@ -153,11 +143,6 @@ func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 		host:     cfgSection.Key("host").String(),
 		port:     uint32(port),
 		socket:   cfgSection.Key("socket").String(),
-	}
-
-	err = validateResults(parsedData)
-	if err != nil {
-		return nil, err
 	}
 
 	return parsedData, nil
@@ -174,7 +159,7 @@ func expandPath(path string) (string, error) {
 	if strings.HasPrefix(path, "~/") {
 		usr, err := user.Current()
 		if err != nil {
-			return "", fmt.Errorf("failed to expand path: %w", err)
+			return "", errors.Wrapf(err, "failed to expand path: %s", path)
 		}
 		return filepath.Join(usr.HomeDir, path[2:]), nil
 	}
