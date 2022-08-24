@@ -110,20 +110,21 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_ListArtifacts_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Artifacts_ListArtifacts_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_ListArtifacts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_Artifacts_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -133,20 +134,21 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_DeleteArtifact_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Artifacts_DeleteArtifact_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_DeleteArtifact_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -194,19 +196,20 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_ListArtifacts_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_Artifacts_ListArtifacts_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_ListArtifacts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_Artifacts_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -214,19 +217,20 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_DeleteArtifact_0(ctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_Artifacts_DeleteArtifact_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_DeleteArtifact_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil

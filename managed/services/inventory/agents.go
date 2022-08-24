@@ -158,6 +158,22 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 	return res, e
 }
 
+// Logs by Agent ID.
+//nolint:unparam
+func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]string, uint32, error) {
+	agent, err := models.FindAgentByID(as.db.Querier, id)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	pmmAgentID, err := models.ExtractPmmAgentID(agent)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return as.r.Logs(ctx, pmmAgentID, id, limit)
+}
+
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 //nolint:unparam
 func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {

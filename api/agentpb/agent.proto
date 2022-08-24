@@ -414,6 +414,18 @@ message ParseDefaultsFileResponse {
   string socket = 6;
 }
 
+// AgentLogsRequest is an ServerMessage asking logs by Agent ID.
+message AgentLogsRequest {
+  string agent_id = 1;
+  uint32 limit = 2;
+}
+
+// AgentLogsResponse is an AgentMessage containing logs by Agent ID.
+message AgentLogsResponse {
+  repeated string logs = 1;
+  uint32 agent_config_log_lines_count = 2;
+}
+
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
@@ -676,6 +688,7 @@ message AgentMessage {
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;
+    AgentLogsResponse agent_logs = 21;
   }
 }
 
@@ -707,6 +720,7 @@ message ServerMessage {
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     ParseDefaultsFileRequest parse_defaults_file = 18;
+    AgentLogsRequest agent_logs = 19;
   }
 }
 
