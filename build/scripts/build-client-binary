@@ -120,6 +120,7 @@ main() {
     copy_component "postgres_exporter" "example-queries-postgres.yml"
     copy_component "postgres_exporter" "queries-postgres-uptime.yml"
     copy_component "postgres_exporter" "queries.yaml"
+    copy_component "postgres_exporter" "queries-vacuum.yml"
 
     copy_component "percona-toolkit" "bin/pt-summary"
     copy_component "percona-toolkit" "bin/pt-mysql-summary"
