@@ -171,6 +171,16 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	version := pgStatMonitorVersion06
 	switch {
+	case pgsmVersion.Core().GreaterThanOrEqual(v20):
+		if pgVersion >= 14 {
+			version = pgStatMonitorVersion20PG14
+			break
+		}
+		if pgVersion >= 13 {
+			version = pgStatMonitorVersion20PG13
+			break
+		}
+		version = pgStatMonitorVersion20PG12
 	case pgsmVersion.Core().GreaterThanOrEqual(v11):
 		if pgVersion >= 14 {
 			version = pgStatMonitorVersion11PG14
