@@ -6,7 +6,7 @@
 How to run PMM Server with Podman on our [Docker image]
 
 !!! note alert alert-primary ""
-    The tags used here are for the current release (PMM 2.29.0). Other [tags] are available.
+    The tags used here are for the current release (PMM 2.30.0). Other [tags] are available.
 
 !!! seealso alert alert-info "See also"
     [Docker]
@@ -57,7 +57,7 @@ Percona recommends running PMM as a non-privileged user and running it as part o
     # set environment for this unit
     Environment=PMM_PUBLIC_PORT=8443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.29.0
+    Environment=PMM_TAG=2.30.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     Environment=PMM_ENV_FILE=%h/.config/pmm-server/pmm-server.env
 
@@ -107,7 +107,7 @@ Percona recommends running PMM as a non-privileged user and running it as part o
     ```text
     Environment=PMM_PUBLIC_PORT=8443
     Environment=PMM_VOLUME_NAME=%N
-    Environment=PMM_TAG=2.29.0
+    Environment=PMM_TAG=2.30.0
     Environment=PMM_IMAGE=docker.io/percona/pmm-server
     ```
 
@@ -206,14 +206,14 @@ timeout 60 podman wait --condition=running pmm-server
     Edit `~/.config/pmm-server/env` and create/update with a new tag from [latest release](https://per.co.na/pmm/latest):
 
     ```sh
-    sed -i "s/PMM_TAG=.*/PMM_TAG=2.29.0/g" ~/.config/pmm-server/env
+    sed -i "s/PMM_TAG=.*/PMM_TAG=2.30.0/g" ~/.config/pmm-server/env
     ```
 
 3. Pre-pull image for faster restart.
 
     <div hidden>
     ```sh
-    sed -i "s/PMM_TAG=.*/PMM_TAG=2.29.0-rc/g" ~/.config/pmm-server/env
+    sed -i "s/PMM_TAG=.*/PMM_TAG=2.30.0/g" ~/.config/pmm-server/env
     sed -i "s|PMM_IMAGE=.*|PMM_IMAGE=docker.io/perconalab/pmm-server|g" ~/.config/pmm-server/env
     ```
     </div>
