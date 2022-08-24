@@ -102,7 +102,7 @@ type AddMySQLCommand struct {
 	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
 	DisableTablestats      bool              `help:"Disable table statistics collection"`
-	DisableTablestatsLimit uint16            `help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
+	DisableTablestatsLimit uint16            `placeholder:"number" help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
 	Environment            string            `help:"Environment name"`
 	Cluster                string            `help:"Cluster name"`
 	ReplicationSet         string            `help:"Replication set name"`
