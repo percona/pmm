@@ -63,7 +63,7 @@
 
 [Advanced Data Exploration]: dashboard-advanced-data-exploration.md
 [Home Dashboard]: dashboard-home.md
-[Experimental Home Dashbaord]: dashboard-home-experimental.md
+[Experimental Home Dashboard]: dashboard-home-experimental.md
 [DB Cluster Summary]: dashboard-cluster-summary.md
 [Prometheus Exporter Status]: dashboard-prometheus-exporter-status.md
 [Prometheus Exporters Overview]: dashboard-prometheus-exporters-overview.md
