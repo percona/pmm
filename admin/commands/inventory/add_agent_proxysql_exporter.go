@@ -111,5 +111,5 @@ func init() {
 		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
 	AddAgentProxysqlExporterC.Flag("disable-collectors",
 		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentProxysqlExporter.DisableCollectors)
-	addExporterGlobalFlags(AddAgentProxysqlExporterC)
+	addExporterGlobalFlags(AddAgentProxysqlExporterC, true)
 }

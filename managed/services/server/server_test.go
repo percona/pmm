@@ -72,6 +72,7 @@ func TestServer(t *testing.T) {
 
 		var ts mockTelemetryService
 		ts.Test(t)
+		ts.On("GetSummaries").Return(nil)
 
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
