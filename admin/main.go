@@ -118,7 +118,7 @@ func main() {
 	}()
 
 	if opts.PMMAgentListenPort == 0 && opts.PMMAgentSocket == "" {
-		opts.PMMAgentSocket, opts.PMMAgentListenPort = findSocketOrPort()
+		opts.PMMAgentSocket, opts.PMMAgentListenPort = findSocketOrPort("", 0)
 	}
 
 	agentlocal.SetTransport(
@@ -152,8 +152,18 @@ func main() {
 	}
 }
 
-func findSocketOrPort() (socket string, port uint32) {
+// findSocketOrPort detects if pmm-agent is listening on socket or port.
+// The arguments are used for testing purposes and can be left empty.
+func findSocketOrPort(socketPath string, localPort uint32) (socket string, port uint32) {
 	logrus.Debug("Detecting socket or port of local pmm-agent")
+
+	if socketPath == "" {
+		socketPath = flags.SocketPath
+	}
+
+	if localPort == 0 {
+		localPort = agentlocal.DefaultPMMAgentListenPort
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
@@ -169,14 +179,14 @@ func findSocketOrPort() (socket string, port uint32) {
 		var socket string
 
 		dialer := net.Dialer{}
-		conn, err := dialer.DialContext(ctx, "unix", flags.SocketPath)
+		conn, err := dialer.DialContext(ctx, "unix", socketPath)
 		if err == nil {
 			err := conn.Close()
 			if err != nil {
 				logrus.Debugf("Socket close error: %#v", err)
 			}
 
-			socket = flags.SocketPath
+			socket = socketPath
 		}
 
 		socketChan <- socket
@@ -189,14 +199,14 @@ func findSocketOrPort() (socket string, port uint32) {
 		var port uint32
 
 		dialer := net.Dialer{}
-		conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(agentlocal.DefaultPMMAgentListenPort))))
+		conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(localPort))))
 		if err == nil {
 			err := conn.Close()
 			if err != nil {
 				logrus.Debugf("TCP close error: %#v", err)
 			}
 
-			port = agentlocal.DefaultPMMAgentListenPort
+			port = localPort
 		}
 
 		portChan <- port
@@ -213,5 +223,5 @@ func findSocketOrPort() (socket string, port uint32) {
 	}
 
 	logrus.Debug("Could not detect socket or port. Using default.")
-	return flags.SocketPath, 0
+	return socketPath, 0
 }

@@ -190,6 +190,8 @@ func TestGetZipFile(t *testing.T) {
 }
 
 func TestGetListener(t *testing.T) {
+	t.Parallel()
+
 	t.Run("test socket", func(t *testing.T) {
 		s := Server{
 			cfg: &config.Config{
@@ -198,13 +200,11 @@ func TestGetListener(t *testing.T) {
 		}
 
 		l, err := s.getListener(logrus.NewEntry(logrus.New()))
-		if err == nil {
-			defer l.Close()
-		}
+		require.NoError(t, err)
+		defer l.Close()
 
-		assert.NoError(t, err)
 		_, ok := l.(*net.UnixListener)
-		assert.True(t, ok)
+		require.True(t, ok)
 	})
 
 	t.Run("test port", func(t *testing.T) {
@@ -216,13 +216,11 @@ func TestGetListener(t *testing.T) {
 		}
 
 		l, err := s.getListener(logrus.NewEntry(logrus.New()))
-		if err == nil {
-			defer l.Close()
-		}
+		require.NoError(t, err)
+		defer l.Close()
 
-		assert.NoError(t, err)
 		_, ok := l.(*net.TCPListener)
-		assert.True(t, ok)
+		require.True(t, ok)
 	})
 
 	t.Run("no config", func(t *testing.T) {
@@ -235,6 +233,6 @@ func TestGetListener(t *testing.T) {
 			defer l.Close()
 		}
 
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 }
