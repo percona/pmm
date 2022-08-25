@@ -157,8 +157,7 @@ func addClientData(ctx context.Context, zipW *zip.Writer, globals *flags.GlobalF
 		zipW,
 		fmt.Sprintf("http://%s/logs.zip", hostname),
 		"client/pmm-agent",
-		agentlocal.DefaultClient,
-	)
+		agentlocal.DefaultClient)
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}

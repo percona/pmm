@@ -125,8 +125,7 @@ func main() {
 		ctx,
 		opts.EnableDebug || opts.EnableTrace,
 		opts.PMMAgentListenPort,
-		opts.PMMAgentSocket,
-	)
+		opts.PMMAgentSocket)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
