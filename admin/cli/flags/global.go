@@ -34,8 +34,8 @@ type GlobalFlags struct {
 	SkipTLSCertificateCheck bool        `name:"server-insecure-tls" help:"Skip PMM Server TLS certificate validation"`
 	EnableDebug             bool        `name:"debug" help:"Enable debug logging"`
 	EnableTrace             bool        `name:"trace" help:"Enable trace logging (implies debug)"`
-	PMMAgentListenPort      uint32      `placeholder:"port" help:"Port of local pmm-agent to connect to"`
-	PMMAgentSocket          string      `placeholder:"path" help:"pmm-agent socket to connect to. Default: ${socketPath}"`
+	PMMAgentListenPort      uint32      `placeholder:"PORT" help:"Port of local pmm-agent to connect to"`
+	PMMAgentSocket          string      `placeholder:"PATH" help:"pmm-agent socket to connect to. Default: ${socketPath}"`
 	JSON                    jsonFlag    `help:"Enable JSON output"`
 	Version                 versionFlag `short:"v" help:"Show application version"`
 }
