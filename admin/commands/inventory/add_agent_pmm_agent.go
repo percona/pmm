@@ -38,16 +38,14 @@ func (res *addPMMAgentResult) String() string {
 	return commands.RenderTemplate(addPMMAgentResultT, res)
 }
 
-type addPMMAgentCommand struct {
-	RunsOnNodeID string
-	CustomLabels string
+// AddPMMAgentCommand is used by Kong for CLI flags and commands.
+type AddPMMAgentCommand struct {
+	RunsOnNodeID string            `arg:"" help:"Node identifier where this instance runs"`
+	CustomLabels map[string]string `help:"Custom user-assigned labels"`
 }
 
-func (cmd *addPMMAgentCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddPMMAgentCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddPMMAgentParams{
 		Body: agents.AddPMMAgentBody{
 			RunsOnNodeID: cmd.RunsOnNodeID,
@@ -63,15 +61,4 @@ func (cmd *addPMMAgentCommand) Run() (commands.Result, error) {
 	return &addPMMAgentResult{
 		Agent: resp.Payload.PMMAgent,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentPMMAgent  addPMMAgentCommand
-	AddAgentPMMAgentC = addAgentC.Command("pmm-agent", "add PMM agent to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentPMMAgentC.Arg("runs-on-node-id", "Node identifier where this instance runs").Required().StringVar(&AddAgentPMMAgent.RunsOnNodeID)
-	AddAgentPMMAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPMMAgent.CustomLabels)
 }

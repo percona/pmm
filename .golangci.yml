@@ -1,5 +1,8 @@
 ---
 linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+
   depguard:
     list-type: blacklist
     include-go-root: true
@@ -15,17 +18,29 @@ linters-settings:
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
 
+  gci:
+    sections:
+      - standard # Captures all standard packages if they do not match another section.
+      - default # Contains all imports that could not be matched to another section type.
+      - prefix(github.com/percona/pmm) # Groups all local imports.
+
   godot:
     capital: true
 
   goimports:
     local-prefixes: github.com/percona/pmm
 
-  gci:
-    sections:
-      - standard # Captures all standard packages if they do not match another section.
-      - default # Contains all imports that could not be matched to another section type.
-      - prefix(github.com/percona/pmm) # Groups all local imports.
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona-platform/dbaas-api
+
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - github.com/percona/pmm/admin/commands.Result
 
   lll:
     line-length: 170
@@ -48,13 +63,6 @@ linters-settings:
 
   unparam:
     check-exported: true
-
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  gomoddirectives:
-    replace-allow-list:
-      - github.com/percona-platform/dbaas-api
 
 linters:
   enable-all: true
