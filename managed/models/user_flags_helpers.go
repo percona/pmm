@@ -41,7 +41,7 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 
 	// Check user ID is unique
 	row := &UserDetails{ID: params.UserID}
-	if err := q.Reload(row); err != reform.ErrNoRows {
+	if err := q.Reload(row); errors.Is(err, reform.ErrNoRows) {
 		if err == nil {
 			return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
 		}
@@ -94,6 +94,5 @@ func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
 		return nil, status.Errorf(codes.NotFound, "Record with User ID %d not found.", userID)
 	default:
 		return nil, errors.WithStack(err)
-
 	}
 }
