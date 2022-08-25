@@ -16,7 +16,6 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -31,9 +30,12 @@ import (
 )
 
 const (
-	mysqlQuerySourceSlowLog    = "slowlog"
-	mysqlQuerySourcePerfSchema = "perfschema"
-	mysqlQuerySourceNone       = "none"
+	// MysqlQuerySourceSlowLog defines available source name for profiler.
+	MysqlQuerySourceSlowLog = "slowlog"
+	// MysqlQuerySourcePerfSchema defines available source name for profiler.
+	MysqlQuerySourcePerfSchema = "perfschema"
+	// MysqlQuerySourceNone defines available source name for profiler.
+	MysqlQuerySourceNone = "none"
 )
 
 var addMySQLResultT = commands.ParseTemplate(`
@@ -85,65 +87,68 @@ func (res *addMySQLResult) TablestatStatus() string {
 	return s
 }
 
-type addMySQLCommand struct {
-	Address           string
-	Socket            string
-	NodeID            string
-	PMMAgentID        string
-	ServiceName       string
-	Username          string
-	Password          string
-	AgentPassword     string
-	Environment       string
-	Cluster           string
-	ReplicationSet    string
-	CustomLabels      string
-	MetricsMode       string
-	DisableCollectors string
+// AddMySQLCommand is used by Kong for CLI flags and commands.
+type AddMySQLCommand struct {
+	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
+	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
+	Socket        string `help:"Path to MySQL socket"`
+	NodeID        string `help:"Node ID (default is autodetected)"`
+	PMMAgentID    string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username      string `default:"root" help:"MySQL username"`
+	Password      string `help:"MySQL password"`
+	AgentPassword string `help:"Custom password for /metrics endpoint"`
+	// TODO add "auto", make it default
+	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
+	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
+	DisableTablestats      bool              `help:"Disable table statistics collection"`
+	DisableTablestatsLimit uint16            `placeholder:"NUMBER" help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
+	Environment            string            `help:"Environment name"`
+	Cluster                string            `help:"Cluster name"`
+	ReplicationSet         string            `help:"Replication set name"`
+	CustomLabels           map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	TLS                    bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
+	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
+	CreateUser             bool              `hidden:"" help:"Create pmm user"`
+	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
-	QuerySource string
-
-	SkipConnectionCheck    bool
-	DisableQueryExamples   bool
-	MaxSlowlogFileSize     units.Base2Bytes
-	TLS                    bool
-	TLSSkipVerify          bool
-	TLSCaFile              string
-	TLSCertFile            string
-	TLSKeyFile             string
-	DisableTablestats      bool
-	DisableTablestatsLimit uint16
-	CreateUser             bool
+	AddCommonFlags
+	AddLogLevelNoFatalFlags
 }
 
-func (cmd *addMySQLCommand) GetServiceName() string {
+func (cmd *AddMySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *addMySQLCommand) GetAddress() string {
+func (cmd *AddMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *addMySQLCommand) GetDefaultAddress() string {
+func (cmd *AddMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
-func (cmd *addMySQLCommand) GetSocket() string {
+func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *addMySQLCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
 			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
 	}
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
 		if err != nil {
@@ -174,7 +179,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +209,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			AgentPassword:  cmd.AgentPassword,
 			CustomLabels:   customLabels,
 
-			QANMysqlSlowlog:    cmd.QuerySource == mysqlQuerySourceSlowLog,
-			QANMysqlPerfschema: cmd.QuerySource == mysqlQuerySourcePerfSchema,
+			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
+			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:       cmd.SkipConnectionCheck,
 			DisableQueryExamples:      cmd.DisableQueryExamples,
@@ -218,7 +223,7 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			TablestatsGroupTableLimit: tablestatsGroupTableLimit,
 			MetricsMode:               pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &addLogLevel,
+			LogLevel:                  &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -232,56 +237,4 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		MysqldExporter: resp.Payload.MysqldExporter,
 		TableCount:     resp.Payload.TableCount,
 	}, nil
-}
-
-// register command
-var (
-	AddMySQL  addMySQLCommand
-	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring")
-)
-
-func init() {
-	hostname, _ := os.Hostname()
-	serviceName := hostname + "-mysql"
-	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
-	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
-
-	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306)").StringVar(&AddMySQL.Address)
-	AddMySQLC.Flag("socket", "Path to MySQL socket").StringVar(&AddMySQL.Socket)
-
-	AddMySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddMySQL.NodeID)
-	AddMySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddMySQL.PMMAgentID)
-
-	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddMySQL.AgentPassword)
-
-	querySources := []string{mysqlQuerySourceSlowLog, mysqlQuerySourcePerfSchema, mysqlQuerySourceNone} // TODO add "auto", make it default
-	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
-	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
-	AddMySQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddMySQL.DisableQueryExamples)
-	AddMySQLC.Flag("size-slow-logs", `Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB`).
-		BytesVar(&AddMySQL.MaxSlowlogFileSize)
-	AddMySQLC.Flag("disable-tablestats", "Disable table statistics collection").BoolVar(&AddMySQL.DisableTablestats)
-	AddMySQLC.Flag("disable-tablestats-limit", "Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)").
-		Uint16Var(&AddMySQL.DisableTablestatsLimit)
-
-	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
-	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)
-	AddMySQLC.Flag("replication-set", "Replication set name").StringVar(&AddMySQL.ReplicationSet)
-	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMySQL.CustomLabels)
-
-	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
-	AddMySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddMySQL.TLS)
-	AddMySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddMySQL.TLSSkipVerify)
-	AddMySQLC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddMySQL.TLSCaFile)
-	AddMySQLC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddMySQL.TLSCertFile)
-	AddMySQLC.Flag("tls-key", "Path to client key file").StringVar(&AddMySQL.TLSKeyFile)
-	AddMySQLC.Flag("create-user", "Create pmm user").Hidden().BoolVar(&AddMySQL.CreateUser)
-	AddMySQLC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").
-		Default("auto").
-		EnumVar(&AddMySQL.MetricsMode, metricsModes...)
-	AddMySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddMySQL.DisableCollectors)
-	addGlobalFlags(AddMySQLC, false)
 }
