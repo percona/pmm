@@ -22,17 +22,19 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// CreateUserParams has parameters to create a new user.
 type CreateUserParams struct {
 	UserID int
 }
 
+// UpdateUserParams has parameters to update existing user.
 type UpdateUserParams struct {
 	UserID int
 	Tour   bool
 }
 
+// CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
-	// TODO : Confirm if check is required
 	if params.UserID < 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
@@ -55,8 +57,8 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	return row, nil
 }
 
+// UpdateUser updates an existing user with given parameters.
 func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, error) {
-	// TODO : Confirm if check is required
 	if params.UserID < 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
@@ -78,9 +80,8 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	return row, nil
 }
 
-// FindUser find user details using user ID
+// FindUser find user details using given user ID.
 func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
-	// TODO : Confirm if check is required
 	if userID < 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}

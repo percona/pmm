@@ -32,25 +32,34 @@ import (
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
+	c  clientInterface
 
 	userpb.UnimplementedUserServer
 }
 
+type clientInterface interface {
+	GetUserID(ctx context.Context) (int, error)
+}
+
 // NewUserService return a user service
-func NewUserService(db *reform.DB) *Service {
+func NewUserService(db *reform.DB, client clientInterface) *Service {
 	l := logrus.WithField("component", "user")
 
 	s := Service{
 		db: db,
 		l:  l,
+
+		c: client,
 	}
 	return &s
 }
 
 // GetUser creates a new user
 func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
-	// TODO : Get user ID from Grafana
-	userID := 32
+	userID, err := s.c.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	userInfo := &models.UserDetails{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -85,8 +94,10 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		return nil, status.Errorf(codes.InvalidArgument, "Tour flag cannot be unset")
 	}
 
-	// TODO : Get ID from Grafana
-	userID := 32
+	userID, err := s.c.GetUserID(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	userInfo := &models.UserDetails{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
