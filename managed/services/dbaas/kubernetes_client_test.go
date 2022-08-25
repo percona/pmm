@@ -43,5 +43,4 @@ users:
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, expectedConf, string(conf))
-
 }

@@ -103,7 +103,7 @@ func (k *k8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, 
 		return nil, err
 	}
 	return k.clientSet.CoreV1().Secrets(namespace).Get(
-		context.TODO(),
+		ctx,
 		serviceAccount.Secrets[0].Name,
 		metav1.GetOptions{},
 	)
