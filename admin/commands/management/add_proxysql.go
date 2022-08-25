@@ -16,7 +16,6 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -43,45 +42,48 @@ func (res *addProxySQLResult) String() string {
 	return commands.RenderTemplate(addProxySQLResultT, res)
 }
 
-type addProxySQLCommand struct {
-	Address           string
-	Socket            string
-	NodeID            string
-	PMMAgentID        string
-	ServiceName       string
-	Username          string
-	Password          string
-	AgentPassword     string
-	CredentialsSource string
-	Environment       string
-	Cluster           string
-	ReplicationSet    string
-	CustomLabels      string
-	MetricsMode       string
-	DisableCollectors string
+// AddProxySQLCommand is used by Kong for CLI flags and commands.
+type AddProxySQLCommand struct {
+	ServiceName         string            `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
+	Address             string            `arg:"" default:"127.0.0.1:6032" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
+	Socket              string            `help:"Path to ProxySQL socket"`
+	NodeID              string            `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username            string            `default:"admin" help:"ProxySQL username"`
+	Password            string            `default:"admin" help:"ProxySQL password"`
+	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
+	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	Environment         string            `help:"Environment name"`
+	Cluster             string            `help:"Cluster name"`
+	ReplicationSet      string            `help:"Replication set name"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
+	TLS                 bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
+	AddCommonFlags
+	AddLogLevelFatalFlags
 }
 
-func (cmd *addProxySQLCommand) GetServiceName() string {
+func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *addProxySQLCommand) GetAddress() string {
+func (cmd *AddProxySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *addProxySQLCommand) GetDefaultAddress() string {
+func (cmd *AddProxySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:6032"
 }
 
-func (cmd *addProxySQLCommand) GetSocket() string {
+func (cmd *AddProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *addProxySQLCommand) GetCredentials() error {
+func (cmd *AddProxySQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -94,11 +96,8 @@ func (cmd *addProxySQLCommand) GetCredentials() error {
 	return nil
 }
 
-func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -113,7 +112,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +144,7 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:            &addLogLevel,
+			LogLevel:            &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -157,45 +156,4 @@ func (cmd *addProxySQLCommand) Run() (commands.Result, error) {
 	return &addProxySQLResult{
 		Service: resp.Payload.Service,
 	}, nil
-}
-
-// register command
-var (
-	AddProxySQL  addProxySQLCommand
-	AddProxySQLC = AddC.Command("proxysql", "Add ProxySQL to monitoring")
-)
-
-func init() {
-	hostname, _ := os.Hostname()
-	serviceName := hostname + "-proxysql"
-	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
-	AddProxySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddProxySQL.ServiceName)
-
-	AddProxySQLC.Arg("address", "ProxySQL address and port (default: 127.0.0.1:6032)").StringVar(&AddProxySQL.Address)
-	AddProxySQLC.Flag("socket", "Path to ProxySQL socket").StringVar(&AddProxySQL.Socket)
-
-	AddProxySQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddProxySQL.NodeID)
-	AddProxySQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddProxySQL.PMMAgentID)
-
-	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)
-	AddProxySQLC.Flag("password", "ProxySQL password").Default("admin").StringVar(&AddProxySQL.Password)
-	AddProxySQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddProxySQL.AgentPassword)
-	AddProxySQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddProxySQL.CredentialsSource)
-
-	AddProxySQLC.Flag("environment", "Environment name").StringVar(&AddProxySQL.Environment)
-	AddProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddProxySQL.Cluster)
-	AddProxySQLC.Flag("replication-set", "Replication set name").StringVar(&AddProxySQL.ReplicationSet)
-	AddProxySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddProxySQL.CustomLabels)
-
-	AddProxySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddProxySQL.SkipConnectionCheck)
-	AddProxySQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddProxySQL.TLS)
-	AddProxySQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddProxySQL.TLSSkipVerify)
-	AddProxySQLC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").
-		Default("auto").
-		EnumVar(&AddProxySQL.MetricsMode, metricsModes...)
-
-	AddProxySQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddProxySQL.DisableCollectors)
-
-	addGlobalFlags(AddProxySQLC, true)
 }
