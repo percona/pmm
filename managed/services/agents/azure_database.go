@@ -95,7 +95,7 @@ func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service
 		"--config.file=" + tdp.Left + " .TextFiles.config " + tdp.Right,
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
-	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion)
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,

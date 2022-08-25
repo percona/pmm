@@ -1,3 +1,6 @@
+# vim: ts=8:sw=8:ft=make:noai:noet
+SWAGGER_UI_VERSION?=latest
+
 .PHONY: default init release gen test clean all
 default: help
 
@@ -115,6 +118,20 @@ gen-grafana:     # Generate Grafana Unified Alerting API client.
 
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
+
+
+ifeq ($(shell test "${SWAGGER_UI_VERSION}" = "latest" && echo 1 || echo 0), 1)
+get_swagger_version:
+override SWAGGER_UI_VERSION = $(shell curl --silent --head https://github.com/swagger-api/swagger-ui/releases/latest | grep -E '^[lL]ocation' | sed 's;^.*/;;')
+else
+get_swagger_version:
+endif
+
+update-swagger: get_swagger_version               ## Update Swagger UI in api/swagger, use `SWAGGER_UI_VERSION=xxx make update-swagger` to choose a version other than latest.
+	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
+	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;api/swagger/;g'
+	rm -f api/swagger/.npmrc
+	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' api/swagger/swagger-initializer.js
 
 clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete

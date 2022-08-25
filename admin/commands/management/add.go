@@ -31,12 +31,17 @@ var (
 	addLogLevel        string
 )
 
-func addGlobalFlags(cmd *kingpin.CmdClause) {
+func addGlobalFlags(cmd *kingpin.CmdClause, supportLogLevelFatal bool) {
 	// Add command global flags
 	cmd.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").StringVar(&addServiceNameFlag)
 	cmd.Flag("host", "Service hostname or IP address (overrides positional argument)").StringVar(&addHostFlag)
 	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
-	cmd.Flag("log-level", "Service logging level. One of: [debug, info, warn, error, fatal]").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
+
+	if supportLogLevelFatal {
+		cmd.Flag("log-level", "Service logging level. One of: [debug, info, warn, error, fatal]").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
+	} else {
+		cmd.Flag("log-level", "Service logging level. One of: [debug, info, warn, error]").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error")
+	}
 }
 
 type connectionGetter interface {
