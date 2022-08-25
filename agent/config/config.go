@@ -222,6 +222,11 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 
 	// set default values
 	configureNetworkDefaults(cfg)
+
+	if cfg.WindowConnectedTime == 0 {
+		cfg.WindowConnectedTime = time.Hour
+	}
+
 	configurePaths(cfg, l)
 
 	if cfg.Server.Address != "" {
@@ -258,9 +263,6 @@ func configureNetworkDefaults(cfg *Config) {
 	}
 	if cfg.Ports.Max == 0 {
 		cfg.Ports.Max = 51999
-	}
-	if cfg.WindowConnectedTime == 0 {
-		cfg.WindowConnectedTime = time.Hour
 	}
 }
 
