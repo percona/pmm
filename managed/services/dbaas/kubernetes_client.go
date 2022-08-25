@@ -105,8 +105,7 @@ func (k *k8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, 
 	return k.clientSet.CoreV1().Secrets(namespace).Get(
 		ctx,
 		serviceAccount.Secrets[0].Name,
-		metav1.GetOptions{},
-	)
+		metav1.GetOptions{})
 }
 
 // GenerateKubeConfig generates kubeconfig
