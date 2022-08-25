@@ -18,9 +18,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
@@ -114,6 +117,10 @@ func main() {
 		cancel()
 	}()
 
+	if opts.PMMAgentListenPort == 0 && opts.PMMAgentSocket == "" {
+		opts.PMMAgentSocket, opts.PMMAgentListenPort = findSocketOrPort()
+	}
+
 	agentlocal.SetTransport(
 		ctx,
 		opts.EnableDebug || opts.EnableTrace,
@@ -143,4 +150,67 @@ func main() {
 
 		os.Exit(1)
 	}
+}
+
+func findSocketOrPort() (socket string, port uint32) {
+	logrus.Debug("Detecting socket or port of local pmm-agent")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	socketChan := make(chan string, 1)
+	portChan := make(chan uint32, 1)
+
+	// Check socket connection
+	go func() {
+		defer close(socketChan)
+
+		var socket string
+
+		dialer := net.Dialer{}
+		conn, err := dialer.DialContext(ctx, "unix", flags.SocketPath)
+		if err == nil {
+			logrus.Debugf("Found socket %s", flags.SocketPath)
+			err := conn.Close()
+			if err != nil {
+				logrus.Debugf("Socket close error: %#v", err)
+			}
+
+			socket = flags.SocketPath
+		}
+
+		socketChan <- socket
+	}()
+
+	// Check TCP connection
+	go func() {
+		defer close(portChan)
+
+		var port uint32
+
+		dialer := net.Dialer{}
+		conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(agentlocal.DefaultPMMAgentListenPort))))
+		if err == nil {
+			logrus.Debugf("Found port %d", agentlocal.DefaultPMMAgentListenPort)
+			err := conn.Close()
+			if err != nil {
+				logrus.Debugf("TCP close error: %#v", err)
+			}
+
+			port = agentlocal.DefaultPMMAgentListenPort
+		}
+
+		portChan <- port
+	}()
+
+	if sock := <-socketChan; sock != "" {
+		return sock, 0
+	}
+
+	if port := <-portChan; port != 0 {
+		return "", port
+	}
+
+	logrus.Debug("Could not detect socket or port. Using default.")
+	return flags.SocketPath, 0
 }

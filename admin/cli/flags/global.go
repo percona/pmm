@@ -40,15 +40,6 @@ type GlobalFlags struct {
 	Version                 versionFlag `short:"v" help:"Show application version"`
 }
 
-// AfterApply runs after all flags are applied.
-func (g *GlobalFlags) AfterApply() error {
-	if g.PMMAgentListenPort == 0 && g.PMMAgentSocket == "" {
-		g.PMMAgentSocket = SocketPath
-	}
-
-	return nil
-}
-
 type versionFlag bool
 
 // BeforeApply is run before the version flag is applied.

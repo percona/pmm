@@ -34,12 +34,29 @@ import (
 )
 
 // DefaultClient is http client configured either for socket or tcp connection to local pmm-agent.
+// It shall be used to talk to the local pmm-agent.
 var DefaultClient = http.DefaultClient
 
 // SetTransport configures transport for accessing local pmm-agent API.
 func SetTransport(ctx context.Context, debug bool, port uint32, socket string) {
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(GetHostname(Localhost, port, ""), "/", []string{"http"})
+	transport := configureTransport(port, socket)
+	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
+	transport.SetDebug(debug)
+	transport.Context = ctx
+
+	// disable HTTP/2
+	httpTransport, ok := transport.Transport.(*http.Transport)
+	if !ok {
+		panic("Cannot assert transport to *http.Transport")
+	}
+	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+
+	client.Default.SetTransport(transport)
+}
+
+// configureTransport configures transport based on provided socket or port.
+func configureTransport(port uint32, socket string) *httptransport.Runtime {
 	if socket != "" {
 		// In order to connect via socket, we need to override DialContext.
 		// The rest of the configuration is from http.DefaultTransport.
@@ -56,22 +73,15 @@ func SetTransport(ctx context.Context, debug bool, port uint32, socket string) {
 		cl := &http.Client{
 			Transport: t,
 		}
-		transport = httptransport.NewWithClient(GetHostname("", 0, socket), "/", []string{"http"}, cl)
+		transport := httptransport.NewWithClient(GetHostname("", 0, socket), "/", []string{"http"}, cl)
 		DefaultClient = cl
+
+		return transport
 	}
 
-	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
-	transport.SetDebug(debug)
-	transport.Context = ctx
+	transport := httptransport.New(GetHostname(Localhost, port, ""), "/", []string{"http"})
 
-	// disable HTTP/2
-	httpTransport, ok := transport.Transport.(*http.Transport)
-	if !ok {
-		panic("Cannot assert transport to *http.Transport")
-	}
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-
-	client.Default.SetTransport(transport)
+	return transport
 }
 
 type NetworkInfo bool
