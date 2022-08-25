@@ -96,8 +96,10 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	ctx, db, dbaasClient, grafanaClient, componentsService, teardown := setup(t)
 	defer teardown(t)
+	versionService := NewVersionServiceClient(versionServiceURL)
+	dbaasInitializer := NewInitializer(db, dbaasClient, grafanaClient, versionService)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, dbaasInitializer)
 
-	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient(versionServiceURL))
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, psmdbKubeconfTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   onePointEight,
@@ -113,7 +115,7 @@ func TestPSMDBClusterService(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
-	versionService := NewVersionServiceClient(versionServiceURL)
+	versionService = NewVersionServiceClient(versionServiceURL)
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {
