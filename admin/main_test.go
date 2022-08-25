@@ -56,6 +56,7 @@ func TestVersionJson(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestFindSocketOrPath(t *testing.T) {
 	const socketPath = "/tmp/pmm-agent-find-socket-test.sock"
 	const localPort = 18485
@@ -63,7 +64,7 @@ func TestFindSocketOrPath(t *testing.T) {
 	t.Run("finds socket", func(t *testing.T) {
 		l, err := net.Listen("unix", socketPath)
 		require.NoError(t, err)
-		defer l.Close()
+		defer l.Close() //nolint:errcheck
 
 		socket, port := findSocketOrPort(socketPath, 0)
 		require.Equal(t, socket, socketPath)
@@ -73,7 +74,7 @@ func TestFindSocketOrPath(t *testing.T) {
 	t.Run("finds port", func(t *testing.T) {
 		l, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(localPort)))
 		require.NoError(t, err)
-		defer l.Close()
+		defer l.Close() //nolint:errcheck
 
 		socket, port := findSocketOrPort("", localPort)
 		require.Equal(t, socket, "")
@@ -83,11 +84,11 @@ func TestFindSocketOrPath(t *testing.T) {
 	t.Run("finds socket even if port is available", func(t *testing.T) {
 		l, err := net.Listen("unix", socketPath)
 		require.NoError(t, err)
-		defer l.Close()
+		defer l.Close() //nolint:errcheck
 
 		lp, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(localPort)))
 		require.NoError(t, err)
-		defer lp.Close()
+		defer lp.Close() //nolint:errcheck
 
 		socket, port := findSocketOrPort(socketPath, localPort)
 		require.Equal(t, socket, socketPath)

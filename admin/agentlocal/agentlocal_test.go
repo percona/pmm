@@ -22,12 +22,16 @@ import (
 )
 
 func TestGetHostname(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Returns socket", func(t *testing.T) {
+		t.Parallel()
 		h := GetHostname("host", 123, "/path/to/socket")
 		assert.Equal(t, h, "unix-socket")
 	})
 
 	t.Run("Returns address", func(t *testing.T) {
+		t.Parallel()
 		h := GetHostname("host", 123, "")
 		assert.Equal(t, h, "host:123")
 	})

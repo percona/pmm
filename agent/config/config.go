@@ -221,6 +221,27 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 	}
 
 	// set default values
+	configureNetworkDefaults(cfg)
+	configurePaths(cfg, l)
+
+	if cfg.Server.Address != "" {
+		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+			host := cfg.Server.Address
+			cfg.Server.Address = net.JoinHostPort(host, "443")
+			l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
+		}
+	}
+
+	// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
+		cfg.Debug = true
+	}
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
+		cfg.Trace = true
+	}
+}
+
+func configureNetworkDefaults(cfg *Config) {
 	if cfg.ListenSocket == "" && cfg.ListenAddress == "" && cfg.ListenPort == 0 {
 		cfg.ListenSocket = "/usr/local/percona/pmm2/pmm-agent.sock"
 	}
@@ -238,24 +259,6 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 	}
 	if cfg.WindowConnectedTime == 0 {
 		cfg.WindowConnectedTime = time.Hour
-	}
-
-	configurePaths(cfg, l)
-
-	if cfg.Server.Address != "" {
-		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
-			host := cfg.Server.Address
-			cfg.Server.Address = net.JoinHostPort(host, "443")
-			l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
-		}
-	}
-
-	// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
-	if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
-		cfg.Debug = true
-	}
-	if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
-		cfg.Trace = true
 	}
 }
 
