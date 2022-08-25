@@ -29,30 +29,37 @@ import (
 )
 
 type (
+	// Cluster contains information about how to communicate with a kubernetes cluster
 	Cluster struct {
 		CertificateAuthorityData []byte `json:"certificate-authority-data"`
 		Server                   string `json:"server"`
 	}
+	// ClusterInfo is a struct used to parse Cluster config from kubeconfig
 	ClusterInfo struct {
 		Name    string  `json:"name"`
 		Cluster Cluster `json:"cluster"`
 	}
+	// User contains information that describes identity information.  This is use to tell the kubernetes cluster who you are.
 	User struct {
 		Token string `json:"token"`
 	}
+	// UserInfo is a struct used to parse User config from kubeconfig
 	UserInfo struct {
 		Name string `json:"name"`
 		User User   `json:"user"`
 	}
+	// Context is a tuple of references to a cluster (how do I communicate with a kubernetes cluster), a user (how do I identify myself), and a namespace (what subset of resources do I want to work with)
 	Context struct {
 		Cluster   string `json:"cluster"`
 		User      string `json:"user"`
 		Namespace string `json:"namespace"`
 	}
+	// ContextInfo is a struct used to parse Context config from kubeconfig
 	ContextInfo struct {
 		Name    string  `json:"name"`
 		Context Context `json:"context"`
 	}
+	// Config holds the information needed to build connect to remote kubernetes clusters as a given user
 	Config struct {
 		// Legacy field from pkg/api/types.go TypeMeta.
 		// TODO(jlowdermilk): remove this after eliminating downstream dependencies.
@@ -95,6 +102,7 @@ func NewK8sInclusterClient() (*k8sClient, error) {
 	return &k8sClient{clientSet: clientSet, conf: config}, nil
 }
 
+// GetSecretsForServiceAccount returns secret by given service account name
 func (k *k8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, accountName string) (*v1.Secret, error) {
 	serviceAccount, err := k.clientSet.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), accountName, metav1.GetOptions{})
 	if err != nil {
@@ -107,6 +115,7 @@ func (k *k8sClient) GetSecretsForServiceAccount(ctx context.Context, namespace, 
 	)
 }
 
+// GenerateKubeConfig generates kubeconfig
 func (k *k8sClient) GenerateKubeConfig(secret *v1.Secret) ([]byte, error) {
 	c := &Config{
 		Kind:           "Config",

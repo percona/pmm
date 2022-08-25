@@ -64,6 +64,7 @@ func (c *Client) initializeInClusterK8sClient() error {
 	return nil
 }
 
+// GetKubeConfig returns kubeconfig once PMM is inside a k8s cluster
 func (c *Client) GetKubeConfig() (string, error) {
 	if err := c.initializeInClusterK8sClient(); err != nil {
 		return "", err
@@ -73,11 +74,7 @@ func (c *Client) GetKubeConfig() (string, error) {
 		return "", err
 	}
 	kubeConfig, err := c.k8sClient.GenerateKubeConfig(secret)
-	if err != nil {
-		// Return enb
-		return "", err
-	}
-	return string(kubeConfig), nil
+	return string(kubeConfig), err
 }
 
 // Connect connects the client to dbaas-controller API.

@@ -887,12 +887,12 @@ func main() {
 			l.Debug("DBaaS is enabled - creating a DBaaS client.")
 			err := dbaasInitializer.Enable(ctx)
 			if err != nil {
-				l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
+				l.Fatalf("Failed initializing dbaas-controller %s: %v", *dbaasControllerAPIAddrF, err)
 			}
 			defer func() {
 				err := dbaasInitializer.Disable(context.Background())
 				if err != nil {
-					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
+					l.Fatalf("Failed disabling dbaas-controller API: %v", err)
 				}
 			}()
 		}
