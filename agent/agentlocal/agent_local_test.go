@@ -201,7 +201,7 @@ func TestGetListener(t *testing.T) {
 
 		l, err := s.getListener(logrus.NewEntry(logrus.New()))
 		require.NoError(t, err)
-		defer l.Close()
+		defer l.Close() //nolint:errcheck
 
 		_, ok := l.(*net.UnixListener)
 		require.True(t, ok)
@@ -217,7 +217,7 @@ func TestGetListener(t *testing.T) {
 
 		l, err := s.getListener(logrus.NewEntry(logrus.New()))
 		require.NoError(t, err)
-		defer l.Close()
+		defer l.Close() //nolint:errcheck
 
 		_, ok := l.(*net.TCPListener)
 		require.True(t, ok)
@@ -230,7 +230,7 @@ func TestGetListener(t *testing.T) {
 
 		l, err := s.getListener(logrus.NewEntry(logrus.New()))
 		if err == nil {
-			defer l.Close()
+			defer l.Close() //nolint:errcheck
 		}
 
 		require.Error(t, err)
