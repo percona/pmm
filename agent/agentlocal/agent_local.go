@@ -390,7 +390,8 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serverFileBuffer := &bytes.Buffer{}
-	for _, serverLog := range s.logStore.GetLogs() {
+	serverLogs, _ := s.logStore.GetLogs()
+	for _, serverLog := range serverLogs {
 		_, err := serverFileBuffer.WriteString(serverLog)
 		if err != nil {
 			logrus.Error(err)

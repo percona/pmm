@@ -90,7 +90,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 // AddMySQLCommand is used by Kong for CLI flags and commands.
 type AddMySQLCommand struct {
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
-	Address       string `arg:"" default:"127.0.0.1:3306" help:"MySQL address and port (default: 127.0.0.1:3306)"`
+	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
 	Socket        string `help:"Path to MySQL socket"`
 	NodeID        string `help:"Node ID (default is autodetected)"`
 	PMMAgentID    string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
@@ -102,7 +102,7 @@ type AddMySQLCommand struct {
 	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
 	DisableTablestats      bool              `help:"Disable table statistics collection"`
-	DisableTablestatsLimit uint16            `help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
+	DisableTablestatsLimit uint16            `placeholder:"NUMBER" help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
 	Environment            string            `help:"Environment name"`
 	Cluster                string            `help:"Cluster name"`
 	ReplicationSet         string            `help:"Replication set name"`
@@ -118,6 +118,7 @@ type AddMySQLCommand struct {
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
+	AddLogLevelNoFatalFlags
 }
 
 func (cmd *AddMySQLCommand) GetServiceName() string {

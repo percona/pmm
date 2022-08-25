@@ -23,6 +23,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path"
@@ -118,6 +119,16 @@ func addClientData(ctx context.Context, zipW *zip.Writer, globals *flags.GlobalF
 	}
 
 	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
+
+	// Redact user credentials if they exist
+	if u, err := url.Parse(status.ServerInfo.URL); err == nil {
+		if u.User.String() != "" {
+			u.User = url.UserPassword("xxxxx", "xxxxx")
+			status.ServerInfo.URL = u.String()
+		}
+	} else {
+		logrus.Warnf("%s", err)
+	}
 
 	b, err := json.MarshalIndent(status, "", "  ")
 	if err != nil {

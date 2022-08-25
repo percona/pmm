@@ -95,7 +95,7 @@ type AddAgentMysqldExporterCommand struct {
 	TablestatsGroupTableLimit int32             `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
 	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	LogLevel                  string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+	LogLevel                  string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
 func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {

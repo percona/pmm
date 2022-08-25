@@ -81,6 +81,7 @@ type AddMongoDBCommand struct {
 	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
 
 	AddCommonFlags
+	AddLogLevelFatalFlags
 }
 
 func (cmd *AddMongoDBCommand) GetServiceName() string {
