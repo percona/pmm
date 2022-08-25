@@ -89,6 +89,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		return err
 	}
 	ctx, in.cancel = context.WithCancel(ctx)
+
 	in.enabled = true
 	kubeConfig, err := in.dbaasClient.GetKubeConfig()
 	if err == nil {
@@ -96,7 +97,8 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
 			if err != nil {
-				return nil // Dirty hack
+				in.l.Errorf("failed finding cluster: %v", err)
+				return nil
 			}
 			if cluster != nil {
 				return errClusterExists
@@ -104,7 +106,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 			return nil
 		})
 		if err != nil {
-			if err == errClusterExists {
+			if errors.Is(err, errClusterExists) {
 				return nil
 			}
 			return err
@@ -116,7 +118,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 				Kubeconfig: kubeConfig,
 			},
 		}
-		_, err = in.RegisterCluster(context.Background(), req)
+		_, err = in.RegisterCluster(ctx, req)
 		if err != nil {
 			return err
 		}
