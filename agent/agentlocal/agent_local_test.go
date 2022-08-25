@@ -19,10 +19,12 @@ import (
 	"bytes"
 	"context"
 	"io/ioutil"
+	"net"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -184,5 +186,55 @@ func TestGetZipFile(t *testing.T) {
 				}
 			}
 		}
+	})
+}
+
+func TestGetListener(t *testing.T) {
+	t.Run("test socket", func(t *testing.T) {
+		s := Server{
+			cfg: &config.Config{
+				ListenSocket: "/tmp/socket",
+			},
+		}
+
+		l, err := s.getListener(logrus.NewEntry(logrus.New()))
+		if err == nil {
+			defer l.Close()
+		}
+
+		assert.NoError(t, err)
+		_, ok := l.(*net.UnixListener)
+		assert.True(t, ok)
+	})
+
+	t.Run("test port", func(t *testing.T) {
+		s := Server{
+			cfg: &config.Config{
+				ListenAddress: "127.0.0.1",
+				ListenPort:    18484,
+			},
+		}
+
+		l, err := s.getListener(logrus.NewEntry(logrus.New()))
+		if err == nil {
+			defer l.Close()
+		}
+
+		assert.NoError(t, err)
+		_, ok := l.(*net.TCPListener)
+		assert.True(t, ok)
+	})
+
+	t.Run("no config", func(t *testing.T) {
+		s := Server{
+			cfg: &config.Config{},
+		}
+
+		l, err := s.getListener(logrus.NewEntry(logrus.New()))
+		if err == nil {
+			defer l.Close()
+		}
+
+		assert.Error(t, err)
 	})
 }
