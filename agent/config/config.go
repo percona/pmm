@@ -224,6 +224,12 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 	if cfg.ListenSocket == "" && cfg.ListenAddress == "" && cfg.ListenPort == 0 {
 		cfg.ListenSocket = "/usr/local/percona/pmm2/pmm-agent.sock"
 	}
+	if cfg.ListenSocket == "" && cfg.ListenPort != 0 && cfg.ListenAddress == "" {
+		cfg.ListenAddress = "127.0.0.1"
+	}
+	if cfg.ListenSocket == "" && cfg.ListenPort == 0 && cfg.ListenAddress != "" {
+		cfg.ListenPort = 7777
+	}
 	if cfg.Ports.Min == 0 {
 		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
 	}

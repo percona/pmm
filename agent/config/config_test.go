@@ -192,9 +192,8 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "flag-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:           "flag-id",
+			ListenSocket: "/usr/local/percona/pmm2/pmm-agent.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -252,9 +251,8 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "flag-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:           "flag-id",
+			ListenSocket: "/usr/local/percona/pmm2/pmm-agent.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -311,9 +309,8 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "flag-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:           "flag-id",
+			ListenSocket: "/usr/local/percona/pmm2/pmm-agent.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -367,9 +364,8 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "flag-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:           "flag-id",
+			ListenSocket: "/usr/local/percona/pmm2/pmm-agent.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -412,9 +408,8 @@ func TestGet(t *testing.T) {
 			"--debug",
 		}, logrus.WithField("test", t.Name()))
 		expected := &Config{
-			ID:            "flag-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:           "flag-id",
+			ListenSocket: "/usr/local/percona/pmm2/pmm-agent.sock",
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
 				ExportersBase:    "/usr/local/percona/pmm2/exporters",
@@ -443,6 +438,134 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
 		assert.Equal(t, ConfigFileDoesNotExistError(filepath.Join(wd, name)), err)
+	})
+
+	t.Run("DefaultSocket", func(t *testing.T) {
+		actual, configFilepath, err := get([]string{
+			"--id=agent-id",
+			"--listen-socket=/sock",
+			"--server-address=127.0.0.1",
+		}, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expected := &Config{
+			ID:           "agent-id",
+			ListenSocket: "/sock",
+			Server: Server{
+				Address: "127.0.0.1:443",
+			},
+			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
+				ExportersBase:    "/usr/local/percona/pmm2/exporters",
+				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
+				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
+				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
+				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
+				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
+				TempDir:          os.TempDir(),
+				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+			},
+			WindowConnectedTime: defaultWindowPeriod,
+			Ports: Ports{
+				Min: 42000,
+				Max: 51999,
+			},
+			LogLinesCount: 1024,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Empty(t, configFilepath)
+	})
+
+	t.Run("DefaultPort", func(t *testing.T) {
+		actual, configFilepath, err := get([]string{
+			"--id=agent-id",
+			"--listen-address=127.0.0.1",
+			"--server-address=127.0.0.1",
+		}, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expected := &Config{
+			ID:            "agent-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    7777,
+			Server: Server{
+				Address: "127.0.0.1:443",
+			},
+			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
+				ExportersBase:    "/usr/local/percona/pmm2/exporters",
+				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
+				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
+				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
+				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
+				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
+				TempDir:          os.TempDir(),
+				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+			},
+			WindowConnectedTime: defaultWindowPeriod,
+			Ports: Ports{
+				Min: 42000,
+				Max: 51999,
+			},
+			LogLinesCount: 1024,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Empty(t, configFilepath)
+	})
+
+	t.Run("DefaultAddress", func(t *testing.T) {
+		actual, configFilepath, err := get([]string{
+			"--id=agent-id",
+			"--listen-port=1234",
+			"--server-address=127.0.0.1",
+		}, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		expected := &Config{
+			ID:            "agent-id",
+			ListenAddress: "127.0.0.1",
+			ListenPort:    1234,
+			Server: Server{
+				Address: "127.0.0.1:443",
+			},
+			Paths: Paths{
+				PathsBase:        "/usr/local/percona/pmm2",
+				ExportersBase:    "/usr/local/percona/pmm2/exporters",
+				NodeExporter:     "/usr/local/percona/pmm2/exporters/node_exporter",
+				MySQLdExporter:   "/usr/local/percona/pmm2/exporters/mysqld_exporter",
+				MongoDBExporter:  "/usr/local/percona/pmm2/exporters/mongodb_exporter",
+				PostgresExporter: "/usr/local/percona/pmm2/exporters/postgres_exporter",
+				ProxySQLExporter: "/usr/local/percona/pmm2/exporters/proxysql_exporter",
+				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
+				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
+				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
+				TempDir:          os.TempDir(),
+				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
+				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
+				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
+				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
+			},
+			WindowConnectedTime: defaultWindowPeriod,
+			Ports: Ports{
+				Min: 42000,
+				Max: 51999,
+			},
+			LogLinesCount: 1024,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Empty(t, configFilepath)
 	})
 }
 
