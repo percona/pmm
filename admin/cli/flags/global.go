@@ -25,7 +25,7 @@ import (
 
 var isJSON = false
 
-// SocketPath is the default path to a socket file.
+// SocketPath is the default path to a socket file of pmm-agent.
 const SocketPath = "/usr/local/percona/pmm2/pmm-agent.sock"
 
 // GlobalFlags stores flags global to all commands.

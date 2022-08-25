@@ -59,11 +59,6 @@ func (res *summaryResult) String() string {
 	return RenderTemplate(summaryResultT, res)
 }
 
-type sourceConfig struct {
-	url    string
-	client *http.Client
-}
-
 // addData adds data from io.Reader to zip file with given name and time.
 func addData(zipW *zip.Writer, name string, modTime time.Time, r io.Reader) {
 	w, err := zipW.CreateHeader(&zip.FileHeader{
@@ -290,6 +285,11 @@ func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string, c
 type pprofData struct {
 	name string
 	data []byte
+}
+
+type sourceConfig struct {
+	url    string
+	client *http.Client
 }
 
 // addPprofData adds pprof data to zip file.
