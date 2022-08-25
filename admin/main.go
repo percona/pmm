@@ -158,6 +158,7 @@ func findSocketOrPort() (socket string, port uint32) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
+	// We make the channels buffered with size 1 to avoid goroutine leaks
 	socketChan := make(chan string, 1)
 	portChan := make(chan uint32, 1)
 
@@ -170,7 +171,6 @@ func findSocketOrPort() (socket string, port uint32) {
 		dialer := net.Dialer{}
 		conn, err := dialer.DialContext(ctx, "unix", flags.SocketPath)
 		if err == nil {
-			logrus.Debugf("Found socket %s", flags.SocketPath)
 			err := conn.Close()
 			if err != nil {
 				logrus.Debugf("Socket close error: %#v", err)
@@ -191,7 +191,6 @@ func findSocketOrPort() (socket string, port uint32) {
 		dialer := net.Dialer{}
 		conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(agentlocal.DefaultPMMAgentListenPort))))
 		if err == nil {
-			logrus.Debugf("Found port %d", agentlocal.DefaultPMMAgentListenPort)
 			err := conn.Close()
 			if err != nil {
 				logrus.Debugf("TCP close error: %#v", err)
@@ -204,10 +203,12 @@ func findSocketOrPort() (socket string, port uint32) {
 	}()
 
 	if sock := <-socketChan; sock != "" {
+		logrus.Debugf("Found socket %s", sock)
 		return sock, 0
 	}
 
 	if port := <-portChan; port != 0 {
+		logrus.Debugf("Found port %d", port)
 		return "", port
 	}
 
