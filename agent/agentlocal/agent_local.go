@@ -337,6 +337,8 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
+var socketOrPortRequiredErr = errors.New("socketOrPortRequired")
+
 // getListener returns a net.Listener on socket or tcp based on configuration.
 func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	if s.cfg.ListenSocket != "" {
@@ -350,7 +352,7 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 		return net.Listen("tcp", address)
 	}
 
-	return nil, fmt.Errorf("listen socket or listen address/port need to be configured")
+	return nil, fmt.Errorf("%w: listen socket or listen address/port need to be configured", socketOrPortRequiredErr)
 }
 
 // addData add data to zip file.
