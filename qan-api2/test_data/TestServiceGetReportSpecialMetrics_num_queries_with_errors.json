@@ -6,19 +6,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.0030585926
+						"sumPerSec": 0.0030692986
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 88768456,
-						"sumPerSec": 2465.7905
+						"sum": 89060990,
+						"sumPerSec": 2473.9165
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 17809,
-						"sumPerSec": 0.49469444
+						"sum": 17870,
+						"sumPerSec": 0.49638888
 					}
 				},
 				"num_queries_with_warnings": {
@@ -749,8 +749,8 @@
 				}
 			],
 			"fingerprint": "TOTAL",
-			"numQueries": 88768456,
-			"qps": 2465.7905
+			"numQueries": 89060992,
+			"qps": 2473.9165
 		},
 		{
 			"rank": 1,
@@ -758,19 +758,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.0000052405553
+						"sumPerSec": 0.0000052580554
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 25370222,
-						"sumPerSec": 704.7284
+						"sum": 25408588,
+						"sumPerSec": 705.7941
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 5029,
-						"sumPerSec": 0.13969444
+						"sum": 5041,
+						"sumPerSec": 0.14002778
 					}
 				},
 				"num_queries_with_warnings": {
@@ -1501,8 +1501,8 @@
 				}
 			],
 			"fingerprint": "quit",
-			"numQueries": 25370222,
-			"qps": 704.7284
+			"numQueries": 25408588,
+			"qps": 705.7941
 		},
 		{
 			"rank": 2,
@@ -1510,19 +1510,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.00013453055
+						"sumPerSec": 0.00013511111
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 24091246,
-						"sumPerSec": 669.2013
+						"sum": 24202744,
+						"sumPerSec": 672.29846
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 4910,
-						"sumPerSec": 0.13638888
+						"sum": 4932,
+						"sumPerSec": 0.137
 					}
 				},
 				"num_queries_with_warnings": {
@@ -2253,8 +2253,8 @@
 				}
 			],
 			"fingerprint": "select @@version_comment limit ?",
-			"numQueries": 24091246,
-			"qps": 669.2013
+			"numQueries": 24202744,
+			"qps": 672.29846
 		},
 		{
 			"rank": 3,
@@ -2262,19 +2262,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.0016929989
+						"sumPerSec": 0.0016977497
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 18561504,
-						"sumPerSec": 515.59735
+						"sum": 18600806,
+						"sumPerSec": 516.689
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 3738,
-						"sumPerSec": 0.10383333
+						"sum": 3748,
+						"sumPerSec": 0.10411111
 					}
 				},
 				"num_queries_with_warnings": {
@@ -3005,8 +3005,8 @@
 				}
 			],
 			"fingerprint": "show status like ?",
-			"numQueries": 18561504,
-			"qps": 515.59735
+			"numQueries": 18600806,
+			"qps": 516.689
 		},
 		{
 			"rank": 4,
@@ -3014,19 +3014,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.0012054495
+						"sumPerSec": 0.001210745
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 12540812,
-						"sumPerSec": 348.3559
+						"sum": 12600953,
+						"sumPerSec": 350.02646
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 2473,
-						"sumPerSec": 0.06869444
+						"sum": 2484,
+						"sumPerSec": 0.069
 					}
 				},
 				"num_queries_with_warnings": {
@@ -3757,8 +3757,8 @@
 				}
 			],
 			"fingerprint": "show variables like ?",
-			"numQueries": 12540812,
-			"qps": 348.3559
+			"numQueries": 12600953,
+			"qps": 350.02646
 		},
 		{
 			"rank": 5,
@@ -3766,19 +3766,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 0.000015791667
+						"sumPerSec": 0.000015851945
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 6159103,
-						"sumPerSec": 171.0862
+						"sum": 6194074,
+						"sumPerSec": 172.05762
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 1236,
-						"sumPerSec": 0.034333333
+						"sum": 1241,
+						"sumPerSec": 0.034472223
 					}
 				},
 				"num_queries_with_warnings": {
@@ -4509,8 +4509,8 @@
 				}
 			],
 			"fingerprint": "select @@port",
-			"numQueries": 6159103,
-			"qps": 171.0862
+			"numQueries": 6194074,
+			"qps": 172.05762
 		},
 		{
 			"rank": 6,
@@ -4518,19 +4518,19 @@
 			"metrics": {
 				"load": {
 					"stats": {
-						"sumPerSec": 4.0972222e-7
+						"sumPerSec": 4.111111e-7
 					}
 				},
 				"num_queries": {
 					"stats": {
-						"sum": 805692,
-						"sumPerSec": 22.380333
+						"sum": 813951,
+						"sumPerSec": 22.60975
 					}
 				},
 				"num_queries_with_errors": {
 					"stats": {
-						"sum": 164,
-						"sumPerSec": 0.0045555555
+						"sum": 165,
+						"sumPerSec": 0.004583333
 					}
 				},
 				"num_queries_with_warnings": {
@@ -5227,8 +5227,8 @@
 				}
 			],
 			"fingerprint": "ping",
-			"numQueries": 805692,
-			"qps": 22.380333
+			"numQueries": 813951,
+			"qps": 22.60975
 		},
 		{
 			"rank": 7,

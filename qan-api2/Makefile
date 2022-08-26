@@ -12,6 +12,8 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
+PMM_CONTAINER ?= pmm-managed-server
+
 release:                        ## Build qan-api2 release binary.
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
 		-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
@@ -32,8 +34,8 @@ install-race:                   ## Install qan-api2 binary with race detector.
 	go install -v -race ./...
 
 test-env-up:					## Start docker containers used for testing
-	docker run -d --name pmm-clickhouse-test -p19000:9000 yandex/clickhouse-server:21.3.14
-	sleep 10s
+	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 yandex/clickhouse-server:21.3.20
+	sleep 10
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
@@ -78,19 +80,21 @@ env-down:                       ## Remove docker containers.
 	rm -rf logs
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers.
-	docker-compose up -d --force-recreate --renew-anon-volumes --remove-orphans pmm-server
-	docker exec pmm-server sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
-	docker exec pmm-server supervisorctl restart clickhouse
-	docker exec pmm-server supervisorctl stop qan-api2
-	docker exec -i pmm-server clickhouse client -d pmm --query="drop database pmm"
-	docker exec -i pmm-server clickhouse client -d pmm --query="create database pmm"
-	docker cp bin/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
-	docker exec pmm-server supervisorctl start qan-api2
+	docker-compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
+	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
+	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse
+	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
+	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="drop database pmm"
+	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --query="create database pmm"
+	docker cp bin/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
+	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
 deploy:
-	docker exec pmm-server supervisorctl stop qan-api2
-	docker cp $(PMM_RELEASE_PATH)/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
-	docker exec pmm-server supervisorctl start qan-api2
-	docker exec pmm-server supervisorctl status
+	GOOS=linux GOARCH=amd64 make release
+	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
+	docker cp $(PMM_RELEASE_PATH)/qan-api2 $(PMM_CONTAINER):/usr/sbin/percona-qan-api2
+	docker exec $(PMM_CONTAINER) supervisorctl start qan-api2
+	docker exec $(PMM_CONTAINER) supervisorctl status
+	docker exec $(PMM_CONTAINER) supervisorctl tail -f qan-api2
 

@@ -3,7 +3,7 @@ version: "3"
 services:
 
   pmm-server:
-    container_name: pmm-server
+    container_name: pmm-managed-server
     image: perconalab/pmm-server:dev-latest
     ports:
       - 80:80
@@ -14,6 +14,7 @@ services:
 
   ch:
     image: yandex/clickhouse-server
+    platform: linux/amd64
     container_name: ch-server
     ulimits:
       nofile:

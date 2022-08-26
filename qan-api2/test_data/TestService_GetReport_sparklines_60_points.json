@@ -7,12 +7,12 @@
 				"bytes_sent": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 2099010,
+						"cnt": 1837,
+						"sum": 2153010,
 						"max": 249,
-						"p99": 117.328674,
-						"avg": 0.23586626,
-						"sumPerSec": 583.05835
+						"p99": 117.20251,
+						"avg": 0.2355036,
+						"sumPerSec": 598.05835
 					}
 				},
 				"docs_returned": {
@@ -27,26 +27,26 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"full_scan": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 6100,
-						"avg": 0.0006854585,
-						"sumPerSec": 1.6944444
+						"cnt": 1837,
+						"sum": 6200,
+						"avg": 0.0006781772,
+						"sumPerSec": 1.7222222
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -82,17 +82,17 @@
 				"lock_time": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 0.54269,
+						"cnt": 1837,
+						"sum": 0.55075,
 						"max": 0.000162,
-						"p99": 0.000030334824,
-						"avg": 6.098221e-8,
-						"sumPerSec": 0.00015074722
+						"p99": 0.000029980947,
+						"avg": 6.024292e-8,
+						"sumPerSec": 0.00015298612
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"no_good_index_used": {
@@ -107,7 +107,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"query_length": {
@@ -118,13 +118,13 @@
 				"query_time": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 10.77018,
+						"cnt": 1837,
+						"sum": 10.96364,
 						"min": 0.000002,
 						"max": 0.002522,
-						"p99": 0.00060202234,
-						"avg": 0.0000012102478,
-						"sumPerSec": 0.0029917166
+						"p99": 0.00059682305,
+						"avg": 0.0000011992405,
+						"sumPerSec": 0.0030454556
 					}
 				},
 				"response_length": {
@@ -134,18 +134,18 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"rows_examined": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 6669200,
+						"cnt": 1837,
+						"sum": 6784480,
 						"max": 1268,
-						"p99": 372.78928,
-						"avg": 0.7494196,
-						"sumPerSec": 1852.5555
+						"p99": 369.32388,
+						"avg": 0.74210966,
+						"sumPerSec": 1884.5778
 					}
 				},
 				"rows_read": {
@@ -156,12 +156,12 @@
 				"rows_sent": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 12320,
+						"cnt": 1837,
+						"sum": 12660,
 						"max": 1,
-						"p99": 0.6886529,
-						"avg": 0.0013844015,
-						"sumPerSec": 3.4222221
+						"p99": 0.68916714,
+						"avg": 0.0013847941,
+						"sumPerSec": 3.5166667
 					}
 				},
 				"select_full_range_join": {
@@ -196,37 +196,37 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"tmp_table": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 6100,
-						"avg": 0.0006854585,
-						"sumPerSec": 1.6944444
+						"cnt": 1837,
+						"sum": 6200,
+						"avg": 0.0006781772,
+						"sumPerSec": 1.7222222
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 1789
+						"cnt": 1837
 					}
 				},
 				"tmp_tables": {
 					"stats": {
 						"rate": 1,
-						"cnt": 1789,
-						"sum": 6100,
+						"cnt": 1837,
+						"sum": 6200,
 						"max": 1,
-						"p99": 0.3409726,
-						"avg": 0.0006854585,
-						"sumPerSec": 1.6944444
+						"p99": 0.3375068,
+						"avg": 0.0006781772,
+						"sumPerSec": 1.7222222
 					}
 				}
 			},
@@ -592,9 +592,9 @@
 				}
 			],
 			"fingerprint": "TOTAL",
-			"numQueries": 8899153,
-			"qps": 2471.987,
-			"load": 0.0029917166
+			"numQueries": 9142153,
+			"qps": 2539.487,
+			"load": 0.0030454556
 		},
 		{
 			"rank": 1,
@@ -602,14 +602,14 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.22867924,
-						"cnt": 240,
-						"sum": 480000,
+						"rate": 0.22851728,
+						"cnt": 246,
+						"sum": 492000,
 						"min": 200,
 						"max": 200,
 						"p99": 200,
-						"avg": 0.3792191,
-						"sumPerSec": 133.33333
+						"avg": 0.37785986,
+						"sumPerSec": 136.66667
 					}
 				},
 				"docs_returned": {
@@ -624,26 +624,26 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"rate": 0.39344263,
-						"cnt": 240,
-						"sum": 2400,
-						"avg": 0.0018960956,
-						"sumPerSec": 0.6666667
+						"rate": 0.3967742,
+						"cnt": 246,
+						"sum": 2460,
+						"avg": 0.0018892994,
+						"sumPerSec": 0.68333334
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -678,19 +678,19 @@
 				},
 				"lock_time": {
 					"stats": {
-						"rate": 0.29326138,
-						"cnt": 240,
-						"sum": 0.15915,
+						"rate": 0.2959056,
+						"cnt": 246,
+						"sum": 0.16297,
 						"min": 0.000052,
 						"max": 0.000101,
-						"p99": 0.0000663125,
-						"avg": 1.2573484e-7,
-						"sumPerSec": 0.000044208333
+						"p99": 0.000066247965,
+						"avg": 1.2516225e-7,
+						"sumPerSec": 0.000045269448
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"no_good_index_used": {
@@ -705,7 +705,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"query_length": {
@@ -715,14 +715,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.3880418,
-						"cnt": 240,
-						"sum": 4.17928,
+						"rate": 0.39055458,
+						"cnt": 246,
+						"sum": 4.2819,
 						"min": 0.001615,
 						"max": 0.002522,
-						"p99": 0.0017413667,
-						"avg": 0.0000033017975,
-						"sumPerSec": 0.001160911
+						"p99": 0.0017406098,
+						"avg": 0.0000032885328,
+						"sumPerSec": 0.0011894166
 					}
 				},
 				"response_length": {
@@ -732,19 +732,19 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"rate": 0.4563066,
-						"cnt": 240,
-						"sum": 3043200,
+						"rate": 0.45976698,
+						"cnt": 246,
+						"sum": 3119280,
 						"min": 1268,
 						"max": 1268,
 						"p99": 1268,
-						"avg": 2.4042492,
-						"sumPerSec": 845.3333
+						"avg": 2.3956316,
+						"sumPerSec": 866.4667
 					}
 				},
 				"rows_read": {
@@ -754,14 +754,14 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.19480519,
-						"cnt": 240,
-						"sum": 2400,
+						"rate": 0.1943128,
+						"cnt": 246,
+						"sum": 2460,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.0018960956,
-						"sumPerSec": 0.6666667
+						"avg": 0.0018892994,
+						"sumPerSec": 0.68333334
 					}
 				},
 				"select_full_range_join": {
@@ -796,38 +796,38 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"rate": 0.39344263,
-						"cnt": 240,
-						"sum": 2400,
-						"avg": 0.0018960956,
-						"sumPerSec": 0.6666667
+						"rate": 0.3967742,
+						"cnt": 246,
+						"sum": 2460,
+						"avg": 0.0018892994,
+						"sumPerSec": 0.68333334
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 240
+						"cnt": 246
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"rate": 0.39344263,
-						"cnt": 240,
-						"sum": 2400,
+						"rate": 0.3967742,
+						"cnt": 246,
+						"sum": 2460,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.0018960956,
-						"sumPerSec": 0.6666667
+						"avg": 0.0018892994,
+						"sumPerSec": 0.68333334
 					}
 				}
 			},
@@ -1192,9 +1192,9 @@
 				}
 			],
 			"fingerprint": "show variables like ?",
-			"numQueries": 1265759,
-			"qps": 351.59973,
-			"load": 0.001160911
+			"numQueries": 1302070,
+			"qps": 361.6861,
+			"load": 0.0011894166
 		},
 		{
 			"rank": 2,
@@ -1202,14 +1202,14 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.36247563,
-						"cnt": 370,
-						"sum": 760840,
+						"rate": 0.35740662,
+						"cnt": 374,
+						"sum": 769500,
 						"min": 184,
 						"max": 249,
-						"p99": 205.63243,
-						"avg": 0.40993136,
-						"sumPerSec": 211.34445
+						"p99": 205.74866,
+						"avg": 0.41197914,
+						"sumPerSec": 213.75
 					}
 				},
 				"docs_returned": {
@@ -1224,26 +1224,26 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"rate": 0.60655737,
-						"cnt": 370,
-						"sum": 3700,
-						"avg": 0.001993515,
-						"sumPerSec": 1.0277778
+						"rate": 0.6032258,
+						"cnt": 374,
+						"sum": 3740,
+						"avg": 0.0020023417,
+						"sumPerSec": 1.0388889
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -1278,19 +1278,19 @@
 				},
 				"lock_time": {
 					"stats": {
-						"rate": 0.7067387,
-						"cnt": 370,
-						"sum": 0.38354,
+						"rate": 0.7040944,
+						"cnt": 374,
+						"sum": 0.38778,
 						"min": 0.000087,
 						"max": 0.000162,
-						"p99": 0.00010365946,
-						"avg": 2.066467e-7,
-						"sumPerSec": 0.00010653889
+						"p99": 0.00010368449,
+						"avg": 2.0761179e-7,
+						"sumPerSec": 0.00010771667
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"no_good_index_used": {
@@ -1305,7 +1305,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"query_length": {
@@ -1315,14 +1315,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.55897486,
-						"cnt": 370,
-						"sum": 6.02026,
+						"rate": 0.5554633,
+						"cnt": 374,
+						"sum": 6.0899,
 						"min": 0.001414,
 						"max": 0.002205,
-						"p99": 0.0016270973,
-						"avg": 0.000003243643,
-						"sumPerSec": 0.0016722945
+						"p99": 0.0016283155,
+						"avg": 0.0000032604441,
+						"sumPerSec": 0.0016916388
 					}
 				},
 				"response_length": {
@@ -1332,19 +1332,19 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"rate": 0.5436934,
-						"cnt": 370,
-						"sum": 3626000,
+						"rate": 0.540233,
+						"cnt": 374,
+						"sum": 3665200,
 						"min": 980,
 						"max": 980,
 						"p99": 980,
-						"avg": 1.9536449,
-						"sumPerSec": 1007.2222
+						"avg": 1.9622949,
+						"sumPerSec": 1018.1111
 					}
 				},
 				"rows_read": {
@@ -1354,14 +1354,14 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.30032468,
-						"cnt": 370,
-						"sum": 3700,
+						"rate": 0.29541865,
+						"cnt": 374,
+						"sum": 3740,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.001993515,
-						"sumPerSec": 1.0277778
+						"avg": 0.0020023417,
+						"sumPerSec": 1.0388889
 					}
 				},
 				"select_full_range_join": {
@@ -1396,38 +1396,38 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"rate": 0.60655737,
-						"cnt": 370,
-						"sum": 3700,
-						"avg": 0.001993515,
-						"sumPerSec": 1.0277778
+						"rate": 0.6032258,
+						"cnt": 374,
+						"sum": 3740,
+						"avg": 0.0020023417,
+						"sumPerSec": 1.0388889
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 370
+						"cnt": 374
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"rate": 0.60655737,
-						"cnt": 370,
-						"sum": 3700,
+						"rate": 0.6032258,
+						"cnt": 374,
+						"sum": 3740,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.001993515,
-						"sumPerSec": 1.0277778
+						"avg": 0.0020023417,
+						"sumPerSec": 1.0388889
 					}
 				}
 			},
@@ -1793,9 +1793,9 @@
 				}
 			],
 			"fingerprint": "show status like ?",
-			"numQueries": 1856018,
-			"qps": 515.56055,
-			"load": 0.0016722945
+			"numQueries": 1867813,
+			"qps": 518.8369,
+			"load": 0.0016916388
 		},
 		{
 			"rank": 3,
@@ -1803,14 +1803,14 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.36587247,
-						"cnt": 483,
-						"sum": 767970,
+						"rate": 0.37072748,
+						"cnt": 502,
+						"sum": 798180,
 						"min": 159,
 						"max": 159,
 						"p99": 159,
-						"avg": 0.32453835,
-						"sumPerSec": 213.325
+						"avg": 0.32303613,
+						"sumPerSec": 221.71666
 					}
 				},
 				"docs_returned": {
@@ -1825,22 +1825,22 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -1875,12 +1875,12 @@
 				},
 				"lock_time": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"no_good_index_used": {
@@ -1895,7 +1895,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"query_length": {
@@ -1905,14 +1905,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.04419239,
-						"cnt": 483,
-						"sum": 0.47596,
+						"rate": 0.04506806,
+						"cnt": 502,
+						"sum": 0.49411,
 						"min": 0.000082,
 						"max": 0.000152,
-						"p99": 0.00009854244,
-						"avg": 2.0113711e-7,
-						"sumPerSec": 0.0001322111
+						"p99": 0.00009842829,
+						"avg": 1.9997418e-7,
+						"sumPerSec": 0.00013725278
 					}
 				},
 				"response_length": {
@@ -1922,12 +1922,12 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"rows_read": {
@@ -1937,14 +1937,14 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.39204547,
-						"cnt": 483,
-						"sum": 4830,
+						"rate": 0.3965245,
+						"cnt": 502,
+						"sum": 5020,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.0020411217,
-						"sumPerSec": 1.3416667
+						"avg": 0.002031674,
+						"sumPerSec": 1.3944445
 					}
 				},
 				"select_full_range_join": {
@@ -1979,27 +1979,27 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"cnt": 483
+						"cnt": 502
 					}
 				}
 			},
@@ -2365,9 +2365,9 @@
 				}
 			],
 			"fingerprint": "select @@version_comment limit ?",
-			"numQueries": 2366346,
-			"qps": 657.31836,
-			"load": 0.0001322111
+			"numQueries": 2470869,
+			"qps": 686.3525,
+			"load": 0.00013725278
 		},
 		{
 			"rank": 4,
@@ -2375,7 +2375,7 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.0006812736,
+						"rate": 0.00066418643,
 						"cnt": 13,
 						"sum": 1430,
 						"min": 11,
@@ -2477,7 +2477,7 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.0008337837,
+						"rate": 0.0008190711,
 						"cnt": 13,
 						"sum": 0.00898,
 						"min": 0.000052,
@@ -2891,14 +2891,14 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.0028346698,
-						"cnt": 7,
-						"sum": 5950,
+						"rate": 0.0031583689,
+						"cnt": 8,
+						"sum": 6800,
 						"min": 85,
 						"max": 85,
 						"p99": 85,
-						"avg": 0.14515027,
-						"sumPerSec": 1.6527778
+						"avg": 0.144647,
+						"sumPerSec": 1.8888888
 					}
 				},
 				"docs_returned": {
@@ -2913,22 +2913,22 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -2963,12 +2963,12 @@
 				},
 				"lock_time": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"no_good_index_used": {
@@ -2983,7 +2983,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"query_length": {
@@ -2993,14 +2993,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.00040389298,
-						"cnt": 7,
-						"sum": 0.00435,
+						"rate": 0.00044601975,
+						"cnt": 8,
+						"sum": 0.00489,
 						"min": 0.000053,
 						"max": 0.000081,
-						"p99": 0.000062142855,
-						"avg": 1.06118264e-7,
-						"sumPerSec": 0.0000012083334
+						"p99": 0.000061125,
+						"avg": 1.04018206e-7,
+						"sumPerSec": 0.0000013583333
 					}
 				},
 				"response_length": {
@@ -3010,12 +3010,12 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"rows_read": {
@@ -3025,14 +3025,14 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.0056818184,
-						"cnt": 7,
-						"sum": 70,
+						"rate": 0.0063191154,
+						"cnt": 8,
+						"sum": 80,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.0017076503,
-						"sumPerSec": 0.019444445
+						"avg": 0.0017017294,
+						"sumPerSec": 0.022222223
 					}
 				},
 				"select_full_range_join": {
@@ -3067,27 +3067,27 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"cnt": 7
+						"cnt": 8
 					}
 				}
 			},
@@ -3401,9 +3401,9 @@
 				}
 			],
 			"fingerprint": "select @@global.datadir",
-			"numQueries": 40992,
-			"qps": 11.386666,
-			"load": 0.0000012083334
+			"numQueries": 47011,
+			"qps": 13.058611,
+			"load": 0.0000013583333
 		},
 		{
 			"rank": 6,
@@ -3411,14 +3411,14 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.033129904,
-						"cnt": 122,
-						"sum": 69540,
+						"rate": 0.03335795,
+						"cnt": 126,
+						"sum": 71820,
 						"min": 57,
 						"max": 57,
 						"p99": 57,
-						"avg": 0.120585345,
-						"sumPerSec": 19.316668
+						"avg": 0.11960651,
+						"sumPerSec": 19.95
 					}
 				},
 				"docs_returned": {
@@ -3433,22 +3433,22 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -3483,12 +3483,12 @@
 				},
 				"lock_time": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"no_good_index_used": {
@@ -3503,7 +3503,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"query_length": {
@@ -3513,14 +3513,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.005226468,
-						"cnt": 122,
-						"sum": 0.05629,
+						"rate": 0.005301159,
+						"cnt": 126,
+						"sum": 0.05812,
 						"min": 0.00004,
 						"max": 0.000074,
-						"p99": 0.000046139343,
-						"avg": 9.7609274e-8,
-						"sumPerSec": 0.000015636111
+						"p99": 0.000046126985,
+						"avg": 9.6791005e-8,
+						"sumPerSec": 0.000016144444
 					}
 				},
 				"response_length": {
@@ -3530,12 +3530,12 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"rows_read": {
@@ -3545,14 +3545,14 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.09902597,
-						"cnt": 122,
-						"sum": 1220,
+						"rate": 0.09952607,
+						"cnt": 126,
+						"sum": 1260,
 						"min": 1,
 						"max": 1,
 						"p99": 1,
-						"avg": 0.0021155323,
-						"sumPerSec": 0.33888888
+						"avg": 0.0020983599,
+						"sumPerSec": 0.35
 					}
 				},
 				"select_full_range_join": {
@@ -3587,27 +3587,27 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"cnt": 122
+						"cnt": 126
 					}
 				}
 			},
@@ -3965,9 +3965,9 @@
 				}
 			],
 			"fingerprint": "select @@port",
-			"numQueries": 576687,
-			"qps": 160.19083,
-			"load": 0.000015636111
+			"numQueries": 600469,
+			"qps": 166.79695,
+			"load": 0.000016144444
 		},
 		{
 			"rank": 7,
@@ -3975,7 +3975,7 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.00538349,
+						"rate": 0.005248466,
 						"cnt": 10,
 						"sum": 11300,
 						"min": 113,
@@ -4077,7 +4077,7 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.00033332777,
+						"rate": 0.000327446,
 						"cnt": 10,
 						"sum": 0.00359,
 						"min": 0.00003,
@@ -4109,7 +4109,7 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"rate": 0.008116883,
+						"rate": 0.007898894,
 						"cnt": 10,
 						"sum": 100,
 						"min": 1,
@@ -4497,7 +4497,7 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"rate": 0.0009433018,
+						"rate": 0.00091964274,
 						"cnt": 18,
 						"sum": 1980,
 						"min": 11,
@@ -4599,7 +4599,7 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.00015227229,
+						"rate": 0.00014958535,
 						"cnt": 18,
 						"sum": 0.0016399999,
 						"min": 0.000004,
@@ -5017,7 +5017,7 @@
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"docs_returned": {
@@ -5032,22 +5032,22 @@
 				},
 				"filesort": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"filesort_on_disk": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"full_join": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"full_scan": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"innodb_io_r_bytes": {
@@ -5082,12 +5082,12 @@
 				},
 				"lock_time": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"merge_passes": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"no_good_index_used": {
@@ -5102,7 +5102,7 @@
 				},
 				"qc_hit": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"query_length": {
@@ -5112,14 +5112,14 @@
 				},
 				"query_time": {
 					"stats": {
-						"rate": 0.0018411948,
-						"cnt": 526,
-						"sum": 0.01983,
+						"rate": 0.0018707289,
+						"cnt": 540,
+						"sum": 0.02051,
 						"min": 0.000002,
-						"max": 0.000022,
-						"p99": 0.000003769962,
-						"avg": 7.67408e-9,
-						"sumPerSec": 0.0000055083333
+						"max": 0.000024,
+						"p99": 0.000003798148,
+						"avg": 7.755446e-9,
+						"sumPerSec": 0.000005697222
 					}
 				},
 				"response_length": {
@@ -5129,12 +5129,12 @@
 				},
 				"rows_affected": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"rows_examined": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"rows_read": {
@@ -5144,7 +5144,7 @@
 				},
 				"rows_sent": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"select_full_range_join": {
@@ -5179,27 +5179,27 @@
 				},
 				"tmp_disk_tables": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"tmp_table": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"tmp_table_on_disk": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"tmp_table_sizes": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				},
 				"tmp_tables": {
 					"stats": {
-						"cnt": 526
+						"cnt": 540
 					}
 				}
 			},
@@ -5565,9 +5565,9 @@
 				}
 			],
 			"fingerprint": "quit",
-			"numQueries": 2584023,
-			"qps": 717.7842,
-			"load": 0.0000055083333
+			"numQueries": 2644593,
+			"qps": 734.6092,
+			"load": 0.000005697222
 		}
 	]
 }

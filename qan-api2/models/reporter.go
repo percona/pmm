@@ -79,7 +79,7 @@ SUM(num_queries) AS num_queries,
 {{ end }}
 rowNumberInAllBlocks() AS total_rows
 FROM metrics
-WHERE period_start > :period_start_from AND period_start < :period_start_to
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if .Search }}
 	{{ if eq .Group "queryid" }}
 		AND ( lowerUTF8(queryid) LIKE :search OR lowerUTF8(metrics.fingerprint) LIKE :search )
@@ -132,7 +132,7 @@ func escapeColonsInMap(m map[string][]string) map[string][]string {
 	return escapedMap
 }
 
-// Select select metrics for report.
+// Select selects metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
 	group, order, search string, offset, limit uint32,
