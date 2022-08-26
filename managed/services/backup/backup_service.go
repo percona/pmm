@@ -18,13 +18,14 @@ package backup
 
 import (
 	"context"
+	"google.golang.org/grpc/status"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
