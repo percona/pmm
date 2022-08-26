@@ -267,25 +267,7 @@ func configureNetworkDefaults(cfg *Config) {
 }
 
 func configurePaths(cfg *Config, l *logrus.Entry) {
-	for sp, v := range map[*string]string{
-		&cfg.Paths.NodeExporter:     "node_exporter",
-		&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
-		&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
-		&cfg.Paths.PostgresExporter: "postgres_exporter",
-		&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
-		&cfg.Paths.RDSExporter:      "rds_exporter",
-		&cfg.Paths.AzureExporter:    "azure_exporter",
-		&cfg.Paths.VMAgent:          "vmagent",
-		&cfg.Paths.TempDir:          os.TempDir(),
-		&cfg.Paths.PTSummary:        "tools/pt-summary",
-		&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
-		&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-		&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-	} {
-		if *sp == "" {
-			*sp = v
-		}
-	}
+	configureDefaultPaths(cfg)
 
 	if cfg.Paths.PathsBase == "" {
 		cfg.Paths.PathsBase = pathBaseDefault
@@ -314,6 +296,10 @@ func configurePaths(cfg *Config, l *logrus.Entry) {
 		cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
 	}
 
+	applyBasePath(cfg, l)
+}
+
+func applyBasePath(cfg *Config, l *logrus.Entry) {
 	for _, sp := range []*string{
 		&cfg.Paths.NodeExporter,
 		&cfg.Paths.MySQLdExporter,
@@ -328,6 +314,28 @@ func configurePaths(cfg *Config, l *logrus.Entry) {
 			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
 		}
 		l.Infof("Using %s", *sp)
+	}
+}
+
+func configureDefaultPaths(cfg *Config) {
+	for sp, v := range map[*string]string{
+		&cfg.Paths.NodeExporter:     "node_exporter",
+		&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
+		&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
+		&cfg.Paths.PostgresExporter: "postgres_exporter",
+		&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+		&cfg.Paths.RDSExporter:      "rds_exporter",
+		&cfg.Paths.AzureExporter:    "azure_exporter",
+		&cfg.Paths.VMAgent:          "vmagent",
+		&cfg.Paths.TempDir:          os.TempDir(),
+		&cfg.Paths.PTSummary:        "tools/pt-summary",
+		&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
+		&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
+		&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+	} {
+		if *sp == "" {
+			*sp = v
+		}
 	}
 }
 
