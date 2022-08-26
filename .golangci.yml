@@ -1,5 +1,8 @@
 ---
 linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+
   depguard:
     list-type: blacklist
     include-go-root: true
@@ -15,34 +18,51 @@ linters-settings:
       # use "gopkg.in/yaml.v3" instead
       - gopkg.in/yaml.v2
 
-  godot:
-    capital: true
-
-  goimports:
-    local-prefixes: github.com/percona/pmm
-
   gci:
     sections:
       - standard # Captures all standard packages if they do not match another section.
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm) # Groups all local imports.
 
+  godot:
+    capital: true
+
+  goimports:
+    local-prefixes: github.com/percona/pmm
+
+  gomoddirectives:
+    replace-allow-list:
+      - github.com/percona-platform/dbaas-api
+
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - github.com/percona/pmm/admin/commands.Result
+
   lll:
     line-length: 170
     tab-width: 4
+
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      rules:
+        avro: snake
+        bson: camel
+        # Disabled because we have too many errors at the moment
+        json: ""
+        # Disabled because we have too many errors at the moment
+        yaml: ""
+        xml: camel
 
   unused:
     check-exported: false #TODO: set true for agent
 
   unparam:
     check-exported: true
-
-  exhaustive:
-    default-signifies-exhaustive: true
-
-  gomoddirectives:
-    replace-allow-list:
-      - github.com/percona-platform/dbaas-api
 
 linters:
   enable-all: true
@@ -54,7 +74,6 @@ linters:
     - gochecknoinits    # we use init functions
     - gomnd             # we are using numbers in many cases
     - gomoddirectives   # we use replace directives
-    - gomodguard        # we are not using modules
     - ifshort           # a lot of false positives
     - interfacer        # deprecated
     - maligned          # deprecated

@@ -26,6 +26,14 @@
         ],
         "summary": "Logs",
         "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -550,6 +558,14 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
+                    },
                     "updates_disabled": {
                       "description": "True if updates are disabled.",
                       "type": "boolean",
@@ -797,6 +813,14 @@
                       "description": "True if telemetry is enabled.",
                       "type": "boolean",
                       "x-order": 1
+                    },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     },
                     "updates_disabled": {
                       "description": "True if updates are disabled.",

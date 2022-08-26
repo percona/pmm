@@ -122,30 +122,23 @@ Please report this bug.
 
 func TestParseCustomLabel(t *testing.T) {
 	t.Parallel()
-	errWrongFormat := "wrong custom label format"
 	for _, tt := range []struct {
 		name     string
-		input    string
+		input    map[string]string
 		expected map[string]string
-		expErr   string
 	}{
-		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, ""},
-		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, ""},
-		{"no value", "foo=", nil, errWrongFormat},
-		{"no key", "=foo", nil, errWrongFormat},
-		{"wrong format", "foo=bar,bar+foo", nil, errWrongFormat},
-		{"empty value", "", make(map[string]string), ""},
-		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, ""},
+		{"simple label", map[string]string{"foo": "bar"}, map[string]string{"foo": "bar"}},
+		{"two labels", map[string]string{"foo": "bar", "bar": "foo"}, map[string]string{"foo": "bar", "bar": "foo"}},
+		{"no value", map[string]string{"foo": ""}, make(map[string]string)},
+		{"trim spaces", map[string]string{"foo": " bar "}, map[string]string{"foo": "bar"}},
+		{"PMM-4078 hyphen", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, map[string]string{"region": "us-east1", "mylabel": "mylab-22"}},
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			customLabels, err := ParseCustomLabels(tt.input)
+			customLabels := ParseCustomLabels(tt.input)
 			assert.Equal(t, tt.expected, customLabels)
-			if tt.expErr != "" {
-				assert.EqualError(t, err, tt.expErr)
-			}
 		})
 	}
 }

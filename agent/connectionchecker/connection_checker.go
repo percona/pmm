@@ -17,6 +17,7 @@ package connectionchecker
 
 import (
 	"context"
+	"crypto/x509"
 	"database/sql"
 	"fmt"
 	"io"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
@@ -127,7 +129,11 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	defer db.Close() //nolint:errcheck
 
 	if err = cc.sqlPing(ctx, db); err != nil {
-		res.Error = err.Error()
+		if errors.As(err, &x509.HostnameError{}) {
+			res.Error = errors.Wrap(err, "mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
+		} else {
+			res.Error = err.Error()
+		}
 		return &res
 	}
 

@@ -27,6 +27,14 @@
         ],
         "summary": "Logs",
         "operationId": "Logs",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Include performance profiling data,",
+            "name": "pprof",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -65,6 +73,7 @@
         "operationId": "Get",
         "parameters": [
           {
+            "description": "FiltersRequest contains period for which we need filters.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -198,6 +207,7 @@
         "operationId": "GetMetricsNames",
         "parameters": [
           {
+            "description": "MetricsNamesRequest is emty.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -267,6 +277,7 @@
         "operationId": "GetReport",
         "parameters": [
           {
+            "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -891,6 +902,7 @@
         "operationId": "GetHistogram",
         "parameters": [
           {
+            "description": "HistogramRequest defines filtering by time range, labels and queryid.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1009,6 +1021,7 @@
         "operationId": "GetLabels",
         "parameters": [
           {
+            "description": "ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1110,6 +1123,7 @@
         "operationId": "GetMetrics",
         "parameters": [
           {
+            "description": "MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1720,6 +1734,7 @@
         "operationId": "GetQueryExample",
         "parameters": [
           {
+            "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1896,6 +1911,7 @@
         "operationId": "GetQueryPlan",
         "parameters": [
           {
+            "description": "QueryPlanRequest defines filtering by queryid.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1972,6 +1988,7 @@
         "operationId": "QueryExists",
         "parameters": [
           {
+            "description": "QueryExistsRequest check if provided query exists or not.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -3162,6 +3179,14 @@
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
+                    },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -3410,6 +3435,14 @@
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
                       "x-order": 18
+                    },
+                    "telemetry_summaries": {
+                      "type": "array",
+                      "title": "Includes list of collected telemetry",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -3947,6 +3980,20 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 10
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 }
               }
             }
@@ -4030,6 +4077,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4364,6 +4425,20 @@
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 17
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 18
                 }
               }
             }
@@ -4631,6 +4706,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 15
                 }
               }
             }
@@ -4855,6 +4944,20 @@
                     "type": "string"
                   },
                   "x-order": 3
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 4
                 }
               }
             }
@@ -4931,6 +5034,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -5174,6 +5291,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 13
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 14
                 }
               }
             }
@@ -5401,6 +5532,20 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 10
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 }
               }
             }
@@ -5635,6 +5780,20 @@
                   "description": "Authentication database.",
                   "type": "string",
                   "x-order": 12
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -5712,6 +5871,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5831,6 +6004,20 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 11
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
                 }
               }
             }
@@ -5928,6 +6115,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6053,6 +6254,20 @@
                   "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 12
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 13
                 }
               }
             }
@@ -6156,6 +6371,20 @@
                       "type": "string",
                       "title": "mod tidy",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -6275,6 +6504,20 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 11
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 12
                 }
               }
             }
@@ -6357,6 +6600,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -6471,6 +6728,20 @@
                   "description": "TLS Certificate Key.",
                   "type": "string",
                   "x-order": 10
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 11
                 }
               }
             }
@@ -6548,6 +6819,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -6652,6 +6937,20 @@
                   "description": "Enables push metrics mode for exporter.",
                   "type": "boolean",
                   "x-order": 8
+                },
+                "log_level": {
+                  "type": "string",
+                  "title": "Log level for exporters",
+                  "default": "auto",
+                  "enum": [
+                    "auto",
+                    "fatal",
+                    "error",
+                    "warn",
+                    "info",
+                    "debug"
+                  ],
+                  "x-order": 9
                 }
               }
             }
@@ -6740,6 +7039,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -6923,6 +7236,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -7737,6 +8064,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 0
@@ -8334,6 +8675,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -8531,6 +8886,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -8734,6 +9103,20 @@
                       "type": "string",
                       "title": "mod tidy",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -8916,6 +9299,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -9093,6 +9490,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -9281,6 +9692,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -9496,6 +9921,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 8
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 9
                     }
                   },
                   "x-order": 2
@@ -10043,6 +10482,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     }
                   },
                   "x-order": 7
@@ -10139,6 +10592,20 @@
                       "type": "string",
                       "title": "mod tidy",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 8
@@ -10209,6 +10676,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 9
@@ -10279,6 +10760,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 10
@@ -10354,6 +10849,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 11
@@ -10435,6 +10944,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 12
@@ -10577,9 +11100,109 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 14
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/GetLogs": {
+      "post": {
+        "description": "Returns Agent logs by ID.",
+        "tags": [
+          "Agents"
+        ],
+        "summary": "Get Agent logs",
+        "operationId": "GetAgentLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "is less than this value. 0: no limit",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "agent_config_log_lines_count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
                 }
               }
             }
@@ -10834,6 +11457,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 8
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 9
                       }
                     }
                   },
@@ -11396,6 +12033,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 13
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 14
                       }
                     }
                   },
@@ -11495,6 +12146,20 @@
                         "type": "string",
                         "title": "mod tidy",
                         "x-order": 14
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 15
                       }
                     }
                   },
@@ -11568,6 +12233,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 9
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -11641,6 +12320,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 9
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 10
                       }
                     }
                   },
@@ -11719,6 +12412,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 11
                       }
                     }
                   },
@@ -11803,6 +12510,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 11
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 12
                       }
                     }
                   },
@@ -11951,6 +12672,20 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 11
                       }
                     }
                   },
@@ -16810,6 +17545,7 @@
         "operationId": "AddAnnotation",
         "parameters": [
           {
+            "description": "AddAnnotationRequest is a params to add new annotation.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -21545,6 +22281,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -22121,6 +22871,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     }
                   },
                   "x-order": 2
@@ -22217,6 +22981,20 @@
                       "type": "string",
                       "title": "mod tidy",
                       "x-order": 14
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 15
                     }
                   },
                   "x-order": 3
@@ -23060,6 +23838,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -23135,6 +23927,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 11
                     }
                   },
                   "x-order": 3
@@ -23904,6 +24710,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
                     }
                   },
                   "x-order": 1
@@ -24184,6 +25004,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -24429,6 +25263,20 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 9
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 10
                     }
                   },
                   "x-order": 8

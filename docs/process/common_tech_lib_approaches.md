@@ -1,6 +1,6 @@
 # Common tech, libraries and approaches
 
-Currently, our development team has fewer people than components/repositories. It is important for us to have some shared libraries and tools between them to make our life easier. It's fine to use something else if there is a reason, but that reason/argument should be better than "let's try this new cool package" or "that's an overengineering". :) Also, if we decided to make a change in this list, it's better to change it in all components in a reasonable time.
+Currently, our development team has fewer people than components/repositories. It is important for us to have some shared libraries and tools between them to make our life easier. It's fine to use something else if there is a reason, but that reason/argument should be better than "let's try this new cool package" or "that's an overengineering". :) Also, if we decided to make a change in this list, it's better to change it in all components in a reasonable time. 
 
 - [Common tech, libraries and approaches](#common-tech-libraries-and-approaches)
   - [Tech and libraries](#tech-and-libraries)
@@ -46,7 +46,7 @@ Currently, our development team has fewer people than components/repositories. I
 
 ## Code style
 
-* `gofumt -s ` (note the `-s`)
+* `gofumpt -s ` (note the `-s`)
 * `make format`
 * Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments) wiki page.
 * golangci-lint checks style too.
@@ -73,6 +73,9 @@ Currently, our development team has fewer people than components/repositories. I
   * avoid repeating package name in method name (`log.Info() // good` ; `log.LogInfo() // bad`)
   * Don’t name like `getters` or `setters`
   * Add `er` to Interface* (with exceptions. For example when we use Interface as a template to generate mocks )
+* If we need to make a set it's better to use `map[string]struct{}` instead of `map[string]bool` or something else.
+* In case we need enums it's better to create a new custom type inherited from string or iota.
+* To check if a string is empty or not, please use `str != ""` instead of `len(str) != 0` 
 
 ## Open questions
 

@@ -1,3 +1,6 @@
+# vim: ts=8:sw=8:ft=make:noai:noet
+SWAGGER_UI_VERSION?=latest
+
 .PHONY: default init release gen test clean all
 default: help
 
@@ -14,6 +17,9 @@ help:                           ## Display this help message.
 init:                 ## Install tools.
 	rm -rf bin/*
 	cd tools && go generate -x -tags=tools
+
+	# Install golangci-lint
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.46.2
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -109,6 +115,20 @@ gen-alertmanager:     # Generate Alertmanager client.
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
 
+
+ifeq ($(shell test "${SWAGGER_UI_VERSION}" = "latest" && echo 1 || echo 0), 1)
+get_swagger_version:
+override SWAGGER_UI_VERSION = $(shell curl --silent --head https://github.com/swagger-api/swagger-ui/releases/latest | grep -E '^[lL]ocation' | sed 's;^.*/;;')
+else
+get_swagger_version:
+endif
+
+update-swagger: get_swagger_version               ## Update Swagger UI in api/swagger, use `SWAGGER_UI_VERSION=xxx make update-swagger` to choose a version other than latest.
+	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
+	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;api/swagger/;g'
+	rm -f api/swagger/.npmrc
+	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' api/swagger/swagger-initializer.js
+
 clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
@@ -117,9 +137,6 @@ clean: clean_swagger  ## Remove generated files.
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
-
-test:                 ## Run tests from all packages
-	go test ./...
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed).
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2)
@@ -144,11 +161,10 @@ FILES = $(shell find . -type f -name '*.go')
 format:               ## Format source code.
 	bin/gofumpt -l -w $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
-	bin/gci write --Section Standard --Section Default --Section "Prefix(github.com/percona/pmm)" $(FILES)
+	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 	bin/goimports -local github.com/percona/pmm -l -w $(FILES) # Temporary fix, gci has bug with sorting blank imports.
 
 serve:                ## Serve API documentation with nginx.
-	# http://127.0.0.1:8080/swagger-ui.html
 	nginx -p . -c api/nginx/nginx.conf
 
 descriptors:          ## Update API compatibility descriptors.

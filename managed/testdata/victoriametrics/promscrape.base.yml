@@ -14,3 +14,4 @@ scrape_configs:
             - 127.0.0.1:1234
           labels:
             instance: pmm-server
+      follow_redirects: false

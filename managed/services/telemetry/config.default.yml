@@ -1,54 +1,55 @@
 telemetry:
-# PMM - generic information
+  # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: ia->'enabled' AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
+    query: (CASE WHEN ia->'enabled' = 'true' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
-      - metric_name: "ia_enabled"
+      - metric_name: "pmm_server_ia_enabled"
         column: "ia_enabled"
 
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN 'true' ELSE 'false' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
+    query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
     summary: "PMM Server Security Thread Tool feature enabled/disabled"
     data:
-      - metric_name: "stt_enabled"
+      - metric_name: "pmm_server_stt_enabled"
         column: "stt_enabled"
 
-  - id: PMMServerBackupEnabled
+  - id: PMMServerBackupManagementEnabled
     source: PMMDB_SELECT
-    query: bm->'enabled' AS bm_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS bm
-    summary: "PMM Server Backup feature enabled/disabled"
+    query: (CASE WHEN backup_management->'enabled' = 'true' THEN '1' ELSE '0' END) AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
+    summary: "PMM Server Backup Management feature enabled"
     data:
-      - metric_name: "backup_management_enabled"
-        column: "bm_enabled"
+      - metric_name: "pmm_server_backup_management_enabled"
+        column: "backup_management_enabled"
+
+  - id: PMMServerAlertManagerUsed
+    source: PMMDB_SELECT
+    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
+    summary: "PMM Server alert manager integration  - used/not used"
+    data:
+      - metric_name: "pmm_server_alert_manager_enabled"
+        column: "alert_manager_set"
+
 
   - id: PMMServerDBaaSEnabled
     source: PMMDB_SELECT
-    query: dbaas->'enabled' AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
+    query: (CASE WHEN dbaas->'enabled' = 'true' THEN '1' ELSE '0' END) AS dbaas_enabled FROM settings s, jsonb_extract_path(s.settings, 'dbaas') AS dbaas
     summary: "PMM Server DBaaS feature enabled/disabled"
     data:
-      - metric_name: "dbaas_enabled"
+      - metric_name: "pmm_server_dbaas_enabled"
         column: "dbaas_enabled"
 
   - id: PMMServerUpdatesDisabled
     source: PMMDB_SELECT
-    query: updates->'disabled' AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
+    query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
     summary: "PMM Server Check Updates feature disabled"
     data:
-      - metric_name: "updates_disabled"
+      - metric_name: "pmm_server_updates_disabled"
         column: "updates_disabled"
 
-  - id: PMMServerBackupManagementEnabled
-    source: PMMDB_SELECT
-    query: backup_management->'enabled' AS backup_management_enabled FROM settings s, jsonb_extract_path(s.settings, 'backup_management') AS backup_management
-    summary: "PMM Server Backup Management feature enabled"
-    data:
-      - metric_name: "backup_management_enabled"
-        column: "backup_management_enabled"
-
-# Services Information
+  # Services Information
   - id: MySQLVersion
     source: VM
     query: mysql_version_info{service_type="mysql"}
@@ -67,57 +68,320 @@ telemetry:
       - metric_name: "mongodb_version"
         label: "mongodb"
 
+  - id: PMMPostgresDBVersion
+    source: VM
+    query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
+    summary: "PostgreSQL version inside PMM server"
+    data:
+      - metric_name: "pmm_server_postgresql_version"
+        label: "short_version"
+
   - id: PostgresDBVersion
     source: VM
-    query: pg_static{service_type="postgresql"}
+    query: pg_static{service_name!="pmm-server-postgresql", service_type="postgresql"}
     summary: "Monitored PostgreSQL services version"
     data:
       - metric_name: "postgresql_version"
         label: "short_version"
 
-#
+  #
   - id: GrafanaStatTotalUsers
     source: VM
     query: grafana_stat_total_users
     summary: "Total Grafana users"
     data:
-      - metric_name: "grafana_stat_total_users"
+      - metric_name: "pmm_server_grafana_stat_total_users"
         value: 1
 
-# PMM - Usage
+  # PMM - Usage
+  - id: GrafanaStatActiveMonthlyUsers
+    source: VM
+    query: grafana_stat_active_users
+    summary: "Active monthly users"
+    data:
+      - metric_name: "pmm_server_grafana_stat_active_users"
+        value: 1
+
+  - id: GrafanaStatTotalsAnnotations
+    source: VM
+    query: grafana_stat_totals_annotations
+    summary: "Grafana annotation count"
+    data:
+      - metric_name: "pmm_server_grafana_stat_totals_annotations"
+        value: 1
+
+  - id: PMMDataRetentionPeriod
+    source: PMMDB_SELECT
+    query: data_retention FROM settings s, jsonb_extract_path(s.settings, 'data_retention') AS data_retention
+    summary: "Data retention period"
+    data:
+      - metric_name: "pmm_server_data_retention_period"
+        column: "data_retention"
+
+  # PMM - Usage
   - id: PMMUsageNodesCount
     source: PMMDB_SELECT
-    query: count(*) AS nodes_count FROM nodes
+    query: count(*) AS nodes_count FROM nodes where node_name != 'pmm-server'
     summary: "Monitored nodes count"
     data:
-      - metric_name: "pmm_usage_nodes_count"
+      - metric_name: "pmm_server_usage_nodes_count"
         column: "nodes_count"
 
   - id: PMMUsageServicesCount
     source: PMMDB_SELECT
-    query: count(*) AS services_count FROM services
+    query: count(*) AS services_count FROM services where node_id != 'pmm-server'
     summary: "Monitored services count"
     data:
-      - metric_name: "pmm_usage_services_count"
+      - metric_name: "pmm_server_usage_services_count"
         column: "services_count"
 
-# Nodes information
-  - id: NodesInfoAgentsVersions
+  - id: PMMUsageEnvironmentsCount
     source: PMMDB_SELECT
-    query: agent_type, version FROM agents
-    summary: "Agents version"
+    query: count(distinct environment) as environments_count from services where environment != ''
+    summary: "Monitored environments count"
     data:
-      - metric_name: "nodes_info_agent"
-        column: "agent_type"
-      - metric_name: "nodes_info_version"
+      - metric_name: "pmm_server_usage_environments_count"
+        column: "environments_count"
+
+  - id: PMMUsageClustersCount
+    source: PMMDB_SELECT
+    query: count(distinct cluster) as clusters_count from services where cluster != '';
+    summary: "Monitored clusters count"
+    data:
+      - metric_name: "pmm_server_usage_clusters_count"
+        column: "clusters_count"
+
+  # Nodes information
+  - id: NodesInfoPMMAgentEmbedded
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'pmm-agent' and runs_on_node_id = 'pmm-server'
+    summary: "Agents version PMM_AGENT running on PMM server"
+    data:
+      - metric_name: "pmm_server_pmm_agent_version"
         column: "version"
-      - metric_name: "classifier"
-        column: "agent_type"
+
+  - id: NodesInfoPMMAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'pmm-agent' and runs_on_node_id != 'pmm-server'
+    summary: "Agents version PMM_AGENT"
+    data:
+      - metric_name: "pmm_client_pmm_agent_version"
+        column: "version"
+
+  - id: NodesInfoVMAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'vmagent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version VM_AGENT"
+    data:
+      - metric_name: "pmm_client_vm_agent_version"
+        column: "version"
+
+  - id: NodesInfoNodeExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'node_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version NODE_EXPORTER"
+    data:
+      - metric_name: "pmm_client_node_exporter_version"
+        column: "version"
+
+  - id: NodesInfoMysqldExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'mysqld_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version MYSQLD_EXPORTER"
+    data:
+      - metric_name: "pmm_client_mysqld_exporter_version"
+        column: "version"
+
+  - id: NodesInfoMongodbExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'mongodb_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version MONGODB_EXPORTER"
+    data:
+      - metric_name: "pmm_client_mongodb_exporter_version"
+        column: "version"
+
+  - id: NodesInfoPostgresExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'postgres_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version POSTGRES_EXPORTER"
+    data:
+      - metric_name: "pmm_client_postgres_exporter_version"
+        column: "version"
+
+  - id: NodesInfoProxysqlExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'proxysql_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version PROXYSQL_EXPORTER"
+    data:
+      - metric_name: "pmm_client_proxysql_exporter_version"
+        column: "version"
+
+  - id: NodesInfoQANMysqlPerfschemaAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'qan-mysql-perfschema-agent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version QAN_MYSQL_PERFSCHEMA_AGENT"
+    data:
+      - metric_name: "pmm_client_qan_mysql_perfschema_agent_version"
+        column: "version"
+
+  - id: NodesInfoQANMysqlSlowlogAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'qan-mysql-slowlog-agent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version QAN_MYSQL_SLOWLOG_AGENT"
+    data:
+      - metric_name: "pmm_client_qan_mysql_slowlog_agent_version"
+        column: "version"
+
+  - id: NodesInfoQANMongodbProfilerAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'qan-mongodb-profiler-agent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version QAN_MONGODB_PROFILER_AGENT"
+    data:
+      - metric_name: "pmm_client_qan_mongodb_profiler_agent_version"
+        column: "version"
+
+  - id: NodesInfoQANPostgresqlPgstatementsAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'qan-postgresql-pgstatements-agent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+    data:
+      - metric_name: "pmm_client_qan_postgresql_pgstatements_agent_version"
+        column: "version"
+
+  - id: NodesInfoQANPostgresqlPgstatmonitorAgent
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'qan-postgresql-pgstatmonitor-agent' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
+    data:
+      - metric_name: "pmm_client_qan_postgresql_pgstatmonitor_agent_version"
+        column: "version"
+
+  - id: NodesInfoRDSExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'rds_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version RDS_EXPORTER"
+    data:
+      - metric_name: "pmm_client_rds_exporter_version"
+        column: "version"
+
+  - id: NodesInfoExternalExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'external-exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version EXTERNAL_EXPORTER"
+    data:
+      - metric_name: "pmm_client_external_exporter_version"
+        column: "version"
+
+  - id: NodesInfoAzureDatabaseExporter
+    source: PMMDB_SELECT
+    query: version FROM agents WHERE agent_type = 'azure_database_exporter' and pmm_agent_id != 'pmm-server'
+    summary: "Agents version AZURE_DATABASE_EXPORTER"
+    data:
+      - metric_name: "pmm_client_azure_database_exporter_version"
+        column: "version"
+
+  - id: PMMNodesInfoNodeType
+    source: PMMDB_SELECT
+    query: node_type FROM nodes WHERE node_name = 'pmm-server'
+    summary: "PMM Node type"
+    data:
+      - metric_name: "pmm_server_node_type"
+        column: "node_type"
 
   - id: NodesInfoNodeType
     source: PMMDB_SELECT
-    query: node_type FROM nodes
+    query: node_type FROM nodes WHERE node_name != 'pmm-server'
     summary: "Node type"
     data:
-      - metric_name: "nodes_info_node_type"
+      - metric_name: "pmm_client_node_type"
         column: "node_type"
+
+  - id: PMMNodeCPUUsage
+    source: VM
+    query: clamp_max(sum by () ((avg by (mode) (  (clamp_max(rate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle",mode!="iowait"}[5m]),1)) or  (clamp_max(irate(node_cpu_seconds_total{node_name=~"pmm-server",mode!="idle",mode!="iowait"}[5m]),1)) )) *100 or  sum by () (avg_over_time(node_cpu_average{node_name=~"pmm-server",mode!="total",mode!="idle"}[5m]) or   avg_over_time(node_cpu_average{node_name=~"pmm-server",mode!="total",mode!="idle"}[5m])) unless   (avg_over_time(node_cpu_average{node_name=~"pmm-server",mode="total",job="rds-basic"}[5m]) or  avg_over_time(node_cpu_average{node_name=~"pmm-server",mode="total",job="rds-basic"}[5m]))   ),100)
+    summary: "PMM node CPU Usage"
+    data:
+      - metric_name: "pmm_server_node_cpu_usage"
+        value: 1
+
+  - id: PMMNodeCPUArchitecture
+    source: VM
+    query: node_uname_info
+    summary: "PMM node CPU Architecture"
+    data:
+      - metric_name: "pmm_server_node_cpu_architecture"
+        label: "machine"
+
+  - id: PMMNodeCPUCoreCount
+    source: VM
+    query: sum by (value) (count by(cpu) (node_cpu_seconds_total{mode="idle",node_id="pmm-server"}))
+    summary: "PMM node CPU core count"
+    data:
+      - metric_name: "pmm_server_node_cpu_core_count"
+        value: 1
+
+  - id: PMMNodeMemorySize
+    source: VM
+    query: avg by (node_name) (avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]))
+    summary: "PMM node memory size"
+    data:
+      - metric_name: "pmm_server_node_memory_size"
+        value: 1
+
+  - id: PMMNodeMemoryUsage
+    source: VM
+    query: clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~"pmm-server"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_MemFree_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Buffers_bytes{node_name=~"pmm-server"}[5m]))+(avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]) or avg_over_time(node_memory_Cached_bytes{node_name=~"pmm-server"}[5m]))))),0)
+    summary: "PMM node memory usage"
+    data:
+      - metric_name: "pmm_server_node_memory_usage"
+        value: 1
+
+  - id: PMMNodeDiskCapacity
+    source: VM
+    query: sum(sum(avg(node_filesystem_size_bytes{node_name=~"pmm-server",fstype=~"(ext.|xfs|vfat|)"}) without (mountpoint)) without (device,fstype))
+    summary: "PMM node disk capacity"
+    data:
+      - metric_name: "pmm_server_node_disk_capacity"
+        value: 1
+
+  - id: PMMNodeOSName
+    source: VM
+    query: node_uname_info{node_id=~"pmm-server"}
+    summary: "PMM node OS name"
+    data:
+      - metric_name: "pmm_server_node_os_name"
+        label: "sysname"
+
+  - id: PMMNodeOSVersion
+    source: VM
+    query: node_uname_info{node_id=~"pmm-server"}
+    summary: "PMM node OS version"
+    data:
+      - metric_name: "pmm_server_node_os_version"
+        label: "release"
+
+  # DBaaS
+  - id: DBaaSServicesCount
+    source: PMMDB_SELECT
+    query: count(service_name) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
+    summary: "DBaaS Services Count"
+    data:
+      - metric_name: "dbaas_services_count"
+        column: "count"
+
+  - id: DBaaSClustersCount
+    source: PMMDB_SELECT
+    query: count(distinct cluster) AS count from services where service_name ~ concat('default-', cluster,'-(pxc|rs0)-\d+')
+    summary: "DBaaS Clusters Count"
+    data:
+      - metric_name: "dbaas_clusters_count"
+        column: "count"
+
+  # K8s Clusters
+  - id: K8sClustersCount
+    source: PMMDB_SELECT
+    query: count(*) AS count FROM kubernetes_clusters
+    summary: "K8s Clusters Count"
+    data:
+      - metric_name: "k8s_clusters_count"
+        column: "count"

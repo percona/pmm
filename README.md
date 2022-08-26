@@ -3,6 +3,8 @@
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
+[![Discord](https://img.shields.io/discord/808660945513611334?label=Discord&logo=Discord&style=flat)](https://per.co.na/discord)
+[![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
@@ -43,20 +45,29 @@ Please check our [Documentation](https://docs.percona.com/percona-monitoring-and
 There are numbers of installation methods, please check our [Setting Up](https://docs.percona.com/percona-monitoring-and-management/setting-up/index.html) documentation page.
 
 But in a nutshell:
+1. Download PMM server Docker image
 ```bash
 $ docker pull percona/pmm-server:2
-
+```
+2. Create the data volume container
+```bash
 $ docker create --volume /srv \
 --name pmm-data \
 percona/pmm-server:2 /bin/true
-
+```
+3. Run PMM server container
+```bash
 $ docker run --detach --restart always \
 --publish 443:443 \
 --volumes-from pmm-data \
 --name pmm-server \
 percona/pmm-server:2
-
 ```
+4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
+
+<img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
+
+Enter the username and password. The defaults are username: **admin** and password: **admim**
 
 ## Submitting Bug Reports
 
@@ -91,4 +102,4 @@ We encourage contributions and are always looking for new members that are as de
 
 If you’re looking for information about how you can contribute, we have [contribution guidelines](CONTRIBUTING.md) across all our repositories in `CONTRIBUTING.md` files. Some of them may just link to the main project’s repository’s contribution guidelines.
 
-We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://discord.gg/mQEyGPkNbR).
+We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://per.co.na/discord).

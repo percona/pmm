@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path"
@@ -32,9 +33,9 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/inventorypb/types"
@@ -55,12 +56,6 @@ func (res *summaryResult) Result() {}
 
 func (res *summaryResult) String() string {
 	return RenderTemplate(summaryResultT, res)
-}
-
-type summaryCommand struct {
-	Filename   string
-	SkipServer bool
-	Pprof      bool
 }
 
 // addData adds data from io.Reader to zip file with given name and time.
@@ -102,7 +97,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 // addClientCommand adds cmd.Run() results to zip file with given name.
 func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 	var b []byte
-	res, err := cmd.Run()
+	res, err := cmd.RunCmd()
 	if res != nil {
 		b = append([]byte(res.String()), "\n\n"...)
 	}
@@ -123,7 +118,15 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addVMAgentTargets(ctx, zipW, status.AgentsInfo)
 
-	now := time.Now()
+	// Redact user credentials if they exist
+	if u, err := url.Parse(status.ServerInfo.URL); err == nil {
+		if u.User.String() != "" {
+			u.User = url.UserPassword("xxxxx", "xxxxx")
+			status.ServerInfo.URL = u.String()
+		}
+	} else {
+		logrus.Warnf("%s", err)
+	}
 
 	b, err := json.MarshalIndent(status, "", "  ")
 	if err != nil {
@@ -131,6 +134,8 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 		b = []byte(err.Error())
 	}
 	b = append(b, '\n')
+
+	now := time.Now()
 	addData(zipW, "client/status.json", now, bytes.NewReader(b))
 
 	// FIXME get it via pmm-agent's API - it is _not_ a good idea to use exec there
@@ -144,17 +149,22 @@ func addClientData(ctx context.Context, zipW *zip.Writer) {
 
 	addData(zipW, "client/pmm-admin-version.txt", now, bytes.NewReader([]byte(version.FullInfo())))
 
+	err = downloadFile(ctx, zipW, fmt.Sprintf("http://%s:%d/logs.zip", agentlocal.Localhost, agentlocal.DefaultPMMAgentListenPort), "client/pmm-agent")
+	if err != nil {
+		logrus.Warnf("%s", err)
+	}
+
 	if status.ConfigFilepath != "" {
 		addFile(zipW, "client/pmm-agent-config.yaml", status.ConfigFilepath)
 	}
 
-	addClientCommand(zipW, "client/list.txt", &listCommand{NodeID: status.RunsOnNodeID})
+	addClientCommand(zipW, "client/list.txt", &ListCommand{NodeID: status.RunsOnNodeID})
 }
 
 // addServerData adds logs.zip from PMM Server to zip file.
-func addServerData(ctx context.Context, zipW *zip.Writer) {
+func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 	var buf bytes.Buffer
-	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx}, &buf)
+	_, err := client.Default.Server.Logs(&server.LogsParams{Context: ctx, Pprof: &usePprof}, &buf)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return
@@ -241,13 +251,40 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
+// downloadFile download file and includes into zip file
+func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
+	b, err := getURL(ctx, url)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	responseReader := bytes.NewReader(b)
+
+	zipReader, err := zip.NewReader(responseReader, responseReader.Size())
+	if err != nil {
+		return errors.Wrap(err, "cannot create ZipLogs reader")
+	}
+
+	for _, rf := range zipReader.File {
+		rc, err := rf.Open()
+		if err != nil {
+			logrus.Errorf("%s", err)
+			continue
+		}
+		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc)
+
+		rc.Close() //nolint:errcheck
+	}
+	return nil
+}
+
 type pprofData struct {
 	name string
 	data []byte
 }
 
 // addPprofData adds pprof data to zip file.
-func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
+func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, globals *flags.GlobalFlags) {
 	profiles := []struct {
 		name    string
 		urlPath string
@@ -265,13 +302,12 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 
 	sources := map[string]string{
-		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, GlobalFlags.PMMAgentListenPort),
+		"client/pprof/pmm-agent": fmt.Sprintf("http://%s:%d/debug/pprof", agentlocal.Localhost, globals.PMMAgentListenPort),
 	}
 
 	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
 
 	if !skipServer && isRunOnPmmServer {
-		sources["server/pprof/pmm-managed"] = fmt.Sprintf("http://%s:7773/debug/pprof", agentlocal.Localhost)
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s:9933/debug/pprof", agentlocal.Localhost)
 	}
 
@@ -310,7 +346,14 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool) {
 	}
 }
 
-func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
+// SummaryCommand is used by Kong for CLI flags and commands.
+type SummaryCommand struct {
+	Filename   string `help:"Summary archive filename"`
+	SkipServer bool   `help:"Skip fetching logs.zip from PMM Server"`
+	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
+}
+
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) (err error) {
 	var f *os.File
 
 	if f, err = os.Create(cmd.Filename); err != nil {
@@ -335,27 +378,23 @@ func (cmd *summaryCommand) makeArchive(ctx context.Context) (err error) {
 	addClientData(ctx, zipW)
 
 	if cmd.Pprof {
-		addPprofData(ctx, zipW, cmd.SkipServer)
+		addPprofData(ctx, zipW, cmd.SkipServer, globals)
 	}
 
 	if !cmd.SkipServer {
-		addServerData(ctx, zipW)
+		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
 	return //nolint:nakedret
 }
 
-// TODO remove
-func (cmd *summaryCommand) Run() (Result, error) {
-	return cmd.RunWithContext(context.TODO())
-}
-
-func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
+// RunCmdWithContext runs summary command.
+func (cmd *SummaryCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (Result, error) {
 	if cmd.Filename == "" {
 		cmd.Filename = filename
 	}
 
-	if err := cmd.makeArchive(ctx); err != nil {
+	if err := cmd.makeArchive(ctx, globals); err != nil {
 		return nil, err
 	}
 
@@ -364,17 +403,9 @@ func (cmd *summaryCommand) RunWithContext(ctx context.Context) (Result, error) {
 	}, nil
 }
 
-// register command
+// register command.
 var (
-	Summary     summaryCommand
-	SummaryC    = kingpin.Command("summary", "Fetch system data for diagnostics")
 	hostname, _ = os.Hostname()
 	filename    = fmt.Sprintf("summary_%s_%s.zip",
 		strings.ReplaceAll(hostname, ".", "_"), time.Now().Format("2006_01_02_15_04_05"))
 )
-
-func init() {
-	SummaryC.Flag("filename", "Summary archive filename").Default(filename).StringVar(&Summary.Filename)
-	SummaryC.Flag("skip-server", "Skip fetching logs.zip from PMM Server").BoolVar(&Summary.SkipServer)
-	SummaryC.Flag("pprof", "Include performance profiling data").BoolVar(&Summary.Pprof)
-}

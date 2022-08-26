@@ -30,12 +30,16 @@ import (
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"sync"
 	"time"
 
+	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
+	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/utils/logger"
+	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -68,7 +72,7 @@ func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 }
 
 // Zip creates .zip archive with all logs.
-func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
+func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig) error {
 	start := time.Now()
 	log := logger.Get(ctx).WithField("component", "logs")
 	log.WithField("d", time.Since(start).Seconds()).Info("Starting...")
@@ -79,7 +83,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
 
-	files := l.files(ctx)
+	files := l.files(ctx, pprofConfig)
 	log.WithField("d", time.Since(start).Seconds()).Infof("Collected %d files.", len(files))
 
 	for _, file := range files {
@@ -126,8 +130,8 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	return nil
 }
 
-// files reads log/config files and returns content.
-func (l *Logs) files(ctx context.Context) []fileContent {
+// files reads log/config/pprof files and returns content.
+func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileContent {
 	files := make([]fileContent, 0, 20)
 
 	// add logs
@@ -144,17 +148,31 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 			Err:      err,
 		})
 	}
-
+	for _, f := range []string{
+		"/etc/alertmanager.yml",
+		"/srv/alertmanager/alertmanager.base.yml",
+	} {
+		b, m, err := readFile(f)
+		if err == nil {
+			b, err = maskAlertManagerSensitiveValues(b)
+			files = append(files, fileContent{
+				Name:     filepath.Base(f),
+				Modified: m,
+				Data:     b,
+				Err:      err,
+			})
+		} else {
+			logger.Get(ctx).WithField("component", "logs").Error(err)
+		}
+	}
 	// add configs
 	for _, f := range []string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
 
-		"/srv/alertmanager/alertmanager.base.yml",
 		"/srv/prometheus/prometheus.base.yml",
 
-		"/etc/alertmanager.yml",
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
@@ -212,6 +230,52 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 		Data: b,
 		Err:  err,
 	})
+
+	// add pprof
+	if pprofConfig != nil {
+		filesSync := &sync.Mutex{}
+		var wg sync.WaitGroup
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			traceBytes, err := pprofUtils.Trace(ctx, pprofConfig.TraceDuration)
+			filesSync.Lock()
+			files = append(files, fileContent{
+				Name: "pprof/trace.out",
+				Data: traceBytes,
+				Err:  err,
+			})
+			filesSync.Unlock()
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			profileBytes, err := pprofUtils.Profile(ctx, pprofConfig.ProfileDuration)
+			filesSync.Lock()
+			files = append(files, fileContent{
+				Name: "pprof/profile.pb.gz",
+				Data: profileBytes,
+				Err:  err,
+			})
+			filesSync.Unlock()
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			heapBytes, err := pprofUtils.Heap(true)
+			filesSync.Lock()
+			files = append(files, fileContent{
+				Name: "pprof/heap.pb.gz",
+				Data: heapBytes,
+				Err:  err,
+			})
+			filesSync.Unlock()
+		}()
+
+		wg.Wait()
+	}
 
 	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
 	return files
@@ -358,4 +422,17 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	}
 
 	return nil
+}
+
+func maskAlertManagerSensitiveValues(data []byte) ([]byte, error) {
+	var c alertmanager.Config
+	err := yaml.Unmarshal(data, &c)
+	if err != nil {
+		return data, err
+	}
+	nc, err := c.Mask()
+	if err != nil {
+		return data, err
+	}
+	return yaml.Marshal(nc)
 }

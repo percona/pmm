@@ -129,6 +129,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
 	}
 
+	args = withLogLevel(args, exporter.LogLevel, agentVersion, false)
+
 	sort.Strings(args)
 
 	params := &agentpb.SetStateRequest_AgentProcess{

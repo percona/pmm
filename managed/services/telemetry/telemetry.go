@@ -17,12 +17,10 @@
 package telemetry
 
 import (
-	"bytes"
 	"context"
 	"encoding/hex"
-	"io/ioutil"
-	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -42,13 +40,14 @@ import (
 const (
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+	sendChSize               = 10
 )
 
 // Service reports telemetry.
 type Service struct {
 	db                  *reform.DB
 	l                   *logrus.Entry
-	portalClient        *platform.Client
+	portalClient        sender
 	start               time.Time
 	config              ServiceConfig
 	dsRegistry          DataSourceLocator
@@ -56,11 +55,9 @@ type Service struct {
 	os                  string
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
-}
+	sendCh              chan *pmmv1.ServerMetric
 
-// LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
-	return s.dsRegistry.LocateTelemetryDataSource(name)
+	dus distributionUtilService
 }
 
 // check interfaces
@@ -80,6 +77,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 	if err != nil {
 		return nil, err
 	}
+	dus := newDistributionUtilServiceImpl(distributionInfoFilePath, osInfoFilePath, l)
 	s := &Service{
 		db:           db,
 		l:            l,
@@ -88,11 +86,18 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		start:        time.Now(),
 		config:       config,
 		dsRegistry:   registry,
+		dus:          dus,
+		sendCh:       make(chan *pmmv1.ServerMetric, sendChSize),
 	}
 
-	s.sDistributionMethod, s.tDistributionMethod, s.os = getDistributionMethodAndOS(l)
+	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
 
 	return s, nil
+}
+
+// LocateTelemetryDataSource retrieves DataSource by name.
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
 // Run start sending telemetry to SaaS.
@@ -106,24 +111,40 @@ func (s *Service) Run(ctx context.Context) {
 	defer ticker.Stop()
 
 	doSend := func() {
-		report, err := s.prepareReport(ctx)
+		var settings *models.Settings
+		err := s.db.InTransaction(func(tx *reform.TX) error {
+			var e error
+			if settings, e = models.GetSettings(tx); e != nil {
+				return e
+			}
+			return nil
+		})
 		if err != nil {
-			s.l.Debugf("Failed to prepare report: %s.", err)
+			s.l.Debugf("Failed to retrive settings: %s.", err)
+			return
+		}
+		if settings.Telemetry.Disabled {
+			s.l.Info("Disabled via settings.")
 			return
 		}
 
-		err = s.send(ctx, report)
-		if err != nil {
-			s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
-			return
+		report := s.prepareReport(ctx)
+
+		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
+
+		if s.config.Reporting.Send {
+			s.sendCh <- report
+		} else {
+			s.l.Info("Telemetry sent is disabled.")
 		}
-		s.l.Debug("Telemetry info sent.")
 	}
 
 	if s.config.Reporting.SendOnStart {
 		s.l.Debug("Telemetry on start is enabled, sending...")
 		doSend()
 	}
+
+	go s.processSendCh(ctx)
 
 	for {
 		select {
@@ -140,8 +161,54 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 	return s.sDistributionMethod
 }
 
-func (s *Service) prepareReport(ctx context.Context) (*reporter.ReportRequest, error) {
-	var reportMetrics []*pmmv1.ServerMetric
+func (s *Service) processSendCh(ctx context.Context) {
+	var reportsBufSync sync.Mutex
+	var reportsBuf []*pmmv1.ServerMetric
+	var sendCtx context.Context
+	var cancel context.CancelFunc
+
+	for {
+		select {
+		case report, ok := <-s.sendCh:
+			if ok {
+				s.l.Debug("Processing telemetry report.")
+				if sendCtx != nil {
+					cancel()
+				}
+				sendCtx, cancel = context.WithTimeout(ctx, s.config.Reporting.SendTimeout)
+
+				reportsBufSync.Lock()
+				reportsBuf = append(reportsBuf, report)
+				reportsToSend := reportsBuf
+				reportsBuf = []*pmmv1.ServerMetric{}
+				reportsBufSync.Unlock()
+
+				go func() {
+					err := s.send(sendCtx, &reporter.ReportRequest{
+						Metrics: reportsToSend,
+					})
+					if err != nil {
+						s.l.Debugf("Telemetry info not sent, due to error: %s.", err)
+						reportsBufSync.Lock()
+						reportsBuf = append(reportsBuf, reportsToSend...)
+						reportsBufSync.Unlock()
+						return
+					}
+
+					s.l.Debug("Telemetry info sent.")
+				}()
+			}
+		case <-ctx.Done():
+			if cancel != nil {
+				cancel()
+			}
+			return
+		}
+	}
+}
+
+func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
+	telemetryMetric, _ := s.makeMetric(ctx)
 
 	var totalTime time.Duration
 telemetryLoop:
@@ -168,21 +235,17 @@ telemetryLoop:
 		}
 
 		for _, each := range metrics {
-			telemetryMetric, err := s.makeMetric(ctx)
 			if err != nil {
 				s.l.Debugf("failed to make Metric %v", err)
 				continue telemetryLoop
 			}
 
-			telemetryMetric.Metrics = each
-			reportMetrics = append(reportMetrics, telemetryMetric)
+			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
 		}
 	}
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
-	return &reporter.ReportRequest{
-		Metrics: reportMetrics,
-	}, nil
+	return telemetryMetric
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
@@ -192,10 +255,6 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 		var e error
 		if settings, e = models.GetSettings(tx); e != nil {
 			return e
-		}
-
-		if settings.Telemetry.Disabled {
-			return errors.New("disabled via settings")
 		}
 
 		if _, err := models.GetPerconaSSODetails(ctx, s.db.Querier); err == nil {
@@ -224,7 +283,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode UUID %q", serverIDToUse)
 	}
-	_, distMethod, _ := getDistributionMethodAndOS(s.l)
+	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
 
 	eventID := uuid.New()
 	return &pmmv1.ServerMetric{
@@ -248,60 +307,6 @@ func generateUUID() (string, error) {
 	return cleanUUID, nil
 }
 
-func getDistributionMethodAndOS(l *logrus.Entry) (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
-	b, err := ioutil.ReadFile(distributionInfoFilePath)
-	if err != nil {
-		l.Debugf("Failed to read %s: %s", distributionInfoFilePath, err)
-	}
-
-	b = bytes.ToLower(bytes.TrimSpace(b))
-	switch string(b) {
-	case "ovf":
-		return serverpb.DistributionMethod_OVF, pmmv1.DistributionMethod_OVF, "ovf"
-	case "ami":
-		return serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami"
-	case "azure":
-		return serverpb.DistributionMethod_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
-	case "digitalocean":
-		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
-	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
-		if b, err = ioutil.ReadFile(osInfoFilePath); err != nil {
-			l.Debugf("Failed to read %s: %s", osInfoFilePath, err)
-		}
-		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, getLinuxDistribution(string(b))
-	default:
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_INVALID, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
-	}
-}
-
-type pair struct {
-	re *regexp.Regexp
-	t  string
-}
-
-var procVersionRegexps = []pair{
-	{regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`), "Ubuntu ${version}"},
-	{regexp.MustCompile(`ubuntu`), "Ubuntu"},
-	{regexp.MustCompile(`Debian`), "Debian"},
-	{regexp.MustCompile(`\.fc(?P<version>\d+)\.`), "Fedora ${version}"},
-	{regexp.MustCompile(`\.centos\.`), "CentOS"},
-	{regexp.MustCompile(`\-ARCH`), "Arch"},
-	{regexp.MustCompile(`\-moby`), "Moby"},
-	{regexp.MustCompile(`\.amzn\d+\.`), "Amazon"},
-	{regexp.MustCompile(`Microsoft`), "Microsoft"},
-}
-
-// getLinuxDistribution detects Linux distribution and version from /proc/version information.
-func getLinuxDistribution(procVersion string) string {
-	for _, p := range procVersionRegexps {
-		match := p.re.FindStringSubmatchIndex(procVersion)
-		if match != nil {
-			return string(p.re.ExpandString(nil, p.t, procVersion, match))
-		}
-	}
-	return "unknown"
-}
-
 func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) error {
 	var err error
 	var attempt int
@@ -315,7 +320,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 		}
 
 		if attempt >= s.config.Reporting.RetryCount {
-			s.l.Debug("Failed to send v2 event, will not retry (too much attempts).")
+			s.l.Debug("Failed to send v2 event, will not retry (too many attempts).")
 			return err
 		}
 
@@ -328,4 +333,25 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 			return err
 		}
 	}
+}
+
+func (s *Service) Format(report *pmmv1.ServerMetric) string {
+	var builder strings.Builder
+	for _, m := range report.Metrics {
+		builder.WriteString(m.Key)
+		builder.WriteString(": ")
+		builder.WriteString(m.Value)
+		builder.WriteString("\n")
+	}
+
+	return builder.String()
+}
+
+// GetSummaries returns the list of gathered telemetry
+func (s *Service) GetSummaries() []string {
+	result := make([]string, 0, len(s.config.telemetry))
+	for _, c := range s.config.telemetry {
+		result = append(result, c.Summary)
+	}
+	return result
 }
