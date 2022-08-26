@@ -27,7 +27,9 @@ import (
 )
 
 var (
-	v10 = version.Must(version.NewVersion("1.0.0-beta-2"))
+	v20 = version.Must(version.NewVersion("2.0.0"))
+	v11 = version.Must(version.NewVersion("1.1.0"))
+	v10 = version.Must(version.NewVersion("1.0.0"))
 	v09 = version.Must(version.NewVersion("0.9"))
 	v08 = version.Must(version.NewVersion("0.8"))
 )
@@ -82,13 +84,6 @@ type pgStatMonitor struct {
 	WalRecords      int64
 	WalFpi          int64
 	WalBytes        int64
-	// state_code = 0 state 'PARSING'
-	// state_code = 1 state 'PLANNING'
-	// state_code = 2 state 'ACTIVE'
-	// state_code = 3 state 'FINISHED'
-	// state_code = 4 state 'FINISHED WITH ERROR'
-	StateCode int64
-	State     string
 
 	// < pg0.6
 
@@ -179,9 +174,7 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion) (*pgStatMonitor, reform.Vie
 			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message},
 			field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
 			field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
-			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes},
-			field{info: parse.FieldInfo{Name: "StateCode", Type: "int64", Column: "state_code"}, pointer: &s.StateCode},
-			field{info: parse.FieldInfo{Name: "State", Type: "string", Column: "state"}, pointer: &s.State})
+			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
 	}
 
 	if v <= pgStatMonitorVersion10PG12 {
@@ -257,7 +250,7 @@ func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
 
 // String returns a string representation of this struct or record.
 func (s pgStatMonitor) String() string {
-	res := make([]string, 51)
+	res := make([]string, 49)
 	res[0] = "Bucket: " + reform.Inspect(s.Bucket, true)
 	res[1] = "BucketStartTime: " + reform.Inspect(s.BucketStartTime, true)
 	res[2] = "UserID: " + reform.Inspect(s.UserID, true)
@@ -307,8 +300,6 @@ func (s pgStatMonitor) String() string {
 	res[46] = "WalRecords: " + reform.Inspect(s.WalRecords, true)
 	res[47] = "WalFpi: " + reform.Inspect(s.WalFpi, true)
 	res[48] = "WalBytes: " + reform.Inspect(s.WalBytes, true)
-	res[49] = "StateCode: " + reform.Inspect(s.StateCode, true)
-	res[50] = "State: " + reform.Inspect(s.State, true)
 	return strings.Join(res, ", ")
 }
 
