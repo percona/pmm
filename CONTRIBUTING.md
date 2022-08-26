@@ -17,35 +17,37 @@ This project is built from several repositories:
 
 ### APIs
 
-* [percona/pmm](https://github.com/percona/pmm)
+* [percona/pmm](https://github.com/percona/pmm/tree/main/api)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
 * [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
 
 ### PMM Server
 
-#### BackEnd
-* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller)
-* [percona/qan-api2](https://github.com/percona/qan-api2)
-* [percona/pmm-update](https://github.com/percona/pmm-update)
+#### Backends
 
-#### FrontEnd
-* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards)
-* [percona-platform/grafana](https://github.com/percona-platform/grafana)
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
+* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
+* [percona/qan-api2](https://github.com/percona/qan-api2) query analytics API
+* [percona/pmm-update](https://github.com/percona/pmm-update) is a tool for updating packages and OS configuration for PMM
+
+#### Frontends
+
+* [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
+* [percona-platform/grafana](https://github.com/percona-platform/grafana) user interface for PMM
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent)
-* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona/node_exporter](https://github.com/percona/node_exporter)
-* [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter)
-* [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter)
-* [percona/postgres_exporter](https://github.com/percona/postgres_exporter)
-* [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter)
-* [percona/rds_exporter](https://github.com/percona/rds_exporter)
-* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter)
-* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter)
-* [percona/percona-toolkit](https://github.com/percona/percona-toolkit)
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, collects data from them and send to VictoriaMetrics
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
+* [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
+* [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
+* [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) exports MongoDB server's metrics
+* [percona/postgres_exporter](https://github.com/percona/postgres_exporter) exports PostgreSQL server's metrics
+* [percona/proxysql_exporter](https://github.com/percona/proxysql_exporter) exports ProxySQL server's metrics
+* [percona/rds_exporter](https://github.com/percona/rds_exporter) exports metrics from RDS
+* [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter) exports metrics from Azure
+* [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter) exports metrics from ClickHouse
+* [percona/percona-toolkit](https://github.com/percona/percona-toolkit) is a collection of advanced command-line tools to perform a variety of MySQL and system tasks that are too difficult or complex to perform manually
 
 
 ### PMM DBaaS
