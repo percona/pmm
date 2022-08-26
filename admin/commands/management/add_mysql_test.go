@@ -149,10 +149,10 @@ Table statistics collection disabled (always).
 
 func TestRun(t *testing.T) {
 	t.Run("CreateUser", func(t *testing.T) {
-		cmd := &addMySQLCommand{
+		cmd := &AddMySQLCommand{
 			CreateUser: true,
 		}
-		_, err := cmd.Run()
+		_, err := cmd.RunCmd()
 
 		if assert.Error(t, err) {
 			expected := "Unrecognized option. To create a user, see 'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'"

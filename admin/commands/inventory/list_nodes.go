@@ -58,11 +58,12 @@ func (res *listNodesResult) String() string {
 	return commands.RenderTemplate(listNodesResultT, res)
 }
 
-type listNodeCommand struct {
-	NodeType string
+// ListNodesCommand is used by Kong for CLI flags and commands.
+type ListNodesCommand struct {
+	NodeType string `help:"Filter by Node type"`
 }
 
-func (cmd *listNodeCommand) Run() (commands.Result, error) {
+func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
 	if err != nil {
 		return nil, err
@@ -114,14 +115,4 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 	return &listNodesResult{
 		Nodes: nodesList,
 	}, nil
-}
-
-// register command
-var (
-	ListNodes  listNodeCommand
-	ListNodesC = inventoryListC.Command("nodes", "Show nodes in inventory").Hide(hide)
-)
-
-func init() {
-	ListNodesC.Flag("node-type", "Filter by Node type").StringVar(&ListNodes.NodeType)
 }

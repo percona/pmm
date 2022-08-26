@@ -18,12 +18,8 @@ package commands
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -31,23 +27,20 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/go-openapi/runtime"
-	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-
-	"github.com/percona/pmm/admin/agentlocal"
-	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	serverpb "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/utils/tlsconfig"
 )
 
 var (
 	// Ctx is a shared context for all requests.
 	Ctx = context.Background()
+	// CLICtx is context used for commands ran with context.
+	CLICtx context.Context
 
 	errExecutionNotImplemented = errors.New("execution is not supported")
+
+	// SetupClientsEnabled defines if clients shall be setup during bootstrapping.
+	SetupClientsEnabled = true
 )
 
 // Result is a common interface for all command results.
@@ -71,10 +64,10 @@ type Result interface {
 //  * use logrus.Print, logrus.Info and higher levels except:
 //    * summary command (for progress output).
 type Command interface {
-	Run() (Result, error)
+	RunCmd() (Result, error)
 }
 
-// TODO remove Command above, rename CommandWithContext to Command
+// TODO remove Command above, rename CommandWithContext to Command.
 type CommandWithContext interface {
 	// TODO rename to Run
 	RunWithContext(ctx context.Context) (Result, error)
@@ -151,51 +144,34 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	return strings.TrimSpace(buf.String()) + "\n"
 }
 
-type globalFlagsValues struct {
-	ServerURL          *url.URL
-	ServerInsecureTLS  bool
-	Debug              bool
-	Trace              bool
-	PMMAgentListenPort uint32
-}
-
-// GlobalFlags contains pmm-admin core flags values.
-var GlobalFlags globalFlagsValues
-
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 
-// ParseCustomLabels parses --custom-labels flag value.
-//
-// Note that quotes around value are parsed and removed by shell before this function is called.
-// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
-// as [[region=us-east1, mylabel=mylab-22]].
-func ParseCustomLabels(labels string) (map[string]string, error) {
+// ParseCustomLabels trims spaces in --custom-labels flag value.
+func ParseCustomLabels(labels map[string]string) map[string]string {
 	result := make(map[string]string)
-	parts := strings.Split(labels, ",")
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part == "" {
+	for k, v := range labels {
+		v = strings.TrimSpace(v)
+		if v == "" {
 			continue
 		}
-		submatches := customLabelRE.FindStringSubmatch(part)
-		if submatches == nil {
-			return nil, errors.New("wrong custom label format")
-		}
-		result[submatches[1]] = submatches[2]
+
+		result[k] = v
 	}
-	return result, nil
+	return result
 }
 
 // ParseDisableCollectors parses --disable-collectors flag value.
-func ParseDisableCollectors(collectors string) []string {
+func ParseDisableCollectors(collectors []string) []string {
 	var disableCollectors []string
 
-	if collectors != "" {
-		for _, v := range strings.Split(collectors, ",") {
+	if len(collectors) != 0 {
+		for _, v := range collectors {
 			disableCollector := strings.TrimSpace(v)
-			if disableCollector != "" {
-				disableCollectors = append(disableCollectors, disableCollector)
+			if disableCollector == "" {
+				continue
 			}
+
+			disableCollectors = append(disableCollectors, disableCollector)
 		}
 	}
 
@@ -215,97 +191,6 @@ func ReadFile(filePath string) (string, error) {
 
 	return string(content), nil
 }
-
-type nginxError string
-
-func (e nginxError) Error() string {
-	return "response from nginx: " + string(e)
-}
-
-func (e nginxError) GoString() string {
-	return fmt.Sprintf("nginxError(%q)", string(e))
-}
-
-// SetupClients configures local and PMM Server API clients.
-func SetupClients(ctx context.Context, serverURL string) {
-	if serverURL == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
-		if err != nil {
-			if err == agentlocal.ErrNotSetUp { //nolint:errorlint,goerr113
-				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
-					"Please run `pmm-admin config` with --server-url flag.", err)
-			}
-
-			if err == agentlocal.ErrNotConnected { //nolint:errorlint,goerr113
-				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n", err)
-			}
-			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
-				"Please use --server-url flag to specify PMM Server URL.", err)
-		}
-		GlobalFlags.ServerURL, _ = url.Parse(status.ServerURL)
-		GlobalFlags.ServerInsecureTLS = status.ServerInsecureTLS
-	} else {
-		var err error
-		GlobalFlags.ServerURL, err = url.Parse(serverURL)
-		if err != nil {
-			logrus.Fatalf("Invalid PMM Server URL %q: %s.", serverURL, err)
-		}
-		if GlobalFlags.ServerURL.Path == "" {
-			GlobalFlags.ServerURL.Path = "/"
-		}
-		switch GlobalFlags.ServerURL.Scheme {
-		case "http", "https":
-			// nothing
-		default:
-			logrus.Fatalf("Invalid PMM Server URL %q: scheme (https:// or http://) is missing.", serverURL)
-		}
-		if GlobalFlags.ServerURL.Host == "" {
-			logrus.Fatalf("Invalid PMM Server URL %q: host is missing.", serverURL)
-		}
-	}
-
-	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(GlobalFlags.ServerURL.Host, GlobalFlags.ServerURL.Path, []string{GlobalFlags.ServerURL.Scheme})
-	if u := GlobalFlags.ServerURL.User; u != nil {
-		password, _ := u.Password()
-		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
-	}
-	transport.SetLogger(logrus.WithField("component", "server-transport"))
-	transport.SetDebug(GlobalFlags.Debug || GlobalFlags.Trace)
-	transport.Context = ctx
-
-	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := io.ReadAll(reader)
-		return nginxError(string(b))
-	})
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
-		"application/zip":   runtime.ByteStreamConsumer(),
-		runtime.HTMLMime:    errorConsumer,
-		runtime.TextMime:    errorConsumer,
-		runtime.DefaultMime: errorConsumer,
-	}
-
-	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if GlobalFlags.ServerURL.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = GlobalFlags.ServerURL.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = GlobalFlags.ServerInsecureTLS
-	}
-
-	inventorypb.Default.SetTransport(transport)
-	managementpb.Default.SetTransport(transport)
-	serverpb.Default.SetTransport(transport)
-}
-
-// check interfaces
-var (
-	_ error          = nginxError("")
-	_ fmt.GoStringer = nginxError("")
-)
 
 // UsageTemplate is default kingping's usage template with tweaks:
 // * FormatAllCommands is a copy of FormatCommands that ignores hidden flag;
