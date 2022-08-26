@@ -74,7 +74,7 @@ func TestStartBackupErrors(t *testing.T) {
 	backupService := &mockBackupService{}
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	backupSvc := NewBackupsService(db, backupService, nil)
+	backupSvc := NewBackupsService(db, backupService, nil, nil)
 	agent := setup(t, db.Querier, t.Name())
 
 	for _, tc := range []struct {
@@ -126,7 +126,7 @@ func TestStartBackupErrors(t *testing.T) {
 
 func TestRestoreBackupErrors(t *testing.T) {
 	backupService := &mockBackupService{}
-	backupSvc := NewBackupsService(nil, backupService, nil)
+	backupSvc := NewBackupsService(nil, backupService, nil, nil)
 
 	for _, tc := range []struct {
 		testName    string
@@ -184,7 +184,7 @@ func TestScheduledBackups(t *testing.T) {
 	backupService := &mockBackupService{}
 	backupService.On("SwitchMongoPITR", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	schedulerService := scheduler.New(db, backupService)
-	backupSvc := NewBackupsService(db, backupService, schedulerService)
+	backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
 	})
@@ -311,7 +311,7 @@ func TestGetLogs(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
 	schedulerService := &mockScheduleService{}
-	backupSvc := NewBackupsService(db, backupService, schedulerService)
+	backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
 	})
