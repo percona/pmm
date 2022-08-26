@@ -1,6 +1,6 @@
 # Welcome to Percona Monitoring and Management (PMM)!
 
-We're glad that you would like to become a Percona community member and participate in keeping open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers.
+We're glad that you would like to become a Percona community member and participate in keeping open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is a open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/details/architecture.html) for the actual architecture.
 
 ## Table of contents
 1. [Project repos structure](#Project-repos-structure)
@@ -48,30 +48,6 @@ This project is built from several repositories:
 * [percona/azure_exporter](https://github.com/percona/azure_metrics_exporter) exports metrics from Azure
 * [Percona-Lab/clickhouse_exporter](https://github.com/Percona-Lab/clickhouse_exporter) exports metrics from ClickHouse
 * [percona/percona-toolkit](https://github.com/percona/percona-toolkit) is a collection of advanced command-line tools to perform a variety of MySQL and system tasks that are too difficult or complex to perform manually
-
-
-### PMM DBaaS
-
-#### Prerequisites
-
-1. Installed minikube
-2. Installed docker
-
-#### Running minikube
-
-To spin-up k8s cluster, run
-```
-    minikube start --cpus=4 --memory=7G --apiserver-names host.docker.internal --kubernetes-version=v1.23.0
-    ENABLE_DBAAS=1 NETWORK=minikube make env-up # Run PMM with DBaaS feature enabled
-```
-
-[Read the documentation](https://docs.percona.com/percona-monitoring-and-management/setting-up/server/dbaas.html) how to run DBaaS on GKE or EKS
-
-##### Troubleshooting
-
-1. You can face with pod failing with `Init:CrashLoopBackOff` issue. Once you get logs by running `kubectl logs pxc-cluster-pxc-0 -c pxc-init` you get the error `install: cannot create regular file '/var/lib/mysql/pxc-entrypoint.sh': Permission denied`. You can fix it using [this solution](https://github.com/kubernetes/minikube/issues/12360#issuecomment-1123794143). Also, check [this issue](https://jira.percona.com/browse/K8SPXC-879)
-2. Multinode PXC Cluster can't be created on ARM CPUs. You can have single node installation.
-3. Operators are not supported. It means that the PMM version <-> operator version pair does not exist in the Version service. This issue can happen in two different scenarios. You can have a PMM version higher than the current release, or you installed a higher version of operators. You can check compatibility using https://check.percona.com/versions/v1/pmm-server/PMM-version
 
 
 ### Building and Packaging
@@ -186,7 +162,7 @@ Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md) and [Common tech libraries and approaches](docs/process/common_tech_lib_approaches.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
