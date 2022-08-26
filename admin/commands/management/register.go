@@ -15,17 +15,13 @@
 package management
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/percona/pmm/utils/nodeinfo"
 )
 
 var registerResultT = commands.ParseTemplate(`
@@ -46,30 +42,27 @@ func (res *registerResult) String() string {
 	return commands.RenderTemplate(registerResultT, res)
 }
 
-type registerCommand struct {
-	NodeType          string
-	NodeName          string
-	MachineID         string
-	Distro            string
-	ContainerID       string
-	ContainerName     string
-	NodeModel         string
-	Region            string
-	Az                string
-	CustomLabels      string
-	Address           string
-	MetricsMode       string
-	DisableCollectors string
-	AgentPassword     string
-
-	Force bool
+// RegisterCommand is used by Kong for CLI flags and commands.
+type RegisterCommand struct {
+	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
+	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`
+	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	MachineID         string            `default:"${defaultMachineID}" help:"Node machine-id (default is autodetected)"`
+	Distro            string            `default:"${distro}" help:"Node OS distribution (default is autodetected)"`
+	ContainerID       string            `help:"Container ID"`
+	ContainerName     string            `help:"Container name"`
+	NodeModel         string            `help:"Node model"`
+	Region            string            `help:"Node region"`
+	Az                string            `help:"Node availability zone"`
+	CustomLabels      map[string]string `help:"Custom user-assigned labels"`
+	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
+	Force             bool              `help:"Re-register Node"`
+	MetricsMode       string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 }
 
-func (cmd *registerCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
@@ -102,49 +95,4 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 		ContainerNode: resp.Payload.ContainerNode,
 		PMMAgent:      resp.Payload.PMMAgent,
 	}, nil
-}
-
-// register command
-var (
-	Register  registerCommand
-	RegisterC = kingpin.Command("register", "Register current Node at PMM Server")
-)
-
-func init() {
-	nodeinfo := nodeinfo.Get()
-
-	if nodeinfo.PublicAddress == "" {
-		RegisterC.Arg("node-address", "Node address").Required().StringVar(&Register.Address)
-	} else {
-		help := fmt.Sprintf("Node address (autodetected default: %s)", nodeinfo.PublicAddress)
-		RegisterC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Register.Address)
-	}
-
-	registerNodeTypeKeys := []string{"generic", "container"} // "remote" Node can't be registered with that API
-	nodeTypeDefault := "generic"
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(registerNodeTypeKeys, ", "), nodeTypeDefault)
-	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, registerNodeTypeKeys...)
-
-	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
-	RegisterC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Register.NodeName)
-
-	var defaultMachineID string
-	if nodeinfo.MachineID != "" {
-		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
-	}
-	RegisterC.Flag("machine-id", "Node machine-id (default is autodetected)").Default(defaultMachineID).StringVar(&Register.MachineID)
-	RegisterC.Flag("distro", "Node OS distribution (default is autodetected)").Default(nodeinfo.Distro).StringVar(&Register.Distro)
-	RegisterC.Flag("container-id", "Container ID").StringVar(&Register.ContainerID)
-	RegisterC.Flag("container-name", "Container name").StringVar(&Register.ContainerName)
-	RegisterC.Flag("node-model", "Node model").StringVar(&Register.NodeModel)
-	RegisterC.Flag("region", "Node region").StringVar(&Register.Region)
-	RegisterC.Flag("az", "Node availability zone").StringVar(&Register.Az)
-	RegisterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Register.CustomLabels)
-
-	RegisterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&Register.AgentPassword)
-	RegisterC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Register.Force)
-	RegisterC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Register.MetricsMode, "auto", "pull", "push")
-	RegisterC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&Register.DisableCollectors)
 }

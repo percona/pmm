@@ -24,3 +24,6 @@ fuzzing/
 
 backoff.png
 pmm-agent-dev.yaml
+
+# ViM temporary files
+*.sw[o,p]

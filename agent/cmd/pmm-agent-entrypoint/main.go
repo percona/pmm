@@ -73,26 +73,28 @@ var pmmAgentProcessID = 0
 func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy restartPolicy, l *logrus.Entry, pmmAgentSidecarSleep int) int {
 	pmmAgentFullCommand := "pmm-admin " + strings.Join(commandLineArgs, " ")
 	for {
-		l.Infof("Starting 'pmm-admin %s'...", strings.Join(commandLineArgs, " "))
-		cmd := commandPmmAgent(commandLineArgs)
-		if err := cmd.Start(); err != nil {
-			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
-			return -1
-		}
-		var exitCode int
-		pmmAgentProcessID = cmd.Process.Pid
 		select {
 		case <-ctx.Done():
 			return 1
 		default:
 		}
-		if err := cmd.Wait(); err != nil {
-			exitError, ok := err.(*exec.ExitError)
-			if !ok {
-				l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
-				return -1
+		var exitCode int
+		l.Infof("Starting 'pmm-admin %s'...", strings.Join(commandLineArgs, " "))
+		cmd := commandPmmAgent(commandLineArgs)
+		if err := cmd.Start(); err != nil {
+			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
+			exitCode = -1
+		} else {
+			pmmAgentProcessID = cmd.Process.Pid
+			if err := cmd.Wait(); err != nil {
+				exitError, ok := err.(*exec.ExitError)
+				if !ok {
+					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
+					exitCode = -1
+				} else {
+					exitCode = exitError.ExitCode()
+				}
 			}
-			exitCode = exitError.ExitCode()
 		}
 		l.Infof("'%s' exited with %d", pmmAgentFullCommand, exitCode)
 

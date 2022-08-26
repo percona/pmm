@@ -115,7 +115,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		"--config.file=" + tdp.Left + " .TextFiles.config " + tdp.Right,
 	}
 
-	args = withLogLevel(args, toOneLogLevel(pairs), pmmAgentVersion)
+	args = withLogLevel(args, toOneLogLevel(pairs), pmmAgentVersion, true)
 
 	sort.Strings(args)
 

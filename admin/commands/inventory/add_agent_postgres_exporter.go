@@ -45,31 +45,32 @@ func (res *addAgentPostgresExporterResult) String() string {
 	return commands.RenderTemplate(addAgentPostgresExporterResultT, res)
 }
 
-type addAgentPostgresExporterCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	AgentPassword       string
-	CustomLabels        string
-	SkipConnectionCheck bool
-	PushMetrics         bool
-	DisableCollectors   string
-
-	TLS           bool
-	TLSSkipVerify bool
-	TLSCAFile     string
-	TLSCertFile   string
-	TLSKeyFile    string
+// AddAgentPostgresExporterCommand is used by Kong for CLI flags and commands.
+type AddAgentPostgresExporterCommand struct {
+	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID           string            `arg:"" help:"Service identifier"`
+	Username            string            `arg:"" optional:"" help:"PostgreSQL username for scraping metrics"`
+	Password            string            `help:"PostgreSQL password for scraping metrics"`
+	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
+	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	TLS                 bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile           string            `help:"TLS CA certificate file"`
+	TLSCertFile         string            `help:"TLS certificate file"`
+	TLSKeyFile          string            `help:"TLS certificate key file"`
+	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
-func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
 		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {
@@ -104,7 +105,7 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 			TLSCa:         tlsCa,
 			TLSCert:       tlsCert,
 			TLSKey:        tlsKey,
-			LogLevel:      &addExporterLogLevel,
+			LogLevel:      &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -116,31 +117,4 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 	return &addAgentPostgresExporterResult{
 		Agent: resp.Payload.PostgresExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentPostgresExporter  addAgentPostgresExporterCommand
-	AddAgentPostgresExporterC = addAgentC.Command("postgres-exporter", "Add postgres_exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentPostgresExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentPostgresExporter.PMMAgentID)
-	AddAgentPostgresExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentPostgresExporter.ServiceID)
-	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
-	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics").StringVar(&AddAgentPostgresExporter.Password)
-	AddAgentPostgresExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentPostgresExporter.AgentPassword)
-	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPostgresExporter.CustomLabels)
-	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
-	AddAgentPostgresExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentPostgresExporter.PushMetrics)
-	AddAgentPostgresExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentPostgresExporter.DisableCollectors)
-
-	AddAgentPostgresExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentPostgresExporter.TLS)
-	AddAgentPostgresExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentPostgresExporter.TLSSkipVerify)
-	AddAgentPostgresExporterC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddAgentPostgresExporter.TLSCAFile)
-	AddAgentPostgresExporterC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddAgentPostgresExporter.TLSCertFile)
-	AddAgentPostgresExporterC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddAgentPostgresExporter.TLSKeyFile)
-	addExporterGlobalFlags(AddAgentPostgresExporterC)
 }
