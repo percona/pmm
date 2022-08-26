@@ -73,6 +73,12 @@ const (
 	pgStatMonitorVersion10PG12
 	pgStatMonitorVersion10PG13
 	pgStatMonitorVersion10PG14
+	pgStatMonitorVersion11PG12
+	pgStatMonitorVersion11PG13
+	pgStatMonitorVersion11PG14
+	pgStatMonitorVersion20PG12
+	pgStatMonitorVersion20PG13
+	pgStatMonitorVersion20PG14
 )
 
 const (
@@ -166,6 +172,26 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	version := pgStatMonitorVersion06
 	switch {
+	case pgsmVersion.Core().GreaterThanOrEqual(v20):
+		if pgVersion >= 14 {
+			version = pgStatMonitorVersion20PG14
+			break
+		}
+		if pgVersion >= 13 {
+			version = pgStatMonitorVersion20PG13
+			break
+		}
+		version = pgStatMonitorVersion20PG12
+	case pgsmVersion.Core().GreaterThanOrEqual(v11):
+		if pgVersion >= 14 {
+			version = pgStatMonitorVersion11PG14
+			break
+		}
+		if pgVersion >= 13 {
+			version = pgStatMonitorVersion11PG13
+			break
+		}
+		version = pgStatMonitorVersion11PG12
 	case pgsmVersion.Core().GreaterThanOrEqual(v10):
 		if pgVersion >= 14 {
 			version = pgStatMonitorVersion10PG14
