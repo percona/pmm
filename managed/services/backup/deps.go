@@ -85,3 +85,8 @@ type agentsRegistry interface {
 type versioner interface {
 	GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error)
 }
+
+// We use it instead of real type for testing and to avoid dependency cycle
+type compatibilityService interface {
+	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
+}

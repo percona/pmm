@@ -15,7 +15,14 @@
 
 package backup
 
-import "github.com/hashicorp/go-version"
+import (
+	"github.com/hashicorp/go-version"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
 type compatibility struct {
 	dbMinVersion         *version.Version
@@ -25,8 +32,18 @@ type compatibility struct {
 }
 
 var (
-	mysqlAndXtrabackupCompatibleVersions []compatibility
+	// ErrIncompatibleService is returned when the service is incompatible for making a backup or restore.
+	ErrIncompatibleService = errors.New("incompatible service")
+	// ErrXtrabackupNotInstalled is returned if some xtrabackup component is missing.
+	ErrXtrabackupNotInstalled = errors.New("xtrabackup is not installed")
+	// ErrInvalidXtrabackup is returned if xtrabackup components have different version.
+	ErrInvalidXtrabackup = errors.New("invalid installation of the xtrabackup")
+	// ErrIncompatibleXtrabackup is returned if xtrabackup is not compatible with the MySQL.
+	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
+	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
+	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
 
+	mysqlAndXtrabackupCompatibleVersions []compatibility
 	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,
 	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
 	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
@@ -85,22 +102,10 @@ func init() {
 
 	mysqlAndXtrabackupCompatibleVersions = make([]compatibility, 0, len(versionStrings))
 	for _, s := range versionStrings {
-		mysqlMinVersion, err := version.NewVersion(s.mysqlMinVersion)
-		if err != nil {
-			panic(err)
-		}
-		mysqlMaxVersion, err := version.NewVersion(s.mysqlMaxVersion)
-		if err != nil {
-			panic(err)
-		}
-		xtrabackupMinVersion, err := version.NewVersion(s.xtrabackupMinVersion)
-		if err != nil {
-			panic(err)
-		}
-		xtrabackupMaxVersion, err := version.NewVersion(s.xtrabackupMaxVersion)
-		if err != nil {
-			panic(err)
-		}
+		mysqlMinVersion := version.Must(version.NewVersion(s.mysqlMinVersion))
+		mysqlMaxVersion := version.Must(version.NewVersion(s.mysqlMaxVersion))
+		xtrabackupMinVersion := version.Must(version.NewVersion(s.xtrabackupMinVersion))
+		xtrabackupMaxVersion := version.Must(version.NewVersion(s.xtrabackupMaxVersion))
 
 		mysqlAndXtrabackupCompatibleVersions = append(mysqlAndXtrabackupCompatibleVersions, compatibility{
 			dbMinVersion:         mysqlMinVersion,
@@ -141,4 +146,89 @@ func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString st
 		}
 	}
 	return false, nil
+}
+
+func vendorToServiceType(vendor string) (models.ServiceType, error) {
+	serviceType := models.ServiceType(vendor)
+	switch serviceType {
+	case models.MySQLServiceType,
+		models.MongoDBServiceType:
+	case models.PostgreSQLServiceType,
+		models.ProxySQLServiceType,
+		models.HAProxyServiceType,
+		models.ExternalServiceType:
+		return "", status.Errorf(codes.Unimplemented, "unimplemented service type: %s", serviceType)
+	default:
+		return "", status.Errorf(codes.Internal, "unknown service type: %s", serviceType)
+	}
+
+	return serviceType, nil
+}
+
+func softwareVersionsToMap(svs models.SoftwareVersions) map[models.SoftwareName]string {
+	m := make(map[models.SoftwareName]string, len(svs))
+	for _, sv := range svs {
+		m[sv.Name] = sv.Version
+	}
+	return m
+}
+
+func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) error {
+	for _, name := range []models.SoftwareName{
+		models.MysqldSoftwareName,
+		models.XtrabackupSoftwareName,
+		models.XbcloudSoftwareName,
+		models.QpressSoftwareName,
+	} {
+		if svm[name] == "" {
+			if name == models.XtrabackupSoftwareName || name == models.XbcloudSoftwareName {
+				return errors.Wrapf(ErrXtrabackupNotInstalled, "software %q is not installed", name)
+			}
+
+			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
+		}
+	}
+
+	if svm[models.XtrabackupSoftwareName] != svm[models.XbcloudSoftwareName] {
+		return errors.Wrapf(ErrInvalidXtrabackup, "xtrabackup version %q != xbcloud version %q",
+			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
+	}
+
+	ok, err := mysqlAndXtrabackupCompatible(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.Wrapf(ErrIncompatibleXtrabackup, "xtrabackup version %q is not compatible with mysql version %q",
+			svm[models.XtrabackupSoftwareName], svm[models.MysqldSoftwareName])
+	}
+
+	return nil
+}
+
+func convertSoftwareName(s agents.Software) (models.SoftwareName, error) {
+	var softwareName models.SoftwareName
+	switch software := s.(type) {
+	case *agents.Mysqld:
+		softwareName = models.MysqldSoftwareName
+	case *agents.Xtrabackup:
+		softwareName = models.XtrabackupSoftwareName
+	case *agents.Xbcloud:
+		softwareName = models.XbcloudSoftwareName
+	case *agents.Qpress:
+		softwareName = models.QpressSoftwareName
+	default:
+		return "", errors.Errorf("invalid software type %T", software)
+	}
+
+	return softwareName, nil
+}
+
+// isOnlySameService checks if restore is only available to the same service.
+func isOnlySameService(artifactDBVersion string, serviceType models.ServiceType) bool {
+	// allow restore to the same service if db version is unknown or service type is MongoDB.
+	if artifactDBVersion == "" || serviceType == models.MongoDBServiceType {
+		return true
+	}
+	return false
 }

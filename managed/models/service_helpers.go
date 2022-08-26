@@ -123,7 +123,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	return services, nil
 }
 
-// FindServiceByID finds Service by ID.
+// FindServiceByID searches Service by ID.
 func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")

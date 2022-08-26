@@ -112,6 +112,10 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 		default:
 			return NewInvalidArgumentError("invalid software name %q", sv.Name)
 		}
+
+		if sv.Version == "" {
+			return NewInvalidArgumentError("empty version for software name %q", sv.Name)
+		}
 	}
 
 	return nil
@@ -169,8 +173,8 @@ type FindServicesSoftwareVersionsFilter struct {
 	ServiceType *ServiceType
 }
 
-// FindServicesSoftwareVersions returns all services software versions sorted by next_check_at in ascending order
-// if limit is not specified and limited number of entries otherwise.
+// FindServicesSoftwareVersions returns all services software versions sorted by specified param in ascending order
+// if limit is not specified, and limited number of entries otherwise.
 func FindServicesSoftwareVersions(
 	q *reform.Querier,
 	filter FindServicesSoftwareVersionsFilter,

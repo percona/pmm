@@ -70,6 +70,7 @@ func TestBackup(t *testing.T) {
 		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedVersioner := &mockVersioner{}
+	compatibilityService := NewCompatibilityService()
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
 
 	t.Cleanup(func() {

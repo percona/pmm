@@ -40,10 +40,11 @@ import (
 
 // BackupsService represents backups API.
 type BackupsService struct {
-	db              *reform.DB
-	backupService   backupService
-	scheduleService scheduleService
-	l               *logrus.Entry
+	db                   *reform.DB
+	backupService        backupService
+	compatibilityService compatibilityService
+	scheduleService      scheduleService
+	l                    *logrus.Entry
 
 	backupv1beta1.UnimplementedBackupsServer
 }
@@ -57,13 +58,15 @@ const (
 func NewBackupsService(
 	db *reform.DB,
 	backupService backupService,
+	cSvc compatibilityService,
 	scheduleService scheduleService,
 ) *BackupsService {
 	return &BackupsService{
-		l:               logrus.WithField("component", "management/backup/backups"),
-		db:              db,
-		backupService:   backupService,
-		scheduleService: scheduleService,
+		l:                    logrus.WithField("component", "management/backup/backups"),
+		db:                   db,
+		backupService:        backupService,
+		compatibilityService: cSvc,
+		scheduleService:      scheduleService,
 	}
 }
 
@@ -525,7 +528,7 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 	ctx context.Context,
 	req *backupv1beta1.ListArtifactCompatibleServicesRequest,
 ) (*backupv1beta1.ListArtifactCompatibleServicesResponse, error) {
-	compatibleServices, err := s.backupService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
+	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
 	if err != nil {
 		return nil, err
 	}

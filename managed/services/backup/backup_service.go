@@ -22,84 +22,29 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
-)
-
-var (
-	// ErrIncompatibleService is returned when the service is incompatible for making a backup or restore.
-	ErrIncompatibleService = errors.New("incompatible service")
-	// ErrXtrabackupNotInstalled is returned if some xtrabackup component is missing.
-	ErrXtrabackupNotInstalled = errors.New("xtrabackup is not installed")
-	// ErrInvalidXtrabackup is returned if xtrabackup components have different version.
-	ErrInvalidXtrabackup = errors.New("invalid installation of the xtrabackup")
-	// ErrIncompatibleXtrabackup is returned if xtrabackup is not compatible with the MySQL.
-	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
-	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
-	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
 )
 
 // Service represents core logic for db backup.
 type Service struct {
-	db             *reform.DB
-	jobsService    jobsService
-	agentsRegistry agentsRegistry
-	v              versioner
-
-	l *logrus.Entry
+	db               *reform.DB
+	jobsService      jobsService
+	agentsRegistry   agentsRegistry
+	compatibilitySvc compatibilityService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, v versioner) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, cSvc compatibilityService) *Service {
 	return &Service{
-		l:              logrus.WithField("component", "management/backup/backup"),
-		db:             db,
-		jobsService:    jobsService,
-		agentsRegistry: agentsRegistry,
-		v:              v,
+		db:               db,
+		jobsService:      jobsService,
+		agentsRegistry:   agentsRegistry,
+		compatibilitySvc: cSvc,
 	}
-}
-
-type pmmAgentResult struct {
-	id          string
-	serviceType models.ServiceType
-}
-
-func (s *Service) findPMMAgentForService(ctx context.Context, serviceID string) (*pmmAgentResult, error) {
-	var pmmAgentID string
-	var serviceType models.ServiceType
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		service, err := models.FindServiceByID(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
-
-		serviceType = service.ServiceType
-
-		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
-		if err != nil {
-			return err
-		}
-		if len(pmmAgents) == 0 {
-			return errors.Errorf("pmmAgent not found for service %q", serviceID)
-		}
-
-		pmmAgentID = pmmAgents[0].AgentID
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return &pmmAgentResult{
-		id:          pmmAgentID,
-		serviceType: serviceType,
-	}, nil
 }
 
 // PerformBackupParams are params for performing backup.
@@ -116,7 +61,7 @@ type PerformBackupParams struct {
 
 // PerformBackup starts on-demand backup.
 func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
-	dbVersion, err := s.checkSoftwareCompatibilityForService(ctx, params.ServiceID)
+	dbVersion, err := s.compatibilitySvc.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
 	}
@@ -275,7 +220,7 @@ type prepareRestoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error) {
-	dbVersion, err := s.checkSoftwareCompatibilityForService(ctx, serviceID)
+	dbVersion, err := s.compatibilitySvc.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
 		return "", err
 	}
@@ -404,44 +349,6 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		agent.Files(),
 		agent.TemplateDelimiters(service),
 		enabled)
-}
-
-// FindArtifactCompatibleServices finds compatible services which can be used to restoring an artifact to.
-func (s *Service) FindArtifactCompatibleServices(
-	ctx context.Context,
-	artifactID string,
-) ([]*models.Service, error) {
-	var compatibleServices []*models.Service
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		artifact, err := models.FindArtifactByID(tx.Querier, artifactID)
-		switch {
-		case err == nil:
-		case errors.Is(err, models.ErrNotFound):
-			return status.Errorf(codes.NotFound, "Artifact with ID %q not found.", artifactID)
-		default:
-			return err
-		}
-
-		serviceType, err := vendorToServiceType(artifact.Vendor)
-		if err != nil {
-			return err
-		}
-
-		compatibleServices, err = s.findArtifactCompatibleServices(
-			tx.Querier,
-			artifact.ServiceID,
-			serviceType,
-			artifact.DBVersion)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return compatibleServices, nil
 }
 
 func (s *Service) prepareRestoreJob(
@@ -589,176 +496,4 @@ func (s *Service) prepareBackupJob(
 	}
 
 	return res, dbConfig, nil
-}
-
-func vendorToServiceType(vendor string) (models.ServiceType, error) {
-	serviceType := models.ServiceType(vendor)
-	switch serviceType {
-	case models.MySQLServiceType,
-		models.MongoDBServiceType:
-	case models.PostgreSQLServiceType,
-		models.ProxySQLServiceType,
-		models.HAProxyServiceType,
-		models.ExternalServiceType:
-		return "", status.Errorf(codes.Unimplemented, "unimplemented service: %s", serviceType)
-	default:
-		return "", status.Errorf(codes.Internal, "unknown service: %s", serviceType)
-	}
-
-	return serviceType, nil
-}
-
-func (s *Service) findArtifactCompatibleServices(
-	q *reform.Querier,
-	serviceID string,
-	serviceType models.ServiceType,
-	artifactDBVersion string,
-) ([]*models.Service, error) {
-	// allow restore to the same service if db version is unknown or service type is MongoDB.
-	if artifactDBVersion == "" || serviceType == models.MongoDBServiceType {
-		service, err := models.FindServiceByID(q, serviceID)
-		if err != nil {
-			s.l.WithError(err).Warnf("restore is not possible to the same service id %q", serviceID)
-			return []*models.Service{}, nil
-		}
-
-		return []*models.Service{service}, nil
-	}
-
-	filter := models.FindServicesSoftwareVersionsFilter{ServiceType: &serviceType}
-	svs, err := models.FindServicesSoftwareVersions(q, filter, models.SoftwareVersionsOrderByServiceID)
-	if err != nil {
-		return nil, err
-	}
-
-	compatibleServiceIDs := make([]string, 0, len(svs))
-	for _, sv := range svs {
-		svm := softwareVersionsMap(sv.SoftwareVersions)
-		if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
-			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
-			continue
-		}
-
-		serviceDBVersion := svm[models.MysqldSoftwareName]
-		if artifactDBVersion != serviceDBVersion {
-			s.l.Debugf("skip incompatible service id %q: artifact version %q != db version %q\"", sv.ServiceID,
-				artifactDBVersion, serviceDBVersion)
-			continue
-		}
-
-		compatibleServiceIDs = append(compatibleServiceIDs, sv.ServiceID)
-	}
-
-	servicesMap, err := models.FindServicesByIDs(q, compatibleServiceIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	compatibleServices := make([]*models.Service, 0, len(compatibleServiceIDs))
-	for _, id := range compatibleServiceIDs {
-		compatibleServices = append(compatibleServices, servicesMap[id])
-	}
-
-	return compatibleServices, nil
-}
-
-func softwareVersionsMap(svs models.SoftwareVersions) map[models.SoftwareName]string {
-	m := make(map[models.SoftwareName]string, len(svs))
-	for _, sv := range svs {
-		m[sv.Name] = sv.Version
-	}
-	return m
-}
-
-func mySQLSoftwaresInstalledAndCompatible(svm map[models.SoftwareName]string) error {
-	for _, name := range []models.SoftwareName{
-		models.MysqldSoftwareName,
-		models.XtrabackupSoftwareName,
-		models.XbcloudSoftwareName,
-		models.QpressSoftwareName,
-	} {
-		if svm[name] == "" {
-			if name == models.XtrabackupSoftwareName || name == models.XbcloudSoftwareName {
-				return errors.Wrapf(ErrXtrabackupNotInstalled, "software %q is not installed", name)
-			}
-
-			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
-		}
-	}
-
-	if svm[models.XtrabackupSoftwareName] != svm[models.XbcloudSoftwareName] {
-		return errors.Wrapf(ErrInvalidXtrabackup, "xtrabackup version %q != xbcloud version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
-	}
-
-	ok, err := mysqlAndXtrabackupCompatible(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.Wrapf(ErrIncompatibleXtrabackup, "xtrabackup version %q is not compatible with mysql version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.MysqldSoftwareName])
-	}
-
-	return nil
-}
-
-// checkSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
-// and they are compatible with the db version.
-// Returns db version.
-func (s *Service) checkSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
-	pmmAgent, err := s.findPMMAgentForService(ctx, serviceID)
-	if err != nil {
-		return "", err
-	}
-
-	if pmmAgent.serviceType != models.MySQLServiceType {
-		return "", nil
-	}
-
-	softwares := []agents.Software{&agents.Mysqld{}, &agents.Xtrabackup{}, &agents.Xbcloud{}, &agents.Qpress{}}
-	svs, err := s.v.GetVersions(pmmAgent.id, softwares)
-	if err != nil {
-		return "", err
-	}
-	if len(svs) != len(softwares) {
-		return "", errors.Errorf("response slice len %d != request len %d", len(svs), len(softwares))
-	}
-
-	svm := make(map[models.SoftwareName]string, len(softwares))
-	for i, software := range softwares {
-		name, err := convertSoftwareName(software)
-		if err != nil {
-			return "", err
-		}
-		if svs[i].Error != "" {
-			return "", errors.Errorf("failed to get software %s version: %s", name, svs[i].Error)
-		}
-
-		svm[name] = svs[i].Version
-	}
-
-	if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
-		return "", err
-	}
-
-	return svm[models.MysqldSoftwareName], nil
-}
-
-func convertSoftwareName(s agents.Software) (models.SoftwareName, error) {
-	var softwareName models.SoftwareName
-	switch software := s.(type) {
-	case *agents.Mysqld:
-		softwareName = models.MysqldSoftwareName
-	case *agents.Xtrabackup:
-		softwareName = models.XtrabackupSoftwareName
-	case *agents.Xbcloud:
-		softwareName = models.XbcloudSoftwareName
-	case *agents.Qpress:
-		softwareName = models.QpressSoftwareName
-	default:
-		return "", errors.Errorf("invalid software type %T", software)
-	}
-
-	return softwareName, nil
 }
