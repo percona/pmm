@@ -99,7 +99,6 @@ jobs:
           flags: managed
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false
-          verbose: true
 
       - name: Cache
         if: matrix.use-cache
