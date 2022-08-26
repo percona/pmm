@@ -87,6 +87,10 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			s.applyCredentialsSource(req, result)
 		}
 
+		if req.Username == "" {
+			return status.Errorf(codes.InvalidArgument, "invalid field Username: value '' must not be an empty string")
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
