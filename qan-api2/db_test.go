@@ -69,7 +69,6 @@ func cleanup() {
 			log.Fatalf("Docker drop db: %v, %v", out, err)
 		}
 	}
-
 }
 
 func TestDropOldPartition(t *testing.T) {

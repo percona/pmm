@@ -29,9 +29,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -57,7 +57,7 @@ func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		err = ioutil.WriteFile(filename, []byte(json), 0644)
+		err = ioutil.WriteFile(filename, []byte(json), 0o644)
 		if err != nil {
 			t.Errorf("cannot write:%v", err)
 		}

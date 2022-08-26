@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 )
 

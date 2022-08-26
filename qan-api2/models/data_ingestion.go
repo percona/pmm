@@ -21,10 +21,11 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 const (

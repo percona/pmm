@@ -24,10 +24,10 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 )
 

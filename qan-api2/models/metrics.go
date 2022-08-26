@@ -28,9 +28,10 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 const (
@@ -55,7 +56,8 @@ func NewMetrics(db *sqlx.DB) Metrics {
 // If totals = true, the function will retuen only totals and it will skip filters
 // to differentiate it from empty filters.
 func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
-	dimensions, labels map[string][]string, totals bool) ([]M, error) {
+	dimensions, labels map[string][]string, totals bool,
+) ([]M, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -419,8 +421,8 @@ var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines")
 
 // SelectSparklines selects datapoint for sparklines.
 func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, periodStartToSec int64,
-	filter, group string, dimensions, labels map[string][]string) ([]*qanpb.Point, error) {
-
+	filter, group string, dimensions, labels map[string][]string,
+) ([]*qanpb.Point, error) {
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
 	periodStartFromSec = periodStartFromSec / 60 * 60
@@ -543,7 +545,8 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(func
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
-	group string, limit uint32, dimensions, labels map[string][]string) (*qanpb.QueryExampleReply, error) {
+	group string, limit uint32, dimensions, labels map[string][]string,
+) (*qanpb.QueryExampleReply, error) {
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
@@ -653,7 +656,8 @@ type queryRowsLabels struct {
 
 // SelectObjectDetailsLabels selects object details labels for given time range and object.
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
-	group string) (*qanpb.ObjectDetailsLabelsReply, error) {
+	group string,
+) (*qanpb.ObjectDetailsLabelsReply, error) {
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
@@ -847,7 +851,8 @@ ORDER BY period_start DESC;
 
 // SelectHistogram selects histogram for given queryid.
 func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, periodStartToSec int64,
-	dimensions, labels map[string][]string, queryID string) (*qanpb.HistogramReply, error) {
+	dimensions, labels map[string][]string, queryID string,
+) (*qanpb.HistogramReply, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,

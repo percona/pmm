@@ -19,9 +19,9 @@ package receiver
 import (
 	"context"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 	"github.com/percona/pmm/qan-api2/utils/logger"
 )
