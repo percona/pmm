@@ -435,7 +435,7 @@ func TestService_GetLabels(t *testing.T) {
 			mm: tt.fields.mm,
 		}
 		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
-		require.Equal(t, err, tt.wantErr)
+		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels"+tt.name+".json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
@@ -545,7 +545,7 @@ func TestService_GetLabels(t *testing.T) {
 			mm: tt.fields.mm,
 		}
 		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
-		require.Equal(t, err, tt.wantErr)
+		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels_"+tt.name+".json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
