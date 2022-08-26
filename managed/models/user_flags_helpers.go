@@ -35,13 +35,13 @@ type UpdateUserParams struct {
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
-	if params.UserID < 0 {
+	if params.UserID <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
 
 	// Check user ID is unique
 	row := &UserDetails{ID: params.UserID}
-	if err := q.Reload(row); errors.Is(err, reform.ErrNoRows) {
+	if err := q.Reload(row); !errors.Is(err, reform.ErrNoRows) {
 		if err == nil {
 			return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
 		}
@@ -59,7 +59,7 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 
 // UpdateUser updates an existing user with given parameters.
 func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, error) {
-	if params.UserID < 0 {
+	if params.UserID <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
 	if !params.Tour {
@@ -82,7 +82,7 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 
 // FindUser find user details using given user ID.
 func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
-	if userID < 0 {
+	if userID <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
 
