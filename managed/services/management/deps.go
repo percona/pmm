@@ -33,7 +33,7 @@ import (
 //go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=credentialsSourceAgentInvoker -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=credentialsSourceLoader -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
@@ -95,8 +95,8 @@ type versionCache interface {
 	RequestSoftwareVersionsUpdate()
 }
 
-// credentialsSourceAgentInvoker is a subset of methods of agents.ParseCredentialsSource.
+// credentialsSourceLoader is a subset of methods of agents.ParseCredentialsSource.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type credentialsSourceAgentInvoker interface {
-	InvokeAgent(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error)
+type credentialsSourceLoader interface {
+	GetCredentials(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error)
 }

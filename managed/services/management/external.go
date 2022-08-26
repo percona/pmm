@@ -36,19 +36,19 @@ type ExternalService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
-	csai  credentialsSourceAgentInvoker
+	csl   credentialsSourceLoader
 
 	managementpb.UnimplementedExternalServer
 }
 
 // NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *ExternalService {
+func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *ExternalService {
 	return &ExternalService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
-		csai:  csai,
+		csl:   csl,
 	}
 }
 
@@ -76,7 +76,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents:  %s.", err))
 			}
-			result, err := e.csai.InvokeAgent(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			result, err := e.csl.GetCredentials(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 			}

@@ -35,16 +35,16 @@ type PostgreSQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
-	csai  credentialsSourceAgentInvoker
+	csl   credentialsSourceLoader
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *PostgreSQLService {
+func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *PostgreSQLService {
 	return &PostgreSQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
-		csai:  csai,
+		csl:   csl,
 	}
 }
 
@@ -54,7 +54,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		if req.CredentialsSource != "" {
-			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.PostgreSQLServiceType)
+			result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.PostgreSQLServiceType)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 			}

@@ -35,19 +35,19 @@ type HAProxyService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
-	csai  credentialsSourceAgentInvoker
+	csl   credentialsSourceLoader
 
 	managementpb.UnimplementedHAProxyServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.
-func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *HAProxyService {
+func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *HAProxyService {
 	return &HAProxyService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
-		csai:  csai,
+		csl:   csl,
 	}
 }
 
@@ -68,7 +68,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents: %s.", err))
 			}
-			result, err := e.csai.InvokeAgent(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			result, err := e.csl.GetCredentials(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 			}

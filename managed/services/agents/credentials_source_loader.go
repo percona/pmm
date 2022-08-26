@@ -27,20 +27,29 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
-// CredentialsSourceAgentInvoker requests from agent to parse credentials-source passed in request.
-type CredentialsSourceAgentInvoker struct {
+// CredentialsSourceLoader requests from agent to parse credentials-source passed in request.
+type CredentialsSourceLoader struct {
 	r *Registry
 }
 
-// NewCredentialsSourceAgentInvoker creates new CredentialsSourceAgentInvoker request.
-func NewCredentialsSourceAgentInvoker(r *Registry) *CredentialsSourceAgentInvoker {
-	return &CredentialsSourceAgentInvoker{
+var serviceTypes = map[models.ServiceType]inventorypb.ServiceType{
+	models.MySQLServiceType:      inventorypb.ServiceType_MYSQL_SERVICE,
+	models.MongoDBServiceType:    inventorypb.ServiceType_MONGODB_SERVICE,
+	models.PostgreSQLServiceType: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+	models.ProxySQLServiceType:   inventorypb.ServiceType_PROXYSQL_SERVICE,
+	models.HAProxyServiceType:    inventorypb.ServiceType_HAPROXY_SERVICE,
+	models.ExternalServiceType:   inventorypb.ServiceType_EXTERNAL_SERVICE,
+}
+
+// NewCredentialsSourceLoader creates new CredentialsSourceLoader request.
+func NewCredentialsSourceLoader(r *Registry) *CredentialsSourceLoader {
+	return &CredentialsSourceLoader{
 		r: r,
 	}
 }
 
-// InvokeAgent sends request (with file path) to pmm-agent to parse credentials-source file.
-func (p *CredentialsSourceAgentInvoker) InvokeAgent(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error) {
+// GetCredentials sends request (with file path) to pmm-agent to parse credentials-source file.
+func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error) {
 	l := logger.Get(ctx)
 
 	pmmAgent, err := p.r.get(pmmAgentID)
@@ -85,38 +94,13 @@ func (p *CredentialsSourceAgentInvoker) InvokeAgent(ctx context.Context, pmmAgen
 }
 
 func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseCredentialsSourceRequest, error) {
-	switch serviceType {
-	case models.MySQLServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
-			FilePath:    configPath,
-		}, nil
-	case models.PostgreSQLServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			FilePath:    configPath,
-		}, nil
-	case models.HAProxyServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
-			FilePath:    configPath,
-		}, nil
-	case models.ExternalServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_EXTERNAL_SERVICE,
-			FilePath:    configPath,
-		}, nil
-	case models.MongoDBServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_MONGODB_SERVICE,
-			FilePath:    configPath,
-		}, nil
-	case models.ProxySQLServiceType:
-		return &agentpb.ParseCredentialsSourceRequest{
-			ServiceType: inventorypb.ServiceType_PROXYSQL_SERVICE,
-			FilePath:    configPath,
-		}, nil
+	inventorypbServiceType, serviceTypeExist := serviceTypes[serviceType]
+	if !serviceTypeExist {
+		return nil, errors.Errorf("unhandled service type %s", serviceType)
 	}
 
-	return nil, errors.Errorf("unhandled service type %s", serviceType)
+	return &agentpb.ParseCredentialsSourceRequest{
+		ServiceType: inventorypbServiceType,
+		FilePath:    configPath,
+	}, nil
 }

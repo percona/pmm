@@ -36,16 +36,16 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
-	csai  credentialsSourceAgentInvoker
+	csl   credentialsSourceLoader
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csai credentialsSourceAgentInvoker) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
-		csai:  csai,
+		csl:   csl,
 	}
 }
 
@@ -54,7 +54,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	res := &managementpb.AddMongoDBResponse{}
 
 	if req.CredentialsSource != "" {
-		result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
+		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 		}

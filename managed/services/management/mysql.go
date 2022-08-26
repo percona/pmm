@@ -41,17 +41,17 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
-	csai  credentialsSourceAgentInvoker
+	csl   credentialsSourceLoader
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, csai credentialsSourceAgentInvoker) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, csl credentialsSourceLoader) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
 		vc:    vc,
-		csai:  csai,
+		csl:   csl,
 	}
 }
 
@@ -79,7 +79,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		}
 
 		if req.CredentialsSource != "" {
-			result, err := s.csai.InvokeAgent(ctx, req.PmmAgentId, req.CredentialsSource, models.MySQLServiceType)
+			result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.MySQLServiceType)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 			}
