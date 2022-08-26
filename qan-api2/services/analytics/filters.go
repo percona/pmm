@@ -48,7 +48,7 @@ func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.Fil
 		labels[label.Key] = label.Value
 	}
 
-	mainMetricName := "m_query_time_sum"
+	var mainMetricName string
 	switch in.MainMetricName {
 	case "":
 		mainMetricName = "m_query_time_sum"

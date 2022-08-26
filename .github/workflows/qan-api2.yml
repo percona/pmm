@@ -61,16 +61,14 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
-      - name: Prepare
-        run: |
-          make init gen format
-          git status
-          git diff --exit-code
+      - name: Build and install
+        run: make install
+
+      - name: Initialize CI environment
+        run: make test-env-up
 
       - name: Run Tests
         run: |
-          make install
-          make test-env-up
           make test-race
           make test-cover
 
