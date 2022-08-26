@@ -299,24 +299,6 @@ func configurePaths(cfg *Config, l *logrus.Entry) {
 	applyBasePath(cfg, l)
 }
 
-func applyBasePath(cfg *Config, l *logrus.Entry) {
-	for _, sp := range []*string{
-		&cfg.Paths.NodeExporter,
-		&cfg.Paths.MySQLdExporter,
-		&cfg.Paths.MongoDBExporter,
-		&cfg.Paths.PostgresExporter,
-		&cfg.Paths.ProxySQLExporter,
-		&cfg.Paths.RDSExporter,
-		&cfg.Paths.AzureExporter,
-		&cfg.Paths.VMAgent,
-	} {
-		if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
-			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
-		}
-		l.Infof("Using %s", *sp)
-	}
-}
-
 func configureDefaultPaths(cfg *Config) {
 	for sp, v := range map[*string]string{
 		&cfg.Paths.NodeExporter:     "node_exporter",
@@ -336,6 +318,24 @@ func configureDefaultPaths(cfg *Config) {
 		if *sp == "" {
 			*sp = v
 		}
+	}
+}
+
+func applyBasePath(cfg *Config, l *logrus.Entry) {
+	for _, sp := range []*string{
+		&cfg.Paths.NodeExporter,
+		&cfg.Paths.MySQLdExporter,
+		&cfg.Paths.MongoDBExporter,
+		&cfg.Paths.PostgresExporter,
+		&cfg.Paths.ProxySQLExporter,
+		&cfg.Paths.RDSExporter,
+		&cfg.Paths.AzureExporter,
+		&cfg.Paths.VMAgent,
+	} {
+		if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
+		}
+		l.Infof("Using %s", *sp)
 	}
 }
 
