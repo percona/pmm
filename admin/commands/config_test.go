@@ -20,10 +20,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/admin/cli/flags"
 )
 
 func TestConfigCommandArgs(t *testing.T) {
-	cmd := &configCommand{
+	cmd := &ConfigCommand{
 		NodeAddress: "1.2.3.4",
 		NodeType:    "generic",
 		NodeName:    "node1",
@@ -32,10 +34,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	t.Run("SwitchToTLS1", func(t *testing.T) {
 		u, err := url.Parse("http://127.0.0.1:80")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-insecure-tls",
@@ -46,17 +45,14 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("SwitchToTLS2", func(t *testing.T) {
-		cmd := &configCommand{
+		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
@@ -68,18 +64,15 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.True(t, switchedToTLS)
 	})
 	t.Run("DisableCollectors", func(t *testing.T) {
-		cmd := &configCommand{
+		cmd := &ConfigCommand{
 			NodeAddress:       "1.2.3.4",
 			NodeType:          "generic",
 			NodeName:          "node1",
-			DisableCollectors: "cpu,diskstats",
+			DisableCollectors: []string{"cpu", "diskstats"},
 		}
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
@@ -94,7 +87,7 @@ func TestConfigCommandArgs(t *testing.T) {
 	})
 
 	t.Run("LoggingLevel", func(t *testing.T) {
-		cmd := &configCommand{
+		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",
 			NodeType:    "generic",
 			NodeName:    "node1",
@@ -103,12 +96,11 @@ func TestConfigCommandArgs(t *testing.T) {
 
 		u, err := url.Parse("http://admin:admin@127.0.0.1")
 		require.NoError(t, err)
-		GlobalFlags = globalFlagsValues{
-			ServerURL: u,
-			Debug:     true,
-			Trace:     true,
-		}
-		args, switchedToTLS := cmd.args()
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{
+			ServerURL:   u,
+			EnableDebug: true,
+			EnableTrace: true,
+		})
 		expected := []string{
 			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
