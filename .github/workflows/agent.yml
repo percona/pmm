@@ -23,8 +23,8 @@ on:
         default: '["tip"]'
 
 jobs:
-  test-agent:
-    name: Test pmm-agent
+  test:
+    name: Tests
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -58,9 +58,6 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      GOPATH: ${{ github.workspace }}
-      GOBIN: ${{ github.workspace }}/bin
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -69,14 +66,11 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIR }}/agent
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
-      - name: Check out code into the working directory under the GOPATH
+      - name: Check out code
         uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
@@ -102,7 +96,9 @@ jobs:
             ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
 
       - name: Download Go modules
-        run: go mod download
+        run: |
+          pushd ../tools && go mod download
+          popd           && go mod download
 
       - name: Build and install
         run: make install
@@ -116,9 +112,9 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
+        uses: codecov/codecov-action@v3
         with:
-          file: ./src/github.com/percona/pmm/agent/cover.out
+          file: cover.out
           flags: agent
           env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false

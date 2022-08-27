@@ -32,31 +32,29 @@ Custom labels  : {{ .Service.CustomLabels }}
 Group          : {{ .Service.Group }}
 `)
 
-type addExternalServiceResult struct {
+type addServiceExternalResult struct {
 	Service *services.AddExternalServiceOKBodyExternal `json:"external"`
 }
 
-func (res *addExternalServiceResult) Result() {}
+func (res *addServiceExternalResult) Result() {}
 
-func (res *addExternalServiceResult) String() string {
+func (res *addServiceExternalResult) String() string {
 	return commands.RenderTemplate(addExternalServiceResultT, res)
 }
 
-type addExternalServiceCommand struct {
-	ServiceName    string
-	NodeID         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-	Group          string
+// AddServiceExternalCommand is used by Kong for CLI flags and commands.
+type AddServiceExternalCommand struct {
+	ServiceName    string            `name:"name" required:"" help:"External service name. Required"`
+	NodeID         string            `required:"" help:"External service node ID. Required"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
+	Group          string            `help:"Group name of external service"`
 }
 
-func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &services.AddExternalServiceParams{
 		Body: services.AddExternalServiceBody{
@@ -75,23 +73,7 @@ func (cmd *addExternalServiceCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &addExternalServiceResult{
+	return &addServiceExternalResult{
 		Service: resp.Payload.External,
 	}, nil
-}
-
-// register command
-var (
-	AddExternalService  addExternalServiceCommand
-	AddExternalServiceC = addServiceC.Command("external", "Add an external service to inventory").Hide(hide)
-)
-
-func init() {
-	AddExternalServiceC.Flag("name", "External service name. Required").Required().StringVar(&AddExternalService.ServiceName)
-	AddExternalServiceC.Flag("node-id", "External service node ID. Required").Required().StringVar(&AddExternalService.NodeID)
-	AddExternalServiceC.Flag("environment", "Environment name").StringVar(&AddExternalService.Environment)
-	AddExternalServiceC.Flag("cluster", "Cluster name").StringVar(&AddExternalService.Cluster)
-	AddExternalServiceC.Flag("replication-set", "Replication set name").StringVar(&AddExternalService.ReplicationSet)
-	AddExternalServiceC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddExternalService.CustomLabels)
-	AddExternalServiceC.Flag("group", "Group name of external service").StringVar(&AddExternalService.Group)
 }

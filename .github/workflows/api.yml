@@ -34,19 +34,10 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      GOPATH: ${{ github.workspace }}
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      - name: Check out code into the working directory under the GOPATH
+      - name: Check out code
         uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Set up Go release
         if: env.GO_VERSION != 'tip'
@@ -70,6 +61,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+
+      - name: Download Go modules
+        run: |
+          pushd tools && go mod download
+          popd        && go mod download
 
       - name: Install development tools
         run: make init

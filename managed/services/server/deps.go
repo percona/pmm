@@ -107,6 +107,7 @@ type supervisordService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type telemetryService interface {
 	DistributionMethod() serverpb.DistributionMethod
+	GetSummaries() []string
 }
 
 // agentsStateUpdater is subset of methods of agents.StateUpdater used by this package.

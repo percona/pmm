@@ -25,7 +25,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/json/client"
@@ -117,11 +116,12 @@ func convertTabs(template string) (string, error) {
 	return buf.String(), nil
 }
 
-type listCommand struct {
-	NodeID string
+// ListCommand is used by Kong for CLI flags and commands.
+type ListCommand struct {
+	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *listCommand) Run() (Result, error) {
+func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -394,14 +394,4 @@ func (cmd *listCommand) Run() (Result, error) {
 		Services: servicesList,
 		Agents:   agentsList,
 	}, nil
-}
-
-// register command
-var (
-	List  listCommand
-	ListC = kingpin.Command("list", "Show Services and Agents running on this Node")
-)
-
-func init() {
-	ListC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&List.NodeID)
 }

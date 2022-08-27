@@ -39,8 +39,8 @@ const (
 	pxcDefaultCPUM          = 1000
 	pxcDefaultMemoryBytes   = 2000000000
 	pxcDefaultDiskSize      = 25000000000
-	proxyDefaultCpuM        = 1000
-	proxyDefaultMemoryBytes = 2000000000
+	proxyDefaultCPUM        = 500
+	proxyDefaultMemoryBytes = 500000000
 )
 
 var errInvalidClusterName = errors.New("invalid cluster name. It must start with a letter and have only letters, numbers and -")
@@ -259,7 +259,7 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 	if req.Params.Proxysql == nil && req.Params.Haproxy == nil {
 		req.Params.Haproxy = &dbaasv1beta1.PXCClusterParams_HAProxy{
 			ComputeResources: &dbaasv1beta1.ComputeResources{
-				CpuM:        proxyDefaultCpuM,
+				CpuM:        proxyDefaultCPUM,
 				MemoryBytes: proxyDefaultMemoryBytes,
 			},
 		}
@@ -268,12 +268,12 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 	if req.Params.Haproxy != nil {
 		if req.Params.Haproxy.ComputeResources == nil {
 			req.Params.Haproxy.ComputeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        proxyDefaultCpuM,
+				CpuM:        proxyDefaultCPUM,
 				MemoryBytes: proxyDefaultMemoryBytes,
 			}
 		}
 		if req.Params.Haproxy.ComputeResources.CpuM == 0 {
-			req.Params.Haproxy.ComputeResources.CpuM = proxyDefaultCpuM
+			req.Params.Haproxy.ComputeResources.CpuM = proxyDefaultCPUM
 		}
 		if req.Params.Haproxy.ComputeResources.MemoryBytes == 0 {
 			req.Params.Haproxy.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes
@@ -283,12 +283,12 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 	if req.Params.Proxysql != nil {
 		if req.Params.Proxysql.ComputeResources == nil {
 			req.Params.Proxysql.ComputeResources = &dbaasv1beta1.ComputeResources{
-				CpuM:        proxyDefaultCpuM,
+				CpuM:        proxyDefaultCPUM,
 				MemoryBytes: proxyDefaultMemoryBytes,
 			}
 		}
 		if req.Params.Proxysql.ComputeResources.CpuM == 0 {
-			req.Params.Proxysql.ComputeResources.CpuM = proxyDefaultCpuM
+			req.Params.Proxysql.ComputeResources.CpuM = proxyDefaultCPUM
 		}
 		if req.Params.Proxysql.ComputeResources.MemoryBytes == 0 {
 			req.Params.Proxysql.ComputeResources.MemoryBytes = proxyDefaultMemoryBytes

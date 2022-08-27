@@ -117,7 +117,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		}
 	}
 
-	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion)
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 
 	sort.Strings(args)
 
