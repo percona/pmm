@@ -133,14 +133,15 @@ func (s *DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.G
 			statusErr, ok := status.FromError(err)
 			if ok {
 				s.l.Errorf("couldn't get a PXC cluster: %q", err)
+				if statusErr.Code() == codes.NotFound {
+					go func() {
+						_ = s.dbClustersSynchronizer.RemoveDBCluster(dbCluster)
+					}()
+				}
 				return nil, status.Errorf(statusErr.Code(), "couldn't get a PXC cluster: %q", statusErr.Message())
 			}
 			return nil, err
 		}
-
-		go func() {
-			_, _ = models.RemoveDBCluster(s.db.Querier, dbCluster.ID)
-		}()
 
 		return s.convertPXCCluster(pxcCluster.Cluster)
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB:
@@ -149,7 +150,12 @@ func (s *DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.G
 			statusErr, ok := status.FromError(err)
 			if ok {
 				s.l.Errorf("couldn't get a PSMDB cluster: %q", err)
-				return nil, status.Errorf(codes.Internal, "couldn't get a PSMDB cluster: %q", statusErr.Message())
+				if statusErr.Code() == codes.NotFound {
+					go func() {
+						_ = s.dbClustersSynchronizer.RemoveDBCluster(dbCluster)
+					}()
+				}
+				return nil, status.Errorf(statusErr.Code(), "couldn't get a PSMDB cluster: %q", statusErr.Message())
 			}
 			return nil, err
 		}
@@ -337,7 +343,7 @@ func (s *DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta
 	}
 
 	go func() {
-		s.dbClustersSynchronizer.WaitForDBClusterDeletion(cluster)
+		s.dbClustersSynchronizer.WatchDBClusterDeletion(cluster)
 	}()
 
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil

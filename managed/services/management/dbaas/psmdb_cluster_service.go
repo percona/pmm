@@ -134,7 +134,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	}
 
 	var backupImage string
-	backupComponent, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Backup)
+	backupComponent, err := defaultComponent(psmdbComponents.Versions[0].Matrix.Backup)
 	if err != nil {
 		s.l.Warnf("Cannot get the backup component: %s", err)
 	} else {

@@ -15,7 +15,7 @@ type DBClusterFilters struct {
 }
 
 func FindDBClustersForKubernetesCluster(q *reform.Querier, kubernetesClusterID string) ([]*DBCluster, error) {
-	structs, err := q.SelectAllFrom(DBClusterTable, "WHERE kubernetes_cluster_id = %s ORDER BY created_at DESC", kubernetesClusterID)
+	structs, err := q.SelectAllFrom(DBClusterTable, "WHERE kubernetes_cluster_id = $1 ORDER BY created_at DESC", kubernetesClusterID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func RemoveDBCluster(q *reform.Querier, id string) (*DBCluster, error) {
 
 	err = q.Delete(c)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to delete Kubernetes Cluster")
+		return nil, errors.Wrap(err, "failed to delete DB Cluster")
 	}
 	return c, nil
 }

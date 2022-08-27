@@ -38,21 +38,23 @@ type deletingDBCluster struct {
 
 // DBClustersSynchronizer synchronizes DB Clusters between real kubernetes cluster and our DB.
 type DBClustersSynchronizer struct {
-	db               *reform.DB
-	l                *logrus.Entry
-	controllerClient dbaasClient
-	rw               sync.RWMutex
-	deletingClusters map[deletingDBCluster]struct{}
+	db                        *reform.DB
+	l                         *logrus.Entry
+	controllerClient          dbaasClient
+	rw                        sync.RWMutex
+	deletingClusters          map[deletingDBCluster]struct{}
+	forceSyncDeletingClusters chan deletingDBCluster
 }
 
 // NewDBClustersSynchronizer creates new DB Clusters synchronizer.
 func NewDBClustersSynchronizer(db *reform.DB, controllerClient dbaasClient) *DBClustersSynchronizer {
 	l := logrus.WithField("component", "dbaas_db_cluster_synchronizer")
 	service := &DBClustersSynchronizer{
-		db:               db,
-		l:                l,
-		controllerClient: controllerClient,
-		deletingClusters: make(map[deletingDBCluster]struct{}),
+		db:                        db,
+		l:                         l,
+		controllerClient:          controllerClient,
+		deletingClusters:          make(map[deletingDBCluster]struct{}),
+		forceSyncDeletingClusters: make(chan deletingDBCluster, 10),
 	}
 	return service
 }
@@ -81,6 +83,8 @@ func (s *DBClustersSynchronizer) Run(ctx context.Context) {
 			s.syncAllDBClusters(ctx)
 		case <-deleteTicker.C:
 			s.syncDeletingDBClusters(ctx)
+		case c := <-s.forceSyncDeletingClusters:
+			s.syncDeletingDBCluster(ctx, c)
 		case <-ctx.Done():
 			return
 		}
@@ -158,7 +162,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			return errors.Wrapf(err, "couldn't store PXC cluster to DB")
 		}
 		if c.State == dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING {
-			s.WaitForDBClusterDeletion(cluster)
+			s.WatchDBClusterDeletion(cluster)
 		}
 	}
 
@@ -193,7 +197,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 		}
 		if !found {
 			s.l.Infof("Removing db cluster %s", cluster.Name)
-			_, err := models.RemoveDBCluster(s.db.Querier, cluster.ID)
+			err := s.RemoveDBCluster(cluster)
 			if err != nil {
 				return errors.Wrapf(err, "couldn't remove DB cluster from DB")
 			}
@@ -202,7 +206,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 	return nil
 }
 
-func (s *DBClustersSynchronizer) WaitForDBClusterDeletion(cluster *models.DBCluster) {
+func (s *DBClustersSynchronizer) WatchDBClusterDeletion(cluster *models.DBCluster) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 	c := deletingDBCluster{
@@ -211,50 +215,36 @@ func (s *DBClustersSynchronizer) WaitForDBClusterDeletion(cluster *models.DBClus
 		clusterType:         cluster.ClusterType,
 	}
 	s.deletingClusters[c] = struct{}{}
+	s.forceSyncDeletingClusters <- c
 }
 
 func (s *DBClustersSynchronizer) syncDeletingDBClusters(ctx context.Context) {
-	s.rw.Lock()
-	defer s.rw.Unlock()
+	s.rw.RLock()
+	cp := make(map[deletingDBCluster]struct{}, len(s.deletingClusters))
+	for c := range s.deletingClusters {
+		cp[c] = struct{}{}
+	}
+	s.rw.RUnlock()
+
 	var wg sync.WaitGroup
-	ch := make(chan deletingDBCluster, len(s.deletingClusters))
-	for cluster := range s.deletingClusters {
+	for cluster := range cp {
 		c := cluster
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			if exist, err := s.checkDBClusterExists(c, ctx); err != nil {
-				s.l.Warn(err)
-				// Remove non-existing clusters.
-				if errors.Is(err, reform.ErrNoRows) {
-					ch <- c
-				}
-			} else if !exist {
-				ch <- c
-			}
+			s.syncDeletingDBCluster(ctx, c)
 		}()
 	}
 	wg.Wait()
-	close(ch)
-	for c := range ch {
-		delete(s.deletingClusters, c)
-	}
 }
 
-func (s *DBClustersSynchronizer) checkDBClusterExists(c deletingDBCluster, ctx context.Context) (bool, error) {
-	k, err := models.FindKubernetesClusterByID(s.db.Querier, c.kubernetesClusterID)
-	if err != nil {
-		return false, errors.Wrap(err, "can't get kubernetes cluster")
-	}
-	dbCluster, err := models.FindDBCluster(s.db.Querier, c.kubernetesClusterID, c.dbClusterName, c.clusterType)
-	if err != nil {
-		return false, errors.Wrap(err, "can't get DB cluster")
-	}
+func (s *DBClustersSynchronizer) checkDBClusterExists(ctx context.Context, kubeconfig string, dbCluster *models.DBCluster) (bool, error) {
+	var err error
 	switch dbCluster.ClusterType {
 	case models.PXCType:
-		_, err = s.controllerClient.GetPXCCluster(ctx, k.KubeConfig, dbCluster.Name)
+		_, err = s.controllerClient.GetPXCCluster(ctx, kubeconfig, dbCluster.Name)
 	case models.PSMDBType:
-		_, err = s.controllerClient.GetPSMDBCluster(ctx, k.KubeConfig, dbCluster.Name)
+		_, err = s.controllerClient.GetPSMDBCluster(ctx, kubeconfig, dbCluster.Name)
 	}
 	if err != nil {
 		if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -263,4 +253,54 @@ func (s *DBClustersSynchronizer) checkDBClusterExists(c deletingDBCluster, ctx c
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *DBClustersSynchronizer) syncDeletingDBCluster(ctx context.Context, c deletingDBCluster) {
+	k, err := models.FindKubernetesClusterByID(s.db.Querier, c.kubernetesClusterID)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			s.removeFromDeletingClusters(c)
+		}
+		s.l.Warn(errors.Wrap(err, "can't get kubernetes cluster"))
+		return
+	}
+	dbCluster, err := models.FindDBCluster(s.db.Querier, c.kubernetesClusterID, c.dbClusterName, c.clusterType)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			s.removeFromDeletingClusters(c)
+		}
+		s.l.Warn(errors.Wrap(err, "can't get DB cluster"))
+		return
+	}
+	exist, err := s.checkDBClusterExists(ctx, k.KubeConfig, dbCluster)
+	if err != nil {
+		s.l.Warn(err)
+		return
+	}
+	// Remove non-existing clusters.
+	if !exist {
+		err = s.RemoveDBCluster(dbCluster)
+		if err != nil {
+			s.l.Warnln(err)
+		}
+	}
+}
+
+func (s *DBClustersSynchronizer) RemoveDBCluster(cluster *models.DBCluster) error {
+	s.removeFromDeletingClusters(deletingDBCluster{
+		kubernetesClusterID: cluster.KubernetesClusterID,
+		dbClusterName:       cluster.Name,
+		clusterType:         cluster.ClusterType,
+	})
+	_, err := models.RemoveDBCluster(s.db.Querier, cluster.ID)
+	if err != nil {
+		return errors.Wrap(err, "can't remove DB cluster")
+	}
+	return nil
+}
+
+func (s *DBClustersSynchronizer) removeFromDeletingClusters(c deletingDBCluster) {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	delete(s.deletingClusters, c)
 }

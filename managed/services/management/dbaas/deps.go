@@ -119,6 +119,6 @@ type componentsService interface {
 }
 
 type dbClusterSynchronizer interface {
-	WaitForDBClusterDeletion(cluster *models.DBCluster)
+	WatchDBClusterDeletion(cluster *models.DBCluster)
 	SyncDBClusters(ctx context.Context, kubernetesCluster *models.KubernetesCluster) error
 }
