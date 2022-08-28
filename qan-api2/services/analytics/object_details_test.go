@@ -155,7 +155,7 @@ func TestService_GetQueryExample(t *testing.T) {
 				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.want == nil {
-				assert.Nil(t, got, "Service.GetQueryExample() return not nil")
+				assert.Nil(t, got, "Service.GetQueryExample() returned not nil")
 				return
 			}
 

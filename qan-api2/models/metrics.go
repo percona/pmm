@@ -550,8 +550,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
-		"period_start_to":   periodStartTo,
 		"period_start_from": periodStartFrom,
+		"period_start_to":   periodStartTo,
 		"limit":             limit,
 	}
 

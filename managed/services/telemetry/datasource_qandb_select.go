@@ -20,7 +20,7 @@ import (
 	"context"
 	"database/sql"
 
-	_ "github.com/ClickHouse/clickhouse-go/v2" //nolint:golint
+	_ "github.com/ClickHouse/clickhouse-go" //nolint:golint
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
