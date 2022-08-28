@@ -113,7 +113,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
+        uses: codecov/codecov-action@v3
         with:
           file: cover.out
           flags: agent
