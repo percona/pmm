@@ -69,6 +69,12 @@ jobs:
       - name: Check build
         run: make release
 
+      - name: Check files are formatted
+        run: |
+          make format
+          git status
+          git diff --exit-code
+
       - name: Run check-license
         run: |
           # run license checker on configured files
