@@ -686,10 +686,35 @@ type StatusOKBodyServerInfo struct {
 
 	// Clock drift from PMM Server (if agent is connected).
 	ClockDrift string `json:"clock_drift,omitempty"`
+
+	// Last ping time from pmm-agent to pmm-managed (if agent is connected).
+	// Format: date-time
+	LastPingTime strfmt.DateTime `json:"last_ping_time,omitempty"`
 }
 
 // Validate validates this status OK body server info
 func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLastPingTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StatusOKBodyServerInfo) validateLastPingTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.LastPingTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("statusOk"+"."+"server_info"+"."+"last_ping_time", "body", "date-time", o.LastPingTime.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

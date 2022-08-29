@@ -205,6 +205,12 @@
                       "type": "boolean",
                       "x-order": 1
                     },
+                    "last_ping_time": {
+                      "description": "Last ping time from pmm-agent to pmm-managed (if agent is connected).",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 6
+                    },
                     "latency": {
                       "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",
                       "type": "string",
@@ -397,6 +403,12 @@
                       "description": "PMM Server's TLS certificate validation should be skipped if true.",
                       "type": "boolean",
                       "x-order": 1
+                    },
+                    "last_ping_time": {
+                      "description": "Last ping time from pmm-agent to pmm-managed (if agent is connected).",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 6
                     },
                     "latency": {
                       "description": "Ping time from pmm-agent to pmm-managed (if agent is connected).",

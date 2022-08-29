@@ -11,6 +11,7 @@ import (
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/durationpb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 
 	_ "github.com/percona/pmm/api/inventorypb"
 )
@@ -32,6 +33,11 @@ func (this *ServerInfo) Validate() error {
 	if this.ClockDrift != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
+		}
+	}
+	if this.LastPingTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastPingTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastPingTime", err)
 		}
 	}
 	return nil

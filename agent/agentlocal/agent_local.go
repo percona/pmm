@@ -46,6 +46,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
@@ -151,6 +152,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 			} else {
 				serverInfo.Latency = durationpb.New(latency)
 				serverInfo.ClockDrift = durationpb.New(clockDrift)
+				serverInfo.LastPingTime = timestamppb.New(time.Now())
 			}
 		}
 	}
