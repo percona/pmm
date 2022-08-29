@@ -32,7 +32,7 @@ const haProxyMinPMMServerVersion = "2.15.0"
 
 // ServerVersionLessThan return if provided version is lower than server version.
 func ServerVersionLessThan(currentVersion string) (bool, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 	if err != nil {
 		return false, err
 	}
@@ -84,7 +84,7 @@ func GetNodeName(node *nodes.GetNodeOKBody) (string, error) {
 
 // IsOnPmmServer returns true if pmm-admin is running on pmm-server.
 func IsOnPmmServer() (bool, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 	if err != nil {
 		return false, errors.Wrap(err, "can't get local pmm-agent status")
 	}

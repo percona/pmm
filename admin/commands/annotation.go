@@ -71,7 +71,7 @@ func (cmd *AnnotationCommand) nodeName() (string, error) {
 }
 
 func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (cmd *AnnotationCommand) serviceNames() ([]string, error) {
 }
 
 func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
-	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 	if err != nil {
 		return nil, err
 	}

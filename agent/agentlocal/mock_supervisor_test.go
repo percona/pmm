@@ -13,13 +13,13 @@ type mockSupervisor struct {
 	mock.Mock
 }
 
-// AgentsList provides a mock function with given fields:
-func (_m *mockSupervisor) AgentsList() []*agentlocalpb.AgentInfo {
-	ret := _m.Called()
+// AgentsList provides a mock function with given fields: withLogs
+func (_m *mockSupervisor) AgentsList(withLogs bool) []*agentlocalpb.AgentInfo {
+	ret := _m.Called(withLogs)
 
 	var r0 []*agentlocalpb.AgentInfo
-	if rf, ok := ret.Get(0).(func() []*agentlocalpb.AgentInfo); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(bool) []*agentlocalpb.AgentInfo); ok {
+		r0 = rf(withLogs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*agentlocalpb.AgentInfo)

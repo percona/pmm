@@ -108,7 +108,7 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 	var err error
 
 	for {
-		status, err = agentlocal.GetStatus(agentlocal.RequestNetworkInfo)
+		status, err = agentlocal.GetStatus(agentlocal.RequestNetworkInfo, agentlocal.RequestAgentLogs)
 		if err == nil {
 			break
 		}

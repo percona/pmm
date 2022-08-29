@@ -126,7 +126,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 		if err != nil {
 			return nil, err
 		}

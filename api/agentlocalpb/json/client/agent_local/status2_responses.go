@@ -445,6 +445,9 @@ type Status2OKBodyAgentsInfoItems0 struct {
 
 	// process exec path
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// logs
+	Logs []string `json:"logs"`
 }
 
 // Validate validates this status2 OK body agents info items0

@@ -50,7 +50,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 		//
 		// Get services and remove it automatically once it's only one
 		// service registered
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 		if err != nil {
 			return nil, err
 		}

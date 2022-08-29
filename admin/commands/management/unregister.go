@@ -56,7 +56,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 			return nil, err
 		}
 	} else {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 		if err != nil {
 			return nil, err
 		}

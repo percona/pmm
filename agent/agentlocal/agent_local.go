@@ -157,7 +157,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		}
 	}
 
-	agentsInfo := s.supervisor.AgentsList()
+	agentsInfo := s.supervisor.AgentsList(req.GetAgentsInfoLogs)
 
 	return &agentlocalpb.StatusResponse{
 		AgentId:          s.cfg.ID,

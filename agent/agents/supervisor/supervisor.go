@@ -118,7 +118,7 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
-func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
+func (s *Supervisor) AgentsList(withLogs bool) []*agentlocalpb.AgentInfo {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	s.arw.RLock()
@@ -127,21 +127,39 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 	res := make([]*agentlocalpb.AgentInfo, 0, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
+		var logs []string
+		if withLogs {
+			logs, _ = agent.logStore.GetLogs()
+			for i, log := range logs {
+				logs[i] = strings.TrimSuffix(log, "\n")
+			}
+		}
+
 		info := &agentlocalpb.AgentInfo{
 			AgentId:         id,
 			AgentType:       agent.requestedState.Type,
 			Status:          s.lastStatuses[id],
 			ListenPort:      uint32(agent.listenPort),
 			ProcessExecPath: agent.processExecPath,
+			Logs:            logs,
 		}
 		res = append(res, info)
 	}
 
 	for id, agent := range s.builtinAgents {
+		var logs []string
+		if withLogs {
+			logs, _ = agent.logStore.GetLogs()
+			for i, log := range logs {
+				logs[i] = strings.TrimSuffix(log, "\n")
+			}
+		}
+
 		info := &agentlocalpb.AgentInfo{
 			AgentId:   id,
 			AgentType: agent.requestedState.Type,
 			Status:    s.lastStatuses[id],
+			Logs:      logs,
 		}
 		res = append(res, info)
 	}

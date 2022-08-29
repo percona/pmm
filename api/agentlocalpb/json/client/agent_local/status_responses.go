@@ -122,8 +122,11 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 swagger:model StatusBody
 */
 type StatusBody struct {
-	// Returns network info (latency and clock_drift) if true.
+	// Returns network info (latency and clock_drift and last_ping_time) if true.
 	GetNetworkInfo bool `json:"get_network_info,omitempty"`
+
+	// Returns logs for each agent if true;
+	GetAgentsInfoLogs bool `json:"get_agents_info_logs,omitempty"`
 }
 
 // Validate validates this status body
@@ -481,6 +484,9 @@ type StatusOKBodyAgentsInfoItems0 struct {
 
 	// process exec path
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// logs
+	Logs []string `json:"logs"`
 }
 
 // Validate validates this status OK body agents info items0

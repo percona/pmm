@@ -110,7 +110,7 @@ func addClientCommand(zipW *zip.Writer, name string, cmd Command) {
 
 // addClientData adds all PMM Client data to zip file.
 func addClientData(ctx context.Context, zipW *zip.Writer) {
-	status, err := agentlocal.GetRawStatus(ctx, agentlocal.RequestNetworkInfo)
+	status, err := agentlocal.GetRawStatus(ctx, agentlocal.RequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 	if err != nil {
 		logrus.Errorf("%s", err)
 		return

@@ -84,8 +84,14 @@
         "parameters": [
           {
             "type": "boolean",
-            "description": "Returns network info (latency and clock_drift) if true.",
+            "description": "Returns network info (latency and clock_drift and last_ping_time) if true.",
             "name": "get_network_info",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Returns logs for each agent if true;",
+            "name": "get_agents_info_logs",
             "in": "query"
           }
         ],
@@ -143,6 +149,13 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 3
+                      },
+                      "logs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
                       },
                       "process_exec_path": {
                         "type": "string",
@@ -279,8 +292,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "get_agents_info_logs": {
+                  "type": "boolean",
+                  "title": "Returns logs for each agent if true;",
+                  "x-order": 1
+                },
                 "get_network_info": {
-                  "description": "Returns network info (latency and clock_drift) if true.",
+                  "description": "Returns network info (latency and clock_drift and last_ping_time) if true.",
                   "type": "boolean",
                   "x-order": 0
                 }
@@ -342,6 +360,13 @@
                         "type": "integer",
                         "format": "int64",
                         "x-order": 3
+                      },
+                      "logs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
                       },
                       "process_exec_path": {
                         "type": "string",

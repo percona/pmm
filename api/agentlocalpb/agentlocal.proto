@@ -37,11 +37,14 @@ message AgentInfo {
   // Zero for other Agent types, or if unknown or not yet supported.
   uint32 listen_port = 4;
   string process_exec_path = 5;
+  repeated string logs = 6;
 }
 
 message StatusRequest {
-  // Returns network info (latency and clock_drift) if true.
+  // Returns network info (latency and clock_drift and last_ping_time) if true.
   bool get_network_info = 1;
+  // Returns logs for each agent if true;
+  bool get_agents_info_logs = 2;
 }
 
 message StatusResponse {

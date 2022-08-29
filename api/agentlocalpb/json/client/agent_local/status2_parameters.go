@@ -59,9 +59,15 @@ func NewStatus2ParamsWithHTTPClient(client *http.Client) *Status2Params {
    Typically these are written to a http.Request.
 */
 type Status2Params struct {
+	/* GetAgentsInfoLogs.
+
+	   Returns logs for each agent if true;
+	*/
+	GetAgentsInfoLogs *bool
+
 	/* GetNetworkInfo.
 
-	   Returns network info (latency and clock_drift) if true.
+	   Returns network info (latency and clock_drift and last_ping_time) if true.
 	*/
 	GetNetworkInfo *bool
 
@@ -118,6 +124,17 @@ func (o *Status2Params) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithGetAgentsInfoLogs adds the getAgentsInfoLogs to the status2 params
+func (o *Status2Params) WithGetAgentsInfoLogs(getAgentsInfoLogs *bool) *Status2Params {
+	o.SetGetAgentsInfoLogs(getAgentsInfoLogs)
+	return o
+}
+
+// SetGetAgentsInfoLogs adds the getAgentsInfoLogs to the status2 params
+func (o *Status2Params) SetGetAgentsInfoLogs(getAgentsInfoLogs *bool) {
+	o.GetAgentsInfoLogs = getAgentsInfoLogs
+}
+
 // WithGetNetworkInfo adds the getNetworkInfo to the status2 params
 func (o *Status2Params) WithGetNetworkInfo(getNetworkInfo *bool) *Status2Params {
 	o.SetGetNetworkInfo(getNetworkInfo)
@@ -135,6 +152,22 @@ func (o *Status2Params) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 		return err
 	}
 	var res []error
+
+	if o.GetAgentsInfoLogs != nil {
+
+		// query param get_agents_info_logs
+		var qrGetAgentsInfoLogs bool
+
+		if o.GetAgentsInfoLogs != nil {
+			qrGetAgentsInfoLogs = *o.GetAgentsInfoLogs
+		}
+		qGetAgentsInfoLogs := swag.FormatBool(qrGetAgentsInfoLogs)
+		if qGetAgentsInfoLogs != "" {
+			if err := r.SetQueryParam("get_agents_info_logs", qGetAgentsInfoLogs); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.GetNetworkInfo != nil {
 

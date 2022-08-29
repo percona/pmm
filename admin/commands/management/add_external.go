@@ -87,7 +87,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo, agentlocal.DoNotRequestAgentLogs)
 		if err != nil {
 			return nil, err
 		}

@@ -46,11 +46,16 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 	client.Default.SetTransport(transport)
 }
 
-type NetworkInfo bool
+type (
+	NetworkInfo bool
+	AgentLogs   bool
+)
 
 const (
 	RequestNetworkInfo        NetworkInfo = true
 	DoNotRequestNetworkInfo   NetworkInfo = false
+	RequestAgentLogs          AgentLogs   = true
+	DoNotRequestAgentLogs     AgentLogs   = false
 	Localhost                             = "127.0.0.1"
 	DefaultPMMAgentListenPort             = 7777
 )
@@ -83,18 +88,20 @@ type Status struct {
 }
 
 type AgentStatus struct {
-	AgentID   string `json:"agent_id"`
-	AgentType string `json:"agent_type"`
-	Status    string `json:"status"`
-	Port      int64  `json:"listen_port,omitempty"`
+	AgentID   string   `json:"agent_id"`
+	AgentType string   `json:"agent_type"`
+	Status    string   `json:"status"`
+	Port      int64    `json:"listen_port,omitempty"`
+	Logs      []string `json:"logs,omitempty"`
 }
 
 // GetRawStatus returns raw local pmm-agent status. No special cases.
 // Most callers should use GetStatus instead.
-func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlocal.StatusOKBody, error) {
+func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo, requestAgentLogs AgentLogs) (*agentlocal.StatusOKBody, error) {
 	params := &agentlocal.StatusParams{
 		Body: agentlocal.StatusBody{
-			GetNetworkInfo: bool(requestNetworkInfo),
+			GetNetworkInfo:    bool(requestNetworkInfo),
+			GetAgentsInfoLogs: bool(requestAgentLogs),
 		},
 		Context: ctx,
 	}
@@ -112,9 +119,9 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 // GetStatus returns local pmm-agent status.
 // As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
 // If pmm-agent is set up, but not connected ErrNotConnected is returned.
-func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
+func GetStatus(requestNetworkInfo NetworkInfo, requestAgentLogs AgentLogs) (*Status, error) {
 	var err error
-	p, err := GetRawStatus(context.TODO(), requestNetworkInfo)
+	p, err := GetRawStatus(context.TODO(), requestNetworkInfo, requestAgentLogs)
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +148,7 @@ func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
 			AgentType: pointer.GetString(a.AgentType),
 			Status:    pointer.GetString(a.Status),
 			Port:      a.ListenPort,
+			Logs:      a.Logs,
 		}
 	}
 	var clockDrift time.Duration
