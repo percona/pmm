@@ -20,6 +20,7 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -140,11 +141,12 @@ type Setup struct {
 type Config struct {
 	// no config file there
 
-	ID             string `yaml:"id"`
-	ListenAddress  string `yaml:"listen-address"`
-	ListenPort     uint16 `yaml:"listen-port"`
-	ListenSocket   string `yaml:"listen-socket"`
-	RunnerCapacity uint16 `yaml:"runner-capacity,omitempty"`
+	ID               string `yaml:"id"`
+	ListenAddress    string `yaml:"listen-address"`
+	ListenPort       uint16 `yaml:"listen-port"`
+	ListenSocket     string `yaml:"listen-socket"`
+	ListenSocketGRPC string `yaml:"listen-socket-grpc"`
+	RunnerCapacity   uint16 `yaml:"runner-capacity,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -247,28 +249,39 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 }
 
 var (
-	defaultListenSocketJSON = "/usr/local/percona/pmm2/pmm-agent.sock"
+	defaultListenSocketJSON         = "/usr/local/percona/pmm2/pmm-agent.sock"
+	defaultListenSocketGRPCFilename = "pmm-agent-grpc.sock"
 	// DefaultListenSocketGRPC defines path to a socket on which GRPC server is listening.
-	DefaultListenSocketGRPC = "/usr/local/percona/pmm2/pmm-agent-grpc.sock"
+	DefaultListenSocketGRPC = "/usr/local/percona/pmm2/" + defaultListenSocketGRPCFilename
 )
 
 func configureNetworkDefaults(cfg *Config) {
 	if cfg.ListenSocket == "" {
-		if cfg.ListenAddress == "" && cfg.ListenPort == 0 {
-			cfg.ListenSocket = defaultListenSocketJSON
-		}
-		if cfg.ListenAddress == "" && cfg.ListenPort != 0 {
-			cfg.ListenAddress = "127.0.0.1"
-		}
-		if cfg.ListenAddress != "" && cfg.ListenPort == 0 {
-			cfg.ListenPort = 7777
-		}
+		configureListenDefaults(cfg)
+	}
+	if cfg.ListenSocketGRPC == "" && cfg.ListenSocket != "" {
+		cfg.ListenSocketGRPC = path.Dir(cfg.ListenSocket) + "/" + defaultListenSocketGRPCFilename
 	}
 	if cfg.Ports.Min == 0 {
 		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
 	}
 	if cfg.Ports.Max == 0 {
 		cfg.Ports.Max = 51999
+	}
+}
+
+func configureListenDefaults(cfg *Config) {
+	if cfg.ListenAddress == "" && cfg.ListenPort == 0 {
+		cfg.ListenSocket = defaultListenSocketJSON
+		if cfg.ListenSocketGRPC == "" {
+			cfg.ListenSocketGRPC = DefaultListenSocketGRPC
+		}
+	}
+	if cfg.ListenAddress == "" && cfg.ListenPort != 0 {
+		cfg.ListenAddress = "127.0.0.1"
+	}
+	if cfg.ListenAddress != "" && cfg.ListenPort == 0 {
+		cfg.ListenPort = 7777
 	}
 }
 
@@ -369,6 +382,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_LISTEN_PORT").Uint16Var(&cfg.ListenPort)
 	app.Flag("listen-socket", "Agent socket to listen on [PMM_AGENT_LISTEN_SOCKET]").
 		Envar("PMM_AGENT_LISTEN_SOCKET").StringVar(&cfg.ListenSocket)
+	app.Flag("listen-socket-grpc", "Agent socket to listen on [PMM_AGENT_LISTEN_SOCKET_GRPC]").
+		Envar("PMM_AGENT_LISTEN_SOCKET_GRPC").StringVar(&cfg.ListenSocketGRPC)
 	app.Flag("runner-capacity", "Agent internal actions/jobs runner capacity [PMM_AGENT_RUNNER_CAPACITY]").
 		Envar("PMM_AGENT_RUNNER_CAPACITY").Uint16Var(&cfg.RunnerCapacity)
 

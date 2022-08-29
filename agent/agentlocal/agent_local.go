@@ -98,7 +98,7 @@ func (s *Server) Run(ctx context.Context) {
 	serverCtx, serverCancel := context.WithCancel(ctx)
 
 	// Unix socket for gRPC server.
-	l, err := net.Listen("unix", config.DefaultListenSocketGRPC)
+	l, err := net.Listen("unix", s.cfg.ListenSocketGRPC)
 	if err != nil {
 		s.l.Panic(err)
 	}
@@ -190,7 +190,7 @@ func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	l := s.l.WithField("component", "local-server/gRPC")
-	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
+	l.Debugf("Starting gRPC server on unix:%s ...", listener.Addr().String())
 
 	gRPCServer := grpc.NewServer()
 	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
