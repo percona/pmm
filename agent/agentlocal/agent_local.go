@@ -104,7 +104,7 @@ func (s *Server) Run(ctx context.Context) {
 	}
 	// l is closed by runGRPCServer
 
-	err = os.Chmod(s.cfg.ListenSocketGRPC, 0o770)
+	err = os.Chmod(s.cfg.ListenSocketGRPC, 0o770) //nolint:gosec
 	if err != nil {
 		s.l.Panic(err)
 	}
@@ -352,7 +352,7 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 			return l, err
 		}
 
-		err = os.Chmod(s.cfg.ListenSocket, 0o770)
+		err = os.Chmod(s.cfg.ListenSocket, 0o770) //nolint:gosec
 		if err != nil {
 			s.l.Panic(err)
 		}
