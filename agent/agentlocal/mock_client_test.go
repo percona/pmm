@@ -41,7 +41,7 @@ func (_m *mockClient) GetConnectionUpTime() float32 {
 }
 
 // GetNetworkInformation provides a mock function with given fields:
-func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, error) {
+func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, time.Time, error) {
 	ret := _m.Called()
 
 	var r0 time.Duration
@@ -58,14 +58,21 @@ func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, err
 		r1 = ret.Get(1).(time.Duration)
 	}
 
-	var r2 error
-	if rf, ok := ret.Get(2).(func() error); ok {
+	var r2 time.Time
+	if rf, ok := ret.Get(2).(func() time.Time); ok {
 		r2 = rf()
 	} else {
-		r2 = ret.Error(2)
+		r2 = ret.Get(2).(time.Time)
 	}
 
-	return r0, r1, r2
+	var r3 error
+	if rf, ok := ret.Get(3).(func() error); ok {
+		r3 = rf()
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // GetServerConnectMetadata provides a mock function with given fields:

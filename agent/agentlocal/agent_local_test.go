@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
@@ -92,7 +93,8 @@ func TestServerStatus(t *testing.T) {
 		agentInfo, supervisor, client, cfg := setup(t)
 		latency := 5 * time.Millisecond
 		clockDrift := time.Second
-		client.On("GetNetworkInformation").Return(latency, clockDrift, nil)
+		lastPingTime := time.Now()
+		client.On("GetNetworkInformation").Return(latency, clockDrift, lastPingTime, nil)
 		defer supervisor.AssertExpectations(t)
 		defer client.AssertExpectations(t)
 		logStore := tailog.NewStore(500)
@@ -105,11 +107,12 @@ func TestServerStatus(t *testing.T) {
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
 			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerInfo: &agentlocalpb.ServerInfo{
-				Url:        "https://username:password@127.0.0.1:8443/",
-				Version:    "2.0.0-dev",
-				Latency:    durationpb.New(latency),
-				ClockDrift: durationpb.New(clockDrift),
-				Connected:  true,
+				Url:          "https://username:password@127.0.0.1:8443/",
+				Version:      "2.0.0-dev",
+				Latency:      durationpb.New(latency),
+				ClockDrift:   durationpb.New(clockDrift),
+				Connected:    true,
+				LastPingTime: timestamppb.New(lastPingTime),
 			},
 			ConnectionUptime: 100.00,
 			AgentsInfo:       agentInfo,

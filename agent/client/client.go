@@ -688,7 +688,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	// to ensure that pmm-managed is alive and that Agent ID is valid.
 
 	channel := channel.New(stream)
-	_, clockDrift, err := getNetworkInformation(channel) // ping/pong
+	_, clockDrift, _, err := getNetworkInformation(channel) // ping/pong
 	if err != nil {
 		msg := err.Error()
 
@@ -731,7 +731,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	}, nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
+func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, lastPingTime time.Time, err error) {
 	start := time.Now()
 	var resp agentpb.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentpb.Ping{})
@@ -752,11 +752,12 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	}
 	latency = roundtrip / 2
 	clockDrift = serverTime.Sub(start) - latency
+	lastPingTime = start
 	return
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) {
+func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, lastPingTime time.Time, err error) {
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()
@@ -765,7 +766,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return
 	}
 
-	latency, clockDrift, err = getNetworkInformation(channel)
+	latency, clockDrift, lastPingTime, err = getNetworkInformation(channel)
 	return
 }
 

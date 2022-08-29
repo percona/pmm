@@ -146,13 +146,13 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 		}
 
 		if req.GetNetworkInfo && connected {
-			latency, clockDrift, err := s.client.GetNetworkInformation()
+			latency, clockDrift, lastPingTime, err := s.client.GetNetworkInformation()
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
 			} else {
 				serverInfo.Latency = durationpb.New(latency)
 				serverInfo.ClockDrift = durationpb.New(clockDrift)
-				serverInfo.LastPingTime = timestamppb.New(time.Now())
+				serverInfo.LastPingTime = timestamppb.New(lastPingTime)
 			}
 		}
 	}
