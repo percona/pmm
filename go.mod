@@ -17,13 +17,13 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/alecthomas/kong v0.6.0
+	github.com/alecthomas/kong v0.6.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.84
+	github.com/aws/aws-sdk-go v1.44.86
 	github.com/brianvoe/gofakeit/v6 v6.18.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.16.2
+	github.com/go-co-op/gocron v1.17.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/strfmt v0.21.3
@@ -63,7 +63,7 @@ require (
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
 	golang.org/x/tools v0.1.12
 	google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.67.0
