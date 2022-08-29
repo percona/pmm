@@ -104,6 +104,11 @@ func (s *Server) Run(ctx context.Context) {
 	}
 	// l is closed by runGRPCServer
 
+	err = os.Chmod(s.cfg.ListenSocketGRPC, 0o770)
+	if err != nil {
+		s.l.Panic(err)
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
@@ -342,7 +347,17 @@ var errSocketOrPortRequired = errors.New("socketOrPortRequired")
 func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	if s.cfg.ListenSocket != "" {
 		l.Infof("Starting local API server on unix:%s", s.cfg.ListenSocket)
-		return net.Listen("unix", s.cfg.ListenSocket)
+		l, err := net.Listen("unix", s.cfg.ListenSocket)
+		if err != nil {
+			return l, err
+		}
+
+		err = os.Chmod(s.cfg.ListenSocket, 0o770)
+		if err != nil {
+			s.l.Panic(err)
+		}
+
+		return l, nil
 	}
 
 	if s.cfg.ListenAddress != "" && s.cfg.ListenPort != 0 {
