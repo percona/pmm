@@ -97,9 +97,8 @@ func (s *Server) Run(ctx context.Context) {
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
 
-	// Get random free port for gRPC server.
-	// If we can't get one, panic since everything is seriously broken.
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	// Unix socket for gRPC server.
+	l, err := net.Listen("unix", config.DefaultListenSocketGRPC)
 	if err != nil {
 		s.l.Panic(err)
 	}
@@ -113,7 +112,7 @@ func (s *Server) Run(ctx context.Context) {
 	}()
 	go func() {
 		defer wg.Done()
-		s.runJSONServer(serverCtx, l.Addr().String())
+		s.runJSONServer(serverCtx, "unix:"+l.Addr().String())
 	}()
 
 	select {

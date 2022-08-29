@@ -246,10 +246,16 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 	}
 }
 
+var (
+	defaultListenSocketJSON = "/usr/local/percona/pmm2/pmm-agent.sock"
+	// DefaultListenSocketGRPC defines path to a socket on which GRPC server is listening.
+	DefaultListenSocketGRPC = "/usr/local/percona/pmm2/pmm-agent-grpc.sock"
+)
+
 func configureNetworkDefaults(cfg *Config) {
 	if cfg.ListenSocket == "" {
 		if cfg.ListenAddress == "" && cfg.ListenPort == 0 {
-			cfg.ListenSocket = "/usr/local/percona/pmm2/pmm-agent.sock"
+			cfg.ListenSocket = defaultListenSocketJSON
 		}
 		if cfg.ListenAddress == "" && cfg.ListenPort != 0 {
 			cfg.ListenAddress = "127.0.0.1"
