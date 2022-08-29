@@ -44,7 +44,7 @@ func TestServerStatus(t *testing.T) {
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
-		supervisor.On("AgentsList").Return(agentInfo)
+		supervisor.On("AgentsList", false).Return(agentInfo)
 		var client mockClient
 		client.Test(t)
 		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
@@ -129,7 +129,7 @@ func TestGetZipFile(t *testing.T) {
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
-		supervisor.On("AgentsList").Return(agentInfo)
+		supervisor.On("AgentsList", false).Return(agentInfo)
 		agentLogs := make(map[string][]string)
 		agentLogs[inventorypb.AgentType_NODE_EXPORTER.String()] = []string{
 			"logs1",
