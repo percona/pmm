@@ -153,7 +153,7 @@ func main() {
 
 // findSocketOrPort detects if pmm-agent is listening on socket or port.
 // The arguments are used for testing purposes and can be left empty.
-func findSocketOrPort(socketPath string, localPort uint32) (socket string, port uint32) {
+func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 	logrus.Debug("Detecting socket or port of local pmm-agent")
 
 	if socketPath == "" {
