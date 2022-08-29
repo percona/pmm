@@ -82,7 +82,7 @@ type Status struct {
 	Connected          bool          `json:"connected"`
 	ServerClockDrift   time.Duration `json:"server_clock_drift,omitempty"`
 	ServerLatency      time.Duration `json:"server_latency,omitempty"`
-	ServerLastPingTime time.Time     `json:"server_last_ping_time"`
+	ServerLastPingTime time.Time     `json:"server_last_ping_time,omitempty"`
 
 	ConnectionUptime float32 `json:"connection_uptime"`
 }
@@ -153,6 +153,7 @@ func GetStatus(requestNetworkInfo NetworkInfo, requestAgentLogs AgentLogs) (*Sta
 	}
 	var clockDrift time.Duration
 	var latency time.Duration
+	var lastPingTime time.Time
 	if bool(requestNetworkInfo) && p.ServerInfo.Connected {
 		clockDrift, err = time.ParseDuration(p.ServerInfo.ClockDrift)
 		if err != nil {
@@ -162,6 +163,7 @@ func GetStatus(requestNetworkInfo NetworkInfo, requestAgentLogs AgentLogs) (*Sta
 		if err != nil {
 			return nil, err
 		}
+		lastPingTime = time.Time(p.ServerInfo.LastPingTime).Truncate(time.Second)
 	}
 
 	agentVersion := p.AgentVersion
@@ -184,7 +186,7 @@ func GetStatus(requestNetworkInfo NetworkInfo, requestAgentLogs AgentLogs) (*Sta
 		Connected:          p.ServerInfo.Connected,
 		ServerClockDrift:   clockDrift,
 		ServerLatency:      latency,
-		ServerLastPingTime: time.Now().Truncate(time.Second),
+		ServerLastPingTime: lastPingTime,
 
 		ConnectionUptime: p.ConnectionUptime,
 	}, err
