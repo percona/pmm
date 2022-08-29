@@ -37,7 +37,7 @@ This project is built from several repositories:
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, collects data from them and send to VictoriaMetrics
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
 * [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
 * [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
