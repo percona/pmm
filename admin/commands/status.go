@@ -88,6 +88,7 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 // StatusCommand is used by Kong for CLI flags and commands.
 type StatusCommand struct {
 	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
+	GetLogs bool          `name:"get-logs" help:"Get agents logs"`
 }
 
 // BeforeApply is run before the command is applied.
@@ -108,7 +109,7 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 	var err error
 
 	for {
-		status, err = agentlocal.GetStatus(agentlocal.RequestNetworkInfo, agentlocal.RequestAgentLogs)
+		status, err = agentlocal.GetStatus(agentlocal.RequestNetworkInfo, agentlocal.AgentLogs(cmd.GetLogs))
 		if err == nil {
 			break
 		}
