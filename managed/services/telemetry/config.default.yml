@@ -92,6 +92,14 @@ telemetry:
       - metric_name: "haproxy_version"
         label: "version"
 
+  - id: ProxysqlVersion
+    source: VM
+    query: proxysql_info
+    summary: "Monitored ProxySQL services version"
+    data:
+      - metric_name: "proxysql_version"
+        label: "version"
+
   #
   - id: GrafanaStatTotalUsers
     source: VM
