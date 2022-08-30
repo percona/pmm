@@ -14,7 +14,7 @@ Summary:        PMM-agent
 
 BuildRequires:    systemd
 BuildRequires:    pkgconfig(systemd)
-%if 0%{?rhel} && 0%{?rhel} == 9
+%if 0%{?rhel} && 0%{?rhel} >= 9
 Requires:         perl-interpreter
 %endif
 Requires(post):   systemd
