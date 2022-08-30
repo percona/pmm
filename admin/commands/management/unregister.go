@@ -15,11 +15,7 @@
 package management
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/pkg/errors"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -28,10 +24,6 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 )
 
-type unregisterCommand struct {
-	NodeName string
-	Force    bool
-}
 type unregisterResult struct {
 	NodeID   string
 	NodeName string
@@ -47,7 +39,13 @@ func (res *unregisterResult) String() string {
 	return commands.RenderTemplate(unregisterNodeResultT, res)
 }
 
-func (cmd *unregisterCommand) Run() (commands.Result, error) {
+// UnregisterCommand is used by Kong for CLI flags and commands.
+type UnregisterCommand struct {
+	Force    bool   `help:"Remove this node with all dependencies"`
+	NodeName string `help:"Node name (autodetected default: ${hostname})"`
+}
+
+func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string
 	var err error
@@ -129,17 +127,4 @@ func nodeIDFromNodeName(nodeName string) (string, error) {
 		}
 	}
 	return "", errors.Errorf("node %s is not found", nodeName)
-}
-
-// unregister command
-var (
-	Unregister  unregisterCommand
-	UnregisterC = kingpin.Command("unregister", "Unregister current Node from PMM Server")
-)
-
-func init() {
-	UnregisterC.Flag("force", "Remove this node with all dependencies").BoolVar(&Unregister.Force)
-	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
-	UnregisterC.Flag("node-name", nodeNameHelp).StringVar(&Unregister.NodeName)
 }

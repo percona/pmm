@@ -123,7 +123,25 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		return nil, err
 	}
 
-	if err := s.fillDefaults(ctx, kubernetesCluster, req); err != nil {
+	psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
+		KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot get the list of PSMDB components")
+	}
+	if psmdbComponents == nil || len(psmdbComponents.Versions) < 1 {
+		return nil, errors.New("version service returned an empty list for the PSMDB components")
+	}
+
+	var backupImage string
+	backupComponent, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Backup)
+	if err != nil {
+		s.l.Warnf("Cannot get the backup component: %s", err)
+	} else {
+		backupImage = backupComponent.ImagePath
+	}
+
+	if err := s.fillDefaults(ctx, kubernetesCluster, req, psmdbComponents); err != nil {
 		return nil, errors.Wrap(err, "cannot create PSMDB cluster")
 	}
 
@@ -150,6 +168,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		Name: req.Name,
 		Params: &dbaascontrollerv1beta1.PSMDBClusterParams{
 			Image:       req.Params.Image,
+			BackupImage: backupImage,
 			ClusterSize: req.Params.ClusterSize,
 			Replicaset: &dbaascontrollerv1beta1.PSMDBClusterParams_ReplicaSet{
 				ComputeResources: &dbaascontrollerv1beta1.ComputeResources{
@@ -179,7 +198,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 }
 
 func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster *models.KubernetesCluster,
-	req *dbaasv1beta1.CreatePSMDBClusterRequest,
+	req *dbaasv1beta1.CreatePSMDBClusterRequest, psmdbComponents *dbaasv1beta1.GetPSMDBComponentsResponse,
 ) error {
 	if req.Name != "" {
 		r := regexp.MustCompile("^[a-z]([-a-z0-9]*[a-z0-9])?$")
@@ -216,39 +235,30 @@ func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster
 		req.Params.Replicaset.ComputeResources.MemoryBytes = psmdbDefaultMemoryBytes
 	}
 
-	// Only call the version service if it is really needed.
-	if req.Name == "" || req.Params.Image == "" {
-		psmdbComponents, err := s.componentsService.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
-			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
-		})
-		if err != nil {
-			return errors.New("cannot get the list of PXC components")
-		}
+	psmdbComponent, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
+	if err != nil {
+		return errors.Wrap(err, "cannot get the recommended MongoDB image name")
+	}
 
-		component, err := DefaultComponent(psmdbComponents.Versions[0].Matrix.Mongod)
-		if err != nil {
-			return errors.Wrap(err, "cannot get the recommended MongoDB image name")
-		}
+	if req.Params.Image == "" {
+		req.Params.Image = psmdbComponent.ImagePath
+	}
 
-		if req.Params.Image == "" {
-			req.Params.Image = component.ImagePath
-		}
+	if req.Name == "" {
+		// Image is a string like this: percona/percona-server-mongodb:4.2.12-13
+		// We need only the version part to build the cluster name.
+		parts := strings.Split(req.Params.Image, ":")
 
-		if req.Name == "" {
-			// Image is a string like this: percona/percona-server-mongodb:4.2.12-13
-			// We need only the version part to build the cluster name.
-			parts := strings.Split(req.Params.Image, ":")
+		// This is to generate an unique name.
+		uuids := strings.ReplaceAll(uuid.New().String(), "-", "")
+		uuids = uuids[len(uuids)-5:]
 
-			// This is to generate an unique name.
-			uuids := strings.Replace(uuid.New().String(), "-", "", -1)
-			uuids = uuids[len(uuids)-5:]
-
-			req.Name = fmt.Sprintf("psmdb-%s-%s", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), uuids)
-			if len(req.Name) > 22 { // Kubernetes limitation
-				req.Name = req.Name[:21]
-			}
+		req.Name = fmt.Sprintf("psmdb-%s-%s", strings.ReplaceAll(parts[len(parts)-1], ".", "-"), uuids)
+		if len(req.Name) > 22 { // Kubernetes limitation
+			req.Name = req.Name[:21]
 		}
 	}
+	//}
 
 	return nil
 }

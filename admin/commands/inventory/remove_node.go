@@ -32,12 +32,13 @@ func (res *removeNodeResult) String() string {
 	return commands.RenderTemplate(removeNodeGenericResultT, res)
 }
 
-type removeNodeCommand struct {
-	NodeID string
-	Force  bool
+// RemoveNodeCommand is used by Kong for CLI flags and commands.
+type RemoveNodeCommand struct {
+	NodeID string `arg:"" optional:"" help:"Node ID"`
+	Force  bool   `help:"Remove node with all dependencies"`
 }
 
-func (cmd *removeNodeCommand) Run() (commands.Result, error) {
+func (cmd *RemoveNodeCommand) RunCmd() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{
 			NodeID: cmd.NodeID,
@@ -50,15 +51,4 @@ func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 	return &removeNodeResult{}, nil
-}
-
-// register command
-var (
-	RemoveNode  removeNodeCommand
-	RemoveNodeC = inventoryRemoveC.Command("node", "Remove node from inventory").Hide(hide)
-)
-
-func init() {
-	RemoveNodeC.Arg("node-id", "Node ID").StringVar(&RemoveNode.NodeID)
-	RemoveNodeC.Flag("force", "Remove node with all dependencies").BoolVar(&RemoveNode.Force)
 }
