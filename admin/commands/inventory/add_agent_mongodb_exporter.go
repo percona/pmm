@@ -45,32 +45,30 @@ func (res *addAgentMongodbExporterResult) String() string {
 	return commands.RenderTemplate(addAgentMongodbExporterResultT, res)
 }
 
-type addAgentMongodbExporterCommand struct {
-	PMMAgentID                    string
-	ServiceID                     string
-	Username                      string
-	Password                      string
-	AgentPassword                 string
-	CustomLabels                  string
-	SkipConnectionCheck           bool
-	TLS                           bool
-	TLSSkipVerify                 bool
-	TLSCertificateKeyFile         string
-	TLSCertificateKeyFilePassword string
-	TLSCaFile                     string
-	AuthenticationMechanism       string
-	PushMetrics                   bool
-	DisableCollectors             string
-
-	StatsCollections string
-	CollectionsLimit int32
+// AddAgentMongodbExporterCommand is used by Kong for CLI flags and commands.
+type AddAgentMongodbExporterCommand struct {
+	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                     string            `arg:"" help:"Service identifier"`
+	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
+	Password                      string            `help:"MongoDB password for scraping metrics"`
+	AgentPassword                 string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck           bool              `help:"Skip connection check"`
+	TLS                           bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`
+	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
+	TLSCaFile                     string            `help:"Path to certificate authority file"`
+	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	PushMetrics                   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
+	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
+	LogLevel                      string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
-func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -100,7 +98,7 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
 			StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
 			CollectionsLimit:              cmd.CollectionsLimit,
-			LogLevel:                      &addExporterLogLevel,
+			LogLevel:                      &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -112,36 +110,4 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 	return &addAgentMongodbExporterResult{
 		Agent: resp.Payload.MongodbExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentMongodbExporter  addAgentMongodbExporterCommand
-	AddAgentMongodbExporterC = addAgentC.Command("mongodb-exporter", "Add mongodb_exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentMongodbExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentMongodbExporter.PMMAgentID)
-	AddAgentMongodbExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentMongodbExporter.ServiceID)
-	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics").StringVar(&AddAgentMongodbExporter.Username)
-	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentMongodbExporter.Password)
-	AddAgentMongodbExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentMongodbExporter.AgentPassword)
-	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMongodbExporter.CustomLabels)
-	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
-	AddAgentMongodbExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMongodbExporter.TLS)
-	AddAgentMongodbExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMongodbExporter.TLSSkipVerify)
-	AddAgentMongodbExporterC.Flag("tls-certificate-key-file", "Path to TLS certificate PEM file").StringVar(&AddAgentMongodbExporter.TLSCertificateKeyFile)
-	AddAgentMongodbExporterC.Flag("tls-certificate-key-file-password", "Password for certificate").StringVar(&AddAgentMongodbExporter.TLSCertificateKeyFilePassword)
-	AddAgentMongodbExporterC.Flag("tls-ca-file", "Path to certificate authority file").StringVar(&AddAgentMongodbExporter.TLSCaFile)
-	AddAgentMongodbExporterC.Flag("authentication-mechanism", "Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates").
-		StringVar(&AddAgentMongodbExporter.AuthenticationMechanism)
-	AddAgentMongodbExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentMongodbExporter.PushMetrics)
-
-	AddAgentMongodbExporterC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(
-		&AddAgentMongodbExporter.DisableCollectors)
-	AddAgentMongodbExporterC.Flag("stats-collections", "Collections for collstats & indexstats").StringVar(&AddAgentMongodbExporter.StatsCollections)
-	AddAgentMongodbExporterC.Flag("max-collections-limit", "Disable collstats & indexstats if there are more than <n> collections").
-		Int32Var(&AddAgentMongodbExporter.CollectionsLimit)
-	addExporterGlobalFlags(AddAgentMongodbExporterC)
 }
