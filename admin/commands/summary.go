@@ -157,7 +157,9 @@ func addClientData(ctx context.Context, zipW *zip.Writer, globals *flags.GlobalF
 		zipW,
 		fmt.Sprintf("http://%s/logs.zip", hostname),
 		"client/pmm-agent",
-		agentlocal.DefaultClient)
+		&http.Client{
+			Transport: agentlocal.DefaultTransport,
+		})
 	if err != nil {
 		logrus.Warnf("%s", err)
 	}
@@ -323,8 +325,10 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 	hostname := agentlocal.GetHostname(agentlocal.Localhost, globals.PMMAgentListenPort, globals.PMMAgentSocket)
 	sources := map[string]sourceConfig{
 		"client/pprof/pmm-agent": {
-			url:    fmt.Sprintf("http://%s/debug/pprof", hostname),
-			client: agentlocal.DefaultClient,
+			url: fmt.Sprintf("http://%s/debug/pprof", hostname),
+			client: &http.Client{
+				Transport: agentlocal.DefaultTransport,
+			},
 		},
 	}
 

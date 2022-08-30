@@ -33,55 +33,36 @@ import (
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 )
 
-// DefaultClient is http client configured either for socket or tcp connection to local pmm-agent.
+// DefaultTransport is a transport configured either for socket or tcp connection to local pmm-agent.
 // It shall be used to talk to the local pmm-agent.
-var DefaultClient = http.DefaultClient
+var DefaultTransport = http.DefaultTransport
 
 // SetTransport configures transport for accessing local pmm-agent API.
 func SetTransport(ctx context.Context, debug bool, port uint32, socket string) {
 	// use JSON APIs over HTTP/1.1
-	transport := configureTransport(port, socket)
+	transport := httptransport.New(GetHostname(Localhost, port, socket), "/", []string{"http"})
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 	transport.Context = ctx
 
-	// disable HTTP/2
 	httpTransport, ok := transport.Transport.(*http.Transport)
 	if !ok {
 		panic("Cannot assert transport to *http.Transport")
 	}
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	t := httpTransport.Clone()
 
-	client.Default.SetTransport(transport)
-}
-
-// configureTransport configures transport based on provided socket or port.
-func configureTransport(port uint32, socket string) *httptransport.Runtime {
+	// disable HTTP/2
+	t.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if socket != "" {
-		// In order to connect via socket, we need to override DialContext.
-		// The rest of the configuration is from http.DefaultTransport.
-		tr, ok := http.DefaultTransport.(*http.Transport)
-		if !ok {
-			panic("Cannot assert http.DefaultTransport to *http.Transport")
-		}
-
-		t := tr.Clone()
 		t.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
 			dialer := net.Dialer{}
 			return dialer.DialContext(ctx, "unix", socket)
 		}
-		cl := &http.Client{
-			Transport: t,
-		}
-		transport := httptransport.NewWithClient(GetHostname("", 0, socket), "/", []string{"http"}, cl)
-		DefaultClient = cl
-
-		return transport
 	}
 
-	transport := httptransport.New(GetHostname(Localhost, port, ""), "/", []string{"http"})
-
-	return transport
+	transport.Transport = t
+	client.Default.SetTransport(transport)
+	DefaultTransport = t
 }
 
 type NetworkInfo bool

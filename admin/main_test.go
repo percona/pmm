@@ -76,7 +76,7 @@ func TestFindSocketOrPath(t *testing.T) {
 		require.NoError(t, err)
 		defer l.Close() //nolint:errcheck
 
-		socket, port := findSocketOrPort("", localPort)
+		socket, port := findSocketOrPort(socketPath, localPort)
 		require.Equal(t, socket, "")
 		require.Equal(t, port, uint32(localPort))
 	})
