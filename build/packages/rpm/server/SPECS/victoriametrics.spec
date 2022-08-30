@@ -1,3 +1,5 @@
+%undefine _missing_build_ids_terminate_build
+
 %define copying() \
 %if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 \
 %license %{*} \
