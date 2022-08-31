@@ -170,8 +170,7 @@ func TestPerformBackup(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			var artifact models.Artifact
-			err = db.SelectOneTo(&artifact, "WHERE id = $1", artifactID)
+			artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 			require.NoError(t, err)
 			assert.Equal(t, locationRes.ID, artifact.LocationID)
 			assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
