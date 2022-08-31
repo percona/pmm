@@ -29,11 +29,6 @@ import (
 // DataSourceName data source name.
 type DataSourceName string
 
-// DataSourceLocator locates data source by name.
-type DataSourceLocator interface {
-	LocateTelemetryDataSource(name string) (DataSource, error)
-}
-
 type dataSourceRegistry struct {
 	l           *logrus.Entry
 	dataSources map[DataSourceName]DataSource
@@ -75,12 +70,6 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 	return ds, nil
 }
 
-// DataSource telemetry data source.
-type DataSource interface {
-	FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error)
-	Enabled() bool
-}
-
 func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -117,11 +106,13 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
 			var value string
-			if strs[idx] != nil && *strs[idx] != "" {
-				value = *strs[idx]
-				// According to spec we need to skip empty data, but it will break composed metrics
-				// https://confluence.percona.com/display/PMM/Telemetry+Service+v2?focusedCommentId=114514247#comment-114514247
+
+			// skip empty values
+			if strs[idx] == nil || *strs[idx] == "" {
+				continue
 			}
+
+			value = *strs[idx]
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
 					metric = append(metric, &pmmv1.ServerMetric_Metric{

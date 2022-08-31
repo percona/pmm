@@ -42,6 +42,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -108,14 +109,44 @@ const (
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
+
+	defaultContextTimeout = 10 * time.Second
+	pProfProfileDuration  = 30 * time.Second
+	pProfTraceDuration    = 10 * time.Second
 )
+
+var pprofSemaphore = semaphore.NewWeighted(1)
 
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		contextTimeout := defaultContextTimeout
+		// increase context timeout if pprof query parameter exist in request
+		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
+		if err != nil {
+			l.Debug("Unable to read 'pprof' query param. Using default: pprof=false")
+		}
+		var pprofConfig *supervisord.PprofConfig
+		if pprofQueryParameter {
+			if !pprofSemaphore.TryAcquire(1) {
+				rw.WriteHeader(http.StatusLocked)
+				_, err := rw.Write([]byte("Pprof is already running. Please try again later."))
+				if err != nil {
+					l.Errorf("%+v", err)
+				}
+				return
+			}
+			defer pprofSemaphore.Release(1)
+
+			contextTimeout += pProfProfileDuration + pProfTraceDuration
+			pprofConfig = &supervisord.PprofConfig{
+				ProfileDuration: pProfProfileDuration,
+				TraceDuration:   pProfTraceDuration,
+			}
+		}
 		// fail-safe
-		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(req.Context(), contextTimeout)
 		defer cancel()
 
 		filename := fmt.Sprintf("pmm-server_%s.zip", time.Now().UTC().Format("2006-01-02_15-04"))
@@ -124,7 +155,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw); err != nil {
+		if err := logs.Zip(ctx, rw, pprofConfig); err != nil {
 			l.Errorf("%+v", err)
 		}
 	})

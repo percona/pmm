@@ -42,19 +42,17 @@ func (res *addNodeRemoteResult) String() string {
 	return commands.RenderTemplate(addNodeRemoteResultT, res)
 }
 
-type addNodeRemoteCommand struct {
-	NodeName     string
-	Address      string
-	CustomLabels string
-	Region       string
-	Az           string
+// AddNodeRemoteCommand is used by Kong for CLI flags and commands.
+type AddNodeRemoteCommand struct {
+	NodeName     string            `arg:"" optional:"" name:"name" help:"Node name"`
+	Address      string            `help:"Address"`
+	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	Region       string            `help:"Node region"`
+	Az           string            `help:"Node availability zone"`
 }
 
-func (cmd *addNodeRemoteCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddRemoteNodeParams{
 		Body: nodes.AddRemoteNodeBody{
 			NodeName:     cmd.NodeName,
@@ -74,20 +72,4 @@ func (cmd *addNodeRemoteCommand) Run() (commands.Result, error) {
 	return &addNodeRemoteResult{
 		Node: resp.Payload.Remote,
 	}, nil
-}
-
-// register command
-var (
-	AddNodeRemote  addNodeRemoteCommand
-	AddNodeRemoteC = addNodeC.Command("remote", "Add Remote node to inventory").Hide(hide)
-)
-
-func init() {
-	AddNodeRemoteC.Arg("name", "Node name").StringVar(&AddNodeRemote.NodeName)
-
-	AddNodeRemoteC.Flag("address", "Address").StringVar(&AddNodeRemote.Address)
-	AddNodeRemoteC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeRemote.CustomLabels)
-
-	AddNodeRemoteC.Flag("region", "Node region").StringVar(&AddNodeRemote.Region)
-	AddNodeRemoteC.Flag("az", "Node availability zone").StringVar(&AddNodeRemote.Az)
 }

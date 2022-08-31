@@ -17,26 +17,34 @@ package management
 import (
 	"net"
 	"strconv"
-
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-// register command
-var (
-	AddC = kingpin.Command("add", "Add Service to monitoring")
+// AddCommand is used by Kong for CLI flags and commands.
+type AddCommand struct {
+	External           AddExternalCommand           `cmd:"" help:"Add External source of data (like a custom exporter running on a port) to the monitoring"`
+	ExternalServerless AddExternalServerlessCommand `cmd:"" help:"Add External Service on Remote node to monitoring"`
+	HAProxy            AddHAProxyCommand            `cmd:"" name:"haproxy" help:"Add HAProxy to monitoring"`
+	MongoDB            AddMongoDBCommand            `cmd:"" name:"mongodb" help:"Add MongoDB to monitoring"`
+	MySQL              AddMySQLCommand              `cmd:"" name:"mysql" help:"Add MySQL to monitoring"`
+	PostgreSQL         AddPostgreSQLCommand         `cmd:"" name:"postgresql" help:"Add PostgreSQL to monitoring"`
+	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
+}
 
-	addServiceNameFlag string
-	addHostFlag        string
-	addPortFlag        uint16
-	addLogLevel        string
-)
+// AddCommonFlags is used by Kong for CLI flags and commands.
+type AddCommonFlags struct {
+	AddServiceNameFlag string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
+	AddHostFlag        string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`
+	AddPortFlag        uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
+}
 
-func addGlobalFlags(cmd *kingpin.CmdClause) {
-	// Add command global flags
-	cmd.Flag("service-name", "Service name (overrides positional argument)").PlaceHolder("NAME").StringVar(&addServiceNameFlag)
-	cmd.Flag("host", "Service hostname or IP address (overrides positional argument)").StringVar(&addHostFlag)
-	cmd.Flag("port", "Service port number (overrides positional argument)").Uint16Var(&addPortFlag)
-	cmd.Flag("log-level", "Service logging level. One of: [debug, info, warn, error, fatal]").Default("warn").EnumVar(&addLogLevel, "debug", "info", "warn", "error", "fatal")
+// AddLogLevelFatalFlags contains log level flag with "fatal" option.
+type AddLogLevelFatalFlags struct {
+	AddLogLevel string `name:"log-level" enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
+}
+
+// AddLogLevelNoFatalFlags contains log level flag without "fatal" option.
+type AddLogLevelNoFatalFlags struct {
+	AddLogLevel string `name:"log-level" enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
 type connectionGetter interface {
@@ -52,10 +60,10 @@ type connectionGetter interface {
 // - addPostgreSQLCommand
 // - addMongoDBCommand
 // Returns service name, socket, host, port, error.
-func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, socket string, host string, port uint16, err error) {
+func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) (serviceName string, socket string, host string, port uint16, err error) {
 	serviceName = cmd.GetServiceName()
-	if addServiceNameFlag != "" {
-		serviceName = addServiceNameFlag
+	if opts.AddServiceNameFlag != "" {
+		serviceName = opts.AddServiceNameFlag
 	}
 
 	socket = cmd.GetSocket()
@@ -79,12 +87,12 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter) (serviceName string, 
 		}
 	}
 
-	if addHostFlag != "" {
-		host = addHostFlag
+	if opts.AddHostFlag != "" {
+		host = opts.AddHostFlag
 	}
 
-	if addPortFlag != 0 {
-		portI = int(addPortFlag)
+	if opts.AddPortFlag != 0 {
+		portI = int(opts.AddPortFlag)
 	}
 
 	return serviceName, socket, host, uint16(portI), nil

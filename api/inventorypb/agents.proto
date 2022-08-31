@@ -92,6 +92,8 @@ message NodeExporter {
   uint32 listen_port = 6;
   // Path to exec process.
   string process_exec_path = 9;
+  // Log level for exporter.
+  LogLevel log_level = 10;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -287,6 +289,8 @@ message QANMySQLPerfSchemaAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -325,6 +329,8 @@ message QANMySQLSlowlogAgent {
   AgentStatus status = 11;
   //  mod tidy
   string process_exec_path = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -356,6 +362,8 @@ message QANMongoDBProfilerAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -384,6 +392,8 @@ message QANPostgreSQLPgStatementsAgent {
   AgentStatus status = 9;
   // Path to exec process.
   string process_exec_path = 10;
+  // Log level for exporter.
+  LogLevel log_level = 11;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -414,6 +424,8 @@ message QANPostgreSQLPgStatMonitorAgent {
   AgentStatus status = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -450,6 +462,8 @@ message RDSExporter {
   bool push_metrics_enabled = 11;
   // Path to exec process.
   string process_exec_path = 12;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -506,6 +520,8 @@ message AzureDatabaseExporter {
   bool push_metrics_enabled = 10;
   // Path to exec process.
   string process_exec_path = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -591,6 +607,24 @@ message GetAgentResponse {
   }
 }
 
+// Get logs
+
+message GetAgentLogsRequest {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // is less than this value. 0: no limit
+  uint32 limit = 2;
+}
+
+message GetAgentLogsResponse {
+  repeated string logs = 1;
+  uint32 agent_config_log_lines_count = 2;
+}
+
 // Add PMMAgent
 
 message AddPMMAgentRequest {
@@ -629,6 +663,8 @@ message AddNodeExporterRequest {
   bool push_metrics = 3;
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 4;
+  // Log level for exporter.
+  LogLevel log_level = 5;
 }
 
 message AddNodeExporterResponse {
@@ -695,6 +731,8 @@ message AddMySQLdExporterRequest {
   repeated string disable_collectors = 11;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
+  // Log level for exporter.
+  LogLevel log_level = 16;
 }
 
 message AddMySQLdExporterResponse {
@@ -766,6 +804,8 @@ message AddMongoDBExporterRequest {
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
   int32 collections_limit = 18;
+  // Log level for exporter.
+  LogLevel log_level = 19;
 }
 
 message AddMongoDBExporterResponse {
@@ -828,6 +868,8 @@ message AddPostgresExporterRequest {
   string tls_key = 13;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 14;
+  // Log level for exporter.
+  LogLevel log_level = 15;
 }
 
 message AddPostgresExporterResponse {
@@ -884,6 +926,8 @@ message AddProxySQLExporterRequest {
   repeated string disable_collectors = 10;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddProxySQLExporterResponse {
@@ -942,6 +986,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
@@ -1003,6 +1049,8 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 9;
   // Skip connection check.
   bool skip_connection_check = 10;
+  // Log level for exporter.
+  LogLevel log_level = 14;
 }
 
 message AddQANMySQLSlowlogAgentResponse {
@@ -1061,6 +1109,8 @@ message AddQANMongoDBProfilerAgentRequest {
   string authentication_mechanism = 12;
   // Authentication database.
   string authentication_database = 13;
+  // Log level for exporter.
+  LogLevel log_level = 14;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
@@ -1117,6 +1167,8 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   string tls_cert = 10;
   // TLS Certificate Key.
   string tls_key = 11;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddQANPostgreSQLPgStatementsAgentResponse {
@@ -1175,6 +1227,8 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   string tls_cert = 11;
   // TLS Certificate Key.
   string tls_key = 12;
+  // Log level for exporter.
+  LogLevel log_level = 13;
 }
 
 message AddQANPostgreSQLPgStatMonitorAgentResponse {
@@ -1223,6 +1277,8 @@ message AddRDSExporterRequest {
   bool disable_enhanced_metrics = 8;
   // Enables push metrics mode for exporter.
   bool push_metrics = 9;
+  // Log level for exporter.
+  LogLevel log_level = 10;
 }
 
 message AddRDSExporterResponse {
@@ -1328,6 +1384,8 @@ message AddAzureDatabaseExporterRequest {
   bool skip_connection_check = 9;
   // Enables push metrics mode for exporter.
   bool push_metrics = 10;
+  // Log level for exporter.
+  LogLevel log_level = 12;
 }
 
 message AddAzureDatabaseExporterResponse {
@@ -1383,6 +1441,17 @@ service Agents {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Agent"
       description: "Returns a single Agent by ID."
+    };
+  }
+  // GetAgentLogs returns Agent logs by ID.
+  rpc GetAgentLogs(GetAgentLogsRequest) returns (GetAgentLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/GetLogs"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Agent logs"
+      description: "Returns Agent logs by ID."
     };
   }
   // AddPMMAgent adds pmm-agent Agent.

@@ -18,6 +18,7 @@ package supervisor
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
@@ -39,6 +40,7 @@ import (
 	"github.com/percona/pmm/agent/agents/postgres/pgstatstatements"
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
@@ -61,6 +63,8 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventorypb.AgentStatus
+
+	logLinesCount uint
 }
 
 // agentProcessInfo describes Agent process.
@@ -70,6 +74,7 @@ type agentProcessInfo struct {
 	requestedState  *agentpb.SetStateRequest_AgentProcess
 	listenPort      uint16
 	processExecPath string
+	logStore        *tailog.Store // store logs
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -79,6 +84,7 @@ type builtinAgentInfo struct {
 	requestedState *agentpb.SetStateRequest_BuiltinAgent
 	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
 	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
+	logStore       *tailog.Store                  // store logs
 }
 
 // NewSupervisor creates new Supervisor object.
@@ -86,7 +92,7 @@ type builtinAgentInfo struct {
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
 // Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
 // QAN data is sent to QANRequests() channel which must be read until it is closed.
-func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server) *Supervisor {
+func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports, server *config.Server, logLinesCount uint) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
 		paths:         paths,
@@ -99,6 +105,8 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
+
+		logLinesCount: logLinesCount,
 	}
 
 	go func() {
@@ -140,6 +148,43 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 
 	sort.Slice(res, func(i, j int) bool { return res[i].AgentId < res[j].AgentId })
 	return res
+}
+
+// AgentsLogs returns logs for all Agents managed by this supervisor.
+func (s *Supervisor) AgentsLogs() map[string][]string {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	res := make(map[string][]string, len(s.agentProcesses)+len(s.builtinAgents))
+
+	for id, agent := range s.agentProcesses {
+		newID := strings.ReplaceAll(id, "/agent_id/", "")
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
+	}
+
+	for id, agent := range s.builtinAgents {
+		newID := strings.ReplaceAll(id, "/agent_id/", "")
+		res[fmt.Sprintf("%s %s", agent.requestedState.Type.String(), newID)], _ = agent.logStore.GetLogs()
+	}
+	return res
+}
+
+// AgentLogByID returns logs by Agent ID.
+func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	agentProcess, ok := s.agentProcesses[id]
+	if ok {
+		return agentProcess.logStore.GetLogs()
+	}
+
+	builtinAgent, ok := s.builtinAgents[id]
+	if ok {
+		return builtinAgent.logStore.GetLogs()
+	}
+
+	return nil, 0
 }
 
 // Changes returns channel with Agent's state changes.
@@ -346,7 +391,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(agentProcess.Type.String())
-	l := logrus.WithFields(logrus.Fields{
+	logStore := tailog.NewStore(s.logLinesCount)
+	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -377,6 +423,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
 		listenPort:      port,
 		processExecPath: processParams.Path,
+		logStore:        logStore,
 	}
 	return nil
 }
@@ -386,7 +433,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
 	ctx, cancel := context.WithCancel(s.ctx)
 	agentType := strings.ToLower(builtinAgent.Type.String())
-	l := logrus.WithFields(logrus.Fields{
+	logStore := tailog.NewStore(s.logLinesCount)
+	l := s.agentLogger(logStore).WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
 		"type":      agentType,
@@ -495,8 +543,21 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		requestedState: proto.Clone(builtinAgent).(*agentpb.SetStateRequest_BuiltinAgent),
 		describe:       agent.Describe,
 		collect:        agent.Collect,
+		logStore:       logStore,
 	}
 	return nil
+}
+
+// agentLogger write logs to Store so can get last N
+func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
+	return &logrus.Logger{
+		Out:          io.MultiWriter(os.Stderr, logStore),
+		Hooks:        logrus.StandardLogger().Hooks,
+		Formatter:    logrus.StandardLogger().Formatter,
+		ReportCaller: logrus.StandardLogger().ReportCaller,
+		Level:        logrus.StandardLogger().GetLevel(),
+		ExitFunc:     logrus.StandardLogger().ExitFunc,
+	}
 }
 
 // processParams makes *process.Params from SetStateRequest parameters and other data.

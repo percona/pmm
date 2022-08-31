@@ -27,10 +27,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/encoding/prototext"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -79,7 +79,7 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		cfg := &config.Config{}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -94,7 +94,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -111,7 +111,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		}
-		client := New(cfg, nil, nil, nil, nil)
+		client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Run(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -157,7 +157,7 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, &s, nil, nil, nil)
+			client := New(cfg, &s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -185,39 +185,12 @@ func TestClient(t *testing.T) {
 				},
 			}
 
-			client := New(cfg, nil, nil, nil, nil)
+			client := New(cfg, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Run(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
 	})
-}
-
-func TestGetActionTimeout(t *testing.T) {
-	type testStartActionReq struct {
-		req      *agentpb.StartActionRequest
-		expected time.Duration
-	}
-
-	testCases := []*testStartActionReq{{
-		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(0 * time.Second)},
-		expected: 10 * time.Second,
-	}, {
-		req:      &agentpb.StartActionRequest{Timeout: nil},
-		expected: 10 * time.Second,
-	}, {
-		req:      &agentpb.StartActionRequest{Timeout: durationpb.New(15 * time.Second)},
-		expected: 15 * time.Second,
-	}}
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(prototext.Format(tc.req), func(t *testing.T) {
-			client := New(nil, nil, nil, nil, nil)
-			actual := client.getActionTimeout(tc.req)
-			assert.Equal(t, tc.expected, actual)
-		})
-	}
 }
 
 func TestUnexpectedActionType(t *testing.T) {
@@ -272,7 +245,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	client := New(cfg, s, nil, nil, nil)
+	client := New(cfg, s, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())

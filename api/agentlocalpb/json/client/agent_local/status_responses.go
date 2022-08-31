@@ -312,6 +312,12 @@ type StatusOKBody struct {
 	// PMM Agent version.
 	AgentVersion string `json:"agent_version,omitempty"`
 
+	// node name
+	NodeName string `json:"node_name,omitempty"`
+
+	// Shows connection uptime in percentage between agent and server
+	ConnectionUptime float32 `json:"connection_uptime,omitempty"`
+
 	// server info
 	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }

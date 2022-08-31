@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"os"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -52,6 +53,7 @@ func TestDownloadLogs(t *testing.T) {
 		"client/pmm-admin-version.txt",
 		"client/pmm-agent-config.yaml",
 		"client/pmm-agent-version.txt",
+		"client/pmm-agent/pmm-agent.log",
 		"client/status.json",
 		"grafana.log",
 		"installed.json",
@@ -65,7 +67,7 @@ func TestDownloadLogs(t *testing.T) {
 		"pmm-version.txt",
 		"pmm.conf",
 		"pmm.ini",
-		"postgresql.log",
+		"postgresql14.log",
 		"prometheus.base.yml",
 		"qan-api2.ini",
 		"qan-api2.log",
@@ -86,9 +88,14 @@ func TestDownloadLogs(t *testing.T) {
 		sort.Strings(expected)
 	}
 
-	actual := make([]string, len(zipR.File))
-	for i, file := range zipR.File {
-		actual[i] = file.Name
+	actual := make([]string, 0, len(zipR.File))
+	for _, file := range zipR.File {
+		// skip with dynamic IDs now @TODO use regex to match ~ "client/pmm-agent/NODE_EXPORTER 297b465c-a767-4bc5-809d-d394a83c7086.log"
+		if strings.Contains(file.Name, "client/pmm-agent/") && file.Name != "client/pmm-agent/pmm-agent.log" {
+			continue
+		}
+
+		actual = append(actual, file.Name)
 	}
 
 	sort.Strings(actual)

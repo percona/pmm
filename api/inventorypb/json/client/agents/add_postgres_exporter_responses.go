@@ -163,10 +163,77 @@ type AddPostgresExporterBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Log level for exporters
+	// Enum: [auto fatal error warn info debug]
+	LogLevel *string `json:"log_level,omitempty"`
 }
 
 // Validate validates this add postgres exporter body
 func (o *AddPostgresExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addPostgresExporterBodyTypeLogLevelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgresExporterBodyTypeLogLevelPropEnum = append(addPostgresExporterBodyTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgresExporterBodyLogLevelAuto captures enum value "auto"
+	AddPostgresExporterBodyLogLevelAuto string = "auto"
+
+	// AddPostgresExporterBodyLogLevelFatal captures enum value "fatal"
+	AddPostgresExporterBodyLogLevelFatal string = "fatal"
+
+	// AddPostgresExporterBodyLogLevelError captures enum value "error"
+	AddPostgresExporterBodyLogLevelError string = "error"
+
+	// AddPostgresExporterBodyLogLevelWarn captures enum value "warn"
+	AddPostgresExporterBodyLogLevelWarn string = "warn"
+
+	// AddPostgresExporterBodyLogLevelInfo captures enum value "info"
+	AddPostgresExporterBodyLogLevelInfo string = "info"
+
+	// AddPostgresExporterBodyLogLevelDebug captures enum value "debug"
+	AddPostgresExporterBodyLogLevelDebug string = "debug"
+)
+
+// prop value enum
+func (o *AddPostgresExporterBody) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addPostgresExporterBodyTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgresExporterBody) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
 	return nil
 }
 

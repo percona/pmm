@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/types"
@@ -29,8 +28,9 @@ import (
 )
 
 var statusResultT = ParseTemplate(`
-Agent ID: {{ .PMMAgentStatus.AgentID }}
-Node ID : {{ .PMMAgentStatus.NodeID }}
+Agent ID : {{ .PMMAgentStatus.AgentID }}
+Node ID  : {{ .PMMAgentStatus.NodeID }}
+Node name: {{ .PMMAgentStatus.NodeName }}
 
 PMM Server:
 	URL    : {{ .PMMAgentStatus.ServerURL }}
@@ -40,6 +40,7 @@ PMM Client:
 	Connected        : {{ .PMMAgentStatus.Connected }}{{ if .PMMAgentStatus.Connected }}
 	Time drift       : {{ .PMMAgentStatus.ServerClockDrift }}
 	Latency          : {{ .PMMAgentStatus.ServerLatency }}{{ end }}
+	Connection uptime: {{ .PMMAgentStatus.ConnectionUptime }}
 	pmm-admin version: {{ .PMMVersion }}
 	pmm-agent version: {{ .PMMAgentStatus.AgentVersion }}
 Agents:
@@ -84,14 +85,22 @@ func newStatusResult(status *agentlocal.Status) *statusResult {
 	}
 }
 
-type statusCommand struct {
-	timeout time.Duration
+// StatusCommand is used by Kong for CLI flags and commands.
+type StatusCommand struct {
+	Timeout time.Duration `name:"wait" help:"Time to wait for a successful response from pmm-agent"`
 }
 
-func (cmd *statusCommand) Run() (Result, error) {
+// BeforeApply is run before the command is applied.
+func (cmd *StatusCommand) BeforeApply() error {
+	SetupClientsEnabled = false
+	return nil
+}
+
+// RunCmd runs the StatusCommand.
+func (cmd *StatusCommand) RunCmd() (Result, error) {
 	// Unlike list, this command uses only local pmm-agent status.
 	// It does not use PMM Server APIs.
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), cmd.timeout)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), cmd.Timeout)
 	defer cancel()
 
 	var status *agentlocal.Status
@@ -111,6 +120,11 @@ func (cmd *statusCommand) Run() (Result, error) {
 					"Please run `pmm-admin config` with --server-url flag.", err)
 			}
 
+			// return response in case when agent can't connect to server
+			if err == agentlocal.ErrNotConnected { //nolint:errorlint,goerr113
+				return newStatusResult(status), nil
+			}
+
 			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:golint
 		default:
 			time.Sleep(1 * time.Second)
@@ -118,14 +132,4 @@ func (cmd *statusCommand) Run() (Result, error) {
 	}
 
 	return newStatusResult(status), nil
-}
-
-// register command
-var (
-	Status  statusCommand
-	StatusC = kingpin.Command("status", "Show information about local pmm-agent")
-)
-
-func init() {
-	StatusC.Flag("wait", "Time to wait for a successful response from pmm-agent").DurationVar(&Status.timeout)
 }

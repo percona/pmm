@@ -33,10 +33,12 @@ type client interface {
 	GetNetworkInformation() (latency, clockDrift time.Duration, err error)
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
+	GetConnectionUpTime() float32
 }
 
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
 	AgentsList() []*agentlocalpb.AgentInfo
+	AgentsLogs() map[string][]string
 }

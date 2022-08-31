@@ -45,25 +45,24 @@ func (res *addAgentProxysqlExporterResult) String() string {
 	return commands.RenderTemplate(addAgentProxysqlExporterResultT, res)
 }
 
-type addAgentProxysqlExporterCommand struct {
-	PMMAgentID          string
-	ServiceID           string
-	Username            string
-	Password            string
-	AgentPassword       string
-	CustomLabels        string
-	SkipConnectionCheck bool
-	TLS                 bool
-	TLSSkipVerify       bool
-	PushMetrics         bool
-	DisableCollectors   string
+// AddAgentProxysqlExporterCommand is used by Kong for CLI flags and commands.
+type AddAgentProxysqlExporterCommand struct {
+	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID           string            `arg:"" help:"Service identifier"`
+	Username            string            `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
+	Password            string            `help:"ProxySQL password for scraping metrics"`
+	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
+	TLS                 bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
-func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddProxySQLExporterParams{
 		Body: agents.AddProxySQLExporterBody{
 			PMMAgentID:          cmd.PMMAgentID,
@@ -77,6 +76,7 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			LogLevel:            &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -88,26 +88,4 @@ func (cmd *addAgentProxysqlExporterCommand) Run() (commands.Result, error) {
 	return &addAgentProxysqlExporterResult{
 		Agent: resp.Payload.ProxysqlExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentProxysqlExporter  addAgentProxysqlExporterCommand
-	AddAgentProxysqlExporterC = addAgentC.Command("proxysql-exporter", "Add proxysql_exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentProxysqlExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentProxysqlExporter.PMMAgentID)
-	AddAgentProxysqlExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentProxysqlExporter.ServiceID)
-	AddAgentProxysqlExporterC.Arg("username", "ProxySQL username for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Username)
-	AddAgentProxysqlExporterC.Flag("password", "ProxySQL password for scraping metrics").Default("admin").StringVar(&AddAgentProxysqlExporter.Password)
-	AddAgentProxysqlExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentProxysqlExporter.AgentPassword)
-	AddAgentProxysqlExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentProxysqlExporter.CustomLabels)
-	AddAgentProxysqlExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentProxysqlExporter.SkipConnectionCheck)
-	AddAgentProxysqlExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentProxysqlExporter.TLS)
-	AddAgentProxysqlExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentProxysqlExporter.TLSSkipVerify)
-	AddAgentProxysqlExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentProxysqlExporter.PushMetrics)
-	AddAgentProxysqlExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentProxysqlExporter.DisableCollectors)
 }

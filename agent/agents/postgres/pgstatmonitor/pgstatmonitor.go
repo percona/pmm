@@ -25,8 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	ver "github.com/hashicorp/go-version"
-	"github.com/lib/pq"   //nolint:gci
-	_ "github.com/lib/pq" // register SQL driver.
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -44,20 +43,12 @@ const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatMonitorQAN struct {
-	q            *reform.Querier
-	dbCloser     io.Closer
-	agentID      string
-	l            *logrus.Entry
-	changes      chan agents.Change
-	monitorCache *statMonitorCache
-
-	// By default, query shows the actual parameter instead of the placeholder.
-	// It is quite useful when users want to use that query and try to run that
-	// query to check the abnormalities. But in most cases users like the queries
-	// with a placeholder. This parameter is used to toggle between the two said
-	// options.
-	pgsmNormalizedQuery  bool
-	waitTime             time.Duration
+	q                    *reform.Querier
+	dbCloser             io.Closer
+	agentID              string
+	l                    *logrus.Entry
+	changes              chan agents.Change
+	monitorCache         *statMonitorCache
 	disableQueryExamples bool
 }
 
@@ -81,6 +72,12 @@ const (
 	pgStatMonitorVersion10PG12
 	pgStatMonitorVersion10PG13
 	pgStatMonitorVersion10PG14
+	pgStatMonitorVersion11PG12
+	pgStatMonitorVersion11PG13
+	pgStatMonitorVersion11PG14
+	pgStatMonitorVersion20PG12
+	pgStatMonitorVersion20PG13
+	pgStatMonitorVersion20PG14
 )
 
 const (
@@ -91,7 +88,7 @@ const (
 	commandTypeUpdate       = "UPDATE"
 	commandTypeInsert       = "INSERT"
 	commandTypeDelete       = "DELETE"
-	commandTypeUtiity       = "UTILITY"
+	commandTypeUtility      = "UTILITY"
 )
 
 var commandTypeToText = []string{
@@ -100,7 +97,7 @@ var commandTypeToText = []string{
 	commandTypeUpdate,
 	commandTypeInsert,
 	commandTypeDelete,
-	commandTypeUtiity,
+	commandTypeUtility,
 	commandTextNotAvailable,
 }
 
@@ -121,25 +118,6 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, l)
 }
 
-func isPropertyValueInt(property string) bool {
-	switch property {
-	case
-		"pg_stat_monitor.pgsm_histogram_max",
-		"pg_stat_monitor.pgsm_query_max_len",
-		"pg_stat_monitor.pgsm_max",
-		"pg_stat_monitor.pgsm_bucket_time",
-		"pg_stat_monitor.pgsm_query_shared_buffer",
-		"pg_stat_monitor.pgsm_max_buckets",
-		"pg_stat_monitor.pgsm_histogram_buckets",
-		"pg_stat_monitor.pgsm_overflow_target",
-		"pg_stat_monitor.pgsm_histogram_min":
-
-		return true
-	}
-
-	return false
-}
-
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	pgsmVersion, prerelease, err := getPGMonitorVersion(q)
 	if err != nil {
@@ -154,57 +132,6 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 }
 
 func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, l *logrus.Entry) (*PGStatMonitorQAN, error) {
-	var settings []reform.Struct
-
-	settingsValuesAreText, err := areSettingsTextValues(q)
-	if err != nil {
-		return nil, err
-	}
-	if settingsValuesAreText {
-		settings, err = q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
-	} else {
-		settings, err = q.SelectAllFrom(pgStatMonitorSettingsView, "")
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get settings")
-	}
-
-	var normalizedQuery bool
-	waitTime := defaultWaitTime
-	for _, row := range settings {
-		var name string
-		var value int64
-
-		if settingsValuesAreText {
-			setting := row.(*pgStatMonitorSettingsTextValue)
-			name = setting.Name
-			if !isPropertyValueInt(name) {
-				continue
-			}
-
-			valueInt, err := strconv.ParseInt(setting.Value, 10, 64)
-			if err != nil {
-				return nil, errors.Wrap(err, "value cannot be parsed as integer")
-			}
-			value = valueInt
-		} else {
-			setting := row.(*pgStatMonitorSettings)
-			name = setting.Name
-			value = setting.Value
-		}
-
-		if err == nil {
-			switch name {
-			case "pg_stat_monitor.pgsm_normalized_query":
-				normalizedQuery = value == 1
-			case "pg_stat_monitor.pgsm_bucket_time":
-				if value < int64(defaultWaitTime.Seconds()) {
-					waitTime = time.Duration(value) * time.Second
-				}
-			}
-		}
-	}
-
 	return &PGStatMonitorQAN{
 		q:                    q,
 		dbCloser:             dbCloser,
@@ -212,8 +139,6 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 		l:                    l,
 		changes:              make(chan agents.Change, 10),
 		monitorCache:         newStatMonitorCache(l),
-		pgsmNormalizedQuery:  normalizedQuery,
-		waitTime:             waitTime,
 		disableQueryExamples: disableQueryExamples,
 	}, nil
 }
@@ -246,6 +171,26 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	version := pgStatMonitorVersion06
 	switch {
+	case pgsmVersion.Core().GreaterThanOrEqual(v20):
+		if pgVersion >= 14 {
+			version = pgStatMonitorVersion20PG14
+			break
+		}
+		if pgVersion >= 13 {
+			version = pgStatMonitorVersion20PG13
+			break
+		}
+		version = pgStatMonitorVersion20PG12
+	case pgsmVersion.Core().GreaterThanOrEqual(v11):
+		if pgVersion >= 14 {
+			version = pgStatMonitorVersion11PG14
+			break
+		}
+		if pgVersion >= 13 {
+			version = pgStatMonitorVersion11PG13
+			break
+		}
+		version = pgStatMonitorVersion11PG12
 	case pgsmVersion.Core().GreaterThanOrEqual(v10):
 		if pgVersion >= 14 {
 			version = pgStatMonitorVersion10PG14
@@ -275,10 +220,21 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 		close(m.changes)
 	}()
 
+	settings, err := m.getSettings()
+	if err != nil {
+		m.l.Error(err)
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+	}
+	normalizedQuery, err := settings.getNormalizedQueryValue()
+	if err != nil {
+		m.l.Error(err)
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+	}
+
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, m.pgsmNormalizedQuery); err == nil {
+	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -288,10 +244,16 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 	}
 
+	waitTime, err := settings.getWaitTime()
+	if err != nil {
+		m.l.Warning(err)
+	}
+	running = m.checkDefaultWaitTime(waitTime)
+
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
-	m.l.Debugf("Scheduling next collection in %s at %s.", m.waitTime, start.Add(m.waitTime).Format("15:04:05"))
-	t := time.NewTimer(m.waitTime)
+	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
+	t := time.NewTimer(waitTime)
 	defer t.Stop()
 
 	for {
@@ -306,12 +268,37 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 			}
 
-			lengthS := uint32(m.waitTime.Seconds())
-			buckets, err := m.getNewBuckets(ctx, lengthS)
+			settings, err := m.getSettings()
+			if err != nil {
+				m.l.Errorf(err.Error())
+				running = false
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.resetWaitTime(t, waitTime)
+				continue
+			}
+			normalizedQuery, err := settings.getNormalizedQueryValue()
+			if err != nil {
+				m.l.Errorf(err.Error())
+				running = false
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.resetWaitTime(t, waitTime)
+				continue
+			}
 
-			start = time.Now()
-			m.l.Debugf("Scheduling next collection in %s at %s.", m.waitTime, start.Add(m.waitTime).Format("15:04:05"))
-			t.Reset(m.waitTime)
+			waitTime, err := settings.getWaitTime()
+			if err != nil {
+				m.l.Warning(err)
+			}
+			running = m.checkDefaultWaitTime(waitTime)
+			if !running {
+				m.resetWaitTime(t, waitTime)
+				continue
+			}
+
+			lengthS := uint32(waitTime.Seconds())
+			buckets, err := m.getNewBuckets(ctx, lengthS, normalizedQuery)
+
+			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
@@ -330,8 +317,88 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	}
 }
 
-func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
-	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, m.pgsmNormalizedQuery)
+func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
+	start := time.Now()
+	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
+	t.Reset(waitTime)
+}
+
+func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
+	if waitTime != defaultWaitTime {
+		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		return false
+	}
+
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	return true
+}
+
+type settings map[string]*pgStatMonitorSettingsTextValue
+
+func (m *PGStatMonitorQAN) getSettings() (settings, error) {
+	var settingsRows []reform.Struct
+
+	settingsValuesAreText, err := areSettingsTextValues(m.q)
+	if err != nil {
+		return nil, err
+	}
+	if settingsValuesAreText {
+		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+	} else {
+		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get settings")
+	}
+
+	settings := make(settings)
+	for _, row := range settingsRows {
+		if settingsValuesAreText {
+			setting := row.(*pgStatMonitorSettingsTextValue)
+			settings[setting.Name] = setting
+		} else {
+			setting := row.(*pgStatMonitorSettings)
+			name := setting.Name
+			settings[name] = &pgStatMonitorSettingsTextValue{
+				Name:  name,
+				Value: fmt.Sprintf("%d", setting.Value),
+			}
+		}
+	}
+
+	return settings, nil
+}
+
+func (s settings) getNormalizedQueryValue() (bool, error) {
+	key := "pg_stat_monitor.pgsm_normalized_query"
+	if _, ok := s[key]; !ok {
+		return false, errors.New("failed to get pgsm_normalized_query property")
+	}
+
+	if s[key].Value == "yes" || s[key].Value == "1" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (s settings) getWaitTime() (time.Duration, error) {
+	key := "pg_stat_monitor.pgsm_bucket_time"
+	if _, ok := s[key]; !ok {
+		return defaultWaitTime, errors.New("failed to get pgsm_bucket_time, wait time set on 60 seconds")
+	}
+
+	valueInt, err := strconv.ParseInt(s[key].Value, 10, 64)
+	if err != nil {
+		return defaultWaitTime, errors.Wrap(err, "property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds")
+	}
+
+	return time.Duration(valueInt) * time.Second, nil
+}
+
+func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentpb.MetricsBucket, error) {
+	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery)
 	if err != nil {
 		return nil, err
 	}

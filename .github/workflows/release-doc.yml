@@ -1,0 +1,31 @@
+name: Publish release changelog
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+jobs:
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Changelog
+        id: pmm_release
+        shell: bash
+        run: |
+          version="${release_tag/refs\/tags\/v/}"
+          wget https://raw.githubusercontent.com/percona/pmm-doc/main/docs/release-notes/$version.md -O ${{ github.workspace }}-CHANGELOG.txt
+        env:
+          release_tag: ${{ github.ref }}
+      - name: Convert mkdocs
+        shell: bash
+        run: |
+          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! caution alert alert-warning "\(.*\)"/\> \:warning\: **\1**/g'
+          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! caution alert alert-warning/\> \:warning\:/g'
+          grep -rl '!!! alert alert-info' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! alert alert-info/\>/g'
+          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
+          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          draft: true

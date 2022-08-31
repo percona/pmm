@@ -26,6 +26,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 // rdsInstance represents a single RDS instance information from configuration file.
@@ -65,7 +66,7 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
-func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode) (*agentpb.SetStateRequest_AgentProcess, error) {
+func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
 	config := rdsExporterConfigFile{
 		Instances: make([]rdsInstance, 0, len(pairs)),
 	}
@@ -113,6 +114,9 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 		"--config.file=" + tdp.Left + " .TextFiles.config " + tdp.Right,
 	}
+
+	args = withLogLevel(args, toOneLogLevel(pairs), pmmAgentVersion, true)
+
 	sort.Strings(args)
 
 	b, err := yaml.Marshal(config)
@@ -130,4 +134,28 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		},
 		RedactWords: words,
 	}, nil
+}
+
+// toOneLogLevel returns first if all equals.
+func toOneLogLevel(pairs map[*models.Node]*models.Agent) *string {
+	var (
+		logLevel      *string
+		logLevelFirst bool
+	)
+
+	for _, exporter := range pairs {
+		if !logLevelFirst {
+			logLevel = exporter.LogLevel
+
+			logLevelFirst = true
+
+			continue
+		}
+
+		if pointer.GetString(logLevel) != pointer.GetString(exporter.LogLevel) {
+			return nil
+		}
+	}
+
+	return logLevel
 }
