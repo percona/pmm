@@ -114,14 +114,14 @@ message ListAlertRulesResponse {
 }
 
 message CreateAlertRuleRequest {
-  // Template name. Can't be specified simultaneously with source_rule_id.
+  // Template name.
   string template_name = 1;
-  // ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
-  string source_rule_id = 2;
   // Rule name.
-  string name = 3;
-  // New rule status.
-  bool disabled = 4;
+  string name = 2;
+  // Rule group name.
+  string group = 3;
+  // Folder UID.
+  string folder_uid = 4;
   // Rule parameters. All template parameters should be set.
   repeated ParamValue params = 5;
   // Rule duration. Should be set.
@@ -130,10 +130,10 @@ message CreateAlertRuleRequest {
   management.Severity severity = 7;
   // All custom labels to add or remove (with empty values) to default labels from template.
   map<string, string> custom_labels = 8;
-  // Filters. Should be set.
+  // Filters.
   repeated Filter filters = 9;
-  // Channels. Should be set.
-  repeated string channel_ids = 10;
+  // Contact points.
+  repeated string contact_points = 10;
 }
 
 message CreateAlertRuleResponse {

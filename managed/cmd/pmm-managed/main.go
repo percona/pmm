@@ -771,7 +771,7 @@ func main() {
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
 	templatesService.CollectTemplates(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
+	rulesService := ia.NewRulesService(db, templatesService, grafanaClient, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)

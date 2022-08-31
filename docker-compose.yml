@@ -2,7 +2,7 @@
 version: '3.7'
 services:
   pmm-managed-server:
-    image: perconalab/pmm-server:dev-container
+    image:  perconalab/pmm-server-fb:PR-2628-dbd5144
     # build:
     #   context: .
     #   args:

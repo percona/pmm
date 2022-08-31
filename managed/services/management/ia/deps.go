@@ -18,6 +18,8 @@ package ia
 import (
 	"context"
 
+	gapi "github.com/grafana/grafana-api-golang-client"
+
 	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/managed/services"
 )
@@ -25,7 +27,7 @@ import (
 //go:generate ../../../../bin/mockery -name=alertManager -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=vmAlert -case=snake -inpkg -testonly
 
-// alertManager is is a subset of methods of alertmanager.Service used by this package.
+// alertManager is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertManager interface {
 	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*ammodels.GettableAlert, error)
@@ -35,8 +37,15 @@ type alertManager interface {
 	RequestConfigurationUpdate()
 }
 
-// vmAlert is is a subset of methods of vmalert.Service used by this package.
+// vmAlert is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type vmAlert interface {
 	RequestConfigurationUpdate()
+}
+
+type grafanaClient interface {
+	CreateAlertRule(ctx context.Context, rule *gapi.AlertRule) (string, error)
+	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
+	GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error)
+	CreateNotificationPolicy(ctx context.Context, ruleId string, contactPoints []string) error
 }

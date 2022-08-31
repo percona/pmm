@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -352,6 +353,99 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 		return err
 	}
 	return c.deleteAPIKey(ctx, id, authHeaders)
+}
+
+func (c *Client) CreateAlertRule(ctx context.Context, rule *gapi.AlertRule) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", err // TODO
+	}
+
+	alertID, err := grafanaClient.NewAlertRule(rule)
+	if err != nil {
+		return "", err // TODO
+	}
+
+	return alertID, nil
+}
+
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", err // TODO
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
+}
+
+func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return nil, err // TODO
+	}
+
+	folder, err := grafanaClient.FolderByUID(uid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find folder")
+	}
+
+	return folder, nil
+}
+
+func (c *Client) CreateNotificationPolicy(ctx context.Context, ruleId string, contactPoints []string) error {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return err // TODO
+	}
+
+	policyTree, err := grafanaClient.NotificationPolicyTree()
+	if err != nil {
+		return err // TODO
+	}
+
+	for _, cp := range contactPoints {
+		policyTree.Routes = append(policyTree.Routes, gapi.SpecificPolicy{
+			Receiver: cp,
+			GroupBy:  nil,
+			ObjectMatchers: gapi.Matchers{
+				{
+					Type:  gapi.MatchEqual,
+					Name:  "rule_id",
+					Value: ruleId,
+				},
+			},
+			Continue: true,
+		})
+	}
+
+	if err := grafanaClient.SetNotificationPolicyTree(&policyTree); err != nil {
+		return errors.Wrap(err, "failed to create notification policy")
+	}
+
+	return nil
+}
+
+func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	headers := make(map[string]string, len(authHeaders))
+	for k := range authHeaders {
+		headers[k] = authHeaders.Get(k)
+	}
+
+	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
+	if err != nil {
+		return nil, err // TODO
+	}
+
+	return grafanaClient, nil
 }
 
 func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {

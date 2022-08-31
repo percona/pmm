@@ -49,7 +49,8 @@ func NewSearchOrganizationTicketsOK() *SearchOrganizationTicketsOK {
 	return &SearchOrganizationTicketsOK{}
 }
 
-/* SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
+/*
+SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewSearchOrganizationTicketsDefault(code int) *SearchOrganizationTicketsDef
 	}
 }
 
-/* SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
+/*
+SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *SearchOrganizationTicketsDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*SearchOrganizationTicketsDefaultBody search organization tickets default body
+/*
+SearchOrganizationTicketsDefaultBody search organization tickets default body
 swagger:model SearchOrganizationTicketsDefaultBody
 */
 type SearchOrganizationTicketsDefaultBody struct {
@@ -220,7 +223,8 @@ func (o *SearchOrganizationTicketsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets default body details items0
+/*
+SearchOrganizationTicketsDefaultBodyDetailsItems0 search organization tickets default body details items0
 swagger:model SearchOrganizationTicketsDefaultBodyDetailsItems0
 */
 type SearchOrganizationTicketsDefaultBodyDetailsItems0 struct {
@@ -256,7 +260,8 @@ func (o *SearchOrganizationTicketsDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*SearchOrganizationTicketsOKBody search organization tickets OK body
+/*
+SearchOrganizationTicketsOKBody search organization tickets OK body
 swagger:model SearchOrganizationTicketsOKBody
 */
 type SearchOrganizationTicketsOKBody struct {
@@ -353,7 +358,8 @@ func (o *SearchOrganizationTicketsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains information about the support ticket.
+/*
+SearchOrganizationTicketsOKBodyTicketsItems0 OrganizationTicket contains information about the support ticket.
 swagger:model SearchOrganizationTicketsOKBodyTicketsItems0
 */
 type SearchOrganizationTicketsOKBodyTicketsItems0 struct {

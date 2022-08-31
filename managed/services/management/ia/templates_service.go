@@ -57,7 +57,8 @@ const (
 // templateInfo represents alerting rule template information from various sources.
 //
 // TODO We already have models.Template, iav1beta1.Template, and alert.Template.
-//      We probably can remove that type.
+//
+//	We probably can remove that type.
 type templateInfo struct {
 	alert.Template
 	Yaml      string

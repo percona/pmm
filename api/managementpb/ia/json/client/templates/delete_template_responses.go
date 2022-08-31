@@ -48,7 +48,8 @@ func NewDeleteTemplateOK() *DeleteTemplateOK {
 	return &DeleteTemplateOK{}
 }
 
-/* DeleteTemplateOK describes a response with status code 200, with default header values.
+/*
+DeleteTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewDeleteTemplateDefault(code int) *DeleteTemplateDefault {
 	}
 }
 
-/* DeleteTemplateDefault describes a response with status code -1, with default header values.
+/*
+DeleteTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *DeleteTemplateDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*DeleteTemplateBody delete template body
+/*
+DeleteTemplateBody delete template body
 swagger:model DeleteTemplateBody
 */
 type DeleteTemplateBody struct {
@@ -150,7 +153,8 @@ func (o *DeleteTemplateBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DeleteTemplateDefaultBody delete template default body
+/*
+DeleteTemplateDefaultBody delete template default body
 swagger:model DeleteTemplateDefaultBody
 */
 type DeleteTemplateDefaultBody struct {
@@ -253,7 +257,8 @@ func (o *DeleteTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DeleteTemplateDefaultBodyDetailsItems0 delete template default body details items0
+/*
+DeleteTemplateDefaultBodyDetailsItems0 delete template default body details items0
 swagger:model DeleteTemplateDefaultBodyDetailsItems0
 */
 type DeleteTemplateDefaultBodyDetailsItems0 struct {

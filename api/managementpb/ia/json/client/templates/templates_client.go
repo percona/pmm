@@ -40,7 +40,7 @@ type ClientService interface {
 }
 
 /*
-  CreateTemplate creates template creates a new template
+CreateTemplate creates template creates a new template
 */
 func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOption) (*CreateTemplateOK, error) {
 	// TODO: Validate the params before sending
@@ -77,7 +77,7 @@ func (a *Client) CreateTemplate(params *CreateTemplateParams, opts ...ClientOpti
 }
 
 /*
-  DeleteTemplate deletes template deletes existing previously created via API
+DeleteTemplate deletes template deletes existing previously created via API
 */
 func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOption) (*DeleteTemplateOK, error) {
 	// TODO: Validate the params before sending
@@ -114,7 +114,7 @@ func (a *Client) DeleteTemplate(params *DeleteTemplateParams, opts ...ClientOpti
 }
 
 /*
-  ListTemplates lists templates returns a list of all collected alert rule templates
+ListTemplates lists templates returns a list of all collected alert rule templates
 */
 func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption) (*ListTemplatesOK, error) {
 	// TODO: Validate the params before sending
@@ -151,7 +151,7 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 }
 
 /*
-  UpdateTemplate updates template updates existing template previously created via API
+UpdateTemplate updates template updates existing template previously created via API
 */
 func (a *Client) UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOption) (*UpdateTemplateOK, error) {
 	// TODO: Validate the params before sending

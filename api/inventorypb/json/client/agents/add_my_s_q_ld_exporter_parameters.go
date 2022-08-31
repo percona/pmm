@@ -52,10 +52,12 @@ func NewAddMySQLdExporterParamsWithHTTPClient(client *http.Client) *AddMySQLdExp
 	}
 }
 
-/* AddMySQLdExporterParams contains all the parameters to send to the API endpoint
-   for the add my s q ld exporter operation.
+/*
+AddMySQLdExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add my s q ld exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type AddMySQLdExporterParams struct {
 	// Body.

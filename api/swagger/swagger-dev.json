@@ -30090,23 +30090,23 @@
               "type": "object",
               "properties": {
                 "template_name": {
-                  "description": "Template name. Can't be specified simultaneously with source_rule_id.",
+                  "description": "Template name.",
                   "type": "string",
                   "x-order": 0
-                },
-                "source_rule_id": {
-                  "description": "ID of the rule that will be used as source. Can't be specified simultaneously with template_name.",
-                  "type": "string",
-                  "x-order": 1
                 },
                 "name": {
                   "description": "Rule name.",
                   "type": "string",
+                  "x-order": 1
+                },
+                "group": {
+                  "description": "Rule group name.",
+                  "type": "string",
                   "x-order": 2
                 },
-                "disabled": {
-                  "description": "New rule status.",
-                  "type": "boolean",
+                "folder_uid": {
+                  "description": "Folder UID.",
+                  "type": "string",
                   "x-order": 3
                 },
                 "params": {
@@ -30184,7 +30184,7 @@
                   "x-order": 7
                 },
                 "filters": {
-                  "description": "Filters. Should be set.",
+                  "description": "Filters.",
                   "type": "array",
                   "items": {
                     "description": "Filter repsents a single filter condition.",
@@ -30213,8 +30213,8 @@
                   },
                   "x-order": 8
                 },
-                "channel_ids": {
-                  "description": "Channels. Should be set.",
+                "contact_points": {
+                  "description": "Contact points.",
                   "type": "array",
                   "items": {
                     "type": "string"
