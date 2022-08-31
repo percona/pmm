@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
 // Commands stores all commands, flags and arguments.
@@ -48,6 +49,24 @@ type Commands struct {
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
 }
 
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return runGeneric(ctx, globals)
+}
+
+type PMMCommands struct {
+	flags.GlobalFlags
+
+	Server server.ServerCommand `cmd:"" help:"PMM server related commands"`
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return runGeneric(ctx, globals)
+}
+
 // CmdRunner represents a command to be run without arguments.
 type CmdRunner interface {
 	RunCmd() (commands.Result, error)
@@ -63,9 +82,7 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
 }
 
-// Run function is a top-level function which handles running all commands
-// in a standard way based on the interface they implement.
-func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func runGeneric(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 
@@ -82,7 +99,7 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 		panic("The command does not implement RunCmd()")
 	}
 
-	return printResponse(&c.GlobalFlags, res, err)
+	return printResponse(globals, res, err)
 }
 
 func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) error {
