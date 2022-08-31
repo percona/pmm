@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -160,12 +161,10 @@ func checkVersionCompatibility(jsonOutput bool) {
 				logrus.Panicf("Failed to marshal error to JSON.\n%s.\nPlease report this bug.", jErr)
 			}
 			fmt.Printf("%s\n", b) //nolint:forbidigo
+		} else if errors.Is(err, errMismatchedVersion) {
+			fmt.Println(err) //nolint:forbidigo
 		} else {
-			if err == errMismatchedVersion {
-				fmt.Println(err) //nolint:forbidigo
-			} else {
-				logrus.Infof("Failed to check version compatibility: %s.", err.Error())
-			}
+			logrus.Infof("Failed to check version compatibility: %s.", err.Error())
 		}
 	}
 }
