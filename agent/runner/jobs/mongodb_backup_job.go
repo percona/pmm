@@ -92,7 +92,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := makeMarshalableLocationConfig(&j.locationConfig, j.name, j.pitr)
+	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}

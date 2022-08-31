@@ -28,6 +28,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+var ErrInvalidServiceType = errors.New("provided service type not defined")
+
 func checkServiceUniqueID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Service ID")
@@ -351,4 +353,18 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	return errors.Wrap(q.Delete(s), "failed to delete Service")
+}
+
+func ValidateServiceType(serviceType ServiceType) error {
+	switch serviceType {
+	case MySQLServiceType,
+		MongoDBServiceType,
+		PostgreSQLServiceType,
+		ProxySQLServiceType,
+		HAProxyServiceType,
+		ExternalServiceType:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
+	}
 }

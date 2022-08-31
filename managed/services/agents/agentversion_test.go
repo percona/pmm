@@ -1,11 +1,13 @@
 package agents
 
 import (
+	"testing"
+
 	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
-	"github.com/percona/pmm/managed/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestPMMAgentSupported(t *testing.T) {

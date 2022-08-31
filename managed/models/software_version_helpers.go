@@ -182,6 +182,15 @@ func FindServicesSoftwareVersions(
 ) ([]*ServiceSoftwareVersions, error) {
 	var args []interface{}
 	var tail strings.Builder
+
+	if filter.ServiceType != nil {
+		if err := ValidateServiceType(*filter.ServiceType); err != nil {
+			return nil, errors.WithStack(err)
+		}
+		tail.WriteString("WHERE service_type = $1")
+		args = append(args, *filter.ServiceType)
+	}
+
 	if orderBy == SoftwareVersionsOrderByServiceID {
 		tail.WriteString("ORDER BY service_id ")
 	} else {
@@ -189,7 +198,7 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		tail.WriteString("LIMIT $1")
+		tail.WriteString("LIMIT $2")
 		args = append(args, *filter.Limit)
 	}
 

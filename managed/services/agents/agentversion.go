@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// ErrIncompatibleAgentVersion is returned when the agent version is incompatible for making a backup or restore.
+// ErrIncompatibleAgentVersion is returned when the version of the running pmm-agent does not support a given functionality.
 var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
 
 // PMMAgentSupportedByAgentId wraps PMMAgentSupported and accepts agent ID instead of agent model.

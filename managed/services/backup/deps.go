@@ -27,6 +27,7 @@ import (
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -88,5 +89,8 @@ type versioner interface {
 
 // We use it instead of real type for testing and to avoid dependency cycle
 type compatibilityService interface {
+	// CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
+	// and they are compatible with the db version.
+	// Returns db version.
 	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
 }

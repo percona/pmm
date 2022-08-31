@@ -33,7 +33,7 @@ type S3LocationConfig struct {
 	BucketRegion string
 }
 
-// LocalStorageLocationConfig contains config for local storage
+// PMMClientBackupLocationConfig contains config for local storage
 type PMMClientBackupLocationConfig struct {
 	Path string
 }

@@ -339,9 +339,9 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 
 // Storage represents target storage parameters.
 type Storage struct {
-	Type         string       `yaml:"type"`
-	S3           S3           `yaml:"s3"`
-	LocalStorage LocalStorage `yaml:"filesystem"`
+	Type       string     `yaml:"type"`
+	S3         S3         `yaml:"s3"`
+	FileSystem FileSystem `yaml:"filesystem"`
 }
 
 // S3 represents S3 storage parameters.
@@ -354,7 +354,7 @@ type S3 struct {
 }
 
 // LocalStorage represents local storage parameters.
-type LocalStorage struct {
+type FileSystem struct {
 	Path string `yaml:"path"`
 }
 
@@ -375,8 +375,8 @@ type PBMConfig struct {
 	PITR    PITR    `yaml:"pitr"`
 }
 
-// makeMarshalableLocationConfig returns object that is ready to be serialized into YAML.
-func makeMarshalableLocationConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
+// createPBMConfig returns object that is ready to be serialized into YAML.
+func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
 	conf := &PBMConfig{
 		PITR: PITR{
 			Enabled: pitr,
@@ -401,7 +401,7 @@ func makeMarshalableLocationConfig(locationConfig *BackupLocationConfig, prefix 
 	case PMMClientBackupLocationType:
 		conf.Storage = Storage{
 			Type: "filesystem",
-			LocalStorage: LocalStorage{
+			FileSystem: FileSystem{
 				Path: locationConfig.LocalStorageConfig.Path,
 			},
 		}

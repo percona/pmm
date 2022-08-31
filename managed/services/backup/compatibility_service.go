@@ -17,18 +17,14 @@ package backup
 
 import (
 	"context"
-	"github.com/percona/pmm/managed/services/agents"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
-
-var ()
 
 // CompatibilityService is responsible for checking software and artifacts compatibility during backup and restore.
 type CompatibilityService struct {
@@ -59,7 +55,7 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 		return "", err
 	}
 	if len(svs) != len(softwares) {
-		return "", errors.Errorf("response slice len %d != request len %d", len(svs), len(softwares))
+		return "", errors.Wrapf(ErrComparisonImpossible, "response slice len %d != request len %d", len(svs), len(softwares))
 	}
 
 	svm := make(map[models.SoftwareName]string, len(softwares))
@@ -69,7 +65,7 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 			return "", err
 		}
 		if svs[i].Error != "" {
-			return "", errors.Errorf("failed to get software %s version: %s", name, svs[i].Error)
+			return "", errors.Wrapf(ErrComparisonImpossible, "failed to get software %s version: %s", name, svs[i].Error)
 		}
 
 		svm[name] = svs[i].Version
@@ -87,6 +83,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 	compatibleServiceIDs := make([]string, 0, len(svs))
 	for _, sv := range svs {
 		svm := softwareVersionsToMap(sv.SoftwareVersions)
+
 		if err := mySQLSoftwaresInstalledAndCompatible(svm); err != nil {
 			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
 			continue
@@ -142,11 +139,7 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 	var compatibleServices []*models.Service
 	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		artifactModel, err := models.FindArtifactByID(tx.Querier, artifactID)
-		switch {
-		case err == nil:
-		case errors.Is(err, models.ErrNotFound):
-			return status.Errorf(codes.NotFound, "Artifact with ID %q not found.", artifactID)
-		default:
+		if err != nil {
 			return err
 		}
 
@@ -174,13 +167,16 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 		}
 
 		compatibleServiceIDs := s.findCompatibleServiceIDs(artifactModel, svs)
+		if len(compatibleServiceIDs) == 0 {
+			return nil
+		}
 
 		servicesMap, err := models.FindServicesByIDs(tx.Querier, compatibleServiceIDs)
 		if err != nil {
 			return err
 		}
 
-		compatibleServices = make([]*models.Service, 0, len(compatibleServiceIDs))
+		compatibleServices = make([]*models.Service, len(compatibleServiceIDs))
 		for i, id := range compatibleServiceIDs {
 			compatibleServices[i] = servicesMap[id]
 		}

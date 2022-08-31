@@ -17,11 +17,12 @@ package backup
 
 import (
 	"github.com/hashicorp/go-version"
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/agents"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 type compatibility struct {
@@ -42,6 +43,8 @@ var (
 	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
 	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
+	// ErrComparisonImpossible is returned when comparison of versions is impossible for some reasons.
+	ErrComparisonImpossible = errors.New("cannot compare software versions")
 
 	mysqlAndXtrabackupCompatibleVersions []compatibility
 	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,

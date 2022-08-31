@@ -529,7 +529,11 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 	req *backupv1beta1.ListArtifactCompatibleServicesRequest,
 ) (*backupv1beta1.ListArtifactCompatibleServicesResponse, error) {
 	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
-	if err != nil {
+	switch {
+	case err == nil:
+	case errors.Is(err, models.ErrNotFound):
+		return nil, status.Error(codes.NotFound, err.Error())
+	default:
 		return nil, err
 	}
 
