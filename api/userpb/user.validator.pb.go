@@ -34,7 +34,3 @@ func (this *UserDetailsResponse) Validate() error {
 func (this *UserUpdateRequest) Validate() error {
 	return nil
 }
-
-func (this *UserUpdateResponse) Validate() error {
-	return nil
-}

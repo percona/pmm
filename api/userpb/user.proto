@@ -29,13 +29,6 @@ message UserUpdateRequest {
   bool product_tour_completed = 2;
 }
 
-message UserUpdateResponse {
-  // User ID
-  uint32 user_id = 1;
-  // Product Tour
-  bool product_tour_completed = 2;
-}
-
 // UserService contains rpcs related to user data
 service User {
   rpc GetUser(UserDetailsRequest) returns (UserDetailsResponse) {

@@ -41,10 +41,13 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 
 	// Check user ID is unique
 	row := &UserDetails{ID: params.UserID}
-	if err := q.Reload(row); !errors.Is(err, reform.ErrNoRows) {
-		if err == nil {
-			return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
-		}
+	err := q.Reload(row)
+	switch err {
+	case nil:
+		return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
+	case reform.ErrNoRows:
+		break
+	default:
 		return nil, errors.WithStack(err)
 	}
 
@@ -62,14 +65,15 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 	if params.UserID <= 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid user ID")
 	}
-	if !params.Tour {
-		return nil, status.Errorf(codes.InvalidArgument, "Cannot unset tour flag")
-	}
 
 	// Find existing entry for user
 	row, err := FindUser(q, params.UserID)
 	if err != nil {
 		return nil, err
+	}
+
+	if !params.Tour {
+		return row, nil
 	}
 
 	row.Tour = params.Tour
@@ -91,7 +95,7 @@ func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
 	case nil:
 		return row, nil
 	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Record with User ID %d not found.", userID)
+		return nil, ErrNotFound
 	default:
 		return nil, errors.WithStack(err)
 	}

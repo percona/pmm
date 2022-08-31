@@ -32,17 +32,17 @@ import (
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
-	c  clientInterface
+	c  grafanaClient
 
 	userpb.UnimplementedUserServer
 }
 
-type clientInterface interface {
+type grafanaClient interface {
 	GetUserID(ctx context.Context) (int, error)
 }
 
 // NewUserService return a user service
-func NewUserService(db *reform.DB, client clientInterface) *Service {
+func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	l := logrus.WithField("component", "user")
 
 	s := Service{
@@ -65,7 +65,7 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
-		if err != nil {
+		if err == models.ErrNotFound {
 			// User entry missing; create entry
 			params := &models.CreateUserParams{
 				UserID: userID,
@@ -104,18 +104,12 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
 		if err != nil {
+			if err == models.ErrNotFound {
+				return status.Errorf(codes.Unavailable, "User not found")
+			}
 			return err
 		}
 
-		return nil
-	})
-
-	if e != nil {
-		return nil, e
-	}
-
-	e = s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
 		params := &models.UpdateUserParams{
 			UserID: userInfo.ID,
 			Tour:   req.ProductTourCompleted,
@@ -124,7 +118,6 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		if err != nil {
 			return err
 		}
-
 		return nil
 	})
 
