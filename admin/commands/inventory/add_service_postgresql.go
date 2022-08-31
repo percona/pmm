@@ -47,23 +47,21 @@ func (res *addServicePostgreSQLResult) String() string {
 	return commands.RenderTemplate(addServicePostgreSQLResultT, res)
 }
 
-type addServicePostgreSQLCommand struct {
-	ServiceName    string
-	NodeID         string
-	Address        string
-	Port           int64
-	Socket         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
+// AddServicePostgreSQLCommand is used by Kong for CLI flags and commands.
+type AddServicePostgreSQLCommand struct {
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string            `arg:"" optional:"" help:"Node ID"`
+	Address        string            `arg:"" optional:"" help:"Address"`
+	Port           int64             `arg:"" optional:"" help:"Port"`
+	Socket         string            `help:"Path to PostgreSQL socket"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
 }
 
-func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &services.AddPostgreSQLServiceParams{
 		Body: services.AddPostgreSQLServiceBody{
@@ -87,23 +85,4 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 	return &addServicePostgreSQLResult{
 		Service: resp.Payload.Postgresql,
 	}, nil
-}
-
-// register command
-var (
-	AddServicePostgreSQL  addServicePostgreSQLCommand
-	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory").Hide(hide)
-)
-
-func init() {
-	AddServicePostgreSQLC.Arg("name", "Service name").StringVar(&AddServicePostgreSQL.ServiceName)
-	AddServicePostgreSQLC.Arg("node-id", "Node ID").StringVar(&AddServicePostgreSQL.NodeID)
-	AddServicePostgreSQLC.Arg("address", "Address").StringVar(&AddServicePostgreSQL.Address)
-	AddServicePostgreSQLC.Arg("port", "Port").Int64Var(&AddServicePostgreSQL.Port)
-	AddServicePostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddServicePostgreSQL.Socket)
-
-	AddServicePostgreSQLC.Flag("environment", "Environment name").StringVar(&AddServicePostgreSQL.Environment)
-	AddServicePostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddServicePostgreSQL.Cluster)
-	AddServicePostgreSQLC.Flag("replication-set", "Replication set name").StringVar(&AddServicePostgreSQL.ReplicationSet)
-	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServicePostgreSQL.CustomLabels)
 }

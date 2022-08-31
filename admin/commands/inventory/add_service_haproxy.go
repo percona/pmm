@@ -32,35 +32,33 @@ Replication set: {{ .Service.ReplicationSet }}
 Custom labels  : {{ .Service.CustomLabels }}
 `)
 
-type addHAProxyServiceResult struct {
+type addServiceHAProxyResult struct {
 	Service *services.AddHAProxyServiceOKBodyHaproxy `json:"haproxy"`
 }
 
-func (res *addHAProxyServiceResult) Result() {}
+func (res *addServiceHAProxyResult) Result() {}
 
-func (res *addHAProxyServiceResult) String() string {
+func (res *addServiceHAProxyResult) String() string {
 	return commands.RenderTemplate(addHAProxyServiceResultT, res)
 }
 
-type addHAProxyServiceCommand struct {
-	ServiceName    string
-	NodeID         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
+// AddServiceHAProxyCommand is used by Kong for CLI flags and commands.
+type AddServiceHAProxyCommand struct {
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"HAProxy service name"`
+	NodeID         string            `arg:"" optional:"" help:"HAProxy service node ID"`
+	Environment    string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster        string            `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
 }
 
-func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
+func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err
 	}
 
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	params := &services.AddHAProxyServiceParams{
 		Body: services.AddHAProxyServiceBody{
@@ -78,25 +76,7 @@ func (cmd *addHAProxyServiceCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &addHAProxyServiceResult{
+	return &addServiceHAProxyResult{
 		Service: resp.Payload.Haproxy,
 	}, nil
-}
-
-// register command
-var (
-	AddHAProxyService  addHAProxyServiceCommand
-	AddHAProxyServiceC = addServiceC.Command("haproxy", "Add an haproxy service to the inventory").Hide(hide)
-)
-
-func init() {
-	AddHAProxyServiceC.Arg("name", "HAProxy service name").StringVar(&AddHAProxyService.ServiceName)
-	AddHAProxyServiceC.Arg("node-id", "HAProxy service node ID").StringVar(&AddHAProxyService.NodeID)
-	AddHAProxyServiceC.Flag("environment", "Environment name like 'production' or 'qa'").
-		PlaceHolder("prod").StringVar(&AddHAProxyService.Environment)
-	AddHAProxyServiceC.Flag("cluster", "Cluster name").
-		PlaceHolder("east-cluster").StringVar(&AddHAProxyService.Cluster)
-	AddHAProxyServiceC.Flag("replication-set", "Replication set name").
-		PlaceHolder("rs1").StringVar(&AddHAProxyService.ReplicationSet)
-	AddHAProxyServiceC.Flag("custom-labels", "Custom user-assigned labels. Example: region=east,app=app1").StringVar(&AddHAProxyService.CustomLabels)
 }

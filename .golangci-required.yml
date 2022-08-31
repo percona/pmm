@@ -1,5 +1,8 @@
 ---
 linters-settings:
+  exhaustive:
+    default-signifies-exhaustive: true
+
   depguard:
     list-type: blacklist
     include-go-root: true
@@ -24,13 +27,10 @@ linters-settings:
       - default # Contains all imports that could not be matched to another section type.
       - prefix(github.com/percona/pmm) # Groups all local imports.
 
-  exhaustive:
-    default-signifies-exhaustive: true
-
   gomoddirectives:
     replace-allow-list:
       - github.com/percona-platform/dbaas-api 
-
+  
 linters:
   disable-all: true
   enable:

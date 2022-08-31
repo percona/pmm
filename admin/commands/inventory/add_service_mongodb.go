@@ -47,23 +47,21 @@ func (res *addServiceMongoDBResult) String() string {
 	return commands.RenderTemplate(addServiceMongoDBResultT, res)
 }
 
-type addServiceMongoDBCommand struct {
-	ServiceName    string
-	NodeID         string
-	Address        string
-	Port           int64
-	Socket         string
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
+// AddServiceMongoDBCommand is used by Kong for CLI flags and commands.
+type AddServiceMongoDBCommand struct {
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string            `arg:"" optional:"" help:"Node ID"`
+	Address        string            `arg:"" optional:"" help:"Address"`
+	Port           int64             `arg:"" optional:"" help:"Port"`
+	Socket         string            `help:"Path to socket"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `help:"Custom user-assigned labels"`
 }
 
-func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddMongoDBServiceParams{
 		Body: services.AddMongoDBServiceBody{
 			ServiceName:    cmd.ServiceName,
@@ -86,23 +84,4 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 	return &addServiceMongoDBResult{
 		Service: resp.Payload.Mongodb,
 	}, nil
-}
-
-// register command
-var (
-	AddServiceMongoDB  addServiceMongoDBCommand
-	AddServiceMongoDBC = addServiceC.Command("mongodb", "Add MongoDB service to inventory").Hide(hide)
-)
-
-func init() {
-	AddServiceMongoDBC.Arg("name", "Service name").StringVar(&AddServiceMongoDB.ServiceName)
-	AddServiceMongoDBC.Arg("node-id", "Node ID").StringVar(&AddServiceMongoDB.NodeID)
-	AddServiceMongoDBC.Arg("address", "Address").StringVar(&AddServiceMongoDB.Address)
-	AddServiceMongoDBC.Arg("port", "Port").Int64Var(&AddServiceMongoDB.Port)
-	AddServiceMongoDBC.Flag("socket", "Path to socket").StringVar(&AddServiceMongoDB.Socket)
-
-	AddServiceMongoDBC.Flag("environment", "Environment name").StringVar(&AddServiceMongoDB.Environment)
-	AddServiceMongoDBC.Flag("cluster", "Cluster name").StringVar(&AddServiceMongoDB.Cluster)
-	AddServiceMongoDBC.Flag("replication-set", "Replication set name").StringVar(&AddServiceMongoDB.ReplicationSet)
-	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServiceMongoDB.CustomLabels)
 }
