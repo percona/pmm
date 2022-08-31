@@ -1662,17 +1662,14 @@ swagger:model ListAlertRulesOKBodyRulesItems0FiltersItems0
 */
 type ListAlertRulesOKBodyRulesItems0FiltersItems0 struct {
 	// FilterType represents filter matching type.
-	//
-	//  - EQUAL: =
-	//  - REGEX: =~
-	// Enum: [FILTER_TYPE_INVALID EQUAL REGEX]
+	// Enum: [FILTER_TYPE_INVALID MATCH MISMATCH]
 	Type *string `json:"type,omitempty"`
 
-	// key
-	Key string `json:"key,omitempty"`
+	// label
+	Label string `json:"label,omitempty"`
 
-	// value
-	Value string `json:"value,omitempty"`
+	// regexp
+	Regexp string `json:"regexp,omitempty"`
 }
 
 // Validate validates this list alert rules OK body rules items0 filters items0
@@ -1693,7 +1690,7 @@ var listAlertRulesOkBodyRulesItems0FiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","REGEX"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","MATCH","MISMATCH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1706,11 +1703,11 @@ const (
 	// ListAlertRulesOKBodyRulesItems0FiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
 	ListAlertRulesOKBodyRulesItems0FiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
 
-	// ListAlertRulesOKBodyRulesItems0FiltersItems0TypeEQUAL captures enum value "EQUAL"
-	ListAlertRulesOKBodyRulesItems0FiltersItems0TypeEQUAL string = "EQUAL"
+	// ListAlertRulesOKBodyRulesItems0FiltersItems0TypeMATCH captures enum value "MATCH"
+	ListAlertRulesOKBodyRulesItems0FiltersItems0TypeMATCH string = "MATCH"
 
-	// ListAlertRulesOKBodyRulesItems0FiltersItems0TypeREGEX captures enum value "REGEX"
-	ListAlertRulesOKBodyRulesItems0FiltersItems0TypeREGEX string = "REGEX"
+	// ListAlertRulesOKBodyRulesItems0FiltersItems0TypeMISMATCH captures enum value "MISMATCH"
+	ListAlertRulesOKBodyRulesItems0FiltersItems0TypeMISMATCH string = "MISMATCH"
 )
 
 // prop value enum

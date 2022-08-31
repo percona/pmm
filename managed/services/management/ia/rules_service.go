@@ -18,13 +18,12 @@ package ia
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/percona/promconfig"
@@ -36,6 +35,7 @@ import (
 
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
 )
 
@@ -257,7 +257,8 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified")
 	}
 
-	if _, err := s.grafanaClient.GetFolderByUID(ctx, req.FolderUid); err != nil {
+	folder, err := s.grafanaClient.GetFolderByUID(ctx, req.FolderUid)
+	if err != nil {
 		return nil, err
 	}
 
@@ -290,14 +291,25 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	// 	return nil, err
 	// }
 
-	ffor := time.Duration(template.For)
+	forDuration := time.Duration(template.For)
 	if req.For != nil {
-		ffor = req.For.AsDuration()
+		forDuration = req.For.AsDuration()
 	}
 
 	expr, err := fillExprWithParams(template.Expr, paramsValues.AsStringMap())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fill rule expression with parameters")
+	}
+
+	for _, filter := range req.Filters {
+		switch filter.Type {
+		case iav1beta1.FilterType_MATCH:
+			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
+		case iav1beta1.FilterType_MISMATCH:
+			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
+		default:
+			return nil, errors.New("todo") // TODO
+		}
 	}
 
 	// Copy annotations form template
@@ -324,134 +336,72 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
 
-	ar := gapi.AlertRule{
-		Condition: "C",
-		Data: []*gapi.AlertQuery{
-			{
-				RefID:         "A",
-				DatasourceUID: metricsDatasourceUID,
-				// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-				RelativeTimeRange: gapi.RelativeTimeRange{From: 60, To: 0},
-				Model: model{
-					Expr:    expr,
-					RefID:   "A",
-					Instant: true,
+	rule := services.Rule{
+		GrafanaAlert: services.GrafanaAlert{
+			Title:        req.Name,
+			Condition:    "B",
+			NoDataState:  "NoData",
+			ExecErrState: "Alerting",
+			Data: []services.Data{
+				{
+					RefID:         "A",
+					DatasourceUID: metricsDatasourceUID,
+					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
+					RelativeTimeRange: services.RelativeTimeRange{From: 60, To: 0},
+					Model: services.Model{
+						Expr:    expr,
+						RefID:   "A",
+						Instant: true,
+					},
 				},
-			}, {
-				RefID:         "B",
-				DatasourceUID: ServerSideDataSource,
-				Model: model{
-					Datasource: Datasource{
-						Type: "__expr__",
-						UID:  ServerSideDataSource,
-					},
-					Conditions: []Condition{
-						{
-							Evaluator: Evaluator{
-								Params: []float64{0},
-								Type:   "gt",
-							},
-							Operator: Operator{Type: "and"},
-							Query:    Query{Params: []string{"A"}},
-							Reducer:  Reducer{Type: "last"},
-							Type:     "query",
+				{
+					RefID:         "B",
+					DatasourceUID: ServerSideDataSource,
+					Model: services.Model{
+						RefID: "B",
+						Type:  "math",
+						Datasource: services.Datasource{
+							UID:  ServerSideDataSource,
+							Type: "__expr__",
 						},
-					},
-					Expression: "A",
-					Reducer:    "count",
-					RefID:      "B",
-					Type:       "reduce",
-				},
-			}, {
-				RefID:         "C",
-				DatasourceUID: ServerSideDataSource,
-				Model: model{
-					Datasource: Datasource{
-						Type: "__expr__",
-						UID:  ServerSideDataSource,
-					},
-					Conditions: []Condition{
-						{
-							Evaluator: Evaluator{
-								Params: []float64{0},
-								Type:   "gt",
+						Conditions: []services.Condition{
+							{
+								Type: "query",
+								Evaluator: services.Evaluator{
+									Params: []int{3},
+									Type:   "gt",
+								},
+								Operator: services.Operator{
+									Type: "and",
+								},
+								Query: services.Query{
+									Params: []string{"A"},
+								},
+								Reducer: services.Reducer{
+									Type: "last",
+								},
 							},
-							Operator: Operator{Type: "and"},
-							Query:    Query{Params: []string{"A"}},
-							Reducer:  Reducer{Type: "last"},
-							Type:     "query",
 						},
+						Expression: "!is_null($A)",
+						Reducer:    "count",
 					},
-					Expression: "$B>0",
-					RefID:      "C",
-					Type:       "math",
 				},
 			},
 		},
-		ExecErrState: gapi.ErrAlerting,
-		FolderUID:    req.FolderUid,
-		// ID:           0,
-		NoDataState: gapi.NoData,
-		OrgID:       1, // Default organization
-		RuleGroup:   req.Group,
-		Title:       req.Name,
-		// UID:          "",
-		// Updated:      time.Now(),
-		ForDuration: ffor,
-		// Provenance:  "",
+		For:         forDuration.String(),
 		Annotations: annotations,
 		Labels:      labels,
 	}
 
-	ruleID, err := s.grafanaClient.CreateAlertRule(ctx, &ar)
+	err = s.grafanaClient.CreateAlertRule(ctx, folder.Title, req.Group, &rule)
 	if err != nil {
 		return nil, err // TODO
 	}
 
-	if err = s.grafanaClient.CreateNotificationPolicy(ctx, ruleID, req.ContactPoints); err != nil {
-		return nil, err // TODO
-	}
-	return &iav1beta1.CreateAlertRuleResponse{RuleId: ruleID}, nil
-}
-
-type model struct {
-	EditorMode string      `json:"editorMode"`
-	Expr       string      `json:"expr"`
-	RefID      string      `json:"refId"`
-	Instant    bool        `json:"instant"`
-	Datasource Datasource  `json:"datasource"`
-	Conditions []Condition `json:"conditions"`
-
-	Reducer    string `json:"reducer"`
-	Expression string `json:"expression"`
-	Type       string `json:"type"`
-}
-
-type Datasource struct {
-	Type string `json:"type"`
-	UID  string `json:"uid"`
-}
-
-type Condition struct {
-	Type      string    `json:"type"`
-	Evaluator Evaluator `json:"evaluator"`
-	Operator  Operator  `json:"operator"`
-	Query     Query     `json:"query"`
-	Reducer   Reducer   `json:"reducer"`
-}
-
-type Evaluator struct {
-	Params []float64 `json:"params"`
-	Type   string    `json:"type"`
-}
-type Operator struct {
-	Type string `json:"type"`
-}
-type Query struct {
-	Params []string `json:"params"`
-}
-type Reducer struct {
-	Type string `json:"type"`
+	// if err = s.grafanaClient.CreateNotificationPolicy(ctx, ruleID, req.ContactPoints); err != nil {
+	// 	return nil, err // TODO
+	// }
+	return &iav1beta1.CreateAlertRuleResponse{RuleId: ""}, nil
 }
 
 func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*iav1beta1.ParamDefinition, error) {
@@ -558,50 +508,16 @@ func parseBooleanFlag(bf iav1beta1.BooleanFlag) *bool {
 	}
 }
 
-func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
-	switch filterType {
-	case models.Equal:
-		return iav1beta1.FilterType_EQUAL
-	case models.Regex:
-		return iav1beta1.FilterType_REGEX
-	default:
-		return iav1beta1.FilterType_FILTER_TYPE_INVALID
-	}
-}
-
-func convertFiltersToModel(filters []*iav1beta1.Filter) (models.Filters, error) {
-	res := make(models.Filters, len(filters))
-	for i, filter := range filters {
-		f := models.Filter{
-			Key: filter.Key,
-		}
-
-		// Unquote the first encountered quote.
-		// Do it only for filters as only they can be set in PMM 2.13.
-		f.Val = filter.Value
-		for _, q := range []string{`"`, `'`} {
-			if strings.HasPrefix(f.Val, q) && strings.HasSuffix(f.Val, q) {
-				f.Val = strings.TrimPrefix(f.Val, q)
-				f.Val = strings.TrimSuffix(f.Val, q)
-				break
-			}
-		}
-
-		switch filter.Type {
-		case iav1beta1.FilterType_EQUAL:
-			f.Type = models.Equal
-		case iav1beta1.FilterType_REGEX:
-			f.Type = models.Regex
-		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
-			fallthrough
-		default:
-			return nil, status.Errorf(codes.InvalidArgument, "Unexpected filter type.")
-		}
-		res[i] = f
-	}
-
-	return res, nil
-}
+// func convertModelToFilterType(filterType models.FilterType) iav1beta1.FilterType {
+// 	switch filterType {
+// 	case models.Equal:
+// 		return iav1beta1.FilterType_EQUAL
+// 	case models.Regex:
+// 		return iav1beta1.FilterType_REGEX
+// 	default:
+// 		return iav1beta1.FilterType_FILTER_TYPE_INVALID
+// 	}
+// }
 
 // Check interfaces.
 var (

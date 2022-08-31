@@ -38,6 +38,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
@@ -133,7 +134,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -355,18 +356,44 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 	return c.deleteAPIKey(ctx, id, authHeaders)
 }
 
-func (c *Client) CreateAlertRule(ctx context.Context, rule *gapi.AlertRule) (string, error) {
-	grafanaClient, err := c.createGrafanaClient(ctx)
+func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
-		return "", err // TODO
+		return err
 	}
 
-	alertID, err := grafanaClient.NewAlertRule(rule)
-	if err != nil {
-		return "", err // TODO
+	type AlertRuleGroup struct {
+		Name     string            `json:"name"`
+		Interval string            `json:"interval"`
+		Rules    []json.RawMessage `json:"rules"`
 	}
 
-	return alertID, nil
+	var group AlertRuleGroup
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+		return err
+	}
+
+	b, err := json.Marshal(rule)
+	if err != nil {
+		return err
+	}
+
+	group.Rules = append(group.Rules, b)
+
+	if group.Interval == "" {
+		group.Interval = rule.For
+	}
+
+	body, err := json.Marshal(group)
+	if err != nil {
+		return err
+	}
+
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {

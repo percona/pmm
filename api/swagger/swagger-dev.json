@@ -28888,21 +28888,21 @@
                               "type": "object",
                               "properties": {
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
                                     "FILTER_TYPE_INVALID",
-                                    "EQUAL",
-                                    "REGEX"
+                                    "MATCH",
+                                    "MISMATCH"
                                   ],
                                   "x-order": 0
                                 },
-                                "key": {
+                                "label": {
                                   "type": "string",
                                   "x-order": 1
                                 },
-                                "value": {
+                                "regexp": {
                                   "type": "string",
                                   "x-order": 2
                                 }
@@ -30191,21 +30191,21 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
                           "FILTER_TYPE_INVALID",
-                          "EQUAL",
-                          "REGEX"
+                          "MATCH",
+                          "MISMATCH"
                         ],
                         "x-order": 0
                       },
-                      "key": {
+                      "label": {
                         "type": "string",
                         "x-order": 1
                       },
-                      "value": {
+                      "regexp": {
                         "type": "string",
                         "x-order": 2
                       }
@@ -30662,21 +30662,21 @@
                           "type": "object",
                           "properties": {
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
                                 "FILTER_TYPE_INVALID",
-                                "EQUAL",
-                                "REGEX"
+                                "MATCH",
+                                "MISMATCH"
                               ],
                               "x-order": 0
                             },
-                            "key": {
+                            "label": {
                               "type": "string",
                               "x-order": 1
                             },
-                            "value": {
+                            "regexp": {
                               "type": "string",
                               "x-order": 2
                             }
@@ -31123,21 +31123,21 @@
                     "type": "object",
                     "properties": {
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
                           "FILTER_TYPE_INVALID",
-                          "EQUAL",
-                          "REGEX"
+                          "MATCH",
+                          "MISMATCH"
                         ],
                         "x-order": 0
                       },
-                      "key": {
+                      "label": {
                         "type": "string",
                         "x-order": 1
                       },
-                      "value": {
+                      "regexp": {
                         "type": "string",
                         "x-order": 2
                       }

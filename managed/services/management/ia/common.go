@@ -101,13 +101,13 @@ func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel)
 	}
 
 	r.Filters = make([]*iav1beta1.Filter, len(rule.Filters))
-	for i, filter := range rule.Filters {
-		r.Filters[i] = &iav1beta1.Filter{
-			Type:  convertModelToFilterType(filter.Type),
-			Key:   filter.Key,
-			Value: filter.Val,
-		}
-	}
+	// for i, filter := range rule.Filters {
+	// 	r.Filters[i] = &iav1beta1.Filter{
+	// 		Type:  convertModelToFilterType(filter.Type),
+	// 		Key:   filter.Key,
+	// 		Value: filter.Val,
+	// 	}
+	// }
 
 	cm := make(map[string]*models.Channel)
 	for _, channel := range channels {

@@ -20,23 +20,15 @@ import "managementpb/severity.proto";
 // FilterType represents filter matching type.
 enum FilterType {
   FILTER_TYPE_INVALID = 0;
-  // =
-  EQUAL = 1;
-  // !=
-  // NOT_EQUAL = 2;
-
-  // =~
-  REGEX = 3;
-  // !~
-  // NOT_REGEX = 4;
-
+  MATCH = 1;
+  MISMATCH = 2;
 }
 
 // Filter repsents a single filter condition.
 message Filter {
   FilterType type = 1;
-  string key = 2;
-  string value = 3;
+  string label = 2;
+  string regexp = 3;
 }
 
 // ParamValue represents a single rule parameter value for List, Change and Update APIs.
