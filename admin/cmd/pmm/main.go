@@ -15,10 +15,9 @@
 package main
 
 import (
-	"github.com/percona/pmm/admin/cli"
 	"github.com/percona/pmm/admin/cmd"
 )
 
 func main() {
-	cmd.Bootstrap(cli.PMMCommands{}) //nolint:exhaustruct
+	cmd.BootstrapPMM()
 }

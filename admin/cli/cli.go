@@ -62,29 +62,20 @@ type PMMAdminCommands struct {
 
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
-func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
-	return run(ctx, globals)
+func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return runGeneric(ctx, globals)
 }
 
-func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
-	return &c.GlobalFlags
-}
-
-// PMMCommands stores all commands, flags and arguments for the "pmm" binary.
 type PMMCommands struct {
 	flags.GlobalFlags
 
-	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
-}
-
-func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
-	return &c.GlobalFlags
+	Server server.ServerCommand `cmd:"" help:"PMM server related commands"`
 }
 
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
 func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
-	return run(ctx, globals)
+	return runGeneric(ctx, globals)
 }
 
 // CmdRunner represents a command to be run without arguments.
@@ -102,7 +93,7 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
 }
 
-func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func runGeneric(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 

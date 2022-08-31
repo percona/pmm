@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
+// Server package holds the "pmm server" command
 package server
 
 import "github.com/percona/pmm/admin/commands"
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
-type BaseCommand struct {
+type ServerCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
 }
 
 // BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
+func (cmd *ServerCommand) BeforeApply() error {
 	commands.SetupClientsEnabled = false
 	return nil
 }

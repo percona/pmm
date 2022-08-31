@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cmd holds common logic used by commands
+// cmd package holds common logic used by commands
 package cmd
 
 import (
@@ -38,38 +38,32 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-// Bootstrap is used to initialize the application.
-func Bootstrap(opts any) {
-	var kongCtx *kong.Context
-	var parsedOpts any
+func BootstrapPMMAdmin() {
+	var opts cli.Commands
+	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm-admin")...)
 
-	switch o := opts.(type) {
-	case cli.PMMAdminCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
-		parsedOpts = &o
-	case cli.PMMCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm")...)
-		parsedOpts = &o
-	}
+	configureLogger(opts.GlobalFlags)
+	finishBootstrap(&opts.GlobalFlags)
 
-	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
-	if !ok {
-		logrus.Panic("Cannot assert parsedOpts to GlobalFlagsGetter")
-	}
-
-	globalFlags := f.GetGlobalFlags()
-
-	configureLogger(globalFlags)
-	finishBootstrap(globalFlags)
-
-	err := kongCtx.Run(globalFlags)
-	processFinalError(err, bool(globalFlags.JSON))
+	err := kongCtx.Run(&opts.GlobalFlags)
+	processFinalError(err, bool(opts.JSON))
 }
 
-func configureLogger(opts *flags.GlobalFlags) {
+func BootstrapPMM() {
+	var opts cli.PMMCommands
+	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm")...)
+
+	configureLogger(opts.GlobalFlags)
+	finishBootstrap(&opts.GlobalFlags)
+
+	err := kongCtx.Run(&opts.GlobalFlags)
+	processFinalError(err, bool(opts.JSON))
+}
+
+func configureLogger(opts flags.GlobalFlags) {
 	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
 	if opts.JSON {
-		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhaustruct // with levels and timestamps always present
+		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
 	}
 	if opts.EnableDebug {
 		logrus.SetLevel(logrus.DebugLevel)
