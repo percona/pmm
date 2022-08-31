@@ -95,6 +95,7 @@ func TestVersionCompare(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
 			err := compareVersions(c.clientVersion, c.serverVersion)
 			if c.error {
 				assert.Error(t, err)

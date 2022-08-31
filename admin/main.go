@@ -36,6 +36,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var errMismatchedVersion = fmt.Errorf("PMM client version is out-of-sync from the server version and may not be compatible. See https://docs.percona.com/percona-monitoring-and-management/how-to/upgrade.html")
+
 func main() {
 	// Detect defaults
 	nodeinfo := nodeinfo.Get()
@@ -115,6 +117,10 @@ func main() {
 
 	agentlocal.SetTransport(ctx, opts.EnableDebug || opts.EnableTrace, opts.PMMAgentListenPort)
 
+	if !opts.DisableVersionCheck {
+		checkVersionCompatibility(bool(opts.JSON))
+	}
+
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
 		base.SetupClients(ctx, &opts.GlobalFlags)
@@ -137,4 +143,49 @@ func main() {
 
 		os.Exit(1)
 	}
+}
+
+func checkVersionCompatibility(jsonOutput bool) {
+	clientVersion := version.Version
+	serverStatus, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+	if err != nil {
+		return
+	}
+
+	if err = compareVersions(clientVersion, serverStatus.ServerVersion); err != nil {
+		if jsonOutput {
+			b, jErr := json.Marshal(err.Error())
+			if jErr != nil {
+				logrus.Infof("Error: %#v.", err)
+				logrus.Panicf("Failed to marshal error to JSON.\n%s.\nPlease report this bug.", jErr)
+			}
+			fmt.Printf("%s\n", b) //nolint:forbidigo
+		} else {
+			if err == errMismatchedVersion {
+				fmt.Println(err) //nolint:forbidigo
+			} else {
+				logrus.Infof("Failed to check version compatibility: %s.", err.Error())
+			}
+		}
+	}
+}
+
+func compareVersions(clientVersion, serverVersion string) error {
+	cl, err := version.Parse(clientVersion)
+	if err != nil {
+		return err
+	}
+	svr, err := version.Parse(serverVersion)
+	if err != nil {
+		return err
+	}
+
+	if cl == svr {
+		return nil
+	}
+
+	if cl.Major != svr.Major || cl.Minor != svr.Minor {
+		return errMismatchedVersion
+	}
+	return nil
 }
