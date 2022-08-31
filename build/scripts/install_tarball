@@ -41,7 +41,7 @@ ${INSTALL_COMMAND} -m 0755 -d "${PMM_DIR}"/collectors/custom-queries/postgresql/
 ${INSTALL_COMMAND} -m 0755 queries-postgres-uptime.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/high-resolution
 ${INSTALL_COMMAND} -m 0755 queries.yaml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
 ${INSTALL_COMMAND} -m 0755 queries-mysqld-group-replication.yml "${PMM_DIR}"/collectors/custom-queries/mysql/high-resolution
-${INSTALL_COMMAND} -m 0755 queries-vacuum.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/low-resolution
+${INSTALL_COMMAND} -m 0755 queries-vacuum.yml "${PMM_DIR}"/collectors/custom-queries/postgresql/medium-resolution
 
 for FILE in $( ls ${PWD}/bin ); do
     if [ "x${FILE}" = "xpmm-admin" ] || [ "x${FILE}" = "xpmm-agent" ] || [ "x${FILE}" = "xpmm-agent-entrypoint" ]; then
