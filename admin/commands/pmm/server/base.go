@@ -20,6 +20,9 @@ import "github.com/percona/pmm/admin/commands"
 // BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
+	Remove  RemoveCommand  `cmd:"" help:"Remove PMM server"`
+	Start   StartCommand   `cmd:"" help:"Start PMM server"`
+	Stop    StopCommand    `cmd:"" help:"Stop PMM server"`
 }
 
 // BeforeApply is run before the command is applied.
