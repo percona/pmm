@@ -26,8 +26,8 @@ import (
 // ErrIncompatibleAgentVersion is returned when the version of the running pmm-agent does not support a given functionality.
 var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
 
-// PMMAgentSupportedByAgentId wraps PMMAgentSupported and accepts agent ID instead of agent model.
-func PMMAgentSupportedByAgentId(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
+// PMMAgentSupportedByAgentID wraps PMMAgentSupported and accepts agent ID instead of agent model.
+func PMMAgentSupportedByAgentID(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)

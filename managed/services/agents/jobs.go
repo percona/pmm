@@ -311,7 +311,7 @@ func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.J
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
 func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
-	if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -367,7 +367,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	mode models.BackupMode,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 		"mongodb backup", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
 		return err
 	}
@@ -388,7 +388,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.PMMClientConfig != nil:
-		if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+		if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
 			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
 			return err
@@ -432,7 +432,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	name string,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -480,7 +480,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dbConfig *models.DBConfig,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 		"mongodb restore", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
 		return err
 	}
@@ -500,7 +500,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.PMMClientConfig != nil:
-		if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+		if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
 			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
 			return err

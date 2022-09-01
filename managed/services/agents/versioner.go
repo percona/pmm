@@ -106,7 +106,7 @@ func convertSoftwares(softwares []Software) ([]*agentpb.GetVersionsRequest_Softw
 
 // GetVersions retrieves software versions.
 func (s *VersionerService) GetVersions(pmmAgentID string, softwares []Software) ([]Version, error) {
-	if err := PMMAgentSupportedByAgentId(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupportedByAgentIdd(s.r.db.Querier, pmmAgentID,
 		"versions retrieving", pmmAgentMinVersionForSoftwareVersions); err != nil {
 		return nil, err
 	}

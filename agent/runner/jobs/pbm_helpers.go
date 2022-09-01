@@ -353,7 +353,7 @@ type S3 struct {
 	Credentials Credentials `yaml:"credentials"`
 }
 
-// LocalStorage represents local storage parameters.
+// FileSystem  represents local storage parameters.
 type FileSystem struct {
 	Path string `yaml:"path"`
 }

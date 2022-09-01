@@ -203,7 +203,6 @@ func FindServicesSoftwareVersions(
 	if filter.Limit != nil {
 		tail.WriteString(fmt.Sprintf("LIMIT %s", q.Placeholder(idx)))
 		args = append(args, *filter.Limit)
-		idx++
 	}
 
 	structs, err := q.SelectAllFrom(ServiceSoftwareVersionsTable, tail.String(), args...)

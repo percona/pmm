@@ -28,6 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// ErrInvalidServiceType is returned when unsupported service type is provided.
 var ErrInvalidServiceType = errors.New("provided service type not defined")
 
 func checkServiceUniqueID(q *reform.Querier, id string) error {
@@ -355,6 +356,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	return errors.Wrap(q.Delete(s), "failed to delete Service")
 }
 
+// ValidateServiceType checks argument value is in the list of supported types.
 func ValidateServiceType(serviceType ServiceType) error {
 	switch serviceType {
 	case MySQLServiceType,
