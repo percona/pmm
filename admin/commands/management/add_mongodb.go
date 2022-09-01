@@ -65,7 +65,7 @@ type AddMongoDBCommand struct {
 	Environment                   string            `help:"Environment name"`
 	Cluster                       string            `help:"Cluster name"`
 	ReplicationSet                string            `help:"Replication set name"`
-	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`

@@ -50,7 +50,7 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
 	Password                      string            `help:"MongoDB password for scraping metrics"`
-	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	DisableQueryExamples          bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
