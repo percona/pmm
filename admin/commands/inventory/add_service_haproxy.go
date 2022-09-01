@@ -49,7 +49,7 @@ type AddServiceHAProxyCommand struct {
 	Environment    string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster        string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet string            `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels   map[string]string `help:"Custom user-assigned labels. Example: region=east,app=app1"`
+	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {

@@ -61,7 +61,7 @@ type AddExternalServerlessCommand struct {
 	Environment         string            `placeholder:"testing" help:"Environment name"`
 	Cluster             string            `help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
-	CustomLabels        map[string]string `placeholder:"'app=myapp,region=s1'" help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	MachineID           string            `help:"Node machine-id"`
 	Distro              string            `help:"Node OS distribution"`
