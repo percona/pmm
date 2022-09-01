@@ -48,8 +48,7 @@ func NewChangePSMDBComponentsOK() *ChangePSMDBComponentsOK {
 	return &ChangePSMDBComponentsOK{}
 }
 
-/*
-ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
+/* ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewChangePSMDBComponentsDefault(code int) *ChangePSMDBComponentsDefault {
 	}
 }
 
-/*
-ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
+/* ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *ChangePSMDBComponentsDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-ChangePSMDBComponentsBody change PSMDB components body
+/*ChangePSMDBComponentsBody change PSMDB components body
 swagger:model ChangePSMDBComponentsBody
 */
 type ChangePSMDBComponentsBody struct {
@@ -208,8 +205,7 @@ func (o *ChangePSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePSMDBComponentsDefaultBody change PSMDB components default body
+/*ChangePSMDBComponentsDefaultBody change PSMDB components default body
 swagger:model ChangePSMDBComponentsDefaultBody
 */
 type ChangePSMDBComponentsDefaultBody struct {
@@ -312,8 +308,7 @@ func (o *ChangePSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePSMDBComponentsDefaultBodyDetailsItems0 change PSMDB components default body details items0
+/*ChangePSMDBComponentsDefaultBodyDetailsItems0 change PSMDB components default body details items0
 swagger:model ChangePSMDBComponentsDefaultBodyDetailsItems0
 */
 type ChangePSMDBComponentsDefaultBodyDetailsItems0 struct {
@@ -349,8 +344,7 @@ func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ChangePSMDBComponentsParamsBodyMongod ChangeComponent contains fields to manage components.
+/*ChangePSMDBComponentsParamsBodyMongod ChangeComponent contains fields to manage components.
 swagger:model ChangePSMDBComponentsParamsBodyMongod
 */
 type ChangePSMDBComponentsParamsBodyMongod struct {
@@ -450,8 +444,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ChangePSMDBComponentsParamsBodyMongodVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*ChangePSMDBComponentsParamsBodyMongodVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePSMDBComponentsParamsBodyMongodVersionsItems0
 */
 type ChangePSMDBComponentsParamsBodyMongodVersionsItems0 struct {

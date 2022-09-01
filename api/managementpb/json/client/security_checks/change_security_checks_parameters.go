@@ -52,12 +52,10 @@ func NewChangeSecurityChecksParamsWithHTTPClient(client *http.Client) *ChangeSec
 	}
 }
 
-/*
-ChangeSecurityChecksParams contains all the parameters to send to the API endpoint
+/* ChangeSecurityChecksParams contains all the parameters to send to the API endpoint
+   for the change security checks operation.
 
-	for the change security checks operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ChangeSecurityChecksParams struct {
 	// Body.

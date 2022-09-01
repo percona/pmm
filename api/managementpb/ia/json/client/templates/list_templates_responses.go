@@ -50,8 +50,7 @@ func NewListTemplatesOK() *ListTemplatesOK {
 	return &ListTemplatesOK{}
 }
 
-/*
-ListTemplatesOK describes a response with status code 200, with default header values.
+/* ListTemplatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewListTemplatesDefault(code int) *ListTemplatesDefault {
 	}
 }
 
-/*
-ListTemplatesDefault describes a response with status code -1, with default header values.
+/* ListTemplatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ListTemplatesDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-ListTemplatesBody list templates body
+/*ListTemplatesBody list templates body
 swagger:model ListTemplatesBody
 */
 type ListTemplatesBody struct {
@@ -212,8 +209,7 @@ func (o *ListTemplatesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListTemplatesDefaultBody list templates default body
+/*ListTemplatesDefaultBody list templates default body
 swagger:model ListTemplatesDefaultBody
 */
 type ListTemplatesDefaultBody struct {
@@ -316,8 +312,7 @@ func (o *ListTemplatesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListTemplatesDefaultBodyDetailsItems0 list templates default body details items0
+/*ListTemplatesDefaultBodyDetailsItems0 list templates default body details items0
 swagger:model ListTemplatesDefaultBodyDetailsItems0
 */
 type ListTemplatesDefaultBodyDetailsItems0 struct {
@@ -353,8 +348,7 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListTemplatesOKBody list templates OK body
+/*ListTemplatesOKBody list templates OK body
 swagger:model ListTemplatesOKBody
 */
 type ListTemplatesOKBody struct {
@@ -496,8 +490,7 @@ func (o *ListTemplatesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTemplatesItems0 Template represents Alert Template that is used to create Alert Rule.
+/*ListTemplatesOKBodyTemplatesItems0 Template represents Alert Template that is used to create Alert Rule.
 swagger:model ListTemplatesOKBodyTemplatesItems0
 */
 type ListTemplatesOKBodyTemplatesItems0 struct {
@@ -770,8 +763,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTemplatesItems0ParamsItems0 ParamDefinition represents a single query parameter.
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0 ParamDefinition represents a single query parameter.
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
@@ -1068,8 +1060,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool BoolParamDefinition represents boolean parameter's default value.
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool BoolParamDefinition represents boolean parameter's default value.
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
@@ -1165,8 +1156,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTemplatesItems0ParamsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0Float
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0Float struct {
@@ -1217,8 +1207,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Float) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTemplatesItems0ParamsItems0String StringParamDefinition represents string parameter's default value.
+/*ListTemplatesOKBodyTemplatesItems0ParamsItems0String StringParamDefinition represents string parameter's default value.
 swagger:model ListTemplatesOKBodyTemplatesItems0ParamsItems0String
 */
 type ListTemplatesOKBodyTemplatesItems0ParamsItems0String struct {
@@ -1257,8 +1246,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b
 	return nil
 }
 
-/*
-ListTemplatesOKBodyTotals PageTotals represents total values for pagination.
+/*ListTemplatesOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListTemplatesOKBodyTotals
 */
 type ListTemplatesOKBodyTotals struct {
@@ -1297,8 +1285,7 @@ func (o *ListTemplatesOKBodyTotals) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListTemplatesParamsBodyPageParams PageParams represents page request parameters for pagination.
+/*ListTemplatesParamsBodyPageParams PageParams represents page request parameters for pagination.
 swagger:model ListTemplatesParamsBodyPageParams
 */
 type ListTemplatesParamsBodyPageParams struct {

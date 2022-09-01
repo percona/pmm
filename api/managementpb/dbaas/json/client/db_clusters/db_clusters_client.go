@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-DeleteDBCluster deletes DB cluster deletes DB cluster
+  DeleteDBCluster deletes DB cluster deletes DB cluster
 */
 func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOption) (*DeleteDBClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -75,7 +75,7 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOp
 }
 
 /*
-ListDBClusters lists DB clusters returns a list of DB clusters
+  ListDBClusters lists DB clusters returns a list of DB clusters
 */
 func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOption) (*ListDBClustersOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +112,7 @@ func (a *Client) ListDBClusters(params *ListDBClustersParams, opts ...ClientOpti
 }
 
 /*
-RestartDBCluster restarts DB cluster restarts DB cluster
+  RestartDBCluster restarts DB cluster restarts DB cluster
 */
 func (a *Client) RestartDBCluster(params *RestartDBClusterParams, opts ...ClientOption) (*RestartDBClusterOK, error) {
 	// TODO: Validate the params before sending

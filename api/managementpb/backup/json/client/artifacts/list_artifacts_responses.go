@@ -50,8 +50,7 @@ func NewListArtifactsOK() *ListArtifactsOK {
 	return &ListArtifactsOK{}
 }
 
-/*
-ListArtifactsOK describes a response with status code 200, with default header values.
+/* ListArtifactsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewListArtifactsDefault(code int) *ListArtifactsDefault {
 	}
 }
 
-/*
-ListArtifactsDefault describes a response with status code -1, with default header values.
+/* ListArtifactsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-ListArtifactsDefaultBody list artifacts default body
+/*ListArtifactsDefaultBody list artifacts default body
 swagger:model ListArtifactsDefaultBody
 */
 type ListArtifactsDefaultBody struct {
@@ -224,8 +221,7 @@ func (o *ListArtifactsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
+/*ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
 swagger:model ListArtifactsDefaultBodyDetailsItems0
 */
 type ListArtifactsDefaultBodyDetailsItems0 struct {
@@ -261,8 +257,7 @@ func (o *ListArtifactsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListArtifactsOKBody list artifacts OK body
+/*ListArtifactsOKBody list artifacts OK body
 swagger:model ListArtifactsOKBody
 */
 type ListArtifactsOKBody struct {
@@ -359,8 +354,7 @@ func (o *ListArtifactsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
+/*ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
 swagger:model ListArtifactsOKBodyArtifactsItems0
 */
 type ListArtifactsOKBodyArtifactsItems0 struct {

@@ -50,8 +50,7 @@ func NewListDBClustersOK() *ListDBClustersOK {
 	return &ListDBClustersOK{}
 }
 
-/*
-ListDBClustersOK describes a response with status code 200, with default header values.
+/* ListDBClustersOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewListDBClustersDefault(code int) *ListDBClustersDefault {
 	}
 }
 
-/*
-ListDBClustersDefault describes a response with status code -1, with default header values.
+/* ListDBClustersDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ListDBClustersDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-ListDBClustersBody list DB clusters body
+/*ListDBClustersBody list DB clusters body
 swagger:model ListDBClustersBody
 */
 type ListDBClustersBody struct {
@@ -157,8 +154,7 @@ func (o *ListDBClustersBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListDBClustersDefaultBody list DB clusters default body
+/*ListDBClustersDefaultBody list DB clusters default body
 swagger:model ListDBClustersDefaultBody
 */
 type ListDBClustersDefaultBody struct {
@@ -261,8 +257,7 @@ func (o *ListDBClustersDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListDBClustersDefaultBodyDetailsItems0 list DB clusters default body details items0
+/*ListDBClustersDefaultBodyDetailsItems0 list DB clusters default body details items0
 swagger:model ListDBClustersDefaultBodyDetailsItems0
 */
 type ListDBClustersDefaultBodyDetailsItems0 struct {
@@ -298,8 +293,7 @@ func (o *ListDBClustersDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ListDBClustersOKBody list DB clusters OK body
+/*ListDBClustersOKBody list DB clusters OK body
 swagger:model ListDBClustersOKBody
 */
 type ListDBClustersOKBody struct {
@@ -450,8 +444,7 @@ func (o *ListDBClustersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPSMDBClustersItems0 PSMDBCluster represents PSMDB cluster information.
+/*ListDBClustersOKBodyPSMDBClustersItems0 PSMDBCluster represents PSMDB cluster information.
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0
 */
 type ListDBClustersOKBodyPSMDBClustersItems0 struct {
@@ -671,8 +664,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPSMDBClustersItems0Operation RunningOperation respresents a long-running operation.
+/*ListDBClustersOKBodyPSMDBClustersItems0Operation RunningOperation respresents a long-running operation.
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0Operation
 */
 type ListDBClustersOKBodyPSMDBClustersItems0Operation struct {
@@ -714,8 +706,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Operation) UnmarshalBinary(b []b
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPSMDBClustersItems0Params PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*ListDBClustersOKBodyPSMDBClustersItems0Params PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0Params
 */
 type ListDBClustersOKBodyPSMDBClustersItems0Params struct {
@@ -809,8 +800,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0Params) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset ReplicaSet container parameters.
+/*ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset ReplicaSet container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset
 */
@@ -902,8 +892,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicaset) UnmarshalBinar
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
 */
 type ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources struct {
@@ -942,8 +931,7 @@ func (o *ListDBClustersOKBodyPSMDBClustersItems0ParamsReplicasetComputeResources
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0 PXCCluster represents PXC cluster information.
+/*ListDBClustersOKBodyPXCClustersItems0 PXCCluster represents PXC cluster information.
 swagger:model ListDBClustersOKBodyPXCClustersItems0
 */
 type ListDBClustersOKBodyPXCClustersItems0 struct {
@@ -1163,8 +1151,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0Operation RunningOperation respresents a long-running operation.
+/*ListDBClustersOKBodyPXCClustersItems0Operation RunningOperation respresents a long-running operation.
 swagger:model ListDBClustersOKBodyPXCClustersItems0Operation
 */
 type ListDBClustersOKBodyPXCClustersItems0Operation struct {
@@ -1206,8 +1193,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Operation) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0Params PXCClusterParams represents PXC cluster parameters that can be updated.
+/*ListDBClustersOKBodyPXCClustersItems0Params PXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model ListDBClustersOKBodyPXCClustersItems0Params
 */
 type ListDBClustersOKBodyPXCClustersItems0Params struct {
@@ -1388,8 +1374,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0Params) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy HAProxy container parameters.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy HAProxy container parameters.
 // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy
 */
@@ -1481,8 +1466,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxy) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources struct {
@@ -1521,8 +1505,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsHaproxyComputeResources) Unm
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsPXC PXC container parameters.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsPXC PXC container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXC
 */
@@ -1617,8 +1600,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXC) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources struct {
@@ -1657,8 +1639,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsPXCComputeResources) Unmarsh
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsProxysql ProxySQL container parameters.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsProxysql ProxySQL container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysql
 */
@@ -1753,8 +1734,7 @@ func (o *ListDBClustersOKBodyPXCClustersItems0ParamsProxysql) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources
 */
 type ListDBClustersOKBodyPXCClustersItems0ParamsProxysqlComputeResources struct {

@@ -48,8 +48,7 @@ func NewStartPTMySQLSummaryActionOK() *StartPTMySQLSummaryActionOK {
 	return &StartPTMySQLSummaryActionOK{}
 }
 
-/*
-StartPTMySQLSummaryActionOK describes a response with status code 200, with default header values.
+/* StartPTMySQLSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewStartPTMySQLSummaryActionDefault(code int) *StartPTMySQLSummaryActionDef
 	}
 }
 
-/*
-StartPTMySQLSummaryActionDefault describes a response with status code -1, with default header values.
+/* StartPTMySQLSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*
-StartPTMySQLSummaryActionBody Message to prepare pt-mysql-summary data
+/*StartPTMySQLSummaryActionBody Message to prepare pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionBody
 */
 type StartPTMySQLSummaryActionBody struct {
@@ -158,8 +155,7 @@ func (o *StartPTMySQLSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartPTMySQLSummaryActionDefaultBody start PT my SQL summary action default body
+/*StartPTMySQLSummaryActionDefaultBody start PT my SQL summary action default body
 swagger:model StartPTMySQLSummaryActionDefaultBody
 */
 type StartPTMySQLSummaryActionDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *StartPTMySQLSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartPTMySQLSummaryActionDefaultBodyDetailsItems0 start PT my SQL summary action default body details items0
+/*StartPTMySQLSummaryActionDefaultBodyDetailsItems0 start PT my SQL summary action default body details items0
 swagger:model StartPTMySQLSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMySQLSummaryActionDefaultBodyDetailsItems0 struct {
@@ -299,8 +294,7 @@ func (o *StartPTMySQLSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-StartPTMySQLSummaryActionOKBody Message to retrieve the prepared pt-mysql-summary data
+/*StartPTMySQLSummaryActionOKBody Message to retrieve the prepared pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionOKBody
 */
 type StartPTMySQLSummaryActionOKBody struct {

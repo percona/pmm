@@ -50,8 +50,7 @@ func NewChangeSecurityChecksOK() *ChangeSecurityChecksOK {
 	return &ChangeSecurityChecksOK{}
 }
 
-/*
-ChangeSecurityChecksOK describes a response with status code 200, with default header values.
+/* ChangeSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewChangeSecurityChecksDefault(code int) *ChangeSecurityChecksDefault {
 	}
 }
 
-/*
-ChangeSecurityChecksDefault describes a response with status code -1, with default header values.
+/* ChangeSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *ChangeSecurityChecksDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*
-ChangeSecurityChecksBody change security checks body
+/*ChangeSecurityChecksBody change security checks body
 swagger:model ChangeSecurityChecksBody
 */
 type ChangeSecurityChecksBody struct {
@@ -216,8 +213,7 @@ func (o *ChangeSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeSecurityChecksDefaultBody change security checks default body
+/*ChangeSecurityChecksDefaultBody change security checks default body
 swagger:model ChangeSecurityChecksDefaultBody
 */
 type ChangeSecurityChecksDefaultBody struct {
@@ -320,8 +316,7 @@ func (o *ChangeSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeSecurityChecksDefaultBodyDetailsItems0 change security checks default body details items0
+/*ChangeSecurityChecksDefaultBodyDetailsItems0 change security checks default body details items0
 swagger:model ChangeSecurityChecksDefaultBodyDetailsItems0
 */
 type ChangeSecurityChecksDefaultBodyDetailsItems0 struct {
@@ -357,8 +352,7 @@ func (o *ChangeSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-ChangeSecurityChecksParamsBodyParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
+/*ChangeSecurityChecksParamsBodyParamsItems0 ChangeSecurityCheckParams specifies a single check parameters.
 swagger:model ChangeSecurityChecksParamsBodyParamsItems0
 */
 type ChangeSecurityChecksParamsBodyParamsItems0 struct {

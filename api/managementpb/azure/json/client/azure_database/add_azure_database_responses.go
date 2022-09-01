@@ -50,8 +50,7 @@ func NewAddAzureDatabaseOK() *AddAzureDatabaseOK {
 	return &AddAzureDatabaseOK{}
 }
 
-/*
-AddAzureDatabaseOK describes a response with status code 200, with default header values.
+/* AddAzureDatabaseOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddAzureDatabaseDefault(code int) *AddAzureDatabaseDefault {
 	}
 }
 
-/*
-AddAzureDatabaseDefault describes a response with status code -1, with default header values.
+/* AddAzureDatabaseDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddAzureDatabaseDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-AddAzureDatabaseBody add azure database body
+/*AddAzureDatabaseBody add azure database body
 swagger:model AddAzureDatabaseBody
 */
 type AddAzureDatabaseBody struct {
@@ -288,8 +285,7 @@ func (o *AddAzureDatabaseBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAzureDatabaseDefaultBody add azure database default body
+/*AddAzureDatabaseDefaultBody add azure database default body
 swagger:model AddAzureDatabaseDefaultBody
 */
 type AddAzureDatabaseDefaultBody struct {
@@ -395,8 +391,7 @@ func (o *AddAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAzureDatabaseDefaultBodyDetailsItems0 add azure database default body details items0
+/*AddAzureDatabaseDefaultBodyDetailsItems0 add azure database default body details items0
 swagger:model AddAzureDatabaseDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseDefaultBodyDetailsItems0 struct {

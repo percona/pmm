@@ -48,8 +48,7 @@ func NewCreatePXCClusterOK() *CreatePXCClusterOK {
 	return &CreatePXCClusterOK{}
 }
 
-/*
-CreatePXCClusterOK describes a response with status code 200, with default header values.
+/* CreatePXCClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewCreatePXCClusterDefault(code int) *CreatePXCClusterDefault {
 	}
 }
 
-/*
-CreatePXCClusterDefault describes a response with status code -1, with default header values.
+/* CreatePXCClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *CreatePXCClusterDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-CreatePXCClusterBody create PXC cluster body
+/*CreatePXCClusterBody create PXC cluster body
 swagger:model CreatePXCClusterBody
 */
 type CreatePXCClusterBody struct {
@@ -217,8 +214,7 @@ func (o *CreatePXCClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePXCClusterDefaultBody create PXC cluster default body
+/*CreatePXCClusterDefaultBody create PXC cluster default body
 swagger:model CreatePXCClusterDefaultBody
 */
 type CreatePXCClusterDefaultBody struct {
@@ -321,8 +317,7 @@ func (o *CreatePXCClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePXCClusterDefaultBodyDetailsItems0 create PXC cluster default body details items0
+/*CreatePXCClusterDefaultBodyDetailsItems0 create PXC cluster default body details items0
 swagger:model CreatePXCClusterDefaultBodyDetailsItems0
 */
 type CreatePXCClusterDefaultBodyDetailsItems0 struct {
@@ -358,8 +353,7 @@ func (o *CreatePXCClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
+/*CreatePXCClusterParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model CreatePXCClusterParamsBodyParams
 */
 type CreatePXCClusterParamsBodyParams struct {
@@ -540,8 +534,7 @@ func (o *CreatePXCClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
+/*CreatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
 // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model CreatePXCClusterParamsBodyParamsHaproxy
 */
@@ -633,8 +626,7 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*CreatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model CreatePXCClusterParamsBodyParamsHaproxyComputeResources
 */
 type CreatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
@@ -673,8 +665,7 @@ func (o *CreatePXCClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinar
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsPXC PXC container parameters.
+/*CreatePXCClusterParamsBodyParamsPXC PXC container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model CreatePXCClusterParamsBodyParamsPXC
 */
@@ -769,8 +760,7 @@ func (o *CreatePXCClusterParamsBodyParamsPXC) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*CreatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model CreatePXCClusterParamsBodyParamsPXCComputeResources
 */
 type CreatePXCClusterParamsBodyParamsPXCComputeResources struct {
@@ -809,8 +799,7 @@ func (o *CreatePXCClusterParamsBodyParamsPXCComputeResources) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
+/*CreatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model CreatePXCClusterParamsBodyParamsProxysql
 */
@@ -905,8 +894,7 @@ func (o *CreatePXCClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-CreatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*CreatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model CreatePXCClusterParamsBodyParamsProxysqlComputeResources
 */
 type CreatePXCClusterParamsBodyParamsProxysqlComputeResources struct {

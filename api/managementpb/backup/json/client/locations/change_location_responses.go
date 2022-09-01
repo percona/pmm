@@ -48,8 +48,7 @@ func NewChangeLocationOK() *ChangeLocationOK {
 	return &ChangeLocationOK{}
 }
 
-/*
-ChangeLocationOK describes a response with status code 200, with default header values.
+/* ChangeLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewChangeLocationDefault(code int) *ChangeLocationDefault {
 	}
 }
 
-/*
-ChangeLocationDefault describes a response with status code -1, with default header values.
+/* ChangeLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *ChangeLocationDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-ChangeLocationBody change location body
+/*ChangeLocationBody change location body
 swagger:model ChangeLocationBody
 */
 type ChangeLocationBody struct {
@@ -304,8 +301,7 @@ func (o *ChangeLocationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeLocationDefaultBody change location default body
+/*ChangeLocationDefaultBody change location default body
 swagger:model ChangeLocationDefaultBody
 */
 type ChangeLocationDefaultBody struct {
@@ -408,8 +404,7 @@ func (o *ChangeLocationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeLocationDefaultBodyDetailsItems0 change location default body details items0
+/*ChangeLocationDefaultBodyDetailsItems0 change location default body details items0
 swagger:model ChangeLocationDefaultBodyDetailsItems0
 */
 type ChangeLocationDefaultBodyDetailsItems0 struct {
@@ -445,8 +440,7 @@ func (o *ChangeLocationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ChangeLocationParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
+/*ChangeLocationParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
 swagger:model ChangeLocationParamsBodyPMMClientConfig
 */
 type ChangeLocationParamsBodyPMMClientConfig struct {
@@ -482,8 +476,7 @@ func (o *ChangeLocationParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-ChangeLocationParamsBodyPMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
+/*ChangeLocationParamsBodyPMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
 swagger:model ChangeLocationParamsBodyPMMServerConfig
 */
 type ChangeLocationParamsBodyPMMServerConfig struct {
@@ -519,8 +512,7 @@ func (o *ChangeLocationParamsBodyPMMServerConfig) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-ChangeLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
+/*ChangeLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model ChangeLocationParamsBodyS3Config
 */
 type ChangeLocationParamsBodyS3Config struct {

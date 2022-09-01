@@ -52,12 +52,10 @@ func NewRestartDBClusterParamsWithHTTPClient(client *http.Client) *RestartDBClus
 	}
 }
 
-/*
-RestartDBClusterParams contains all the parameters to send to the API endpoint
+/* RestartDBClusterParams contains all the parameters to send to the API endpoint
+   for the restart DB cluster operation.
 
-	for the restart DB cluster operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type RestartDBClusterParams struct {
 	// Body.

@@ -50,8 +50,7 @@ func NewGetSecurityCheckResultsOK() *GetSecurityCheckResultsOK {
 	return &GetSecurityCheckResultsOK{}
 }
 
-/*
-GetSecurityCheckResultsOK describes a response with status code 200, with default header values.
+/* GetSecurityCheckResultsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewGetSecurityCheckResultsDefault(code int) *GetSecurityCheckResultsDefault
 	}
 }
 
-/*
-GetSecurityCheckResultsDefault describes a response with status code -1, with default header values.
+/* GetSecurityCheckResultsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *GetSecurityCheckResultsDefault) readResponse(response runtime.ClientRes
 	return nil
 }
 
-/*
-GetSecurityCheckResultsDefaultBody get security check results default body
+/*GetSecurityCheckResultsDefaultBody get security check results default body
 swagger:model GetSecurityCheckResultsDefaultBody
 */
 type GetSecurityCheckResultsDefaultBody struct {
@@ -224,8 +221,7 @@ func (o *GetSecurityCheckResultsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSecurityCheckResultsDefaultBodyDetailsItems0 get security check results default body details items0
+/*GetSecurityCheckResultsDefaultBodyDetailsItems0 get security check results default body details items0
 swagger:model GetSecurityCheckResultsDefaultBodyDetailsItems0
 */
 type GetSecurityCheckResultsDefaultBodyDetailsItems0 struct {
@@ -261,8 +257,7 @@ func (o *GetSecurityCheckResultsDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 	return nil
 }
 
-/*
-GetSecurityCheckResultsOKBody get security check results OK body
+/*GetSecurityCheckResultsOKBody get security check results OK body
 swagger:model GetSecurityCheckResultsOKBody
 */
 type GetSecurityCheckResultsOKBody struct {
@@ -359,8 +354,7 @@ func (o *GetSecurityCheckResultsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSecurityCheckResultsOKBodyResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
+/*GetSecurityCheckResultsOKBodyResultsItems0 SecurityCheckResult represents the check result returned from pmm-managed after running the check.
 swagger:model GetSecurityCheckResultsOKBodyResultsItems0
 */
 type GetSecurityCheckResultsOKBodyResultsItems0 struct {

@@ -50,8 +50,7 @@ func NewListSecurityChecksOK() *ListSecurityChecksOK {
 	return &ListSecurityChecksOK{}
 }
 
-/*
-ListSecurityChecksOK describes a response with status code 200, with default header values.
+/* ListSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewListSecurityChecksDefault(code int) *ListSecurityChecksDefault {
 	}
 }
 
-/*
-ListSecurityChecksDefault describes a response with status code -1, with default header values.
+/* ListSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ListSecurityChecksDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-ListSecurityChecksDefaultBody list security checks default body
+/*ListSecurityChecksDefaultBody list security checks default body
 swagger:model ListSecurityChecksDefaultBody
 */
 type ListSecurityChecksDefaultBody struct {
@@ -224,8 +221,7 @@ func (o *ListSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListSecurityChecksDefaultBodyDetailsItems0 list security checks default body details items0
+/*ListSecurityChecksDefaultBodyDetailsItems0 list security checks default body details items0
 swagger:model ListSecurityChecksDefaultBodyDetailsItems0
 */
 type ListSecurityChecksDefaultBodyDetailsItems0 struct {
@@ -261,8 +257,7 @@ func (o *ListSecurityChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ListSecurityChecksOKBody list security checks OK body
+/*ListSecurityChecksOKBody list security checks OK body
 swagger:model ListSecurityChecksOKBody
 */
 type ListSecurityChecksOKBody struct {
@@ -359,8 +354,7 @@ func (o *ListSecurityChecksOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListSecurityChecksOKBodyChecksItems0 SecurityCheck contains check name and status.
+/*ListSecurityChecksOKBodyChecksItems0 SecurityCheck contains check name and status.
 swagger:model ListSecurityChecksOKBodyChecksItems0
 */
 type ListSecurityChecksOKBodyChecksItems0 struct {

@@ -48,8 +48,7 @@ func NewRemoveScheduledBackupOK() *RemoveScheduledBackupOK {
 	return &RemoveScheduledBackupOK{}
 }
 
-/*
-RemoveScheduledBackupOK describes a response with status code 200, with default header values.
+/* RemoveScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveScheduledBackupDefault(code int) *RemoveScheduledBackupDefault {
 	}
 }
 
-/*
-RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
+/* RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveScheduledBackupDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-RemoveScheduledBackupBody remove scheduled backup body
+/*RemoveScheduledBackupBody remove scheduled backup body
 swagger:model RemoveScheduledBackupBody
 */
 type RemoveScheduledBackupBody struct {
@@ -153,8 +150,7 @@ func (o *RemoveScheduledBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveScheduledBackupDefaultBody remove scheduled backup default body
+/*RemoveScheduledBackupDefaultBody remove scheduled backup default body
 swagger:model RemoveScheduledBackupDefaultBody
 */
 type RemoveScheduledBackupDefaultBody struct {
@@ -257,8 +253,7 @@ func (o *RemoveScheduledBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default body details items0
+/*RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default body details items0
 swagger:model RemoveScheduledBackupDefaultBodyDetailsItems0
 */
 type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {

@@ -52,12 +52,10 @@ func NewRestoreBackupParamsWithHTTPClient(client *http.Client) *RestoreBackupPar
 	}
 }
 
-/*
-RestoreBackupParams contains all the parameters to send to the API endpoint
+/* RestoreBackupParams contains all the parameters to send to the API endpoint
+   for the restore backup operation.
 
-	for the restore backup operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type RestoreBackupParams struct {
 	// Body.

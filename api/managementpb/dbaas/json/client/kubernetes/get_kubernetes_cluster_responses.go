@@ -48,8 +48,7 @@ func NewGetKubernetesClusterOK() *GetKubernetesClusterOK {
 	return &GetKubernetesClusterOK{}
 }
 
-/*
-GetKubernetesClusterOK describes a response with status code 200, with default header values.
+/* GetKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewGetKubernetesClusterDefault(code int) *GetKubernetesClusterDefault {
 	}
 }
 
-/*
-GetKubernetesClusterDefault describes a response with status code -1, with default header values.
+/* GetKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *GetKubernetesClusterDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*
-GetKubernetesClusterBody get kubernetes cluster body
+/*GetKubernetesClusterBody get kubernetes cluster body
 swagger:model GetKubernetesClusterBody
 */
 type GetKubernetesClusterBody struct {
@@ -155,8 +152,7 @@ func (o *GetKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetKubernetesClusterDefaultBody get kubernetes cluster default body
+/*GetKubernetesClusterDefaultBody get kubernetes cluster default body
 swagger:model GetKubernetesClusterDefaultBody
 */
 type GetKubernetesClusterDefaultBody struct {
@@ -259,8 +255,7 @@ func (o *GetKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetKubernetesClusterDefaultBodyDetailsItems0 get kubernetes cluster default body details items0
+/*GetKubernetesClusterDefaultBodyDetailsItems0 get kubernetes cluster default body details items0
 swagger:model GetKubernetesClusterDefaultBodyDetailsItems0
 */
 type GetKubernetesClusterDefaultBodyDetailsItems0 struct {
@@ -296,8 +291,7 @@ func (o *GetKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-GetKubernetesClusterOKBody get kubernetes cluster OK body
+/*GetKubernetesClusterOKBody get kubernetes cluster OK body
 swagger:model GetKubernetesClusterOKBody
 */
 type GetKubernetesClusterOKBody struct {
@@ -385,8 +379,7 @@ func (o *GetKubernetesClusterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetKubernetesClusterOKBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
+/*GetKubernetesClusterOKBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 swagger:model GetKubernetesClusterOKBodyKubeAuth
 */
 type GetKubernetesClusterOKBodyKubeAuth struct {

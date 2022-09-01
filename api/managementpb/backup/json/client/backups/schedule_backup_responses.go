@@ -50,8 +50,7 @@ func NewScheduleBackupOK() *ScheduleBackupOK {
 	return &ScheduleBackupOK{}
 }
 
-/*
-ScheduleBackupOK describes a response with status code 200, with default header values.
+/* ScheduleBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewScheduleBackupDefault(code int) *ScheduleBackupDefault {
 	}
 }
 
-/*
-ScheduleBackupDefault describes a response with status code -1, with default header values.
+/* ScheduleBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ScheduleBackupDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-ScheduleBackupBody schedule backup body
+/*ScheduleBackupBody schedule backup body
 swagger:model ScheduleBackupBody
 */
 type ScheduleBackupBody struct {
@@ -262,8 +259,7 @@ func (o *ScheduleBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ScheduleBackupDefaultBody schedule backup default body
+/*ScheduleBackupDefaultBody schedule backup default body
 swagger:model ScheduleBackupDefaultBody
 */
 type ScheduleBackupDefaultBody struct {
@@ -366,8 +362,7 @@ func (o *ScheduleBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
+/*ScheduleBackupDefaultBodyDetailsItems0 schedule backup default body details items0
 swagger:model ScheduleBackupDefaultBodyDetailsItems0
 */
 type ScheduleBackupDefaultBodyDetailsItems0 struct {
@@ -403,8 +398,7 @@ func (o *ScheduleBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ScheduleBackupOKBody schedule backup OK body
+/*ScheduleBackupOKBody schedule backup OK body
 swagger:model ScheduleBackupOKBody
 */
 type ScheduleBackupOKBody struct {

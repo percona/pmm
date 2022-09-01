@@ -52,12 +52,10 @@ func NewStartMySQLShowIndexActionParamsWithHTTPClient(client *http.Client) *Star
 	}
 }
 
-/*
-StartMySQLShowIndexActionParams contains all the parameters to send to the API endpoint
+/* StartMySQLShowIndexActionParams contains all the parameters to send to the API endpoint
+   for the start my SQL show index action operation.
 
-	for the start my SQL show index action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartMySQLShowIndexActionParams struct {
 	// Body.

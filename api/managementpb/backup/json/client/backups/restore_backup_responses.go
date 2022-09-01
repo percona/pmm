@@ -48,8 +48,7 @@ func NewRestoreBackupOK() *RestoreBackupOK {
 	return &RestoreBackupOK{}
 }
 
-/*
-RestoreBackupOK describes a response with status code 200, with default header values.
+/* RestoreBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewRestoreBackupDefault(code int) *RestoreBackupDefault {
 	}
 }
 
-/*
-RestoreBackupDefault describes a response with status code -1, with default header values.
+/* RestoreBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *RestoreBackupDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-RestoreBackupBody restore backup body
+/*RestoreBackupBody restore backup body
 swagger:model RestoreBackupBody
 */
 type RestoreBackupBody struct {
@@ -158,8 +155,7 @@ func (o *RestoreBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestoreBackupDefaultBody restore backup default body
+/*RestoreBackupDefaultBody restore backup default body
 swagger:model RestoreBackupDefaultBody
 */
 type RestoreBackupDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *RestoreBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
+/*RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
 swagger:model RestoreBackupDefaultBodyDetailsItems0
 */
 type RestoreBackupDefaultBodyDetailsItems0 struct {
@@ -299,8 +294,7 @@ func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-RestoreBackupOKBody restore backup OK body
+/*RestoreBackupOKBody restore backup OK body
 swagger:model RestoreBackupOKBody
 */
 type RestoreBackupOKBody struct {

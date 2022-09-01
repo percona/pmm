@@ -48,8 +48,7 @@ func NewUpdatePSMDBClusterOK() *UpdatePSMDBClusterOK {
 	return &UpdatePSMDBClusterOK{}
 }
 
-/*
-UpdatePSMDBClusterOK describes a response with status code 200, with default header values.
+/* UpdatePSMDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewUpdatePSMDBClusterDefault(code int) *UpdatePSMDBClusterDefault {
 	}
 }
 
-/*
-UpdatePSMDBClusterDefault describes a response with status code -1, with default header values.
+/* UpdatePSMDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *UpdatePSMDBClusterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-UpdatePSMDBClusterBody update PSMDB cluster body
+/*UpdatePSMDBClusterBody update PSMDB cluster body
 swagger:model UpdatePSMDBClusterBody
 */
 type UpdatePSMDBClusterBody struct {
@@ -211,8 +208,7 @@ func (o *UpdatePSMDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePSMDBClusterDefaultBody update PSMDB cluster default body
+/*UpdatePSMDBClusterDefaultBody update PSMDB cluster default body
 swagger:model UpdatePSMDBClusterDefaultBody
 */
 type UpdatePSMDBClusterDefaultBody struct {
@@ -315,8 +311,7 @@ func (o *UpdatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePSMDBClusterDefaultBodyDetailsItems0 update PSMDB cluster default body details items0
+/*UpdatePSMDBClusterDefaultBodyDetailsItems0 update PSMDB cluster default body details items0
 swagger:model UpdatePSMDBClusterDefaultBodyDetailsItems0
 */
 type UpdatePSMDBClusterDefaultBodyDetailsItems0 struct {
@@ -352,8 +347,7 @@ func (o *UpdatePSMDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*UpdatePSMDBClusterParamsBodyParams UpdatePSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model UpdatePSMDBClusterParamsBodyParams
 */
 type UpdatePSMDBClusterParamsBodyParams struct {
@@ -454,8 +448,7 @@ func (o *UpdatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
+/*UpdatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicaset
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicaset struct {
@@ -543,8 +536,7 @@ func (o *UpdatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 */
 type UpdatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {

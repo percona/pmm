@@ -52,12 +52,10 @@ func NewListFailedServicesParamsWithHTTPClient(client *http.Client) *ListFailedS
 	}
 }
 
-/*
-ListFailedServicesParams contains all the parameters to send to the API endpoint
+/* ListFailedServicesParams contains all the parameters to send to the API endpoint
+   for the list failed services operation.
 
-	for the list failed services operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListFailedServicesParams struct {
 	// Body.

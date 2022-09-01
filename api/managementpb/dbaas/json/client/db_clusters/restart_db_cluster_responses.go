@@ -50,8 +50,7 @@ func NewRestartDBClusterOK() *RestartDBClusterOK {
 	return &RestartDBClusterOK{}
 }
 
-/*
-RestartDBClusterOK describes a response with status code 200, with default header values.
+/* RestartDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewRestartDBClusterDefault(code int) *RestartDBClusterDefault {
 	}
 }
 
-/*
-RestartDBClusterDefault describes a response with status code -1, with default header values.
+/* RestartDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *RestartDBClusterDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-RestartDBClusterBody restart DB cluster body
+/*RestartDBClusterBody restart DB cluster body
 swagger:model RestartDBClusterBody
 */
 type RestartDBClusterBody struct {
@@ -220,8 +217,7 @@ func (o *RestartDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestartDBClusterDefaultBody restart DB cluster default body
+/*RestartDBClusterDefaultBody restart DB cluster default body
 swagger:model RestartDBClusterDefaultBody
 */
 type RestartDBClusterDefaultBody struct {
@@ -324,8 +320,7 @@ func (o *RestartDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestartDBClusterDefaultBodyDetailsItems0 restart DB cluster default body details items0
+/*RestartDBClusterDefaultBodyDetailsItems0 restart DB cluster default body details items0
 swagger:model RestartDBClusterDefaultBodyDetailsItems0
 */
 type RestartDBClusterDefaultBodyDetailsItems0 struct {

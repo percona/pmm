@@ -48,8 +48,7 @@ func NewStartPostgreSQLShowCreateTableActionOK() *StartPostgreSQLShowCreateTable
 	return &StartPostgreSQLShowCreateTableActionOK{}
 }
 
-/*
-StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
+/* StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewStartPostgreSQLShowCreateTableActionDefault(code int) *StartPostgreSQLSh
 	}
 }
 
-/*
-StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
+/* StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) readResponse(response runt
 	return nil
 }
 
-/*
-StartPostgreSQLShowCreateTableActionBody start postgre SQL show create table action body
+/*StartPostgreSQLShowCreateTableActionBody start postgre SQL show create table action body
 swagger:model StartPostgreSQLShowCreateTableActionBody
 */
 type StartPostgreSQLShowCreateTableActionBody struct {
@@ -164,8 +161,7 @@ func (o *StartPostgreSQLShowCreateTableActionBody) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-StartPostgreSQLShowCreateTableActionDefaultBody start postgre SQL show create table action default body
+/*StartPostgreSQLShowCreateTableActionDefaultBody start postgre SQL show create table action default body
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBody
 */
 type StartPostgreSQLShowCreateTableActionDefaultBody struct {
@@ -268,8 +264,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []by
 	return nil
 }
 
-/*
-StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 start postgre SQL show create table action default body details items0
+/*StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 start postgre SQL show create table action default body details items0
 swagger:model StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
@@ -305,8 +300,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefaultBodyDetailsItems0) Unmarshal
 	return nil
 }
 
-/*
-StartPostgreSQLShowCreateTableActionOKBody start postgre SQL show create table action OK body
+/*StartPostgreSQLShowCreateTableActionOKBody start postgre SQL show create table action OK body
 swagger:model StartPostgreSQLShowCreateTableActionOKBody
 */
 type StartPostgreSQLShowCreateTableActionOKBody struct {

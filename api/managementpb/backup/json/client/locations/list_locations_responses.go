@@ -48,8 +48,7 @@ func NewListLocationsOK() *ListLocationsOK {
 	return &ListLocationsOK{}
 }
 
-/*
-ListLocationsOK describes a response with status code 200, with default header values.
+/* ListLocationsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewListLocationsDefault(code int) *ListLocationsDefault {
 	}
 }
 
-/*
-ListLocationsDefault describes a response with status code -1, with default header values.
+/* ListLocationsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *ListLocationsDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-ListLocationsDefaultBody list locations default body
+/*ListLocationsDefaultBody list locations default body
 swagger:model ListLocationsDefaultBody
 */
 type ListLocationsDefaultBody struct {
@@ -222,8 +219,7 @@ func (o *ListLocationsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListLocationsDefaultBodyDetailsItems0 list locations default body details items0
+/*ListLocationsDefaultBodyDetailsItems0 list locations default body details items0
 swagger:model ListLocationsDefaultBodyDetailsItems0
 */
 type ListLocationsDefaultBodyDetailsItems0 struct {
@@ -259,8 +255,7 @@ func (o *ListLocationsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListLocationsOKBody list locations OK body
+/*ListLocationsOKBody list locations OK body
 swagger:model ListLocationsOKBody
 */
 type ListLocationsOKBody struct {
@@ -357,8 +352,7 @@ func (o *ListLocationsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListLocationsOKBodyLocationsItems0 Location represents single Backup Location.
+/*ListLocationsOKBodyLocationsItems0 Location represents single Backup Location.
 swagger:model ListLocationsOKBodyLocationsItems0
 */
 type ListLocationsOKBodyLocationsItems0 struct {
@@ -545,8 +539,7 @@ func (o *ListLocationsOKBodyLocationsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListLocationsOKBodyLocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
+/*ListLocationsOKBodyLocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
 swagger:model ListLocationsOKBodyLocationsItems0PMMClientConfig
 */
 type ListLocationsOKBodyLocationsItems0PMMClientConfig struct {
@@ -582,8 +575,7 @@ func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-ListLocationsOKBodyLocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
+/*ListLocationsOKBodyLocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
 swagger:model ListLocationsOKBodyLocationsItems0PMMServerConfig
 */
 type ListLocationsOKBodyLocationsItems0PMMServerConfig struct {
@@ -619,8 +611,7 @@ func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-ListLocationsOKBodyLocationsItems0S3Config S3LocationConfig represents S3 bucket configuration.
+/*ListLocationsOKBodyLocationsItems0S3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model ListLocationsOKBodyLocationsItems0S3Config
 */
 type ListLocationsOKBodyLocationsItems0S3Config struct {

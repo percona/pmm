@@ -52,12 +52,10 @@ func NewAddRDSParamsWithHTTPClient(client *http.Client) *AddRDSParams {
 	}
 }
 
-/*
-AddRDSParams contains all the parameters to send to the API endpoint
+/* AddRDSParams contains all the parameters to send to the API endpoint
+   for the add RDS operation.
 
-	for the add RDS operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddRDSParams struct {
 	// Body.

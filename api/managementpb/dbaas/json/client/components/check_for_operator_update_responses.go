@@ -48,8 +48,7 @@ func NewCheckForOperatorUpdateOK() *CheckForOperatorUpdateOK {
 	return &CheckForOperatorUpdateOK{}
 }
 
-/*
-CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
+/* CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewCheckForOperatorUpdateDefault(code int) *CheckForOperatorUpdateDefault {
 	}
 }
 
-/*
-CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
+/* CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *CheckForOperatorUpdateDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-CheckForOperatorUpdateDefaultBody check for operator update default body
+/*CheckForOperatorUpdateDefaultBody check for operator update default body
 swagger:model CheckForOperatorUpdateDefaultBody
 */
 type CheckForOperatorUpdateDefaultBody struct {
@@ -222,8 +219,7 @@ func (o *CheckForOperatorUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CheckForOperatorUpdateDefaultBodyDetailsItems0 check for operator update default body details items0
+/*CheckForOperatorUpdateDefaultBodyDetailsItems0 check for operator update default body details items0
 swagger:model CheckForOperatorUpdateDefaultBodyDetailsItems0
 */
 type CheckForOperatorUpdateDefaultBodyDetailsItems0 struct {
@@ -259,8 +255,7 @@ func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBody check for operator update OK body
+/*CheckForOperatorUpdateOKBody check for operator update OK body
 swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
@@ -352,8 +347,7 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBodyClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnon struct {
@@ -446,8 +440,7 @@ func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon struct {

@@ -50,8 +50,7 @@ func NewDeleteDBClusterOK() *DeleteDBClusterOK {
 	return &DeleteDBClusterOK{}
 }
 
-/*
-DeleteDBClusterOK describes a response with status code 200, with default header values.
+/* DeleteDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewDeleteDBClusterDefault(code int) *DeleteDBClusterDefault {
 	}
 }
 
-/*
-DeleteDBClusterDefault describes a response with status code -1, with default header values.
+/* DeleteDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *DeleteDBClusterDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-DeleteDBClusterBody delete DB cluster body
+/*DeleteDBClusterBody delete DB cluster body
 swagger:model DeleteDBClusterBody
 */
 type DeleteDBClusterBody struct {
@@ -220,8 +217,7 @@ func (o *DeleteDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteDBClusterDefaultBody delete DB cluster default body
+/*DeleteDBClusterDefaultBody delete DB cluster default body
 swagger:model DeleteDBClusterDefaultBody
 */
 type DeleteDBClusterDefaultBody struct {
@@ -324,8 +320,7 @@ func (o *DeleteDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteDBClusterDefaultBodyDetailsItems0 delete DB cluster default body details items0
+/*DeleteDBClusterDefaultBodyDetailsItems0 delete DB cluster default body details items0
 swagger:model DeleteDBClusterDefaultBodyDetailsItems0
 */
 type DeleteDBClusterDefaultBodyDetailsItems0 struct {

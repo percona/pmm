@@ -52,12 +52,10 @@ func NewCreatePXCClusterParamsWithHTTPClient(client *http.Client) *CreatePXCClus
 	}
 }
 
-/*
-CreatePXCClusterParams contains all the parameters to send to the API endpoint
+/* CreatePXCClusterParams contains all the parameters to send to the API endpoint
+   for the create PXC cluster operation.
 
-	for the create PXC cluster operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CreatePXCClusterParams struct {
 	// Body.

@@ -48,8 +48,7 @@ func NewGetActionOK() *GetActionOK {
 	return &GetActionOK{}
 }
 
-/*
-GetActionOK describes a response with status code 200, with default header values.
+/* GetActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewGetActionDefault(code int) *GetActionDefault {
 	}
 }
 
-/*
-GetActionDefault describes a response with status code -1, with default header values.
+/* GetActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *GetActionDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*
-GetActionBody get action body
+/*GetActionBody get action body
 swagger:model GetActionBody
 */
 type GetActionBody struct {
@@ -155,8 +152,7 @@ func (o *GetActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetActionDefaultBody get action default body
+/*GetActionDefaultBody get action default body
 swagger:model GetActionDefaultBody
 */
 type GetActionDefaultBody struct {
@@ -259,8 +255,7 @@ func (o *GetActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetActionDefaultBodyDetailsItems0 get action default body details items0
+/*GetActionDefaultBodyDetailsItems0 get action default body details items0
 swagger:model GetActionDefaultBodyDetailsItems0
 */
 type GetActionDefaultBodyDetailsItems0 struct {
@@ -296,8 +291,7 @@ func (o *GetActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetActionOKBody get action OK body
+/*GetActionOKBody get action OK body
 swagger:model GetActionOKBody
 */
 type GetActionOKBody struct {

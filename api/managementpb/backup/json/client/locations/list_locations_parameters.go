@@ -52,12 +52,10 @@ func NewListLocationsParamsWithHTTPClient(client *http.Client) *ListLocationsPar
 	}
 }
 
-/*
-ListLocationsParams contains all the parameters to send to the API endpoint
+/* ListLocationsParams contains all the parameters to send to the API endpoint
+   for the list locations operation.
 
-	for the list locations operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListLocationsParams struct {
 	// Body.

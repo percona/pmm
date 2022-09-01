@@ -52,12 +52,10 @@ func NewStartSecurityChecksParamsWithHTTPClient(client *http.Client) *StartSecur
 	}
 }
 
-/*
-StartSecurityChecksParams contains all the parameters to send to the API endpoint
+/* StartSecurityChecksParams contains all the parameters to send to the API endpoint
+   for the start security checks operation.
 
-	for the start security checks operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartSecurityChecksParams struct {
 	// Body.

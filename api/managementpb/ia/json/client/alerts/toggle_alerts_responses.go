@@ -50,8 +50,7 @@ func NewToggleAlertsOK() *ToggleAlertsOK {
 	return &ToggleAlertsOK{}
 }
 
-/*
-ToggleAlertsOK describes a response with status code 200, with default header values.
+/* ToggleAlertsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewToggleAlertsDefault(code int) *ToggleAlertsDefault {
 	}
 }
 
-/*
-ToggleAlertsDefault describes a response with status code -1, with default header values.
+/* ToggleAlertsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *ToggleAlertsDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*
-ToggleAlertsBody toggle alerts body
+/*ToggleAlertsBody toggle alerts body
 swagger:model ToggleAlertsBody
 */
 type ToggleAlertsBody struct {
@@ -219,8 +216,7 @@ func (o *ToggleAlertsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ToggleAlertsDefaultBody toggle alerts default body
+/*ToggleAlertsDefaultBody toggle alerts default body
 swagger:model ToggleAlertsDefaultBody
 */
 type ToggleAlertsDefaultBody struct {
@@ -323,8 +319,7 @@ func (o *ToggleAlertsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ToggleAlertsDefaultBodyDetailsItems0 toggle alerts default body details items0
+/*ToggleAlertsDefaultBodyDetailsItems0 toggle alerts default body details items0
 swagger:model ToggleAlertsDefaultBodyDetailsItems0
 */
 type ToggleAlertsDefaultBodyDetailsItems0 struct {

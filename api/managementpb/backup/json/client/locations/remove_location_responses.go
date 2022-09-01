@@ -48,8 +48,7 @@ func NewRemoveLocationOK() *RemoveLocationOK {
 	return &RemoveLocationOK{}
 }
 
-/*
-RemoveLocationOK describes a response with status code 200, with default header values.
+/* RemoveLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveLocationDefault(code int) *RemoveLocationDefault {
 	}
 }
 
-/*
-RemoveLocationDefault describes a response with status code -1, with default header values.
+/* RemoveLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveLocationDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-RemoveLocationBody remove location body
+/*RemoveLocationBody remove location body
 swagger:model RemoveLocationBody
 */
 type RemoveLocationBody struct {
@@ -156,8 +153,7 @@ func (o *RemoveLocationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveLocationDefaultBody remove location default body
+/*RemoveLocationDefaultBody remove location default body
 swagger:model RemoveLocationDefaultBody
 */
 type RemoveLocationDefaultBody struct {
@@ -260,8 +256,7 @@ func (o *RemoveLocationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveLocationDefaultBodyDetailsItems0 remove location default body details items0
+/*RemoveLocationDefaultBodyDetailsItems0 remove location default body details items0
 swagger:model RemoveLocationDefaultBodyDetailsItems0
 */
 type RemoveLocationDefaultBodyDetailsItems0 struct {

@@ -48,8 +48,7 @@ func NewTestLocationConfigOK() *TestLocationConfigOK {
 	return &TestLocationConfigOK{}
 }
 
-/*
-TestLocationConfigOK describes a response with status code 200, with default header values.
+/* TestLocationConfigOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewTestLocationConfigDefault(code int) *TestLocationConfigDefault {
 	}
 }
 
-/*
-TestLocationConfigDefault describes a response with status code -1, with default header values.
+/* TestLocationConfigDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-TestLocationConfigBody test location config body
+/*TestLocationConfigBody test location config body
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
@@ -295,8 +292,7 @@ func (o *TestLocationConfigBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-TestLocationConfigDefaultBody test location config default body
+/*TestLocationConfigDefaultBody test location config default body
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
@@ -399,8 +395,7 @@ func (o *TestLocationConfigDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-TestLocationConfigDefaultBodyDetailsItems0 test location config default body details items0
+/*TestLocationConfigDefaultBodyDetailsItems0 test location config default body details items0
 swagger:model TestLocationConfigDefaultBodyDetailsItems0
 */
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
@@ -436,8 +431,7 @@ func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-TestLocationConfigParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
+/*TestLocationConfigParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
 swagger:model TestLocationConfigParamsBodyPMMClientConfig
 */
 type TestLocationConfigParamsBodyPMMClientConfig struct {
@@ -473,8 +467,7 @@ func (o *TestLocationConfigParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-TestLocationConfigParamsBodyPMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
+/*TestLocationConfigParamsBodyPMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
 swagger:model TestLocationConfigParamsBodyPMMServerConfig
 */
 type TestLocationConfigParamsBodyPMMServerConfig struct {
@@ -510,8 +503,7 @@ func (o *TestLocationConfigParamsBodyPMMServerConfig) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
+/*TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model TestLocationConfigParamsBodyS3Config
 */
 type TestLocationConfigParamsBodyS3Config struct {

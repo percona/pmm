@@ -48,8 +48,7 @@ func NewAddAnnotationOK() *AddAnnotationOK {
 	return &AddAnnotationOK{}
 }
 
-/*
-AddAnnotationOK describes a response with status code 200, with default header values.
+/* AddAnnotationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewAddAnnotationDefault(code int) *AddAnnotationDefault {
 	}
 }
 
-/*
-AddAnnotationDefault describes a response with status code -1, with default header values.
+/* AddAnnotationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
+/*AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
 swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
@@ -162,8 +159,7 @@ func (o *AddAnnotationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAnnotationDefaultBody add annotation default body
+/*AddAnnotationDefaultBody add annotation default body
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
@@ -266,8 +262,7 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
+/*AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {

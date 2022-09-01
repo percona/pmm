@@ -48,8 +48,7 @@ func NewGetPSMDBClusterResourcesOK() *GetPSMDBClusterResourcesOK {
 	return &GetPSMDBClusterResourcesOK{}
 }
 
-/*
-GetPSMDBClusterResourcesOK describes a response with status code 200, with default header values.
+/* GetPSMDBClusterResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewGetPSMDBClusterResourcesDefault(code int) *GetPSMDBClusterResourcesDefau
 	}
 }
 
-/*
-GetPSMDBClusterResourcesDefault describes a response with status code -1, with default header values.
+/* GetPSMDBClusterResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *GetPSMDBClusterResourcesDefault) readResponse(response runtime.ClientRe
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesBody get PSMDB cluster resources body
+/*GetPSMDBClusterResourcesBody get PSMDB cluster resources body
 swagger:model GetPSMDBClusterResourcesBody
 */
 type GetPSMDBClusterResourcesBody struct {
@@ -207,8 +204,7 @@ func (o *GetPSMDBClusterResourcesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesDefaultBody get PSMDB cluster resources default body
+/*GetPSMDBClusterResourcesDefaultBody get PSMDB cluster resources default body
 swagger:model GetPSMDBClusterResourcesDefaultBody
 */
 type GetPSMDBClusterResourcesDefaultBody struct {
@@ -311,8 +307,7 @@ func (o *GetPSMDBClusterResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesDefaultBodyDetailsItems0 get PSMDB cluster resources default body details items0
+/*GetPSMDBClusterResourcesDefaultBodyDetailsItems0 get PSMDB cluster resources default body details items0
 swagger:model GetPSMDBClusterResourcesDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterResourcesDefaultBodyDetailsItems0 struct {
@@ -348,8 +343,7 @@ func (o *GetPSMDBClusterResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesOKBody get PSMDB cluster resources OK body
+/*GetPSMDBClusterResourcesOKBody get PSMDB cluster resources OK body
 swagger:model GetPSMDBClusterResourcesOKBody
 */
 type GetPSMDBClusterResourcesOKBody struct {
@@ -437,8 +431,7 @@ func (o *GetPSMDBClusterResourcesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
+/*GetPSMDBClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
 swagger:model GetPSMDBClusterResourcesOKBodyExpected
 */
 type GetPSMDBClusterResourcesOKBodyExpected struct {
@@ -481,8 +474,7 @@ func (o *GetPSMDBClusterResourcesOKBodyExpected) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*GetPSMDBClusterResourcesParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model GetPSMDBClusterResourcesParamsBodyParams
 */
 type GetPSMDBClusterResourcesParamsBodyParams struct {
@@ -576,8 +568,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParams) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesParamsBodyParamsReplicaset ReplicaSet container parameters.
+/*GetPSMDBClusterResourcesParamsBodyParamsReplicaset ReplicaSet container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicaset
 */
@@ -669,8 +660,7 @@ func (o *GetPSMDBClusterResourcesParamsBodyParamsReplicaset) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources
 */
 type GetPSMDBClusterResourcesParamsBodyParamsReplicasetComputeResources struct {

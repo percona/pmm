@@ -52,12 +52,10 @@ func NewListAlertRulesParamsWithHTTPClient(client *http.Client) *ListAlertRulesP
 	}
 }
 
-/*
-ListAlertRulesParams contains all the parameters to send to the API endpoint
+/* ListAlertRulesParams contains all the parameters to send to the API endpoint
+   for the list alert rules operation.
 
-	for the list alert rules operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListAlertRulesParams struct {
 	// Body.

@@ -40,7 +40,7 @@ type ClientService interface {
 }
 
 /*
-CreatePXCCluster creates PXC cluster creates a new PXC cluster
+  CreatePXCCluster creates PXC cluster creates a new PXC cluster
 */
 func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams, opts ...ClientOption) (*CreatePXCClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -77,7 +77,7 @@ func (a *Client) CreatePXCCluster(params *CreatePXCClusterParams, opts ...Client
 }
 
 /*
-GetPXCClusterCredentials gets PXC cluster credentials returns a PXC cluster credentials by cluster name
+  GetPXCClusterCredentials gets PXC cluster credentials returns a PXC cluster credentials by cluster name
 */
 func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams, opts ...ClientOption) (*GetPXCClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
@@ -114,7 +114,7 @@ func (a *Client) GetPXCClusterCredentials(params *GetPXCClusterCredentialsParams
 }
 
 /*
-GetPXCClusterResources gets PXC cluster resources returns expected resources to be consumed by the cluster
+  GetPXCClusterResources gets PXC cluster resources returns expected resources to be consumed by the cluster
 */
 func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams, opts ...ClientOption) (*GetPXCClusterResourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -151,7 +151,7 @@ func (a *Client) GetPXCClusterResources(params *GetPXCClusterResourcesParams, op
 }
 
 /*
-UpdatePXCCluster updates PXC cluster updates existing PXC cluster
+  UpdatePXCCluster updates PXC cluster updates existing PXC cluster
 */
 func (a *Client) UpdatePXCCluster(params *UpdatePXCClusterParams, opts ...ClientOption) (*UpdatePXCClusterOK, error) {
 	// TODO: Validate the params before sending

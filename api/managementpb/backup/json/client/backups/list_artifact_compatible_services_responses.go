@@ -48,8 +48,7 @@ func NewListArtifactCompatibleServicesOK() *ListArtifactCompatibleServicesOK {
 	return &ListArtifactCompatibleServicesOK{}
 }
 
-/*
-ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
+/* ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewListArtifactCompatibleServicesDefault(code int) *ListArtifactCompatibleS
 	}
 }
 
-/*
-ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
+/* ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesBody list artifact compatible services body
+/*ListArtifactCompatibleServicesBody list artifact compatible services body
 swagger:model ListArtifactCompatibleServicesBody
 */
 type ListArtifactCompatibleServicesBody struct {
@@ -155,8 +152,7 @@ func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesDefaultBody list artifact compatible services default body
+/*ListArtifactCompatibleServicesDefaultBody list artifact compatible services default body
 swagger:model ListArtifactCompatibleServicesDefaultBody
 */
 type ListArtifactCompatibleServicesDefaultBody struct {
@@ -259,8 +255,7 @@ func (o *ListArtifactCompatibleServicesDefaultBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible services default body details items0
+/*ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible services default body details items0
 swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
 */
 type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
@@ -296,8 +291,7 @@ func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) UnmarshalBinary
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
+/*ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
 swagger:model ListArtifactCompatibleServicesOKBody
 */
 type ListArtifactCompatibleServicesOKBody struct {
@@ -448,8 +442,7 @@ func (o *ListArtifactCompatibleServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
+/*ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
 swagger:model ListArtifactCompatibleServicesOKBodyMongodbItems0
 */
 type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
@@ -515,8 +508,7 @@ func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+/*ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model ListArtifactCompatibleServicesOKBodyMysqlItems0
 */
 type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {

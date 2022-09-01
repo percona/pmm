@@ -48,8 +48,7 @@ func NewDeleteAlertRuleOK() *DeleteAlertRuleOK {
 	return &DeleteAlertRuleOK{}
 }
 
-/*
-DeleteAlertRuleOK describes a response with status code 200, with default header values.
+/* DeleteAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewDeleteAlertRuleDefault(code int) *DeleteAlertRuleDefault {
 	}
 }
 
-/*
-DeleteAlertRuleDefault describes a response with status code -1, with default header values.
+/* DeleteAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *DeleteAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-DeleteAlertRuleBody delete alert rule body
+/*DeleteAlertRuleBody delete alert rule body
 swagger:model DeleteAlertRuleBody
 */
 type DeleteAlertRuleBody struct {
@@ -153,8 +150,7 @@ func (o *DeleteAlertRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteAlertRuleDefaultBody delete alert rule default body
+/*DeleteAlertRuleDefaultBody delete alert rule default body
 swagger:model DeleteAlertRuleDefaultBody
 */
 type DeleteAlertRuleDefaultBody struct {
@@ -257,8 +253,7 @@ func (o *DeleteAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteAlertRuleDefaultBodyDetailsItems0 delete alert rule default body details items0
+/*DeleteAlertRuleDefaultBodyDetailsItems0 delete alert rule default body details items0
 swagger:model DeleteAlertRuleDefaultBodyDetailsItems0
 */
 type DeleteAlertRuleDefaultBodyDetailsItems0 struct {

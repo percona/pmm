@@ -50,8 +50,7 @@ func NewListRestoreHistoryOK() *ListRestoreHistoryOK {
 	return &ListRestoreHistoryOK{}
 }
 
-/*
-ListRestoreHistoryOK describes a response with status code 200, with default header values.
+/* ListRestoreHistoryOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewListRestoreHistoryDefault(code int) *ListRestoreHistoryDefault {
 	}
 }
 
-/*
-ListRestoreHistoryDefault describes a response with status code -1, with default header values.
+/* ListRestoreHistoryDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ListRestoreHistoryDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-ListRestoreHistoryDefaultBody list restore history default body
+/*ListRestoreHistoryDefaultBody list restore history default body
 swagger:model ListRestoreHistoryDefaultBody
 */
 type ListRestoreHistoryDefaultBody struct {
@@ -224,8 +221,7 @@ func (o *ListRestoreHistoryDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
+/*ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
 swagger:model ListRestoreHistoryDefaultBodyDetailsItems0
 */
 type ListRestoreHistoryDefaultBodyDetailsItems0 struct {
@@ -261,8 +257,7 @@ func (o *ListRestoreHistoryDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ListRestoreHistoryOKBody list restore history OK body
+/*ListRestoreHistoryOKBody list restore history OK body
 swagger:model ListRestoreHistoryOKBody
 */
 type ListRestoreHistoryOKBody struct {
@@ -359,8 +354,7 @@ func (o *ListRestoreHistoryOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
+/*ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
 swagger:model ListRestoreHistoryOKBodyItemsItems0
 */
 type ListRestoreHistoryOKBodyItemsItems0 struct {

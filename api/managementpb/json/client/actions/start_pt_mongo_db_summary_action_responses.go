@@ -48,8 +48,7 @@ func NewStartPTMongoDBSummaryActionOK() *StartPTMongoDBSummaryActionOK {
 	return &StartPTMongoDBSummaryActionOK{}
 }
 
-/*
-StartPTMongoDBSummaryActionOK describes a response with status code 200, with default header values.
+/* StartPTMongoDBSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewStartPTMongoDBSummaryActionDefault(code int) *StartPTMongoDBSummaryActio
 	}
 }
 
-/*
-StartPTMongoDBSummaryActionDefault describes a response with status code -1, with default header values.
+/* StartPTMongoDBSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *StartPTMongoDBSummaryActionDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*
-StartPTMongoDBSummaryActionBody Message to prepare pt-mongodb-summary data
+/*StartPTMongoDBSummaryActionBody Message to prepare pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionBody
 */
 type StartPTMongoDBSummaryActionBody struct {
@@ -158,8 +155,7 @@ func (o *StartPTMongoDBSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartPTMongoDBSummaryActionDefaultBody start PT mongo DB summary action default body
+/*StartPTMongoDBSummaryActionDefaultBody start PT mongo DB summary action default body
 swagger:model StartPTMongoDBSummaryActionDefaultBody
 */
 type StartPTMongoDBSummaryActionDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary action default body details items0
+/*StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary action default body details items0
 swagger:model StartPTMongoDBSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 struct {
@@ -299,8 +294,7 @@ func (o *StartPTMongoDBSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-summary data
+/*StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionOKBody
 */
 type StartPTMongoDBSummaryActionOKBody struct {

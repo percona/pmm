@@ -48,8 +48,7 @@ func NewRegisterKubernetesClusterOK() *RegisterKubernetesClusterOK {
 	return &RegisterKubernetesClusterOK{}
 }
 
-/*
-RegisterKubernetesClusterOK describes a response with status code 200, with default header values.
+/* RegisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRegisterKubernetesClusterDefault(code int) *RegisterKubernetesClusterDef
 	}
 }
 
-/*
-RegisterKubernetesClusterDefault describes a response with status code -1, with default header values.
+/* RegisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RegisterKubernetesClusterDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*
-RegisterKubernetesClusterBody register kubernetes cluster body
+/*RegisterKubernetesClusterBody register kubernetes cluster body
 swagger:model RegisterKubernetesClusterBody
 */
 type RegisterKubernetesClusterBody struct {
@@ -214,8 +211,7 @@ func (o *RegisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RegisterKubernetesClusterDefaultBody register kubernetes cluster default body
+/*RegisterKubernetesClusterDefaultBody register kubernetes cluster default body
 swagger:model RegisterKubernetesClusterDefaultBody
 */
 type RegisterKubernetesClusterDefaultBody struct {
@@ -318,8 +314,7 @@ func (o *RegisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RegisterKubernetesClusterDefaultBodyDetailsItems0 register kubernetes cluster default body details items0
+/*RegisterKubernetesClusterDefaultBodyDetailsItems0 register kubernetes cluster default body details items0
 swagger:model RegisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type RegisterKubernetesClusterDefaultBodyDetailsItems0 struct {
@@ -355,8 +350,7 @@ func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-RegisterKubernetesClusterParamsBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
+/*RegisterKubernetesClusterParamsBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 swagger:model RegisterKubernetesClusterParamsBodyKubeAuth
 */
 type RegisterKubernetesClusterParamsBodyKubeAuth struct {

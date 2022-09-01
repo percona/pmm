@@ -48,8 +48,7 @@ func NewStartPTPgSummaryActionOK() *StartPTPgSummaryActionOK {
 	return &StartPTPgSummaryActionOK{}
 }
 
-/*
-StartPTPgSummaryActionOK describes a response with status code 200, with default header values.
+/* StartPTPgSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewStartPTPgSummaryActionDefault(code int) *StartPTPgSummaryActionDefault {
 	}
 }
 
-/*
-StartPTPgSummaryActionDefault describes a response with status code -1, with default header values.
+/* StartPTPgSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *StartPTPgSummaryActionDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-StartPTPgSummaryActionBody Message to prepare pt-pg-summary data
+/*StartPTPgSummaryActionBody Message to prepare pt-pg-summary data
 swagger:model StartPTPgSummaryActionBody
 */
 type StartPTPgSummaryActionBody struct {
@@ -158,8 +155,7 @@ func (o *StartPTPgSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartPTPgSummaryActionDefaultBody start PT pg summary action default body
+/*StartPTPgSummaryActionDefaultBody start PT pg summary action default body
 swagger:model StartPTPgSummaryActionDefaultBody
 */
 type StartPTPgSummaryActionDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *StartPTPgSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartPTPgSummaryActionDefaultBodyDetailsItems0 start PT pg summary action default body details items0
+/*StartPTPgSummaryActionDefaultBodyDetailsItems0 start PT pg summary action default body details items0
 swagger:model StartPTPgSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTPgSummaryActionDefaultBodyDetailsItems0 struct {
@@ -299,8 +294,7 @@ func (o *StartPTPgSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-StartPTPgSummaryActionOKBody Message to retrieve the prepared pt-pg-summary data
+/*StartPTPgSummaryActionOKBody Message to retrieve the prepared pt-pg-summary data
 swagger:model StartPTPgSummaryActionOKBody
 */
 type StartPTPgSummaryActionOKBody struct {

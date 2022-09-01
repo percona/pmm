@@ -50,8 +50,7 @@ func NewCreateAlertRuleOK() *CreateAlertRuleOK {
 	return &CreateAlertRuleOK{}
 }
 
-/*
-CreateAlertRuleOK describes a response with status code 200, with default header values.
+/* CreateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewCreateAlertRuleDefault(code int) *CreateAlertRuleDefault {
 	}
 }
 
-/*
-CreateAlertRuleDefault describes a response with status code -1, with default header values.
+/* CreateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *CreateAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-CreateAlertRuleBody create alert rule body
+/*CreateAlertRuleBody create alert rule body
 swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
@@ -364,8 +361,7 @@ func (o *CreateAlertRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateAlertRuleDefaultBody create alert rule default body
+/*CreateAlertRuleDefaultBody create alert rule default body
 swagger:model CreateAlertRuleDefaultBody
 */
 type CreateAlertRuleDefaultBody struct {
@@ -468,8 +464,7 @@ func (o *CreateAlertRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details items0
+/*CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details items0
 swagger:model CreateAlertRuleDefaultBodyDetailsItems0
 */
 type CreateAlertRuleDefaultBodyDetailsItems0 struct {
@@ -505,8 +500,7 @@ func (o *CreateAlertRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-CreateAlertRuleOKBody create alert rule OK body
+/*CreateAlertRuleOKBody create alert rule OK body
 swagger:model CreateAlertRuleOKBody
 */
 type CreateAlertRuleOKBody struct {
@@ -542,8 +536,7 @@ func (o *CreateAlertRuleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
+/*CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition.
 swagger:model CreateAlertRuleParamsBodyFiltersItems0
 */
 type CreateAlertRuleParamsBodyFiltersItems0 struct {
@@ -640,8 +633,7 @@ func (o *CreateAlertRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+/*CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model CreateAlertRuleParamsBodyParamsItems0
 */
 type CreateAlertRuleParamsBodyParamsItems0 struct {

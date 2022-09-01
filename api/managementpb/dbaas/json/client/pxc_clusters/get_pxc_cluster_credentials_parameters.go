@@ -52,12 +52,10 @@ func NewGetPXCClusterCredentialsParamsWithHTTPClient(client *http.Client) *GetPX
 	}
 }
 
-/*
-GetPXCClusterCredentialsParams contains all the parameters to send to the API endpoint
+/* GetPXCClusterCredentialsParams contains all the parameters to send to the API endpoint
+   for the get PXC cluster credentials operation.
 
-	for the get PXC cluster credentials operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetPXCClusterCredentialsParams struct {
 	// Body.

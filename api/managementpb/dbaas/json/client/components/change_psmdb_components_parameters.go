@@ -52,12 +52,10 @@ func NewChangePSMDBComponentsParamsWithHTTPClient(client *http.Client) *ChangePS
 	}
 }
 
-/*
-ChangePSMDBComponentsParams contains all the parameters to send to the API endpoint
+/* ChangePSMDBComponentsParams contains all the parameters to send to the API endpoint
+   for the change PSMDB components operation.
 
-	for the change PSMDB components operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ChangePSMDBComponentsParams struct {
 	// Body.

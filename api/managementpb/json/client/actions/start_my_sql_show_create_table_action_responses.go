@@ -48,8 +48,7 @@ func NewStartMySQLShowCreateTableActionOK() *StartMySQLShowCreateTableActionOK {
 	return &StartMySQLShowCreateTableActionOK{}
 }
 
-/*
-StartMySQLShowCreateTableActionOK describes a response with status code 200, with default header values.
+/* StartMySQLShowCreateTableActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewStartMySQLShowCreateTableActionDefault(code int) *StartMySQLShowCreateTa
 	}
 }
 
-/*
-StartMySQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
+/* StartMySQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *StartMySQLShowCreateTableActionDefault) readResponse(response runtime.C
 	return nil
 }
 
-/*
-StartMySQLShowCreateTableActionBody start my SQL show create table action body
+/*StartMySQLShowCreateTableActionBody start my SQL show create table action body
 swagger:model StartMySQLShowCreateTableActionBody
 */
 type StartMySQLShowCreateTableActionBody struct {
@@ -164,8 +161,7 @@ func (o *StartMySQLShowCreateTableActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartMySQLShowCreateTableActionDefaultBody start my SQL show create table action default body
+/*StartMySQLShowCreateTableActionDefaultBody start my SQL show create table action default body
 swagger:model StartMySQLShowCreateTableActionDefaultBody
 */
 type StartMySQLShowCreateTableActionDefaultBody struct {
@@ -268,8 +264,7 @@ func (o *StartMySQLShowCreateTableActionDefaultBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 start my SQL show create table action default body details items0
+/*StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 start my SQL show create table action default body details items0
 swagger:model StartMySQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
@@ -305,8 +300,7 @@ func (o *StartMySQLShowCreateTableActionDefaultBodyDetailsItems0) UnmarshalBinar
 	return nil
 }
 
-/*
-StartMySQLShowCreateTableActionOKBody start my SQL show create table action OK body
+/*StartMySQLShowCreateTableActionOKBody start my SQL show create table action OK body
 swagger:model StartMySQLShowCreateTableActionOKBody
 */
 type StartMySQLShowCreateTableActionOKBody struct {

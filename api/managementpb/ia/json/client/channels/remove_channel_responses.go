@@ -48,8 +48,7 @@ func NewRemoveChannelOK() *RemoveChannelOK {
 	return &RemoveChannelOK{}
 }
 
-/*
-RemoveChannelOK describes a response with status code 200, with default header values.
+/* RemoveChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveChannelDefault(code int) *RemoveChannelDefault {
 	}
 }
 
-/*
-RemoveChannelDefault describes a response with status code -1, with default header values.
+/* RemoveChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveChannelDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-RemoveChannelBody remove channel body
+/*RemoveChannelBody remove channel body
 swagger:model RemoveChannelBody
 */
 type RemoveChannelBody struct {
@@ -153,8 +150,7 @@ func (o *RemoveChannelBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveChannelDefaultBody remove channel default body
+/*RemoveChannelDefaultBody remove channel default body
 swagger:model RemoveChannelDefaultBody
 */
 type RemoveChannelDefaultBody struct {
@@ -257,8 +253,7 @@ func (o *RemoveChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
+/*RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
 swagger:model RemoveChannelDefaultBodyDetailsItems0
 */
 type RemoveChannelDefaultBodyDetailsItems0 struct {

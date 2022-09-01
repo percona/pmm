@@ -48,8 +48,7 @@ func NewCancelActionOK() *CancelActionOK {
 	return &CancelActionOK{}
 }
 
-/*
-CancelActionOK describes a response with status code 200, with default header values.
+/* CancelActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewCancelActionDefault(code int) *CancelActionDefault {
 	}
 }
 
-/*
-CancelActionDefault describes a response with status code -1, with default header values.
+/* CancelActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*
-CancelActionBody cancel action body
+/*CancelActionBody cancel action body
 swagger:model CancelActionBody
 */
 type CancelActionBody struct {
@@ -153,8 +150,7 @@ func (o *CancelActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CancelActionDefaultBody cancel action default body
+/*CancelActionDefaultBody cancel action default body
 swagger:model CancelActionDefaultBody
 */
 type CancelActionDefaultBody struct {
@@ -257,8 +253,7 @@ func (o *CancelActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
+/*CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
 swagger:model CancelActionDefaultBodyDetailsItems0
 */
 type CancelActionDefaultBodyDetailsItems0 struct {
