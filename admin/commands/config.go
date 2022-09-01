@@ -51,7 +51,7 @@ type ConfigCommand struct {
 	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
 	MetricsMode       string   `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
-	CustomLabels      string   `help:"Custom user-assigned labels"`
+	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`

@@ -51,7 +51,7 @@ type AddNodeGenericCommand struct {
 	MachineID    string            `help:"Linux machine-id"`
 	Distro       string            `help:"Linux distribution (if any)"`
 	Address      string            `help:"Address"`
-	CustomLabels map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Region       string            `help:"Node region"`
 	Az           string            `help:"Node availability zone"`
 	NodeModel    string            `help:"Node mddel"`

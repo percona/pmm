@@ -54,7 +54,7 @@ type RegisterCommand struct {
 	NodeModel         string            `help:"Node model"`
 	Region            string            `help:"Node region"`
 	Az                string            `help:"Node availability zone"`
-	CustomLabels      map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
 	Force             bool              `help:"Re-register Node"`
 	MetricsMode       string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
