@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             (unknown)
-// source: managementpb/ia/templates.proto
+// source: managementpb/alerting/templates.proto
 
-package iav1beta1
+package alertingv1beta1
 
 import (
 	context "context"
@@ -31,6 +31,8 @@ type TemplatesClient interface {
 	UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error)
 	// DeleteTemplate deletes existing, previously created via API.
 	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
+	// CreateRule creates Alerting rule.
+	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
 }
 
 type templatesClient struct {
@@ -43,7 +45,7 @@ func NewTemplatesClient(cc grpc.ClientConnInterface) TemplatesClient {
 
 func (c *templatesClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
 	out := new(ListTemplatesResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.Templates/ListTemplates", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1beta1.Templates/ListTemplates", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +54,7 @@ func (c *templatesClient) ListTemplates(ctx context.Context, in *ListTemplatesRe
 
 func (c *templatesClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error) {
 	out := new(CreateTemplateResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.Templates/CreateTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1beta1.Templates/CreateTemplate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,7 @@ func (c *templatesClient) CreateTemplate(ctx context.Context, in *CreateTemplate
 
 func (c *templatesClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error) {
 	out := new(UpdateTemplateResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.Templates/UpdateTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1beta1.Templates/UpdateTemplate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,16 @@ func (c *templatesClient) UpdateTemplate(ctx context.Context, in *UpdateTemplate
 
 func (c *templatesClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
 	out := new(DeleteTemplateResponse)
-	err := c.cc.Invoke(ctx, "/ia.v1beta1.Templates/DeleteTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1beta1.Templates/DeleteTemplate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *templatesClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
+	out := new(CreateRuleResponse)
+	err := c.cc.Invoke(ctx, "/alerting.v1beta1.Templates/CreateRule", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +100,8 @@ type TemplatesServer interface {
 	UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error)
 	// DeleteTemplate deletes existing, previously created via API.
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
+	// CreateRule creates Alerting rule.
+	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
 	mustEmbedUnimplementedTemplatesServer()
 }
 
@@ -109,6 +122,10 @@ func (UnimplementedTemplatesServer) UpdateTemplate(context.Context, *UpdateTempl
 
 func (UnimplementedTemplatesServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplate not implemented")
+}
+
+func (UnimplementedTemplatesServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateRule not implemented")
 }
 func (UnimplementedTemplatesServer) mustEmbedUnimplementedTemplatesServer() {}
 
@@ -133,7 +150,7 @@ func _Templates_ListTemplates_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.Templates/ListTemplates",
+		FullMethod: "/alerting.v1beta1.Templates/ListTemplates",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TemplatesServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
@@ -151,7 +168,7 @@ func _Templates_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.Templates/CreateTemplate",
+		FullMethod: "/alerting.v1beta1.Templates/CreateTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TemplatesServer).CreateTemplate(ctx, req.(*CreateTemplateRequest))
@@ -169,7 +186,7 @@ func _Templates_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.Templates/UpdateTemplate",
+		FullMethod: "/alerting.v1beta1.Templates/UpdateTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TemplatesServer).UpdateTemplate(ctx, req.(*UpdateTemplateRequest))
@@ -187,10 +204,28 @@ func _Templates_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ia.v1beta1.Templates/DeleteTemplate",
+		FullMethod: "/alerting.v1beta1.Templates/DeleteTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TemplatesServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Templates_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRuleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TemplatesServer).CreateRule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/alerting.v1beta1.Templates/CreateRule",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TemplatesServer).CreateRule(ctx, req.(*CreateRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -199,7 +234,7 @@ func _Templates_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Templates_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ia.v1beta1.Templates",
+	ServiceName: "alerting.v1beta1.Templates",
 	HandlerType: (*TemplatesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -218,7 +253,11 @@ var Templates_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteTemplate",
 			Handler:    _Templates_DeleteTemplate_Handler,
 		},
+		{
+			MethodName: "CreateRule",
+			Handler:    _Templates_CreateRule_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "managementpb/ia/templates.proto",
+	Metadata: "managementpb/alerting/templates.proto",
 }

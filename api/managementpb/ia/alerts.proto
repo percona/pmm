@@ -7,7 +7,7 @@ option go_package = "api/managementpb/ia;iav1beta1";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "managementpb/ia/boolean_flag.proto";
+import "managementpb/boolean_flag.proto";
 import "managementpb/ia/rules.proto";
 import "managementpb/ia/status.proto";
 import "managementpb/pagination.proto";
@@ -51,7 +51,7 @@ message ToggleAlertsRequest {
   // existing alerts are switched.
   repeated string alert_ids = 1;
   // Silences or unsilences alert if set.
-  BooleanFlag silenced = 2;
+  managementpb.BooleanFlag silenced = 2;
 }
 
 message ToggleAlertsResponse {}

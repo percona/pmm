@@ -57,6 +57,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
@@ -75,6 +76,7 @@ import (
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
+	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
@@ -179,7 +181,7 @@ type gRPCServerDeps struct {
 	vmalert              *vmalert.Service
 	settings             *models.Settings
 	alertsService        *ia.AlertsService
-	templatesService     *ia.TemplatesService
+	templatesService     *alerting.TemplatesService
 	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
 	versionServiceClient *managementdbaas.VersionServiceClient
@@ -245,7 +247,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterTemplatesServer(gRPCServer, deps.templatesService)
+	alertingpb.RegisterTemplatesServer(gRPCServer, deps.templatesService)
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 
@@ -373,7 +375,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		iav1beta1.RegisterAlertsHandlerFromEndpoint,
 		iav1beta1.RegisterChannelsHandlerFromEndpoint,
 		iav1beta1.RegisterRulesHandlerFromEndpoint,
-		iav1beta1.RegisterTemplatesHandlerFromEndpoint,
+		alertingpb.RegisterTemplatesHandlerFromEndpoint,
 
 		backupv1beta1.RegisterBackupsHandlerFromEndpoint,
 		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
@@ -765,13 +767,13 @@ func main() {
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
-	templatesService, err := ia.NewTemplatesService(db, platformClient)
+	templatesService, err := alerting.NewTemplatesService(db, platformClient, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
 	templatesService.CollectTemplates(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, grafanaClient, vmalert, alertManager)
+	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)

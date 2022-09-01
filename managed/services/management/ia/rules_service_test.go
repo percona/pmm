@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/api/managementpb"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
@@ -90,12 +91,12 @@ func TestCreateAlertRule(t *testing.T) {
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param1",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 85},
 				},
 				{
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 1.22},
 				},
 			},
@@ -168,11 +169,11 @@ groups:
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param1",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 123},
 				}, {
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 1.22},
 				},
 			},
@@ -204,11 +205,11 @@ groups:
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 22.1},
 				}, {
 					Name:  "unknown parameter",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 1.22},
 				},
 			},
@@ -240,7 +241,7 @@ groups:
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 22.1},
 				},
 			},
@@ -272,12 +273,12 @@ groups:
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param1",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 1.22},
 				},
 				{
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_BOOL,
+					Type:  alerting.ParamType_BOOL,
 					Value: &iav1beta1.ParamValue_Bool{Bool: true},
 				},
 			},
@@ -308,7 +309,7 @@ groups:
 			Name:         "some testing rule",
 			Params: []*iav1beta1.ParamValue{{
 				Name: "param2",
-				Type: iav1beta1.ParamType_FLOAT,
+				Type: alerting.ParamType_FLOAT,
 				Value: &iav1beta1.ParamValue_Float{
 					Float: 1.22,
 				},
@@ -344,12 +345,12 @@ groups:
 			Params: []*iav1beta1.ParamValue{
 				{
 					Name:  "param1",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 85},
 				},
 				{
 					Name:  "param2",
-					Type:  iav1beta1.ParamType_FLOAT,
+					Type:  alerting.ParamType_FLOAT,
 					Value: &iav1beta1.ParamValue_Float{Float: 1.22},
 				},
 			},

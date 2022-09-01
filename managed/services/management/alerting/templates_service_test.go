@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package ia
+package alerting
 
 import (
 	"context"
@@ -26,7 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -90,7 +90,7 @@ func TestCollect(t *testing.T) {
 		svc.userTemplatesPath = testTemplates2
 		svc.CollectTemplates(ctx)
 
-		templates := svc.getTemplates()
+		templates := svc.GetTemplates()
 		require.NotEmpty(t, templates)
 		assert.Contains(t, templates, "test_template")
 		assert.Contains(t, templates, "pmm_mysql_down")
@@ -101,7 +101,7 @@ func TestCollect(t *testing.T) {
 		svc.userTemplatesPath = testTemplates
 		svc.CollectTemplates(ctx)
 
-		templates = svc.getTemplates()
+		templates = svc.GetTemplates()
 		require.NotEmpty(t, templates)
 		assert.NotContains(t, templates, "test_template")
 		assert.Contains(t, templates, "test_template_2")
@@ -133,14 +133,14 @@ func TestDownloadTemplates(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
-		assert.Empty(t, svc.getTemplates())
+		assert.Empty(t, svc.GetTemplates())
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
 		templates, err := svc.downloadTemplates(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, templates)
-		assert.NotEmpty(t, svc.getTemplates())
+		assert.NotEmpty(t, svc.GetTemplates())
 	})
 
 	t.Run("with disabled telemetry", func(t *testing.T) {
@@ -155,7 +155,7 @@ func TestDownloadTemplates(t *testing.T) {
 		templates, err := svc.downloadTemplates(ctx)
 		require.NoError(t, err)
 		assert.Empty(t, templates)
-		assert.Empty(t, svc.getTemplates())
+		assert.Empty(t, svc.GetTemplates())
 	})
 }
 
@@ -215,7 +215,7 @@ templates:
 
 		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
-		resp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
+		resp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
 		})
 		assert.Nil(t, resp)
@@ -308,13 +308,13 @@ templates:
 
 		svc, err := NewTemplatesService(db, platformClient)
 		require.NoError(t, err)
-		createResp, err := svc.CreateTemplate(ctx, &iav1beta1.CreateTemplateRequest{
+		createResp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: validTemplate,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, createResp)
 
-		resp, err := svc.UpdateTemplate(ctx, &iav1beta1.UpdateTemplateRequest{
+		resp, err := svc.UpdateTemplate(ctx, &alerting.UpdateTemplateRequest{
 			Name: "valid_template_1",
 			Yaml: templateWithMissingParam,
 		})

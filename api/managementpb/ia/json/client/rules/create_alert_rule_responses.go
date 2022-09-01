@@ -122,17 +122,17 @@ func (o *CreateAlertRuleDefault) readResponse(response runtime.ClientResponse, c
 swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
-	// Template name.
+	// Template name. Can't be specified simultaneously with source_rule_id.
 	TemplateName string `json:"template_name,omitempty"`
+
+	// ID of the rule that will be used as source. Can't be specified simultaneously with template_name.
+	SourceRuleID string `json:"source_rule_id,omitempty"`
 
 	// Rule name.
 	Name string `json:"name,omitempty"`
 
-	// Rule group name.
-	Group string `json:"group,omitempty"`
-
-	// Folder UID.
-	FolderUID string `json:"folder_uid,omitempty"`
+	// New rule status.
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Rule parameters. All template parameters should be set.
 	Params []*CreateAlertRuleParamsBodyParamsItems0 `json:"params"`
@@ -147,11 +147,11 @@ type CreateAlertRuleBody struct {
 	// All custom labels to add or remove (with empty values) to default labels from template.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Filters.
+	// Filters. Should be set.
 	Filters []*CreateAlertRuleParamsBodyFiltersItems0 `json:"filters"`
 
-	// Contact points.
-	ContactPoints []string `json:"contact_points"`
+	// Channels. Should be set.
+	ChannelIds []string `json:"channel_ids"`
 }
 
 // Validate validates this create alert rule body
@@ -541,14 +541,17 @@ swagger:model CreateAlertRuleParamsBodyFiltersItems0
 */
 type CreateAlertRuleParamsBodyFiltersItems0 struct {
 	// FilterType represents filter matching type.
-	// Enum: [FILTER_TYPE_INVALID MATCH MISMATCH]
+	//
+	//  - EQUAL: =
+	//  - REGEX: =~
+	// Enum: [FILTER_TYPE_INVALID EQUAL REGEX]
 	Type *string `json:"type,omitempty"`
 
-	// label
-	Label string `json:"label,omitempty"`
+	// key
+	Key string `json:"key,omitempty"`
 
-	// regexp
-	Regexp string `json:"regexp,omitempty"`
+	// value
+	Value string `json:"value,omitempty"`
 }
 
 // Validate validates this create alert rule params body filters items0
@@ -569,7 +572,7 @@ var createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","MATCH","MISMATCH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","EQUAL","REGEX"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -582,11 +585,11 @@ const (
 	// CreateAlertRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
 	CreateAlertRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
 
-	// CreateAlertRuleParamsBodyFiltersItems0TypeMATCH captures enum value "MATCH"
-	CreateAlertRuleParamsBodyFiltersItems0TypeMATCH string = "MATCH"
+	// CreateAlertRuleParamsBodyFiltersItems0TypeEQUAL captures enum value "EQUAL"
+	CreateAlertRuleParamsBodyFiltersItems0TypeEQUAL string = "EQUAL"
 
-	// CreateAlertRuleParamsBodyFiltersItems0TypeMISMATCH captures enum value "MISMATCH"
-	CreateAlertRuleParamsBodyFiltersItems0TypeMISMATCH string = "MISMATCH"
+	// CreateAlertRuleParamsBodyFiltersItems0TypeREGEX captures enum value "REGEX"
+	CreateAlertRuleParamsBodyFiltersItems0TypeREGEX string = "REGEX"
 )
 
 // prop value enum

@@ -18,6 +18,7 @@ package ia
 
 import (
 	"context"
+	"regexp"
 	"strings"
 	"time"
 
@@ -41,13 +42,13 @@ type AlertsService struct {
 	db               *reform.DB
 	l                *logrus.Entry
 	alertManager     alertManager
-	templatesService *TemplatesService
+	templatesService templatesService
 
 	iav1beta1.UnimplementedAlertsServer
 }
 
 // NewAlertsService creates new alerts API service.
-func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService *TemplatesService) *AlertsService {
+func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService templatesService) *AlertsService {
 	return &AlertsService{
 		l:                logrus.WithField("component", "management/ia/alerts"),
 		db:               db,
@@ -187,32 +188,32 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 
 // satisfiesFilters checks that alert passes filters, returns true in case of success.
 func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) {
-	// for _, filter := range filters {
-	// 	value, ok := alert.Labels[filter.Key]
-	// 	if !ok {
-	// 		return false, nil
-	// 	}
-	//
-	// 	switch filter.Type {
-	// 	case iav1beta1.FilterType_EQUAL:
-	// 		if filter.Value != value {
-	// 			return false, nil
-	// 		}
-	// 	case iav1beta1.FilterType_REGEX:
-	// 		match, err := regexp.Match(filter.Value, []byte(value))
-	// 		if err != nil {
-	// 			return false, status.Errorf(codes.InvalidArgument, "bad regular expression: +%v", err)
-	// 		}
-	//
-	// 		if !match {
-	// 			return false, nil
-	// 		}
-	// 	case iav1beta1.FilterType_FILTER_TYPE_INVALID:
-	// 		fallthrough
-	// 	default:
-	// 		return false, status.Error(codes.Internal, "Unexpected filter type.")
-	// 	}
-	// }
+	for _, filter := range filters {
+		value, ok := alert.Labels[filter.Key]
+		if !ok {
+			return false, nil
+		}
+
+		switch filter.Type {
+		case iav1beta1.FilterType_EQUAL:
+			if filter.Value != value {
+				return false, nil
+			}
+		case iav1beta1.FilterType_REGEX:
+			match, err := regexp.Match(filter.Value, []byte(value))
+			if err != nil {
+				return false, status.Errorf(codes.InvalidArgument, "bad regular expression: +%v", err)
+			}
+
+			if !match {
+				return false, nil
+			}
+		case iav1beta1.FilterType_FILTER_TYPE_INVALID:
+			fallthrough
+		default:
+			return false, status.Error(codes.Internal, "Unexpected filter type.")
+		}
+	}
 
 	return true, nil
 }
@@ -239,11 +240,11 @@ func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleA
 	}
 
 	switch req.Silenced {
-	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+	case managementpb.BooleanFlag_DO_NOT_CHANGE:
 		// nothing
-	case iav1beta1.BooleanFlag_TRUE:
+	case managementpb.BooleanFlag_TRUE:
 		err = s.alertManager.SilenceAlerts(ctx, alerts)
-	case iav1beta1.BooleanFlag_FALSE:
+	case managementpb.BooleanFlag_FALSE:
 		err = s.alertManager.UnsilenceAlerts(ctx, alerts)
 	}
 	if err != nil {

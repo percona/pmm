@@ -18,6 +18,7 @@ package ia
 import (
 	"bytes"
 	"os"
+	"text/template"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
@@ -29,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/managementpb"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 )
@@ -37,17 +39,17 @@ const (
 	dirPerm = os.FileMode(0o775)
 )
 
-func convertParamUnit(u alert.Unit) iav1beta1.ParamUnit {
+func convertParamUnit(u alert.Unit) alerting.ParamUnit {
 	switch u {
 	case alert.Percentage:
-		return iav1beta1.ParamUnit_PERCENTAGE
+		return alerting.ParamUnit_PERCENTAGE
 	case alert.Seconds:
-		return iav1beta1.ParamUnit_SECONDS
+		return alerting.ParamUnit_SECONDS
 	}
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return iav1beta1.ParamUnit_PARAM_UNIT_INVALID
+	return alerting.ParamUnit_PARAM_UNIT_INVALID
 }
 
 func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel) (*iav1beta1.Rule, error) {
@@ -101,13 +103,13 @@ func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel)
 	}
 
 	r.Filters = make([]*iav1beta1.Filter, len(rule.Filters))
-	// for i, filter := range rule.Filters {
-	// 	r.Filters[i] = &iav1beta1.Filter{
-	// 		Type:  convertModelToFilterType(filter.Type),
-	// 		Key:   filter.Key,
-	// 		Value: filter.Val,
-	// 	}
-	// }
+	for i, filter := range rule.Filters {
+		r.Filters[i] = &iav1beta1.Filter{
+			Type:  convertModelToFilterType(filter.Type),
+			Key:   filter.Key,
+			Value: filter.Val,
+		}
+	}
 
 	cm := make(map[string]*models.Channel)
 	for _, channel := range channels {
@@ -129,6 +131,10 @@ func convertRule(l *logrus.Entry, rule *models.Rule, channels []*models.Channel)
 	}
 
 	return r, nil
+}
+
+func newParamTemplate() *template.Template {
+	return template.New("").Option("missingkey=error").Delims("[[", "]]")
 }
 
 func fillExprWithParams(expr string, values map[string]string) (string, error) {
