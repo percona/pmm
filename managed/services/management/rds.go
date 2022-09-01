@@ -90,7 +90,6 @@ var (
 
 // discoverRDSRegion returns a list of RDS instances from a single region.
 // Returned error is wrapped with a stack trace, but unchanged otherwise.
-//
 //nolint:interfacer
 func discoverRDSRegion(ctx context.Context, sess *session.Session, region string) ([]*rds.DBInstance, error) {
 	var res []*rds.DBInstance

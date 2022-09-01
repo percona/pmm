@@ -54,15 +54,15 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // environment variables, and provide user warnings about unknown variables.
 // In case of error, the docker run terminates.
 // Short description of environment variables:
-//   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
-//   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
-//   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
-//   - ENABLE_ALERTING enables Integrated Alerting;
-//   - ENABLE_AZUREDISCOVER enables Azure Discover;
-//   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
-//   - the environment variables prefixed with GF_ passed as related to Grafana.
+//  - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
+//  - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
+//  - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
+//  - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
+//  - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
+//  - ENABLE_ALERTING enables Integrated Alerting;
+//  - ENABLE_AZUREDISCOVER enables Azure Discover;
+//  - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
+//  - the environment variables prefixed with GF_ passed as related to Grafana.
 func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
 	envSettings = &models.ChangeSettingsParams{}
 
