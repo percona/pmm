@@ -52,12 +52,10 @@ func NewAddRemoteAzureDatabaseNodeParamsWithHTTPClient(client *http.Client) *Add
 	}
 }
 
-/*
-AddRemoteAzureDatabaseNodeParams contains all the parameters to send to the API endpoint
+/* AddRemoteAzureDatabaseNodeParams contains all the parameters to send to the API endpoint
+   for the add remote azure database node operation.
 
-	for the add remote azure database node operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddRemoteAzureDatabaseNodeParams struct {
 	// Body.

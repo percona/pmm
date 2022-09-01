@@ -52,12 +52,10 @@ func NewGetSettingsParamsWithHTTPClient(client *http.Client) *GetSettingsParams 
 	}
 }
 
-/*
-GetSettingsParams contains all the parameters to send to the API endpoint
+/* GetSettingsParams contains all the parameters to send to the API endpoint
+   for the get settings operation.
 
-	for the get settings operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetSettingsParams struct {
 	// Body.

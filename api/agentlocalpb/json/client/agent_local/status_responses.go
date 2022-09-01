@@ -50,8 +50,7 @@ func NewStatusOK() *StatusOK {
 	return &StatusOK{}
 }
 
-/*
-StatusOK describes a response with status code 200, with default header values.
+/* StatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewStatusDefault(code int) *StatusDefault {
 	}
 }
 
-/*
-StatusDefault describes a response with status code -1, with default header values.
+/* StatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-/*
-StatusBody status body
+/*StatusBody status body
 swagger:model StatusBody
 */
 type StatusBody struct {
@@ -157,8 +154,7 @@ func (o *StatusBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StatusDefaultBody status default body
+/*StatusDefaultBody status default body
 swagger:model StatusDefaultBody
 */
 type StatusDefaultBody struct {
@@ -261,8 +257,7 @@ func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StatusDefaultBodyDetailsItems0 status default body details items0
+/*StatusDefaultBodyDetailsItems0 status default body details items0
 swagger:model StatusDefaultBodyDetailsItems0
 */
 type StatusDefaultBodyDetailsItems0 struct {
@@ -298,8 +293,7 @@ func (o *StatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StatusOKBody status OK body
+/*StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
@@ -459,8 +453,7 @@ func (o *StatusOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StatusOKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
+/*StatusOKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
 swagger:model StatusOKBodyAgentsInfoItems0
 */
 type StatusOKBodyAgentsInfoItems0 struct {
@@ -672,8 +665,7 @@ func (o *StatusOKBodyAgentsInfoItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StatusOKBodyServerInfo ServerInfo contains information about the PMM Server.
+/*StatusOKBodyServerInfo ServerInfo contains information about the PMM Server.
 swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {

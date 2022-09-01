@@ -48,8 +48,7 @@ func NewAddPMMAgentOK() *AddPMMAgentOK {
 	return &AddPMMAgentOK{}
 }
 
-/*
-AddPMMAgentOK describes a response with status code 200, with default header values.
+/* AddPMMAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddPMMAgentDefault(code int) *AddPMMAgentDefault {
 	}
 }
 
-/*
-AddPMMAgentDefault describes a response with status code -1, with default header values.
+/* AddPMMAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*
-AddPMMAgentBody add PMM agent body
+/*AddPMMAgentBody add PMM agent body
 swagger:model AddPMMAgentBody
 */
 type AddPMMAgentBody struct {
@@ -158,8 +155,7 @@ func (o *AddPMMAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentDefaultBody add PMM agent default body
+/*AddPMMAgentDefaultBody add PMM agent default body
 swagger:model AddPMMAgentDefaultBody
 */
 type AddPMMAgentDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentDefaultBodyDetailsItems0 add PMM agent default body details items0
+/*AddPMMAgentDefaultBodyDetailsItems0 add PMM agent default body details items0
 swagger:model AddPMMAgentDefaultBodyDetailsItems0
 */
 type AddPMMAgentDefaultBodyDetailsItems0 struct {
@@ -299,8 +294,7 @@ func (o *AddPMMAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentOKBody add PMM agent OK body
+/*AddPMMAgentOKBody add PMM agent OK body
 swagger:model AddPMMAgentOKBody
 */
 type AddPMMAgentOKBody struct {
@@ -388,8 +382,7 @@ func (o *AddPMMAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
+/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model AddPMMAgentOKBodyPMMAgent
 */
 type AddPMMAgentOKBodyPMMAgent struct {

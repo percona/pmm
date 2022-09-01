@@ -48,8 +48,7 @@ func NewConnectOK() *ConnectOK {
 	return &ConnectOK{}
 }
 
-/*
-ConnectOK describes a response with status code 200, with default header values.
+/* ConnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewConnectDefault(code int) *ConnectDefault {
 	}
 }
 
-/*
-ConnectDefault describes a response with status code -1, with default header values.
+/* ConnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *ConnectDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*
-ConnectBody connect body
+/*ConnectBody connect body
 swagger:model ConnectBody
 */
 type ConnectBody struct {
@@ -162,8 +159,7 @@ func (o *ConnectBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ConnectDefaultBody connect default body
+/*ConnectDefaultBody connect default body
 swagger:model ConnectDefaultBody
 */
 type ConnectDefaultBody struct {
@@ -266,8 +262,7 @@ func (o *ConnectDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ConnectDefaultBodyDetailsItems0 connect default body details items0
+/*ConnectDefaultBodyDetailsItems0 connect default body details items0
 swagger:model ConnectDefaultBodyDetailsItems0
 */
 type ConnectDefaultBodyDetailsItems0 struct {

@@ -52,12 +52,10 @@ func NewListNodesParamsWithHTTPClient(client *http.Client) *ListNodesParams {
 	}
 }
 
-/*
-ListNodesParams contains all the parameters to send to the API endpoint
+/* ListNodesParams contains all the parameters to send to the API endpoint
+   for the list nodes operation.
 
-	for the list nodes operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListNodesParams struct {
 	// Body.

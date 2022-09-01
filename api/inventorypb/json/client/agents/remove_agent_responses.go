@@ -48,8 +48,7 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 	return &RemoveAgentOK{}
 }
 
-/*
-RemoveAgentOK describes a response with status code 200, with default header values.
+/* RemoveAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveAgentDefault(code int) *RemoveAgentDefault {
 	}
 }
 
-/*
-RemoveAgentDefault describes a response with status code -1, with default header values.
+/* RemoveAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*
-RemoveAgentBody remove agent body
+/*RemoveAgentBody remove agent body
 swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
@@ -156,8 +153,7 @@ func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveAgentDefaultBody remove agent default body
+/*RemoveAgentDefaultBody remove agent default body
 swagger:model RemoveAgentDefaultBody
 */
 type RemoveAgentDefaultBody struct {
@@ -260,8 +256,7 @@ func (o *RemoveAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveAgentDefaultBodyDetailsItems0 remove agent default body details items0
+/*RemoveAgentDefaultBodyDetailsItems0 remove agent default body details items0
 swagger:model RemoveAgentDefaultBodyDetailsItems0
 */
 type RemoveAgentDefaultBodyDetailsItems0 struct {

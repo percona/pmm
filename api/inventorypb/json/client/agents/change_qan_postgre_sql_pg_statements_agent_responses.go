@@ -50,8 +50,7 @@ func NewChangeQANPostgreSQLPgStatementsAgentOK() *ChangeQANPostgreSQLPgStatement
 	return &ChangeQANPostgreSQLPgStatementsAgentOK{}
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
+/* ChangeQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewChangeQANPostgreSQLPgStatementsAgentDefault(code int) *ChangeQANPostgreS
 	}
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
+/* ChangeQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentDefault) readResponse(response runt
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentBody change QAN postgre SQL pg statements agent body
+/*ChangeQANPostgreSQLPgStatementsAgentBody change QAN postgre SQL pg statements agent body
 swagger:model ChangeQANPostgreSQLPgStatementsAgentBody
 */
 type ChangeQANPostgreSQLPgStatementsAgentBody struct {
@@ -212,8 +209,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentBody) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentDefaultBody change QAN postgre SQL pg statements agent default body
+/*ChangeQANPostgreSQLPgStatementsAgentDefaultBody change QAN postgre SQL pg statements agent default body
 swagger:model ChangeQANPostgreSQLPgStatementsAgentDefaultBody
 */
 type ChangeQANPostgreSQLPgStatementsAgentDefaultBody struct {
@@ -316,8 +312,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBody) UnmarshalBinary(b []by
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 change QAN postgre SQL pg statements agent default body details items0
+/*ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 change QAN postgre SQL pg statements agent default body details items0
 swagger:model ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0
 */
 type ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 struct {
@@ -353,8 +348,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0) Unmarshal
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentOKBody change QAN postgre SQL pg statements agent OK body
+/*ChangeQANPostgreSQLPgStatementsAgentOKBody change QAN postgre SQL pg statements agent OK body
 swagger:model ChangeQANPostgreSQLPgStatementsAgentOKBody
 */
 type ChangeQANPostgreSQLPgStatementsAgentOKBody struct {
@@ -442,8 +436,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBody) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struct {
@@ -642,8 +635,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgen
 	return nil
 }
 
-/*
-ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon
 */
 type ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon struct {

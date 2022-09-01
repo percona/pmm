@@ -50,8 +50,7 @@ func NewAddMySQLdExporterOK() *AddMySQLdExporterOK {
 	return &AddMySQLdExporterOK{}
 }
 
-/*
-AddMySQLdExporterOK describes a response with status code 200, with default header values.
+/* AddMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewAddMySQLdExporterDefault(code int) *AddMySQLdExporterDefault {
 	}
 }
 
-/*
-AddMySQLdExporterDefault describes a response with status code -1, with default header values.
+/* AddMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *AddMySQLdExporterDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*
-AddMySQLdExporterBody add my s q ld exporter body
+/*AddMySQLdExporterBody add my s q ld exporter body
 swagger:model AddMySQLdExporterBody
 */
 type AddMySQLdExporterBody struct {
@@ -268,8 +265,7 @@ func (o *AddMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMySQLdExporterDefaultBody add my s q ld exporter default body
+/*AddMySQLdExporterDefaultBody add my s q ld exporter default body
 swagger:model AddMySQLdExporterDefaultBody
 */
 type AddMySQLdExporterDefaultBody struct {
@@ -372,8 +368,7 @@ func (o *AddMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMySQLdExporterDefaultBodyDetailsItems0 add my s q ld exporter default body details items0
+/*AddMySQLdExporterDefaultBodyDetailsItems0 add my s q ld exporter default body details items0
 swagger:model AddMySQLdExporterDefaultBodyDetailsItems0
 */
 type AddMySQLdExporterDefaultBodyDetailsItems0 struct {
@@ -409,8 +404,7 @@ func (o *AddMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-AddMySQLdExporterOKBody add my s q ld exporter OK body
+/*AddMySQLdExporterOKBody add my s q ld exporter OK body
 swagger:model AddMySQLdExporterOKBody
 */
 type AddMySQLdExporterOKBody struct {
@@ -501,8 +495,7 @@ func (o *AddMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*AddMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddMySQLdExporterOKBodyMysqldExporter
 */
 type AddMySQLdExporterOKBodyMysqldExporter struct {

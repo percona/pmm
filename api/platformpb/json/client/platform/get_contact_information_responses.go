@@ -48,8 +48,7 @@ func NewGetContactInformationOK() *GetContactInformationOK {
 	return &GetContactInformationOK{}
 }
 
-/*
-GetContactInformationOK describes a response with status code 200, with default header values.
+/* GetContactInformationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewGetContactInformationDefault(code int) *GetContactInformationDefault {
 	}
 }
 
-/*
-GetContactInformationDefault describes a response with status code -1, with default header values.
+/* GetContactInformationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *GetContactInformationDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-GetContactInformationDefaultBody get contact information default body
+/*GetContactInformationDefaultBody get contact information default body
 swagger:model GetContactInformationDefaultBody
 */
 type GetContactInformationDefaultBody struct {
@@ -222,8 +219,7 @@ func (o *GetContactInformationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetContactInformationDefaultBodyDetailsItems0 get contact information default body details items0
+/*GetContactInformationDefaultBodyDetailsItems0 get contact information default body details items0
 swagger:model GetContactInformationDefaultBodyDetailsItems0
 */
 type GetContactInformationDefaultBodyDetailsItems0 struct {
@@ -259,8 +255,7 @@ func (o *GetContactInformationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-GetContactInformationOKBody get contact information OK body
+/*GetContactInformationOKBody get contact information OK body
 swagger:model GetContactInformationOKBody
 */
 type GetContactInformationOKBody struct {
@@ -351,8 +346,7 @@ func (o *GetContactInformationOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
+/*GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct details of the customer success employee assigned to a customer's account.
 swagger:model GetContactInformationOKBodyCustomerSuccess
 */
 type GetContactInformationOKBodyCustomerSuccess struct {

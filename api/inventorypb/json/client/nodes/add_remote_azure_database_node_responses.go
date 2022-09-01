@@ -48,8 +48,7 @@ func NewAddRemoteAzureDatabaseNodeOK() *AddRemoteAzureDatabaseNodeOK {
 	return &AddRemoteAzureDatabaseNodeOK{}
 }
 
-/*
-AddRemoteAzureDatabaseNodeOK describes a response with status code 200, with default header values.
+/* AddRemoteAzureDatabaseNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddRemoteAzureDatabaseNodeDefault(code int) *AddRemoteAzureDatabaseNodeD
 	}
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefault describes a response with status code -1, with default header values.
+/* AddRemoteAzureDatabaseNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddRemoteAzureDatabaseNodeDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeBody add remote azure database node body
+/*AddRemoteAzureDatabaseNodeBody add remote azure database node body
 swagger:model AddRemoteAzureDatabaseNodeBody
 */
 type AddRemoteAzureDatabaseNodeBody struct {
@@ -170,8 +167,7 @@ func (o *AddRemoteAzureDatabaseNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefaultBody add remote azure database node default body
+/*AddRemoteAzureDatabaseNodeDefaultBody add remote azure database node default body
 swagger:model AddRemoteAzureDatabaseNodeDefaultBody
 */
 type AddRemoteAzureDatabaseNodeDefaultBody struct {
@@ -274,8 +270,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 add remote azure database node default body details items0
+/*AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 add remote azure database node default body details items0
 swagger:model AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0
 */
 type AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 struct {
@@ -311,8 +306,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeOKBody add remote azure database node OK body
+/*AddRemoteAzureDatabaseNodeOKBody add remote azure database node OK body
 swagger:model AddRemoteAzureDatabaseNodeOKBody
 */
 type AddRemoteAzureDatabaseNodeOKBody struct {
@@ -400,8 +394,7 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+/*AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 swagger:model AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase
 */
 type AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase struct {

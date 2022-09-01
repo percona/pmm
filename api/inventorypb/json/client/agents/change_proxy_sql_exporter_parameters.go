@@ -52,12 +52,10 @@ func NewChangeProxySQLExporterParamsWithHTTPClient(client *http.Client) *ChangeP
 	}
 }
 
-/*
-ChangeProxySQLExporterParams contains all the parameters to send to the API endpoint
+/* ChangeProxySQLExporterParams contains all the parameters to send to the API endpoint
+   for the change proxy SQL exporter operation.
 
-	for the change proxy SQL exporter operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ChangeProxySQLExporterParams struct {
 	// Body.

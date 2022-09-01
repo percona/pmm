@@ -48,8 +48,7 @@ func NewAddExternalExporterOK() *AddExternalExporterOK {
 	return &AddExternalExporterOK{}
 }
 
-/*
-AddExternalExporterOK describes a response with status code 200, with default header values.
+/* AddExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddExternalExporterDefault(code int) *AddExternalExporterDefault {
 	}
 }
 
-/*
-AddExternalExporterDefault describes a response with status code -1, with default header values.
+/* AddExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddExternalExporterDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*
-AddExternalExporterBody add external exporter body
+/*AddExternalExporterBody add external exporter body
 swagger:model AddExternalExporterBody
 */
 type AddExternalExporterBody struct {
@@ -179,8 +176,7 @@ func (o *AddExternalExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalExporterDefaultBody add external exporter default body
+/*AddExternalExporterDefaultBody add external exporter default body
 swagger:model AddExternalExporterDefaultBody
 */
 type AddExternalExporterDefaultBody struct {
@@ -283,8 +279,7 @@ func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalExporterDefaultBodyDetailsItems0 add external exporter default body details items0
+/*AddExternalExporterDefaultBodyDetailsItems0 add external exporter default body details items0
 swagger:model AddExternalExporterDefaultBodyDetailsItems0
 */
 type AddExternalExporterDefaultBodyDetailsItems0 struct {
@@ -320,8 +315,7 @@ func (o *AddExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-AddExternalExporterOKBody add external exporter OK body
+/*AddExternalExporterOKBody add external exporter OK body
 swagger:model AddExternalExporterOKBody
 */
 type AddExternalExporterOKBody struct {
@@ -409,8 +403,7 @@ func (o *AddExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*AddExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model AddExternalExporterOKBodyExternalExporter
 */
 type AddExternalExporterOKBodyExternalExporter struct {

@@ -52,12 +52,10 @@ func NewAddQANMongoDBProfilerAgentParamsWithHTTPClient(client *http.Client) *Add
 	}
 }
 
-/*
-AddQANMongoDBProfilerAgentParams contains all the parameters to send to the API endpoint
+/* AddQANMongoDBProfilerAgentParams contains all the parameters to send to the API endpoint
+   for the add QAN mongo DB profiler agent operation.
 
-	for the add QAN mongo DB profiler agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddQANMongoDBProfilerAgentParams struct {
 	// Body.

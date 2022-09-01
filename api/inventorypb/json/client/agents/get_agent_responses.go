@@ -50,8 +50,7 @@ func NewGetAgentOK() *GetAgentOK {
 	return &GetAgentOK{}
 }
 
-/*
-GetAgentOK describes a response with status code 200, with default header values.
+/* GetAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewGetAgentDefault(code int) *GetAgentDefault {
 	}
 }
 
-/*
-GetAgentDefault describes a response with status code -1, with default header values.
+/* GetAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*
-GetAgentBody get agent body
+/*GetAgentBody get agent body
 swagger:model GetAgentBody
 */
 type GetAgentBody struct {
@@ -157,8 +154,7 @@ func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentDefaultBody get agent default body
+/*GetAgentDefaultBody get agent default body
 swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
@@ -261,8 +257,7 @@ func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentDefaultBodyDetailsItems0 get agent default body details items0
+/*GetAgentDefaultBodyDetailsItems0 get agent default body details items0
 swagger:model GetAgentDefaultBodyDetailsItems0
 */
 type GetAgentDefaultBodyDetailsItems0 struct {
@@ -298,8 +293,7 @@ func (o *GetAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBody get agent OK body
+/*GetAgentOKBody get agent OK body
 swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
@@ -1017,8 +1011,7 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model GetAgentOKBodyAzureDatabaseExporter
 */
 type GetAgentOKBodyAzureDatabaseExporter struct {
@@ -1220,8 +1213,7 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model GetAgentOKBodyExternalExporter
 */
 type GetAgentOKBodyExternalExporter struct {
@@ -1287,8 +1279,7 @@ func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model GetAgentOKBodyMongodbExporter
 */
 type GetAgentOKBodyMongodbExporter struct {
@@ -1506,8 +1497,7 @@ func (o *GetAgentOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model GetAgentOKBodyMysqldExporter
 */
 type GetAgentOKBodyMysqldExporter struct {
@@ -1732,8 +1722,7 @@ func (o *GetAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
@@ -1929,8 +1918,7 @@ func (o *GetAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
+/*GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
@@ -1978,8 +1966,7 @@ func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model GetAgentOKBodyPostgresExporter
 */
 type GetAgentOKBodyPostgresExporter struct {
@@ -2187,8 +2174,7 @@ func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+/*GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {
@@ -2396,8 +2382,7 @@ func (o *GetAgentOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
 type GetAgentOKBodyQANMongodbProfilerAgent struct {
@@ -2596,8 +2581,7 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
 */
 type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
@@ -2808,8 +2792,7 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANMysqlSlowlogAgent
 */
 type GetAgentOKBodyQANMysqlSlowlogAgent struct {
@@ -3023,8 +3006,7 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
@@ -3223,8 +3205,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -3426,8 +3407,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {
@@ -3632,8 +3612,7 @@ func (o *GetAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
+/*GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-agent.
 // It scrapes other exporter Agents that are configured with push_metrics_enabled
 // and uses Prometheus remote write protocol to push metrics to PMM Server.
 swagger:model GetAgentOKBodyVmagent

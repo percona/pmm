@@ -1049,7 +1049,6 @@ type GetServiceResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Service:
-	//
 	//	*GetServiceResponse_Mysql
 	//	*GetServiceResponse_Mongodb
 	//	*GetServiceResponse_Postgresql

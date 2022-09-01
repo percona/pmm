@@ -52,12 +52,10 @@ func NewAddContainerNodeParamsWithHTTPClient(client *http.Client) *AddContainerN
 	}
 }
 
-/*
-AddContainerNodeParams contains all the parameters to send to the API endpoint
+/* AddContainerNodeParams contains all the parameters to send to the API endpoint
+   for the add container node operation.
 
-	for the add container node operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddContainerNodeParams struct {
 	// Body.

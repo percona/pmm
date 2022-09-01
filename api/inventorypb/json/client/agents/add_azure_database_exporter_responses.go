@@ -50,8 +50,7 @@ func NewAddAzureDatabaseExporterOK() *AddAzureDatabaseExporterOK {
 	return &AddAzureDatabaseExporterOK{}
 }
 
-/*
-AddAzureDatabaseExporterOK describes a response with status code 200, with default header values.
+/* AddAzureDatabaseExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewAddAzureDatabaseExporterDefault(code int) *AddAzureDatabaseExporterDefau
 	}
 }
 
-/*
-AddAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
+/* AddAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *AddAzureDatabaseExporterDefault) readResponse(response runtime.ClientRe
 	return nil
 }
 
-/*
-AddAzureDatabaseExporterBody add azure database exporter body
+/*AddAzureDatabaseExporterBody add azure database exporter body
 swagger:model AddAzureDatabaseExporterBody
 */
 type AddAzureDatabaseExporterBody struct {
@@ -254,8 +251,7 @@ func (o *AddAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAzureDatabaseExporterDefaultBody add azure database exporter default body
+/*AddAzureDatabaseExporterDefaultBody add azure database exporter default body
 swagger:model AddAzureDatabaseExporterDefaultBody
 */
 type AddAzureDatabaseExporterDefaultBody struct {
@@ -358,8 +354,7 @@ func (o *AddAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAzureDatabaseExporterDefaultBodyDetailsItems0 add azure database exporter default body details items0
+/*AddAzureDatabaseExporterDefaultBodyDetailsItems0 add azure database exporter default body details items0
 swagger:model AddAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
@@ -395,8 +390,7 @@ func (o *AddAzureDatabaseExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 	return nil
 }
 
-/*
-AddAzureDatabaseExporterOKBody add azure database exporter OK body
+/*AddAzureDatabaseExporterOKBody add azure database exporter OK body
 swagger:model AddAzureDatabaseExporterOKBody
 */
 type AddAzureDatabaseExporterOKBody struct {
@@ -484,8 +478,7 @@ func (o *AddAzureDatabaseExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*AddAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model AddAzureDatabaseExporterOKBodyAzureDatabaseExporter
 */
 type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {

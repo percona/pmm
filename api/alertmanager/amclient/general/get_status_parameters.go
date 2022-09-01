@@ -52,12 +52,10 @@ func NewGetStatusParamsWithHTTPClient(client *http.Client) *GetStatusParams {
 	}
 }
 
-/*
-GetStatusParams contains all the parameters to send to the API endpoint
+/* GetStatusParams contains all the parameters to send to the API endpoint
+   for the get status operation.
 
-	for the get status operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetStatusParams struct {
 	timeout    time.Duration

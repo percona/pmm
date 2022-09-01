@@ -50,8 +50,7 @@ func NewChangePostgresExporterOK() *ChangePostgresExporterOK {
 	return &ChangePostgresExporterOK{}
 }
 
-/*
-ChangePostgresExporterOK describes a response with status code 200, with default header values.
+/* ChangePostgresExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewChangePostgresExporterDefault(code int) *ChangePostgresExporterDefault {
 	}
 }
 
-/*
-ChangePostgresExporterDefault describes a response with status code -1, with default header values.
+/* ChangePostgresExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ChangePostgresExporterDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-ChangePostgresExporterBody change postgres exporter body
+/*ChangePostgresExporterBody change postgres exporter body
 swagger:model ChangePostgresExporterBody
 */
 type ChangePostgresExporterBody struct {
@@ -212,8 +209,7 @@ func (o *ChangePostgresExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePostgresExporterDefaultBody change postgres exporter default body
+/*ChangePostgresExporterDefaultBody change postgres exporter default body
 swagger:model ChangePostgresExporterDefaultBody
 */
 type ChangePostgresExporterDefaultBody struct {
@@ -316,8 +312,7 @@ func (o *ChangePostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePostgresExporterDefaultBodyDetailsItems0 change postgres exporter default body details items0
+/*ChangePostgresExporterDefaultBodyDetailsItems0 change postgres exporter default body details items0
 swagger:model ChangePostgresExporterDefaultBodyDetailsItems0
 */
 type ChangePostgresExporterDefaultBodyDetailsItems0 struct {
@@ -353,8 +348,7 @@ func (o *ChangePostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ChangePostgresExporterOKBody change postgres exporter OK body
+/*ChangePostgresExporterOKBody change postgres exporter OK body
 swagger:model ChangePostgresExporterOKBody
 */
 type ChangePostgresExporterOKBody struct {
@@ -442,8 +436,7 @@ func (o *ChangePostgresExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*ChangePostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model ChangePostgresExporterOKBodyPostgresExporter
 */
 type ChangePostgresExporterOKBodyPostgresExporter struct {
@@ -651,8 +644,7 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-ChangePostgresExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangePostgresExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangePostgresExporterParamsBodyCommon
 */
 type ChangePostgresExporterParamsBodyCommon struct {

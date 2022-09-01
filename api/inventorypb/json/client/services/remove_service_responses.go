@@ -48,8 +48,7 @@ func NewRemoveServiceOK() *RemoveServiceOK {
 	return &RemoveServiceOK{}
 }
 
-/*
-RemoveServiceOK describes a response with status code 200, with default header values.
+/* RemoveServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveServiceDefault(code int) *RemoveServiceDefault {
 	}
 }
 
-/*
-RemoveServiceDefault describes a response with status code -1, with default header values.
+/* RemoveServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-RemoveServiceBody remove service body
+/*RemoveServiceBody remove service body
 swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
@@ -156,8 +153,7 @@ func (o *RemoveServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveServiceDefaultBody remove service default body
+/*RemoveServiceDefaultBody remove service default body
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
@@ -260,8 +256,7 @@ func (o *RemoveServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveServiceDefaultBodyDetailsItems0 remove service default body details items0
+/*RemoveServiceDefaultBodyDetailsItems0 remove service default body details items0
 swagger:model RemoveServiceDefaultBodyDetailsItems0
 */
 type RemoveServiceDefaultBodyDetailsItems0 struct {

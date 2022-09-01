@@ -48,8 +48,7 @@ func NewRemoveNodeOK() *RemoveNodeOK {
 	return &RemoveNodeOK{}
 }
 
-/*
-RemoveNodeOK describes a response with status code 200, with default header values.
+/* RemoveNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewRemoveNodeDefault(code int) *RemoveNodeDefault {
 	}
 }
 
-/*
-RemoveNodeDefault describes a response with status code -1, with default header values.
+/* RemoveNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-RemoveNodeBody remove node body
+/*RemoveNodeBody remove node body
 swagger:model RemoveNodeBody
 */
 type RemoveNodeBody struct {
@@ -156,8 +153,7 @@ func (o *RemoveNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveNodeDefaultBody remove node default body
+/*RemoveNodeDefaultBody remove node default body
 swagger:model RemoveNodeDefaultBody
 */
 type RemoveNodeDefaultBody struct {
@@ -260,8 +256,7 @@ func (o *RemoveNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveNodeDefaultBodyDetailsItems0 remove node default body details items0
+/*RemoveNodeDefaultBodyDetailsItems0 remove node default body details items0
 swagger:model RemoveNodeDefaultBodyDetailsItems0
 */
 type RemoveNodeDefaultBodyDetailsItems0 struct {

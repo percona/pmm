@@ -48,8 +48,7 @@ func NewDisconnectOK() *DisconnectOK {
 	return &DisconnectOK{}
 }
 
-/*
-DisconnectOK describes a response with status code 200, with default header values.
+/* DisconnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewDisconnectDefault(code int) *DisconnectDefault {
 	}
 }
 
-/*
-DisconnectDefault describes a response with status code -1, with default header values.
+/* DisconnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *DisconnectDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-DisconnectBody disconnect body
+/*DisconnectBody disconnect body
 swagger:model DisconnectBody
 */
 type DisconnectBody struct {
@@ -153,8 +150,7 @@ func (o *DisconnectBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DisconnectDefaultBody disconnect default body
+/*DisconnectDefaultBody disconnect default body
 swagger:model DisconnectDefaultBody
 */
 type DisconnectDefaultBody struct {
@@ -257,8 +253,7 @@ func (o *DisconnectDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DisconnectDefaultBodyDetailsItems0 disconnect default body details items0
+/*DisconnectDefaultBodyDetailsItems0 disconnect default body details items0
 swagger:model DisconnectDefaultBodyDetailsItems0
 */
 type DisconnectDefaultBodyDetailsItems0 struct {

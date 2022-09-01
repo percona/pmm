@@ -48,8 +48,7 @@ func NewUpdateStatusOK() *UpdateStatusOK {
 	return &UpdateStatusOK{}
 }
 
-/*
-UpdateStatusOK describes a response with status code 200, with default header values.
+/* UpdateStatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewUpdateStatusDefault(code int) *UpdateStatusDefault {
 	}
 }
 
-/*
-UpdateStatusDefault describes a response with status code -1, with default header values.
+/* UpdateStatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *UpdateStatusDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*
-UpdateStatusBody update status body
+/*UpdateStatusBody update status body
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
@@ -158,8 +155,7 @@ func (o *UpdateStatusBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdateStatusDefaultBody update status default body
+/*UpdateStatusDefaultBody update status default body
 swagger:model UpdateStatusDefaultBody
 */
 type UpdateStatusDefaultBody struct {
@@ -262,8 +258,7 @@ func (o *UpdateStatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdateStatusDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*UpdateStatusDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -406,8 +401,7 @@ func (o *UpdateStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdateStatusOKBody update status OK body
+/*UpdateStatusOKBody update status OK body
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {

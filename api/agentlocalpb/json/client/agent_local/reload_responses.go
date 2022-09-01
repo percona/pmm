@@ -48,8 +48,7 @@ func NewReloadOK() *ReloadOK {
 	return &ReloadOK{}
 }
 
-/*
-ReloadOK describes a response with status code 200, with default header values.
+/* ReloadOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewReloadDefault(code int) *ReloadDefault {
 	}
 }
 
-/*
-ReloadDefault describes a response with status code -1, with default header values.
+/* ReloadDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *ReloadDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-/*
-ReloadDefaultBody reload default body
+/*ReloadDefaultBody reload default body
 swagger:model ReloadDefaultBody
 */
 type ReloadDefaultBody struct {
@@ -220,8 +217,7 @@ func (o *ReloadDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ReloadDefaultBodyDetailsItems0 reload default body details items0
+/*ReloadDefaultBodyDetailsItems0 reload default body details items0
 swagger:model ReloadDefaultBodyDetailsItems0
 */
 type ReloadDefaultBodyDetailsItems0 struct {

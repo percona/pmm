@@ -39,8 +39,7 @@ func NewGetReceiversOK() *GetReceiversOK {
 	return &GetReceiversOK{}
 }
 
-/*
-	GetReceiversOK describes a response with status code 200, with default header values.
+/* GetReceiversOK describes a response with status code 200, with default header values.
 
 Get receivers response
 */

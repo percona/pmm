@@ -50,8 +50,7 @@ func NewAddMongoDBExporterOK() *AddMongoDBExporterOK {
 	return &AddMongoDBExporterOK{}
 }
 
-/*
-AddMongoDBExporterOK describes a response with status code 200, with default header values.
+/* AddMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
 	}
 }
 
-/*
-AddMongoDBExporterDefault describes a response with status code -1, with default header values.
+/* AddMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-AddMongoDBExporterBody add mongo DB exporter body
+/*AddMongoDBExporterBody add mongo DB exporter body
 swagger:model AddMongoDBExporterBody
 */
 type AddMongoDBExporterBody struct {
@@ -278,8 +275,7 @@ func (o *AddMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterDefaultBody add mongo DB exporter default body
+/*AddMongoDBExporterDefaultBody add mongo DB exporter default body
 swagger:model AddMongoDBExporterDefaultBody
 */
 type AddMongoDBExporterDefaultBody struct {
@@ -382,8 +378,7 @@ func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body details items0
+/*AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body details items0
 swagger:model AddMongoDBExporterDefaultBodyDetailsItems0
 */
 type AddMongoDBExporterDefaultBodyDetailsItems0 struct {
@@ -419,8 +414,7 @@ func (o *AddMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-AddMongoDBExporterOKBody add mongo DB exporter OK body
+/*AddMongoDBExporterOKBody add mongo DB exporter OK body
 swagger:model AddMongoDBExporterOKBody
 */
 type AddMongoDBExporterOKBody struct {
@@ -508,8 +502,7 @@ func (o *AddMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model AddMongoDBExporterOKBodyMongodbExporter
 */
 type AddMongoDBExporterOKBodyMongodbExporter struct {

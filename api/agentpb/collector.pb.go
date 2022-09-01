@@ -273,6 +273,7 @@ type MetricsBucket_Common struct {
 	Queryid string `protobuf:"bytes,1,opt,name=queryid,proto3" json:"queryid,omitempty"`
 	// digest_text - query signature. Query without values.
 	Fingerprint string `protobuf:"bytes,2,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	//
 	// Dimension Group.
 	//
 	// MongoDB or PostgreSQL database.
@@ -633,9 +634,11 @@ type MetricsBucket_MySQL struct {
 	MTmpTableSizesMin float32 `protobuf:"fixed32,83,opt,name=m_tmp_table_sizes_min,json=mTmpTableSizesMin,proto3" json:"m_tmp_table_sizes_min,omitempty"`
 	MTmpTableSizesMax float32 `protobuf:"fixed32,84,opt,name=m_tmp_table_sizes_max,json=mTmpTableSizesMax,proto3" json:"m_tmp_table_sizes_max,omitempty"`
 	MTmpTableSizesP99 float32 `protobuf:"fixed32,85,opt,name=m_tmp_table_sizes_p99,json=mTmpTableSizesP99,proto3" json:"m_tmp_table_sizes_p99,omitempty"`
+	//
 	// Boolean metrics:
 	// - *_cnt - how many times this metric was met.
 	// - *_sum - how many times this metric was true.
+	//
 	MQcHitCnt float32 `protobuf:"fixed32,86,opt,name=m_qc_hit_cnt,json=mQcHitCnt,proto3" json:"m_qc_hit_cnt,omitempty"`
 	// Query Cache hits.
 	MQcHitSum    float32 `protobuf:"fixed32,87,opt,name=m_qc_hit_sum,json=mQcHitSum,proto3" json:"m_qc_hit_sum,omitempty"`
@@ -1736,6 +1739,7 @@ type MetricsBucket_PostgreSQL struct {
 	MCpuSysTimeSum float32 `protobuf:"fixed32,30,opt,name=m_cpu_sys_time_sum,json=mCpuSysTimeSum,proto3" json:"m_cpu_sys_time_sum,omitempty"`
 	// Type of SQL command.
 	CmdType string `protobuf:"bytes,43,opt,name=cmd_type,json=cmdType,proto3" json:"cmd_type,omitempty"`
+	//
 	// pg_stat_monitor 0.9 metrics
 	//
 	// Total number of planned calls.

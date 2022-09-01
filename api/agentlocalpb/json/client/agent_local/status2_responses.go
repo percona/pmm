@@ -50,8 +50,7 @@ func NewStatus2OK() *Status2OK {
 	return &Status2OK{}
 }
 
-/*
-Status2OK describes a response with status code 200, with default header values.
+/* Status2OK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewStatus2Default(code int) *Status2Default {
 	}
 }
 
-/*
-Status2Default describes a response with status code -1, with default header values.
+/* Status2Default describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *Status2Default) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*
-Status2DefaultBody status2 default body
+/*Status2DefaultBody status2 default body
 swagger:model Status2DefaultBody
 */
 type Status2DefaultBody struct {
@@ -224,8 +221,7 @@ func (o *Status2DefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-Status2DefaultBodyDetailsItems0 status2 default body details items0
+/*Status2DefaultBodyDetailsItems0 status2 default body details items0
 swagger:model Status2DefaultBodyDetailsItems0
 */
 type Status2DefaultBodyDetailsItems0 struct {
@@ -261,8 +257,7 @@ func (o *Status2DefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-Status2OKBody status2 OK body
+/*Status2OKBody status2 OK body
 swagger:model Status2OKBody
 */
 type Status2OKBody struct {
@@ -422,8 +417,7 @@ func (o *Status2OKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-Status2OKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
+/*Status2OKBodyAgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
 swagger:model Status2OKBodyAgentsInfoItems0
 */
 type Status2OKBodyAgentsInfoItems0 struct {
@@ -635,8 +629,7 @@ func (o *Status2OKBodyAgentsInfoItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-Status2OKBodyServerInfo ServerInfo contains information about the PMM Server.
+/*Status2OKBodyServerInfo ServerInfo contains information about the PMM Server.
 swagger:model Status2OKBodyServerInfo
 */
 type Status2OKBodyServerInfo struct {

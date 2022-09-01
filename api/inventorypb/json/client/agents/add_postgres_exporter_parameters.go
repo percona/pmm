@@ -52,12 +52,10 @@ func NewAddPostgresExporterParamsWithHTTPClient(client *http.Client) *AddPostgre
 	}
 }
 
-/*
-AddPostgresExporterParams contains all the parameters to send to the API endpoint
+/* AddPostgresExporterParams contains all the parameters to send to the API endpoint
+   for the add postgres exporter operation.
 
-	for the add postgres exporter operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddPostgresExporterParams struct {
 	// Body.

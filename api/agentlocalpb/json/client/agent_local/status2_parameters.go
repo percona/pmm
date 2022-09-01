@@ -53,12 +53,10 @@ func NewStatus2ParamsWithHTTPClient(client *http.Client) *Status2Params {
 	}
 }
 
-/*
-Status2Params contains all the parameters to send to the API endpoint
+/* Status2Params contains all the parameters to send to the API endpoint
+   for the status2 operation.
 
-	for the status2 operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type Status2Params struct {
 	/* GetNetworkInfo.

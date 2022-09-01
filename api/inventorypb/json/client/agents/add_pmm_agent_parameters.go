@@ -52,12 +52,10 @@ func NewAddPMMAgentParamsWithHTTPClient(client *http.Client) *AddPMMAgentParams 
 	}
 }
 
-/*
-AddPMMAgentParams contains all the parameters to send to the API endpoint
+/* AddPMMAgentParams contains all the parameters to send to the API endpoint
+   for the add PMM agent operation.
 
-	for the add PMM agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddPMMAgentParams struct {
 	// Body.

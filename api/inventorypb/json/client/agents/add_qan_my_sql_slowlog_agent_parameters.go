@@ -52,12 +52,10 @@ func NewAddQANMySQLSlowlogAgentParamsWithHTTPClient(client *http.Client) *AddQAN
 	}
 }
 
-/*
-AddQANMySQLSlowlogAgentParams contains all the parameters to send to the API endpoint
+/* AddQANMySQLSlowlogAgentParams contains all the parameters to send to the API endpoint
+   for the add QAN my SQL slowlog agent operation.
 
-	for the add QAN my SQL slowlog agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddQANMySQLSlowlogAgentParams struct {
 	// Body.

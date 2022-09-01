@@ -48,8 +48,7 @@ func NewAddExternalServiceOK() *AddExternalServiceOK {
 	return &AddExternalServiceOK{}
 }
 
-/*
-AddExternalServiceOK describes a response with status code 200, with default header values.
+/* AddExternalServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddExternalServiceDefault(code int) *AddExternalServiceDefault {
 	}
 }
 
-/*
-AddExternalServiceDefault describes a response with status code -1, with default header values.
+/* AddExternalServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddExternalServiceDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-AddExternalServiceBody add external service body
+/*AddExternalServiceBody add external service body
 swagger:model AddExternalServiceBody
 */
 type AddExternalServiceBody struct {
@@ -173,8 +170,7 @@ func (o *AddExternalServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalServiceDefaultBody add external service default body
+/*AddExternalServiceDefaultBody add external service default body
 swagger:model AddExternalServiceDefaultBody
 */
 type AddExternalServiceDefaultBody struct {
@@ -277,8 +273,7 @@ func (o *AddExternalServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalServiceDefaultBodyDetailsItems0 add external service default body details items0
+/*AddExternalServiceDefaultBodyDetailsItems0 add external service default body details items0
 swagger:model AddExternalServiceDefaultBodyDetailsItems0
 */
 type AddExternalServiceDefaultBodyDetailsItems0 struct {
@@ -314,8 +309,7 @@ func (o *AddExternalServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-AddExternalServiceOKBody add external service OK body
+/*AddExternalServiceOKBody add external service OK body
 swagger:model AddExternalServiceOKBody
 */
 type AddExternalServiceOKBody struct {
@@ -403,8 +397,7 @@ func (o *AddExternalServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddExternalServiceOKBodyExternal ExternalService represents a generic External service instance.
+/*AddExternalServiceOKBodyExternal ExternalService represents a generic External service instance.
 swagger:model AddExternalServiceOKBodyExternal
 */
 type AddExternalServiceOKBodyExternal struct {

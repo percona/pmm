@@ -48,8 +48,7 @@ func NewChangeExternalExporterOK() *ChangeExternalExporterOK {
 	return &ChangeExternalExporterOK{}
 }
 
-/*
-ChangeExternalExporterOK describes a response with status code 200, with default header values.
+/* ChangeExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewChangeExternalExporterDefault(code int) *ChangeExternalExporterDefault {
 	}
 }
 
-/*
-ChangeExternalExporterDefault describes a response with status code -1, with default header values.
+/* ChangeExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *ChangeExternalExporterDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-ChangeExternalExporterBody change external exporter body
+/*ChangeExternalExporterBody change external exporter body
 swagger:model ChangeExternalExporterBody
 */
 type ChangeExternalExporterBody struct {
@@ -210,8 +207,7 @@ func (o *ChangeExternalExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeExternalExporterDefaultBody change external exporter default body
+/*ChangeExternalExporterDefaultBody change external exporter default body
 swagger:model ChangeExternalExporterDefaultBody
 */
 type ChangeExternalExporterDefaultBody struct {
@@ -314,8 +310,7 @@ func (o *ChangeExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeExternalExporterDefaultBodyDetailsItems0 change external exporter default body details items0
+/*ChangeExternalExporterDefaultBodyDetailsItems0 change external exporter default body details items0
 swagger:model ChangeExternalExporterDefaultBodyDetailsItems0
 */
 type ChangeExternalExporterDefaultBodyDetailsItems0 struct {
@@ -351,8 +346,7 @@ func (o *ChangeExternalExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ChangeExternalExporterOKBody change external exporter OK body
+/*ChangeExternalExporterOKBody change external exporter OK body
 swagger:model ChangeExternalExporterOKBody
 */
 type ChangeExternalExporterOKBody struct {
@@ -440,8 +434,7 @@ func (o *ChangeExternalExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*ChangeExternalExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model ChangeExternalExporterOKBodyExternalExporter
 */
 type ChangeExternalExporterOKBodyExternalExporter struct {
@@ -507,8 +500,7 @@ func (o *ChangeExternalExporterOKBodyExternalExporter) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-ChangeExternalExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeExternalExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeExternalExporterParamsBodyCommon
 */
 type ChangeExternalExporterParamsBodyCommon struct {

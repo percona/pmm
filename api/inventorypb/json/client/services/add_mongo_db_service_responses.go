@@ -48,8 +48,7 @@ func NewAddMongoDBServiceOK() *AddMongoDBServiceOK {
 	return &AddMongoDBServiceOK{}
 }
 
-/*
-AddMongoDBServiceOK describes a response with status code 200, with default header values.
+/* AddMongoDBServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddMongoDBServiceDefault(code int) *AddMongoDBServiceDefault {
 	}
 }
 
-/*
-AddMongoDBServiceDefault describes a response with status code -1, with default header values.
+/* AddMongoDBServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*
-AddMongoDBServiceBody add mongo DB service body
+/*AddMongoDBServiceBody add mongo DB service body
 swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
@@ -182,8 +179,7 @@ func (o *AddMongoDBServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceDefaultBody add mongo DB service default body
+/*AddMongoDBServiceDefaultBody add mongo DB service default body
 swagger:model AddMongoDBServiceDefaultBody
 */
 type AddMongoDBServiceDefaultBody struct {
@@ -286,8 +282,7 @@ func (o *AddMongoDBServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceDefaultBodyDetailsItems0 add mongo DB service default body details items0
+/*AddMongoDBServiceDefaultBodyDetailsItems0 add mongo DB service default body details items0
 swagger:model AddMongoDBServiceDefaultBodyDetailsItems0
 */
 type AddMongoDBServiceDefaultBodyDetailsItems0 struct {
@@ -323,8 +318,7 @@ func (o *AddMongoDBServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-AddMongoDBServiceOKBody add mongo DB service OK body
+/*AddMongoDBServiceOKBody add mongo DB service OK body
 swagger:model AddMongoDBServiceOKBody
 */
 type AddMongoDBServiceOKBody struct {
@@ -412,8 +406,7 @@ func (o *AddMongoDBServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
+/*AddMongoDBServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
 swagger:model AddMongoDBServiceOKBodyMongodb
 */
 type AddMongoDBServiceOKBodyMongodb struct {

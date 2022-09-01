@@ -52,12 +52,10 @@ func NewChangeRDSExporterParamsWithHTTPClient(client *http.Client) *ChangeRDSExp
 	}
 }
 
-/*
-ChangeRDSExporterParams contains all the parameters to send to the API endpoint
+/* ChangeRDSExporterParams contains all the parameters to send to the API endpoint
+   for the change RDS exporter operation.
 
-	for the change RDS exporter operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ChangeRDSExporterParams struct {
 	// Body.

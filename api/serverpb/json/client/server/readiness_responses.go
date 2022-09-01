@@ -48,8 +48,7 @@ func NewReadinessOK() *ReadinessOK {
 	return &ReadinessOK{}
 }
 
-/*
-ReadinessOK describes a response with status code 200, with default header values.
+/* ReadinessOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,8 +80,7 @@ func NewReadinessDefault(code int) *ReadinessDefault {
 	}
 }
 
-/*
-ReadinessDefault describes a response with status code -1, with default header values.
+/* ReadinessDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,8 +114,7 @@ func (o *ReadinessDefault) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*
-ReadinessDefaultBody readiness default body
+/*ReadinessDefaultBody readiness default body
 swagger:model ReadinessDefaultBody
 */
 type ReadinessDefaultBody struct {
@@ -220,8 +217,7 @@ func (o *ReadinessDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ReadinessDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*ReadinessDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form

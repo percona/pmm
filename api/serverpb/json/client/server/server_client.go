@@ -54,9 +54,9 @@ type ClientService interface {
 }
 
 /*
-AWSInstanceCheck AWSs instance check
+  AWSInstanceCheck AWSs instance check
 
-Checks AWS EC2 instance ID.
+  Checks AWS EC2 instance ID.
 */
 func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...ClientOption) (*AWSInstanceCheckOK, error) {
 	// TODO: Validate the params before sending
@@ -93,9 +93,9 @@ func (a *Client) AWSInstanceCheck(params *AWSInstanceCheckParams, opts ...Client
 }
 
 /*
-ChangeSettings changes settings
+  ChangeSettings changes settings
 
-Changes PMM Server settings.
+  Changes PMM Server settings.
 */
 func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -132,9 +132,9 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 }
 
 /*
-CheckUpdates checks updates
+  CheckUpdates checks updates
 
-Checks for available PMM Server updates.
+  Checks for available PMM Server updates.
 */
 func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error) {
 	// TODO: Validate the params before sending
@@ -171,9 +171,9 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 }
 
 /*
-GetSettings gets settings
+  GetSettings gets settings
 
-Returns current PMM Server settings.
+  Returns current PMM Server settings.
 */
 func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -210,9 +210,9 @@ func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*
 }
 
 /*
-Logs logs
+  Logs logs
 
-Returns the PMM Server logs.
+  Returns the PMM Server logs.
 */
 func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error) {
 	// TODO: Validate the params before sending
@@ -249,9 +249,9 @@ func (a *Client) Logs(params *LogsParams, writer io.Writer, opts ...ClientOption
 }
 
 /*
-Readiness checks server readiness
+  Readiness checks server readiness
 
-Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
+  Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 */
 func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error) {
 	// TODO: Validate the params before sending
@@ -288,9 +288,9 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 }
 
 /*
-StartUpdate starts update
+  StartUpdate starts update
 
-Starts PMM Server update.
+  Starts PMM Server update.
 */
 func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error) {
 	// TODO: Validate the params before sending
@@ -327,9 +327,9 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 }
 
 /*
-TestEmailAlertingSettings tests email alerting
+  TestEmailAlertingSettings tests email alerting
 
-Sends test email to check current SMTP settings for email alerting.
+  Sends test email to check current SMTP settings for email alerting.
 */
 func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error) {
 	// TODO: Validate the params before sending
@@ -366,9 +366,9 @@ func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsPara
 }
 
 /*
-UpdateStatus updates status
+  UpdateStatus updates status
 
-Returns PMM Server update status.
+  Returns PMM Server update status.
 */
 func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error) {
 	// TODO: Validate the params before sending
@@ -405,9 +405,9 @@ func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) 
 }
 
 /*
-Version versions
+  Version versions
 
-Returns PMM Server versions.
+  Returns PMM Server versions.
 */
 func (a *Client) Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error) {
 	// TODO: Validate the params before sending

@@ -52,12 +52,10 @@ func NewStartUpdateParamsWithHTTPClient(client *http.Client) *StartUpdateParams 
 	}
 }
 
-/*
-StartUpdateParams contains all the parameters to send to the API endpoint
+/* StartUpdateParams contains all the parameters to send to the API endpoint
+   for the start update operation.
 
-	for the start update operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartUpdateParams struct {
 	// Body.

@@ -50,8 +50,7 @@ func NewChangeNodeExporterOK() *ChangeNodeExporterOK {
 	return &ChangeNodeExporterOK{}
 }
 
-/*
-ChangeNodeExporterOK describes a response with status code 200, with default header values.
+/* ChangeNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewChangeNodeExporterDefault(code int) *ChangeNodeExporterDefault {
 	}
 }
 
-/*
-ChangeNodeExporterDefault describes a response with status code -1, with default header values.
+/* ChangeNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *ChangeNodeExporterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-ChangeNodeExporterBody change node exporter body
+/*ChangeNodeExporterBody change node exporter body
 swagger:model ChangeNodeExporterBody
 */
 type ChangeNodeExporterBody struct {
@@ -212,8 +209,7 @@ func (o *ChangeNodeExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeNodeExporterDefaultBody change node exporter default body
+/*ChangeNodeExporterDefaultBody change node exporter default body
 swagger:model ChangeNodeExporterDefaultBody
 */
 type ChangeNodeExporterDefaultBody struct {
@@ -316,8 +312,7 @@ func (o *ChangeNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeNodeExporterDefaultBodyDetailsItems0 change node exporter default body details items0
+/*ChangeNodeExporterDefaultBodyDetailsItems0 change node exporter default body details items0
 swagger:model ChangeNodeExporterDefaultBodyDetailsItems0
 */
 type ChangeNodeExporterDefaultBodyDetailsItems0 struct {
@@ -353,8 +348,7 @@ func (o *ChangeNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ChangeNodeExporterOKBody change node exporter OK body
+/*ChangeNodeExporterOKBody change node exporter OK body
 swagger:model ChangeNodeExporterOKBody
 */
 type ChangeNodeExporterOKBody struct {
@@ -442,8 +436,7 @@ func (o *ChangeNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*ChangeNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model ChangeNodeExporterOKBodyNodeExporter
 */
 type ChangeNodeExporterOKBodyNodeExporter struct {
@@ -639,8 +632,7 @@ func (o *ChangeNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeNodeExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeNodeExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeNodeExporterParamsBodyCommon
 */
 type ChangeNodeExporterParamsBodyCommon struct {

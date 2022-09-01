@@ -50,8 +50,7 @@ func NewAddQANMongoDBProfilerAgentOK() *AddQANMongoDBProfilerAgentOK {
 	return &AddQANMongoDBProfilerAgentOK{}
 }
 
-/*
-AddQANMongoDBProfilerAgentOK describes a response with status code 200, with default header values.
+/* AddQANMongoDBProfilerAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewAddQANMongoDBProfilerAgentDefault(code int) *AddQANMongoDBProfilerAgentD
 	}
 }
 
-/*
-AddQANMongoDBProfilerAgentDefault describes a response with status code -1, with default header values.
+/* AddQANMongoDBProfilerAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *AddQANMongoDBProfilerAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentBody add QAN mongo DB profiler agent body
+/*AddQANMongoDBProfilerAgentBody add QAN mongo DB profiler agent body
 swagger:model AddQANMongoDBProfilerAgentBody
 */
 type AddQANMongoDBProfilerAgentBody struct {
@@ -262,8 +259,7 @@ func (o *AddQANMongoDBProfilerAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentDefaultBody add QAN mongo DB profiler agent default body
+/*AddQANMongoDBProfilerAgentDefaultBody add QAN mongo DB profiler agent default body
 swagger:model AddQANMongoDBProfilerAgentDefaultBody
 */
 type AddQANMongoDBProfilerAgentDefaultBody struct {
@@ -366,8 +362,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 add QAN mongo DB profiler agent default body details items0
+/*AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 add QAN mongo DB profiler agent default body details items0
 swagger:model AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0
 */
 type AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 struct {
@@ -403,8 +398,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentOKBody add QAN mongo DB profiler agent OK body
+/*AddQANMongoDBProfilerAgentOKBody add QAN mongo DB profiler agent OK body
 swagger:model AddQANMongoDBProfilerAgentOKBody
 */
 type AddQANMongoDBProfilerAgentOKBody struct {
@@ -492,8 +486,7 @@ func (o *AddQANMongoDBProfilerAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
 */
 type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {

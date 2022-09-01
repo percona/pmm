@@ -48,8 +48,7 @@ func NewAddGenericNodeOK() *AddGenericNodeOK {
 	return &AddGenericNodeOK{}
 }
 
-/*
-AddGenericNodeOK describes a response with status code 200, with default header values.
+/* AddGenericNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
 	}
 }
 
-/*
-AddGenericNodeDefault describes a response with status code -1, with default header values.
+/* AddGenericNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-AddGenericNodeBody add generic node body
+/*AddGenericNodeBody add generic node body
 swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
@@ -176,8 +173,7 @@ func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddGenericNodeDefaultBody add generic node default body
+/*AddGenericNodeDefaultBody add generic node default body
 swagger:model AddGenericNodeDefaultBody
 */
 type AddGenericNodeDefaultBody struct {
@@ -280,8 +276,7 @@ func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddGenericNodeDefaultBodyDetailsItems0 add generic node default body details items0
+/*AddGenericNodeDefaultBodyDetailsItems0 add generic node default body details items0
 swagger:model AddGenericNodeDefaultBodyDetailsItems0
 */
 type AddGenericNodeDefaultBodyDetailsItems0 struct {
@@ -317,8 +312,7 @@ func (o *AddGenericNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-AddGenericNodeOKBody add generic node OK body
+/*AddGenericNodeOKBody add generic node OK body
 swagger:model AddGenericNodeOKBody
 */
 type AddGenericNodeOKBody struct {
@@ -406,8 +400,7 @@ func (o *AddGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddGenericNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
+/*AddGenericNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
 swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {

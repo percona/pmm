@@ -54,12 +54,10 @@ func NewPostSilencesParamsWithHTTPClient(client *http.Client) *PostSilencesParam
 	}
 }
 
-/*
-PostSilencesParams contains all the parameters to send to the API endpoint
+/* PostSilencesParams contains all the parameters to send to the API endpoint
+   for the post silences operation.
 
-	for the post silences operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type PostSilencesParams struct {
 	/* Silence.

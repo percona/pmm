@@ -48,8 +48,7 @@ func NewAddProxySQLServiceOK() *AddProxySQLServiceOK {
 	return &AddProxySQLServiceOK{}
 }
 
-/*
-AddProxySQLServiceOK describes a response with status code 200, with default header values.
+/* AddProxySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,8 +82,7 @@ func NewAddProxySQLServiceDefault(code int) *AddProxySQLServiceDefault {
 	}
 }
 
-/*
-AddProxySQLServiceDefault describes a response with status code -1, with default header values.
+/* AddProxySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,8 +116,7 @@ func (o *AddProxySQLServiceDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-AddProxySQLServiceBody add proxy SQL service body
+/*AddProxySQLServiceBody add proxy SQL service body
 swagger:model AddProxySQLServiceBody
 */
 type AddProxySQLServiceBody struct {
@@ -182,8 +179,7 @@ func (o *AddProxySQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceDefaultBody add proxy SQL service default body
+/*AddProxySQLServiceDefaultBody add proxy SQL service default body
 swagger:model AddProxySQLServiceDefaultBody
 */
 type AddProxySQLServiceDefaultBody struct {
@@ -286,8 +282,7 @@ func (o *AddProxySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceDefaultBodyDetailsItems0 add proxy SQL service default body details items0
+/*AddProxySQLServiceDefaultBodyDetailsItems0 add proxy SQL service default body details items0
 swagger:model AddProxySQLServiceDefaultBodyDetailsItems0
 */
 type AddProxySQLServiceDefaultBodyDetailsItems0 struct {
@@ -323,8 +318,7 @@ func (o *AddProxySQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-AddProxySQLServiceOKBody add proxy SQL service OK body
+/*AddProxySQLServiceOKBody add proxy SQL service OK body
 swagger:model AddProxySQLServiceOKBody
 */
 type AddProxySQLServiceOKBody struct {
@@ -412,8 +406,7 @@ func (o *AddProxySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
+/*AddProxySQLServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
 swagger:model AddProxySQLServiceOKBodyProxysql
 */
 type AddProxySQLServiceOKBodyProxysql struct {

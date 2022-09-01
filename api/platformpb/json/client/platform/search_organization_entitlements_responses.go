@@ -49,8 +49,7 @@ func NewSearchOrganizationEntitlementsOK() *SearchOrganizationEntitlementsOK {
 	return &SearchOrganizationEntitlementsOK{}
 }
 
-/*
-SearchOrganizationEntitlementsOK describes a response with status code 200, with default header values.
+/* SearchOrganizationEntitlementsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,8 +83,7 @@ func NewSearchOrganizationEntitlementsDefault(code int) *SearchOrganizationEntit
 	}
 }
 
-/*
-SearchOrganizationEntitlementsDefault describes a response with status code -1, with default header values.
+/* SearchOrganizationEntitlementsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -119,8 +117,7 @@ func (o *SearchOrganizationEntitlementsDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*
-SearchOrganizationEntitlementsDefaultBody search organization entitlements default body
+/*SearchOrganizationEntitlementsDefaultBody search organization entitlements default body
 swagger:model SearchOrganizationEntitlementsDefaultBody
 */
 type SearchOrganizationEntitlementsDefaultBody struct {
@@ -223,8 +220,7 @@ func (o *SearchOrganizationEntitlementsDefaultBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-SearchOrganizationEntitlementsDefaultBodyDetailsItems0 search organization entitlements default body details items0
+/*SearchOrganizationEntitlementsDefaultBodyDetailsItems0 search organization entitlements default body details items0
 swagger:model SearchOrganizationEntitlementsDefaultBodyDetailsItems0
 */
 type SearchOrganizationEntitlementsDefaultBodyDetailsItems0 struct {
@@ -260,8 +256,7 @@ func (o *SearchOrganizationEntitlementsDefaultBodyDetailsItems0) UnmarshalBinary
 	return nil
 }
 
-/*
-SearchOrganizationEntitlementsOKBody search organization entitlements OK body
+/*SearchOrganizationEntitlementsOKBody search organization entitlements OK body
 swagger:model SearchOrganizationEntitlementsOKBody
 */
 type SearchOrganizationEntitlementsOKBody struct {
@@ -358,8 +353,7 @@ func (o *SearchOrganizationEntitlementsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-SearchOrganizationEntitlementsOKBodyEntitlementsItems0 OrganizationEntitlement contains information about Organization entitlement.
+/*SearchOrganizationEntitlementsOKBodyEntitlementsItems0 OrganizationEntitlement contains information about Organization entitlement.
 swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0
 */
 type SearchOrganizationEntitlementsOKBodyEntitlementsItems0 struct {
@@ -513,8 +507,7 @@ func (o *SearchOrganizationEntitlementsOKBodyEntitlementsItems0) UnmarshalBinary
 	return nil
 }
 
-/*
-SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform Platform indicates platform specific entitlements.
+/*SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform Platform indicates platform specific entitlements.
 swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform
 */
 type SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform struct {

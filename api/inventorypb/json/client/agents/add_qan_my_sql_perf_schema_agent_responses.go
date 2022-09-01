@@ -50,8 +50,7 @@ func NewAddQANMySQLPerfSchemaAgentOK() *AddQANMySQLPerfSchemaAgentOK {
 	return &AddQANMySQLPerfSchemaAgentOK{}
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
+/* AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,8 +84,7 @@ func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentD
 	}
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
+/* AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -120,8 +118,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
+/*AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
 swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
@@ -257,8 +254,7 @@ func (o *AddQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
+/*AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
 */
 type AddQANMySQLPerfSchemaAgentDefaultBody struct {
@@ -361,8 +357,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
+/*AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
@@ -398,8 +393,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
+/*AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
 swagger:model AddQANMySQLPerfSchemaAgentOKBody
 */
 type AddQANMySQLPerfSchemaAgentOKBody struct {
@@ -487,8 +481,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 */
 type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
