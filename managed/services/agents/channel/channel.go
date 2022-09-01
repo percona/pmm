@@ -69,7 +69,6 @@ type Response struct {
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-//
 //nolint:maligned
 type Channel struct {
 	s agentpb.Agent_ConnectServer

@@ -28,7 +28,6 @@ const (
 )
 
 // CheckSettings represents any changes to an STT check loaded in pmm-managed.
-//
 //reform:check_settings
 type CheckSettings struct {
 	Name     string   `reform:"name,pk"`

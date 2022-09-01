@@ -26,7 +26,6 @@ import (
 //go:generate ../../bin/reform
 
 // Template represents Integrated Alerting rule template.
-//
 //reform:ia_templates
 type Template struct {
 	Name        string                     `reform:"name,pk"`

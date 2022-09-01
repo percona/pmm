@@ -71,7 +71,6 @@ func (sv *SoftwareVersions) Scan(src interface{}) error {
 
 // ServiceSoftwareVersions represents service software versions.
 // It has a one-to-one relationship with the services table.
-//
 //reform:service_software_versions
 type ServiceSoftwareVersions struct {
 	ServiceID        string           `reform:"service_id,pk"`

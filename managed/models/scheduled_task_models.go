@@ -34,7 +34,6 @@ const (
 )
 
 // ScheduledTask describes a scheduled task.
-//
 //reform:scheduled_tasks
 type ScheduledTask struct {
 	ID             string             `reform:"id,pk"`

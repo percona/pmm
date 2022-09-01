@@ -26,7 +26,6 @@ import (
 
 // PerconaSSODetails stores everything what we need to issue access_token from Percona SSO API.
 // It is intended to have only one row in this table as PMM can be connected to Portal only once.
-//
 //reform:percona_sso_details
 type PerconaSSODetails struct {
 	PMMManagedClientID     string                 `reform:"pmm_managed_client_id,pk"`

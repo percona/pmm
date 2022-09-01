@@ -346,9 +346,9 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 
 // convertTLSConfig converts model TLSConfig to promconfig TLSConfig.
 // Resulting promconfig field
-//   - CAFile is set to corresponding model field if CAFileContent is not specified, `sha256(id).ca` otherwise.
-//   - CertFile is set to corresponding model field if CertFileContent is not specified, `sha256(id).crt` otherwise.
-//   - KeyFile is set to corresponding model field if KeyFileContent is not specified, `sha256(id).key` otherwise.
+//  - CAFile is set to corresponding model field if CAFileContent is not specified, `sha256(id).ca` otherwise.
+//  - CertFile is set to corresponding model field if CertFileContent is not specified, `sha256(id).crt` otherwise.
+//  - KeyFile is set to corresponding model field if KeyFileContent is not specified, `sha256(id).key` otherwise.
 func convertTLSConfig(id string, tls *models.TLSConfig) promconfig.TLSConfig {
 	hashedIDBytes := sha256.Sum256([]byte(id))
 	hashedID := hex.EncodeToString(hashedIDBytes[:])
@@ -874,7 +874,6 @@ func (svc *Service) IsReady(ctx context.Context) error {
 }
 
 // configure default client; we use it mainly because we can't remove it from generated code
-//
 //nolint:gochecknoinits
 func init() {
 	amclient.Default.SetTransport(httptransport.New("127.0.0.1:9093", "/alertmanager/api/v2", []string{"http"}))
