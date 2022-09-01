@@ -52,7 +52,7 @@ type AddAgentProxysqlExporterCommand struct {
 	Username            string            `arg:"" optional:"" help:"ProxySQL username for scraping metrics"`
 	Password            string            `help:"ProxySQL password for scraping metrics"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
-	CustomLabels        map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
