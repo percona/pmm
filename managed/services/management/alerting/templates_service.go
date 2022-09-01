@@ -73,8 +73,8 @@ type TemplateInfo struct {
 	CreatedAt *time.Time
 }
 
-// TemplatesService is responsible for interactions with IA rule templates.
-type TemplatesService struct {
+// Service is responsible for interactions with IA rule templates.
+type Service struct {
 	db                 *reform.DB
 	l                  *logrus.Entry
 	platformClient     *platform.Client
@@ -85,12 +85,12 @@ type TemplatesService struct {
 	rw        sync.RWMutex
 	templates map[string]TemplateInfo
 
-	alerting.UnimplementedTemplatesServer
+	alerting.UnimplementedAlertingServer
 }
 
-// NewTemplatesService creates a new TemplatesService.
-func NewTemplatesService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*TemplatesService, error) {
-	l := logrus.WithField("component", "management/ia/templates")
+// NewService creates a new Service.
+func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) {
+	l := logrus.WithField("component", "management/alerting")
 
 	err := dir.CreateDataDir(templatesDir, "pmm", "pmm", dirPerm)
 	if err != nil {
@@ -103,7 +103,7 @@ func NewTemplatesService(db *reform.DB, platformClient *platform.Client, grafana
 		platformPublicKeys = k
 	}
 
-	s := &TemplatesService{
+	s := &Service{
 		db:                 db,
 		l:                  l,
 		platformClient:     platformClient,
@@ -117,7 +117,7 @@ func NewTemplatesService(db *reform.DB, platformClient *platform.Client, grafana
 }
 
 // Enabled returns if service is enabled and can be used.
-func (s *TemplatesService) Enabled() bool {
+func (s *Service) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.WithError(err).Error("can't get settings")
@@ -127,7 +127,7 @@ func (s *TemplatesService) Enabled() bool {
 }
 
 // GetTemplates return collected templates.
-func (s *TemplatesService) GetTemplates() map[string]TemplateInfo {
+func (s *Service) GetTemplates() map[string]TemplateInfo {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
@@ -143,7 +143,7 @@ func (s *TemplatesService) GetTemplates() map[string]TemplateInfo {
 // SaaS templates: templates downloaded from checks service.
 // user file templates: read from yaml files created by the user in `/srv/ia/templates`
 // user API templates: in the DB created using the API.
-func (s *TemplatesService) CollectTemplates(ctx context.Context) {
+func (s *Service) CollectTemplates(ctx context.Context) {
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
@@ -208,7 +208,7 @@ func (s *TemplatesService) CollectTemplates(ctx context.Context) {
 }
 
 // loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
-func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template, error) {
+func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template, error) {
 	var res []alert.Template
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -272,7 +272,7 @@ func (s *TemplatesService) loadTemplatesFromAssets(ctx context.Context) ([]alert
 }
 
 // loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/ia/templates.
-func (s *TemplatesService) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
+func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
 	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get paths")
@@ -313,7 +313,7 @@ func (s *TemplatesService) loadTemplatesFromUserFiles(ctx context.Context) ([]al
 	return res, nil
 }
 
-func (s *TemplatesService) loadTemplatesFromDB() ([]TemplateInfo, error) {
+func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 	var templates []models.Template
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -385,7 +385,7 @@ func (s *TemplatesService) loadTemplatesFromDB() ([]TemplateInfo, error) {
 }
 
 // downloadTemplates downloads IA templates from SaaS.
-func (s *TemplatesService) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
+func (s *Service) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -482,7 +482,7 @@ func convertParamType(t alert.Type) alerting.ParamType {
 }
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
-func (s *TemplatesService) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
+func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -538,7 +538,7 @@ func (s *TemplatesService) ListTemplates(ctx context.Context, req *alerting.List
 }
 
 // CreateTemplate creates a new template.
-func (s *TemplatesService) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
+func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
 	pParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -581,7 +581,7 @@ func (s *TemplatesService) CreateTemplate(ctx context.Context, req *alerting.Cre
 }
 
 // UpdateTemplate updates existing template, previously created via API.
-func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
+func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
 	parseParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -624,7 +624,7 @@ func (s *TemplatesService) UpdateTemplate(ctx context.Context, req *alerting.Upd
 }
 
 // DeleteTemplate deletes existing, previously created via API.
-func (s *TemplatesService) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
+func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
@@ -711,7 +711,7 @@ func convertParamDefinitions(l *logrus.Entry, params []alert.Parameter) ([]*aler
 }
 
 // CreateRule creates alert rule from the given template.
-func (s *TemplatesService) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
+func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
 	if req.TemplateName == "" {
 		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.") // TODO
 	}
@@ -752,11 +752,6 @@ func (s *TemplatesService) CreateRule(ctx context.Context, req *alerting.CreateR
 	if err := validateParameters(paramsDefinitions, paramsValues); err != nil {
 		return nil, err
 	}
-
-	// filters, err := convertFiltersToModel(req.Filters)
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	forDuration := time.Duration(template.For)
 	if req.For != nil {
@@ -983,5 +978,5 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values mo
 
 // Check interfaces.
 var (
-	_ alerting.TemplatesServer = (*TemplatesService)(nil)
+	_ alerting.AlertingServer = (*Service)(nil)
 )

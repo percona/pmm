@@ -171,14 +171,14 @@ enum FilterType {
   MISMATCH = 2;
 }
 
-// Filter repsents a single filter condition.
+// Filter represents a single filter condition.
 message Filter {
   FilterType type = 1;
   string label = 2;
   string regexp = 3;
 }
 
-// ParamValue represents a single rule parameter value for List, Change and Update APIs.
+// ParamValue represents a single rule parameter value.
 message ParamValue {
   // Machine-readable name (ID) that is used in expression.
   string name = 1 [
@@ -218,16 +218,13 @@ message CreateRuleRequest {
   map<string, string> custom_labels = 8;
   // Filters.
   repeated Filter filters = 9;
-  // Contact points.
-  repeated string contact_points = 10;
 }
 
-message CreateRuleResponse {
-}
+message CreateRuleResponse {}
 
-// Templates service provides access to Alert Rule Templates.
-service Templates {
-  // ListTemplates returns a list of all collected Alert Rule Templates.
+// Alerting service lets to create alert rules from templates.
+service Alerting {
+  // ListTemplates returns a list of all collected alert rule templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {
       post: "/v1/management/alerting/Templates/List"
@@ -255,10 +252,10 @@ service Templates {
       body: "*"
     };
   }
-  // CreateRule creates Alerting rule.
+  // CreateRule creates alerting rule from the given template.
   rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
     option (google.api.http) = {
-      post: "/v1/management/alerting/Rule/Create"
+      post: "/v1/management/alerting/Rules/Create"
       body: "*"
     };
   }

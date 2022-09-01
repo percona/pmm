@@ -65,7 +65,7 @@ func TestCollect(t *testing.T) {
 	t.Run("builtin are valid", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db, platformClient)
+		svc, err := NewService(db, platformClient)
 		require.NoError(t, err)
 		_, err = svc.loadTemplatesFromAssets(ctx)
 		require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestCollect(t *testing.T) {
 	t.Run("bad template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db, platformClient)
+		svc, err := NewService(db, platformClient)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testBadTemplates
 		templates, err := svc.loadTemplatesFromUserFiles(ctx)
@@ -85,7 +85,7 @@ func TestCollect(t *testing.T) {
 	t.Run("valid template paths", func(t *testing.T) {
 		t.Parallel()
 
-		svc, err := NewTemplatesService(db, platformClient)
+		svc, err := NewService(db, platformClient)
 		require.NoError(t, err)
 		svc.userTemplatesPath = testTemplates2
 		svc.CollectTemplates(ctx)
@@ -119,7 +119,7 @@ func TestDownloadTemplates(t *testing.T) {
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
-	svc, err := NewTemplatesService(db, platformClient)
+	svc, err := NewService(db, platformClient)
 	svc.platformPublicKeys = []string{devPlatformPublicKey}
 	require.NoError(t, err)
 
@@ -213,7 +213,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db, platformClient)
+		svc, err := NewService(db, platformClient)
 		require.NoError(t, err)
 		resp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: templateWithMissingParam,
@@ -306,7 +306,7 @@ templates:
       summary: MySQL too many connections (instance {{ $labels.instance }})
 `
 
-		svc, err := NewTemplatesService(db, platformClient)
+		svc, err := NewService(db, platformClient)
 		require.NoError(t, err)
 		createResp, err := svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{
 			Yaml: validTemplate,
