@@ -27,6 +27,7 @@ type ArtifactsClient interface {
 	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
+	ListPITRTimelines(ctx context.Context, in *ListPITRTimelinesRequest, opts ...grpc.CallOption) (*ListPITRTimelinesResponse, error)
 }
 
 type artifactsClient struct {
@@ -55,6 +56,15 @@ func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifact
 	return out, nil
 }
 
+func (c *artifactsClient) ListPITRTimelines(ctx context.Context, in *ListPITRTimelinesRequest, opts ...grpc.CallOption) (*ListPITRTimelinesResponse, error) {
+	out := new(ListPITRTimelinesResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListPITRTimelines", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArtifactsServer is the server API for Artifacts service.
 // All implementations must embed UnimplementedArtifactsServer
 // for forward compatibility
@@ -63,6 +73,7 @@ type ArtifactsServer interface {
 	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
+	ListPITRTimelines(context.Context, *ListPITRTimelinesRequest) (*ListPITRTimelinesResponse, error)
 	mustEmbedUnimplementedArtifactsServer()
 }
 
@@ -75,6 +86,10 @@ func (UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifact
 
 func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
+}
+
+func (UnimplementedArtifactsServer) ListPITRTimelines(context.Context, *ListPITRTimelinesRequest) (*ListPITRTimelinesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPITRTimelines not implemented")
 }
 func (UnimplementedArtifactsServer) mustEmbedUnimplementedArtifactsServer() {}
 
@@ -125,6 +140,24 @@ func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Artifacts_ListPITRTimelines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPITRTimelinesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArtifactsServer).ListPITRTimelines(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backup.v1beta1.Artifacts/ListPITRTimelines",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArtifactsServer).ListPITRTimelines(ctx, req.(*ListPITRTimelinesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Artifacts_ServiceDesc is the grpc.ServiceDesc for Artifacts service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var Artifacts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteArtifact",
 			Handler:    _Artifacts_DeleteArtifact_Handler,
+		},
+		{
+			MethodName: "ListPITRTimelines",
+			Handler:    _Artifacts_ListPITRTimelines_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
