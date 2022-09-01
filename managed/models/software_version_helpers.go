@@ -16,6 +16,7 @@
 package models
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -182,13 +183,15 @@ func FindServicesSoftwareVersions(
 ) ([]*ServiceSoftwareVersions, error) {
 	var args []interface{}
 	var tail strings.Builder
+	idx := 1
 
 	if filter.ServiceType != nil {
 		if err := ValidateServiceType(*filter.ServiceType); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		tail.WriteString("WHERE service_type = $1")
-		args = append(args, *filter.ServiceType)
+		tail.WriteString(fmt.Sprintf("WHERE service_type = %s", q.Placeholder(idx)))
+		args = append(args, string(*filter.ServiceType))
+		idx++
 	}
 
 	if orderBy == SoftwareVersionsOrderByServiceID {
@@ -198,8 +201,9 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		tail.WriteString("LIMIT $2")
+		tail.WriteString(fmt.Sprintf("LIMIT %s", q.Placeholder(idx)))
 		args = append(args, *filter.Limit)
+		idx++
 	}
 
 	structs, err := q.SelectAllFrom(ServiceSoftwareVersionsTable, tail.String(), args...)
