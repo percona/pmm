@@ -801,7 +801,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    "B",
+			Condition:    "A",
 			NoDataState:  "NoData",
 			ExecErrState: "Alerting",
 			Data: []services.Data{
@@ -809,43 +809,11 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 					RefID:         "A",
 					DatasourceUID: metricsDatasourceUID,
 					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 60, To: 0},
+					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
 					Model: services.Model{
 						Expr:    expr,
 						RefID:   "A",
 						Instant: true,
-					},
-				},
-				{
-					RefID:         "B",
-					DatasourceUID: ServerSideDataSource,
-					Model: services.Model{
-						RefID: "B",
-						Type:  "math",
-						Datasource: services.Datasource{
-							UID:  ServerSideDataSource,
-							Type: "__expr__",
-						},
-						Conditions: []services.Condition{
-							{
-								Type: "query",
-								Evaluator: services.Evaluator{
-									Params: []int{3},
-									Type:   "gt",
-								},
-								Operator: services.Operator{
-									Type: "and",
-								},
-								Query: services.Query{
-									Params: []string{"A"},
-								},
-								Reducer: services.Reducer{
-									Type: "last",
-								},
-							},
-						},
-						Expression: "!is_null($A)",
-						Reducer:    "count",
 					},
 				},
 			},

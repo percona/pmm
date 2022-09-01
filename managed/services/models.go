@@ -12,19 +12,9 @@ type RelativeTimeRange struct {
 	To   int `json:"to"`
 }
 type Model struct {
-	RefID        string      `json:"refId"`
-	Hide         bool        `json:"hide"`
-	EditorMode   string      `json:"editorMode"`
-	Expr         string      `json:"expr"`
-	LegendFormat string      `json:"legendFormat"`
-	Range        bool        `json:"range"`
-	Instant      bool        `json:"instant"`
-	Exemplar     bool        `json:"exemplar"`
-	Type         string      `json:"type"`
-	Datasource   Datasource  `json:"datasource"`
-	Conditions   []Condition `json:"conditions"`
-	Expression   string      `json:"expression"`
-	Reducer      string      `json:"reducer"`
+	RefID   string `json:"refId"`
+	Expr    string `json:"expr"`
+	Instant bool   `json:"instant"`
 }
 type Datasource struct {
 	UID  string `json:"uid"`
