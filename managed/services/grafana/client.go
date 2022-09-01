@@ -423,39 +423,6 @@ func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, 
 	return folder, nil
 }
 
-func (c *Client) CreateNotificationPolicy(ctx context.Context, ruleId string, contactPoints []string) error {
-	grafanaClient, err := c.createGrafanaClient(ctx)
-	if err != nil {
-		return err // TODO
-	}
-
-	policyTree, err := grafanaClient.NotificationPolicyTree()
-	if err != nil {
-		return err // TODO
-	}
-
-	for _, cp := range contactPoints {
-		policyTree.Routes = append(policyTree.Routes, gapi.SpecificPolicy{
-			Receiver: cp,
-			GroupBy:  nil,
-			ObjectMatchers: gapi.Matchers{
-				{
-					Type:  gapi.MatchEqual,
-					Name:  "rule_id",
-					Value: ruleId,
-				},
-			},
-			Continue: true,
-		})
-	}
-
-	if err := grafanaClient.SetNotificationPolicyTree(&policyTree); err != nil {
-		return errors.Wrap(err, "failed to create notification policy")
-	}
-
-	return nil
-}
-
 func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {

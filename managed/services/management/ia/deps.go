@@ -25,8 +25,9 @@ import (
 
 //go:generate ../../../../bin/mockery -name=alertManager -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=vmAlert -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=templatesService -case=snake -inpkg -testonly
 
-// alertManager is is a subset of methods of alertmanager.Service used by this package.
+// alertManager is a subset of methods of alertmanager.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type alertManager interface {
 	GetAlerts(ctx context.Context, params *services.FilterParams) ([]*ammodels.GettableAlert, error)

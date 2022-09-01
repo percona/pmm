@@ -29,5 +29,4 @@ type grafanaClient interface {
 	CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error
 	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
 	GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error)
-	CreateNotificationPolicy(ctx context.Context, ruleId string, contactPoints []string) error
 }

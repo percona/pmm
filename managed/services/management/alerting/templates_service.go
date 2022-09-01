@@ -860,9 +860,6 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err // TODO
 	}
 
-	// if err = s.grafanaClient.CreateNotificationPolicy(ctx, ruleID, req.ContactPoints); err != nil {
-	// 	return nil, err // TODO
-	// }
 	return &alerting.CreateRuleResponse{}, nil
 }
 

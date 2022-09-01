@@ -30,20 +30,6 @@ func (_m *mockGrafanaClient) CreateAlertRule(ctx context.Context, folderName str
 	return r0
 }
 
-// CreateNotificationPolicy provides a mock function with given fields: ctx, ruleId, contactPoints
-func (_m *mockGrafanaClient) CreateNotificationPolicy(ctx context.Context, ruleId string, contactPoints []string) error {
-	ret := _m.Called(ctx, ruleId, contactPoints)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
-		r0 = rf(ctx, ruleId, contactPoints)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // GetDatasourceUIDByID provides a mock function with given fields: ctx, id
 func (_m *mockGrafanaClient) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
 	ret := _m.Called(ctx, id)
