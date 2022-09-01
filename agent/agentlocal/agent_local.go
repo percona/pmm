@@ -347,9 +347,9 @@ var errSocketOrPortRequired = errors.New("socketOrPortRequired")
 func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 	if s.cfg.ListenSocket != "" {
 		l.Infof("Starting local API server on unix:%s", s.cfg.ListenSocket)
-		l, err := net.Listen("unix", s.cfg.ListenSocket)
+		listener, err := net.Listen("unix", s.cfg.ListenSocket)
 		if err != nil {
-			return l, err
+			return listener, err
 		}
 
 		err = os.Chmod(s.cfg.ListenSocket, 0o770) //nolint:gosec
@@ -357,7 +357,7 @@ func (s *Server) getListener(l *logrus.Entry) (net.Listener, error) {
 			s.l.Panic(err)
 		}
 
-		return l, nil
+		return listener, nil
 	}
 
 	if s.cfg.ListenAddress != "" && s.cfg.ListenPort != 0 {

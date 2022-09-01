@@ -151,6 +151,8 @@ func main() {
 	}
 }
 
+const lookupTimeout = 1 * time.Second
+
 // findSocketOrPort detects if pmm-agent is listening on socket or port.
 // The arguments are used for testing purposes and can be left empty.
 func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
@@ -164,7 +166,7 @@ func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 		localPort = agentlocal.DefaultPMMAgentListenPort
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), lookupTimeout)
 	defer cancel()
 
 	// We make the channels buffered with size 1 to avoid goroutine leaks
