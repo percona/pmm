@@ -741,7 +741,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	paramsDefinitions, err := models.ConvertParamsDefinitions(template.Params)
 	if err != nil {
-		return nil, err // TODO
+		return nil, err
 	}
 
 	paramsValues, err := convertParamsValuesToModel(req.Params)
@@ -770,7 +770,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		case alerting.FilterType_MISMATCH:
 			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
 		default:
-			return nil, errors.New("todo") // TODO
+			return nil, errors.Errorf("unknown filter type: %T", filter)
 		}
 	}
 
@@ -794,7 +794,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	}
 
 	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
-	labels["ia"] = "1" // TODO
+	labels["percona_alerting"] = "1" // TODO: do we actually need it?
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
 
