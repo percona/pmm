@@ -15,6 +15,9 @@
 
 package services
 
+// This file contains grafana alerting API models.
+
+// Rule represents grafana alerting rule.
 type Rule struct {
 	GrafanaAlert GrafanaAlert      `json:"grafana_alert"`
 	For          string            `json:"for"`
@@ -22,41 +25,20 @@ type Rule struct {
 	Labels       map[string]string `json:"labels"`
 }
 
+// RelativeTimeRange defines grafana API time range.
 type RelativeTimeRange struct {
 	From int `json:"from"`
 	To   int `json:"to"`
 }
+
+// Model represents grafana query model.
 type Model struct {
 	RefID   string `json:"refId"`
 	Expr    string `json:"expr"`
 	Instant bool   `json:"instant"`
 }
-type Datasource struct {
-	UID  string `json:"uid"`
-	Type string `json:"type"`
-}
-type Evaluator struct {
-	Params []int  `json:"params"`
-	Type   string `json:"type"`
-}
-type Operator struct {
-	Type string `json:"type"`
-}
-type Query struct {
-	Params []string `json:"params"`
-}
-type Reducer struct {
-	Params []interface{} `json:"params"`
-	Type   string        `json:"type"`
-}
-type Condition struct {
-	Type      string    `json:"type"`
-	Evaluator Evaluator `json:"evaluator"`
-	Operator  Operator  `json:"operator"`
-	Query     Query     `json:"query"`
-	Reducer   Reducer   `json:"reducer"`
-}
 
+// Data represents grafana API alert rule data.
 type Data struct {
 	RefID             string            `json:"refId"`
 	DatasourceUID     string            `json:"datasourceUid"`
@@ -64,6 +46,8 @@ type Data struct {
 	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange,omitempty"`
 	Model             Model             `json:"model,omitempty"`
 }
+
+// GrafanaAlert represent grafana alerting rule.
 type GrafanaAlert struct {
 	Title        string `json:"title"`
 	Condition    string `json:"condition"`
