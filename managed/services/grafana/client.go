@@ -45,6 +45,8 @@ import (
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
 
+const defaultEvaluationInterval = time.Minute
+
 // Client represents a client for Grafana API.
 type Client struct {
 	addr string
@@ -381,7 +383,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	group.Rules = append(group.Rules, b)
 
 	if group.Interval == "" {
-		group.Interval = rule.For
+		group.Interval = defaultEvaluationInterval.String()
 	}
 
 	body, err := json.Marshal(group)
