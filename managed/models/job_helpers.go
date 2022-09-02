@@ -38,6 +38,7 @@ func FindJobByID(q *reform.Querier, id string) (*Job, error) {
 	}
 
 	res := &Job{ID: id}
+
 	switch err := q.Reload(res); err {
 	case nil:
 		return res, nil
