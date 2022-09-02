@@ -34,7 +34,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
-	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -242,11 +241,9 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 			newSharedN++
 
 			c.Tables = p.Tables
-			c.Query, c.IsQueryTruncated = p.Query, p.IsQueryTruncated
+			c.Query = p.Query
 		} else {
 			newN++
-
-			c.Query, c.IsQueryTruncated = truncate.Query(c.Query)
 		}
 
 		current[c.QueryID] = c
