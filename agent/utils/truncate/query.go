@@ -27,3 +27,8 @@ func Query(q string) (query string, truncated bool) {
 	// copy MySQL behavior
 	return string(runes[:maxQueryLength-4]) + " ...", true
 }
+
+// Truncate invalid UTF-8 chars.
+func InvalidUTF8Chars(q string) string {
+	return string([]rune(q))
+}

@@ -416,7 +416,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			mb.Common.Example = v.Example.Query
+			mb.Common.Example = truncate.InvalidUTF8Chars(v.Example.Query)
 			mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}

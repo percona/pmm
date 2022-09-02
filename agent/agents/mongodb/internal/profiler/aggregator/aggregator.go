@@ -265,7 +265,7 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				AgentType:           inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
-				Example:             v.Query,
+				Example:             truncate.InvalidUTF8Chars(v.Query),
 				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          float32(v.Count),

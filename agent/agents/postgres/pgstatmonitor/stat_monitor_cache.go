@@ -166,7 +166,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
-				c.Example = example
+				c.Example = truncate.InvalidUTF8Chars(example)
 			}
 		}
 

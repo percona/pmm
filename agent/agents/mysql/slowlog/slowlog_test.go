@@ -51,7 +51,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 			"example": {
 				Metrics: &event.Metrics{},
 				Example: &event.Example{
-					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿��\\ud83d�'",
+					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				},
 			},
 		},
