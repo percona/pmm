@@ -27,6 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -34,8 +35,9 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMySQLBackupAndRestore   = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoDBBackupAndRestore = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
 )
 
 const (
@@ -149,7 +151,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 		}
 	case models.MongoDBBackupJob:
 		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
-			job.Data.MongoDBBackup.Mode, locationConfig); err != nil {
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig); err != nil {
 			return errors.WithStack(err)
 		}
 	case models.MySQLRestoreBackupJob:
@@ -364,10 +366,21 @@ func (s *JobsService) StartMongoDBBackupJob(
 	name string,
 	dbConfig *models.DBConfig,
 	mode models.BackupMode,
+	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mongodb backup", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
+	var err error
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb logical backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
 		return err
 	}
 
@@ -379,6 +392,9 @@ func (s *JobsService) StartMongoDBBackupJob(
 		Port:       int32(dbConfig.Port),
 		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
+	}
+	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
+		return err
 	}
 
 	switch {
@@ -468,10 +484,21 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	dbConfig *models.DBConfig,
+	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-		"mongodb restore", pmmAgentMinVersionForMongoDBBackupAndRestore); err != nil {
+	var err error
+	switch dataModel {
+	case models.PhysicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb physical restore", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
+	case models.LogicalDataModel:
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb logical restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
+	default:
+		err = errors.Errorf("unknown data model: %s", dataModel)
+	}
+	if err != nil {
 		return err
 	}
 
@@ -546,5 +573,16 @@ func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationCo
 		SecretKey:    config.SecretKey,
 		BucketName:   config.BucketName,
 		BucketRegion: config.BucketRegion,
+	}
+}
+
+func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+	switch model {
+	case models.PhysicalDataModel:
+		return backupv1beta1.DataModel_PHYSICAL, nil
+	case models.LogicalDataModel:
+		return backupv1beta1.DataModel_LOGICAL, nil
+	default:
+		return 0, errors.Errorf("unknown data model: %s", model)
 	}
 }
