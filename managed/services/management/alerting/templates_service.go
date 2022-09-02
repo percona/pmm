@@ -713,15 +713,15 @@ func convertParamDefinitions(l *logrus.Entry, params []alert.Parameter) ([]*aler
 // CreateRule creates alert rule from the given template.
 func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
 	if req.TemplateName == "" {
-		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.") // TODO
+		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.")
 	}
 
 	if req.FolderUid == "" {
-		return nil, status.Error(codes.InvalidArgument, "Folder UID should be specified")
+		return nil, status.Error(codes.InvalidArgument, "Folder UID should be specified.")
 	}
 
 	if req.Group == "" {
-		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified")
+		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
 	folder, err := s.grafanaClient.GetFolderByUID(ctx, req.FolderUid)
@@ -729,7 +729,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // TODO
+	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
 	if err != nil {
 		return nil, err
 	}
@@ -935,6 +935,8 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values mo
 			if v.Max != nil && pointer.GetFloat64(v.Max) < fv {
 				return status.Errorf(codes.InvalidArgument, "Parameter %s value is greater than required maximum.", d.Name)
 			}
+		default:
+			// nothing
 		}
 	}
 

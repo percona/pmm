@@ -358,6 +358,7 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 	return c.deleteAPIKey(ctx, id, authHeaders)
 }
 
+// CreateAlertRule creates Grafana alert rule.
 func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
@@ -420,16 +421,17 @@ func validateDurations(intervalD, forD string) error {
 	}
 
 	if f < i {
-		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s)", forD, intervalD)
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s).", forD, intervalD)
 	}
 
 	return nil
 }
 
+// GetDatasourceUIDByID returns grafana datasource UID.
 func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return "", err // TODO
+		return "", errors.Wrap(err, "failed to create grafana client")
 	}
 
 	ds, err := grafanaClient.DataSource(id)
@@ -439,10 +441,11 @@ func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, er
 	return ds.UID, nil
 }
 
+// GetFolderByUID returns folder with given UID.
 func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return nil, err // TODO
+		return nil, errors.Wrap(err, "failed to create grafana client")
 	}
 
 	folder, err := grafanaClient.FolderByUID(uid)
@@ -456,7 +459,7 @@ func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, 
 func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	headers := make(map[string]string, len(authHeaders))
@@ -466,7 +469,7 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 
 	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
 	if err != nil {
-		return nil, err // TODO
+		return nil, errors.WithStack(err)
 	}
 
 	return grafanaClient, nil
