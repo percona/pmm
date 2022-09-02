@@ -196,6 +196,34 @@ func TestPerformBackup(t *testing.T) {
 			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
 		})
+
+		t.Run("backup fails for empty service ID", func(t *testing.T) {
+			mockedVersioner.On("GetVersions", *agent.PMMAgentID, mock.Anything).Return(nil, nil).Once()
+
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  "",
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.PITR,
+			})
+			assert.ErrorContains(t, err, "Empty Service ID")
+			assert.Empty(t, artifactID)
+		})
+
+		t.Run("Incremental backups fails for MongoDB", func(t *testing.T) {
+			mockedVersioner.On("GetVersions", *agent.PMMAgentID, mock.Anything).Return(nil, nil).Once()
+
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  pointer.GetString(agent.ServiceID),
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.Incremental,
+			})
+			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
+			assert.Empty(t, artifactID)
+		})
 	})
 }
 
