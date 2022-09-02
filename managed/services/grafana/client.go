@@ -383,7 +383,12 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	group.Rules = append(group.Rules, b)
 
 	if group.Interval == "" {
+		// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
 		group.Interval = defaultEvaluationInterval.String()
+	}
+
+	if err = validateDurations(group.Interval, rule.For); err != nil {
+		return err
 	}
 
 	body, err := json.Marshal(group)
@@ -392,7 +397,30 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 	}
 
 	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
+		if err != nil {
+			if cErr, ok := errors.Cause(err).(*clientError); ok {
+				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateDurations(intervalD, forD string) error {
+	i, err := time.ParseDuration(intervalD)
+	if err != nil {
 		return err
+	}
+
+	f, err := time.ParseDuration(forD)
+	if err != nil {
+		return err
+	}
+
+	if f < i {
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s)", forD, intervalD)
 	}
 
 	return nil

@@ -825,7 +825,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	err = s.grafanaClient.CreateAlertRule(ctx, folder.Title, req.Group, &rule)
 	if err != nil {
-		return nil, err // TODO
+		return nil, err
 	}
 
 	return &alerting.CreateRuleResponse{}, nil
