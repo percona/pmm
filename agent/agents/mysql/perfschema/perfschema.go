@@ -333,11 +333,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if !m.disableQueryExamples && esh.SQLText != nil {
-				example, truncated := truncate.Query(*esh.SQLText)
-				if truncated {
-					b.Common.IsTruncated = truncated
-				}
-				b.Common.Example = example
+				b.Common.Example = *esh.SQLText
 				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				b.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}

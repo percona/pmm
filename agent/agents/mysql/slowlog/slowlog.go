@@ -416,16 +416,12 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query)
-			if truncated {
-				mb.Common.IsTruncated = truncated
-			}
-			mb.Common.Example = example
+			mb.Common.Example = v.Example.Query
 			mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
-		// If key has suffix _time or _wait than field is TimeMetrics.
+		// If key has suffix _time or _wait then field is TimeMetrics.
 		// For Boolean metrics exists only Sum.
 		// https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html
 		// TimeMetrics: query_time, lock_time, rows_sent, innodb_io_r_wait, innodb_rec_lock_wait, innodb_queue_wait.
