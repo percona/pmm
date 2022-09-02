@@ -242,11 +242,11 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 			newSharedN++
 
 			c.Tables = p.Tables
-			c.Query = p.Query
+			c.Query, c.IsQueryTruncated = p.Query, p.IsQueryTruncated
 		} else {
 			newN++
 
-			c.Query = truncate.InvalidUTF8Chars(c.Query)
+			c.Query, c.IsQueryTruncated = truncate.Query(c.Query)
 		}
 
 		current[c.QueryID] = c
