@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -249,135 +250,131 @@ func TestFindArtifactCompatibleServices(t *testing.T) { //nolint:maintidx
 	cSvc := NewCompatibilityService(db, nil)
 
 	t.Cleanup(func() {
-		_ = sqlDB.Close()
+		require.NoError(t, sqlDB.Close())
 	})
 
 	addRecord := func(records ...reform.Record) {
 		// Order matters
 		for _, record := range records {
 			err := db.Insert(record)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 	}
 	dropRecords := func(records ...reform.Record) {
 		// Order matters
 		for _, record := range records {
 			err := db.Delete(record)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}
 	}
 
-	t.Run("artifact not found", func(t *testing.T) {
-		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
-		t.Cleanup(func() {
-			dropRecords(serviceModel, nodeModel, locationModel)
+	for _, test := range []struct {
+		name               string
+		artifactIDToSearch string
+		artifact           models.Artifact
+		errString          string
+		expectEmptyResult  bool
+	}{
+		{
+			name:               "artifact not found",
+			artifactIDToSearch: "some_id",
+			artifact: models.Artifact{
+				ID:         "test_artifact_id",
+				Name:       " ",
+				Vendor:     "mysql",
+				DBVersion:  "8.0.25",
+				LocationID: "test_location_id",
+				ServiceID:  "test_service_id",
+				DataModel:  " ",
+				Mode:       " ",
+				Status:     " ",
+				Type:       " ",
+			},
+			errString:         "not found",
+			expectEmptyResult: true,
+		},
+		{
+			name:               "empty db version",
+			artifactIDToSearch: "test_artifact_id",
+			artifact: models.Artifact{
+				ID:         "test_artifact_id",
+				Name:       " ",
+				Vendor:     "mysql",
+				DBVersion:  "",
+				LocationID: "test_location_id",
+				ServiceID:  "test_service_id",
+				DataModel:  " ",
+				Mode:       " ",
+				Status:     " ",
+				Type:       " ",
+			},
+			errString:         "",
+			expectEmptyResult: false,
+		},
+		{
+			name:               "non-mysql db vendor",
+			artifactIDToSearch: "test_artifact_id",
+			artifact: models.Artifact{
+				ID:         "test_artifact_id",
+				Name:       " ",
+				Vendor:     "mongodb",
+				DBVersion:  "8.0.25",
+				LocationID: "test_location_id",
+				ServiceID:  "test_service_id",
+				DataModel:  " ",
+				Mode:       " ",
+				Status:     " ",
+				Type:       " ",
+			},
+			errString:         "",
+			expectEmptyResult: false,
+		},
+		{
+			name:               "no software versions data for mysql",
+			artifactIDToSearch: "test_artifact_id",
+			artifact: models.Artifact{
+				ID:         "test_artifact_id",
+				Name:       " ",
+				Vendor:     "mysql",
+				DBVersion:  "8.0.25",
+				LocationID: "test_location_id",
+				ServiceID:  "test_service_id",
+				DataModel:  " ",
+				Mode:       " ",
+				Status:     " ",
+				Type:       " ",
+			},
+			errString:         "",
+			expectEmptyResult: true,
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
+			t.Cleanup(func() {
+				dropRecords(serviceModel, nodeModel, locationModel)
+			})
+
+			addRecord(&test.artifact)
+			t.Cleanup(func() {
+				dropRecords(&test.artifact)
+			})
+
+			res, err := cSvc.FindArtifactCompatibleServices(context.Background(), test.artifactIDToSearch)
+
+			if test.errString != "" {
+				assert.ErrorContains(t, err, test.errString)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			if test.expectEmptyResult {
+				assert.Empty(t, res)
+			} else {
+				assert.ElementsMatch(t, []*models.Service{serviceModel}, res)
+			}
+
 		})
-
-		artifactModel := models.Artifact{
-			ID:         "test_artifact_id",
-			Name:       " ",
-			Vendor:     "mysql",
-			DBVersion:  "8.0.25",
-			LocationID: "test_location_id",
-			ServiceID:  "test_service_id",
-			DataModel:  " ",
-			Mode:       " ",
-			Status:     " ",
-			Type:       " ",
-		}
-		addRecord(&artifactModel)
-		t.Cleanup(func() {
-			dropRecords(&artifactModel)
-		})
-
-		res, err := cSvc.FindArtifactCompatibleServices(context.Background(), "some_id")
-		assert.Nil(t, res)
-		assert.Contains(t, err.Error(), "not found")
-	})
-
-	t.Run("empty db version", func(t *testing.T) {
-		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
-		t.Cleanup(func() {
-			dropRecords(serviceModel, nodeModel, locationModel)
-		})
-
-		artifactModel := models.Artifact{
-			ID:         "test_artifact_id",
-			Name:       " ",
-			Vendor:     "mysql",
-			DBVersion:  "",
-			LocationID: "test_location_id",
-			ServiceID:  "test_service_id",
-			DataModel:  " ",
-			Mode:       " ",
-			Status:     " ",
-			Type:       " ",
-		}
-		addRecord(&artifactModel)
-		t.Cleanup(func() {
-			dropRecords(&artifactModel)
-		})
-
-		res, err := cSvc.FindArtifactCompatibleServices(context.Background(), "test_artifact_id")
-		assert.NoError(t, err)
-		assert.ElementsMatch(t, []*models.Service{serviceModel}, res)
-	})
-
-	t.Run("non-mysql db vendor", func(t *testing.T) {
-		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
-		t.Cleanup(func() {
-			dropRecords(serviceModel, nodeModel, locationModel)
-		})
-
-		artifactModel := models.Artifact{
-			ID:         "test_artifact_id",
-			Name:       " ",
-			Vendor:     "mongodb",
-			DBVersion:  "8.0.25",
-			LocationID: "test_location_id",
-			ServiceID:  "test_service_id",
-			DataModel:  " ",
-			Mode:       " ",
-			Status:     " ",
-			Type:       " ",
-		}
-		addRecord(&artifactModel)
-		t.Cleanup(func() {
-			dropRecords(&artifactModel)
-		})
-
-		res, err := cSvc.FindArtifactCompatibleServices(context.Background(), "test_artifact_id")
-		assert.NoError(t, err)
-		assert.ElementsMatch(t, []*models.Service{serviceModel}, res)
-	})
-
-	t.Run("no software versions data", func(t *testing.T) {
-		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
-		t.Cleanup(func() {
-			dropRecords(serviceModel, nodeModel, locationModel)
-		})
-
-		artifactModel := models.Artifact{
-			ID:         "test_artifact_id",
-			Name:       " ",
-			Vendor:     "mysql",
-			DBVersion:  "8.0.25",
-			LocationID: "test_location_id",
-			ServiceID:  "test_service_id",
-			DataModel:  " ",
-			Mode:       " ",
-			Status:     " ",
-			Type:       " ",
-		}
-		addRecord(&artifactModel)
-		t.Cleanup(func() {
-			dropRecords(&artifactModel)
-		})
-
-		res, err := cSvc.FindArtifactCompatibleServices(context.Background(), "test_artifact_id")
-		assert.NoError(t, err)
-		assert.Empty(t, res)
-	})
+	}
 
 	t.Run("find several services", func(t *testing.T) {
 		serviceModel, nodeModel, locationModel := setupSoftwareTest(t, db)
@@ -529,11 +526,11 @@ func setupSoftwareTest(t *testing.T, db *reform.DB) (*models.Service, *models.No
 		NodeID:      "test_node_id",
 	}
 	err := db.Insert(&locationModel)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = db.Insert(&nodeModel)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	err = db.Insert(&serviceModel)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Order matters
 	return &serviceModel, &nodeModel, &locationModel

@@ -29,7 +29,7 @@ import (
 
 func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	if id == "" {
-		panic("empty Location ID") // Why should we panic here?
+		return status.Error(codes.InvalidArgument, "empty Location ID.")
 	}
 
 	location := &BackupLocation{ID: id}
@@ -45,7 +45,7 @@ func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 
 func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	if name == "" {
-		panic("empty Location Name") // Why should we panic here?
+		return status.Error(codes.InvalidArgument, "empty Location Name.")
 	}
 
 	var location BackupLocation

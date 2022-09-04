@@ -118,7 +118,6 @@ func (u *UpdateServiceSoftwareVersionsParams) Validate() error {
 			return NewInvalidArgumentError("empty version for software name %q", sv.Name)
 		}
 	}
-
 	return nil
 }
 
@@ -136,9 +135,11 @@ func UpdateServiceSoftwareVersions(
 	if err != nil {
 		return nil, err
 	}
+
 	if params.NextCheckAt != nil {
 		row.NextCheckAt = *params.NextCheckAt
 	}
+
 	if params.SoftwareVersions != nil {
 		row.SoftwareVersions = params.SoftwareVersions
 	}

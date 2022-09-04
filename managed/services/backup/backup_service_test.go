@@ -62,6 +62,11 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 func TestBackup(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
 	mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
@@ -69,12 +74,8 @@ func TestBackup(t *testing.T) {
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
-
-	t.Cleanup(func() {
-		_ = sqlDB.Close()
-	})
-
 	agent := setup(t, db.Querier, "test-service")
+
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
@@ -137,16 +138,16 @@ func TestBackup(t *testing.T) {
 func TestRestoreBackup(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
-
-	t.Cleanup(func() {
-		_ = sqlDB.Close()
-	})
-
 	agent := setup(t, db.Querier, "test-service")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
