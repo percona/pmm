@@ -35,7 +35,6 @@ services:
     container_name: pmm-agent_mysql
     command: >
       --sql-mode="ANSI_QUOTES"
-      --performance_schema_max_sql_text_length=102400
       --performance-schema --innodb_monitor_enable=all
       --slow_query_log --slow_query_log_file=/mysql/slowlogs/slow.log --long_query_time=0
     ports:
