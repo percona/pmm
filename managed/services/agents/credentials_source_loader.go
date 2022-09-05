@@ -94,8 +94,8 @@ func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID
 }
 
 func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseCredentialsSourceRequest, error) {
-	inventorypbServiceType, serviceTypeExist := serviceTypes[serviceType]
-	if !serviceTypeExist {
+	inventorypbServiceType, ok := serviceTypes[serviceType]
+	if !ok {
 		return nil, errors.Errorf("unhandled service type %s", serviceType)
 	}
 

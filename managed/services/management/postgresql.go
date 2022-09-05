@@ -18,7 +18,6 @@ package management
 import (
 	"context"
 	"fmt"
-
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -52,16 +51,20 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
 	res := &managementpb.AddPostgreSQLResponse{}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		if req.CredentialsSource != "" {
-			result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.PostgreSQLServiceType)
-			if err != nil {
-				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
-			}
-
-			s.applyCredentialsSource(req, result)
+	if req.CredentialsSource != "" {
+		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.PostgreSQLServiceType)
+		if err != nil {
+			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 		}
 
+		s.applyCredentialsSource(req, result)
+	}
+
+	if req.Username == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid field Username: value '' must not be an empty string")
+	}
+
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
