@@ -558,8 +558,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr)
-
+		job, err := jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		if err != nil {
+			return err
+		}
 	case *agentpb.StartJobRequest_MongodbRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {

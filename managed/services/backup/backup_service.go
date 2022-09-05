@@ -28,6 +28,11 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
+var (
+	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters
+	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
+
+)
 
 // Service represents core logic for db backup.
 type Service struct {
@@ -95,7 +100,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			jobType = models.MySQLBackupJob
 
 			if params.DataModel != models.PhysicalDataModel {
-				return errors.New("the only supported data model for mySQL is physical")
+				return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
 			}
 			if params.Mode != models.Snapshot {
 				return errors.New("the only supported backup mode for mySQL is snapshot")
@@ -103,9 +108,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		case models.MongoDBServiceType:
 			jobType = models.MongoDBBackupJob
 
-			if params.DataModel != models.LogicalDataModel {
-				return errors.New("the only supported data model for mongoDB is logical")
+			if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
+				return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
 			}
+
 			if params.Mode != models.Snapshot && params.Mode != models.PITR {
 				return errors.New("the only supported backups mode for mongoDB is snapshot and PITR")
 			}
@@ -153,7 +159,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		}
 
-		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.Retries, params.RetryInterval); err != nil {
+		if job, dbConfig, err = s.prepareBackupJob(tx.Querier, svc, artifact.ID, jobType, params.Mode, params.DataModel, params.Retries, params.RetryInterval); err != nil {
 			return err
 		}
 		return nil
@@ -173,7 +179,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, params.Mode, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -216,6 +222,7 @@ type prepareRestoreJobParams struct {
 	LocationModel *models.BackupLocation
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
+	DataModel    models.DataModel
 }
 
 // RestoreBackup starts restore backup job.
@@ -394,6 +401,7 @@ func (s *Service) prepareRestoreJob(
 		LocationModel: location,
 		ServiceType:   service.ServiceType,
 		DBConfig:      dbConfig,
+		DataModel:    artifact.DataModel,
 	}, nil
 }
 
@@ -422,6 +430,7 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			0,
 			params.ArtifactName,
 			params.DBConfig,
+			params.DataModel,
 			locationConfig); err != nil {
 			return err
 		}
@@ -443,6 +452,7 @@ func (s *Service) prepareBackupJob(
 	artifactID string,
 	jobType models.JobType,
 	mode models.BackupMode,
+	dataModel models.DataModel,
 	retries uint32,
 	retryInterval time.Duration,
 ) (*models.Job, *models.DBConfig, error) {
@@ -475,6 +485,7 @@ func (s *Service) prepareBackupJob(
 				ServiceID:  service.ServiceID,
 				ArtifactID: artifactID,
 				Mode:       mode,
+				DataModel:  dataModel,
 			},
 		}
 	case models.MySQLRestoreBackupJob,

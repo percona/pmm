@@ -14,6 +14,7 @@ import (
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 
 	_ "github.com/percona/pmm/api/inventorypb"
+	_ "github.com/percona/pmm/api/managementpb/backup"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

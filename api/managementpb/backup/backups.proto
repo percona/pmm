@@ -34,6 +34,8 @@ message StartBackupRequest {
   google.protobuf.Duration retry_interval = 5;
   // How many times to retry a failed backup before giving up.
   uint32 retries = 6;
+  // DataModel represents the data model used for the backup.
+  DataModel data_model = 7;
 }
 
 message StartBackupResponse {
@@ -101,7 +103,7 @@ message ScheduledBackup {
   uint32 retries = 12;
   // If scheduling is enabled.
   bool enabled = 13;
-  // Backup data model.
+  // Backup data model (physical or logical).
   DataModel data_model = 14;
   // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
   string vendor = 15;
@@ -150,6 +152,9 @@ message ScheduleBackupRequest {
   uint32 retention = 10;
   // Backup mode.
   BackupMode mode = 11;
+
+  // Backup data model (physical or logical).
+  DataModel data_model = 12;
 }
 
 message ScheduleBackupResponse {
