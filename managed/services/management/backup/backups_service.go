@@ -114,7 +114,10 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 	case models.MySQLServiceType:
 		dataModel = models.PhysicalDataModel
 	case models.MongoDBServiceType:
-		dataModel = models.LogicalDataModel
+		dataModel, err = convertModelToBackupModel(req.DataModel)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+		}
 	}
 
 	artifactID, err := s.backupService.PerformBackup(ctx, backup.PerformBackupParams{
@@ -229,7 +232,10 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backupv1beta1.
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			backupParams.DataModel = models.LogicalDataModel
+			backupParams.DataModel, err = convertModelToBackupModel(req.DataModel)
+			if err != nil {
+				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+			}
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)
@@ -630,6 +636,17 @@ func convertModelToBackupMode(mode models.BackupMode) (backupv1beta1.BackupMode,
 		return backupv1beta1.BackupMode_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
+	}
+}
+
+func convertModelToBackupModel(dataModel backupv1beta1.DataModel) (models.DataModel, error) {
+	switch dataModel {
+	case backupv1beta1.DataModel_LOGICAL:
+		return models.LogicalDataModel, nil
+	case backupv1beta1.DataModel_PHYSICAL:
+		return models.PhysicalDataModel, nil
+	default:
+		return "", errors.Errorf("unknown backup mode: %s", dataModel)
 	}
 }
 
