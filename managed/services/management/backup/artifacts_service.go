@@ -33,16 +33,18 @@ type ArtifactsService struct {
 	l          *logrus.Entry
 	db         *reform.DB
 	removalSVC removalService
+	storageSVC storageService
 
 	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storageSVC storageService) *ArtifactsService {
 	return &ArtifactsService{
 		l:          logrus.WithField("component", "management/backup/artifacts"),
 		db:         db,
 		removalSVC: removalSVC,
+		storageSVC: storageSVC,
 	}
 }
 
@@ -109,6 +111,33 @@ func (s *ArtifactsService) DeleteArtifact(
 	}
 
 	return &backupv1beta1.DeleteArtifactResponse{}, nil
+}
+
+// ListPITRTimelines lists available PITR timelines/time-ranges (for MongoDB)
+func (s *ArtifactsService) ListPITRTimelines(
+	ctx context.Context,
+	_ *backupv1beta1.ListPITRTimelinesRequest,
+) (*backupv1beta1.ListPITRTimelinesResponse, error) {
+	q := s.db.Querier
+
+	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{})
+	if err != nil {
+		return nil, err
+	}
+
+	locationIDs := make([]string, 0, len(artifacts))
+	for _, b := range artifacts {
+		locationIDs = append(locationIDs, b.LocationID)
+	}
+
+	timelines, err := s.storageSVC.ListPITRTimelines(ctx, locationIDs)
+	if err != nil {
+		return nil, err
+	}
+	// todo(idoqo), if fetching by individual ID, group them here
+	return &backupv1beta1.ListPITRTimelinesResponse{
+		Timelines: timelines,
+	}, nil
 }
 
 func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {

@@ -18,6 +18,7 @@ package minio
 
 import (
 	"context"
+	"strings"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -30,7 +31,8 @@ import (
 
 // Service is wrapper around minio client.
 type Service struct {
-	l *logrus.Entry
+	l           *logrus.Entry
+	minioClient minioClient
 }
 
 // New creates new minio service.
@@ -40,9 +42,14 @@ func New() *Service {
 	}
 }
 
+type FileInfo struct {
+	Name string // with path
+	Size int64
+}
+
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
 func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, name string) (bool, error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return false, err
 	}
@@ -51,7 +58,7 @@ func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretK
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
 func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, name string) (string, error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +67,7 @@ func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, se
 
 // RemoveRecursive removes objects recursively from storage with given prefix.
 func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return err
 	}
@@ -111,7 +118,87 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 	return nil
 }
 
-func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
+// List provides an abstraction over the minio API to list all objects in the bucket
+// It scans path with prefix and returns all files with given suffix.
+// Both prefix and suffix can be omitted.
+func (s *Service) List(ctx context.Context, bucketName, prefix, suffix string) (files []FileInfo, rerr error) {
+	// prfx := path.Join(s.opts.Prefix, prefix)
+	prfx := prefix
+	if prfx != "" && !strings.HasSuffix(prfx, "/") {
+		prfx = prfx + "/"
+	}
+
+	var g errgroup.Group
+
+	g.Go(func() error {
+		options := minio.ListObjectsOptions{
+			Prefix:    prfx,
+			Recursive: true,
+		}
+
+		for object := range s.minioClient.ListObjects(ctx, bucketName, options) {
+			if object.Err != nil {
+				return errors.WithStack(object.Err)
+			}
+			f := object.Key
+			f = strings.TrimPrefix(f, options.Prefix)
+			if len(f) == 0 {
+				continue
+			}
+			if f[0] == '/' {
+				f = f[1:]
+			}
+
+			if strings.HasSuffix(f, suffix) {
+				files = append(files, FileInfo{
+					Name: f,
+					Size: object.Size,
+				})
+			}
+		}
+		return nil
+	})
+
+	defer func() {
+		err := g.Wait()
+		if err == nil {
+			return
+		}
+
+		if rerr != nil {
+			rerr = errors.Wrapf(rerr, "listing objects error: %s", err.Error())
+		} else {
+			rerr = errors.WithStack(err)
+		}
+	}()
+
+	return files, nil
+}
+
+// FileStat returns file info. It returns error if file is empty or not exists.
+func (s *Service) FileStat(ctx context.Context, bucketName, name string) (FileInfo, error) {
+	file := FileInfo{}
+
+	stat, err := s.minioClient.StatObject(ctx, bucketName, name, minio.StatObjectOptions{})
+	if err != nil {
+		return file, err
+	}
+
+	if stat.IsDeleteMarker {
+		return file, errors.New("file has delete marker")
+	}
+
+	file.Name = name
+	file.Size = stat.Size
+
+	if file.Size == 0 {
+		return file, errors.New("file is empty")
+	}
+
+	return file, nil
+}
+
+func NewClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
 	url, err := models.ParseEndpoint(endpoint)
 	if err != nil {
 		return nil, err

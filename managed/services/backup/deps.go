@@ -21,12 +21,15 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=storagePath -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -86,4 +89,13 @@ type agentsRegistry interface {
 // versioner contains method for retrieving versions of different software.
 type versioner interface {
 	GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error)
+}
+
+type storagePath interface {
+	// FileStat returns file info. It returns error if file is empty or not exists.
+	FileStat(ctx context.Context, bucketName, name string) (minio.FileInfo, error)
+
+	// List scans path with prefix and returns all files with given suffix.
+	// Both prefix and suffix can be omitted.
+	List(ctx context.Context, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
 }
