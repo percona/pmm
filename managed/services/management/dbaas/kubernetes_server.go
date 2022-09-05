@@ -409,10 +409,26 @@ func (k kubernetesServer) GetKubernetesCluster(_ context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
+	safeKubeConfig := new(kubectlConfig)
+	err = yaml.Unmarshal([]byte(kubernetesCluster.KubeConfig), safeKubeConfig)
+	if err != nil {
+		return nil, err
+	}
+	for i, user := range safeKubeConfig.Users {
+		for j, env := range user.User.Exec.Env {
+			if env.Name == "AWS_ACCESS_KEY_ID" || env.Name == "AWS_SECRET_ACCESS_KEY" {
+				safeKubeConfig.Users[i].User.Exec.Env[j].Value = "<secret>"
+			}
+		}
+	}
+	kubeConfig, err := yaml.Marshal(safeKubeConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dbaasv1beta1.GetKubernetesClusterResponse{
 		KubeAuth: &dbaasv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
+			Kubeconfig: string(kubeConfig),
 		},
 	}, nil
 }
