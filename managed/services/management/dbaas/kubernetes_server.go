@@ -409,7 +409,7 @@ func (k kubernetesServer) GetKubernetesCluster(_ context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	safeKubeConfig := new(kubectlConfig)
+	safeKubeConfig := &kubectlConfig{}
 	err = yaml.Unmarshal([]byte(kubernetesCluster.KubeConfig), safeKubeConfig)
 	if err != nil {
 		return nil, err
