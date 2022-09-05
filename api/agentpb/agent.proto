@@ -11,6 +11,7 @@ import "google/rpc/status.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -520,6 +521,8 @@ message StartJobRequest {
     string name = 6;
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
+    // Backup data model (physical or logical).
+    backup.v1beta1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;

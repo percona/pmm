@@ -7,6 +7,7 @@ package backups
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // StartBackupReader is a Reader for the StartBackup structure.
@@ -137,10 +139,68 @@ type StartBackupBody struct {
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
+
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
 }
 
 // Validate validates this start backup body
 func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDataModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var startBackupBodyTypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		startBackupBodyTypeDataModelPropEnum = append(startBackupBodyTypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// StartBackupBodyDataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	StartBackupBodyDataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// StartBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
+	StartBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+
+	// StartBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
+	StartBackupBodyDataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *StartBackupBody) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startBackupBodyTypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *StartBackupBody) validateDataModel(formats strfmt.Registry) error {
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
+		return err
+	}
+
 	return nil
 }
 
