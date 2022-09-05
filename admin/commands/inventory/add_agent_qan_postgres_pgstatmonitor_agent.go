@@ -51,7 +51,7 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	ServiceID             string            `arg:"" help:"Service identifier"`
 	Username              string            `arg:"" optional:"" help:"PostgreSQL username for QAN agent"`
 	Password              string            `help:"PostgreSQL password for QAN agent"`
-	CustomLabels          map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels          map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck   bool              `help:"Skip connection check"`
 	QueryExamplesDisabled bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                   bool              `help:"Use TLS to connect to the database"`
