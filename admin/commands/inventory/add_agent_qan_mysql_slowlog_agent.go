@@ -68,7 +68,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	ServiceID            string            `arg:"" help:"Service identifier"`
 	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string            `help:"MySQL password for scraping metrics"`
-	CustomLabels         map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
