@@ -180,7 +180,7 @@ type kubectlConfig struct {
 	CurrentContext string                 `yaml:"current-context,omitempty"`
 	Clusters       []interface{}          `yaml:"clusters,omitempty"`
 	Contexts       []interface{}          `yaml:"contexts,omitempty"`
-	Preferences    map[string]interface{} `yaml:"preferences"`
+	Preferences    map[string]interface{} `yaml:"preferences,omitempty"`
 	Users          []*kubectlUserWithName `yaml:"users,omitempty"`
 }
 
