@@ -715,6 +715,9 @@ var databaseSchema = [][]string{
 			ADD COLUMN log_level VARCHAR`,
 	},
 	64: {
+		`UPDATE artifacts SET data_model = 'logical'`,
+	},
+	65: {
 		`CREATE TABLE user_flags (
 			id INTEGER NOT NULL,
 			tour_done BOOLEAN NOT NULL DEFAULT false,
