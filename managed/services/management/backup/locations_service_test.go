@@ -18,7 +18,9 @@ package backup
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
@@ -466,5 +468,64 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 }
 
 func TestListPITRTimelines(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	mockedS3 := &mockAwsS3{}
+	mockStorage := &mockStorageService{}
+
+	timelines := []*backupv1beta1.PITRTimeline{
+		{
+			Filename:       "2022.tar.gz",
+			ReplicaSet:     "rs0",
+			StartTimestamp: timestamppb.New(time.Now()),
+			EndTimestamp:   timestamppb.New(time.Now()),
+		},
+	}
+
+	mockStorage.On("ListPITRTimelines", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
+	svc := NewLocationsService(db, mockedS3, mockStorage)
+	var artifactID string
+	var locationID string
+
+	t.Run("add awsS3", func(t *testing.T) {
+		params := models.CreateBackupLocationParams{
+			Name:        gofakeit.Name(),
+			Description: "",
+		}
+		params.S3Config = &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		}
+		loc, err := models.CreateBackupLocation(db.Querier, params)
+		require.NoError(t, err)
+		require.NotEmpty(t, loc.ID)
+		locationID = loc.ID
+	})
+
+	t.Run("create artifact", func(t *testing.T) {
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "test_artifact",
+			Vendor:     "test_vendor",
+			LocationID: locationID,
+			ServiceID:  "test_service",
+			Mode:       models.PITR,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.PendingBackupStatus,
+		})
+		assert.NoError(t, err)
+		assert.NotEmpty(t, artifact.ID)
+		artifactID = artifact.ID
+	})
+
+	response, err := svc.ListPITRTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+		ArtifactId: artifactID,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, response)
+	assert.Len(t, response.Timelines, 1)
 }
