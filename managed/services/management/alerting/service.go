@@ -800,7 +800,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
 			Condition:    "A",
-			NoDataState:  "NoData",
+			NoDataState:  "OK",
 			ExecErrState: "Alerting",
 			Data: []services.Data{
 				{
