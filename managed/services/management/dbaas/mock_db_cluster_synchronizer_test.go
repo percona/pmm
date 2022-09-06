@@ -29,7 +29,7 @@ func (_m *mockDbClusterSynchronizer) SyncDBClusters(ctx context.Context, kuberne
 	return r0
 }
 
-// WaitForDBClusterDeletion provides a mock function with given fields: cluster
+// WatchDBClusterDeletion provides a mock function with given fields: cluster
 func (_m *mockDbClusterSynchronizer) WatchDBClusterDeletion(cluster *models.DBCluster) {
 	_m.Called(cluster)
 }
