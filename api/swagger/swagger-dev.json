@@ -26312,7 +26312,7 @@
           "Service"
         ],
         "summary": "Remove Service",
-        "operationId": "RemoveServiceMixin2",
+        "operationId": "RemoveServiceMixin3",
         "parameters": [
           {
             "name": "body",
@@ -27085,7 +27085,7 @@
           "Backups"
         ],
         "summary": "GetLogs returns logs for provided artifact.",
-        "operationId": "GetLogsMixin5",
+        "operationId": "GetLogsMixin6",
         "parameters": [
           {
             "name": "body",
@@ -31882,6 +31882,145 @@
         }
       }
     },
+    "/v1/user": {
+      "get": {
+        "description": "Retrieve user details from PMM server",
+        "tags": [
+          "User"
+        ],
+        "summary": "Get user details",
+        "operationId": "GetUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
+                },
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Update details of given user in PMM server",
+        "tags": [
+          "User"
+        ],
+        "summary": "Update user",
+        "operationId": "UpdateUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "title": "User ID",
+                  "x-order": 0
+                },
+                "product_tour_completed": {
+                  "type": "boolean",
+                  "title": "Product Tour",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/version": {
       "get": {
         "description": "Returns PMM Server versions.",
@@ -32022,6 +32161,9 @@
   "tags": [
     {
       "name": "Server"
+    },
+    {
+      "name": "User"
     },
     {
       "name": "Agents"

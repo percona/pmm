@@ -718,6 +718,16 @@ var databaseSchema = [][]string{
 		`UPDATE artifacts SET data_model = 'logical'`,
 	},
 	65: {
+		`CREATE TABLE user_flags (
+			id INTEGER NOT NULL,
+			tour_done BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
+	66: {
 		`CREATE TABLE db_clusters (
 			id VARCHAR NOT NULL,
 			cluster_type VARCHAR NOT NULL CHECK (cluster_type <> ''),
