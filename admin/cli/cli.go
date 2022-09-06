@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
-// Commands stores all commands, flags and arguments.
+// Commands stores all commands, flags and arguments for the "pmm-admin" binary.
 type Commands struct {
 	flags.GlobalFlags
 
@@ -55,6 +55,7 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return runGeneric(ctx, globals)
 }
 
+// PMMCommands stores all commands, flags and arguments for the "pmm" binary.
 type PMMCommands struct {
 	flags.GlobalFlags
 

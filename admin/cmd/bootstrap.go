@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// cmd package holds common logic used by commands
+// Package cmd holds common logic used by commands
 package cmd
 
 import (
@@ -38,6 +38,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// BootstrapPMMAdmin is run when starting "pmm-admin" binary.
 func BootstrapPMMAdmin() {
 	var opts cli.Commands
 	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm-admin")...)
@@ -49,6 +50,7 @@ func BootstrapPMMAdmin() {
 	processFinalError(err, bool(opts.JSON))
 }
 
+// BootstrapPMM is run when starting "pmm" binary.
 func BootstrapPMM() {
 	var opts cli.PMMCommands
 	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm")...)
@@ -63,7 +65,7 @@ func BootstrapPMM() {
 func configureLogger(opts flags.GlobalFlags) {
 	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
 	if opts.JSON {
-		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
+		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhauststruct // with levels and timestamps always present
 	}
 	if opts.EnableDebug {
 		logrus.SetLevel(logrus.DebugLevel)
