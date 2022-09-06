@@ -15,9 +15,7 @@
 // Server package holds the "pmm server" command
 package server
 
-import (
-	"github.com/percona/pmm/admin/commands"
-)
+import "github.com/percona/pmm/admin/commands"
 
 type InstallCommand struct{}
 

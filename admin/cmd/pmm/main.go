@@ -14,9 +14,7 @@
 
 package main
 
-import (
-	"github.com/percona/pmm/admin/cmd"
-)
+import "github.com/percona/pmm/admin/cmd"
 
 func main() {
 	cmd.BootstrapPMM()
