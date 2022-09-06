@@ -41,9 +41,10 @@ func TestCreateBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
+	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3)
+	svc := NewLocationsService(db, mockedS3, mockedStorage)
 	t.Run("add server config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
@@ -106,9 +107,10 @@ func TestListBackupLocations(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
+	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3)
+	svc := NewLocationsService(db, mockedS3, mockedStorage)
 
 	req1 := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
@@ -183,9 +185,10 @@ func TestChangeBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
+	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3)
+	svc := NewLocationsService(db, mockedS3, mockedStorage)
 	t.Run("update existing config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
@@ -283,7 +286,8 @@ func TestRemoveBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	svc := NewLocationsService(db, mockedS3)
+	mockedStorage := &mockStorageService{}
+	svc := NewLocationsService(db, mockedS3, mockedStorage)
 	req := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
 		PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
@@ -338,10 +342,11 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
+	mockStorage := &mockStorageService{}
 	mockedS3.On("BucketExists", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return(true, nil)
 
-	svc := NewLocationsService(db, mockedS3)
+	svc := NewLocationsService(db, mockedS3, mockStorage)
 
 	tableTests := []struct {
 		name     string
@@ -458,4 +463,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	}
+}
+
+func TestListPITRTimelines(t *testing.T) {
+
 }

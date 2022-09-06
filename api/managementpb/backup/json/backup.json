@@ -238,8 +238,9 @@
     "/v1/management/backup/Artifacts/ListPITRTimelines": {
       "post": {
         "tags": [
-          "Artifacts"
+          "Locations"
         ],
+        "summary": "ListPITRTimelines list the available MongoDB PITR timeranges in a given backup location",
         "operationId": "ListPITRTimelines",
         "parameters": [
           {
@@ -247,7 +248,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           }
         ],
@@ -261,24 +269,28 @@
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "title": "todo: this is mongo-specific, maybe move it to a separate proto file",
                     "properties": {
                       "end_timestamp": {
                         "type": "string",
                         "format": "date-time",
                         "title": "end_timestamp is the time of the last event in the PITR chunk",
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "filename": {
                         "type": "string",
                         "title": "Filename is the filename of the PITR oplog archive",
                         "x-order": 0
                       },
+                      "replica_set": {
+                        "type": "string",
+                        "title": "ReplicaSet is the name of the replica set that the backup was taken from",
+                        "x-order": 1
+                      },
                       "start_timestamp": {
                         "type": "string",
                         "format": "date-time",
                         "title": "start_timestamp is the time of the first event in the PITR chunk",
-                        "x-order": 1
+                        "x-order": 2
                       }
                     }
                   },

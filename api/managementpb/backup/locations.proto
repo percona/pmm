@@ -6,6 +6,7 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 // PMMServerLocationConfig represents file system config inside pmm-server.
 message PMMServerLocationConfig {
@@ -131,6 +132,27 @@ message TestLocationConfigRequest {
 
 message TestLocationConfigResponse {}
 
+message PITRTimeline {
+  // Filename is the filename of the PITR oplog archive
+  string filename = 1;
+  // ReplicaSet is the name of the replica set that the backup was taken from
+  string replica_set = 2;
+  // start_timestamp is the time of the first event in the PITR chunk
+  google.protobuf.Timestamp start_timestamp = 3;
+  // end_timestamp is the time of the last event in the PITR chunk
+  google.protobuf.Timestamp end_timestamp = 4;
+  // size is the size of the PITR backup
+}
+
+message ListPitrTimelinesRequest {
+  // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
+  string artifact_id = 1;
+}
+
+message ListPitrTimelinesResponse {
+  repeated PITRTimeline timelines = 1;
+}
+
 // Locations service provides access to Backup Locations.
 service Locations {
   // ListLocations returns a list of all backup locations.
@@ -165,6 +187,14 @@ service Locations {
   rpc TestLocationConfig(TestLocationConfigRequest) returns (TestLocationConfigResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Locations/TestConfig"
+      body: "*"
+    };
+  }
+
+  // ListPITRTimelines list the available MongoDB PITR timeranges in a given backup location
+  rpc ListPITRTimelines(ListPitrTimelinesRequest) returns (ListPitrTimelinesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Artifacts/ListPITRTimelines"
       body: "*"
     };
   }

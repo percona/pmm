@@ -253,8 +253,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 
 	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
-	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
-	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.backupStorageService))
+	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService, deps.backupStorageService))
+	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))

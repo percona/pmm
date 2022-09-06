@@ -11,6 +11,7 @@ import (
 	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -171,5 +172,34 @@ func (this *TestLocationConfigRequest) Validate() error {
 }
 
 func (this *TestLocationConfigResponse) Validate() error {
+	return nil
+}
+
+func (this *PITRTimeline) Validate() error {
+	if this.StartTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StartTimestamp", err)
+		}
+	}
+	if this.EndTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EndTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EndTimestamp", err)
+		}
+	}
+	return nil
+}
+
+func (this *ListPitrTimelinesRequest) Validate() error {
+	return nil
+}
+
+func (this *ListPitrTimelinesResponse) Validate() error {
+	for _, item := range this.Timelines {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Timelines", err)
+			}
+		}
+	}
 	return nil
 }

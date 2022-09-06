@@ -61,25 +61,6 @@ message DeleteArtifactRequest {
 
 message DeleteArtifactResponse {}
 
-// todo: this is mongo-specific, maybe move it to a separate proto file
-message PITRTimeline {
-  // Filename is the filename of the PITR oplog archive
-  string filename = 1;
-  // start_timestamp is the time of the first event in the PITR chunk
-  google.protobuf.Timestamp start_timestamp = 2;
-
-  // end_timestamp is the time of the last event in the PITR chunk
-  google.protobuf.Timestamp end_timestamp = 3;
-
-  // todo: maybe compute other fields e.g service ID/Name, Location ID, etc
-}
-
-message ListPITRTimelinesRequest {}
-
-message ListPITRTimelinesResponse {
-  repeated PITRTimeline timelines = 1;
-}
-
 // Artifacts service provides public methods for managing backup artifacts.
 service Artifacts {
   // ListArtifacts returns a list of all backup artifacts.
@@ -93,13 +74,6 @@ service Artifacts {
   rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Artifacts/Delete"
-      body: "*"
-    };
-  }
-
-  rpc ListPITRTimelines(ListPITRTimelinesRequest) returns (ListPITRTimelinesResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/backup/Artifacts/ListPITRTimelines"
       body: "*"
     };
   }

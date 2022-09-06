@@ -2,7 +2,6 @@ package backup
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"path"
 	"strconv"
 	"strings"
@@ -11,8 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
 )
 
 const (
@@ -75,9 +76,9 @@ func NewStorageService(storage storagePath) *StorageService {
 	}
 }
 
-func (ss *StorageService) ListPITRTimelines(ctx context.Context, locationID []string) ([]*backupv1beta1.PITRTimeline, error) {
+func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PITRTimeline, error) {
 	var timeranges []*backupv1beta1.PITRTimeline
-	pitrf, err := ss.storage.List(ctx, PITRfsPrefix, "", "")
+	pitrf, err := ss.storage.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, PITRfsPrefix, "")
 	if err != nil {
 		return timeranges, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -87,7 +88,7 @@ func (ss *StorageService) ListPITRTimelines(ctx context.Context, locationID []st
 
 	var pitr []interface{}
 	for _, f := range pitrf {
-		_, err := ss.storage.FileStat(ctx, "test_bucket", PITRfsPrefix+"/"+f.Name)
+		_, err := ss.storage.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, PITRfsPrefix+"/"+f.Name)
 		if err != nil {
 			ss.l.Warningf("skip pitr chunk %s/%s because of %v", PITRfsPrefix, f.Name, err)
 			continue
