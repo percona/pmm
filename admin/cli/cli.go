@@ -32,19 +32,8 @@ import (
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
-// GlobalFlagsGetter supports retrieving GlobalFlags.
-type GlobalFlagsGetter interface {
-	GetGlobalFlags() *flags.GlobalFlags
-}
-
-// Check interfaces.
-var (
-	_ GlobalFlagsGetter = &PMMAdminCommands{} //nolint:exhaustruct
-	_ GlobalFlagsGetter = &PMMCommands{}      //nolint:exhaustruct
-)
-
-// PMMAdminCommands stores all commands, flags and arguments for the "pmm-admin" binary.
-type PMMAdminCommands struct {
+// Commands stores all commands, flags and arguments for the "pmm-admin" binary.
+type Commands struct {
 	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
@@ -66,6 +55,7 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return runGeneric(ctx, globals)
 }
 
+// PMMCommands stores all commands, flags and arguments for the "pmm" binary.
 type PMMCommands struct {
 	flags.GlobalFlags
 

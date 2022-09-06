@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Server package holds the "pmm server" command
 package server
 
 import "github.com/percona/pmm/admin/commands"
 
+// InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct{}
 
 type installResult struct{}
