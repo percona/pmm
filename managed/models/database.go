@@ -718,6 +718,16 @@ var databaseSchema = [][]string{
 		`UPDATE artifacts SET data_model = 'logical'`,
 	},
 	65: {
+		`CREATE TABLE user_flags (
+			id INTEGER NOT NULL,
+			tour_done BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
+	66: {
 		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
 		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
 	},
