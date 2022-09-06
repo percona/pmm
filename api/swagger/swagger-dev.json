@@ -27678,7 +27678,7 @@
           "Backups"
         ],
         "summary": "GetLogs returns logs for provided artifact.",
-        "operationId": "GetLogsMixin6",
+        "operationId": "GetLogsMixin7",
         "parameters": [
           {
             "name": "body",
