@@ -30,6 +30,7 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
+      PMM_RELEASE_PATH: ${{ env.GITHUB_WORKSPACE }}/bin
 
     steps:
       - name: Check out code
