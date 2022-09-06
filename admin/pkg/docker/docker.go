@@ -33,6 +33,9 @@ import (
 func IsDockerInstalled() (bool, error) {
 	path, err := exec.LookPath("docker")
 	if err != nil {
+		if err, ok := err.(*exec.Error); ok && err.Err == exec.ErrNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 

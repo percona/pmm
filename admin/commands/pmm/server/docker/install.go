@@ -60,6 +60,11 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if !isInstalled {
+		logrus.Infoln("Installing Docker")
+		err := docker.InstallDocker()
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		logrus.Infoln("Docker is installed")
 	}
