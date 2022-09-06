@@ -532,6 +532,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
+		var err error
 		switch cfg := j.MongodbBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBBackup_S3Config:
 			locationConfig.Type = jobs.S3BackupLocationType
@@ -558,7 +559,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job, err := jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
 		if err != nil {
 			return err
 		}

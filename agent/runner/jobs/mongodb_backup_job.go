@@ -48,7 +48,7 @@ type MongoDBBackupJob struct {
 	locationConfig BackupLocationConfig
 	pitr           bool
 	logChunkID     uint32
-	dataModel  backupv1beta1.DataModel
+	dataModel      backupv1beta1.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -75,7 +75,7 @@ func NewMongoDBBackupJob(
 		dbURL:          createDBURL(dbConfig),
 		locationConfig: locationConfig,
 		pitr:           pitr,
-		dataModel: dataModel,
+		dataModel:      dataModel,
 	}, nil
 }
 

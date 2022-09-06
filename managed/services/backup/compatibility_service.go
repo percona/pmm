@@ -102,7 +102,7 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 }
 
 // CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
-// and they are compatible with the db version.
+// and they are compatible with the db version, currently only supports backup tools for MySQL
 // Returns db version.
 func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error) {
 	var serviceModel *models.Service

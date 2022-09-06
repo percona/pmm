@@ -30,28 +30,35 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
+	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
+
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
-		NodeName: "test-node",
+		NodeName: "test-node-" + t.Name(),
 	})
 	require.NoError(t, err)
 
 	pmmAgent, err := models.CreatePMMAgent(q, node.NodeID, nil)
 	require.NoError(t, err)
-	require.NoError(t, q.Update(pmmAgent))
 
-	mysql, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+	var service *models.Service
+	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
+		Port:        pointer.ToUint16(60000),
 	})
 	require.NoError(t, err)
 
-	agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+	agentType := models.MySQLdExporterType
+	if serviceType == models.MongoDBServiceType {
+		agentType = models.MongoDBExporterType
+	}
+
+	agent, err := models.CreateAgent(q, agentType, &models.CreateAgentParams{
 		PMMAgentID: pmmAgent.AgentID,
-		ServiceID:  mysql.ServiceID,
+		ServiceID:  service.ServiceID,
 		Username:   "user",
 		Password:   "password",
 	})
@@ -59,7 +66,7 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 	return agent
 }
 
-func TestBackup(t *testing.T) {
+func TestPerformBackup(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
@@ -69,12 +76,9 @@ func TestBackup(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
-		mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
-	agent := setup(t, db.Querier, "test-service")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -91,46 +95,98 @@ func TestBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	for _, tc := range []struct {
-		name          string
-		dbVersion     string
-		expectedError error
-	}{
-		{
-			name:          "successful",
-			dbVersion:     "8.0.25",
-			expectedError: nil,
-		},
-		{
-			name:          "fail",
-			dbVersion:     "",
-			expectedError: ErrXtrabackupNotInstalled,
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return(tc.dbVersion, tc.expectedError).Once()
-			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
-				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: locationRes.ID,
-				Name:       "test_backup",
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Snapshot,
-			})
+	t.Run("mysql", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
+		mockedJobsService.On("StartMySQLBackupJob", mock.Anything, mock.Anything, mock.Anything,
+			mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
-			if tc.expectedError != nil {
-				assert.ErrorIs(t, err, tc.expectedError)
-				assert.Empty(t, artifactID)
-			} else {
+		for _, tc := range []struct {
+			name          string
+			dbVersion     string
+			expectedError error
+		}{
+			{
+				name:          "successful",
+				dbVersion:     "8.0.25",
+				expectedError: nil,
+			},
+			{
+				name:          "fail",
+				dbVersion:     "",
+				expectedError: ErrXtrabackupNotInstalled,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+					Return(tc.dbVersion, tc.expectedError).Once()
+				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+					ServiceID:  pointer.GetString(agent.ServiceID),
+					LocationID: locationRes.ID,
+					Name:       "test_backup",
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.Snapshot,
+				})
+
+				if tc.expectedError != nil {
+					assert.ErrorIs(t, err, tc.expectedError)
+					assert.Empty(t, artifactID)
+					return
+				}
+
 				assert.NoError(t, err)
 				artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 				require.NoError(t, err)
 				assert.Equal(t, locationRes.ID, artifact.LocationID)
 				assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
 				assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
-			}
+			})
+		}
+	})
+
+	t.Run("mongodb", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
+
+		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+				Return("", nil).Once()
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  pointer.GetString(agent.ServiceID),
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.PITR,
+			})
+			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
+			assert.Empty(t, artifactID)
 		})
-	}
+
+		t.Run("backup fails for empty service ID", func(t *testing.T) {
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, "").Return("", nil).Once()
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  "",
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.PITR,
+			})
+			assert.ErrorContains(t, err, "Empty Service ID")
+			assert.Empty(t, artifactID)
+		})
+
+		t.Run("Incremental backups fails for MongoDB", func(t *testing.T) {
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+				Return("", nil).Once()
+			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
+				ServiceID:  pointer.GetString(agent.ServiceID),
+				LocationID: locationRes.ID,
+				Name:       "test_backup",
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.Incremental,
+			})
+			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
+			assert.Empty(t, artifactID)
+		})
+	})
 
 	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
 }
@@ -148,7 +204,6 @@ func TestRestoreBackup(t *testing.T) {
 	mockedAgentsRegistry := &mockAgentsRegistry{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
-	agent := setup(t, db.Querier, "test-service")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -165,64 +220,105 @@ func TestRestoreBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-		Name:       "artifact-name",
-		Vendor:     string(models.MySQLServiceType),
-		DBVersion:  "8.0.25",
-		LocationID: locationRes.ID,
-		ServiceID:  *agent.ServiceID,
-		DataModel:  models.PhysicalDataModel,
-		Mode:       models.Snapshot,
-		Status:     models.SuccessBackupStatus,
-	})
-	require.NoError(t, err)
-
-	for _, tc := range []struct {
-		name          string
-		dbVersion     string
-		expectedError error
-	}{
-		{
-			name:          "successful",
-			dbVersion:     "8.0.25",
-			expectedError: nil,
-		},
-		{
-			name:          "fail",
-			dbVersion:     "",
-			expectedError: ErrXtrabackupNotInstalled,
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return(tc.dbVersion, tc.expectedError).Once()
-			if tc.expectedError == nil {
-				mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-					pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
-			}
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
-			if tc.expectedError != nil {
-				assert.ErrorIs(t, err, tc.expectedError)
-				assert.Empty(t, restoreID)
-			} else {
-				assert.NoError(t, err)
-				assert.NotEmpty(t, restoreID)
-			}
-		})
-	}
-
-	t.Run("artifact not ready", func(t *testing.T) {
-		updatedArtifact, err := models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-			Status: models.BackupStatusPointer(models.PendingBackupStatus),
+	t.Run("mysql", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "mysql-artifact-name",
+			Vendor:     string(models.MySQLServiceType),
+			DBVersion:  "8.0.25",
+			LocationID: locationRes.ID,
+			ServiceID:  *agent.ServiceID,
+			DataModel:  models.PhysicalDataModel,
+			Mode:       models.Snapshot,
+			Status:     models.SuccessBackupStatus,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, updatedArtifact)
 
-		mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-			Return("8.0.25", nil).Once()
-		restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
-		require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
-		assert.Empty(t, restoreID)
+		for _, tc := range []struct {
+			name          string
+			dbVersion     string
+			expectedError error
+		}{
+			{
+				name:          "successful",
+				dbVersion:     "8.0.25",
+				expectedError: nil,
+			},
+			{
+				name:          "fail",
+				dbVersion:     "",
+				expectedError: ErrXtrabackupNotInstalled,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+					Return(tc.dbVersion, tc.expectedError).Once()
+				if tc.expectedError == nil {
+					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
+						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
+				}
+				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+				if tc.expectedError != nil {
+					assert.ErrorIs(t, err, tc.expectedError)
+					assert.Empty(t, restoreID)
+				} else {
+					assert.NoError(t, err)
+					assert.NotEmpty(t, restoreID)
+				}
+			})
+		}
+
+		t.Run("artifact not ready", func(t *testing.T) {
+			updatedArtifact, err := models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.PendingBackupStatus),
+			})
+			require.NoError(t, err)
+			require.NotNil(t, updatedArtifact)
+
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+				Return("8.0.25", nil).Once()
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			assert.Empty(t, restoreID)
+		})
+	})
+
+	t.Run("mongo", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
+
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "mongo-artifact-name",
+			Vendor:     string(models.MongoDBServiceType),
+			LocationID: locationRes.ID,
+			ServiceID:  *agent.ServiceID,
+			DataModel:  models.PhysicalDataModel,
+			Mode:       models.Snapshot,
+			Status:     models.PendingBackupStatus,
+		})
+		require.NoError(t, err)
+
+		t.Run("incomplete backups won't restore", func(t *testing.T) {
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+				Return("", nil).Once()
+
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			assert.Empty(t, restoreID)
+		})
+
+		t.Run("physical restore is successful", func(t *testing.T) {
+			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
+				Return("", nil).Once()
+			mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
+				mock.Anything, artifact.Name, mock.Anything, artifact.DataModel, mock.Anything).Return(nil).Once()
+
+			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+			})
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			require.NoError(t, err)
+			assert.NotEmpty(t, restoreID)
+		})
 	})
 
 	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)

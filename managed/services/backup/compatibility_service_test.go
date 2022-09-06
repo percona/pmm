@@ -17,11 +17,11 @@ package backup
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -372,7 +372,6 @@ func TestFindArtifactCompatibleServices(t *testing.T) { //nolint:maintidx
 			} else {
 				assert.ElementsMatch(t, []*models.Service{serviceModel}, res)
 			}
-
 		})
 	}
 

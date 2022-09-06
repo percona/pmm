@@ -370,6 +370,5 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 				assert.NoError(t, err)
 			}
 		})
-
 	}
 }

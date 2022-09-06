@@ -28,11 +28,6 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
-var (
-	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters
-	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
-
-)
 
 // Service represents core logic for db backup.
 type Service struct {
@@ -222,7 +217,7 @@ type prepareRestoreJobParams struct {
 	LocationModel *models.BackupLocation
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
-	DataModel    models.DataModel
+	DataModel     models.DataModel
 }
 
 // RestoreBackup starts restore backup job.
@@ -401,7 +396,7 @@ func (s *Service) prepareRestoreJob(
 		LocationModel: location,
 		ServiceType:   service.ServiceType,
 		DBConfig:      dbConfig,
-		DataModel:    artifact.DataModel,
+		DataModel:     artifact.DataModel,
 	}, nil
 }
 

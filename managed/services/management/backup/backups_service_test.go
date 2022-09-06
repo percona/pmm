@@ -154,7 +154,7 @@ func TestStartBackup(t *testing.T) {
 		t.Run("starting mongodb physical snapshot is successful", func(t *testing.T) {
 			ctx := context.Background()
 			backupService := &mockBackupService{}
-			backupSvc := NewBackupsService(db, backupService, nil)
+			backupSvc := NewBackupsService(db, backupService, nil, nil)
 			backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil)
 			_, err := backupSvc.StartBackup(ctx, &backupv1beta1.StartBackupRequest{
 				ServiceId:     *agent.ServiceID,
@@ -247,7 +247,7 @@ func TestScheduledBackups(t *testing.T) {
 	t.Run("mysql", func(t *testing.T) {
 		backupService := &mockBackupService{}
 		schedulerService := scheduler.New(db, backupService)
-		backupSvc := NewBackupsService(db, backupService, schedulerService)
+		backupSvc := NewBackupsService(db, backupService, nil, schedulerService)
 
 		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
 
@@ -357,7 +357,7 @@ func TestScheduledBackups(t *testing.T) {
 		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
-			backupSvc := NewBackupsService(db, nil, schedulerService)
+			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
 
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return("", nil)
 			_, err := backupSvc.ScheduleBackup(ctx, &backupv1beta1.ScheduleBackupRequest{
@@ -377,7 +377,7 @@ func TestScheduledBackups(t *testing.T) {
 		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
 			ctx := context.Background()
 			schedulerService := &mockScheduleService{}
-			backupSvc := NewBackupsService(db, nil, schedulerService)
+			backupSvc := NewBackupsService(db, nil, nil, schedulerService)
 			schedulerService.On("Add", mock.Anything, mock.Anything).Return(&models.ScheduledTask{}, nil)
 			_, err := backupSvc.ScheduleBackup(ctx, &backupv1beta1.ScheduleBackupRequest{
 				ServiceId:     *agent.ServiceID,

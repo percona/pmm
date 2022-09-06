@@ -35,9 +35,9 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMongoDBBackupAndRestore         = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore    = version.Must(version.NewVersion("2.19"))
 	pmmAgentMinVersionForMySQLBackupAndRestore           = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore   = version.Must(version.NewVersion("2.31.0-0"))
 	pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage = version.Must(version.NewVersion("2.31.0-0"))
 )
 
