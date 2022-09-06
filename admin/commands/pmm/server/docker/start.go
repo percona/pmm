@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Server package holds the "pmm server" command
-package server
+package docker
 
 import (
 	"context"
@@ -25,19 +24,19 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-type RemoveCommand struct{}
+type StartCommand struct{}
 
-type removeResult struct{}
+type startResult struct{}
 
 // Result is a command run result.
-func (res *removeResult) Result() {}
+func (res *startResult) Result() {}
 
 // String stringifies command result.
-func (res *removeResult) String() string {
+func (res *startResult) String() string {
 	return "ok"
 }
 
-func (c *RemoveCommand) RunCmd() (commands.Result, error) {
+func (c *StartCommand) RunCmd() (commands.Result, error) {
 	ctx := context.Background()
 	cli, err := docker.GetDockerClient(ctx)
 	if err != nil {
@@ -51,13 +50,14 @@ func (c *RemoveCommand) RunCmd() (commands.Result, error) {
 
 	for _, container := range containers {
 		if container.State != "exited" {
-			logrus.Infof("Stopping %s in state %s", container.ID, container.State)
-			cli.ContainerStop(ctx, container.ID, nil)
+			continue
 		}
 
-		logrus.Infof("Removing %s", container.ID)
-		cli.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
+		logrus.Infof("Starting %s in state %s", container.ID, container.State)
+		if err := cli.ContainerStart(ctx, container.ID, types.ContainerStartOptions{}); err != nil {
+			return nil, err
+		}
 	}
 
-	return &removeResult{}, nil
+	return &startResult{}, nil
 }

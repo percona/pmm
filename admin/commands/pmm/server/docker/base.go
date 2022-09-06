@@ -12,21 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
-package server
+// Package docker holds the "pmm server install docker" command
+package docker
 
-import (
-	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/commands/pmm/server/docker"
-)
-
-// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
 type BaseCommand struct {
-	Docker docker.BaseCommand `cmd:"" help:"Local docker deployment of PMM server"`
-}
-
-// BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
-	commands.SetupClientsEnabled = false
-	return nil
+	Install InstallCommand `cmd:"" help:"Install PMM server"`
+	Remove  RemoveCommand  `cmd:"" help:"Remove PMM server"`
+	Start   StartCommand   `cmd:"" help:"Start PMM server"`
+	Stop    StopCommand    `cmd:"" help:"Stop PMM server"`
 }
