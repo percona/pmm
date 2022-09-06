@@ -27671,6 +27671,17 @@
                     "PITR"
                   ],
                   "x-order": 10
+                },
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
+                  "type": "string",
+                  "default": "DATA_MODEL_INVALID",
+                  "enum": [
+                    "DATA_MODEL_INVALID",
+                    "PHYSICAL",
+                    "LOGICAL"
+                  ],
+                  "x-order": 11
                 }
               }
             }
@@ -27769,6 +27780,17 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 5
+                },
+                "data_model": {
+                  "description": "DataModel is a model used for performing a backup.",
+                  "type": "string",
+                  "default": "DATA_MODEL_INVALID",
+                  "enum": [
+                    "DATA_MODEL_INVALID",
+                    "PHYSICAL",
+                    "LOGICAL"
+                  ],
+                  "x-order": 6
                 }
               }
             }
