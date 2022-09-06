@@ -349,7 +349,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		for dir, source := range sources {
 			wg.Add(1)
 
-			go func(url, name string, source sourceConfig) {
+			go func(source sourceConfig, url, name string) {
 				defer wg.Done()
 
 				logrus.Infof("Getting %s ...", url)
@@ -363,7 +363,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 					name: name,
 					data: data,
 				}
-			}(source.url+p.urlPath, dir+"/"+p.name, source)
+			}(source, source.url+p.urlPath, dir+"/"+p.name)
 		}
 
 		wg.Wait()

@@ -223,13 +223,12 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 	}
 
 	// set default values
-	configureNetworkDefaults(cfg)
-
 	if cfg.WindowConnectedTime == 0 {
 		cfg.WindowConnectedTime = time.Hour
 	}
 
 	configurePaths(cfg, l)
+	configureNetworkDefaults(cfg)
 
 	if cfg.Server.Address != "" {
 		if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
@@ -249,19 +248,17 @@ func setDefaults(cfg *Config, l *logrus.Entry) {
 }
 
 var (
-	defaultListenSocketJSON         = "/usr/local/percona/pmm2/pmm-agent.sock"
+	defaultListenSocketJSONFilename = "pmm-agent.sock"
 	defaultListenSocketGRPCFilename = "pmm-agent-grpc.sock"
-	// DefaultListenSocketGRPC defines path to a socket on which GRPC server is listening.
-	DefaultListenSocketGRPC = "/usr/local/percona/pmm2/" + defaultListenSocketGRPCFilename
 )
 
 func configureNetworkDefaults(cfg *Config) {
 	if cfg.ListenSocket == "" {
 		configureListenDefaults(cfg)
 	}
-	if cfg.ListenSocketGRPC == "" && cfg.ListenSocket != "" {
-		cfg.ListenSocketGRPC = path.Dir(cfg.ListenSocket) + "/" + defaultListenSocketGRPCFilename
-	}
+
+	configureListenGRPCDefaults(cfg)
+
 	if cfg.Ports.Min == 0 {
 		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
 	}
@@ -271,17 +268,28 @@ func configureNetworkDefaults(cfg *Config) {
 }
 
 func configureListenDefaults(cfg *Config) {
-	if cfg.ListenAddress == "" && cfg.ListenPort == 0 {
-		cfg.ListenSocket = defaultListenSocketJSON
+	switch {
+	case cfg.ListenAddress == "" && cfg.ListenPort == 0:
+		cfg.ListenSocket = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketJSONFilename)
 		if cfg.ListenSocketGRPC == "" {
-			cfg.ListenSocketGRPC = DefaultListenSocketGRPC
+			cfg.ListenSocketGRPC = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketGRPCFilename)
 		}
-	}
-	if cfg.ListenAddress == "" && cfg.ListenPort != 0 {
+
+	case cfg.ListenAddress == "" && cfg.ListenPort != 0:
 		cfg.ListenAddress = "127.0.0.1"
-	}
-	if cfg.ListenAddress != "" && cfg.ListenPort == 0 {
+
+	case cfg.ListenAddress != "" && cfg.ListenPort == 0:
 		cfg.ListenPort = 7777
+	}
+}
+
+func configureListenGRPCDefaults(cfg *Config) {
+	if cfg.ListenSocketGRPC == "" && cfg.ListenSocket != "" {
+		cfg.ListenSocketGRPC = path.Dir(cfg.ListenSocket) + "/" + defaultListenSocketGRPCFilename
+	}
+
+	if cfg.ListenSocketGRPC == "" {
+		cfg.ListenSocketGRPC = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketGRPCFilename)
 	}
 }
 
@@ -295,24 +303,26 @@ func configurePaths(cfg *Config, l *logrus.Entry) {
 		cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
 	}
 
-	if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
-		cfg.Paths.PathsBase = abs
-	}
-	if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-		cfg.Paths.ExportersBase = abs
+	// Make paths absolute
+	for _, v := range []*string{
+		&cfg.Paths.PathsBase,
+		&cfg.Paths.ExportersBase,
+	} {
+		if abs, _ := filepath.Abs(*v); abs != "" {
+			*v = abs
+		}
 	}
 
-	if !filepath.IsAbs(cfg.Paths.PTSummary) {
-		cfg.Paths.PTSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary)
-	}
-	if !filepath.IsAbs(cfg.Paths.PTPGSummary) {
-		cfg.Paths.PTPGSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary)
-	}
-	if !filepath.IsAbs(cfg.Paths.PTMongoDBSummary) {
-		cfg.Paths.PTMongoDBSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary)
-	}
-	if !filepath.IsAbs(cfg.Paths.PTMySQLSummary) {
-		cfg.Paths.PTMySQLSummary = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary)
+	// Make relative paths relative to the cfg.PathsBase
+	for sp, v := range map[*string]string{
+		&cfg.Paths.PTSummary:        filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTSummary),
+		&cfg.Paths.PTPGSummary:      filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTPGSummary),
+		&cfg.Paths.PTMongoDBSummary: filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMongoDBSummary),
+		&cfg.Paths.PTMySQLSummary:   filepath.Join(cfg.Paths.PathsBase, cfg.Paths.PTMySQLSummary),
+	} {
+		if !filepath.IsAbs(*sp) {
+			*sp = v
+		}
 	}
 
 	applyBasePath(cfg, l)

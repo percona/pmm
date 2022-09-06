@@ -90,9 +90,10 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "agent-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    9999,
+			ID:               "agent-id",
+			ListenAddress:    "127.0.0.1",
+			ListenPort:       9999,
+			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -140,9 +141,10 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "agent-id",
-			ListenAddress: "0.0.0.0",
-			ListenPort:    7777,
+			ID:               "agent-id",
+			ListenAddress:    "0.0.0.0",
+			ListenPort:       7777,
+			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -312,8 +314,8 @@ func TestGet(t *testing.T) {
 
 		expected := &Config{
 			ID:               "flag-id",
-			ListenSocket:     "/usr/local/percona/pmm2/pmm-agent.sock",
-			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
+			ListenSocket:     "/base/pmm-agent.sock",
+			ListenSocketGRPC: "/base/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -368,8 +370,8 @@ func TestGet(t *testing.T) {
 
 		expected := &Config{
 			ID:               "flag-id",
-			ListenSocket:     "/usr/local/percona/pmm2/pmm-agent.sock",
-			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
+			ListenSocket:     "/base/pmm-agent.sock",
+			ListenSocketGRPC: "/base/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -541,9 +543,10 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "agent-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    7777,
+			ID:               "agent-id",
+			ListenAddress:    "127.0.0.1",
+			ListenPort:       7777,
+			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
@@ -584,9 +587,10 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:            "agent-id",
-			ListenAddress: "127.0.0.1",
-			ListenPort:    1234,
+			ID:               "agent-id",
+			ListenAddress:    "127.0.0.1",
+			ListenPort:       1234,
+			ListenSocketGRPC: "/usr/local/percona/pmm2/pmm-agent-grpc.sock",
 			Server: Server{
 				Address: "127.0.0.1:443",
 			},
