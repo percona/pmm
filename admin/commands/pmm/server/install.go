@@ -26,9 +26,10 @@ func (res *installResult) Result() {}
 
 // String stringifies command result.
 func (res *installResult) String() string {
-	return "yes"
+	return "works"
 }
 
+// RunCmd runs install command.
 func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	return &installResult{}, nil
 }
