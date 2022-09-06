@@ -78,6 +78,7 @@ type MongoDBBackupJobData struct {
 	ServiceID  string     `json:"service_id"`
 	ArtifactID string     `json:"artifact_id"`
 	Mode       BackupMode `json:"mode"`
+	DataModel  DataModel  `json:"data_model"`
 }
 
 // MongoDBRestoreBackupJobData stores MongoDB restore backup job specific result data.

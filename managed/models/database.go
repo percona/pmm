@@ -715,6 +715,9 @@ var databaseSchema = [][]string{
 			ADD COLUMN log_level VARCHAR`,
 	},
 	64: {
+		`UPDATE artifacts SET data_model = 'logical'`,
+	},
+	65: {
 		`CREATE TABLE db_clusters (
 			id VARCHAR NOT NULL,
 			cluster_type VARCHAR NOT NULL CHECK (cluster_type <> ''),
