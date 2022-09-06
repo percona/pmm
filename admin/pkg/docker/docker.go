@@ -17,6 +17,11 @@ package docker
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -24,6 +29,49 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 )
+
+func IsDockerInstalled() (bool, error) {
+	path, err := exec.LookPath("docker")
+	if err != nil {
+		return false, err
+	}
+
+	logrus.Debugf("Found docker in %s", path)
+
+	return true, nil
+}
+
+func downloadDockerInstallScript() (io.ReadCloser, error) {
+	res, err := http.Get("https://get.docker.com/")
+	if err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("received HTTP %d when downloading Docker install script", res.StatusCode)
+	}
+
+	return res.Body, nil
+}
+
+func InstallDocker() error {
+	script, err := downloadDockerInstallScript()
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("sh", "-s")
+	cmd.Stdin = script
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func GetDockerClient(ctx context.Context) (*client.Client, error) {
 	cli, err := client.NewClientWithOpts(client.WithVersion("1.41"))

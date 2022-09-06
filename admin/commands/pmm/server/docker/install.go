@@ -54,6 +54,16 @@ Password: ` + r.adminPassword
 func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	logrus.Info("Starting PMM Server installation")
 
+	isInstalled, err := docker.IsDockerInstalled()
+	if err != nil {
+		return nil, err
+	}
+
+	if !isInstalled {
+	} else {
+		logrus.Infoln("Docker is installed")
+	}
+
 	dockerImage := "percona/pmm-server:2"
 	// dockerImage := "docker.io/library/alpine"
 
