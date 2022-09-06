@@ -717,6 +717,16 @@ var databaseSchema = [][]string{
 	64: {
 		`UPDATE artifacts SET data_model = 'logical'`,
 	},
+	65: {
+		`CREATE TABLE user_flags (
+			id INTEGER NOT NULL,
+			tour_done BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
