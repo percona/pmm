@@ -54,7 +54,8 @@ func TestKubernetesServer(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 
-		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"))
+		synchronizer := new(mockDbClusterSynchronizer)
+		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"), synchronizer)
 		return
 	}
 	t.Run("Basic", func(t *testing.T) {
@@ -111,7 +112,7 @@ func TestKubernetesServer(t *testing.T) {
 		listPXCClustersMock := dc.On("ListPXCClusters", ctx, mock.Anything)
 		listPSMDBClustersMock := dc.On("ListPSMDBClusters", ctx, mock.Anything)
 		listPXCClustersMock.Return(&controllerv1beta1.ListPXCClustersResponse{
-			Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
+			Clusters: []*controllerv1beta1.PXCCluster{
 				{Name: "first-xtradb-cluster"},
 			},
 		}, nil)
@@ -121,7 +122,7 @@ func TestKubernetesServer(t *testing.T) {
 		tests.AssertGRPCError(t, status.Newf(codes.FailedPrecondition, "Kubernetes cluster %s has PXC clusters", kubernetesClusterName), err)
 
 		listPSMDBClustersMock.Return(&controllerv1beta1.ListPSMDBClustersResponse{
-			Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
+			Clusters: []*controllerv1beta1.PSMDBCluster{
 				{Name: "first-xtradb-cluster"},
 			},
 		}, nil)

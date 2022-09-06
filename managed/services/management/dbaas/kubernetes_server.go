@@ -51,26 +51,26 @@ var (
 )
 
 type kubernetesServer struct {
-	l                 *logrus.Entry
-	db                *reform.DB
-	dbaasClient       dbaasClient
-	versionService    versionService
-	grafanaClient     grafanaClient
-	dbClusterImporter *DBClustersSynchronizer
+	l                     *logrus.Entry
+	db                    *reform.DB
+	dbaasClient           dbaasClient
+	versionService        versionService
+	grafanaClient         grafanaClient
+	dbClusterSynchronizer dbClusterSynchronizer
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService, dbClusterImporter *DBClustersSynchronizer) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService, dbClusterImporter dbClusterSynchronizer) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:                 l,
-		db:                db,
-		dbaasClient:       dbaasClient,
-		grafanaClient:     grafanaClient,
-		versionService:    versionService,
-		dbClusterImporter: dbClusterImporter,
+		l:                     l,
+		db:                    db,
+		dbaasClient:           dbaasClient,
+		grafanaClient:         grafanaClient,
+		versionService:        versionService,
+		dbClusterSynchronizer: dbClusterImporter,
 	}
 }
 
@@ -346,7 +346,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	}
 
 	go func() {
-		err := k.dbClusterImporter.SyncDBClusters(context.Background(), kubernetesCluster)
+		err := k.dbClusterSynchronizer.SyncDBClusters(context.Background(), kubernetesCluster)
 		if err != nil {
 			k.l.Errorf("Error during sync with Kubernetes Cluster: %q", err)
 		}

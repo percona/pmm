@@ -187,13 +187,13 @@ func TestKubernetesHelpers(t *testing.T) {
 		t.Run("Basic", func(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)
-			err := models.RemoveKubernetesCluster(q, "Kubernetes Cluster 1")
+			err := models.RemoveKubernetesCluster(q, "Kubernetes Cluster 1", models.RemoveCascade)
 			assert.NoError(t, err)
 		})
 		t.Run("NonExistCluster", func(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)
-			err := models.RemoveKubernetesCluster(q, "test-cluster")
+			err := models.RemoveKubernetesCluster(q, "test-cluster", models.RemoveCascade)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Kubernetes Cluster with name "test-cluster" not found.`), err)
 		})
 	})
