@@ -30,7 +30,7 @@ import (
 // 	// Enable IA and disable telemetry to prevent network calls
 // 	settings, err := models.GetSettings(db)
 // 	require.NoError(t, err)
-// 	settings.IntegratedAlerting.Enabled = true
+// 	settings.Alerting.Disabled = false
 // 	settings.Telemetry.Disabled = true
 // 	err = models.SaveSettings(db, settings)
 // 	require.NoError(t, err)

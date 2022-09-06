@@ -64,7 +64,7 @@ func (s *AlertsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // ListAlerts returns list of existing alerts.

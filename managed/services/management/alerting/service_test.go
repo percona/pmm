@@ -169,7 +169,7 @@ func TestTemplateValidation(t *testing.T) {
 	// Enable IA
 	settings, err := models.GetSettings(db)
 	require.NoError(t, err)
-	settings.IntegratedAlerting.Enabled = true
+	settings.Alerting.Disabled = true
 	err = models.SaveSettings(db, settings)
 	require.NoError(t, err)
 

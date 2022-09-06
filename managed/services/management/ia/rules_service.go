@@ -89,7 +89,7 @@ func (s *RulesService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // TODO Move this and related types to https://github.com/percona/promconfig

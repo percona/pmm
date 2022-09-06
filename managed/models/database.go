@@ -717,6 +717,10 @@ var databaseSchema = [][]string{
 	64: {
 		`UPDATE artifacts SET data_model = 'logical'`,
 	},
+	65: {
+		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
+		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

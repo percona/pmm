@@ -56,9 +56,7 @@ const (
 	templatesDir         = "/srv/ia/templates"
 	portalRequestTimeout = 2 * time.Minute // time limit to get templates list from the portal
 
-	// https://grafana.com/docs/grafana/latest/developers/http_api/alerting_provisioning/#span-idalert-queryspan-alertquery
-	ServerSideDataSource = "-100"
-	dirPerm              = os.FileMode(0o775)
+	dirPerm = os.FileMode(0o775)
 )
 
 // TemplateInfo represents alerting rule template information from various sources.
@@ -123,7 +121,7 @@ func (s *Service) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // GetTemplates return collected templates.
