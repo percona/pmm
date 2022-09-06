@@ -38,7 +38,7 @@ jobs:
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE: perconalab/pmm-server:dev-container
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}

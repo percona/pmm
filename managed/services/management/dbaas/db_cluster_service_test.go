@@ -117,59 +117,8 @@ func TestDBClusterService(t *testing.T) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(db.Querier, dbKubernetesClusterNameTest)
 	require.NoError(t, err)
 
-	t.Run("BasicListPXCClusters", func(t *testing.T) {
+	t.Run("BasicListDBClusters", func(t *testing.T) {
 		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
-		//mockPXCResp := controllerv1beta1.ListPXCClustersResponse{
-		//	Clusters: []*controllerv1beta1.ListPXCClustersResponse_Cluster{
-		//		{
-		//			Name: "first-pxc-test",
-		//			Params: &controllerv1beta1.PXCClusterParams{
-		//				ClusterSize: 5,
-		//				Pxc: &controllerv1beta1.PXCClusterParams_PXC{
-		//					ComputeResources: &controllerv1beta1.ComputeResources{
-		//						CpuM:        3,
-		//						MemoryBytes: 256,
-		//					},
-		//					DiskSize: 1024 * 1024 * 1024,
-		//				},
-		//				Proxysql: &controllerv1beta1.PXCClusterParams_ProxySQL{
-		//					ComputeResources: &controllerv1beta1.ComputeResources{
-		//						CpuM:        2,
-		//						MemoryBytes: 124,
-		//					},
-		//					DiskSize: 1024 * 1024 * 1024,
-		//				},
-		//			},
-		//			Operation: &controllerv1beta1.RunningOperation{
-		//				TotalSteps:    int32(15),
-		//				FinishedSteps: int32(15),
-		//			},
-		//		},
-		//	},
-		//}
-		//dbaasClient.On("ListPXCClusters", ctx, mock.Anything).Return(&mockPXCResp, nil)
-		//
-		//mockPSMDBResp := controllerv1beta1.ListPSMDBClustersResponse{
-		//	Clusters: []*controllerv1beta1.ListPSMDBClustersResponse_Cluster{
-		//		{
-		//			Name: "first-psmdb-test",
-		//			Params: &controllerv1beta1.PSMDBClusterParams{
-		//				ClusterSize: 5,
-		//				Replicaset: &controllerv1beta1.PSMDBClusterParams_ReplicaSet{
-		//					ComputeResources: &controllerv1beta1.ComputeResources{
-		//						CpuM:        3,
-		//						MemoryBytes: 256,
-		//					},
-		//				},
-		//			},
-		//			Operation: &controllerv1beta1.RunningOperation{
-		//				TotalSteps:    int32(10),
-		//				FinishedSteps: int32(10),
-		//			},
-		//		},
-		//	},
-		//}
-		//dbaasClient.On("ListPSMDBClusters", ctx, mock.Anything).Return(&mockPSMDBResp, nil)
 
 		pxcCluster, err := models.CreateOrUpdateDBCluster(db.Querier, models.PXCType, &models.DBClusterParams{
 			KubernetesClusterID: kubernetesCluster.ID,
@@ -194,19 +143,51 @@ func TestDBClusterService(t *testing.T) {
 		assert.Equal(t, resp.DbClusters[0].InstalledImage, "5.7.26-31.37")
 		assert.Equal(t, resp.DbClusters[1].Name, "first-psmdb-test")
 		assert.Equal(t, resp.DbClusters[1].InstalledImage, "4.4.10-11")
-		// assert.Equal(t, int32(5), resp.PxcClusters[0].Params.ClusterSize)
-		// assert.Equal(t, int32(3), resp.PxcClusters[0].Params.Pxc.ComputeResources.CpuM)
-		// assert.Equal(t, int64(256), resp.PxcClusters[0].Params.Pxc.ComputeResources.MemoryBytes)
-		// assert.Equal(t, int32(2), resp.PxcClusters[0].Params.Proxysql.ComputeResources.CpuM)
-		// assert.Equal(t, int64(124), resp.PxcClusters[0].Params.Proxysql.ComputeResources.MemoryBytes)
-		// assert.Equal(t, int32(15), resp.PxcClusters[0].Operation.TotalSteps)
-		// assert.Equal(t, int32(15), resp.PxcClusters[0].Operation.FinishedSteps)
+	})
 
-		// assert.Equal(t, int32(5), resp.PsmdbClusters[0].Params.ClusterSize)
-		// assert.Equal(t, int32(3), resp.PsmdbClusters[0].Params.Replicaset.ComputeResources.CpuM)
-		// assert.Equal(t, int64(256), resp.PsmdbClusters[0].Params.Replicaset.ComputeResources.MemoryBytes)
-		// assert.Equal(t, int32(10), resp.PsmdbClusters[0].Operation.TotalSteps)
-		// assert.Equal(t, int32(10), resp.PsmdbClusters[0].Operation.FinishedSteps)
+	t.Run("BasicGetPXCCluster", func(t *testing.T) {
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
+		mockPXCResp := controllerv1beta1.GetPXCClusterResponse{
+			Cluster: &controllerv1beta1.PXCCluster{
+				Name: "first-pxc-test",
+				Params: &controllerv1beta1.PXCClusterParams{
+					ClusterSize: 5,
+					Pxc: &controllerv1beta1.PXCClusterParams_PXC{
+						ComputeResources: &controllerv1beta1.ComputeResources{
+							CpuM:        3,
+							MemoryBytes: 256,
+						},
+						DiskSize: 1024 * 1024 * 1024,
+					},
+					Proxysql: &controllerv1beta1.PXCClusterParams_ProxySQL{
+						ComputeResources: &controllerv1beta1.ComputeResources{
+							CpuM:        2,
+							MemoryBytes: 124,
+						},
+						DiskSize: 1024 * 1024 * 1024,
+					},
+				},
+				Operation: &controllerv1beta1.RunningOperation{
+					TotalSteps:    int32(15),
+					FinishedSteps: int32(15),
+				},
+			},
+		}
+		dbaasClient.On("GetPXCClusters", ctx, mock.Anything).Return(&mockPXCResp, nil)
+
+		cluster, err := s.GetDBCluster(ctx, &dbaasv1beta1.GetDBClusterRequest{
+			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
+			Name:                  "first-pxc-test",
+			ClusterType:           dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(5), cluster.GetPxcCluster().Params.ClusterSize)
+		assert.Equal(t, int32(3), cluster.GetPxcCluster().Params.Pxc.ComputeResources.CpuM)
+		assert.Equal(t, int64(256), cluster.GetPxcCluster().Params.Pxc.ComputeResources.MemoryBytes)
+		assert.Equal(t, int32(2), cluster.GetPxcCluster().Params.Proxysql.ComputeResources.CpuM)
+		assert.Equal(t, int64(124), cluster.GetPxcCluster().Params.Proxysql.ComputeResources.MemoryBytes)
+		assert.Equal(t, int32(15), cluster.GetPxcCluster().Operation.TotalSteps)
+		assert.Equal(t, int32(15), cluster.GetPxcCluster().Operation.FinishedSteps)
 	})
 
 	t.Run("BasicRestartPXCCluster", func(t *testing.T) {
