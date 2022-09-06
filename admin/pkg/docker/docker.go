@@ -44,6 +44,15 @@ func IsDockerInstalled() (bool, error) {
 	return true, nil
 }
 
+func HaveDockerAccess(ctx context.Context, cli *client.Client) bool {
+	_, err := cli.Info(ctx)
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
 func downloadDockerInstallScript() (io.ReadCloser, error) {
 	res, err := http.Get("https://get.docker.com/")
 	if err != nil {

@@ -21,6 +21,9 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/volume"
+	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 
@@ -54,39 +57,103 @@ Password: ` + r.adminPassword
 func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	logrus.Info("Starting PMM Server installation")
 
-	isInstalled, err := docker.IsDockerInstalled()
+	err := installDocker()
 	if err != nil {
 		return nil, err
 	}
 
-	if !isInstalled {
-		logrus.Infoln("Installing Docker")
-		err := docker.InstallDocker()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		logrus.Infoln("Docker is installed")
-	}
-
 	dockerImage := "percona/pmm-server:2"
-	// dockerImage := "docker.io/library/alpine"
 
 	ctx := context.Background()
 	cli, err := docker.GetDockerClient(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	if !docker.HaveDockerAccess(ctx, cli) {
+		logrus.Panic("Docker is either not running or this user has no access. Try running as root.")
+	}
+
+	volume, err := createVolume(ctx, cli)
+	if err != nil {
+		return nil, err
+	}
+
 	reader, err := cli.ImagePull(ctx, dockerImage, types.ImagePullOptions{})
 	if err != nil {
 		return nil, err
 	}
 	io.Copy(os.Stdout, reader)
 
+	containerID, err := runContainer(ctx, cli, volume, dockerImage)
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Info("Waiting until PMM boots")
+	w := docker.WaitForHealthyContainer(ctx, cli, containerID)
+	healthy := <-w
+	if healthy.Error != nil {
+		return nil, healthy.Error
+	}
+
+	err = docker.ChangeServerPassword(ctx, cli, containerID, c.AdminPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	return &installResult{
+		adminPassword: c.AdminPassword,
+	}, nil
+}
+
+func installDocker() error {
+	isInstalled, err := docker.IsDockerInstalled()
+	if err != nil {
+		return err
+	}
+
+	if !isInstalled {
+		logrus.Infoln("Installing Docker")
+		err := docker.InstallDocker()
+		if err != nil {
+			return err
+		}
+	} else {
+		logrus.Infoln("Docker is installed")
+	}
+
+	return nil
+}
+
+func createVolume(ctx context.Context, cli *client.Client) (*types.Volume, error) {
+	volumeName := "pmm-data"
+	v, err := cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v.Volumes) != 0 {
+		logrus.Panicf("Docker volume with name %s already exists", volumeName)
+	}
+
+	volume, err := cli.VolumeCreate(ctx, volume.VolumeCreateBody{
+		Name: volumeName,
+		Labels: map[string]string{
+			"percona.pmm.volume": "server",
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &volume, nil
+}
+
+func runContainer(ctx context.Context, cli *client.Client, volume *types.Volume, dockerImage string) (string, error) {
 	logrus.Info("Creating PMM Server")
-	resp, err := cli.ContainerCreate(ctx, &container.Config{
+	res, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: dockerImage,
-		// Cmd:   []string{"echo", "hello world"},
 		Labels: map[string]string{
 			"percona.pmm": "server",
 		},
@@ -95,26 +162,19 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 			"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: "443"}},
 			"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: "80"}},
 		},
+		Binds: []string{
+			volume.Name + ":/srv:rw",
+		},
+		RestartPolicy: container.RestartPolicy{Name: "always"},
 	}, nil, nil, "")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	logrus.Info("Starting PMM Server")
-	if err := cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
-		return nil, err
+	if err := cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
+		return "", err
 	}
 
-	logrus.Info("Waiting until PMM boots")
-	w := docker.WaitForHealthyContainer(ctx, cli, resp.ID)
-	healthy := <-w
-	if healthy.Error != nil {
-		return nil, healthy.Error
-	}
-
-	docker.ChangeServerPassword(ctx, cli, resp.ID, c.AdminPassword)
-
-	return &installResult{
-		adminPassword: c.AdminPassword,
-	}, nil
+	return res.ID, nil
 }
