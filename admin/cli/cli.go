@@ -59,7 +59,7 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 type PMMCommands struct {
 	flags.GlobalFlags
 
-	Server server.ServerCommand `cmd:"" help:"PMM server related commands"`
+	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
 }
 
 // Run function is a top-level function which handles running all commands

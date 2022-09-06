@@ -17,13 +17,13 @@ package server
 
 import "github.com/percona/pmm/admin/commands"
 
-// ServerCommand is used by Kong for CLI flags and commands.
-type ServerCommand struct {
+// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
+type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
 }
 
 // BeforeApply is run before the command is applied.
-func (cmd *ServerCommand) BeforeApply() error {
+func (cmd *BaseCommand) BeforeApply() error {
 	commands.SetupClientsEnabled = false
 	return nil
 }

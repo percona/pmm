@@ -65,7 +65,7 @@ func BootstrapPMM() {
 func configureLogger(opts flags.GlobalFlags) {
 	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
 	if opts.JSON {
-		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhauststruct // with levels and timestamps always present
+		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhaustruct // with levels and timestamps always present
 	}
 	if opts.EnableDebug {
 		logrus.SetLevel(logrus.DebugLevel)
