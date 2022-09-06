@@ -34,6 +34,7 @@ release-dev:
 	env CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
 
 gen:                            ## Generate files.
+	echo $(PMM_RELEASE_PATH)
 	go generate ./...
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful

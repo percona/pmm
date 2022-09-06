@@ -63,6 +63,7 @@ jobs:
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
       PMM_SERVER_IMAGE: ${{ matrix.images.pmm_server }}
       PG_PRELOADED_LIBS: ${{ matrix.images.pg_libs }}
+      PMM_RELEASE_PATH: ${{ github.workspace }}/bin
 
     defaults:
       run:
