@@ -33,8 +33,6 @@ type LocationsClient interface {
 	RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error)
 	// TestLocationConfig tests backup location and credentials.
 	TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error)
-	// ListPITRTimelines list the available MongoDB PITR timeranges in a given backup location
-	ListPITRTimelines(ctx context.Context, in *ListPitrTimelinesRequest, opts ...grpc.CallOption) (*ListPitrTimelinesResponse, error)
 }
 
 type locationsClient struct {
@@ -90,15 +88,6 @@ func (c *locationsClient) TestLocationConfig(ctx context.Context, in *TestLocati
 	return out, nil
 }
 
-func (c *locationsClient) ListPITRTimelines(ctx context.Context, in *ListPitrTimelinesRequest, opts ...grpc.CallOption) (*ListPitrTimelinesResponse, error) {
-	out := new(ListPitrTimelinesResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/ListPITRTimelines", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // LocationsServer is the server API for Locations service.
 // All implementations must embed UnimplementedLocationsServer
 // for forward compatibility
@@ -113,8 +102,6 @@ type LocationsServer interface {
 	RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error)
 	// TestLocationConfig tests backup location and credentials.
 	TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error)
-	// ListPITRTimelines list the available MongoDB PITR timeranges in a given backup location
-	ListPITRTimelines(context.Context, *ListPitrTimelinesRequest) (*ListPitrTimelinesResponse, error)
 	mustEmbedUnimplementedLocationsServer()
 }
 
@@ -139,10 +126,6 @@ func (UnimplementedLocationsServer) RemoveLocation(context.Context, *RemoveLocat
 
 func (UnimplementedLocationsServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestLocationConfig not implemented")
-}
-
-func (UnimplementedLocationsServer) ListPITRTimelines(context.Context, *ListPitrTimelinesRequest) (*ListPitrTimelinesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListPITRTimelines not implemented")
 }
 func (UnimplementedLocationsServer) mustEmbedUnimplementedLocationsServer() {}
 
@@ -247,24 +230,6 @@ func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_ListPITRTimelines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListPitrTimelinesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LocationsServer).ListPITRTimelines(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/ListPITRTimelines",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).ListPITRTimelines(ctx, req.(*ListPitrTimelinesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // Locations_ServiceDesc is the grpc.ServiceDesc for Locations service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -291,10 +256,6 @@ var Locations_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TestLocationConfig",
 			Handler:    _Locations_TestLocationConfig_Handler,
-		},
-		{
-			MethodName: "ListPITRTimelines",
-			Handler:    _Locations_ListPITRTimelines_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

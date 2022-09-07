@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -43,10 +41,9 @@ func TestCreateBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3, mockedStorage)
+	svc := NewLocationsService(db, mockedS3)
 	t.Run("add server config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
@@ -109,10 +106,9 @@ func TestListBackupLocations(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3, mockedStorage)
+	svc := NewLocationsService(db, mockedS3)
 
 	req1 := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
@@ -187,10 +183,9 @@ func TestChangeBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	mockedStorage := &mockStorageService{}
 	mockedS3.On("GetBucketLocation", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return("us-east-2", nil)
-	svc := NewLocationsService(db, mockedS3, mockedStorage)
+	svc := NewLocationsService(db, mockedS3)
 	t.Run("update existing config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
@@ -288,8 +283,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	mockedStorage := &mockStorageService{}
-	svc := NewLocationsService(db, mockedS3, mockedStorage)
+	svc := NewLocationsService(db, mockedS3)
 	req := &backupv1beta1.AddLocationRequest{
 		Name: gofakeit.Name(),
 		PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
@@ -344,11 +338,10 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedS3 := &mockAwsS3{}
-	mockStorage := &mockStorageService{}
 	mockedS3.On("BucketExists", mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return(true, nil)
 
-	svc := NewLocationsService(db, mockedS3, mockStorage)
+	svc := NewLocationsService(db, mockedS3)
 
 	tableTests := []struct {
 		name     string
@@ -465,67 +458,4 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 			assert.NoError(t, err)
 		})
 	}
-}
-
-func TestListPITRTimelines(t *testing.T) {
-	ctx := context.Background()
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	mockedS3 := &mockAwsS3{}
-	mockStorage := &mockStorageService{}
-
-	timelines := []*backupv1beta1.PITRTimeline{
-		{
-			Filename:       "2022.tar.gz",
-			ReplicaSet:     "rs0",
-			StartTimestamp: timestamppb.New(time.Now()),
-			EndTimestamp:   timestamppb.New(time.Now()),
-		},
-	}
-
-	mockStorage.On("ListPITRTimelines", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	svc := NewLocationsService(db, mockedS3, mockStorage)
-	var artifactID string
-	var locationID string
-
-	t.Run("add awsS3", func(t *testing.T) {
-		params := models.CreateBackupLocationParams{
-			Name:        gofakeit.Name(),
-			Description: "",
-		}
-		params.S3Config = &models.S3LocationConfig{
-			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-			AccessKey:    "access_key",
-			SecretKey:    "secret_key",
-			BucketName:   "example_bucket",
-			BucketRegion: "us-east-1",
-		}
-		loc, err := models.CreateBackupLocation(db.Querier, params)
-		require.NoError(t, err)
-		require.NotEmpty(t, loc.ID)
-		locationID = loc.ID
-	})
-
-	t.Run("create artifact", func(t *testing.T) {
-		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "test_artifact",
-			Vendor:     "test_vendor",
-			LocationID: locationID,
-			ServiceID:  "test_service",
-			Mode:       models.PITR,
-			DataModel:  models.LogicalDataModel,
-			Status:     models.PendingBackupStatus,
-		})
-		assert.NoError(t, err)
-		assert.NotEmpty(t, artifact.ID)
-		artifactID = artifact.ID
-	})
-
-	response, err := svc.ListPITRTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
-		ArtifactId: artifactID,
-	})
-	require.NoError(t, err)
-	require.NotNil(t, response)
-	assert.Len(t, response.Timelines, 1)
 }

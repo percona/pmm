@@ -76,8 +76,8 @@ func NewStorageService(storage storagePath) *StorageService {
 	}
 }
 
-func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PITRTimeline, error) {
-	var timeranges []*backupv1beta1.PITRTimeline
+func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error) {
+	var timeranges []*backupv1beta1.PitrTimeline
 	pitrf, err := ss.storage.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, PITRfsPrefix, "")
 	if err != nil {
 		return timeranges, errors.Wrap(err, "get list of pitr chunks")
@@ -104,7 +104,7 @@ func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models
 		case *OplogChunk:
 			start := time.Unix(int64(tr.(*OplogChunk).StartTS.T), 0)
 			end := time.Unix(int64(tr.(*OplogChunk).EndTS.T), 0)
-			timeranges = append(timeranges, &backupv1beta1.PITRTimeline{
+			timeranges = append(timeranges, &backupv1beta1.PitrTimeline{
 				StartTimestamp: timestamppb.New(start),
 				EndTimestamp:   timestamppb.New(end),
 				Filename:       tr.(*OplogChunk).FName,

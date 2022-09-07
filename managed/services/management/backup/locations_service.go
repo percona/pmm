@@ -31,21 +31,19 @@ import (
 
 // LocationsService represents backup locations API.
 type LocationsService struct {
-	db      *reform.DB
-	s3      awsS3
-	storage storageService
-	l       *logrus.Entry
+	db *reform.DB
+	s3 awsS3
+	l  *logrus.Entry
 
 	backupv1beta1.UnimplementedLocationsServer
 }
 
 // NewLocationsService creates new backup locations API service.
-func NewLocationsService(db *reform.DB, s3 awsS3, storage storageService) *LocationsService {
+func NewLocationsService(db *reform.DB, s3 awsS3) *LocationsService {
 	return &LocationsService{
-		l:       logrus.WithField("component", "management/backup/locations"),
-		db:      db,
-		s3:      s3,
-		storage: storage,
+		l:  logrus.WithField("component", "management/backup/locations"),
+		db: db,
+		s3: s3,
 	}
 }
 
@@ -255,31 +253,6 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 	}
 
 	return &backupv1beta1.RemoveLocationResponse{}, nil
-}
-
-// ListPITRTimelines lists available PITR timelines/time-ranges (for MongoDB)
-func (s *LocationsService) ListPITRTimelines(
-	ctx context.Context,
-	req *backupv1beta1.ListPitrTimelinesRequest,
-) (*backupv1beta1.ListPitrTimelinesResponse, error) {
-	q := s.db.Querier
-
-	artifact, err := models.FindArtifactByID(q, req.ArtifactId)
-	if err != nil {
-		return nil, err
-	}
-	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
-	if err != nil {
-		return nil, err
-	}
-
-	timelines, err := s.storage.ListPITRTimelines(ctx, *location)
-	if err != nil {
-		return nil, err
-	}
-	return &backupv1beta1.ListPitrTimelinesResponse{
-		Timelines: timelines,
-	}, nil
 }
 
 func convertLocation(location *models.BackupLocation) (*backupv1beta1.Location, error) {

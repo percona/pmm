@@ -1,0 +1,82 @@
+package backup
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/brianvoe/gofakeit/v6"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+)
+
+func TestListPitrTimelines(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	mockedRemovalSvc := &mockRemovalService{}
+	mockedStorageSvc := &mockStorageService{}
+
+	timelines := []*backupv1beta1.PitrTimeline{
+		{
+			Filename:       "2022.tar.gz",
+			ReplicaSet:     "rs0",
+			StartTimestamp: timestamppb.New(time.Now()),
+			EndTimestamp:   timestamppb.New(time.Now()),
+		},
+	}
+
+	mockedStorageSvc.On("ListPITRTimelines", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
+	svc := NewArtifactsService(db, mockedRemovalSvc, mockedStorageSvc)
+	var artifactID string
+	var locationID string
+
+	t.Run("add awsS3", func(t *testing.T) {
+		params := models.CreateBackupLocationParams{
+			Name:        gofakeit.Name(),
+			Description: "",
+		}
+		params.S3Config = &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		}
+		loc, err := models.CreateBackupLocation(db.Querier, params)
+		require.NoError(t, err)
+		require.NotEmpty(t, loc.ID)
+		locationID = loc.ID
+	})
+
+	t.Run("create artifact", func(t *testing.T) {
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "test_artifact",
+			Vendor:     "test_vendor",
+			LocationID: locationID,
+			ServiceID:  "test_service",
+			Mode:       models.PITR,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.PendingBackupStatus,
+		})
+		assert.NoError(t, err)
+		assert.NotEmpty(t, artifact.ID)
+		artifactID = artifact.ID
+	})
+
+	response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+		ArtifactId: artifactID,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, response)
+	assert.Len(t, response.Timelines, 1)
+}

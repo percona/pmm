@@ -59,5 +59,5 @@ type removalService interface {
 // storage.Service contains methods that help us probe files in a storage location.
 type storageService interface {
 	// ListPITRTimelines list the available PITR timelines in the provided location
-	ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PITRTimeline, error)
+	ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error)
 }

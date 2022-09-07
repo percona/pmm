@@ -17,15 +17,15 @@ type mockStorageService struct {
 }
 
 // ListPITRTimelines provides a mock function with given fields: ctx, location
-func (_m *mockStorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PITRTimeline, error) {
+func (_m *mockStorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error) {
 	ret := _m.Called(ctx, location)
 
-	var r0 []*backupv1beta1.PITRTimeline
-	if rf, ok := ret.Get(0).(func(context.Context, models.BackupLocation) []*backupv1beta1.PITRTimeline); ok {
+	var r0 []*backupv1beta1.PitrTimeline
+	if rf, ok := ret.Get(0).(func(context.Context, models.BackupLocation) []*backupv1beta1.PitrTimeline); ok {
 		r0 = rf(ctx, location)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*backupv1beta1.PITRTimeline)
+			r0 = ret.Get(0).([]*backupv1beta1.PitrTimeline)
 		}
 	}
 
