@@ -13,8 +13,6 @@ import "managementpb/ia/status.proto";
 import "managementpb/pagination.proto";
 import "managementpb/severity.proto";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // Alert represents Alert.
 message Alert {
   // ID.

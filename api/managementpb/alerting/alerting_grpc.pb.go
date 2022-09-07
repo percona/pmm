@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/alerting/alerting.proto
 
-package alerting
+package alertingv1
 
 import (
 	context "context"
@@ -45,7 +45,7 @@ func NewAlertingClient(cc grpc.ClientConnInterface) AlertingClient {
 
 func (c *alertingClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
 	out := new(ListTemplatesResponse)
-	err := c.cc.Invoke(ctx, "/alerting.Alerting/ListTemplates", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1.Alerting/ListTemplates", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *alertingClient) ListTemplates(ctx context.Context, in *ListTemplatesReq
 
 func (c *alertingClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error) {
 	out := new(CreateTemplateResponse)
-	err := c.cc.Invoke(ctx, "/alerting.Alerting/CreateTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1.Alerting/CreateTemplate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (c *alertingClient) CreateTemplate(ctx context.Context, in *CreateTemplateR
 
 func (c *alertingClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error) {
 	out := new(UpdateTemplateResponse)
-	err := c.cc.Invoke(ctx, "/alerting.Alerting/UpdateTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1.Alerting/UpdateTemplate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *alertingClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateR
 
 func (c *alertingClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
 	out := new(DeleteTemplateResponse)
-	err := c.cc.Invoke(ctx, "/alerting.Alerting/DeleteTemplate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1.Alerting/DeleteTemplate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (c *alertingClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateR
 
 func (c *alertingClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
 	out := new(CreateRuleResponse)
-	err := c.cc.Invoke(ctx, "/alerting.Alerting/CreateRule", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/alerting.v1.Alerting/CreateRule", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func _Alerting_ListTemplates_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/alerting.Alerting/ListTemplates",
+		FullMethod: "/alerting.v1.Alerting/ListTemplates",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlertingServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
@@ -168,7 +168,7 @@ func _Alerting_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/alerting.Alerting/CreateTemplate",
+		FullMethod: "/alerting.v1.Alerting/CreateTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlertingServer).CreateTemplate(ctx, req.(*CreateTemplateRequest))
@@ -186,7 +186,7 @@ func _Alerting_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/alerting.Alerting/UpdateTemplate",
+		FullMethod: "/alerting.v1.Alerting/UpdateTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlertingServer).UpdateTemplate(ctx, req.(*UpdateTemplateRequest))
@@ -204,7 +204,7 @@ func _Alerting_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/alerting.Alerting/DeleteTemplate",
+		FullMethod: "/alerting.v1.Alerting/DeleteTemplate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlertingServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
@@ -222,7 +222,7 @@ func _Alerting_CreateRule_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/alerting.Alerting/CreateRule",
+		FullMethod: "/alerting.v1.Alerting/CreateRule",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AlertingServer).CreateRule(ctx, req.(*CreateRuleRequest))
@@ -234,7 +234,7 @@ func _Alerting_CreateRule_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Alerting_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "alerting.Alerting",
+	ServiceName: "alerting.v1.Alerting",
 	HandlerType: (*AlertingServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
