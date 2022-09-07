@@ -119,7 +119,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	vPGSM, _, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
 
-	_, view := NewPgStatMonitorStructs(vPGSM, vPG)
+	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)

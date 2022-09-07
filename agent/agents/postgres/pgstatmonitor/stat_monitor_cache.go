@@ -96,7 +96,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	}
 	ssc.l.Infof("pg monitor version = %d", vPGSM)
 
-	row, view := NewPgStatMonitorStructs(vPGSM, vPG)
+	row, view := newPgStatMonitorStructs(vPGSM, vPG)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
 	if vPGSM >= pgStatMonitorVersion09 && vPGSM < pgStatMonitorVersion20PG12 {
 		// only pg_stat_monitor from 0.9.0 until 2.0.0 supports state_code. It tells what is the query's current state.

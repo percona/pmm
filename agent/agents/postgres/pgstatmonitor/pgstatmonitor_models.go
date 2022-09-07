@@ -107,8 +107,7 @@ type field struct {
 	pointer interface{}
 }
 
-// NewPgStatMonitorStructs return new PGSM structure.
-func NewPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
@@ -247,7 +246,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 
 // NewStruct makes a new struct for that view or table.
 func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
-	str, _ := NewPgStatMonitorStructs(v.vPGSM, v.vPG)
+	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
 	return str
 }
 
