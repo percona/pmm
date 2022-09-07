@@ -727,6 +727,22 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id)
 		)`,
 	},
+	66: {
+		`UPDATE agents
+		SET log_level = 'error'
+		WHERE log_level = 'fatal'
+		AND agent_type IN (
+			'node_exporter',
+
+			'mysqld_exporter',
+			'qan-mysql-perfschema-agent',
+			'qan-mysql-slowlog-agent',
+
+			'postgres_exporter',
+			'qan-postgresql-pgstatements-agent',
+			'qan-postgresql-pgstatmonitor-agent'
+		);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
