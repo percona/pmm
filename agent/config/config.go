@@ -325,7 +325,7 @@ func configurePaths(cfg *Config, l *logrus.Entry) {
 		}
 	}
 
-	applyBasePath(cfg, l)
+	applyBasePathExporters(cfg, l)
 }
 
 func configureDefaultPaths(cfg *Config) {
@@ -350,7 +350,7 @@ func configureDefaultPaths(cfg *Config) {
 	}
 }
 
-func applyBasePath(cfg *Config, l *logrus.Entry) {
+func applyBasePathExporters(cfg *Config, l *logrus.Entry) {
 	for _, sp := range []*string{
 		&cfg.Paths.NodeExporter,
 		&cfg.Paths.MySQLdExporter,
