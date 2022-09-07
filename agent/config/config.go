@@ -253,11 +253,7 @@ var (
 )
 
 func configureNetworkDefaults(cfg *Config) {
-	if cfg.ListenSocket == "" {
-		configureListenDefaults(cfg)
-	}
-
-	configureListenGRPCDefaults(cfg)
+	configureListenDefaults(cfg)
 
 	if cfg.Ports.Min == 0 {
 		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
@@ -268,19 +264,23 @@ func configureNetworkDefaults(cfg *Config) {
 }
 
 func configureListenDefaults(cfg *Config) {
-	switch {
-	case cfg.ListenAddress == "" && cfg.ListenPort == 0:
-		cfg.ListenSocket = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketJSONFilename)
-		if cfg.ListenSocketGRPC == "" {
-			cfg.ListenSocketGRPC = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketGRPCFilename)
+	if cfg.ListenSocket == "" {
+		switch {
+		case cfg.ListenAddress == "" && cfg.ListenPort == 0:
+			cfg.ListenSocket = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketJSONFilename)
+			if cfg.ListenSocketGRPC == "" {
+				cfg.ListenSocketGRPC = filepath.Join(cfg.Paths.PathsBase, defaultListenSocketGRPCFilename)
+			}
+
+		case cfg.ListenAddress == "" && cfg.ListenPort != 0:
+			cfg.ListenAddress = "127.0.0.1"
+
+		case cfg.ListenAddress != "" && cfg.ListenPort == 0:
+			cfg.ListenPort = 7777
 		}
-
-	case cfg.ListenAddress == "" && cfg.ListenPort != 0:
-		cfg.ListenAddress = "127.0.0.1"
-
-	case cfg.ListenAddress != "" && cfg.ListenPort == 0:
-		cfg.ListenPort = 7777
 	}
+
+	configureListenGRPCDefaults(cfg)
 }
 
 func configureListenGRPCDefaults(cfg *Config) {
