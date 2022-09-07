@@ -179,14 +179,8 @@ func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 
 		var socket string
 
-		dialer := net.Dialer{}
-		conn, err := dialer.DialContext(ctx, "unix", socketPath)
+		err := checkConnection(ctx, "unix", socketPath)
 		if err == nil {
-			err := conn.Close()
-			if err != nil {
-				logrus.Debugf("Socket close error: %#v", err)
-			}
-
 			socket = socketPath
 		}
 
@@ -199,14 +193,8 @@ func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 
 		var port uint32
 
-		dialer := net.Dialer{}
-		conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(localPort))))
+		err := checkConnection(ctx, "tcp", net.JoinHostPort(agentlocal.Localhost, strconv.Itoa(int(localPort))))
 		if err == nil {
-			err := conn.Close()
-			if err != nil {
-				logrus.Debugf("TCP close error: %#v", err)
-			}
-
 			port = localPort
 		}
 
@@ -225,4 +213,18 @@ func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 
 	logrus.Debug("Could not detect socket or port. Using default.")
 	return socketPath, 0
+}
+
+func checkConnection(ctx context.Context, network, address string) error {
+	dialer := net.Dialer{}
+	conn, err := dialer.DialContext(ctx, network, address)
+	if err != nil {
+		return err
+	}
+
+	if err := conn.Close(); err != nil {
+		logrus.Debugf("%q connection close error: %#v", network, err)
+	}
+
+	return nil
 }
