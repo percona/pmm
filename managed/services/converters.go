@@ -466,9 +466,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	}
 }
 
-func SpecifyLogLevel(variant inventorypb.LogLevel) string {
+// SpecifyLogLevel - convert proto enum to string
+// mysqld_exporter, node_exporter and postgres_exporter not support --log.level=fatal
+func SpecifyLogLevel(variant inventorypb.LogLevel, supportLogLevelFatal bool) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""
+	}
+
+	// downgrade instead of return API error
+	if !supportLogLevelFatal && variant == inventorypb.LogLevel_fatal {
+		return inventorypb.LogLevel_error.String()
 	}
 
 	return variant.String()
