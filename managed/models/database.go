@@ -730,6 +730,7 @@ var databaseSchema = [][]string{
 	66: {
 		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
 		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
+		`UPDATE ia_rules SET disabled = TRUE`,
 	},
 }
 
