@@ -48,7 +48,7 @@ message ParamValue {
     }
   ];
   // Parameter type.
-  alerting.v1beta1.ParamType type = 2;
+  alerting.ParamType type = 2;
   // Parameter value.
   oneof value {
     // Bool value.
@@ -77,7 +77,7 @@ message Rule {
   // Expression filled with parameters.
   string expr = 7;
   // Expression parameters definitions.
-  repeated alerting.v1beta1.ParamDefinition params_definitions = 8;
+  repeated alerting.ParamDefinition params_definitions = 8;
   // Expression parameters values.
   repeated ParamValue params_values = 9;
   // Default for duration.

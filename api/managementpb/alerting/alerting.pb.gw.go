@@ -2,11 +2,11 @@
 // source: managementpb/alerting/alerting.proto
 
 /*
-Package alertingv1beta1 is a reverse proxy.
+Package alerting is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package alertingv1beta1
+package alerting
 
 import (
 	"context"
@@ -207,7 +207,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.v1beta1.Alerting/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.Alerting/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -231,7 +231,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.v1beta1.Alerting/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Create"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.Alerting/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -255,7 +255,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.v1beta1.Alerting/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Update"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.Alerting/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -279,7 +279,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.v1beta1.Alerting/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.Alerting/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -303,7 +303,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.v1beta1.Alerting/CreateRule", runtime.WithHTTPPathPattern("/v1/management/alerting/Rules/Create"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/alerting.Alerting/CreateRule", runtime.WithHTTPPathPattern("/v1/management/alerting/Rules/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -365,7 +365,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.v1beta1.Alerting/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.Alerting/ListTemplates", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -386,7 +386,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.v1beta1.Alerting/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Create"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.Alerting/CreateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +407,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.v1beta1.Alerting/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Update"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.Alerting/UpdateTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Update"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -428,7 +428,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.v1beta1.Alerting/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.Alerting/DeleteTemplate", runtime.WithHTTPPathPattern("/v1/management/alerting/Templates/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -449,7 +449,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.v1beta1.Alerting/CreateRule", runtime.WithHTTPPathPattern("/v1/management/alerting/Rules/Create"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/alerting.Alerting/CreateRule", runtime.WithHTTPPathPattern("/v1/management/alerting/Rules/Create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
