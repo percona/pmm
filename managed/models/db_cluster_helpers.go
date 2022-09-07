@@ -23,12 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-type DBClusterFilters struct {
-	Name                string
-	KubernetesClusterID string
-	ClusterType         DBClusterType
-}
-
+// FindDBClustersForKubernetesCluster finds all DB Clusters running on kubernetes cluster with provided ID.
 func FindDBClustersForKubernetesCluster(q *reform.Querier, kubernetesClusterID string) ([]*DBCluster, error) {
 	structs, err := q.SelectAllFrom(DBClusterTable, "WHERE kubernetes_cluster_id = $1 ORDER BY created_at DESC", kubernetesClusterID)
 	if err != nil {

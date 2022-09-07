@@ -25,7 +25,7 @@ import (
 
 // ComputeResources represents container computer resources requests or limits.
 type ComputeResources struct {
-	CpuM        int32 `json:"cpu_m,omitempty"`
+	CPUM        int32 `json:"cpu_m,omitempty"`
 	MemoryBytes int64 `json:"memory_bytes,omitempty"`
 }
 
@@ -36,6 +36,7 @@ type ComponentParams struct {
 	DiskSize         int64             `json:"disk_size,omitempty"`
 }
 
+// PXCClusterParams represents params related to PXC.
 type PXCClusterParams struct {
 	ClusterSize int32            `json:"cluster_size,omitempty"`
 	Pxc         *ComponentParams `json:"pxc,omitempty"`
@@ -43,6 +44,7 @@ type PXCClusterParams struct {
 	Haproxy     *ComponentParams `json:"haproxy,omitempty"`
 }
 
+// PSMDBClusterParams represents params related to PSMDB.
 type PSMDBClusterParams struct {
 	ClusterSize int32            `json:"cluster_size,omitempty"`
 	Psmdb       *ComponentParams `json:"psmdb,omitempty"`
@@ -54,9 +56,10 @@ func (c PXCClusterParams) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *PXCClusterParams) Scan(src interface{}) error { return jsonScan(c, src) }
 
+// DBClusterType represents DB Cluster type(PXC, PSMDB, etc).
 type DBClusterType string
 
-// Agent types (in the same order as in agents.proto).
+// DB Cluster types (in the same order as in agents.proto).
 const (
 	PSMDBType DBClusterType = "psmdb"
 	PXCType   DBClusterType = "pxc"

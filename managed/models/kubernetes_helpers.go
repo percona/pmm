@@ -153,7 +153,7 @@ func RemoveKubernetesCluster(q *reform.Querier, name string, mode RemoveMode) er
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
 		}
 	}
 

@@ -109,7 +109,6 @@ func (s *DBClustersSynchronizer) syncAllDBClusters(ctx context.Context) {
 		}()
 	}
 	wg.Wait()
-	return
 }
 
 // SyncDBClusters syncs db clusters list between real kubernetes cluster and our DB.
@@ -209,6 +208,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 	return nil
 }
 
+// WatchDBClusterDeletion adds DB cluster to watch list of the clusters in deletion status.
 func (s *DBClustersSynchronizer) WatchDBClusterDeletion(cluster *models.DBCluster) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -289,6 +289,7 @@ func (s *DBClustersSynchronizer) syncDeletingDBCluster(ctx context.Context, c de
 	}
 }
 
+// RemoveDBCluster removes DB Cluster from database and cache.
 func (s *DBClustersSynchronizer) RemoveDBCluster(cluster *models.DBCluster) error {
 	s.removeFromDeletingClusters(deletingDBCluster{
 		kubernetesClusterID: cluster.KubernetesClusterID,

@@ -22,10 +22,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/managed/models"
 )
 
+// Initializer handles enabling/disabling DBaaS logic.
 type Initializer struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -38,6 +37,7 @@ type Initializer struct {
 	m       sync.Mutex
 }
 
+// NewInitializer returns new object of Initializer type.
 func NewInitializer(db *reform.DB, client dbaasClient, dbClustersSynchronizer *DBClustersSynchronizer) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
@@ -48,19 +48,7 @@ func NewInitializer(db *reform.DB, client dbaasClient, dbClustersSynchronizer *D
 	}
 }
 
-func (in *Initializer) Update(ctx context.Context) error {
-	settings, err := models.GetSettings(in.db)
-	if err != nil {
-		in.l.Errorf("Failed to get settings: %+v.", err)
-		return err
-	}
-	if settings.DBaaS.Enabled {
-		return in.Enable(ctx)
-	} else {
-		return in.Disable(ctx)
-	}
-}
-
+// Enable enables DBaaS feature and runs everything needed.
 func (in *Initializer) Enable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
@@ -79,6 +67,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	return nil
 }
 
+// Disable disables DBaaS feature and stops everything needed.
 func (in *Initializer) Disable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
