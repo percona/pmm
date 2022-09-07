@@ -91,11 +91,6 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 			BucketName: req.S3Config.BucketName,
 		}
 	}
-	if req.PmmServerConfig != nil {
-		params.PMMServerConfig = &models.PMMServerLocationConfig{
-			Path: req.PmmServerConfig.Path,
-		}
-	}
 
 	if req.PmmClientConfig != nil {
 		params.PMMClientConfig = &models.PMMClientLocationConfig{
@@ -153,12 +148,6 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		}
 	}
 
-	if req.PmmServerConfig != nil {
-		params.PMMServerConfig = &models.PMMServerLocationConfig{
-			Path: req.PmmServerConfig.Path,
-		}
-	}
-
 	if req.PmmClientConfig != nil {
 		params.PMMClientConfig = &models.PMMClientLocationConfig{
 			Path: req.PmmClientConfig.Path,
@@ -207,12 +196,6 @@ func (s *LocationsService) TestLocationConfig(
 			AccessKey:  req.S3Config.AccessKey,
 			SecretKey:  req.S3Config.SecretKey,
 			BucketName: req.S3Config.BucketName,
-		}
-	}
-
-	if req.PmmServerConfig != nil {
-		locationConfig.PMMServerConfig = &models.PMMServerLocationConfig{
-			Path: req.PmmServerConfig.Path,
 		}
 	}
 
@@ -266,13 +249,6 @@ func convertLocation(locationModel *models.BackupLocation) (*backupv1beta1.Locat
 		config := locationModel.PMMClientConfig
 		loc.Config = &backupv1beta1.Location_PmmClientConfig{
 			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
-				Path: config.Path,
-			},
-		}
-	case models.PMMServerBackupLocationType:
-		config := locationModel.PMMServerConfig
-		loc.Config = &backupv1beta1.Location_PmmServerConfig{
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
 				Path: config.Path,
 			},
 		}

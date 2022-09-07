@@ -36,7 +36,6 @@ const (
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 3 * time.Second
-	maxLogsChunkSize    = 50
 )
 
 type pbmSeverity int

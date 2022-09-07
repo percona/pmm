@@ -131,7 +131,6 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	if locationModel != nil {
 		locationConfig = &models.BackupLocationConfig{
-			PMMServerConfig: locationModel.PMMServerConfig,
 			PMMClientConfig: locationModel.PMMClientConfig,
 			S3Config:        locationModel.S3Config,
 		}
@@ -313,7 +312,7 @@ func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.J
 
 // StartMySQLBackupJob starts mysql backup job on the pmm-agent.
 func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time.Duration, name string, dbConfig *models.DBConfig, locationConfig *models.BackupLocationConfig) error {
-	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql backup", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -373,10 +372,10 @@ func (s *JobsService) StartMongoDBBackupJob(
 	var err error
 	switch dataModel {
 	case models.PhysicalDataModel:
-		err = PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb physical backup", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
-		err = PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb logical backup", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
 	default:
 		err = errors.Errorf("unknown data model: %s", dataModel)
@@ -404,7 +403,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.PMMClientConfig != nil:
-		if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
 			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
 			return err
@@ -448,7 +447,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 	name string,
 	locationConfig *models.BackupLocationConfig,
 ) error {
-	if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+	if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 		"mysql restore", pmmAgentMinVersionForMySQLBackupAndRestore); err != nil {
 		return err
 	}
@@ -500,10 +499,10 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	var err error
 	switch dataModel {
 	case models.PhysicalDataModel:
-		err = PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb physical restore", pmmAgentMinVersionForMongoPhysicalBackupAndRestore)
 	case models.LogicalDataModel:
-		err = PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb logical restore", pmmAgentMinVersionForMongoLogicalBackupAndRestore)
 	default:
 		err = errors.Errorf("unknown data model: %s", dataModel)
@@ -527,7 +526,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
 	case locationConfig.PMMClientConfig != nil:
-		if err := PMMAgentSupportedByAgentID(s.r.db.Querier, pmmAgentID,
+		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
 			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
 			return err

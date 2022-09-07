@@ -69,7 +69,7 @@ func TestPMMAgentSupported(t *testing.T) {
 				AgentID: "Test agent ID",
 				Version: pointer.ToString(test.agentVersion),
 			}
-			err := PMMAgentSupported(&agentModel, prefix, minVersion)
+			err := isAgentSupported(&agentModel, prefix, minVersion)
 			if test.errString == "" {
 				assert.NoError(t, err)
 			} else {
@@ -79,12 +79,12 @@ func TestPMMAgentSupported(t *testing.T) {
 	}
 
 	t.Run("No version info", func(t *testing.T) {
-		err := PMMAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := isAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "has no version info")
 	})
 
 	t.Run("Nil agent", func(t *testing.T) {
-		err := PMMAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := isAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "nil agent")
 	})
 }

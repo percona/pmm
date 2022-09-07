@@ -47,7 +47,7 @@ func TestCreateBackupLocation(t *testing.T) {
 	t.Run("add server config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -157,12 +157,6 @@ func TestListBackupLocations(t *testing.T) {
 								return false
 							}
 						}
-						if req.PmmServerConfig != nil {
-							cfg := loc.Config.(*backupv1beta1.Location_PmmServerConfig)
-							if req.PmmServerConfig.Path != cfg.PmmServerConfig.Path {
-								return false
-							}
-						}
 						return true
 					}
 				}
@@ -189,7 +183,7 @@ func TestChangeBackupLocation(t *testing.T) {
 	t.Run("update existing config", func(t *testing.T) {
 		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -214,18 +208,18 @@ func TestChangeBackupLocation(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, updateReq.Name, updatedLocation.Name)
 		assert.Equal(t, updateReq.Description, updatedLocation.Description)
-		assert.Nil(t, updatedLocation.PMMServerConfig)
+		assert.Nil(t, updatedLocation.PMMClientConfig)
 		require.NotNil(t, updatedLocation.S3Config)
 		assert.Equal(t, updateReq.S3Config.Endpoint, updatedLocation.S3Config.Endpoint)
-		assert.Equal(t, updateReq.S3Config.SecretKey, updatedLocation.S3Config.SecretKey)
 		assert.Equal(t, updateReq.S3Config.AccessKey, updatedLocation.S3Config.AccessKey)
+		assert.Equal(t, updateReq.S3Config.SecretKey, updatedLocation.S3Config.SecretKey)
 		assert.Equal(t, updateReq.S3Config.BucketName, updatedLocation.S3Config.BucketName)
 	})
 
 	t.Run("update only name", func(t *testing.T) {
 		addReq := &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		}
@@ -243,15 +237,15 @@ func TestChangeBackupLocation(t *testing.T) {
 		updatedLocation, err := models.FindBackupLocationByID(db.Querier, loc.LocationId)
 		require.NoError(t, err)
 		assert.Equal(t, updateReq.Name, updatedLocation.Name)
-		require.NotNil(t, updatedLocation.PMMServerConfig)
-		assert.Equal(t, addReq.PmmServerConfig.Path, updatedLocation.PMMServerConfig.Path)
+		require.NotNil(t, updatedLocation.PMMClientConfig)
+		assert.Equal(t, addReq.PmmClientConfig.Path, updatedLocation.PMMClientConfig.Path)
 	})
 
 	t.Run("update to existing name", func(t *testing.T) {
 		name := gofakeit.Name()
 		_, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: name,
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -259,7 +253,7 @@ func TestChangeBackupLocation(t *testing.T) {
 
 		loc2, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -268,7 +262,7 @@ func TestChangeBackupLocation(t *testing.T) {
 		updateReq := &backupv1beta1.ChangeLocationRequest{
 			LocationId: loc2.LocationId,
 			Name:       name,
-			PmmServerConfig: &backupv1beta1.PMMServerLocationConfig{
+			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
 				Path: "/tmp",
 			},
 		}

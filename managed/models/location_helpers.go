@@ -29,7 +29,7 @@ import (
 
 func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	if id == "" {
-		return status.Error(codes.InvalidArgument, "empty Location ID.")
+		panic("empty Location ID")
 	}
 
 	location := &BackupLocation{ID: id}
@@ -45,7 +45,7 @@ func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 
 func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	if name == "" {
-		return status.Error(codes.InvalidArgument, "empty Location Name.")
+		panic("empty Location Name")
 	}
 
 	var location BackupLocation
@@ -57,16 +57,6 @@ func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	default:
 		return errors.WithStack(err)
 	}
-}
-
-func checkPMMServerLocationConfig(c *PMMServerLocationConfig) error {
-	if c == nil {
-		return status.Error(codes.InvalidArgument, "PMM server location config is empty.")
-	}
-	if c.Path == "" {
-		return status.Error(codes.InvalidArgument, "PMM server config path field is empty.")
-	}
-	return nil
 }
 
 func checkPMMClientLocationConfig(c *PMMClientLocationConfig) error {
@@ -205,7 +195,6 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 // BackupLocationConfig groups all backup locations configs.
 type BackupLocationConfig struct {
 	PMMClientConfig *PMMClientLocationConfig
-	PMMServerConfig *PMMServerLocationConfig
 	S3Config        *S3LocationConfig
 }
 
@@ -222,11 +211,6 @@ func (c BackupLocationConfig) Validate(params BackupLocationValidationParams) er
 	if c.S3Config != nil {
 		configCount++
 		err = checkS3Config(c.S3Config, params.WithBucketRegion)
-	}
-
-	if c.PMMServerConfig != nil {
-		configCount++
-		err = checkPMMServerLocationConfig(c.PMMServerConfig)
 	}
 
 	if c.PMMClientConfig != nil {
@@ -252,16 +236,9 @@ func (c BackupLocationConfig) FillLocationModel(locationModel *BackupLocation) {
 		locationModel.Type = S3BackupLocationType
 		locationModel.S3Config = c.S3Config
 		locationModel.PMMClientConfig = nil
-		locationModel.PMMServerConfig = nil
-	case c.PMMServerConfig != nil:
-		locationModel.Type = PMMServerBackupLocationType
-		locationModel.PMMServerConfig = c.PMMServerConfig
-		locationModel.PMMClientConfig = nil
-		locationModel.S3Config = nil
 	case c.PMMClientConfig != nil:
 		locationModel.Type = PMMClientBackupLocationType
 		locationModel.PMMClientConfig = c.PMMClientConfig
-		locationModel.PMMServerConfig = nil
 		locationModel.S3Config = nil
 	}
 }

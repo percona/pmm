@@ -20,6 +20,8 @@ import (
 	"strconv"
 )
 
+const maxLogsChunkSize = 50
+
 // DBConnConfig contains required properties for connection to DB.
 type DBConnConfig struct {
 	User     string

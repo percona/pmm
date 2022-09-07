@@ -20,7 +20,6 @@ type BackupLocationType string
 // BackupLocation types. Same as in managed/models/location_model.go.
 const (
 	S3BackupLocationType        BackupLocationType = "s3"
-	PMMServerBackupLocationType BackupLocationType = "pmm-server" // Not used yet.
 	PMMClientBackupLocationType BackupLocationType = "pmm-client"
 )
 

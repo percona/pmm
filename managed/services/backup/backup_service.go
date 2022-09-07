@@ -31,19 +31,19 @@ import (
 
 // Service represents core logic for db backup.
 type Service struct {
-	db               *reform.DB
-	jobsService      jobsService
-	agentsRegistry   agentsRegistry
-	compatibilitySvc compatibilityService
+	db                   *reform.DB
+	jobsService          jobsService
+	agentsRegistry       agentsRegistry
+	compatibilityService compatibilityService
 }
 
 // NewService creates new backups logic service.
 func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, cSvc compatibilityService) *Service {
 	return &Service{
-		db:               db,
-		jobsService:      jobsService,
-		agentsRegistry:   agentsRegistry,
-		compatibilitySvc: cSvc,
+		db:                   db,
+		jobsService:          jobsService,
+		agentsRegistry:       agentsRegistry,
+		compatibilityService: cSvc,
 	}
 }
 
@@ -61,7 +61,7 @@ type PerformBackupParams struct {
 
 // PerformBackup starts on-demand backup.
 func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
-	dbVersion, err := s.compatibilitySvc.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
+	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
 	}
@@ -165,7 +165,6 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	}
 
 	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: locationModel.PMMServerConfig,
 		PMMClientConfig: locationModel.PMMClientConfig,
 		S3Config:        locationModel.S3Config,
 	}
@@ -222,7 +221,7 @@ type prepareRestoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error) {
-	dbVersion, err := s.compatibilitySvc.CheckSoftwareCompatibilityForService(ctx, serviceID)
+	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
 		return "", err
 	}
@@ -402,7 +401,6 @@ func (s *Service) prepareRestoreJob(
 
 func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestoreJobParams) error {
 	locationConfig := &models.BackupLocationConfig{
-		PMMServerConfig: params.LocationModel.PMMServerConfig,
 		PMMClientConfig: params.LocationModel.PMMClientConfig,
 		S3Config:        params.LocationModel.S3Config,
 	}

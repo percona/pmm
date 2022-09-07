@@ -717,6 +717,10 @@ var databaseSchema = [][]string{
 	64: {
 		`UPDATE artifacts SET data_model = 'logical'`,
 	},
+	65: {
+		`ALTER TABLE backup_locations
+			DROP COLUMN pmm_server_config`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

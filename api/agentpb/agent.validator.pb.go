@@ -606,13 +606,6 @@ func (this *StartJobRequest_MySQLBackup) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MySQLBackup_PmmClientConfig); ok {
-		if oneOfNester.PmmClientConfig != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmClientConfig); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
-			}
-		}
-	}
 	return nil
 }
 
@@ -621,13 +614,6 @@ func (this *StartJobRequest_MySQLRestoreBackup) Validate() error {
 		if oneOfNester.S3Config != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetLocationConfig().(*StartJobRequest_MySQLRestoreBackup_PmmClientConfig); ok {
-		if oneOfNester.PmmClientConfig != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmClientConfig); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
 			}
 		}
 	}

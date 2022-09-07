@@ -26,17 +26,17 @@ import (
 // ErrIncompatibleAgentVersion is returned when the version of the running pmm-agent does not support a given functionality.
 var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
 
-// PMMAgentSupportedByAgentID wraps PMMAgentSupported and accepts agent ID instead of agent model.
-func PMMAgentSupportedByAgentID(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
+// PMMAgentSupported checks if pmm agent version satisfies required min version.
+func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
-	return PMMAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
+	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
 }
 
-// PMMAgentSupported checks if pmm agent version satisfies required min version.
-func PMMAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+// isAgentSupported contains logic for PMMAgentSupported.
+func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	if agentModel == nil {
 		return errors.New("nil agent")
 	}
@@ -52,6 +52,5 @@ func PMMAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmm
 		return errors.WithMessagef(ErrIncompatibleAgentVersion, "%s is not supported on pmm-agent %q version %q, min required version %q", functionalityPrefix,
 			agentModel.AgentID, *agentModel.Version, pmmMinVersion)
 	}
-
 	return nil
 }
