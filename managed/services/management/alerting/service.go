@@ -53,7 +53,7 @@ import (
 )
 
 const (
-	templatesDir         = "/srv/ia/templates"
+	templatesDir         = "/srv/alerting/templates"
 	portalRequestTimeout = 2 * time.Minute // time limit to get templates list from the portal
 
 	dirPerm = os.FileMode(0o775)
@@ -139,7 +139,7 @@ func (s *Service) GetTemplates() map[string]TemplateInfo {
 // CollectTemplates collects IA rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
-// user file templates: read from yaml files created by the user in `/srv/ia/templates`
+// user file templates: read from yaml files created by the user in `/srv/alerting/templates`
 // user API templates: in the DB created using the API.
 func (s *Service) CollectTemplates(ctx context.Context) {
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
@@ -269,7 +269,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template
 	return res, nil
 }
 
-// loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/ia/templates.
+// loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/alerting/templates.
 func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
 	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {

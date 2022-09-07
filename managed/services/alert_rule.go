@@ -15,7 +15,7 @@
 
 package services
 
-// This file contains grafana alerting API models.
+// This file contains grafana alerting API DTOs.
 
 // Rule represents grafana alerting rule.
 type Rule struct {

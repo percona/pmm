@@ -187,7 +187,7 @@ message ParamValue {
     }
   ];
   // Parameter type.
-  alerting.v1beta1.ParamType type = 2;
+  ParamType type = 2;
   // Parameter value.
   oneof value {
     // Bool value.
@@ -222,7 +222,7 @@ message CreateRuleRequest {
 
 message CreateRuleResponse {}
 
-// Alerting service lets to create alert rules from templates.
+// Alerting service lets to manage alerting templates and create alerting rules from them.
 service Alerting {
   // ListTemplates returns a list of all collected alert rule templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
