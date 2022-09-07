@@ -71,7 +71,7 @@ type TemplateInfo struct {
 	CreatedAt *time.Time
 }
 
-// Service is responsible for interactions with IA rule templates.
+// Service is responsible alerting templates and rules creation from them.
 type Service struct {
 	db                 *reform.DB
 	l                  *logrus.Entry
