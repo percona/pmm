@@ -107,6 +107,7 @@ type field struct {
 	pointer interface{}
 }
 
+// NewPgStatMonitorStructs return new PGSM structure.
 func NewPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
 	s := &pgStatMonitor{}
 	fields := []field{
