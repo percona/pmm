@@ -71,7 +71,7 @@ type AddPostgreSQLCommand struct {
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
-	AddLogLevelFatalFlags
+	AddLogLevelNoFatalFlags
 }
 
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
