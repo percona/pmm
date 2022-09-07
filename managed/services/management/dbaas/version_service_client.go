@@ -204,7 +204,7 @@ func (c *VersionServiceClient) SupportedOperatorVersionsList(ctx context.Context
 	}
 
 	if len(resp.Versions) == 0 {
-		return map[string][]string{}, nil
+		return make(map[string][]string), nil
 	}
 
 	operatorVersions := map[string][]string{
