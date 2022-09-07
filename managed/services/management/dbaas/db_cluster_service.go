@@ -37,13 +37,13 @@ type DBClusterService struct {
 	controllerClient       dbaasClient
 	grafanaClient          grafanaClient
 	versionServiceClient   *VersionServiceClient
-	dbClustersSynchronizer *DBClustersSynchronizer
+	dbClustersSynchronizer dbClusterSynchronizer
 
 	dbaasv1beta1.UnimplementedDBClustersServer
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient, dbClustersSynchronizer *DBClustersSynchronizer) dbaasv1beta1.DBClustersServer {
+func NewDBClusterService(db *reform.DB, controllerClient dbaasClient, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient, dbClustersSynchronizer dbClusterSynchronizer) dbaasv1beta1.DBClustersServer {
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	service := &DBClusterService{
 		db:                     db,
@@ -104,7 +104,7 @@ func (s *DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1
 			Id:             cluster.ID,
 			Name:           cluster.Name,
 			ClusterType:    clusterType,
-			InstalledImage: cluster.InstalledImage,
+			InstalledImage: currentDBVersion,
 			AvailableImage: nextVersionImage,
 		}
 	}

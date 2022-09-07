@@ -504,7 +504,6 @@ const (
 	latestPXCVersion    = "8.0.0"
 	defaultPSMDBVersion = "3.6.18-5.0"
 	latestPSMDBVersion  = "4.5.0"
-	port                = "5497"
 	clusterName         = "installoperator"
 )
 
@@ -599,15 +598,13 @@ func TestInstallOperator(t *testing.T) {
 			},
 		},
 	}
-	db, c, dbaasClient := setup(t, clusterName, response, port, defaultPXCVersion, defaultPSMDBVersion)
-
-	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
-	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
-
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
-	defer cancel()
 
 	t.Run("Defaults not supported", func(t *testing.T) {
+		_, c, _ := setup(t, clusterName, response, "5497", defaultPXCVersion, defaultPSMDBVersion)
+
+		ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
+		defer cancel()
+
 		resp, err := c.InstallOperator(ctx, &dbaasv1beta1.InstallOperatorRequest{
 			KubernetesClusterName: clusterName,
 			OperatorType:          pxcOperator,
@@ -626,6 +623,14 @@ func TestInstallOperator(t *testing.T) {
 	})
 
 	t.Run("Defaults supported", func(t *testing.T) {
+		db, c, dbaasClient := setup(t, clusterName, response, "5498", defaultPXCVersion, defaultPSMDBVersion)
+
+		dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
+		dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
+
+		ctx, cancel := context.WithTimeout(context.TODO(), time.Second*5)
+		defer cancel()
+
 		response.Versions[1].Matrix.Pxc[defaultPXCVersion] = componentVersion{}
 		response.Versions[3].Matrix.Mongod[defaultPSMDBVersion] = componentVersion{}
 

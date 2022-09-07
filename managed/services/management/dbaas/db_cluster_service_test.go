@@ -95,7 +95,8 @@ func TestDBClusterService(t *testing.T) {
 
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, versionService, nil)
+	synchronizer := new(mockDbClusterSynchronizer)
+	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, versionService, synchronizer)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",
@@ -104,6 +105,8 @@ func TestDBClusterService(t *testing.T) {
 		Status: controllerv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK,
 	}, nil)
 
+	synchronizer.On("SyncDBClusters", mock.Anything, mock.Anything).Return(nil)
+	synchronizer.On("WatchDBClusterDeletion", mock.Anything).Return().Twice()
 	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
 	dbaasClient.On("InstallPSMDBOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPSMDBOperatorResponse{}, nil)
 
@@ -123,7 +126,7 @@ func TestDBClusterService(t *testing.T) {
 		pxcCluster, err := models.CreateOrUpdateDBCluster(db.Querier, models.PXCType, &models.DBClusterParams{
 			KubernetesClusterID: kubernetesCluster.ID,
 			Name:                "first-pxc-test",
-			InstalledImage:      "5.7.26-31.37",
+			InstalledImage:      "percona/percona-xtradb-cluster:5.7.26-31.37",
 		})
 		require.NoError(t, err)
 		require.NotNil(t, pxcCluster)
@@ -131,7 +134,7 @@ func TestDBClusterService(t *testing.T) {
 		psmdbCluster, err := models.CreateOrUpdateDBCluster(db.Querier, models.PSMDBType, &models.DBClusterParams{
 			KubernetesClusterID: kubernetesCluster.ID,
 			Name:                "first-psmdb-test",
-			InstalledImage:      "4.4.10-11",
+			InstalledImage:      "percona/percona-psmdb-cluster:4.4.10-11",
 		})
 		require.NoError(t, err)
 		require.NotNil(t, psmdbCluster)
@@ -139,10 +142,10 @@ func TestDBClusterService(t *testing.T) {
 		resp, err := s.ListDBClusters(ctx, &dbaasv1beta1.ListDBClustersRequest{KubernetesClusterName: dbKubernetesClusterNameTest})
 		assert.NoError(t, err)
 		assert.Len(t, resp.DbClusters, 2)
-		assert.Equal(t, resp.DbClusters[0].Name, "first-pxc-test")
-		assert.Equal(t, resp.DbClusters[0].InstalledImage, "5.7.26-31.37")
-		assert.Equal(t, resp.DbClusters[1].Name, "first-psmdb-test")
-		assert.Equal(t, resp.DbClusters[1].InstalledImage, "4.4.10-11")
+		assert.Equal(t, resp.DbClusters[0].Name, "first-psmdb-test")
+		assert.Equal(t, resp.DbClusters[0].InstalledImage, "4.4.10-11")
+		assert.Equal(t, resp.DbClusters[1].Name, "first-pxc-test")
+		assert.Equal(t, resp.DbClusters[1].InstalledImage, "5.7.26-31.37")
 	})
 
 	t.Run("BasicGetPXCCluster", func(t *testing.T) {
@@ -173,7 +176,7 @@ func TestDBClusterService(t *testing.T) {
 				},
 			},
 		}
-		dbaasClient.On("GetPXCClusters", ctx, mock.Anything).Return(&mockPXCResp, nil)
+		dbaasClient.On("GetPXCCluster", ctx, mock.Anything, mock.Anything).Return(&mockPXCResp, nil)
 
 		cluster, err := s.GetDBCluster(ctx, &dbaasv1beta1.GetDBClusterRequest{
 			KubernetesClusterName: kubernetesCluster.KubernetesClusterName,
@@ -233,8 +236,14 @@ func TestDBClusterService(t *testing.T) {
 	})
 
 	t.Run("BasicDeletePXCCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		dbClusterName := "delete-pxc-test"
+		_, err := models.CreateOrUpdateDBCluster(db.Querier, models.PXCType, &models.DBClusterParams{
+			KubernetesClusterID: kubernetesCluster.ID,
+			Name:                dbClusterName,
+			InstalledImage:      "",
+		})
+		require.NoError(t, err)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, synchronizer)
 		mockReq := controllerv1beta1.DeletePXCClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: dbKubeconfigTest,
@@ -251,13 +260,19 @@ func TestDBClusterService(t *testing.T) {
 			ClusterType:           dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC,
 		}
 
-		_, err := s.DeleteDBCluster(ctx, &in)
+		_, err = s.DeleteDBCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 
 	t.Run("BasicDeletePSMDBCluster", func(t *testing.T) {
-		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, nil)
 		dbClusterName := "delete-psmdb-test"
+		_, err := models.CreateOrUpdateDBCluster(db.Querier, models.PSMDBType, &models.DBClusterParams{
+			KubernetesClusterID: kubernetesCluster.ID,
+			Name:                dbClusterName,
+			InstalledImage:      "",
+		})
+		require.NoError(t, err)
+		s := NewDBClusterService(db, dbaasClient, grafanaClient, versionService, synchronizer)
 		mockReq := controllerv1beta1.DeletePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: dbKubeconfigTest,
@@ -274,7 +289,7 @@ func TestDBClusterService(t *testing.T) {
 			ClusterType:           dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PSMDB,
 		}
 
-		_, err := s.DeleteDBCluster(ctx, &in)
+		_, err = s.DeleteDBCluster(ctx, &in)
 		assert.NoError(t, err)
 	})
 }

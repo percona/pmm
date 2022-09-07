@@ -130,7 +130,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			},
 		})
 		if err != nil {
-			return errors.Wrap(err, "couldn't get the list of PXC clusters")
+			return errors.Wrap(err, "couldn't get the list of PXC clusters from Kubernetes")
 		}
 	}
 
@@ -144,7 +144,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			},
 		})
 		if err != nil {
-			return errors.Wrap(err, "couldn't get the list of PSMDB clusters")
+			return errors.Wrap(err, "couldn't get the list of PSMDB clusters from Kubernetes")
 		}
 	}
 
@@ -159,7 +159,7 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			InstalledImage:      c.Params.Pxc.Image,
 		})
 		if err != nil {
-			return errors.Wrapf(err, "couldn't store PXC cluster to DB")
+			return errors.Wrapf(err, "couldn't store PXC cluster to database")
 		}
 		if c.State == dbaascontrollerv1beta1.DBClusterState_DB_CLUSTER_STATE_DELETING {
 			s.WatchDBClusterDeletion(cluster)
@@ -173,10 +173,13 @@ func (s *DBClustersSynchronizer) SyncDBClusters(ctx context.Context, kubernetesC
 			InstalledImage:      c.Params.Image,
 		})
 		if err != nil {
-			return errors.Wrapf(err, "couldn't store PSMDB cluster to DB")
+			return errors.Wrapf(err, "couldn't store PSMDB cluster to database")
 		}
 	}
 	clusters, err := models.FindDBClustersForKubernetesCluster(s.db.Querier, kubernetesCluster.ID)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't get DB clusters list from database")
+	}
 	for _, cluster := range clusters {
 		var found bool
 		switch cluster.ClusterType {

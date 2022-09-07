@@ -108,6 +108,7 @@ func TestPXCClusterService(t *testing.T) {
 	}, nil)
 
 	dbaasClient.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
+	synchronizer.On("SyncDBClusters", mock.Anything, mock.Anything).Return(nil)
 
 	registerKubernetesClusterResponse, err := ks.RegisterKubernetesCluster(ctx, &dbaasv1beta1.RegisterKubernetesClusterRequest{
 		KubernetesClusterName: pxcKubernetesClusterNameTest,

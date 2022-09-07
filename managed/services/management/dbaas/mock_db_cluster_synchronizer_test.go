@@ -15,6 +15,20 @@ type mockDbClusterSynchronizer struct {
 	mock.Mock
 }
 
+// RemoveDBCluster provides a mock function with given fields: cluster
+func (_m *mockDbClusterSynchronizer) RemoveDBCluster(cluster *models.DBCluster) error {
+	ret := _m.Called(cluster)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.DBCluster) error); ok {
+		r0 = rf(cluster)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SyncDBClusters provides a mock function with given fields: ctx, kubernetesCluster
 func (_m *mockDbClusterSynchronizer) SyncDBClusters(ctx context.Context, kubernetesCluster *models.KubernetesCluster) error {
 	ret := _m.Called(ctx, kubernetesCluster)

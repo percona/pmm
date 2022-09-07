@@ -55,6 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 		}
 
 		synchronizer := new(mockDbClusterSynchronizer)
+		synchronizer.On("SyncDBClusters", mock.Anything, mock.Anything).Return(nil)
 		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"), synchronizer)
 		return
 	}
