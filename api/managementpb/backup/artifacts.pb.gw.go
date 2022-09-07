@@ -191,7 +191,7 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/ListPITRTimelines"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimelines"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -295,7 +295,7 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/ListPITRTimelines"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimelines"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -318,7 +318,7 @@ var (
 
 	pattern_Artifacts_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Delete"}, ""))
 
-	pattern_Artifacts_ListPitrTimelines_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Locations", "ListPITRTimelines"}, ""))
+	pattern_Artifacts_ListPitrTimelines_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "ListPITRTimelines"}, ""))
 )
 
 var (

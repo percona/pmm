@@ -102,7 +102,7 @@ service Artifacts {
   // ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location
   rpc ListPitrTimelines(ListPitrTimelinesRequest) returns (ListPitrTimelinesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Locations/ListPITRTimelines"
+      post: "/v1/management/backup/Artifacts/ListPITRTimelines"
       body: "*"
     };
   }

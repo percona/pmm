@@ -122,7 +122,7 @@ func (a *Client) ListPitrTimelines(params *ListPitrTimelinesParams, opts ...Clie
 	op := &runtime.ClientOperation{
 		ID:                 "ListPitrTimelines",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Locations/ListPITRTimelines",
+		PathPattern:        "/v1/management/backup/Artifacts/ListPITRTimelines",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

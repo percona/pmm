@@ -58,7 +58,7 @@ type ListPitrTimelinesOK struct {
 }
 
 func (o *ListPitrTimelinesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/ListPITRTimelines][%d] listPitrTimelinesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] listPitrTimelinesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListPitrTimelinesOK) GetPayload() *ListPitrTimelinesOKBody {
@@ -99,7 +99,7 @@ func (o *ListPitrTimelinesDefault) Code() int {
 }
 
 func (o *ListPitrTimelinesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/ListPITRTimelines][%d] ListPitrTimelines default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] ListPitrTimelines default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListPitrTimelinesDefault) GetPayload() *ListPitrTimelinesDefaultBody {

@@ -18,6 +18,8 @@ package backup
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -118,10 +120,21 @@ func (s *ArtifactsService) ListPitrTimelines(
 	ctx context.Context,
 	req *backupv1beta1.ListPitrTimelinesRequest,
 ) (*backupv1beta1.ListPitrTimelinesResponse, error) {
-	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	var artifact *models.Artifact
+	var err error
+
+	artifact, err = models.FindArtifactByID(s.db.Querier, req.ArtifactId)
 	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Artifact with ID %q not found.", req.ArtifactId)
+		}
 		return nil, err
 	}
+
+	if artifact.Mode != models.PITR {
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
+	}
+
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
 	if err != nil {
 		return nil, err
