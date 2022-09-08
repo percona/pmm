@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -63,11 +62,5 @@ func TestClient(t *testing.T) {
 		c := getClient(t)
 		_, err = c.CheckKubernetesClusterConnection(context.TODO(), "{}")
 		require.Error(t, err)
-	})
-	t.Run("GetKubeConfig", func(t *testing.T) {
-		c := getClient(t)
-		kubeconfig, err := c.GetKubeConfig()
-		require.Error(t, err)
-		assert.Equal(t, "", kubeconfig)
 	})
 }

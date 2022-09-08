@@ -42,7 +42,6 @@ type Client struct {
 	psmdbOperatorClient       controllerv1beta1.PSMDBOperatorAPIClient
 	connM                     sync.RWMutex
 	conn                      *grpc.ClientConn
-	k8sClient                 *k8sClient
 	dbaasControllerAPIAddress string
 }
 
@@ -53,28 +52,6 @@ func NewClient(dbaasControllerAPIAddress string) *Client {
 		dbaasControllerAPIAddress: dbaasControllerAPIAddress,
 	}
 	return c
-}
-
-func (c *Client) initializeInClusterK8sClient() error {
-	client, err := NewK8sInclusterClient()
-	if err != nil {
-		return err
-	}
-	c.k8sClient = client
-	return nil
-}
-
-// GetKubeConfig returns kubeconfig once PMM is inside a k8s cluster
-func (c *Client) GetKubeConfig() (string, error) {
-	if err := c.initializeInClusterK8sClient(); err != nil {
-		return "", err
-	}
-	secret, err := c.k8sClient.GetSecretsForServiceAccount(context.Background(), "default", "pmm-service-account")
-	if err != nil {
-		return "", err
-	}
-	kubeConfig, err := c.k8sClient.GenerateKubeConfig(secret)
-	return string(kubeConfig), err
 }
 
 // Connect connects the client to dbaas-controller API.
