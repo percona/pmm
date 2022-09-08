@@ -119,7 +119,52 @@ func TestPSMDBClusterService(t *testing.T) {
 
 	//nolint:dupl
 	t.Run("BasicCreatePSMDBClusters", func(t *testing.T) {
+		mockGetPSMDBComponentsResponse := &dbaasv1beta1.GetPSMDBComponentsResponse{
+			Versions: []*dbaasv1beta1.OperatorVersion{
+				{
+					Product:  "psmdb-operator",
+					Operator: "1.6.0",
+					Matrix: &dbaasv1beta1.Matrix{
+						Mongod: map[string]*dbaasv1beta1.Component{
+							"4.2.11-12": {
+								ImagePath: "percona/percona-server-mongodb:4.2.11-12",
+								ImageHash: "1909cb7a6ecea9bf0535b54aa86b9ae74ba2fa303c55cf4a1a54262fb0edbd3c",
+								Status:    "recommended",
+								Critical:  false,
+								Default:   false,
+								Disabled:  false,
+							},
+							"4.2.7-7": {
+								ImagePath: "percona/percona-server-mongodb:4.2.7-7",
+								ImageHash: "1d8a0859b48a3e9cadf9ad7308ec5aa4b278a64ca32ff5d887156b1b46146b13",
+								Status:    "available",
+								Critical:  false,
+								Default:   false,
+								Disabled:  false,
+							},
+							"4.4.2-4": {
+								ImagePath: "percona/percona-server-mongodb:4.4.2-4",
+								ImageHash: "991d6049059e5eb1a74981290d829a5fb4ab0554993748fde1e67b2f46f26bf0",
+								Status:    "recommended",
+								Critical:  false,
+								Default:   true,
+								Disabled:  false,
+							},
+							"4.2.8-8": {
+								ImagePath: "percona/percona-server-mongodb:4.2.8-8",
+								ImageHash: "a66e889d3e986413e41083a9c887f33173da05a41c8bd107cf50eede4588a505",
+								Status:    "available",
+								Critical:  false,
+								Default:   false,
+								Disabled:  false,
+							},
+						},
+					},
+				},
+			},
+		}
 		s := NewPSMDBClusterService(db, dbaasClient, grafanaClient, componentsService, versionService.GetVersionServiceURL())
+
 		mockReq := controllerv1beta1.CreatePSMDBClusterRequest{
 			KubeAuth: &controllerv1beta1.KubeAuth{
 				Kubeconfig: psmdbKubeconfTest,
@@ -139,6 +184,7 @@ func TestPSMDBClusterService(t *testing.T) {
 			},
 		}
 
+		componentsService.On("GetPSMDBComponents", mock.Anything, mock.Anything).Return(mockGetPSMDBComponentsResponse, nil)
 		dbaasClient.On("CreatePSMDBCluster", ctx, &mockReq).Return(&controllerv1beta1.CreatePSMDBClusterResponse{}, nil)
 
 		in := dbaasv1beta1.CreatePSMDBClusterRequest{

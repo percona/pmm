@@ -41,10 +41,11 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
 	t.Helper()
+	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 	node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
-		NodeName: "test-node",
+		NodeName: "test-node-" + t.Name(),
 	})
 	require.NoError(t, err)
 
@@ -52,17 +53,22 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 	require.NoError(t, err)
 	require.NoError(t, q.Update(pmmAgent))
 
-	mysql, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+	var service *models.Service
+	service, err = models.AddNewService(q, serviceType, &models.AddDBMSServiceParams{
 		ServiceName: serviceName,
 		NodeID:      node.NodeID,
 		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(3306),
+		Port:        pointer.ToUint16(60000),
 	})
 	require.NoError(t, err)
 
-	agent, err := models.CreateAgent(q, models.MySQLdExporterType, &models.CreateAgentParams{
+	agentType := models.MySQLdExporterType
+	if serviceType == models.MongoDBServiceType {
+		agentType = models.MongoDBExporterType
+	}
+	agent, err := models.CreateAgent(q, agentType, &models.CreateAgentParams{
 		PMMAgentID: pmmAgent.AgentID,
-		ServiceID:  mysql.ServiceID,
+		ServiceID:  service.ServiceID,
 		Username:   "user",
 		Password:   "password",
 	})
@@ -70,58 +76,98 @@ func setup(t *testing.T, q *reform.Querier, serviceName string) *models.Agent {
 	return agent
 }
 
-func TestStartBackupErrors(t *testing.T) {
-	backupService := &mockBackupService{}
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	backupSvc := NewBackupsService(db, backupService, nil)
-	agent := setup(t, db.Querier, t.Name())
+func TestStartBackup(t *testing.T) {
+	t.Run("mysql", func(t *testing.T) {
+		backupService := &mockBackupService{}
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		backupSvc := NewBackupsService(db, backupService, nil)
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
 
-	for _, tc := range []struct {
-		testName    string
-		backupError error
-		code        backupv1beta1.ErrorCode
-	}{
-		{
-			testName:    "xtrabackup not installed",
-			backupError: backup.ErrXtrabackupNotInstalled,
-			code:        backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
-		},
-		{
-			testName:    "invalid xtrabackup",
-			backupError: backup.ErrInvalidXtrabackup,
-			code:        backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
-		},
-		{
-			testName:    "incompatible xtrabackup",
-			backupError: backup.ErrIncompatibleXtrabackup,
-			code:        backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
-		},
-	} {
-		t.Run(tc.testName, func(t *testing.T) {
-			backupError := fmt.Errorf("error: %w", tc.backupError)
-			backupService.On("PerformBackup", mock.Anything, mock.Anything).
-				Return("", backupError).Once()
+		for _, tc := range []struct {
+			testName    string
+			backupError error
+			code        backupv1beta1.ErrorCode
+		}{
+			{
+				testName:    "xtrabackup not installed",
+				backupError: backup.ErrXtrabackupNotInstalled,
+				code:        backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED,
+			},
+			{
+				testName:    "invalid xtrabackup",
+				backupError: backup.ErrInvalidXtrabackup,
+				code:        backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP,
+			},
+			{
+				testName:    "incompatible xtrabackup",
+				backupError: backup.ErrIncompatibleXtrabackup,
+				code:        backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP,
+			},
+		} {
+			t.Run(tc.testName, func(t *testing.T) {
+				backupError := fmt.Errorf("error: %w", tc.backupError)
+				backupService.On("PerformBackup", mock.Anything, mock.Anything).
+					Return("", backupError).Once()
+				ctx := context.Background()
+				resp, err := backupSvc.StartBackup(ctx, &backupv1beta1.StartBackupRequest{
+					ServiceId:     *agent.ServiceID,
+					LocationId:    "locationID",
+					Name:          "name",
+					Description:   "description",
+					RetryInterval: nil,
+					Retries:       0,
+				})
+				assert.Nil(t, resp)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				assert.Equal(t, codes.FailedPrecondition, st.Code())
+				assert.Equal(t, backupError.Error(), st.Message())
+				require.Len(t, st.Details(), 1)
+				detailedError, ok := st.Details()[0].(*backupv1beta1.Error)
+				require.True(t, ok)
+				assert.Equal(t, tc.code, detailedError.Code)
+			})
+		}
+	})
+
+	t.Run("mongodb", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
+
+		locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+			Name:        "Test location snapshots",
+			Description: "Test description",
+			BackupLocationConfig: models.BackupLocationConfig{
+				S3Config: &models.S3LocationConfig{
+					Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+					AccessKey:    "access_key",
+					SecretKey:    "secret_key",
+					BucketName:   "example_bucket",
+					BucketRegion: "us-east-2",
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		t.Run("starting mongodb physical snapshot is successful", func(t *testing.T) {
 			ctx := context.Background()
-			resp, err := backupSvc.StartBackup(ctx, &backupv1beta1.StartBackupRequest{
+			backupService := &mockBackupService{}
+			backupSvc := NewBackupsService(db, backupService, nil)
+			backupService.On("PerformBackup", mock.Anything, mock.Anything).Return("", nil)
+			_, err := backupSvc.StartBackup(ctx, &backupv1beta1.StartBackupRequest{
 				ServiceId:     *agent.ServiceID,
-				LocationId:    "locationID",
+				LocationId:    locationRes.ID,
 				Name:          "name",
 				Description:   "description",
 				RetryInterval: nil,
 				Retries:       0,
+				DataModel:     backupv1beta1.DataModel_PHYSICAL,
 			})
-			assert.Nil(t, resp)
-			st, ok := status.FromError(err)
-			require.True(t, ok)
-			assert.Equal(t, codes.FailedPrecondition, st.Code())
-			assert.Equal(t, backupError.Error(), st.Message())
-			require.Len(t, st.Details(), 1)
-			detailedError, ok := st.Details()[0].(*backupv1beta1.Error)
-			require.True(t, ok)
-			assert.Equal(t, tc.code, detailedError.Code)
+			require.NoError(t, err)
 		})
-	}
+	})
 }
 
 func TestRestoreBackupErrors(t *testing.T) {
@@ -180,16 +226,9 @@ func TestScheduledBackups(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	backupService := &mockBackupService{}
-	backupService.On("SwitchMongoPITR", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	schedulerService := scheduler.New(db, backupService)
-	backupSvc := NewBackupsService(db, backupService, schedulerService)
 	t.Cleanup(func() {
 		_ = sqlDB.Close()
 	})
-
-	agent := setup(t, db.Querier, t.Name())
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
@@ -205,103 +244,153 @@ func TestScheduledBackups(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	t.Run("schedule/change", func(t *testing.T) {
-		req := &backupv1beta1.ScheduleBackupRequest{
-			ServiceId:      pointer.GetString(agent.ServiceID),
-			LocationId:     locationRes.ID,
-			CronExpression: "1 * * * *",
-			StartTime:      timestamppb.New(time.Now()),
-			Name:           t.Name(),
-			Description:    t.Name(),
-			Enabled:        true,
-			Mode:           backupv1beta1.BackupMode_SNAPSHOT,
-			Retries:        maxRetriesAttempts - 1,
-			RetryInterval:  durationpb.New(maxRetryInterval),
-		}
-		res, err := backupSvc.ScheduleBackup(ctx, req)
+	t.Run("mysql", func(t *testing.T) {
+		backupService := &mockBackupService{}
+		schedulerService := scheduler.New(db, backupService)
+		backupSvc := NewBackupsService(db, backupService, schedulerService)
 
-		assert.NoError(t, err)
-		assert.NotEmpty(t, res.ScheduledBackupId)
+		agent := setup(t, db.Querier, models.MySQLServiceType, t.Name())
 
-		task, err := models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
-		require.NoError(t, err)
-		assert.Equal(t, models.ScheduledMySQLBackupTask, task.Type)
-		assert.Equal(t, req.CronExpression, task.CronExpression)
-		data := task.Data.MySQLBackupTask
-		assert.Equal(t, req.Name, data.Name)
-		assert.Equal(t, req.Description, data.Description)
-		assert.Equal(t, req.ServiceId, data.ServiceID)
-		assert.Equal(t, req.LocationId, data.LocationID)
-		assert.Equal(t, req.Retries, data.Retries)
-		assert.Equal(t, req.RetryInterval.AsDuration(), data.RetryInterval)
+		t.Run("schedule/change", func(t *testing.T) {
+			req := &backupv1beta1.ScheduleBackupRequest{
+				ServiceId:      pointer.GetString(agent.ServiceID),
+				LocationId:     locationRes.ID,
+				CronExpression: "1 * * * *",
+				StartTime:      timestamppb.New(time.Now()),
+				Name:           t.Name(),
+				Description:    t.Name(),
+				Enabled:        true,
+				Mode:           backupv1beta1.BackupMode_SNAPSHOT,
+				Retries:        maxRetriesAttempts - 1,
+				RetryInterval:  durationpb.New(maxRetryInterval),
+			}
+			res, err := backupSvc.ScheduleBackup(ctx, req)
 
-		changeReq := &backupv1beta1.ChangeScheduledBackupRequest{
-			ScheduledBackupId: task.ID,
-			Enabled:           wrapperspb.Bool(false),
-			CronExpression:    wrapperspb.String("2 * * * *"),
-			StartTime:         timestamppb.New(time.Now()),
-			Name:              wrapperspb.String("test"),
-			Description:       wrapperspb.String("test"),
-			Retries:           wrapperspb.UInt32(0),
-			RetryInterval:     durationpb.New(time.Second),
-		}
-		_, err = backupSvc.ChangeScheduledBackup(ctx, changeReq)
+			assert.NoError(t, err)
+			assert.NotEmpty(t, res.ScheduledBackupId)
 
-		assert.NoError(t, err)
-		task, err = models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
-		require.NoError(t, err)
-		data = task.Data.MySQLBackupTask
-		assert.Equal(t, changeReq.CronExpression.GetValue(), task.CronExpression)
-		assert.Equal(t, changeReq.Enabled.GetValue(), !task.Disabled)
-		assert.Equal(t, changeReq.Name.GetValue(), data.Name)
-		assert.Equal(t, changeReq.Description.GetValue(), data.Description)
-		assert.Equal(t, changeReq.Retries.GetValue(), data.Retries)
-		assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
+			task, err := models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
+			require.NoError(t, err)
+			assert.Equal(t, models.ScheduledMySQLBackupTask, task.Type)
+			assert.Equal(t, req.CronExpression, task.CronExpression)
+			data := task.Data.MySQLBackupTask
+			assert.Equal(t, req.Name, data.Name)
+			assert.Equal(t, req.Description, data.Description)
+			assert.Equal(t, req.ServiceId, data.ServiceID)
+			assert.Equal(t, req.LocationId, data.LocationID)
+			assert.Equal(t, req.Retries, data.Retries)
+			assert.Equal(t, req.RetryInterval.AsDuration(), data.RetryInterval)
+
+			changeReq := &backupv1beta1.ChangeScheduledBackupRequest{
+				ScheduledBackupId: task.ID,
+				Enabled:           wrapperspb.Bool(false),
+				CronExpression:    wrapperspb.String("2 * * * *"),
+				StartTime:         timestamppb.New(time.Now()),
+				Name:              wrapperspb.String("test"),
+				Description:       wrapperspb.String("test"),
+				Retries:           wrapperspb.UInt32(0),
+				RetryInterval:     durationpb.New(time.Second),
+			}
+			_, err = backupSvc.ChangeScheduledBackup(ctx, changeReq)
+
+			assert.NoError(t, err)
+			task, err = models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
+			require.NoError(t, err)
+			data = task.Data.MySQLBackupTask
+			assert.Equal(t, changeReq.CronExpression.GetValue(), task.CronExpression)
+			assert.Equal(t, changeReq.Enabled.GetValue(), !task.Disabled)
+			assert.Equal(t, changeReq.Name.GetValue(), data.Name)
+			assert.Equal(t, changeReq.Description.GetValue(), data.Description)
+			assert.Equal(t, changeReq.Retries.GetValue(), data.Retries)
+			assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
+		})
+
+		t.Run("list", func(t *testing.T) {
+			res, err := backupSvc.ListScheduledBackups(ctx, &backupv1beta1.ListScheduledBackupsRequest{})
+
+			assert.NoError(t, err)
+			assert.Len(t, res.ScheduledBackups, 1)
+		})
+
+		t.Run("remove", func(t *testing.T) {
+			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
+				CronExpression: "* * * * *",
+				Type:           models.ScheduledMySQLBackupTask,
+			})
+			require.NoError(t, err)
+
+			id := task.ID
+
+			_, err = models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+				Name:       "artifact",
+				Vendor:     "mysql",
+				LocationID: locationRes.ID,
+				ServiceID:  *agent.ServiceID,
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.Snapshot,
+				Status:     models.PendingBackupStatus,
+				ScheduleID: id,
+			})
+			require.NoError(t, err)
+
+			_, err = backupSvc.RemoveScheduledBackup(ctx, &backupv1beta1.RemoveScheduledBackupRequest{
+				ScheduledBackupId: task.ID,
+			})
+			assert.NoError(t, err)
+
+			task, err = models.FindScheduledTaskByID(db.Querier, task.ID)
+			assert.Nil(t, task)
+			tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, id), err)
+
+			artifacts, err := models.FindArtifacts(db.Querier, models.ArtifactFilters{
+				ScheduleID: id,
+			})
+
+			assert.NoError(t, err)
+			assert.Len(t, artifacts, 0)
+		})
 	})
 
-	t.Run("list", func(t *testing.T) {
-		res, err := backupSvc.ListScheduledBackups(ctx, &backupv1beta1.ListScheduledBackupsRequest{})
+	t.Run("mongo", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MongoDBServiceType, t.Name())
 
-		assert.NoError(t, err)
-		assert.Len(t, res.ScheduledBackups, 1)
-	})
+		t.Run("scheduling physical backups fail when PITR is enabled", func(t *testing.T) {
+			ctx := context.Background()
+			schedulerService := &mockScheduleService{}
+			backupSvc := NewBackupsService(db, nil, schedulerService)
 
-	t.Run("remove", func(t *testing.T) {
-		task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
-			CronExpression: "* * * * *",
-			Type:           models.ScheduledMySQLBackupTask,
-		})
-		require.NoError(t, err)
-
-		id := task.ID
-
-		_, err = models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "artifact",
-			Vendor:     "mysql",
-			LocationID: locationRes.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.PendingBackupStatus,
-			ScheduleID: id,
-		})
-		require.NoError(t, err)
-
-		_, err = backupSvc.RemoveScheduledBackup(ctx, &backupv1beta1.RemoveScheduledBackupRequest{
-			ScheduledBackupId: task.ID,
-		})
-		assert.NoError(t, err)
-
-		task, err = models.FindScheduledTaskByID(db.Querier, task.ID)
-		assert.Nil(t, task)
-		tests.AssertGRPCError(t, status.Newf(codes.NotFound, `ScheduledTask with ID "%s" not found.`, id), err)
-
-		artifacts, err := models.FindArtifacts(db.Querier, models.ArtifactFilters{
-			ScheduleID: id,
+			schedulerService.On("Add", mock.Anything, mock.Anything).Return("", nil)
+			_, err := backupSvc.ScheduleBackup(ctx, &backupv1beta1.ScheduleBackupRequest{
+				ServiceId:     *agent.ServiceID,
+				LocationId:    locationRes.ID,
+				Name:          "name",
+				Description:   "description",
+				RetryInterval: durationpb.New(maxRetryInterval),
+				Retries:       maxRetriesAttempts,
+				DataModel:     backupv1beta1.DataModel_PHYSICAL,
+				Mode:          backupv1beta1.BackupMode_PITR,
+			})
+			require.Error(t, err)
+			tests.AssertGRPCErrorRE(t, codes.InvalidArgument, "PITR is only supported for logical backups", err)
 		})
 
-		assert.NoError(t, err)
-		assert.Len(t, artifacts, 0)
+		t.Run("scheduling physical backups snapshot is successful", func(t *testing.T) {
+			ctx := context.Background()
+			schedulerService := &mockScheduleService{}
+			backupSvc := NewBackupsService(db, nil, schedulerService)
+			schedulerService.On("Add", mock.Anything, mock.Anything).Return(&models.ScheduledTask{}, nil)
+			_, err := backupSvc.ScheduleBackup(ctx, &backupv1beta1.ScheduleBackupRequest{
+				ServiceId:     *agent.ServiceID,
+				LocationId:    locationRes.ID,
+				Name:          "name",
+				Description:   "description",
+				RetryInterval: durationpb.New(maxRetryInterval),
+				Retries:       maxRetriesAttempts,
+				DataModel:     backupv1beta1.DataModel_PHYSICAL,
+				Mode:          backupv1beta1.BackupMode_SNAPSHOT,
+			})
+			require.NoError(t, err)
+		})
 	})
 }
 

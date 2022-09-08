@@ -52,30 +52,32 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
 	return "enabled"
 }
 
-type addAgentQANMySQLPerfSchemaAgentCommand struct {
-	PMMAgentID           string
-	ServiceID            string
-	Username             string
-	Password             string
-	CustomLabels         string
-	SkipConnectionCheck  bool
-	DisableQueryExamples bool
-	TLS                  bool
-	TLSSkipVerify        bool
-	TLSCaFile            string
-	TLSCertFile          string
-	TLSKeyFile           string
+// AddAgentQANMySQLPerfSchemaAgentCommand is used by Kong for CLI flags and commands.
+type AddAgentQANMySQLPerfSchemaAgentCommand struct {
+	PMMAgentID           string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID            string            `arg:"" help:"Service identifier"`
+	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
+	Password             string            `help:"MySQL password for scraping metrics"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	TLS                  bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
+	LogLevel             string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
-func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
-		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
+		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +107,7 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 			TLSCa:                tlsCa,
 			TLSCert:              tlsCert,
 			TLSKey:               tlsKey,
-			LogLevel:             &addExporterLogLevel,
+			LogLevel:             &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -117,26 +119,4 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 	return &addAgentQANMySQLPerfSchemaAgentResult{
 		Agent: resp.Payload.QANMysqlPerfschemaAgent,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentQANMySQLPerfSchemaAgent  addAgentQANMySQLPerfSchemaAgentCommand
-	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentQANMySQLPerfSchemaAgent.PMMAgentID)
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentQANMySQLPerfSchemaAgent.ServiceID)
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Username)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.DisableQueryExamples)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.TLS)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.TLSSkipVerify)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCaFile)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSCertFile)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentQANMySQLPerfSchemaAgent.TLSKeyFile)
-	addExporterGlobalFlags(AddAgentQANMySQLPerfSchemaAgentC, false)
 }

@@ -17,23 +17,24 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/alecthomas/kong v0.6.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.78
+	github.com/aws/aws-sdk-go v1.44.86
 	github.com/brianvoe/gofakeit/v6 v6.18.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/go-co-op/gocron v1.16.2
+	github.com/go-co-op/gocron v1.17.0
 	github.com/go-openapi/errors v0.20.3
 	github.com/go-openapi/runtime v0.24.1
-	github.com/go-openapi/strfmt v0.21.2
-	github.com/go-openapi/swag v0.22.0
+	github.com/go-openapi/strfmt v0.21.3
+	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.2
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.34
@@ -54,14 +55,14 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.4.0
 	github.com/stretchr/testify v1.8.0
-	go.mongodb.org/mongo-driver v1.9.1
+	go.mongodb.org/mongo-driver v1.10.1
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f
 	golang.org/x/tools v0.1.12
-	google.golang.org/genproto v0.0.0-20220805133916-01dd62135a58
-	google.golang.org/grpc v1.48.0
+	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.67.0
@@ -94,7 +95,6 @@ require (
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/loads v0.21.1 // indirect
 	github.com/go-openapi/spec v0.20.6 // indirect
-	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1 // indirect

@@ -47,23 +47,21 @@ func (res *addServiceMySQLResult) String() string {
 	return commands.RenderTemplate(addServiceMySQLResultT, res)
 }
 
-type addServiceMySQLCommand struct {
-	ServiceName    string
-	NodeID         string
-	Socket         string
-	Address        string
-	Port           int64
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
+// AddServiceMySQLCommand is used by Kong for CLI flags and commands.
+type AddServiceMySQLCommand struct {
+	ServiceName    string            `arg:"" optional:"" name:"name" help:"Service name"`
+	NodeID         string            `arg:"" optional:"" help:"Node ID"`
+	Address        string            `arg:"" optional:"" help:"Address"`
+	Port           int64             `arg:"" optional:"" help:"Port"`
+	Socket         string            `help:"Path to MySQL socket"`
+	Environment    string            `help:"Environment name"`
+	Cluster        string            `help:"Cluster name"`
+	ReplicationSet string            `help:"Replication set name"`
+	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
-func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddServiceMySQLCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &services.AddMySQLServiceParams{
 		Body: services.AddMySQLServiceBody{
 			ServiceName:    cmd.ServiceName,
@@ -86,23 +84,4 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 	return &addServiceMySQLResult{
 		Service: resp.Payload.Mysql,
 	}, nil
-}
-
-// register command
-var (
-	AddServiceMySQL  addServiceMySQLCommand
-	AddServiceMySQLC = addServiceC.Command("mysql", "Add MySQL service to inventory").Hide(hide)
-)
-
-func init() {
-	AddServiceMySQLC.Arg("name", "Service name").StringVar(&AddServiceMySQL.ServiceName)
-	AddServiceMySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceMySQL.NodeID)
-	AddServiceMySQLC.Arg("address", "Address").StringVar(&AddServiceMySQL.Address)
-	AddServiceMySQLC.Arg("port", "Port").Int64Var(&AddServiceMySQL.Port)
-	AddServiceMySQLC.Flag("socket", "Path to MySQL socket").StringVar(&AddServiceMySQL.Socket)
-
-	AddServiceMySQLC.Flag("environment", "Environment name").StringVar(&AddServiceMySQL.Environment)
-	AddServiceMySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceMySQL.Cluster)
-	AddServiceMySQLC.Flag("replication-set", "Replication set name").StringVar(&AddServiceMySQL.ReplicationSet)
-	AddServiceMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServiceMySQL.CustomLabels)
 }

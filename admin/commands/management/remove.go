@@ -15,11 +15,7 @@
 package management
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/pkg/errors"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -41,13 +37,14 @@ func (res *removeServiceResult) String() string {
 	return commands.RenderTemplate(removeServiceGenericResultT, res)
 }
 
-type removeMySQLCommand struct {
-	ServiceType string
-	ServiceName string
-	ServiceID   string
+// RemoveCommand is used by Kong for CLI flags and commands.
+type RemoveCommand struct {
+	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${serviceTypesEnum}"`
+	ServiceName string `arg:"" default:"" help:"Service name"`
+	ServiceID   string `help:"Service ID"`
 }
 
-func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
+func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
 		// Automatic service lookup during removal
 		//
@@ -104,23 +101,9 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 	return &removeServiceResult{}, nil
 }
 
-func (cmd *removeMySQLCommand) serviceType() *string {
+func (cmd *RemoveCommand) serviceType() *string {
 	if val, ok := allServiceTypes[cmd.ServiceType]; ok {
 		return &val
 	}
 	return nil
-}
-
-// register command
-var (
-	Remove  removeMySQLCommand
-	RemoveC = kingpin.Command("remove", "Remove Service from monitoring")
-)
-
-func init() {
-	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(allServiceTypesKeys, ", "))
-	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, allServiceTypesKeys...)
-	RemoveC.Arg("service-name", "Service name").StringVar(&Remove.ServiceName)
-
-	RemoveC.Flag("service-id", "Service ID").StringVar(&Remove.ServiceID)
 }

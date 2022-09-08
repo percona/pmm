@@ -41,25 +41,24 @@ func (res *addAgentNodeExporterResult) String() string {
 	return commands.RenderTemplate(addAgentNodeExporterResultT, res)
 }
 
-type addAgentNodeExporterCommand struct {
-	PMMAgentID        string
-	CustomLabels      string
-	PushMetrics       bool
-	DisableCollectors string
+// AddAgentNodeExporterCommand is used by Kong for CLI flags and commands.
+type AddAgentNodeExporterCommand struct {
+	PMMAgentID        string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	LogLevel          string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
-func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &agents.AddNodeExporterParams{
 		Body: agents.AddNodeExporterBody{
 			PMMAgentID:        cmd.PMMAgentID,
 			CustomLabels:      customLabels,
 			PushMetrics:       cmd.PushMetrics,
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:          &addExporterLogLevel,
+			LogLevel:          &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -71,20 +70,4 @@ func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
 	return &addAgentNodeExporterResult{
 		Agent: resp.Payload.NodeExporter,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentNodeExporter  addAgentNodeExporterCommand
-	AddAgentNodeExporterC = addAgentC.Command("node-exporter", "add Node exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentNodeExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentNodeExporter.PMMAgentID)
-	AddAgentNodeExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentNodeExporter.CustomLabels)
-	AddAgentNodeExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentNodeExporter.PushMetrics)
-	AddAgentNodeExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentNodeExporter.DisableCollectors)
-	addExporterGlobalFlags(AddAgentNodeExporterC, false)
 }
