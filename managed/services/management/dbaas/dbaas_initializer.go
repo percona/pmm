@@ -97,6 +97,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
+		in.l.Info(kubeConfig.Kubeconfig)
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
 			if err != nil {
