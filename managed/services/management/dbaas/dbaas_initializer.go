@@ -23,6 +23,7 @@ import (
 	"time"
 
 	goversion "github.com/hashicorp/go-version"
+	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -91,7 +92,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	ctx, in.cancel = context.WithCancel(ctx)
 
 	in.enabled = true
-	kubeConfig, err := in.dbaasClient.GetKubeConfig()
+	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &controllerv1beta1.GetKubeconfigRequest{})
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
@@ -115,7 +116,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
 			KubernetesClusterName: defaultClusterName,
 			KubeAuth: &dbaasv1beta1.KubeAuth{
-				Kubeconfig: kubeConfig,
+				Kubeconfig: kubeConfig.Kubeconfig,
 			},
 		}
 		_, err = in.RegisterCluster(ctx, req)
