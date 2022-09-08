@@ -23,7 +23,6 @@ import (
 	"time"
 
 	goversion "github.com/hashicorp/go-version"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -36,6 +35,7 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
+// Initializer initializes dbaas feature
 type Initializer struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -53,6 +53,7 @@ const defaultClusterName = "default-pmm-cluster"
 
 var errClusterExists = errors.New("cluster already exists")
 
+// NewInitializer returns initialized Initializer structure
 func NewInitializer(db *reform.DB, client dbaasClient, grafanaClient grafanaClient, versionService versionService) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
@@ -64,6 +65,7 @@ func NewInitializer(db *reform.DB, client dbaasClient, grafanaClient grafanaClie
 	}
 }
 
+// Update updates current dbaas settings
 func (in *Initializer) Update(ctx context.Context) error {
 	settings, err := models.GetSettings(in.db)
 	if err != nil {
@@ -72,11 +74,11 @@ func (in *Initializer) Update(ctx context.Context) error {
 	}
 	if settings.DBaaS.Enabled {
 		return in.Enable(ctx)
-	} else {
-		return in.Disable(ctx)
 	}
+	return in.Disable(ctx)
 }
 
+// Enable enables dbaas feature and connects to dbaas-controller
 func (in *Initializer) Enable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
@@ -92,7 +94,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	ctx, in.cancel = context.WithCancel(ctx)
 
 	in.enabled = true
-	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &controllerv1beta1.GetKubeconfigRequest{})
+	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
@@ -131,6 +133,7 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	return nil
 }
 
+// Disable disconnects from dbaas-controller and disabled dbaas feature
 func (in *Initializer) Disable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
@@ -148,6 +151,7 @@ func (in *Initializer) Disable(ctx context.Context) error {
 	return nil
 }
 
+// RegisterCluster registers k8s cluster and installs all required operators
 func (in *Initializer) RegisterCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
