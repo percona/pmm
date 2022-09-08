@@ -86,7 +86,7 @@ telemetry:
 
   - id: HAProxyVersion
     source: VM
-    query: haproxy_version_info
+    query: haproxy_process_build_info
     summary: "Monitored HAProxy services version"
     data:
       - metric_name: "haproxy_version"
