@@ -63,6 +63,7 @@ type Params struct {
 type (
 	pgStatMonitorVersion    int
 	pgStatMonitorPrerelease string
+	pgVersion               float64
 )
 
 const (
@@ -143,14 +144,17 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (pgVersion float64, err error) {
+func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
 	var v string
 	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
 		return
 	}
 	v = version.ParsePostgreSQLVersion(v)
-	return strconv.ParseFloat(v, 64)
+
+	parsed, err := strconv.ParseFloat(v, 64)
+
+	return pgVersion(parsed), err
 }
 
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
@@ -159,55 +163,55 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	if err != nil {
 		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
 	}
-	pgsmVersion, err := ver.NewVersion(result)
+	vPGSM, err := ver.NewVersion(result)
 	if err != nil {
 		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
 	}
 
-	pgVersion, err := getPGVersion(q)
+	vPG, err := getPGVersion(q)
 	if err != nil {
 		return pgStatMonitorVersion06, "", err
 	}
 
 	version := pgStatMonitorVersion06
 	switch {
-	case pgsmVersion.Core().GreaterThanOrEqual(v20):
-		if pgVersion >= 14 {
+	case vPGSM.Core().GreaterThanOrEqual(v20):
+		if vPG >= 14 {
 			version = pgStatMonitorVersion20PG14
 			break
 		}
-		if pgVersion >= 13 {
+		if vPG >= 13 {
 			version = pgStatMonitorVersion20PG13
 			break
 		}
 		version = pgStatMonitorVersion20PG12
-	case pgsmVersion.Core().GreaterThanOrEqual(v11):
-		if pgVersion >= 14 {
+	case vPGSM.Core().GreaterThanOrEqual(v11):
+		if vPG >= 14 {
 			version = pgStatMonitorVersion11PG14
 			break
 		}
-		if pgVersion >= 13 {
+		if vPG >= 13 {
 			version = pgStatMonitorVersion11PG13
 			break
 		}
 		version = pgStatMonitorVersion11PG12
-	case pgsmVersion.Core().GreaterThanOrEqual(v10):
-		if pgVersion >= 14 {
+	case vPGSM.Core().GreaterThanOrEqual(v10):
+		if vPG >= 14 {
 			version = pgStatMonitorVersion10PG14
 			break
 		}
-		if pgVersion >= 13 {
+		if vPG >= 13 {
 			version = pgStatMonitorVersion10PG13
 			break
 		}
 		version = pgStatMonitorVersion10PG12
-	case pgsmVersion.GreaterThanOrEqual(v09):
+	case vPGSM.GreaterThanOrEqual(v09):
 		version = pgStatMonitorVersion09
-	case pgsmVersion.GreaterThanOrEqual(v08):
+	case vPGSM.GreaterThanOrEqual(v08):
 		version = pgStatMonitorVersion08
 	}
 
-	prerelease := pgsmVersion.Prerelease()
+	prerelease := vPGSM.Prerelease()
 
 	return version, pgStatMonitorPrerelease(prerelease), nil
 }

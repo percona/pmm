@@ -82,16 +82,23 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	pgMonitorVersion, _, err := getPGMonitorVersion(q)
+	vPG, err := getPGVersion(q)
+	if err != nil {
+		err = errors.Wrap(err, "failed to get PG version")
+		return
+	}
+	ssc.l.Infof("pg version = %f", vPG)
+
+	vPGSM, _, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return
 	}
-	ssc.l.Infof("pg version = %d", pgMonitorVersion)
+	ssc.l.Infof("pg monitor version = %d", vPGSM)
 
-	row, view := NewPgStatMonitorStructs(pgMonitorVersion)
+	row, view := newPgStatMonitorStructs(vPGSM, vPG)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
-	if pgMonitorVersion >= pgStatMonitorVersion09 && pgMonitorVersion < pgStatMonitorVersion20PG12 {
+	if vPGSM >= pgStatMonitorVersion09 && vPGSM < pgStatMonitorVersion20PG12 {
 		// only pg_stat_monitor from 0.9.0 until 2.0.0 supports state_code. It tells what is the query's current state.
 		// To have correct data in QAN, we have to get only queries that are either 'FINISHED' or 'FINISHED WITH ERROR'.
 		conditions += " AND (state_code = 3 OR state_code = 4)"
@@ -114,7 +121,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 		totalN++
 
 		var c pgStatMonitorExtended
-		switch pgMonitorVersion {
+		switch vPGSM {
 		case pgStatMonitorVersion06:
 			c.pgStatMonitor = *row
 			c.Database = databases[row.DBID]
