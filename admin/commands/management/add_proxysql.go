@@ -44,7 +44,7 @@ func (res *addProxySQLResult) String() string {
 // AddProxySQLCommand is used by Kong for CLI flags and commands.
 type AddProxySQLCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
-	Address             string            `arg:"" default:"127.0.0.1:6032" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
+	Address             string            `arg:"" optional:"" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
 	Socket              string            `help:"Path to ProxySQL socket"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
