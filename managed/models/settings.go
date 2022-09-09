@@ -40,9 +40,9 @@ type SaaS struct {
 	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
 }
 
-// IntegratedAlerting contains settings related to IntegratedAlerting.
-type IntegratedAlerting struct {
-	Enabled               bool                   `json:"enabled"`
+// Alerting contains settings related to Alerting.
+type Alerting struct {
+	Disabled              bool                   `json:"disabled"`
 	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
 	SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
 }
@@ -84,7 +84,7 @@ type Settings struct {
 		Enabled bool `json:"enabled"`
 	} `json:"dbaas"`
 
-	IntegratedAlerting IntegratedAlerting `json:"ia"`
+	Alerting Alerting `json:"alerting"`
 
 	Azurediscover struct {
 		Enabled bool `json:"enabled"`
@@ -181,7 +181,7 @@ func (s *Settings) fillDefaults() {
 	// AlertManagerURL is empty by default
 	// SaaS.STTDisabled is false by default
 	// DBaaS.Enabled is false by default
-	// IntegratedAlerting.Enabled is false by default
+	// Alerting.Disabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default
 	// Azurediscover.Enabled is false by default
