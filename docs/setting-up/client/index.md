@@ -2,7 +2,7 @@
 
 There are different ways to install PMM Client on a node and register it with PMM Server. Choose from:
 
-- [Docker](#docker): Run PMM Client as a Docker container, either directly or with Docker compose.
+- [Docker](#docker): Run PMM Client as a Docker container.
 
 - [Package manager](#package-manager):
     - On Debian or Red Hat Linux, install `percona-release` and use a Linux package manager (`apt`/`dnf`) to install PMM Client.
@@ -24,7 +24,6 @@ Here's an overview of the choices.
 
 ![!image](../../_images/PMM_Client_Setup.png)
 
-
 ## Before you start
 
 - [Set up PMM Server](../server/index.md) with a known IP address accessible from the client node.
@@ -32,7 +31,6 @@ Here's an overview of the choices.
 - You have superuser access to any database servers that you want to monitor.
 - These Linux packages are installed: `curl`, `gnupg`, `sudo`, `wget`.
 - If using it, install [Docker].
-- If using it, install [Docker compose].
 - System requirements:
     - Operating system -- PMM Client runs on any modern 64-bit Linux distribution. It is tested on supported versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux. (See [Percona software support life cycle]).
     - Disk -- A minimum of 100 MB of storage is required for installing the PMM Client package. With a good connection to PMM Server, additional storage is not required. However, the client needs to store any collected data that it cannot dispatch immediately, so additional storage may be required if the connection is unstable or the throughput is low. (Caching only applies to Query Analytics data; VictoriaMetrics data is never cached on the client side.)
@@ -93,76 +91,6 @@ You can now add services with [`pmm-admin`](../../details/commands/pmm-admin.md)
     - Adjust host firewall and routing rules to allow Docker communications. ([Read more](../../how-to/troubleshoot.md))
     - For help: `docker run --rm percona/pmm-client:2 --help`
 
-### Docker compose
-
-1. Copy and paste this text into a file called `docker-compose.yml`.
-
-    ```yaml
-    version: '2'
-    services:
-      pmm-client:
-        image: percona/pmm-client:2
-        hostname: pmm-client-myhost
-        container_name: pmm-client
-        restart: always
-        ports:
-          - "42000:42000"
-          - "42001:42001"
-        logging:
-          driver: json-file
-          options:
-            max-size: "10m"
-            max-file: "5"
-        volumes:
-          - ./pmm-agent.yaml:/etc/pmm-agent.yaml
-          - pmm-client-data:/srv
-        environment:
-          - PMM_AGENT_CONFIG_FILE=/etc/pmm-agent.yaml
-          - PMM_AGENT_SERVER_USERNAME=admin
-          - PMM_AGENT_SERVER_PASSWORD=admin
-          - PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443
-          - PMM_AGENT_SERVER_INSECURE_TLS=true
-        entrypoint: pmm-agent setup
-    volumes:
-      pmm-client-data:
-    ```
-
-    !!! note alert alert-info ""
-        - Check the values in the `environment` section match those for your PMM Server. (`X.X.X.X` is the IP address of your PMM Server.)
-        - Use unique hostnames across all PMM Clients (value for `services.pmm-client.hostname`).
-
-2. Ensure a writable agent configuration file.
-
-    ```sh
-    touch pmm-agent.yaml && chmod 0666 pmm-agent.yaml
-    ```
-
-3. Run the PMM Agent setup. This will run and stop.
-
-    ```sh
-    docker-compose up
-    ```
-
-4. Edit `docker-compose.yml`, comment out the `entrypoint` line (insert a `#`) and save.
-
-    ```yaml
-    ...
-    #        entrypoint: pmm-agent setup
-    ```
-
-5. Run again, this time with the Docker *detach* option.
-
-    ```sh
-    docker-compose up -d
-    ```
-
-6. Verify.
-
-    On the command line.
-
-    ```sh
-    docker exec pmm-client pmm-admin status
-    ```
 
     In the GUI.
 
@@ -480,14 +408,11 @@ pmm-admin remove <service-type> <service-name>
 !!! seealso alert alert-info "See also"
     - [Percona release]
     - [PMM Client architecture](../../details/architecture.md#pmm-client)
-    - Thanks to [paskal] for original Docker compose files
 
 [Debian 11 (Bullseye)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/bullseye/
 [Debian 10 (Buster)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/buster/
 [Debian 9 (Stretch)]: https://www.percona.com/downloads/pmm2/{{release}}/binary/debian/stretch/
-[Docker compose]: https://docs.docker.com/compose/
 [Docker]: https://docs.docker.com/get-docker/
-[paskal]: https://gist.github.com/paskal/48f10a0a584f4849be6b0889ede9262b
 [Percona Monitoring and Management 2 download]: https://www.percona.com/downloads/pmm2/
 [Percona release]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [Percona software support life cycle]: https://www.percona.com/services/policies/percona-software-support-lifecycle#pt
