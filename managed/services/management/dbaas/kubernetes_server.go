@@ -32,6 +32,7 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	pmmversion "github.com/percona/pmm/version"
+	"github.com/percona/promconfig"
 )
 
 var (
@@ -180,6 +181,22 @@ type kubectlConfig struct {
 	Users          []*kubectlUserWithName `yaml:"users,omitempty"`
 }
 
+func (k *kubectlConfig) maskSecrets() (*kubectlConfig, error) {
+	nk, ok := promconfig.Copy(k).(*kubectlConfig)
+	if !ok {
+		return nil, errors.New("failed to copy config")
+	}
+
+	for i, user := range nk.Users {
+		for j, env := range user.User.Exec.Env {
+			if env.Name == "AWS_ACCESS_KEY_ID" || env.Name == "AWS_SECRET_ACCESS_KEY" {
+				nk.Users[i].User.Exec.Env[j].Value = "<secret>"
+			}
+		}
+	}
+	return nk, nil
+}
+
 func getFlagValue(args []string, flagName string) string {
 	for i, arg := range args {
 		if arg == flagName && i+1 < len(args) {
@@ -309,10 +326,23 @@ func (k kubernetesServer) GetKubernetesCluster(_ context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
+	config := &kubectlConfig{}
+	err = yaml.Unmarshal([]byte(kubernetesCluster.KubeConfig), config)
+	if err != nil {
+		return nil, err
+	}
+	safeKubeConfig, err := config.maskSecrets()
+	if err != nil {
+		return nil, err
+	}
+	kubeConfig, err := yaml.Marshal(safeKubeConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dbaasv1beta1.GetKubernetesClusterResponse{
 		KubeAuth: &dbaasv1beta1.KubeAuth{
-			Kubeconfig: kubernetesCluster.KubeConfig,
+			Kubeconfig: string(kubeConfig),
 		},
 	}, nil
 }
