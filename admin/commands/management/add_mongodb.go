@@ -52,7 +52,7 @@ func (res *addMongoDBResult) String() string {
 // AddMongoDBCommand is used by Kong for CLI flags and commands.
 type AddMongoDBCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
-	Address           string `arg:"" default:"127.0.0.1:27017" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
+	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
 	Socket            string `help:"Path to socket"`
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
@@ -65,7 +65,7 @@ type AddMongoDBCommand struct {
 	Environment                   string            `help:"Environment name"`
 	Cluster                       string            `help:"Cluster name"`
 	ReplicationSet                string            `help:"Replication set name"`
-	CustomLabels                  map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck           bool              `help:"Skip connection check"`
 	TLS                           bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify                 bool              `help:"Skip TLS certificates validation"`

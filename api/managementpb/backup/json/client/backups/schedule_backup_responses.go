@@ -156,6 +156,10 @@ type ScheduleBackupBody struct {
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
+
+	// DataModel is a model used for performing a backup.
+	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	DataModel *string `json:"data_model,omitempty"`
 }
 
 // Validate validates this schedule backup body
@@ -167,6 +171,10 @@ func (o *ScheduleBackupBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateDataModel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -230,6 +238,51 @@ func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
 
 	// value enum
 	if err := o.validateModeEnum("body"+"."+"mode", "body", *o.Mode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var scheduleBackupBodyTypeDataModelPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		scheduleBackupBodyTypeDataModelPropEnum = append(scheduleBackupBodyTypeDataModelPropEnum, v)
+	}
+}
+
+const (
+
+	// ScheduleBackupBodyDataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
+	ScheduleBackupBodyDataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+
+	// ScheduleBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
+	ScheduleBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+
+	// ScheduleBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
+	ScheduleBackupBodyDataModelLOGICAL string = "LOGICAL"
+)
+
+// prop value enum
+func (o *ScheduleBackupBody) validateDataModelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, scheduleBackupBodyTypeDataModelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ScheduleBackupBody) validateDataModel(formats strfmt.Registry) error {
+	if swag.IsZero(o.DataModel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDataModelEnum("body"+"."+"data_model", "body", *o.DataModel); err != nil {
 		return err
 	}
 
