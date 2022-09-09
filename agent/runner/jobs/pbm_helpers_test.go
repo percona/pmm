@@ -54,7 +54,7 @@ func TestCreatePBMConfig(t *testing.T) {
 		Storage: Storage{
 			Type: "filesystem",
 			FileSystem: FileSystem{
-				Path: "/test/path",
+				Path: "/test/path/test_prefix",
 			},
 		},
 	}
