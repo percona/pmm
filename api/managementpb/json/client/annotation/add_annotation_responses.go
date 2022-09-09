@@ -56,7 +56,36 @@ type AddAnnotationOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this add annotation Ok response has a 2xx status code
+func (o *AddAnnotationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add annotation Ok response has a 3xx status code
+func (o *AddAnnotationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add annotation Ok response has a 4xx status code
+func (o *AddAnnotationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add annotation Ok response has a 5xx status code
+func (o *AddAnnotationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add annotation Ok response a status code equal to that given
+func (o *AddAnnotationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddAnnotationOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
+}
+
+func (o *AddAnnotationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
 
@@ -95,7 +124,36 @@ func (o *AddAnnotationDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add annotation default response has a 2xx status code
+func (o *AddAnnotationDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add annotation default response has a 3xx status code
+func (o *AddAnnotationDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add annotation default response has a 4xx status code
+func (o *AddAnnotationDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add annotation default response has a 5xx status code
+func (o *AddAnnotationDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add annotation default response a status code equal to that given
+func (o *AddAnnotationDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddAnnotationDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddAnnotationDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
 }
 

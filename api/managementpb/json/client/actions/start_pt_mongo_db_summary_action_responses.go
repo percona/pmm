@@ -56,7 +56,36 @@ type StartPTMongoDBSummaryActionOK struct {
 	Payload *StartPTMongoDBSummaryActionOKBody
 }
 
+// IsSuccess returns true when this start Pt mongo Db summary action Ok response has a 2xx status code
+func (o *StartPTMongoDBSummaryActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start Pt mongo Db summary action Ok response has a 3xx status code
+func (o *StartPTMongoDBSummaryActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start Pt mongo Db summary action Ok response has a 4xx status code
+func (o *StartPTMongoDBSummaryActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start Pt mongo Db summary action Ok response has a 5xx status code
+func (o *StartPTMongoDBSummaryActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start Pt mongo Db summary action Ok response a status code equal to that given
+func (o *StartPTMongoDBSummaryActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *StartPTMongoDBSummaryActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartPTMongoDBSummaryActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *StartPTMongoDBSummaryActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this start PT mongo DB summary action default response has a 2xx status code
+func (o *StartPTMongoDBSummaryActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start PT mongo DB summary action default response has a 3xx status code
+func (o *StartPTMongoDBSummaryActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start PT mongo DB summary action default response has a 4xx status code
+func (o *StartPTMongoDBSummaryActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start PT mongo DB summary action default response has a 5xx status code
+func (o *StartPTMongoDBSummaryActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start PT mongo DB summary action default response a status code equal to that given
+func (o *StartPTMongoDBSummaryActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *StartPTMongoDBSummaryActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartPTMongoDBSummaryActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 

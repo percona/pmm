@@ -56,7 +56,36 @@ type AddContainerNodeOK struct {
 	Payload *AddContainerNodeOKBody
 }
 
+// IsSuccess returns true when this add container node Ok response has a 2xx status code
+func (o *AddContainerNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add container node Ok response has a 3xx status code
+func (o *AddContainerNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add container node Ok response has a 4xx status code
+func (o *AddContainerNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add container node Ok response has a 5xx status code
+func (o *AddContainerNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add container node Ok response a status code equal to that given
+func (o *AddContainerNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddContainerNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddContainerNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *AddContainerNodeDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add container node default response has a 2xx status code
+func (o *AddContainerNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add container node default response has a 3xx status code
+func (o *AddContainerNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add container node default response has a 4xx status code
+func (o *AddContainerNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add container node default response has a 5xx status code
+func (o *AddContainerNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add container node default response a status code equal to that given
+func (o *AddContainerNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddContainerNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddContainerNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
 }
 

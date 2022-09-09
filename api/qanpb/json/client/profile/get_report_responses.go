@@ -57,7 +57,36 @@ type GetReportOK struct {
 	Payload *GetReportOKBody
 }
 
+// IsSuccess returns true when this get report Ok response has a 2xx status code
+func (o *GetReportOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get report Ok response has a 3xx status code
+func (o *GetReportOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get report Ok response has a 4xx status code
+func (o *GetReportOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get report Ok response has a 5xx status code
+func (o *GetReportOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get report Ok response a status code equal to that given
+func (o *GetReportOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetReportOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
+}
+
+func (o *GetReportOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
 }
 
@@ -98,7 +127,36 @@ func (o *GetReportDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get report default response has a 2xx status code
+func (o *GetReportDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get report default response has a 3xx status code
+func (o *GetReportDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get report default response has a 4xx status code
+func (o *GetReportDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get report default response has a 5xx status code
+func (o *GetReportDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get report default response a status code equal to that given
+func (o *GetReportDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetReportDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetReportDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
 }
 
