@@ -1,6 +1,6 @@
 # PMM Server Update Tools
 
-[![Build Status](https://github.com/percona/pmm-update/actions/workflows/ci.yml/badge.svg)](https://github.com/percona/pmm-update/actions/workflows/ci.yml)
+[![Build Status](https://travis-ci.com/percona/pmm-update.svg)](https://travis-ci.com/percona/pmm-update)
 [![codecov.io Code Coverage](https://codecov.io/gh/percona/pmm-update/branch/main/graph/badge.svg)](https://codecov.io/github/percona/pmm-update?branch=main)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm-update)](https://cla-assistant.percona.com/percona/pmm-update)
 

@@ -32,7 +32,7 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
-    # we need to install this package here because it contain the VERSION file
+    # we need install this package here because it contain VERSION file
     - name: Remove percona-dashboard without architecture
       yum:
         name: percona-dashboards.*noarch
@@ -209,7 +209,6 @@
           - percona-qan-app # https://jira.percona.com/browse/PMM-6766
           - mariadb-libs # https://jira.percona.com/browse/PMM-5215
           - logrotate # https://jira.percona.com/browse/PMM-7627
-          - percona-prometheus # https://jira.percona.com/browse/PMM-9503
           - screen
           - yum-cron
 
@@ -266,7 +265,7 @@
           - pmm-agent
         - ["stop", "remove", "add"]
 
-    - name: Delete obsolete artifacts
+    - name: Delete old grafana and yum-cron artifacts
       file:
         state: absent
         path: "{{ item }}"
@@ -275,7 +274,6 @@
         - /usr/share/grafana/data/grafana.db
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
-        - /etc/supervisord.d/prometheus.ini
 
     - name: Enable pmm-update-perform-init after build
       ini_file:
