@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go" // register database/sql driver
+	clickhouse "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse" // register golang-migrate driver
 	bindata "github.com/golang-migrate/migrate/source/go_bindata"

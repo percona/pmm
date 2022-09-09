@@ -40,7 +40,7 @@ test-env-up:					## Start docker containers used for testing
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
 	cat fixture/metrics.part_*.json | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 
-test-env-down:
+test-env-down:					## Stop and remove docker containers used for testing
 	docker stop pmm-clickhouse-test
 	docker rm pmm-clickhouse-test
 
