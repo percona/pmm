@@ -21,6 +21,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"time"
 
 	"github.com/pkg/errors"
@@ -401,7 +402,7 @@ func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr b
 		conf.Storage = Storage{
 			Type: "filesystem",
 			FileSystem: FileSystem{
-				Path: locationConfig.LocalStorageConfig.Path,
+				Path: path.Join(locationConfig.LocalStorageConfig.Path, prefix),
 			},
 		}
 	default:
