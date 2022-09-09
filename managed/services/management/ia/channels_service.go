@@ -52,7 +52,7 @@ func (s *ChannelsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // ListChannels returns list of available channels.

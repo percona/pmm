@@ -8,8 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // PXCBackupState represents PXC backup CR state.
 enum PXCBackupState {
   // PXC_BACKUP_STATE_INVALID represents unknown state.
