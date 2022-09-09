@@ -69,9 +69,11 @@ jobs:
       - name: Check build
         run: make release
 
-      - name: Check files are formatted
+      - name: Check files are formatted and no source code changes
         run: |
           make format
+          pushd tools && go mod tidy -v
+          popd        && go mod tidy -v
           git status
           git diff --exit-code
 
@@ -136,12 +138,6 @@ jobs:
 
       - name: Test common API
         run: make test-common
-
-      - name: Check that there are no source code changes
-        run: |
-          pushd tools && go mod tidy -v
-          popd        && go mod tidy -v
-          git diff --exit-code
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
