@@ -24,7 +24,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-bell"></i>       | Alerting             | Alerting, [Integrated Alerting](../using/alerting.md), Alert Rules, Notification Channels.
 | <i class="uil uil-cog"></i>        | Configuration        |
 | ![!image](../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
-| ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after ou connect PMM to Percona Platform.
+| ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
 | ![!image](../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab tab will soon be populated with more useful information about your PMM environment. 
 | <i class="uil uil-shield"></i>     | Server Admin         |
 | <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP].
