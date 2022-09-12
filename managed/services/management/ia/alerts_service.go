@@ -42,13 +42,13 @@ type AlertsService struct {
 	db               *reform.DB
 	l                *logrus.Entry
 	alertManager     alertManager
-	templatesService *TemplatesService
+	templatesService templatesService
 
 	iav1beta1.UnimplementedAlertsServer
 }
 
 // NewAlertsService creates new alerts API service.
-func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService *TemplatesService) *AlertsService {
+func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService templatesService) *AlertsService {
 	return &AlertsService{
 		l:                logrus.WithField("component", "management/ia/alerts"),
 		db:               db,
@@ -64,7 +64,7 @@ func (s *AlertsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // ListAlerts returns list of existing alerts.
@@ -240,11 +240,11 @@ func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleA
 	}
 
 	switch req.Silenced {
-	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+	case managementpb.BooleanFlag_DO_NOT_CHANGE:
 		// nothing
-	case iav1beta1.BooleanFlag_TRUE:
+	case managementpb.BooleanFlag_TRUE:
 		err = s.alertManager.SilenceAlerts(ctx, alerts)
-	case iav1beta1.BooleanFlag_FALSE:
+	case managementpb.BooleanFlag_FALSE:
 		err = s.alertManager.UnsilenceAlerts(ctx, alerts)
 	}
 	if err != nil {

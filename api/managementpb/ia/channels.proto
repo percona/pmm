@@ -8,8 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/pagination.proto";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // BasicAuth represents basic HTTP auth configuration.
 message BasicAuth {
   string username = 1;

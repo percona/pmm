@@ -4,7 +4,7 @@ templates:
     version: 1
     summary: MySQL down
     expr: sum by (service_name, node_name) (mysql_up) == 0
-    for: 5s
+    for: 1m
     severity: critical
     annotations:
       summary: MySQL down ({{ $labels.service_name }})
