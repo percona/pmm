@@ -4,7 +4,7 @@ templates:
     version: 1
     summary: PostgreSQL down
     expr: sum by (service_name, node_name) (pg_up) == 0
-    for: 5s
+    for: 1m
     severity: critical
     annotations:
       summary: PostgreSQL down ({{ $labels.service_name }})
