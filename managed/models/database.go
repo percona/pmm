@@ -728,6 +728,11 @@ var databaseSchema = [][]string{
 		)`,
 	},
 	66: {
+		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
+		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
+		`UPDATE ia_rules SET disabled = TRUE`,
+	},
+	67: {
 		`UPDATE agents
 		SET log_level = 'error'
 		WHERE log_level = 'fatal'
@@ -742,11 +747,6 @@ var databaseSchema = [][]string{
 			'qan-postgresql-pgstatements-agent',
 			'qan-postgresql-pgstatmonitor-agent'
 		);`,
-	},
-	67: {
-		`UPDATE settings SET settings = settings #- '{ia, enabled}';`,
-		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
-		`UPDATE ia_rules SET disabled = TRUE`,
 	},
 }
 
