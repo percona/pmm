@@ -58,7 +58,36 @@ type AddQANMySQLSlowlogAgentOK struct {
 	Payload *AddQANMySQLSlowlogAgentOKBody
 }
 
+// IsSuccess returns true when this add Qan my Sql slowlog agent Ok response has a 2xx status code
+func (o *AddQANMySQLSlowlogAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Qan my Sql slowlog agent Ok response has a 3xx status code
+func (o *AddQANMySQLSlowlogAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Qan my Sql slowlog agent Ok response has a 4xx status code
+func (o *AddQANMySQLSlowlogAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Qan my Sql slowlog agent Ok response has a 5xx status code
+func (o *AddQANMySQLSlowlogAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Qan my Sql slowlog agent Ok response a status code equal to that given
+func (o *AddQANMySQLSlowlogAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddQANMySQLSlowlogAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANMySQLSlowlogAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] addQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *AddQANMySQLSlowlogAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add QAN my SQL slowlog agent default response has a 2xx status code
+func (o *AddQANMySQLSlowlogAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add QAN my SQL slowlog agent default response has a 3xx status code
+func (o *AddQANMySQLSlowlogAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add QAN my SQL slowlog agent default response has a 4xx status code
+func (o *AddQANMySQLSlowlogAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add QAN my SQL slowlog agent default response has a 5xx status code
+func (o *AddQANMySQLSlowlogAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add QAN my SQL slowlog agent default response a status code equal to that given
+func (o *AddQANMySQLSlowlogAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddQANMySQLSlowlogAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANMySQLSlowlogAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLSlowlogAgent][%d] AddQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
 

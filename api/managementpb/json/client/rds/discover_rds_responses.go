@@ -58,7 +58,36 @@ type DiscoverRDSOK struct {
 	Payload *DiscoverRDSOKBody
 }
 
+// IsSuccess returns true when this discover Rds Ok response has a 2xx status code
+func (o *DiscoverRDSOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this discover Rds Ok response has a 3xx status code
+func (o *DiscoverRDSOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this discover Rds Ok response has a 4xx status code
+func (o *DiscoverRDSOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this discover Rds Ok response has a 5xx status code
+func (o *DiscoverRDSOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this discover Rds Ok response a status code equal to that given
+func (o *DiscoverRDSOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *DiscoverRDSOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] discoverRdsOk  %+v", 200, o.Payload)
+}
+
+func (o *DiscoverRDSOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] discoverRdsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *DiscoverRDSDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this discover RDS default response has a 2xx status code
+func (o *DiscoverRDSDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this discover RDS default response has a 3xx status code
+func (o *DiscoverRDSDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this discover RDS default response has a 4xx status code
+func (o *DiscoverRDSDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this discover RDS default response has a 5xx status code
+func (o *DiscoverRDSDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this discover RDS default response a status code equal to that given
+func (o *DiscoverRDSDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *DiscoverRDSDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *DiscoverRDSDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Discover][%d] DiscoverRDS default  %+v", o._statusCode, o.Payload)
 }
 

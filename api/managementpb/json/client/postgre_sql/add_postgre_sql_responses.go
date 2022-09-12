@@ -58,7 +58,36 @@ type AddPostgreSQLOK struct {
 	Payload *AddPostgreSQLOKBody
 }
 
+// IsSuccess returns true when this add postgre Sql Ok response has a 2xx status code
+func (o *AddPostgreSQLOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add postgre Sql Ok response has a 3xx status code
+func (o *AddPostgreSQLOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add postgre Sql Ok response has a 4xx status code
+func (o *AddPostgreSQLOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add postgre Sql Ok response has a 5xx status code
+func (o *AddPostgreSQLOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add postgre Sql Ok response a status code equal to that given
+func (o *AddPostgreSQLOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddPostgreSQLOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPostgreSQLOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *AddPostgreSQLDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add postgre SQL default response has a 2xx status code
+func (o *AddPostgreSQLDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add postgre SQL default response has a 3xx status code
+func (o *AddPostgreSQLDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add postgre SQL default response has a 4xx status code
+func (o *AddPostgreSQLDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add postgre SQL default response has a 5xx status code
+func (o *AddPostgreSQLDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add postgre SQL default response a status code equal to that given
+func (o *AddPostgreSQLDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddPostgreSQLDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPostgreSQLDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
 }
 
