@@ -25,13 +25,21 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 )
 
-func IsDockerInstalled() (bool, error) {
-	path, err := exec.LookPath("docker")
+// Base contains methods to interact with Docker.
+type Base struct {
+	Cli DockerClient
+}
+
+// IsDockerInstalled checks if Docker is installed locally.
+func (b *Base) IsDockerInstalled(ef ExecFunctions) (bool, error) {
+	path, err := ef.LookPath("docker")
 	if err != nil {
 		if err, ok := err.(*exec.Error); ok && err.Err == exec.ErrNotFound {
 			return false, nil
@@ -44,8 +52,9 @@ func IsDockerInstalled() (bool, error) {
 	return true, nil
 }
 
-func HaveDockerAccess(ctx context.Context, cli *client.Client) bool {
-	_, err := cli.Info(ctx)
+// HaveDockerAccess checks if the current user has access to Docker.
+func (b *Base) HaveDockerAccess(ctx context.Context) bool {
+	_, err := b.Cli.Info(ctx)
 	if err != nil {
 		return false
 	}
@@ -53,7 +62,7 @@ func HaveDockerAccess(ctx context.Context, cli *client.Client) bool {
 	return true
 }
 
-func downloadDockerInstallScript() (io.ReadCloser, error) {
+func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
 	res, err := http.Get("https://get.docker.com/")
 	if err != nil {
 		return nil, err
@@ -66,8 +75,9 @@ func downloadDockerInstallScript() (io.ReadCloser, error) {
 	return res.Body, nil
 }
 
-func InstallDocker() error {
-	script, err := downloadDockerInstallScript()
+// InstallDocker installs Docker locally.
+func (b *Base) InstallDocker() error {
+	script, err := b.downloadDockerInstallScript()
 	if err != nil {
 		return err
 	}
@@ -85,14 +95,33 @@ func InstallDocker() error {
 	return nil
 }
 
-func GetDockerClient(ctx context.Context) (*client.Client, error) {
-	cli, err := client.NewClientWithOpts(client.WithVersion("1.41"))
+// New creates new instance of Base struct.
+func New(cli *client.Client) (*Base, error) {
+	if cli != nil {
+		return &Base{Cli: cli}, nil
+	}
 
-	return cli, err
+	c, err := NewDockerClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Base{Cli: c}, nil
 }
 
-func FindServerContainers(ctx context.Context, cli *client.Client) ([]types.Container, error) {
-	return cli.ContainerList(ctx, types.ContainerListOptions{
+// NewDockerClient returns a configured Docker client.
+func NewDockerClient() (*client.Client, error) {
+	return client.NewClientWithOpts(client.WithVersion("1.41"))
+}
+
+// GetDockerClient returns instance of Docker client.
+func (b *Base) GetDockerClient() DockerClient {
+	return b.Cli
+}
+
+// FindServerContainers finds all containers running PMM Server.
+func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, error) {
+	return b.Cli.ContainerList(ctx, types.ContainerListOptions{
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
@@ -101,10 +130,11 @@ func FindServerContainers(ctx context.Context, cli *client.Client) ([]types.Cont
 	})
 }
 
-func ChangeServerPassword(ctx context.Context, cli *client.Client, containerID, newPassword string) error {
+// ChangeServerPassword changes password for PMM Server's admin user.
+func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPassword string) error {
 	logrus.Info("Changing password")
 
-	exec, err := cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+	exec, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
 		Cmd:          []string{"change-admin-password", newPassword},
 		Tty:          true,
 		AttachStderr: true,
@@ -114,7 +144,7 @@ func ChangeServerPassword(ctx context.Context, cli *client.Client, containerID, 
 		return err
 	}
 
-	err = cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{})
+	err = b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{})
 	if err != nil {
 		return err
 	}
@@ -129,7 +159,8 @@ type WaitHealthyResponse struct {
 	Error   error
 }
 
-func WaitForHealthyContainer(ctx context.Context, cli *client.Client, containerID string) <-chan WaitHealthyResponse {
+// WaitForHealthyContainer waits until a containers is healthy.
+func (b *Base) WaitForHealthyContainer(ctx context.Context, containerID string) <-chan WaitHealthyResponse {
 	healthyChan := make(chan WaitHealthyResponse, 1)
 	go func() {
 		var res WaitHealthyResponse
@@ -138,7 +169,7 @@ func WaitForHealthyContainer(ctx context.Context, cli *client.Client, containerI
 
 		for {
 			logrus.Info("Checking if container is healthy...")
-			status, err := cli.ContainerInspect(ctx, containerID)
+			status, err := b.Cli.ContainerInspect(ctx, containerID)
 			if err != nil {
 				res.Error = err
 				break
@@ -156,4 +187,49 @@ func WaitForHealthyContainer(ctx context.Context, cli *client.Client, containerI
 	}()
 
 	return healthyChan
+}
+
+// RunContainer creates and runs a container. It returns the container ID.
+func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error) {
+	res, err := b.Cli.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
+	if err != nil {
+		return "", err
+	}
+
+	if err := b.Cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
+		return "", err
+	}
+
+	return res.ID, nil
+}
+
+// CreateVolume first checks if the volume does not exists and then creates it.
+func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
+	// We need to first manually check if the volume exists because
+	// cli.VolumeCreate() does not complain if it already exists.
+	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
+	if err != nil {
+		return nil, err
+	}
+
+	if len(v.Volumes) != 0 {
+		logrus.Panicf("Docker volume with name %q already exists", volumeName)
+	}
+
+	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{
+		Name: volumeName,
+		Labels: map[string]string{
+			"percona.pmm.volume": "server",
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &volume, nil
+}
+
+// PullImage pulls image from Docker registry.
+func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
+	return b.Cli.ImagePull(ctx, dockerImage, opts)
 }

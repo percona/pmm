@@ -15,16 +15,12 @@
 package docker
 
 import (
-	"context"
-
-	"github.com/docker/docker/api/types"
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-type RemoveCommand struct{}
+type RemoveCommand struct {
+	dockerFn DockerFunctions
+}
 
 type removeResult struct{}
 
@@ -37,26 +33,32 @@ func (res *removeResult) String() string {
 }
 
 func (c *RemoveCommand) RunCmd() (commands.Result, error) {
-	ctx := context.Background()
-	cli, err := docker.GetDockerClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// ctx := context.Background()
 
-	containers, err := docker.FindServerContainers(ctx, cli)
-	if err != nil {
-		return nil, err
-	}
+	// if c.dockerFn == nil {
+	// 	d, err := docker.New(nil)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-	for _, container := range containers {
-		if container.State != "exited" {
-			logrus.Infof("Stopping %s in state %s", container.ID, container.State)
-			cli.ContainerStop(ctx, container.ID, nil)
-		}
+	// 	c.dockerFn = d
+	// }
 
-		logrus.Infof("Removing %s", container.ID)
-		cli.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
-	}
+	// containers, err := c.dockerFn.FindServerContainers(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// cli := c.dockerFn.GetDockerClient()
+	// for _, container := range containers {
+	// 	if container.State != "exited" {
+	// 		logrus.Infof("Stopping %s in state %s", container.ID, container.State)
+	// 		cli.ContainerStop(ctx, container.ID, nil)
+	// 	}
+
+	// 	logrus.Infof("Removing %s", container.ID)
+	// 	cli.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{})
+	// }
 
 	return &removeResult{}, nil
 }

@@ -15,13 +15,7 @@
 package docker
 
 import (
-	"context"
-
-	"github.com/docker/docker/api/types"
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/pkg/docker"
 )
 
 type StartCommand struct{}
@@ -37,27 +31,29 @@ func (res *startResult) String() string {
 }
 
 func (c *StartCommand) RunCmd() (commands.Result, error) {
-	ctx := context.Background()
-	cli, err := docker.GetDockerClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// docker := &docker.Base{}
 
-	containers, err := docker.FindServerContainers(ctx, cli)
-	if err != nil {
-		return nil, err
-	}
+	// ctx := context.Background()
+	// cli, err := docker.GetDockerClient(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	for _, container := range containers {
-		if container.State != "exited" {
-			continue
-		}
+	// containers, err := docker.FindServerContainers(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-		logrus.Infof("Starting %s in state %s", container.ID, container.State)
-		if err := cli.ContainerStart(ctx, container.ID, types.ContainerStartOptions{}); err != nil {
-			return nil, err
-		}
-	}
+	// for _, container := range containers {
+	// 	if container.State != "exited" {
+	// 		continue
+	// 	}
+
+	// 	logrus.Infof("Starting %s in state %s", container.ID, container.State)
+	// 	if err := cli.ContainerStart(ctx, container.ID, types.ContainerStartOptions{}); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	return &startResult{}, nil
 }

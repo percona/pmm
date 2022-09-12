@@ -15,12 +15,7 @@
 package docker
 
 import (
-	"context"
-
-	"github.com/sirupsen/logrus"
-
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/pkg/docker"
 )
 
 type StopCommand struct{}
@@ -36,27 +31,29 @@ func (res *stopResult) String() string {
 }
 
 func (c *StopCommand) RunCmd() (commands.Result, error) {
-	ctx := context.Background()
-	cli, err := docker.GetDockerClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// docker := &docker.Base{}
 
-	containers, err := docker.FindServerContainers(ctx, cli)
-	if err != nil {
-		return nil, err
-	}
+	// ctx := context.Background()
+	// cli, err := docker.GetDockerClient(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	for _, container := range containers {
-		if container.State == "exited" {
-			continue
-		}
+	// containers, err := docker.FindServerContainers(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-		logrus.Infof("Stopping %s in state %s", container.ID, container.State)
-		if err := cli.ContainerStop(ctx, container.ID, nil); err != nil {
-			return nil, err
-		}
-	}
+	// for _, container := range containers {
+	// 	if container.State == "exited" {
+	// 		continue
+	// 	}
+
+	// 	logrus.Infof("Stopping %s in state %s", container.ID, container.State)
+	// 	if err := cli.ContainerStop(ctx, container.ID, nil); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
 	return &stopResult{}, nil
 }

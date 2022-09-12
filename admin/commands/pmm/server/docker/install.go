@@ -16,15 +16,13 @@ package docker
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/volume"
-	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 
@@ -40,9 +38,11 @@ type InstallCommand struct {
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
 	VolumeName         string `default:"pmm-data" help:"Name of the volume used by PMM Server"`
-	SkipDockerInstall  bool   `help:"Do not attempt to install Docker even if it's not found"`
-	SkipDockerCheck    bool   `help:"Do not check if Docker is installed"`
+	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
+	SkipDockerCheck    bool   `help:"Do not check if Docker is installed."`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
+
+	dockerFn DockerFunctions
 }
 
 type installResult struct {
@@ -66,46 +66,51 @@ Password: ` + r.adminPassword
 func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	logrus.Info("Starting PMM Server installation")
 
+	ctx := context.Background()
+
+	if c.dockerFn == nil {
+		d, err := docker.New(nil)
+		if err != nil {
+			return nil, err
+		}
+
+		c.dockerFn = d
+	}
+
 	err := c.installDocker()
 	if err != nil {
 		return nil, err
 	}
 
-	ctx := context.Background()
-	cli, err := docker.GetDockerClient(ctx)
+	if !c.dockerFn.HaveDockerAccess(ctx) {
+		return nil, fmt.Errorf("Docker is either not running or this user has no access to docker. Try running as root.")
+	}
+
+	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
 	if err != nil {
 		return nil, err
 	}
 
-	if !docker.HaveDockerAccess(ctx, cli) {
-		logrus.Panic("Docker is either not running or this user has no access to docker. Try running as root.")
-	}
-
-	volume, err := c.createVolume(ctx, cli)
-	if err != nil {
-		return nil, err
-	}
-
-	reader, err := cli.ImagePull(ctx, c.DockerImage, types.ImagePullOptions{})
+	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
 	if err != nil {
 		return nil, err
 	}
 	io.Copy(os.Stdout, reader)
 
-	containerID, err := c.runContainer(ctx, cli, volume, c.DockerImage)
+	containerID, err := c.runContainer(ctx, volume, c.DockerImage)
 	if err != nil {
 		return nil, err
 	}
 
 	logrus.Info("Waiting until PMM boots")
-	w := docker.WaitForHealthyContainer(ctx, cli, containerID)
+	w := c.dockerFn.WaitForHealthyContainer(ctx, containerID)
 	healthy := <-w
 	if healthy.Error != nil {
 		return nil, healthy.Error
 	}
 
 	if !c.SkipChangePassword {
-		err = docker.ChangeServerPassword(ctx, cli, containerID, c.AdminPassword)
+		err = c.dockerFn.ChangeServerPassword(ctx, containerID, c.AdminPassword)
 		if err != nil {
 			return nil, err
 		}
@@ -118,61 +123,39 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 
 func (c *InstallCommand) installDocker() error {
 	var err error
-	isInstalled := false
-
 	if c.SkipDockerCheck {
-		isInstalled = true
-	} else {
-		isInstalled, err = docker.IsDockerInstalled()
-		if err != nil {
-			return err
-		}
+		logrus.Debugf("Docker check is disabled")
+		return nil
 	}
 
-	if !isInstalled && !c.SkipDockerInstall {
-		logrus.Infoln("Installing Docker")
-		err := docker.InstallDocker()
-		if err != nil {
-			return err
-		}
-	} else {
-		if !c.SkipDockerInstall {
-			logrus.Infoln("Docker is installed")
-		}
+	isInstalled, err := c.dockerFn.IsDockerInstalled(docker.RealExecFunctions{})
+	if err != nil {
+		return err
+	}
+
+	if isInstalled {
+		return nil
+	}
+
+	if c.SkipDockerInstall {
+		logrus.Infoln("Skipped Docker installation")
+		return nil
+	}
+
+	logrus.Infoln("Installing Docker")
+	err = c.dockerFn.InstallDocker()
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (c *InstallCommand) createVolume(ctx context.Context, cli *client.Client) (*types.Volume, error) {
-	// We need to first manually check if the volume exists because
-	// cli.VolumeCreate() does not complain if it already exists.
-	v, err := cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", c.VolumeName)))
-	if err != nil {
-		return nil, err
-	}
+// runContainer runs PMM Server and returns the containerID.
+func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume, dockerImage string) (string, error) {
+	logrus.Info("Starting PMM Server")
 
-	if len(v.Volumes) != 0 {
-		logrus.Panicf("Docker volume with name %q already exists", c.VolumeName)
-	}
-
-	volume, err := cli.VolumeCreate(ctx, volume.VolumeCreateBody{
-		Name: c.VolumeName,
-		Labels: map[string]string{
-			"percona.pmm.volume": "server",
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &volume, nil
-}
-
-func (c *InstallCommand) runContainer(ctx context.Context, cli *client.Client, volume *types.Volume, dockerImage string) (string, error) {
-	logrus.Info("Creating PMM Server")
-
-	res, err := cli.ContainerCreate(ctx, &container.Config{
+	containerID, err := c.dockerFn.RunContainer(ctx, &container.Config{
 		Image: dockerImage,
 		Labels: map[string]string{
 			"percona.pmm": "server",
@@ -186,15 +169,10 @@ func (c *InstallCommand) runContainer(ctx context.Context, cli *client.Client, v
 			volume.Name + ":/srv:rw",
 		},
 		RestartPolicy: container.RestartPolicy{Name: "always"},
-	}, nil, nil, c.ContainerName)
+	}, c.ContainerName)
 	if err != nil {
 		return "", err
 	}
 
-	logrus.Info("Starting PMM Server")
-	if err := cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
-		return "", err
-	}
-
-	return res.ID, nil
+	return containerID, nil
 }
