@@ -57,7 +57,36 @@ type GetLabelsOK struct {
 	Payload *GetLabelsOKBody
 }
 
+// IsSuccess returns true when this get labels Ok response has a 2xx status code
+func (o *GetLabelsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get labels Ok response has a 3xx status code
+func (o *GetLabelsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get labels Ok response has a 4xx status code
+func (o *GetLabelsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get labels Ok response has a 5xx status code
+func (o *GetLabelsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get labels Ok response a status code equal to that given
+func (o *GetLabelsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetLabelsOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetLabelsOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] getLabelsOk  %+v", 200, o.Payload)
 }
 
@@ -98,7 +127,36 @@ func (o *GetLabelsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get labels default response has a 2xx status code
+func (o *GetLabelsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get labels default response has a 3xx status code
+func (o *GetLabelsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get labels default response has a 4xx status code
+func (o *GetLabelsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get labels default response has a 5xx status code
+func (o *GetLabelsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get labels default response a status code equal to that given
+func (o *GetLabelsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetLabelsDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetLabelsDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetLabels][%d] GetLabels default  %+v", o._statusCode, o.Payload)
 }
 

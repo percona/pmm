@@ -56,7 +56,36 @@ type AddChannelOK struct {
 	Payload *AddChannelOKBody
 }
 
+// IsSuccess returns true when this add channel Ok response has a 2xx status code
+func (o *AddChannelOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add channel Ok response has a 3xx status code
+func (o *AddChannelOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add channel Ok response has a 4xx status code
+func (o *AddChannelOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add channel Ok response has a 5xx status code
+func (o *AddChannelOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add channel Ok response a status code equal to that given
+func (o *AddChannelOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddChannelOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] addChannelOk  %+v", 200, o.Payload)
+}
+
+func (o *AddChannelOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] addChannelOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *AddChannelDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add channel default response has a 2xx status code
+func (o *AddChannelDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add channel default response has a 3xx status code
+func (o *AddChannelDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add channel default response has a 4xx status code
+func (o *AddChannelDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add channel default response has a 5xx status code
+func (o *AddChannelDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add channel default response a status code equal to that given
+func (o *AddChannelDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddChannelDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] AddChannel default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddChannelDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Add][%d] AddChannel default  %+v", o._statusCode, o.Payload)
 }
 
