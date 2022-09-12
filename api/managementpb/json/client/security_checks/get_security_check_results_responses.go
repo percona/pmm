@@ -58,7 +58,36 @@ type GetSecurityCheckResultsOK struct {
 	Payload *GetSecurityCheckResultsOKBody
 }
 
+// IsSuccess returns true when this get security check results Ok response has a 2xx status code
+func (o *GetSecurityCheckResultsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get security check results Ok response has a 3xx status code
+func (o *GetSecurityCheckResultsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get security check results Ok response has a 4xx status code
+func (o *GetSecurityCheckResultsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get security check results Ok response has a 5xx status code
+func (o *GetSecurityCheckResultsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get security check results Ok response a status code equal to that given
+func (o *GetSecurityCheckResultsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetSecurityCheckResultsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetSecurityCheckResultsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] getSecurityCheckResultsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *GetSecurityCheckResultsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get security check results default response has a 2xx status code
+func (o *GetSecurityCheckResultsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get security check results default response has a 3xx status code
+func (o *GetSecurityCheckResultsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get security check results default response has a 4xx status code
+func (o *GetSecurityCheckResultsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get security check results default response has a 5xx status code
+func (o *GetSecurityCheckResultsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get security check results default response a status code equal to that given
+func (o *GetSecurityCheckResultsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetSecurityCheckResultsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetSecurityCheckResultsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/GetCheckResults][%d] GetSecurityCheckResults default  %+v", o._statusCode, o.Payload)
 }
 
