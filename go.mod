@@ -57,7 +57,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.4.0
 	github.com/stretchr/testify v1.8.0
-	go.mongodb.org/mongo-driver v1.10.1
+	go.mongodb.org/mongo-driver v1.10.2
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
