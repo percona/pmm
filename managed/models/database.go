@@ -738,14 +738,8 @@ var databaseSchema = [][]string{
 		WHERE log_level = 'fatal'
 		AND agent_type IN (
 			'node_exporter',
-
 			'mysqld_exporter',
-			'qan-mysql-perfschema-agent',
-			'qan-mysql-slowlog-agent',
-
-			'postgres_exporter',
-			'qan-postgresql-pgstatements-agent',
-			'qan-postgresql-pgstatmonitor-agent'
+			'postgres_exporter'
 		);`,
 	},
 }

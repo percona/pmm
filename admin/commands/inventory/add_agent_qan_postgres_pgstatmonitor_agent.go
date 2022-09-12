@@ -59,7 +59,7 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	TLSCAFile             string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile           string            `help:"TLS certificate file"`
 	TLSKeyFile            string            `help:"TLS certificate key file"`
-	LogLevel              string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
+	LogLevel              string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Result, error) {
