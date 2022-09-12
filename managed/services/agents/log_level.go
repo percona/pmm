@@ -26,7 +26,7 @@ import (
 var exporterLogLevelCommandVersion = version.MustParse("2.27.99")
 
 // withLogLevel - append CLI args --log.level
-// mysqld_exporter, node_exporter and postgres_exporter not support --log.level=fatal
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
 func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
 	level := pointer.GetString(logLevel)
 
