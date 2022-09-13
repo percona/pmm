@@ -52,7 +52,7 @@ type Commands struct {
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
 func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
-	return runGeneric(ctx, globals)
+	return run(ctx, globals)
 }
 
 // PMMCommands stores all commands, flags and arguments for the "pmm" binary.
@@ -65,7 +65,7 @@ type PMMCommands struct {
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
 func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
-	return runGeneric(ctx, globals)
+	return run(ctx, globals)
 }
 
 // CmdRunner represents a command to be run without arguments.
@@ -83,7 +83,7 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
 }
 
-func runGeneric(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 
