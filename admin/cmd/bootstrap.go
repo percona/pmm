@@ -38,31 +38,35 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-// BootstrapPMMAdmin is run when starting "pmm-admin" binary.
-func BootstrapPMMAdmin() {
-	var opts cli.Commands
-	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm-admin")...)
+// Bootstrap is used to initialize the application.
+func Bootstrap(opts any) {
+	var kongCtx *kong.Context
+	var parsedOpts any
 
-	configureLogger(opts.GlobalFlags)
-	finishBootstrap(&opts.GlobalFlags)
+	switch o := opts.(type) {
+	case cli.Commands:
+		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
+		parsedOpts = &o
+	case cli.PMMCommands:
+		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm")...)
+		parsedOpts = &o
+	}
 
-	err := kongCtx.Run(&opts.GlobalFlags)
-	processFinalError(err, bool(opts.JSON))
+	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
+	if !ok {
+		logrus.Panic("Cannot assert parsedOpts to GlobalFlagsGetter")
+	}
+
+	globalFlags := f.GetGlobalFlags()
+
+	configureLogger(globalFlags)
+	finishBootstrap(globalFlags)
+
+	err := kongCtx.Run(globalFlags)
+	processFinalError(err, bool(globalFlags.JSON))
 }
 
-// BootstrapPMM is run when starting "pmm" binary.
-func BootstrapPMM() {
-	var opts cli.PMMCommands
-	kongCtx := kong.Parse(&opts, getDefaultKongOptions("pmm")...)
-
-	configureLogger(opts.GlobalFlags)
-	finishBootstrap(&opts.GlobalFlags)
-
-	err := kongCtx.Run(&opts.GlobalFlags)
-	processFinalError(err, bool(opts.JSON))
-}
-
-func configureLogger(opts flags.GlobalFlags) {
+func configureLogger(opts *flags.GlobalFlags) {
 	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
 	if opts.JSON {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhaustruct // with levels and timestamps always present

@@ -32,6 +32,16 @@ import (
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
+type GlobalFlagsGetter interface {
+	GetGlobalFlags() *flags.GlobalFlags
+}
+
+// Check interfaces.
+var (
+	_ GlobalFlagsGetter = &Commands{}
+	_ GlobalFlagsGetter = &PMMCommands{}
+)
+
 // Commands stores all commands, flags and arguments for the "pmm-admin" binary.
 type Commands struct {
 	flags.GlobalFlags
@@ -55,11 +65,19 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return run(ctx, globals)
 }
 
+func (c *Commands) GetGlobalFlags() *flags.GlobalFlags {
+	return &c.GlobalFlags
+}
+
 // PMMCommands stores all commands, flags and arguments for the "pmm" binary.
 type PMMCommands struct {
 	flags.GlobalFlags
 
 	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
+}
+
+func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
+	return &c.GlobalFlags
 }
 
 // Run function is a top-level function which handles running all commands
