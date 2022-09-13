@@ -124,7 +124,7 @@ func TestRunCmd(t *testing.T) {
 		m.Mock.On(
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
-		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(new(bytes.Buffer), nil)
+		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
 
 		ch := func() <-chan docker.WaitHealthyResponse {
@@ -172,7 +172,7 @@ func TestRunCmd(t *testing.T) {
 		m.Mock.On(
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
-		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(new(bytes.Buffer), nil)
+		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
 
 		ch := func() <-chan docker.WaitHealthyResponse {
