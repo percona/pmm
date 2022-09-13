@@ -20,5 +20,5 @@ import (
 )
 
 func main() {
-	cmd.Bootstrap(cli.PMMAdminCommands{})
+	cmd.Bootstrap(cli.PMMAdminCommands{}) //nolint:exhaustruct
 }
