@@ -59,7 +59,36 @@ type GetAlertGroupsOK struct {
 	Payload ammodels.AlertGroups
 }
 
+// IsSuccess returns true when this get alert groups o k response has a 2xx status code
+func (o *GetAlertGroupsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get alert groups o k response has a 3xx status code
+func (o *GetAlertGroupsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert groups o k response has a 4xx status code
+func (o *GetAlertGroupsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert groups o k response has a 5xx status code
+func (o *GetAlertGroupsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert groups o k response a status code equal to that given
+func (o *GetAlertGroupsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetAlertGroupsOK) Error() string {
+	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsOK  %+v", 200, o.Payload)
+}
+
+func (o *GetAlertGroupsOK) String() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsOK  %+v", 200, o.Payload)
 }
 
@@ -89,7 +118,36 @@ type GetAlertGroupsBadRequest struct {
 	Payload string
 }
 
+// IsSuccess returns true when this get alert groups bad request response has a 2xx status code
+func (o *GetAlertGroupsBadRequest) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert groups bad request response has a 3xx status code
+func (o *GetAlertGroupsBadRequest) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert groups bad request response has a 4xx status code
+func (o *GetAlertGroupsBadRequest) IsClientError() bool {
+	return true
+}
+
+// IsServerError returns true when this get alert groups bad request response has a 5xx status code
+func (o *GetAlertGroupsBadRequest) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get alert groups bad request response a status code equal to that given
+func (o *GetAlertGroupsBadRequest) IsCode(code int) bool {
+	return code == 400
+}
+
 func (o *GetAlertGroupsBadRequest) Error() string {
+	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsBadRequest  %+v", 400, o.Payload)
+}
+
+func (o *GetAlertGroupsBadRequest) String() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsBadRequest  %+v", 400, o.Payload)
 }
 
@@ -119,7 +177,36 @@ type GetAlertGroupsInternalServerError struct {
 	Payload string
 }
 
+// IsSuccess returns true when this get alert groups internal server error response has a 2xx status code
+func (o *GetAlertGroupsInternalServerError) IsSuccess() bool {
+	return false
+}
+
+// IsRedirect returns true when this get alert groups internal server error response has a 3xx status code
+func (o *GetAlertGroupsInternalServerError) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get alert groups internal server error response has a 4xx status code
+func (o *GetAlertGroupsInternalServerError) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get alert groups internal server error response has a 5xx status code
+func (o *GetAlertGroupsInternalServerError) IsServerError() bool {
+	return true
+}
+
+// IsCode returns true when this get alert groups internal server error response a status code equal to that given
+func (o *GetAlertGroupsInternalServerError) IsCode(code int) bool {
+	return code == 500
+}
+
 func (o *GetAlertGroupsInternalServerError) Error() string {
+	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsInternalServerError  %+v", 500, o.Payload)
+}
+
+func (o *GetAlertGroupsInternalServerError) String() string {
 	return fmt.Sprintf("[GET /alerts/groups][%d] getAlertGroupsInternalServerError  %+v", 500, o.Payload)
 }
 

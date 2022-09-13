@@ -56,7 +56,36 @@ type QueryExistsOK struct {
 	Payload bool
 }
 
+// IsSuccess returns true when this query exists Ok response has a 2xx status code
+func (o *QueryExistsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this query exists Ok response has a 3xx status code
+func (o *QueryExistsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this query exists Ok response has a 4xx status code
+func (o *QueryExistsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this query exists Ok response has a 5xx status code
+func (o *QueryExistsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this query exists Ok response a status code equal to that given
+func (o *QueryExistsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *QueryExistsOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] queryExistsOk  %+v", 200, o.Payload)
+}
+
+func (o *QueryExistsOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] queryExistsOk  %+v", 200, o.Payload)
 }
 
@@ -95,7 +124,36 @@ func (o *QueryExistsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this query exists default response has a 2xx status code
+func (o *QueryExistsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this query exists default response has a 3xx status code
+func (o *QueryExistsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this query exists default response has a 4xx status code
+func (o *QueryExistsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this query exists default response has a 5xx status code
+func (o *QueryExistsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this query exists default response a status code equal to that given
+func (o *QueryExistsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *QueryExistsDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] QueryExists default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *QueryExistsDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryExists][%d] QueryExists default  %+v", o._statusCode, o.Payload)
 }
 

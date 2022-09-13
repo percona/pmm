@@ -4,8 +4,6 @@ package dbaas.v1beta1;
 
 option go_package = "api/managementpb/dbaas;dbaasv1beta1";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // RunningOperation respresents a long-running operation.
 message RunningOperation {
   // Finished steps of the operaion; can decrease or increase compared to the previous value.
