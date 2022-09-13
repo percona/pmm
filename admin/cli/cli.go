@@ -32,14 +32,15 @@ import (
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
+// GlobalFlagsGetter supports retrieving GlobalFlags.
 type GlobalFlagsGetter interface {
 	GetGlobalFlags() *flags.GlobalFlags
 }
 
 // Check interfaces.
 var (
-	_ GlobalFlagsGetter = &PMMAdminCommands{}
-	_ GlobalFlagsGetter = &PMMCommands{}
+	_ GlobalFlagsGetter = &PMMAdminCommands{} //nolint:exhaustruct
+	_ GlobalFlagsGetter = &PMMCommands{}      //nolint:exhaustruct
 )
 
 // PMMAdminCommands stores all commands, flags and arguments for the "pmm-admin" binary.
