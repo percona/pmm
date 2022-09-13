@@ -296,7 +296,7 @@ func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *manage
 // convertInterval converts check.Interval type to managementpb.SecurityCheckInterval.
 func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval {
 	switch interval {
-	case check.Standard:
+	case check.Standard, "": // empty interval means standard
 		return managementpb.SecurityCheckInterval_STANDARD
 	case check.Frequent:
 		return managementpb.SecurityCheckInterval_FREQUENT
