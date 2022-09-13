@@ -38,12 +38,12 @@ type GlobalFlagsGetter interface {
 
 // Check interfaces.
 var (
-	_ GlobalFlagsGetter = &Commands{}
+	_ GlobalFlagsGetter = &PMMAdminCommands{}
 	_ GlobalFlagsGetter = &PMMCommands{}
 )
 
-// Commands stores all commands, flags and arguments for the "pmm-admin" binary.
-type Commands struct {
+// PMMAdminCommands stores all commands, flags and arguments for the "pmm-admin" binary.
+type PMMAdminCommands struct {
 	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
@@ -61,11 +61,11 @@ type Commands struct {
 
 // Run function is a top-level function which handles running all commands
 // in a standard way based on the interface they implement.
-func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	return run(ctx, globals)
 }
 
-func (c *Commands) GetGlobalFlags() *flags.GlobalFlags {
+func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 	return &c.GlobalFlags
 }
 

@@ -44,7 +44,7 @@ func Bootstrap(opts any) {
 	var parsedOpts any
 
 	switch o := opts.(type) {
-	case cli.Commands:
+	case cli.PMMAdminCommands:
 		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
 		parsedOpts = &o
 	case cli.PMMCommands:

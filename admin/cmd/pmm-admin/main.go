@@ -20,5 +20,5 @@ import (
 )
 
 func main() {
-	cmd.Bootstrap(cli.Commands{})
+	cmd.Bootstrap(cli.PMMAdminCommands{})
 }
