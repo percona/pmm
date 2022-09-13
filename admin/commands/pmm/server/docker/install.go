@@ -77,13 +77,12 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 		c.dockerFn = d
 	}
 
-	err := c.installDocker()
-	if err != nil {
+	if err := c.installDocker(); err != nil {
 		return nil, err
 	}
 
 	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return nil, fmt.Errorf("Docker is either not running or this user has no access to docker. Try running as root.")
+		return nil, fmt.Errorf("Docker is either not running or this user has no access to Docker. Try running as root.")
 	}
 
 	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
@@ -103,8 +102,7 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	}
 
 	logrus.Info("Waiting until PMM boots")
-	w := c.dockerFn.WaitForHealthyContainer(ctx, containerID)
-	healthy := <-w
+	healthy := <-c.dockerFn.WaitForHealthyContainer(ctx, containerID)
 	if healthy.Error != nil {
 		return nil, healthy.Error
 	}
@@ -122,7 +120,6 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 }
 
 func (c *InstallCommand) installDocker() error {
-	var err error
 	if c.SkipDockerCheck {
 		logrus.Debugf("Docker check is disabled")
 		return nil
@@ -173,6 +170,8 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 	if err != nil {
 		return "", err
 	}
+
+	logrus.Debugf("Started PMM Server in container %q", containerID)
 
 	return containerID, nil
 }

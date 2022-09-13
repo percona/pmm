@@ -54,8 +54,7 @@ func (b *Base) IsDockerInstalled(ef ExecFunctions) (bool, error) {
 
 // HaveDockerAccess checks if the current user has access to Docker.
 func (b *Base) HaveDockerAccess(ctx context.Context) bool {
-	_, err := b.Cli.Info(ctx)
-	if err != nil {
+	if _, err := b.Cli.Info(ctx); err != nil {
 		return false
 	}
 
@@ -87,8 +86,7 @@ func (b *Base) InstallDocker() error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	err = cmd.Run()
-	if err != nil {
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 
@@ -144,12 +142,11 @@ func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPasswor
 		return err
 	}
 
-	err = b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{})
-	if err != nil {
+	if err := b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil {
 		return err
 	}
 
-	logrus.Info("Changed password")
+	logrus.Info("Password changed")
 
 	return nil
 }
@@ -203,7 +200,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 	return res.ID, nil
 }
 
-// CreateVolume first checks if the volume does not exists and then creates it.
+// CreateVolume first checks if the volume exists and creates it.
 func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
@@ -213,13 +210,13 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 	}
 
 	if len(v.Volumes) != 0 {
-		logrus.Panicf("Docker volume with name %q already exists", volumeName)
+		return nil, fmt.Errorf("Docker volume with name %q already exists", volumeName)
 	}
 
 	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{
 		Name: volumeName,
 		Labels: map[string]string{
-			"percona.pmm.volume": "server",
+			"percona.pmm": "server",
 		},
 	})
 	if err != nil {
