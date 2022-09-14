@@ -724,7 +724,7 @@ func main() {
 
 	agentsRegistry := agents.NewRegistry(db)
 	backupRemovalService := backup.NewRemovalService(db, minioService)
-	backupStorageService := backup.NewStorageService(minioService)
+	backupStorageService := backup.NewStorageService()
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 

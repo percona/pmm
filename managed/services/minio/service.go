@@ -41,6 +41,11 @@ func New() *Service {
 	}
 }
 
+type MinioClient struct {
+	bucketName string
+	*minio.Client
+}
+
 type FileInfo struct {
 	Name string // with path
 	Size int64
@@ -120,12 +125,7 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 // List provides an abstraction over the minio API to list all objects in the bucket
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
-func (s *Service) List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) (files []FileInfo, rerr error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
-	if err != nil {
-		return files, err
-	}
-
+func (m *MinioClient) List(ctx context.Context, prefix, suffix string) (files []FileInfo, rerr error) {
 	// prfx := path.Join(s.opts.Prefix, prefix)
 	prfx := prefix
 	if prfx != "" && !strings.HasSuffix(prfx, "/") {
@@ -140,7 +140,7 @@ func (s *Service) List(ctx context.Context, endpoint, accessKey, secretKey, buck
 			Recursive: true,
 		}
 
-		for object := range minioClient.ListObjects(ctx, bucketName, options) {
+		for object := range m.ListObjects(ctx, m.bucketName, options) {
 			if object.Err != nil {
 				return errors.WithStack(object.Err)
 			}
@@ -180,16 +180,11 @@ func (s *Service) List(ctx context.Context, endpoint, accessKey, secretKey, buck
 }
 
 // FileStat returns file info. It returns error if file is empty or not exists.
-func (s *Service) FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (FileInfo, error) {
+func (m *MinioClient) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	file := FileInfo{}
 
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
-	if err != nil {
-		return file, err
-	}
-
-	stat, err := minioClient.StatObject(ctx, bucketName, name, minio.StatObjectOptions{})
+	stat, err := m.StatObject(ctx, m.bucketName, name, minio.StatObjectOptions{})
 	if err != nil {
 		return file, err
 	}
@@ -206,6 +201,31 @@ func (s *Service) FileStat(ctx context.Context, endpoint, accessKey, secretKey, 
 	}
 
 	return file, nil
+}
+
+func NewMinioClient(endpoint, accessKey, secretKey, bucketName string) (*MinioClient, error) {
+	url, err := models.ParseEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	secure := true
+	if url.Scheme == "http" {
+		secure = false
+	}
+
+	client, err := minio.New(url.Host, &minio.Options{
+		Secure: secure,
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &MinioClient{
+		bucketName: bucketName,
+		Client:     client,
+	}, nil
 }
 
 func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {

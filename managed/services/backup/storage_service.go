@@ -14,6 +14,7 @@ import (
 
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
 const (
@@ -27,8 +28,8 @@ type StorageService struct {
 	storage storagePath
 }
 
-// OplogChunk is index metadata for the oplog chunks
-type OplogChunk struct {
+// oplogChunk is index metadata for the oplog chunks
+type oplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
 	Compression CompressionType     `bson:"compression"`
@@ -69,16 +70,28 @@ func FileCompression(ext string) CompressionType {
 }
 
 // NewStorageService creates new backup storage service.
-func NewStorageService(storage storagePath) *StorageService {
+func NewStorageService() *StorageService {
 	return &StorageService{
-		l:       logrus.WithField("component", "services/backup/storage"),
-		storage: storage,
+		l: logrus.WithField("component", "services/backup/storage"),
 	}
 }
 
 func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error) {
+	var err error
 	var timeranges []*backupv1beta1.PitrTimeline
-	pitrf, err := ss.storage.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, PITRfsPrefix, "")
+
+	switch {
+	case location.S3Config != nil:
+		ss.storage, err = minio.NewMinioClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
+		if err != nil {
+			return timeranges, err
+		}
+	default:
+		// todo(idoqo): add support for local storage
+		return timeranges, errors.New("unsupported location config")
+	}
+
+	pitrf, err := ss.storage.List(ctx, PITRfsPrefix, "")
 	if err != nil {
 		return timeranges, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -88,44 +101,47 @@ func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models
 
 	var pitr []interface{}
 	for _, f := range pitrf {
-		_, err := ss.storage.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, PITRfsPrefix+"/"+f.Name)
+		_, err := ss.storage.FileStat(ctx, PITRfsPrefix+"/"+f.Name)
 		if err != nil {
 			ss.l.Warningf("skip pitr chunk %s/%s because of %v", PITRfsPrefix, f.Name, err)
 			continue
 		}
-		chnk := PITRMetaFromFName(f.Name)
-		if chnk != nil {
-			pitr = append(pitr, chnk)
+		chunk := pitrMetaFromFileName(f.Name)
+		if chunk != nil {
+			pitr = append(pitr, chunk)
 		}
 	}
 
 	for _, tr := range pitr {
 		switch tr.(type) {
-		case *OplogChunk:
-			start := time.Unix(int64(tr.(*OplogChunk).StartTS.T), 0)
-			end := time.Unix(int64(tr.(*OplogChunk).EndTS.T), 0)
+		case *oplogChunk:
+			start := time.Unix(int64(tr.(*oplogChunk).StartTS.T), 0)
+			end := time.Unix(int64(tr.(*oplogChunk).EndTS.T), 0)
 			timeranges = append(timeranges, &backupv1beta1.PitrTimeline{
 				StartTimestamp: timestamppb.New(start),
 				EndTimestamp:   timestamppb.New(end),
-				Filename:       tr.(*OplogChunk).FName,
+				Filename:       tr.(*oplogChunk).FName,
 			})
+
+		default:
+			continue
 		}
 	}
 	return timeranges, nil
 }
 
-// PITRMetaFromFName parses given file name and returns PITRChunk metadata
-// it returns nil if file wasn't parse successfully (e.g. wrong format)
+// pitrMetaFromFileName parses given file name and returns PITRChunk metadata
+// it returns nil if the file wasn't parse successfully (e.g. wrong format)
 // current fromat is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! should be agreed with pbm/pitr.chunkPath()
-func PITRMetaFromFName(f string) *OplogChunk {
+func pitrMetaFromFileName(f string) *oplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {
 		return nil
 	}
-	chnk := &OplogChunk{}
+	chnk := &oplogChunk{}
 	chnk.RS = ppath[0]
 	chnk.FName = path.Join(PITRfsPrefix, f)
 
