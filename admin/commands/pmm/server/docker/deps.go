@@ -33,7 +33,7 @@ type DockerFunctions interface {
 	GetDockerClient() docker.DockerClient
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker() error
-	IsDockerInstalled(ef docker.ExecFunctions) (bool, error)
+	IsDockerInstalled() (bool, error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
 	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)
 	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse

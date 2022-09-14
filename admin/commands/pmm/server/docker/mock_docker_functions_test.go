@@ -124,20 +124,20 @@ func (_m *MockDockerFunctions) InstallDocker() error {
 	return r0
 }
 
-// IsDockerInstalled provides a mock function with given fields: ef
-func (_m *MockDockerFunctions) IsDockerInstalled(ef docker.ExecFunctions) (bool, error) {
-	ret := _m.Called(ef)
+// IsDockerInstalled provides a mock function with given fields:
+func (_m *MockDockerFunctions) IsDockerInstalled() (bool, error) {
+	ret := _m.Called()
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(docker.ExecFunctions) bool); ok {
-		r0 = rf(ef)
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(docker.ExecFunctions) error); ok {
-		r1 = rf(ef)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -38,8 +38,8 @@ type Base struct {
 }
 
 // IsDockerInstalled checks if Docker is installed locally.
-func (b *Base) IsDockerInstalled(ef ExecFunctions) (bool, error) {
-	path, err := ef.LookPath("docker")
+func (b *Base) IsDockerInstalled() (bool, error) {
+	path, err := exec.LookPath("docker")
 	if err != nil {
 		if err, ok := err.(*exec.Error); ok && err.Err == exec.ErrNotFound {
 			return false, nil

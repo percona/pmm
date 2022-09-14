@@ -125,7 +125,7 @@ func (c *InstallCommand) installDocker() error {
 		return nil
 	}
 
-	isInstalled, err := c.dockerFn.IsDockerInstalled(docker.RealExecFunctions{})
+	isInstalled, err := c.dockerFn.IsDockerInstalled()
 	if err != nil {
 		return err
 	}

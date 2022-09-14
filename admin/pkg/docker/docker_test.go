@@ -17,56 +17,12 @@ package docker
 import (
 	"context"
 	"fmt"
-	"os/exec"
 	"testing"
 
 	"github.com/docker/docker/api/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-func TestIsDockerInstalled(t *testing.T) {
-	t.Parallel()
-
-	t.Run("shall find Docker executable", func(t *testing.T) {
-		ef := &MockExecFunctions{}
-		t.Cleanup(func() { ef.AssertExpectations(t) })
-
-		ef.Mock.On("LookPath", "docker").Return("docker", nil)
-
-		d := &Base{}
-		found, err := d.IsDockerInstalled(ef)
-
-		require.NoError(t, err)
-		require.True(t, found)
-	})
-
-	t.Run("shall return false on error", func(t *testing.T) {
-		ef := &MockExecFunctions{}
-		t.Cleanup(func() { ef.AssertExpectations(t) })
-
-		ef.Mock.On("LookPath", "docker").Return("", fmt.Errorf("err"))
-
-		d := &Base{}
-		found, err := d.IsDockerInstalled(ef)
-
-		require.Error(t, err)
-		require.False(t, found)
-	})
-
-	t.Run("shall return false on not found without error", func(t *testing.T) {
-		ef := &MockExecFunctions{}
-		t.Cleanup(func() { ef.AssertExpectations(t) })
-
-		ef.Mock.On("LookPath", "docker").Return("", &exec.Error{Err: exec.ErrNotFound})
-
-		d := &Base{}
-		found, err := d.IsDockerInstalled(ef)
-
-		require.NoError(t, err)
-		require.False(t, found)
-	})
-}
 
 func TestHaveDockerAccess(t *testing.T) {
 	t.Parallel()

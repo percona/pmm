@@ -17,7 +17,6 @@ package docker
 import (
 	"context"
 	"io"
-	"os/exec"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -26,20 +25,6 @@ import (
 	volumetypes "github.com/docker/docker/api/types/volume"
 	specs "github.com/opencontainers/image-spec/specs-go/v1"
 )
-
-//go:generate ../../../bin/mockery -name=ExecFunctions -case=snake -inpkg -testonly
-
-// ExecFunctions is an interface for the LookPath() function.
-type ExecFunctions interface {
-	LookPath(file string) (string, error)
-}
-
-type RealExecFunctions struct{}
-
-// LookPath calls Go's implementation of the LookPath() function.
-func (RealExecFunctions) LookPath(file string) (string, error) {
-	return exec.LookPath(file)
-}
 
 //go:generate ../../../bin/mockery -name=DockerClient -case=snake -inpkg -testonly
 
