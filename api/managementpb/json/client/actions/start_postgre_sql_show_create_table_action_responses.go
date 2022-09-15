@@ -56,36 +56,7 @@ type StartPostgreSQLShowCreateTableActionOK struct {
 	Payload *StartPostgreSQLShowCreateTableActionOKBody
 }
 
-// IsSuccess returns true when this start postgre Sql show create table action Ok response has a 2xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start postgre Sql show create table action Ok response has a 3xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start postgre Sql show create table action Ok response has a 4xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start postgre Sql show create table action Ok response has a 5xx status code
-func (o *StartPostgreSQLShowCreateTableActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start postgre Sql show create table action Ok response a status code equal to that given
-func (o *StartPostgreSQLShowCreateTableActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartPostgreSQLShowCreateTableActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartPostgreSQLShowCreateTableActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] startPostgreSqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
 
@@ -126,36 +97,7 @@ func (o *StartPostgreSQLShowCreateTableActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start postgre SQL show create table action default response has a 2xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start postgre SQL show create table action default response has a 3xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start postgre SQL show create table action default response has a 4xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start postgre SQL show create table action default response has a 5xx status code
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start postgre SQL show create table action default response a status code equal to that given
-func (o *StartPostgreSQLShowCreateTableActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartPostgreSQLShowCreateTableActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPostgreSQLShowCreateTableActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPostgreSQLShowCreateTable][%d] StartPostgreSQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
 
