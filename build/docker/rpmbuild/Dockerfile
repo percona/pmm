@@ -23,7 +23,7 @@ RUN yum update -y && \
     yum clean all && rm -rf /var/cache/yum
 
 # keep that format for easier search
-ENV GO_VERSION 1.18.4
+ENV GO_VERSION 1.19.1
 ENV GO_RELEASER_VERSION 1.9.2
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
