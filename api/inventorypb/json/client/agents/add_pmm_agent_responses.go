@@ -56,7 +56,36 @@ type AddPMMAgentOK struct {
 	Payload *AddPMMAgentOKBody
 }
 
+// IsSuccess returns true when this add Pmm agent Ok response has a 2xx status code
+func (o *AddPMMAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Pmm agent Ok response has a 3xx status code
+func (o *AddPMMAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Pmm agent Ok response has a 4xx status code
+func (o *AddPMMAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Pmm agent Ok response has a 5xx status code
+func (o *AddPMMAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Pmm agent Ok response a status code equal to that given
+func (o *AddPMMAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddPMMAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPMMAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *AddPMMAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add PMM agent default response has a 2xx status code
+func (o *AddPMMAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add PMM agent default response has a 3xx status code
+func (o *AddPMMAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add PMM agent default response has a 4xx status code
+func (o *AddPMMAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add PMM agent default response has a 5xx status code
+func (o *AddPMMAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add PMM agent default response a status code equal to that given
+func (o *AddPMMAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddPMMAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPMMAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
 
