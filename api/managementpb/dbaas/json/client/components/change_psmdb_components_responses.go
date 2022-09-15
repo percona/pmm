@@ -56,36 +56,7 @@ type ChangePSMDBComponentsOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this change Psmdb components Ok response has a 2xx status code
-func (o *ChangePSMDBComponentsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change Psmdb components Ok response has a 3xx status code
-func (o *ChangePSMDBComponentsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change Psmdb components Ok response has a 4xx status code
-func (o *ChangePSMDBComponentsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change Psmdb components Ok response has a 5xx status code
-func (o *ChangePSMDBComponentsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change Psmdb components Ok response a status code equal to that given
-func (o *ChangePSMDBComponentsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangePSMDBComponentsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangePSMDBComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -124,36 +95,7 @@ func (o *ChangePSMDBComponentsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change PSMDB components default response has a 2xx status code
-func (o *ChangePSMDBComponentsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change PSMDB components default response has a 3xx status code
-func (o *ChangePSMDBComponentsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change PSMDB components default response has a 4xx status code
-func (o *ChangePSMDBComponentsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change PSMDB components default response has a 5xx status code
-func (o *ChangePSMDBComponentsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change PSMDB components default response a status code equal to that given
-func (o *ChangePSMDBComponentsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangePSMDBComponentsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangePSMDBComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
 
