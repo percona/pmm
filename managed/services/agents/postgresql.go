@@ -30,11 +30,12 @@ import (
 )
 
 var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+var postgresExporterWebConfigVersion = version.MustParse("2.30.99")
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentpb.SetStateRequest_AgentProcess {
+) (*agentpb.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
@@ -89,10 +90,16 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		},
 		TextFiles: exporter.Files(),
 	}
+
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res
+
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
