@@ -732,6 +732,13 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
 		`UPDATE ia_rules SET disabled = TRUE`,
 	},
+	67: {
+		`ALTER TABLE agents
+			ADD COLUMN query_length INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN query_length DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -28,11 +28,14 @@ import (
 	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
+	defaultQueryLength := truncate.GetDefaultQueryLength()
+
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
@@ -50,7 +53,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 60, // +10
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -77,7 +80,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -111,7 +114,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -125,7 +128,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -146,7 +149,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 25,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()))
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -166,6 +169,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 
 type setupParams struct {
 	db                   *reform.DB
+	queryLength          int
 	disableQueryExamples bool
 }
 
@@ -182,6 +186,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		Querier:              sp.db.WithTag(queryTag),
 		DBCloser:             nil,
 		AgentID:              "agent_id",
+		QueryLength:          sp.queryLength,
 		DisableQueryExamples: sp.disableQueryExamples,
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}

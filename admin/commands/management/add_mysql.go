@@ -99,6 +99,7 @@ type AddMySQLCommand struct {
 	AgentPassword string `help:"Custom password for /metrics endpoint"`
 	// TODO add "auto", make it default
 	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
+	QueryLength            int32             `placeholder:"NUMBER" help:"Define how many chars can a query have until it's truncated (default: server-defined; -1: no limit)"`
 	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
 	DisableTablestats      bool              `help:"Disable table statistics collection"`
@@ -213,6 +214,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 			SkipConnectionCheck:       cmd.SkipConnectionCheck,
+			QueryLength:               cmd.QueryLength,
 			DisableQueryExamples:      cmd.DisableQueryExamples,
 			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
 			TLS:                       cmd.TLS,

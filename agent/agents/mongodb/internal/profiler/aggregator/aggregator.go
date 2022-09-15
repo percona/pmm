@@ -252,8 +252,9 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 			collection = s[1]
 		}
 
-		fingerprint, _ := truncate.Query(v.Fingerprint)
-		query, truncated := truncate.Query(v.Query)
+		defaultQueryLength := truncate.GetDefaultQueryLength()
+		fingerprint, _ := truncate.Query(v.Fingerprint, defaultQueryLength)
+		query, truncated := truncate.Query(v.Query, defaultQueryLength)
 		bucket := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             v.ID,

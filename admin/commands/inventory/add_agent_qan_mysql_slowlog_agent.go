@@ -70,6 +70,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	QueryLength          int32             `placeholder:"NUMBER" help:"Define how many chars can a query have until it's truncated (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
@@ -112,6 +113,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 			Password:             cmd.Password,
 			CustomLabels:         customLabels,
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
+			QueryLength:          cmd.QueryLength,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MaxSlowlogFileSize:   strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
 			TLS:                  cmd.TLS,

@@ -367,6 +367,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 			TLS:                   req.Tls,
 			TLSSkipVerify:         req.TlsSkipVerify,
 			MySQLOptions:          models.MySQLOptionsFromRequest(req),
+			QueryLength:           req.QueryLength,
 			QueryExamplesDisabled: req.DisableQueryExamples,
 			LogLevel:              services.SpecifyLogLevel(req.LogLevel),
 		}
@@ -432,6 +433,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 			TLS:                   req.Tls,
 			TLSSkipVerify:         req.TlsSkipVerify,
 			MySQLOptions:          models.MySQLOptionsFromRequest(req),
+			QueryLength:           req.QueryLength,
 			QueryExamplesDisabled: req.DisableQueryExamples,
 			MaxQueryLogSize:       maxSlowlogFileSize,
 			LogLevel:              services.SpecifyLogLevel(req.LogLevel),

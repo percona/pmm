@@ -21,10 +21,10 @@ import (
 )
 
 func TestQuery(t *testing.T) {
-	m := maxQueryLength
-	maxQueryLength = 5
+	m := defaultQueryLength
+	defaultQueryLength = 5
 	defer func() {
-		maxQueryLength = m
+		defaultQueryLength = m
 	}()
 
 	for q, expected := range map[string]struct {
@@ -40,7 +40,7 @@ func TestQuery(t *testing.T) {
 		"\xff\xff\xff\xff\xff":     {"\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD", false},
 		"\xff\xff\xff\xff\xff\xff": {"\uFFFD ...", true},
 	} {
-		query, truncated := Query(q)
+		query, truncated := Query(q, defaultQueryLength)
 		assert.Equal(t, expected.query, query)
 		assert.Equal(t, expected.truncated, truncated)
 	}

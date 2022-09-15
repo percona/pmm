@@ -2767,7 +2767,7 @@
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -2788,12 +2788,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2812,13 +2812,13 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -2829,7 +2829,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -2867,6 +2867,12 @@
                   "type": "boolean",
                   "x-order": 14
                 },
+                "query_length": {
+                  "description": "Define how many chars can a query have until it's truncated.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 17
+                },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string",
@@ -2891,32 +2897,32 @@
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_ca": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "tls_cert": {
                   "description": "Client certificate.",
                   "type": "string",
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "tls_key": {
                   "description": "Password for decrypting tls_cert.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
@@ -3077,7 +3083,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3096,7 +3102,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3106,11 +3112,17 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
+                      "x-order": 11
+                    },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 10
                     },
                     "service_id": {
@@ -3131,7 +3143,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3181,7 +3193,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3200,13 +3212,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3216,11 +3228,17 @@
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
+                      "x-order": 11
+                    },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 10
                     },
                     "service_id": {
@@ -3241,7 +3259,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5345,7 +5363,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5364,7 +5382,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5374,11 +5392,17 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
+                      "x-order": 11
+                    },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 10
                     },
                     "service_id": {
@@ -5399,7 +5423,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",

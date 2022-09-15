@@ -233,6 +233,9 @@ type AddMySQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Define how many chars can a query have until it's truncated.
+	QueryLength int32 `json:"query_length,omitempty"`
+
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
@@ -1091,6 +1094,9 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Define how many chars can a query have until it's truncated.
+	QueryLength int32 `json:"query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
@@ -1301,6 +1307,9 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Define how many chars can a query have until it's truncated.
+	QueryLength int32 `json:"query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

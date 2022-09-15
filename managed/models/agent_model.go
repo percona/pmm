@@ -175,6 +175,7 @@ type Agent struct {
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
 
+	QueryLength           int32   `reform:"query_length"`
 	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
 	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
 	MetricsPath           *string `reform:"metrics_path"`
