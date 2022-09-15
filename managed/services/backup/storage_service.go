@@ -22,6 +22,8 @@ const (
 	PITRfsPrefix = "pbmPitr"
 )
 
+var errUnsupportedLocation = errors.New("unsupported location config")
+
 // StorageService helps perform file lookups in a backup storage location
 type StorageService struct {
 	l       *logrus.Entry
@@ -76,20 +78,9 @@ func NewStorageService() *StorageService {
 	}
 }
 
-func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error) {
+func (ss *StorageService) getPITRTimeRanges(ctx context.Context) ([]*backupv1beta1.PitrTimeline, error) {
 	var err error
 	var timeranges []*backupv1beta1.PitrTimeline
-
-	switch {
-	case location.S3Config != nil:
-		ss.storage, err = minio.NewMinioClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
-		if err != nil {
-			return timeranges, err
-		}
-	default:
-		// todo(idoqo): add support for local storage
-		return timeranges, errors.New("unsupported location config")
-	}
 
 	pitrf, err := ss.storage.List(ctx, PITRfsPrefix, "")
 	if err != nil {
@@ -128,6 +119,22 @@ func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models
 		}
 	}
 	return timeranges, nil
+}
+
+func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]*backupv1beta1.PitrTimeline, error) {
+	var err error
+	switch {
+	case location.S3Config != nil:
+		ss.storage, err = minio.NewMinioClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		// todo(idoqo): add support for local storage
+		return nil, errUnsupportedLocation
+	}
+
+	return ss.getPITRTimeRanges(ctx)
 }
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata

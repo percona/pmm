@@ -17,13 +17,17 @@ package backup
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -31,6 +35,7 @@ import (
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestListPitrTimelines(t *testing.T) {
@@ -52,7 +57,6 @@ func TestListPitrTimelines(t *testing.T) {
 
 	mockedStorageSvc.On("ListPITRTimelines", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
 	svc := NewArtifactsService(db, mockedRemovalSvc, mockedStorageSvc)
-	var artifactID string
 	var locationID string
 
 	t.Run("add awsS3", func(t *testing.T) {
@@ -73,7 +77,7 @@ func TestListPitrTimelines(t *testing.T) {
 		locationID = loc.ID
 	})
 
-	t.Run("create artifact", func(t *testing.T) {
+	t.Run("successfully lists PITR time ranges", func(t *testing.T) {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "test_artifact",
 			Vendor:     "test_vendor",
@@ -85,13 +89,41 @@ func TestListPitrTimelines(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
-		artifactID = artifact.ID
+
+		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+			ArtifactId: artifact.ID,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, response)
+		assert.Len(t, response.Timelines, 1)
 	})
 
-	response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
-		ArtifactId: artifactID,
+	t.Run("fails for invalid artifact ID", func(t *testing.T) {
+		unknownID := "artifact_id/" + uuid.New().String()
+		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+			ArtifactId: unknownID,
+		})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID %q not found.", unknownID)), err)
+		assert.Nil(t, response)
 	})
-	require.NoError(t, err)
-	require.NotNil(t, response)
-	assert.Len(t, response.Timelines, 1)
+
+	t.Run("fails for non-PITR artifact", func(t *testing.T) {
+		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+			Name:       "test_artifact",
+			Vendor:     "test_vendor",
+			LocationID: locationID,
+			ServiceID:  "test_service",
+			Mode:       models.Snapshot,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.PendingBackupStatus,
+		})
+		assert.NoError(t, err)
+		assert.NotEmpty(t, artifact.ID)
+
+		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+			ArtifactId: artifact.ID,
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
+		assert.Nil(t, response)
+	})
 }

@@ -4,13 +4,92 @@ import (
 	"context"
 	"testing"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/minio"
 )
+
+func TestPitrMetaFromFileName(t *testing.T) {
+	tests := []struct {
+		name     string
+		filename string
+		expected *oplogChunk
+	}{
+		{
+			name:     "correctly formatted file name",
+			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+			expected: &oplogChunk{
+				RS:          "rs0",
+				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+				Compression: CompressionTypeS2,
+				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
+				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
+			},
+		},
+		{
+			name:     "incomplete file name",
+			filename: "20220829115611-1.20220829120544-10.oplog.s2",
+			expected: nil,
+		},
+		{
+			name:     "without end timestamp",
+			filename: "rs0/20220829/20220829115611-1.oplog.s2",
+			expected: nil,
+		},
+		{
+			name:     "without specified compression",
+			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog",
+			expected: &oplogChunk{
+				RS:          "rs0",
+				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog",
+				Compression: CompressionTypeNone,
+				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
+				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			chunk := pitrMetaFromFileName(tt.filename)
+			assert.Equal(t, tt.expected, chunk)
+		})
+	}
+}
+
+func TestPitrParseTs(t *testing.T) {
+	tests := []struct {
+		name     string
+		filename string
+		expected *primitive.Timestamp
+	}{
+		{
+			name:     "with time and index",
+			filename: "20220829115611-10",
+			expected: &primitive.Timestamp{T: uint32(1661774171), I: 10},
+		},
+		{
+			name:     "time without index",
+			filename: "20220829120544",
+			expected: &primitive.Timestamp{T: uint32(1661774744), I: 0},
+		},
+		{
+			name:     "with invalid timestamp",
+			filename: "2022",
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ts := pitrParseTS(tt.filename)
+			assert.Equal(t, tt.expected, ts)
+		})
+	}
+}
 
 func TestListPITRTimelines(t *testing.T) {
 	ctx := context.Background()
@@ -18,25 +97,13 @@ func TestListPITRTimelines(t *testing.T) {
 	t.Run("fails for empty storage location", func(t *testing.T) {
 	})
 
-	t.Run("s3 location config", func(t *testing.T) {
+	t.Run("successful", func(t *testing.T) {
 		mockedStorage := &mockStoragePath{}
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 				Size: 1024,
 			},
-		}
-
-		location := models.BackupLocation{
-			Name:        gofakeit.Name(),
-			Description: "",
-		}
-		location.S3Config = &models.S3LocationConfig{
-			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-			AccessKey:    "access_key",
-			SecretKey:    "secret_key",
-			BucketName:   "example_bucket",
-			BucketRegion: "us-east-1",
 		}
 
 		statFile := minio.FileInfo{
@@ -47,14 +114,39 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
 
 		ss := NewStorageService()
-		timelines, err := ss.ListPITRTimelines(ctx, location)
+		ss.storage = mockedStorage
+		timelines, err := ss.getPITRTimeRanges(ctx)
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
 
-	t.Run("filesystem location config", func(t *testing.T) {
+	t.Run("fails on file list error", func(t *testing.T) {
+		mockedStorage := &mockStoragePath{}
+		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
+
+		ss := NewStorageService()
+		ss.storage = mockedStorage
+		timelines, err := ss.getPITRTimeRanges(ctx)
+		assert.NoError(t, err)
+		assert.Nil(t, timelines)
 	})
 
-	t.Run("with file stat errors", func(t *testing.T) {
+	t.Run("skips artifacts with file stat errors", func(t *testing.T) {
+		mockedStorage := &mockStoragePath{}
+		listedFiles := []minio.FileInfo{
+			{
+				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+				Size: 1024,
+			},
+		}
+
+		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
+		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(minio.FileInfo{}, errors.New("file stat error"))
+
+		ss := NewStorageService()
+		ss.storage = mockedStorage
+		timelines, err := ss.getPITRTimeRanges(ctx)
+		assert.NoError(t, err)
+		assert.Len(t, timelines, 0)
 	})
 }

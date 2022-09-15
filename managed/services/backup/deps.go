@@ -28,7 +28,6 @@ import (
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=storagePath -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
