@@ -172,7 +172,7 @@ func (b *Base) WaitForHealthyContainer(ctx context.Context, containerID string) 
 				break
 			}
 
-			if status.State.Health.Status == "healthy" {
+			if status.State == nil || status.State.Health == nil || status.State.Health.Status == "healthy" {
 				res.Healthy = true
 				break
 			}
