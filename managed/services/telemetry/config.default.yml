@@ -78,10 +78,10 @@ telemetry:
 
   - id: MySQLAvgQueriesRunning
     source: VM
-    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
-    summary: "Average number of running threads for last day"
+    query: avg by (service_name) (rate(mysql_global_status_commands_total{command=~"select|delete|update|insert"}[1d]))
+    summary: "Average number of running queries"
     data:
-      - metric_name: "mysql_global_status_threads_running"
+      - metric_name: "mysql_global_status_queries_running"
         value: 1
 
   - id: MySQLSpaceUsed
