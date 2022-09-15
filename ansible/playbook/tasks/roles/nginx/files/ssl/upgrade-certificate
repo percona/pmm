@@ -1,6 +1,6 @@
 #!/bin/sh
 
-expire_limit=14 # days
+expire_limit=30 # days
 
 expire_data=`openssl x509 -enddate -noout -in /srv/nginx/certificate.crt | sed -e 's#notAfter=##'`
 expire_date=`date -d "${expire_data}" '+%s'`
@@ -15,5 +15,5 @@ if test "${diff}" -lt "$((${expire_limit}*24*3600))"; then
         -out    /etc/nginx/ssl/certificate.crt \
         -config /etc/nginx/ssl/certificate.conf
     cp /etc/nginx/ssl/certificate.key /srv/nginx/certificate.key
-    cp /etc/nginx/ssl/certificate.crt
+    cp /etc/nginx/ssl/certificate.crt /srv/nginx/certificate.crt
 fi
