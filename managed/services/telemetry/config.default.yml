@@ -60,6 +60,38 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
+  - id: MySQLInnodbBufferPoolSize
+    source: VM
+    query: mysql_global_variables_innodb_buffer_pool_size
+    summary: "InnoDB buffer pool size"
+    data:
+      - metric_name: "mysql_global_variables_innodb_buffer_pool_size"
+        value: 1
+
+  - id: MySQLAvgThreadsRunning
+    source: VM
+    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
+    summary: "Average number of running threads for last day"
+    data:
+      - metric_name: "mysql_global_status_threads_running"
+        value: 1
+
+  - id: MySQLAvgQueriesRunning
+    source: VM
+    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
+    summary: "Average number of running threads for last day"
+    data:
+      - metric_name: "mysql_global_status_threads_running"
+        value: 1
+
+  - id: MySQLSpaceUsed
+    source: VM
+    query: sum(count(mysql_info_schema_table_version{engine="InnoDB"}) by (schema,table) * sum (mysql_info_schema_table_size{component=~"data_length|index_length"}) by (schema,table))
+    summary: "Data usage of MySQL"
+    data:
+      - metric_name: "mysql_space_used"
+        value: 1
+
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
