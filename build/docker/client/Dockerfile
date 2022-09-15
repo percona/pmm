@@ -1,4 +1,4 @@
-FROM redhat/ubi9-micro
+FROM redhat/ubi9-minimal
 
 RUN microdnf install shadow-utils
 
