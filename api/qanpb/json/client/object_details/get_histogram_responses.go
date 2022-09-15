@@ -57,36 +57,7 @@ type GetHistogramOK struct {
 	Payload *GetHistogramOKBody
 }
 
-// IsSuccess returns true when this get histogram Ok response has a 2xx status code
-func (o *GetHistogramOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get histogram Ok response has a 3xx status code
-func (o *GetHistogramOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get histogram Ok response has a 4xx status code
-func (o *GetHistogramOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get histogram Ok response has a 5xx status code
-func (o *GetHistogramOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get histogram Ok response a status code equal to that given
-func (o *GetHistogramOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetHistogramOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
-}
-
-func (o *GetHistogramOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] getHistogramOk  %+v", 200, o.Payload)
 }
 
@@ -127,36 +98,7 @@ func (o *GetHistogramDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get histogram default response has a 2xx status code
-func (o *GetHistogramDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get histogram default response has a 3xx status code
-func (o *GetHistogramDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get histogram default response has a 4xx status code
-func (o *GetHistogramDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get histogram default response has a 5xx status code
-func (o *GetHistogramDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get histogram default response a status code equal to that given
-func (o *GetHistogramDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetHistogramDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetHistogramDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetHistogram][%d] GetHistogram default  %+v", o._statusCode, o.Payload)
 }
 

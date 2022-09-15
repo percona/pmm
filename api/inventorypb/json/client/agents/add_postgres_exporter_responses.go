@@ -58,36 +58,7 @@ type AddPostgresExporterOK struct {
 	Payload *AddPostgresExporterOKBody
 }
 
-// IsSuccess returns true when this add postgres exporter Ok response has a 2xx status code
-func (o *AddPostgresExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add postgres exporter Ok response has a 3xx status code
-func (o *AddPostgresExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add postgres exporter Ok response has a 4xx status code
-func (o *AddPostgresExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add postgres exporter Ok response has a 5xx status code
-func (o *AddPostgresExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add postgres exporter Ok response a status code equal to that given
-func (o *AddPostgresExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddPostgresExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *AddPostgresExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] addPostgresExporterOk  %+v", 200, o.Payload)
 }
 
@@ -128,36 +99,7 @@ func (o *AddPostgresExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add postgres exporter default response has a 2xx status code
-func (o *AddPostgresExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add postgres exporter default response has a 3xx status code
-func (o *AddPostgresExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add postgres exporter default response has a 4xx status code
-func (o *AddPostgresExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add postgres exporter default response has a 5xx status code
-func (o *AddPostgresExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add postgres exporter default response a status code equal to that given
-func (o *AddPostgresExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddPostgresExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddPostgresExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPostgresExporter][%d] AddPostgresExporter default  %+v", o._statusCode, o.Payload)
 }
 

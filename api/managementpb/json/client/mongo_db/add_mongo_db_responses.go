@@ -58,36 +58,7 @@ type AddMongoDBOK struct {
 	Payload *AddMongoDBOKBody
 }
 
-// IsSuccess returns true when this add mongo Db Ok response has a 2xx status code
-func (o *AddMongoDBOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add mongo Db Ok response has a 3xx status code
-func (o *AddMongoDBOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add mongo Db Ok response has a 4xx status code
-func (o *AddMongoDBOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add mongo Db Ok response has a 5xx status code
-func (o *AddMongoDBOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add mongo Db Ok response a status code equal to that given
-func (o *AddMongoDBOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddMongoDBOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
-}
-
-func (o *AddMongoDBOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
 
@@ -128,36 +99,7 @@ func (o *AddMongoDBDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add mongo DB default response has a 2xx status code
-func (o *AddMongoDBDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add mongo DB default response has a 3xx status code
-func (o *AddMongoDBDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add mongo DB default response has a 4xx status code
-func (o *AddMongoDBDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add mongo DB default response has a 5xx status code
-func (o *AddMongoDBDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add mongo DB default response a status code equal to that given
-func (o *AddMongoDBDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddMongoDBDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddMongoDBDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
 
