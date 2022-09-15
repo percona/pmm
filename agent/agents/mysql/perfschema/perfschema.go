@@ -73,11 +73,11 @@ func (m *PerfSchema) mySQLVersion() *mySQLVersion {
 const (
 	retainHistory    = 5 * time.Minute
 	refreshHistory   = 5 * time.Second
-	historyCacheSize = 5000 // history cache size rows limit
+	historyCacheSize = 10000 // history cache size rows limit
 
 	retainSummaries    = 25 * time.Hour // make it work for daily queries
 	querySummaries     = time.Minute
-	summariesCacheSize = 5000 // summary cache size rows limit
+	summariesCacheSize = 10000 // summary cache size rows limit
 )
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.

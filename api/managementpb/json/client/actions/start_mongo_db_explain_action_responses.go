@@ -56,7 +56,36 @@ type StartMongoDBExplainActionOK struct {
 	Payload *StartMongoDBExplainActionOKBody
 }
 
+// IsSuccess returns true when this start mongo Db explain action Ok response has a 2xx status code
+func (o *StartMongoDBExplainActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start mongo Db explain action Ok response has a 3xx status code
+func (o *StartMongoDBExplainActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start mongo Db explain action Ok response has a 4xx status code
+func (o *StartMongoDBExplainActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start mongo Db explain action Ok response has a 5xx status code
+func (o *StartMongoDBExplainActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start mongo Db explain action Ok response a status code equal to that given
+func (o *StartMongoDBExplainActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *StartMongoDBExplainActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMongoDBExplainActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *StartMongoDBExplainActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this start mongo DB explain action default response has a 2xx status code
+func (o *StartMongoDBExplainActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start mongo DB explain action default response has a 3xx status code
+func (o *StartMongoDBExplainActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start mongo DB explain action default response has a 4xx status code
+func (o *StartMongoDBExplainActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start mongo DB explain action default response has a 5xx status code
+func (o *StartMongoDBExplainActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start mongo DB explain action default response a status code equal to that given
+func (o *StartMongoDBExplainActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *StartMongoDBExplainActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMongoDBExplainActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
 }
 

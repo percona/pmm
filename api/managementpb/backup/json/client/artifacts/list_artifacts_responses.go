@@ -58,7 +58,36 @@ type ListArtifactsOK struct {
 	Payload *ListArtifactsOKBody
 }
 
+// IsSuccess returns true when this list artifacts Ok response has a 2xx status code
+func (o *ListArtifactsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list artifacts Ok response has a 3xx status code
+func (o *ListArtifactsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list artifacts Ok response has a 4xx status code
+func (o *ListArtifactsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list artifacts Ok response has a 5xx status code
+func (o *ListArtifactsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list artifacts Ok response a status code equal to that given
+func (o *ListArtifactsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListArtifactsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListArtifactsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *ListArtifactsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list artifacts default response has a 2xx status code
+func (o *ListArtifactsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list artifacts default response has a 3xx status code
+func (o *ListArtifactsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list artifacts default response has a 4xx status code
+func (o *ListArtifactsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list artifacts default response has a 5xx status code
+func (o *ListArtifactsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list artifacts default response a status code equal to that given
+func (o *ListArtifactsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListArtifactsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListArtifactsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
 }
 
