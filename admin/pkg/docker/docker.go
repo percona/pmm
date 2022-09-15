@@ -225,8 +225,3 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 
 	return &volume, nil
 }
-
-// PullImage pulls image from Docker registry.
-func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error) {
-	return b.Cli.ImagePull(ctx, dockerImage, opts)
-}

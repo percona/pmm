@@ -17,16 +17,18 @@ package docker
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"strconv"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/pmm/common"
+	"github.com/percona/pmm/admin/pkg/bubbles/progress"
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
@@ -63,10 +65,8 @@ Password: ` + r.adminPassword
 }
 
 // RunCmd runs install command.
-func (c *InstallCommand) RunCmd() (commands.Result, error) {
-	logrus.Info("Starting PMM Server installation")
-
-	ctx := context.Background()
+func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
+	logrus.Info("Starting PMM Server installation in Docker")
 
 	if c.dockerFn == nil {
 		d, err := docker.New(nil)
@@ -90,11 +90,11 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
-	if err != nil {
-		return nil, err
+	logrus.Infof("Downloading %q", c.DockerImage)
+	res, err := c.pullImage(ctx)
+	if res != nil || err != nil {
+		return res, nil
 	}
-	io.Copy(os.Stdout, reader)
 
 	containerID, err := c.runContainer(ctx, volume, c.DockerImage)
 	if err != nil {
@@ -174,4 +174,31 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 	logrus.Debugf("Started PMM Server in container %q", containerID)
 
 	return containerID, nil
+}
+
+// pullImage pulls a docker image and displays progress.
+func (c *InstallCommand) pullImage(ctx context.Context) (commands.Result, error) {
+	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	p := tea.NewProgram(progress.NewSize())
+	errC := docker.ParsePullImageProgress(reader, p)
+	model, err := p.StartReturningModel()
+	if err != nil {
+		return nil, err
+	}
+
+	if m, ok := model.(progress.SizeModel); ok {
+		if m.Quitting {
+			return common.ShutdownResult{}, nil
+		}
+	}
+
+	if err := <-errC; err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

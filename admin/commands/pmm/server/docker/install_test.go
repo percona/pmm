@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
@@ -142,7 +143,7 @@ func TestRunCmd(t *testing.T) {
 			ContainerName: "container-name",
 		}
 
-		_, err := c.RunCmd()
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
 
 		require.NoError(t, err)
 	})
@@ -157,7 +158,7 @@ func TestRunCmd(t *testing.T) {
 
 		c := InstallCommand{dockerFn: m}
 
-		_, err := c.RunCmd()
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
 
 		require.Error(t, err)
 	})
@@ -191,7 +192,7 @@ func TestRunCmd(t *testing.T) {
 			SkipChangePassword: true,
 		}
 
-		_, err := c.RunCmd()
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
 
 		require.NoError(t, err)
 	})
