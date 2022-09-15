@@ -57,7 +57,36 @@ type ListPitrTimelinesOK struct {
 	Payload *ListPitrTimelinesOKBody
 }
 
+// IsSuccess returns true when this list pitr timelines Ok response has a 2xx status code
+func (o *ListPitrTimelinesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list pitr timelines Ok response has a 3xx status code
+func (o *ListPitrTimelinesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list pitr timelines Ok response has a 4xx status code
+func (o *ListPitrTimelinesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list pitr timelines Ok response has a 5xx status code
+func (o *ListPitrTimelinesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list pitr timelines Ok response a status code equal to that given
+func (o *ListPitrTimelinesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListPitrTimelinesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] listPitrTimelinesOk  %+v", 200, o.Payload)
+}
+
+func (o *ListPitrTimelinesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] listPitrTimelinesOk  %+v", 200, o.Payload)
 }
 
@@ -98,7 +127,36 @@ func (o *ListPitrTimelinesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list pitr timelines default response has a 2xx status code
+func (o *ListPitrTimelinesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list pitr timelines default response has a 3xx status code
+func (o *ListPitrTimelinesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list pitr timelines default response has a 4xx status code
+func (o *ListPitrTimelinesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list pitr timelines default response has a 5xx status code
+func (o *ListPitrTimelinesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list pitr timelines default response a status code equal to that given
+func (o *ListPitrTimelinesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListPitrTimelinesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] ListPitrTimelines default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListPitrTimelinesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/ListPITRTimelines][%d] ListPitrTimelines default  %+v", o._statusCode, o.Payload)
 }
 

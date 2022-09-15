@@ -56,7 +56,36 @@ type StartMySQLExplainActionOK struct {
 	Payload *StartMySQLExplainActionOKBody
 }
 
+// IsSuccess returns true when this start my Sql explain action Ok response has a 2xx status code
+func (o *StartMySQLExplainActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start my Sql explain action Ok response has a 3xx status code
+func (o *StartMySQLExplainActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start my Sql explain action Ok response has a 4xx status code
+func (o *StartMySQLExplainActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start my Sql explain action Ok response has a 5xx status code
+func (o *StartMySQLExplainActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start my Sql explain action Ok response a status code equal to that given
+func (o *StartMySQLExplainActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *StartMySQLExplainActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMySQLExplainActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] startMySqlExplainActionOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *StartMySQLExplainActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this start my SQL explain action default response has a 2xx status code
+func (o *StartMySQLExplainActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start my SQL explain action default response has a 3xx status code
+func (o *StartMySQLExplainActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start my SQL explain action default response has a 4xx status code
+func (o *StartMySQLExplainActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start my SQL explain action default response has a 5xx status code
+func (o *StartMySQLExplainActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start my SQL explain action default response a status code equal to that given
+func (o *StartMySQLExplainActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *StartMySQLExplainActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMySQLExplainActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplain][%d] StartMySQLExplainAction default  %+v", o._statusCode, o.Payload)
 }
 

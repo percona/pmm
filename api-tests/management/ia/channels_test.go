@@ -25,6 +25,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 )
@@ -215,7 +216,7 @@ func TestChannelsAPI(t *testing.T) {
 			t.Parallel()
 
 			templateName := createTemplate(t)
-			defer deleteTemplate(t, channelsClient.Default.Templates, templateName)
+			defer deleteTemplate(t, alertingClient.Default.Alerting, templateName)
 
 			channelID, body := createChannel(t)
 			defer deleteChannel(t, channelsClient.Default.Channels, channelID)

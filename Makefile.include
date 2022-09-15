@@ -37,7 +37,7 @@ gen: clean            ## Generate files.
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -57,7 +57,7 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/alerting, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
@@ -77,6 +77,7 @@ gen: clean            ## Generate files.
 		api/managementpb/json/managementpb.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -90,6 +91,7 @@ gen: clean            ## Generate files.
 		api/swagger/header-dev.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -133,7 +135,7 @@ clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json

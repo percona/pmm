@@ -56,7 +56,36 @@ type UnregisterKubernetesClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this unregister kubernetes cluster Ok response has a 2xx status code
+func (o *UnregisterKubernetesClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this unregister kubernetes cluster Ok response has a 3xx status code
+func (o *UnregisterKubernetesClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this unregister kubernetes cluster Ok response has a 4xx status code
+func (o *UnregisterKubernetesClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this unregister kubernetes cluster Ok response has a 5xx status code
+func (o *UnregisterKubernetesClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this unregister kubernetes cluster Ok response a status code equal to that given
+func (o *UnregisterKubernetesClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UnregisterKubernetesClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *UnregisterKubernetesClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
@@ -95,7 +124,36 @@ func (o *UnregisterKubernetesClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this unregister kubernetes cluster default response has a 2xx status code
+func (o *UnregisterKubernetesClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this unregister kubernetes cluster default response has a 3xx status code
+func (o *UnregisterKubernetesClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this unregister kubernetes cluster default response has a 4xx status code
+func (o *UnregisterKubernetesClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this unregister kubernetes cluster default response has a 5xx status code
+func (o *UnregisterKubernetesClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this unregister kubernetes cluster default response a status code equal to that given
+func (o *UnregisterKubernetesClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *UnregisterKubernetesClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UnregisterKubernetesClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
 

@@ -56,7 +56,36 @@ type AddProxySQLServiceOK struct {
 	Payload *AddProxySQLServiceOKBody
 }
 
+// IsSuccess returns true when this add proxy Sql service Ok response has a 2xx status code
+func (o *AddProxySQLServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add proxy Sql service Ok response has a 3xx status code
+func (o *AddProxySQLServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add proxy Sql service Ok response has a 4xx status code
+func (o *AddProxySQLServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add proxy Sql service Ok response has a 5xx status code
+func (o *AddProxySQLServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add proxy Sql service Ok response a status code equal to that given
+func (o *AddProxySQLServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddProxySQLServiceOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddProxySQLServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *AddProxySQLServiceDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add proxy SQL service default response has a 2xx status code
+func (o *AddProxySQLServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add proxy SQL service default response has a 3xx status code
+func (o *AddProxySQLServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add proxy SQL service default response has a 4xx status code
+func (o *AddProxySQLServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add proxy SQL service default response has a 5xx status code
+func (o *AddProxySQLServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add proxy SQL service default response a status code equal to that given
+func (o *AddProxySQLServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddProxySQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddProxySQLServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
 }
 

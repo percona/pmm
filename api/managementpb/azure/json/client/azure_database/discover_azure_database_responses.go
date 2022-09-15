@@ -58,7 +58,36 @@ type DiscoverAzureDatabaseOK struct {
 	Payload *DiscoverAzureDatabaseOKBody
 }
 
+// IsSuccess returns true when this discover azure database Ok response has a 2xx status code
+func (o *DiscoverAzureDatabaseOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this discover azure database Ok response has a 3xx status code
+func (o *DiscoverAzureDatabaseOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this discover azure database Ok response has a 4xx status code
+func (o *DiscoverAzureDatabaseOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this discover azure database Ok response has a 5xx status code
+func (o *DiscoverAzureDatabaseOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this discover azure database Ok response a status code equal to that given
+func (o *DiscoverAzureDatabaseOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *DiscoverAzureDatabaseOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
+}
+
+func (o *DiscoverAzureDatabaseOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *DiscoverAzureDatabaseDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this discover azure database default response has a 2xx status code
+func (o *DiscoverAzureDatabaseDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this discover azure database default response has a 3xx status code
+func (o *DiscoverAzureDatabaseDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this discover azure database default response has a 4xx status code
+func (o *DiscoverAzureDatabaseDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this discover azure database default response has a 5xx status code
+func (o *DiscoverAzureDatabaseDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this discover azure database default response a status code equal to that given
+func (o *DiscoverAzureDatabaseDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *DiscoverAzureDatabaseDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *DiscoverAzureDatabaseDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
 

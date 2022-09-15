@@ -56,7 +56,36 @@ type ReloadOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this reload Ok response has a 2xx status code
+func (o *ReloadOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this reload Ok response has a 3xx status code
+func (o *ReloadOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this reload Ok response has a 4xx status code
+func (o *ReloadOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this reload Ok response has a 5xx status code
+func (o *ReloadOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this reload Ok response a status code equal to that given
+func (o *ReloadOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ReloadOK) Error() string {
+	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
+}
+
+func (o *ReloadOK) String() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
 }
 
@@ -95,7 +124,36 @@ func (o *ReloadDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this reload default response has a 2xx status code
+func (o *ReloadDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this reload default response has a 3xx status code
+func (o *ReloadDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this reload default response has a 4xx status code
+func (o *ReloadDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this reload default response has a 5xx status code
+func (o *ReloadDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this reload default response a status code equal to that given
+func (o *ReloadDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ReloadDefault) Error() string {
+	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ReloadDefault) String() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] Reload default  %+v", o._statusCode, o.Payload)
 }
 

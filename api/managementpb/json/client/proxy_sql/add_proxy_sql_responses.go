@@ -58,7 +58,36 @@ type AddProxySQLOK struct {
 	Payload *AddProxySQLOKBody
 }
 
+// IsSuccess returns true when this add proxy Sql Ok response has a 2xx status code
+func (o *AddProxySQLOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add proxy Sql Ok response has a 3xx status code
+func (o *AddProxySQLOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add proxy Sql Ok response has a 4xx status code
+func (o *AddProxySQLOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add proxy Sql Ok response has a 5xx status code
+func (o *AddProxySQLOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add proxy Sql Ok response a status code equal to that given
+func (o *AddProxySQLOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddProxySQLOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
+}
+
+func (o *AddProxySQLOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] addProxySqlOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *AddProxySQLDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add proxy SQL default response has a 2xx status code
+func (o *AddProxySQLDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add proxy SQL default response has a 3xx status code
+func (o *AddProxySQLDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add proxy SQL default response has a 4xx status code
+func (o *AddProxySQLDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add proxy SQL default response has a 5xx status code
+func (o *AddProxySQLDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add proxy SQL default response a status code equal to that given
+func (o *AddProxySQLDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddProxySQLDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddProxySQLDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ProxySQL/Add][%d] AddProxySQL default  %+v", o._statusCode, o.Payload)
 }
 
