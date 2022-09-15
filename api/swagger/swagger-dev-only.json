@@ -7379,6 +7379,104 @@
         }
       }
     },
+    "/v1/management/backup/Artifacts/ListPITRTimelines": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimelines",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timelines": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "filename": {
+                        "type": "string",
+                        "title": "Filename is the filename of the PITR oplog archive",
+                        "x-order": 0
+                      },
+                      "replica_set": {
+                        "type": "string",
+                        "title": "ReplicaSet is the name of the replica set that the backup was taken from",
+                        "x-order": 1
+                      },
+                      "start_timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "start_timestamp is the time of the first event in the PITR chunk",
+                        "x-order": 2
+                      },
+                      "end_timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "end_timestamp is the time of the last event in the PITR chunk",
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/backup/Backups/ChangeScheduled": {
       "post": {
         "tags": [
