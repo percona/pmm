@@ -466,7 +466,7 @@ func (s *Service) prepareRestoreJob(
 	}
 
 	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
-		return nil, errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MonogDB yet")
+		return nil, errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
 	}
 
 	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
