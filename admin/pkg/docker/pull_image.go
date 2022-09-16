@@ -43,7 +43,8 @@ type StatusMsg struct {
 
 // ParsePullImageProgress parses Docker json status from reader and sends
 // progress messages to a BubbleTea program.
-func ParsePullImageProgress(r io.Reader, p *tea.Program) <-chan error {
+func (b *Base) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error) {
+	doneChan := make(chan struct{}, 1)
 	errChan := make(chan error, 1)
 
 	go func() {
@@ -77,12 +78,12 @@ func ParsePullImageProgress(r io.Reader, p *tea.Program) <-chan error {
 			})
 		}
 
-		p.Send(tea.Quit())
+		doneChan <- struct{}{}
 
 		if err := scanner.Err(); err != nil {
 			errChan <- err
 		}
 	}()
 
-	return errChan
+	return doneChan, errChan
 }

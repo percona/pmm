@@ -93,7 +93,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	logrus.Infof("Downloading %q", c.DockerImage)
 	res, err := c.pullImage(ctx)
 	if res != nil || err != nil {
-		return res, nil
+		return res, err
 	}
 
 	containerID, err := c.runContainer(ctx, volume, c.DockerImage)
@@ -184,7 +184,12 @@ func (c *InstallCommand) pullImage(ctx context.Context) (commands.Result, error)
 	}
 
 	p := tea.NewProgram(progress.NewSize())
-	errC := docker.ParsePullImageProgress(reader, p)
+	doneC, errC := c.dockerFn.ParsePullImageProgress(reader, p)
+	go func() {
+		<-doneC
+		p.Send(tea.Quit())
+	}()
+
 	model, err := p.StartReturningModel()
 	if err != nil {
 		return nil, err

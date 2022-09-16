@@ -12,6 +12,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	tea "github.com/charmbracelet/bubbletea"
+
 	types "github.com/docker/docker/api/types"
 )
 
@@ -140,6 +142,31 @@ func (_m *MockDockerFunctions) IsDockerInstalled() (bool, error) {
 		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ParsePullImageProgress provides a mock function with given fields: r, p
+func (_m *MockDockerFunctions) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error) {
+	ret := _m.Called(r, p)
+
+	var r0 <-chan struct{}
+	if rf, ok := ret.Get(0).(func(io.Reader, *tea.Program) <-chan struct{}); ok {
+		r0 = rf(r, p)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan struct{})
+		}
+	}
+
+	var r1 <-chan error
+	if rf, ok := ret.Get(1).(func(io.Reader, *tea.Program) <-chan error); ok {
+		r1 = rf(r, p)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(<-chan error)
+		}
 	}
 
 	return r0, r1

@@ -18,6 +18,7 @@ import (
 	"context"
 	"io"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 
@@ -34,6 +35,7 @@ type DockerFunctions interface {
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker() error
 	IsDockerInstalled() (bool, error)
+	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
 	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)
 	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
