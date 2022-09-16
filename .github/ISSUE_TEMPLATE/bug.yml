@@ -7,12 +7,12 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report! To address this bug as fast as possible, we need some information.
+        Thanks for taking the time to fill out this bug report! Please provide as much information as possible, it will help us to address this problem faster.
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: Bug description
+      description: Please describe what is the problem
     validations:
       required: true
   - type: textarea
@@ -45,7 +45,7 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
+      label: Relevant logs
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
   - type: checkboxes
