@@ -34,7 +34,26 @@ import (
 
 // Base contains methods to interact with Docker.
 type Base struct {
-	Cli DockerClient
+	Cli *client.Client
+}
+
+// New creates new instance of Base struct.
+func New(cli *client.Client) (*Base, error) {
+	if cli != nil {
+		return &Base{Cli: cli}, nil
+	}
+
+	c, err := NewDockerClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Base{Cli: c}, nil
+}
+
+// NewDockerClient returns a configured Docker client.
+func NewDockerClient() (*client.Client, error) {
+	return client.NewClientWithOpts(client.WithVersion("1.41"))
 }
 
 // IsDockerInstalled checks if Docker is installed locally.
@@ -93,27 +112,8 @@ func (b *Base) InstallDocker() error {
 	return nil
 }
 
-// New creates new instance of Base struct.
-func New(cli *client.Client) (*Base, error) {
-	if cli != nil {
-		return &Base{Cli: cli}, nil
-	}
-
-	c, err := NewDockerClient()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Base{Cli: c}, nil
-}
-
-// NewDockerClient returns a configured Docker client.
-func NewDockerClient() (*client.Client, error) {
-	return client.NewClientWithOpts(client.WithVersion("1.41"))
-}
-
 // GetDockerClient returns instance of Docker client.
-func (b *Base) GetDockerClient() DockerClient {
+func (b *Base) GetDockerClient() *client.Client {
 	return b.Cli
 }
 

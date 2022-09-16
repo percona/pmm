@@ -3,10 +3,11 @@
 package docker
 
 import (
-	context "context"
-
 	container "github.com/docker/docker/api/types/container"
+	client "github.com/docker/docker/client"
 	"github.com/percona/pmm/admin/pkg/docker"
+
+	context "context"
 
 	io "io"
 
@@ -83,15 +84,15 @@ func (_m *MockDockerFunctions) FindServerContainers(ctx context.Context) ([]type
 }
 
 // GetDockerClient provides a mock function with given fields:
-func (_m *MockDockerFunctions) GetDockerClient() docker.DockerClient {
+func (_m *MockDockerFunctions) GetDockerClient() *client.Client {
 	ret := _m.Called()
 
-	var r0 docker.DockerClient
-	if rf, ok := ret.Get(0).(func() docker.DockerClient); ok {
+	var r0 *client.Client
+	if rf, ok := ret.Get(0).(func() *client.Client); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(docker.DockerClient)
+			r0 = ret.Get(0).(*client.Client)
 		}
 	}
 

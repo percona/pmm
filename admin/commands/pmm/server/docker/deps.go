@@ -21,6 +21,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 
 	"github.com/percona/pmm/admin/pkg/docker"
 )
@@ -31,7 +32,7 @@ type DockerFunctions interface {
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
 	CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error)
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
-	GetDockerClient() docker.DockerClient
+	GetDockerClient() *client.Client
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker() error
 	IsDockerInstalled() (bool, error)
