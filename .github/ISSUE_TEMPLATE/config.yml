@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord
+    url: https://per.co.na/discord
+    about: Please join our discord for quick questions.
+  - name: Forum
+    url: https://forums.percona.com/
+    about: Please join our forums for general questions ans discussions.
