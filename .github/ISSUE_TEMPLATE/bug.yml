@@ -12,7 +12,7 @@ body:
     id: description
     attributes:
       label: Description
-      description: Please describe what is the problem
+      description: Please describe the problem
     validations:
       required: true
   - type: textarea
@@ -52,7 +52,7 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/percona/community/blob/main/content/contribute/coc.md)
+      description: By submitting this issue, you agree to follow [Percona Community Code of Conduct](https://github.com/percona/community/blob/main/content/contribute/coc.md)
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: I agree to follow Percona Community Code of Conduct
           required: true
