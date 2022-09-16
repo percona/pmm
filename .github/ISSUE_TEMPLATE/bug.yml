@@ -1,5 +1,5 @@
 name: Bug Report
-description: File a bug report
+description:
 labels: ["bug", "triage"]
 assignees:
   - percona/pmm-devs
@@ -12,7 +12,7 @@ body:
     id: description
     attributes:
       label: Description
-      description: Please describe the problem
+      description: Please describe the problem.
     validations:
       required: true
   - type: textarea
