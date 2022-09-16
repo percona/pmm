@@ -58,36 +58,7 @@ type ChangeMongoDBExporterOK struct {
 	Payload *ChangeMongoDBExporterOKBody
 }
 
-// IsSuccess returns true when this change mongo Db exporter Ok response has a 2xx status code
-func (o *ChangeMongoDBExporterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this change mongo Db exporter Ok response has a 3xx status code
-func (o *ChangeMongoDBExporterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this change mongo Db exporter Ok response has a 4xx status code
-func (o *ChangeMongoDBExporterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this change mongo Db exporter Ok response has a 5xx status code
-func (o *ChangeMongoDBExporterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this change mongo Db exporter Ok response a status code equal to that given
-func (o *ChangeMongoDBExporterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ChangeMongoDBExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
-}
-
-func (o *ChangeMongoDBExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
 
@@ -128,36 +99,7 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this change mongo DB exporter default response has a 2xx status code
-func (o *ChangeMongoDBExporterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this change mongo DB exporter default response has a 3xx status code
-func (o *ChangeMongoDBExporterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this change mongo DB exporter default response has a 4xx status code
-func (o *ChangeMongoDBExporterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this change mongo DB exporter default response has a 5xx status code
-func (o *ChangeMongoDBExporterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this change mongo DB exporter default response a status code equal to that given
-func (o *ChangeMongoDBExporterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ChangeMongoDBExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ChangeMongoDBExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
 

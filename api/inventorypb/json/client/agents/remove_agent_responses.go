@@ -56,36 +56,7 @@ type RemoveAgentOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this remove agent Ok response has a 2xx status code
-func (o *RemoveAgentOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this remove agent Ok response has a 3xx status code
-func (o *RemoveAgentOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this remove agent Ok response has a 4xx status code
-func (o *RemoveAgentOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this remove agent Ok response has a 5xx status code
-func (o *RemoveAgentOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this remove agent Ok response a status code equal to that given
-func (o *RemoveAgentOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
-}
-
-func (o *RemoveAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
@@ -124,36 +95,7 @@ func (o *RemoveAgentDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this remove agent default response has a 2xx status code
-func (o *RemoveAgentDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this remove agent default response has a 3xx status code
-func (o *RemoveAgentDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this remove agent default response has a 4xx status code
-func (o *RemoveAgentDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this remove agent default response has a 5xx status code
-func (o *RemoveAgentDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this remove agent default response a status code equal to that given
-func (o *RemoveAgentDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *RemoveAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *RemoveAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
 }
 

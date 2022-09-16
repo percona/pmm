@@ -57,36 +57,7 @@ type GetOK struct {
 	Payload *GetOKBody
 }
 
-// IsSuccess returns true when this get Ok response has a 2xx status code
-func (o *GetOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get Ok response has a 3xx status code
-func (o *GetOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get Ok response has a 4xx status code
-func (o *GetOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get Ok response has a 5xx status code
-func (o *GetOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get Ok response a status code equal to that given
-func (o *GetOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetOK) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
-}
-
-func (o *GetOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
 
@@ -127,36 +98,7 @@ func (o *GetDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get default response has a 2xx status code
-func (o *GetDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get default response has a 3xx status code
-func (o *GetDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get default response has a 4xx status code
-func (o *GetDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get default response has a 5xx status code
-func (o *GetDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get default response a status code equal to that given
-func (o *GetDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] Get default  %+v", o._statusCode, o.Payload)
 }
 
