@@ -142,7 +142,7 @@ func TestListPITRTimelines(t *testing.T) {
 		ss := NewStorageService()
 		ss.storage = mockedStorage
 		timelines, err := ss.getPITRTimeRanges(ctx)
-		assert.NoError(t, err)
+		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
 
