@@ -68,6 +68,14 @@ telemetry:
       - metric_name: "mongodb_version"
         label: "mongodb"
 
+  - id: MongoDBEdition
+    source: VM
+    query: mongodb_version_info{service_type="mongodb"}
+    summary: "Monitored MongoDB edition"
+    data:
+      - metric_name: "mongodb_edition"
+        label: "edition"
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
