@@ -111,10 +111,12 @@ func TestRunContainer(t *testing.T) {
 	})
 }
 
-//nolint:paralleltest
 func TestRunCmd(t *testing.T) {
-	//nolint:paralleltest
+	t.Parallel()
+
 	t.Run("shall run command successfully", func(t *testing.T) {
+		t.Parallel()
+
 		m := &MockDockerFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
@@ -127,7 +129,6 @@ func TestRunCmd(t *testing.T) {
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
-		setParsePullImageProgressMock(m)
 
 		c := InstallCommand{
 			dockerFn:      m,
@@ -137,7 +138,7 @@ func TestRunCmd(t *testing.T) {
 			ContainerName: "container-name",
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
 
 		require.NoError(t, err)
 	})
@@ -152,13 +153,14 @@ func TestRunCmd(t *testing.T) {
 
 		c := InstallCommand{dockerFn: m}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
 
 		require.Error(t, err)
 	})
 
-	//nolint:paralleltest
 	t.Run("shall skip password change", func(t *testing.T) {
+		t.Parallel()
+
 		m := &MockDockerFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
@@ -170,7 +172,6 @@ func TestRunCmd(t *testing.T) {
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
-		setParsePullImageProgressMock(m)
 
 		c := InstallCommand{
 			dockerFn:           m,
@@ -181,7 +182,7 @@ func TestRunCmd(t *testing.T) {
 			SkipChangePassword: true,
 		}
 
-		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{})
+		_, err := c.RunCmdWithContext(context.Background(), &flags.GlobalFlags{JSON: true})
 
 		require.NoError(t, err)
 	})
@@ -201,15 +202,4 @@ func setWaitForHealthyContainerMock(m *MockDockerFunctions) {
 		return c
 	}()
 	m.Mock.On("WaitForHealthyContainer", mock.Anything, "container-id").Return(ch)
-}
-
-func setParsePullImageProgressMock(m *MockDockerFunctions) {
-	ch1, ch2 := func() (<-chan struct{}, <-chan error) {
-		d := make(chan struct{})
-		close(d)
-		e := make(chan error)
-		close(e)
-		return d, e
-	}()
-	m.Mock.On("ParsePullImageProgress", mock.Anything, mock.Anything).Return(ch1, ch2)
 }

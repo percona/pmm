@@ -17,6 +17,8 @@ package docker
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
 	"strconv"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -91,7 +93,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Infof("Downloading %q", c.DockerImage)
-	res, err := c.pullImage(ctx)
+	res, err := c.pullImage(ctx, globals)
 	if res != nil || err != nil {
 		return res, err
 	}
@@ -177,12 +179,21 @@ func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume,
 }
 
 // pullImage pulls a docker image and displays progress.
-func (c *InstallCommand) pullImage(ctx context.Context) (commands.Result, error) {
+func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
 	reader, err := c.dockerFn.PullImage(ctx, c.DockerImage, types.ImagePullOptions{})
 	if err != nil {
 		return nil, err
 	}
 
+	if globals.JSON {
+		io.Copy(os.Stdout, reader)
+		return nil, nil
+	}
+
+	return c.startProgressProgram(reader)
+}
+
+func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result, error) {
 	p := tea.NewProgram(progress.NewSize())
 	doneC, errC := c.dockerFn.ParsePullImageProgress(reader, p)
 	go func() {
@@ -200,7 +211,6 @@ func (c *InstallCommand) pullImage(ctx context.Context) (commands.Result, error)
 			return common.ShutdownResult{}, nil
 		}
 	}
-
 	if err := <-errC; err != nil {
 		return nil, err
 	}
