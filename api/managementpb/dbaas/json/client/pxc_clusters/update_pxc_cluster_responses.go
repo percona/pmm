@@ -56,36 +56,7 @@ type UpdatePXCClusterOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this update Pxc cluster Ok response has a 2xx status code
-func (o *UpdatePXCClusterOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update Pxc cluster Ok response has a 3xx status code
-func (o *UpdatePXCClusterOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update Pxc cluster Ok response has a 4xx status code
-func (o *UpdatePXCClusterOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update Pxc cluster Ok response has a 5xx status code
-func (o *UpdatePXCClusterOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update Pxc cluster Ok response a status code equal to that given
-func (o *UpdatePXCClusterOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *UpdatePXCClusterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
-}
-
-func (o *UpdatePXCClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
 }
 
@@ -124,36 +95,7 @@ func (o *UpdatePXCClusterDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this update PXC cluster default response has a 2xx status code
-func (o *UpdatePXCClusterDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this update PXC cluster default response has a 3xx status code
-func (o *UpdatePXCClusterDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this update PXC cluster default response has a 4xx status code
-func (o *UpdatePXCClusterDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this update PXC cluster default response has a 5xx status code
-func (o *UpdatePXCClusterDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this update PXC cluster default response a status code equal to that given
-func (o *UpdatePXCClusterDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *UpdatePXCClusterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *UpdatePXCClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
 }
 
