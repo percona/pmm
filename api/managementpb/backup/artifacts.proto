@@ -62,15 +62,14 @@ message DeleteArtifactRequest {
 message DeleteArtifactResponse {}
 
 message PitrTimeline {
-  // Filename is the filename of the PITR oplog archive
+  // Filename is the filename of the PITR oplog archive.
   string filename = 1;
-  // ReplicaSet is the name of the replica set that the backup was taken from
+  // ReplicaSet is the name of the replica set that the backup was taken from.
   string replica_set = 2;
-  // start_timestamp is the time of the first event in the PITR chunk
+  // start_timestamp is the time of the first event in the PITR chunk.
   google.protobuf.Timestamp start_timestamp = 3;
-  // end_timestamp is the time of the last event in the PITR chunk
+  // end_timestamp is the time of the last event in the PITR chunk.
   google.protobuf.Timestamp end_timestamp = 4;
-  // size is the size of the PITR backup
 }
 
 message ListPitrTimelinesRequest {

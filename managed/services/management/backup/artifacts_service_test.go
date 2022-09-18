@@ -109,7 +109,7 @@ func TestListPitrTimelines(t *testing.T) {
 
 	t.Run("fails for non-PITR artifact", func(t *testing.T) {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "test_artifact",
+			Name:       "test_non_pitr_artifact",
 			Vendor:     "test_vendor",
 			LocationID: locationID,
 			ServiceID:  "test_service",

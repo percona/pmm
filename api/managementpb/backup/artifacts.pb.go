@@ -412,14 +412,14 @@ type PitrTimeline struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Filename is the filename of the PITR oplog archive
+	// Filename is the filename of the PITR oplog archive.
 	Filename string `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
-	// ReplicaSet is the name of the replica set that the backup was taken from
+	// ReplicaSet is the name of the replica set that the backup was taken from.
 	ReplicaSet string `protobuf:"bytes,2,opt,name=replica_set,json=replicaSet,proto3" json:"replica_set,omitempty"`
-	// start_timestamp is the time of the first event in the PITR chunk
+	// start_timestamp is the time of the first event in the PITR chunk.
 	StartTimestamp *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=start_timestamp,json=startTimestamp,proto3" json:"start_timestamp,omitempty"`
-	// end_timestamp is the time of the last event in the PITR chunk
-	EndTimestamp *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_timestamp,json=endTimestamp,proto3" json:"end_timestamp,omitempty"` // size is the size of the PITR backup
+	// end_timestamp is the time of the last event in the PITR chunk.
+	EndTimestamp *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=end_timestamp,json=endTimestamp,proto3" json:"end_timestamp,omitempty"`
 }
 
 func (x *PitrTimeline) Reset() {

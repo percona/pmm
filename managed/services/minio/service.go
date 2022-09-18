@@ -41,7 +41,7 @@ func New() *Service {
 	}
 }
 
-type MinioClient struct {
+type Client struct {
 	bucketName string
 	*minio.Client
 }
@@ -53,7 +53,7 @@ type FileInfo struct {
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
 func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, name string) (bool, error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey, name)
 	if err != nil {
 		return false, err
 	}
@@ -62,7 +62,7 @@ func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretK
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
 func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, name string) (string, error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey, name)
 	if err != nil {
 		return "", err
 	}
@@ -71,7 +71,7 @@ func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, se
 
 // RemoveRecursive removes objects recursively from storage with given prefix.
 func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
-	minioClient, err := newClient(endpoint, accessKey, secretKey)
+	minioClient, err := NewClient(endpoint, accessKey, secretKey, bucketName)
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 // List provides an abstraction over the minio API to list all objects in the bucket
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
-func (m *MinioClient) List(ctx context.Context, prefix, suffix string) (files []FileInfo, rerr error) {
+func (m *Client) List(ctx context.Context, prefix, suffix string) (files []FileInfo, rerr error) {
 	// prfx := path.Join(s.opts.Prefix, prefix)
 	prfx := prefix
 	if prfx != "" && !strings.HasSuffix(prfx, "/") {
@@ -180,7 +180,7 @@ func (m *MinioClient) List(ctx context.Context, prefix, suffix string) (files []
 }
 
 // FileStat returns file info. It returns error if file is empty or not exists.
-func (m *MinioClient) FileStat(ctx context.Context, name string) (FileInfo, error) {
+func (m *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	file := FileInfo{}
 
@@ -203,7 +203,7 @@ func (m *MinioClient) FileStat(ctx context.Context, name string) (FileInfo, erro
 	return file, nil
 }
 
-func NewMinioClient(endpoint, accessKey, secretKey, bucketName string) (*MinioClient, error) {
+func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
 	url, err := models.ParseEndpoint(endpoint)
 	if err != nil {
 		return nil, err
@@ -222,25 +222,8 @@ func NewMinioClient(endpoint, accessKey, secretKey, bucketName string) (*MinioCl
 		return nil, err
 	}
 
-	return &MinioClient{
+	return &Client{
 		bucketName: bucketName,
 		Client:     client,
 	}, nil
-}
-
-func newClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
-	url, err := models.ParseEndpoint(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	secure := true
-	if url.Scheme == "http" {
-		secure = false
-	}
-
-	return minio.New(url.Host, &minio.Options{
-		Secure: secure,
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	})
 }

@@ -27602,25 +27602,25 @@
                     "type": "object",
                     "properties": {
                       "filename": {
+                        "description": "Filename is the filename of the PITR oplog archive.",
                         "type": "string",
-                        "title": "Filename is the filename of the PITR oplog archive",
                         "x-order": 0
                       },
                       "replica_set": {
+                        "description": "ReplicaSet is the name of the replica set that the backup was taken from.",
                         "type": "string",
-                        "title": "ReplicaSet is the name of the replica set that the backup was taken from",
                         "x-order": 1
                       },
                       "start_timestamp": {
+                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
                         "type": "string",
                         "format": "date-time",
-                        "title": "start_timestamp is the time of the first event in the PITR chunk",
                         "x-order": 2
                       },
                       "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
                         "type": "string",
                         "format": "date-time",
-                        "title": "end_timestamp is the time of the last event in the PITR chunk",
                         "x-order": 3
                       }
                     }

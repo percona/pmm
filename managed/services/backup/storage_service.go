@@ -42,7 +42,7 @@ var errUnsupportedLocation = errors.New("unsupported location config")
 // StorageService helps perform file lookups in a backup storage location
 type StorageService struct {
 	l       *logrus.Entry
-	storage storagePath
+	storage backupStorage
 }
 
 // oplogChunk is index metadata for the oplog chunks
@@ -71,8 +71,6 @@ const (
 // FileCompression return compression alg based on given file extension
 func FileCompression(ext string) CompressionType {
 	switch ext {
-	default:
-		return CompressionTypeNone
 	case "gz":
 		return CompressionTypePGZIP
 	case "lz4":
@@ -83,6 +81,8 @@ func FileCompression(ext string) CompressionType {
 		return CompressionTypeS2
 	case "zst":
 		return CompressionTypeZstandard
+	default:
+		return CompressionTypeNone
 	}
 }
 
@@ -140,12 +140,12 @@ func (ss *StorageService) ListPITRTimelines(ctx context.Context, location models
 	var err error
 	switch {
 	case location.S3Config != nil:
-		ss.storage, err = minio.NewMinioClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
+		ss.storage, err = minio.NewClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
 		if err != nil {
 			return nil, err
 		}
 	default:
-		// todo(idoqo): add support for local storage
+		// todo(idoqo): add support for local storage after https://github.com/percona/pmm/pull/1158/
 		return nil, errUnsupportedLocation
 	}
 

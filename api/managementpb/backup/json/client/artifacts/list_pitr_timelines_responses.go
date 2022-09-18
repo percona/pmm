@@ -393,17 +393,17 @@ func (o *ListPitrTimelinesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListPitrTimelinesOKBodyTimelinesItems0
 */
 type ListPitrTimelinesOKBodyTimelinesItems0 struct {
-	// Filename is the filename of the PITR oplog archive
+	// Filename is the filename of the PITR oplog archive.
 	Filename string `json:"filename,omitempty"`
 
-	// ReplicaSet is the name of the replica set that the backup was taken from
+	// ReplicaSet is the name of the replica set that the backup was taken from.
 	ReplicaSet string `json:"replica_set,omitempty"`
 
-	// start_timestamp is the time of the first event in the PITR chunk
+	// start_timestamp is the time of the first event in the PITR chunk.
 	// Format: date-time
 	StartTimestamp strfmt.DateTime `json:"start_timestamp,omitempty"`
 
-	// end_timestamp is the time of the last event in the PITR chunk
+	// end_timestamp is the time of the last event in the PITR chunk.
 	// Format: date-time
 	EndTimestamp strfmt.DateTime `json:"end_timestamp,omitempty"`
 }

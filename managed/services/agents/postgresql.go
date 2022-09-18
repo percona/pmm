@@ -29,8 +29,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
-var postgresExporterWebConfigVersion = version.MustParse("2.30.99")
+var (
+	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+)
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
