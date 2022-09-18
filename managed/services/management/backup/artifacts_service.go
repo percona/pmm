@@ -18,6 +18,7 @@ package backup
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -35,13 +36,13 @@ type ArtifactsService struct {
 	l          *logrus.Entry
 	db         *reform.DB
 	removalSVC removalService
-	storageSVC storageService
+	storageSVC pitrStorage
 
 	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage storageService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrStorage) *ArtifactsService {
 	return &ArtifactsService{
 		l:          logrus.WithField("component", "management/backup/artifacts"),
 		db:         db,
@@ -144,8 +145,15 @@ func (s *ArtifactsService) ListPitrTimelines(
 	if err != nil {
 		return nil, err
 	}
+	result := make([]*backupv1beta1.PitrTimeline, 0, len(timelines))
+	for _, tl := range timelines {
+		result = append(result, &backupv1beta1.PitrTimeline{
+			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
+			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
+		})
+	}
 	return &backupv1beta1.ListPitrTimelinesResponse{
-		Timelines: timelines,
+		Timelines: result,
 	}, nil
 }
 
