@@ -113,7 +113,7 @@ func TestListPITRTimelines(t *testing.T) {
 	})
 
 	t.Run("successful", func(t *testing.T) {
-		mockedStorage := &mockStoragePath{}
+		mockedStorage := &mockBackupStorage{}
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
@@ -136,7 +136,7 @@ func TestListPITRTimelines(t *testing.T) {
 	})
 
 	t.Run("fails on file list error", func(t *testing.T) {
-		mockedStorage := &mockStoragePath{}
+		mockedStorage := &mockBackupStorage{}
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
 
 		ss := NewStorageService()
@@ -147,7 +147,7 @@ func TestListPITRTimelines(t *testing.T) {
 	})
 
 	t.Run("skips artifacts with file stat errors", func(t *testing.T) {
-		mockedStorage := &mockStoragePath{}
+		mockedStorage := &mockBackupStorage{}
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
