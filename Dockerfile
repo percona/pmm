@@ -1,6 +1,6 @@
 # This Dockerfile used only for the API tests.
 
-FROM golang:1.18
+FROM golang:1.19
 
 RUN mkdir -p $GOPATH/src/github.com/percona/pmm
 

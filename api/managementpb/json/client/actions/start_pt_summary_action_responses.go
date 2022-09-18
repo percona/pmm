@@ -56,36 +56,7 @@ type StartPTSummaryActionOK struct {
 	Payload *StartPTSummaryActionOKBody
 }
 
-// IsSuccess returns true when this start Pt summary action Ok response has a 2xx status code
-func (o *StartPTSummaryActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start Pt summary action Ok response has a 3xx status code
-func (o *StartPTSummaryActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start Pt summary action Ok response has a 4xx status code
-func (o *StartPTSummaryActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start Pt summary action Ok response has a 5xx status code
-func (o *StartPTSummaryActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start Pt summary action Ok response a status code equal to that given
-func (o *StartPTSummaryActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartPTSummaryActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartPTSummaryActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
 }
 
@@ -126,36 +97,7 @@ func (o *StartPTSummaryActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start PT summary action default response has a 2xx status code
-func (o *StartPTSummaryActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start PT summary action default response has a 3xx status code
-func (o *StartPTSummaryActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start PT summary action default response has a 4xx status code
-func (o *StartPTSummaryActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start PT summary action default response has a 5xx status code
-func (o *StartPTSummaryActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start PT summary action default response a status code equal to that given
-func (o *StartPTSummaryActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartPTSummaryActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] StartPTSummaryAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartPTSummaryActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] StartPTSummaryAction default  %+v", o._statusCode, o.Payload)
 }
 

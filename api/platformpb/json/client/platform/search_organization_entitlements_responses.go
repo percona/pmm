@@ -57,36 +57,7 @@ type SearchOrganizationEntitlementsOK struct {
 	Payload *SearchOrganizationEntitlementsOKBody
 }
 
-// IsSuccess returns true when this search organization entitlements Ok response has a 2xx status code
-func (o *SearchOrganizationEntitlementsOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this search organization entitlements Ok response has a 3xx status code
-func (o *SearchOrganizationEntitlementsOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this search organization entitlements Ok response has a 4xx status code
-func (o *SearchOrganizationEntitlementsOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this search organization entitlements Ok response has a 5xx status code
-func (o *SearchOrganizationEntitlementsOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this search organization entitlements Ok response a status code equal to that given
-func (o *SearchOrganizationEntitlementsOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *SearchOrganizationEntitlementsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] searchOrganizationEntitlementsOk  %+v", 200, o.Payload)
-}
-
-func (o *SearchOrganizationEntitlementsOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] searchOrganizationEntitlementsOk  %+v", 200, o.Payload)
 }
 
@@ -127,36 +98,7 @@ func (o *SearchOrganizationEntitlementsDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this search organization entitlements default response has a 2xx status code
-func (o *SearchOrganizationEntitlementsDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this search organization entitlements default response has a 3xx status code
-func (o *SearchOrganizationEntitlementsDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this search organization entitlements default response has a 4xx status code
-func (o *SearchOrganizationEntitlementsDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this search organization entitlements default response has a 5xx status code
-func (o *SearchOrganizationEntitlementsDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this search organization entitlements default response a status code equal to that given
-func (o *SearchOrganizationEntitlementsDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *SearchOrganizationEntitlementsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] SearchOrganizationEntitlements default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *SearchOrganizationEntitlementsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/SearchOrganizationEntitlements][%d] SearchOrganizationEntitlements default  %+v", o._statusCode, o.Payload)
 }
 
