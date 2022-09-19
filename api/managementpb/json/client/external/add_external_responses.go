@@ -58,36 +58,7 @@ type AddExternalOK struct {
 	Payload *AddExternalOKBody
 }
 
-// IsSuccess returns true when this add external Ok response has a 2xx status code
-func (o *AddExternalOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this add external Ok response has a 3xx status code
-func (o *AddExternalOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this add external Ok response has a 4xx status code
-func (o *AddExternalOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this add external Ok response has a 5xx status code
-func (o *AddExternalOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this add external Ok response a status code equal to that given
-func (o *AddExternalOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *AddExternalOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
-}
-
-func (o *AddExternalOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] addExternalOk  %+v", 200, o.Payload)
 }
 
@@ -128,36 +99,7 @@ func (o *AddExternalDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this add external default response has a 2xx status code
-func (o *AddExternalDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this add external default response has a 3xx status code
-func (o *AddExternalDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this add external default response has a 4xx status code
-func (o *AddExternalDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this add external default response has a 5xx status code
-func (o *AddExternalDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this add external default response a status code equal to that given
-func (o *AddExternalDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *AddExternalDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *AddExternalDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/External/Add][%d] AddExternal default  %+v", o._statusCode, o.Payload)
 }
 

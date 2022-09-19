@@ -58,36 +58,7 @@ type ListServicesOK struct {
 	Payload *ListServicesOKBody
 }
 
-// IsSuccess returns true when this list services Ok response has a 2xx status code
-func (o *ListServicesOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this list services Ok response has a 3xx status code
-func (o *ListServicesOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this list services Ok response has a 4xx status code
-func (o *ListServicesOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this list services Ok response has a 5xx status code
-func (o *ListServicesOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this list services Ok response a status code equal to that given
-func (o *ListServicesOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
-}
-
-func (o *ListServicesOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
 
@@ -128,36 +99,7 @@ func (o *ListServicesDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this list services default response has a 2xx status code
-func (o *ListServicesDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this list services default response has a 3xx status code
-func (o *ListServicesDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this list services default response has a 4xx status code
-func (o *ListServicesDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this list services default response has a 5xx status code
-func (o *ListServicesDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this list services default response a status code equal to that given
-func (o *ListServicesDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *ListServicesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *ListServicesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
 
