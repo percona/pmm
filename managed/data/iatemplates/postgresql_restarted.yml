@@ -13,7 +13,7 @@ templates:
         type: float
         range: [0, 1800]
         value: 300
-    for: 10s
+    for: 1m
     severity: warning
     annotations:
       summary: PostgreSQL restarted ({{ $labels.service_name }})

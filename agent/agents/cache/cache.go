@@ -43,6 +43,7 @@ type Cache struct {
 	updatedN  uint
 	addedN    uint
 	removedN  uint
+	trimmedN  uint
 }
 
 // cacheItem is an element stored in Cache
@@ -118,6 +119,7 @@ func (c *Cache) Set(current interface{}) error {
 			if uint(len(c.items)) > c.sizeLimit {
 				delete(c.items, c.itemsList.Remove(c.itemsList.Front()).(*cacheItem).key)
 				c.removedN++
+				c.trimmedN++
 				wasTrimmed = true
 			}
 		}
@@ -147,6 +149,7 @@ func (c *Cache) Stats() Stats {
 		UpdatedN: c.updatedN,
 		AddedN:   c.addedN,
 		RemovedN: c.removedN,
+		TrimmedN: c.trimmedN,
 		Oldest:   oldest,
 		Newest:   newest,
 	}
@@ -165,6 +168,7 @@ type Stats struct {
 	UpdatedN uint
 	AddedN   uint
 	RemovedN uint
+	TrimmedN uint
 	Oldest   time.Time
 	Newest   time.Time
 }

@@ -28,10 +28,11 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
+	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
+	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
 	"github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
-	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results
@@ -39,7 +40,7 @@ import (
 // ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	rulesClient := client.Default.Rules
-	templatesClient := client.Default.Templates
+	templatesClient := alertingClient.Default.Alerting
 	channelsClient := client.Default.Channels
 
 	dummyFilter := &rules.CreateAlertRuleParamsBodyFiltersItems0{
@@ -52,7 +53,7 @@ func TestRulesAPI(t *testing.T) {
 	channelID, _ := createChannel(t)
 	newChannelID, _ := createChannel(t)
 	t.Cleanup(func() {
-		deleteTemplate(t, client.Default.Templates, templateName)
+		deleteTemplate(t, alertingClient.Default.Alerting, templateName)
 		deleteChannel(t, channelsClient, channelID)
 		deleteChannel(t, channelsClient, newChannelID)
 	})
@@ -703,8 +704,8 @@ func createTemplate(t *testing.T) string {
 
 	templateName := uuid.New().String()
 	expression := "'[[ .param1 ]] > 2 and 2 < [[ .param2 ]]'"
-	_, err = client.Default.Templates.CreateTemplate(&templates.CreateTemplateParams{
-		Body: templates.CreateTemplateBody{
+	_, err = alertingClient.Default.Alerting.CreateTemplate(&alerting.CreateTemplateParams{
+		Body: alerting.CreateTemplateBody{
 			Yaml: fmt.Sprintf(string(b), templateName, expression, "%", "s"),
 		},
 		Context: pmmapitests.Context,
@@ -731,4 +732,16 @@ func createChannel(t *testing.T) (string, channels.AddChannelBody) {
 	})
 	require.NoError(t, err)
 	return resp.Payload.ChannelID, body
+}
+
+func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
+	t.Helper()
+
+	_, err := client.DeleteTemplate(&alerting.DeleteTemplateParams{
+		Body: alerting.DeleteTemplateBody{
+			Name: name,
+		},
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
 }
