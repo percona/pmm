@@ -5987,10 +5987,16 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "query_length": {
+                  "description": "Define how many chars can a query have until it's truncated.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -5998,12 +6004,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "log_level": {
                   "type": "string",
@@ -6017,7 +6023,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 12
+                  "x-order": 13
                 }
               }
             }
@@ -6083,10 +6089,16 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -6094,7 +6106,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6109,12 +6121,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -6128,7 +6140,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -6231,16 +6243,22 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "query_length": {
+                  "description": "Define how many chars can a query have until it's truncated.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -6248,12 +6266,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "log_level": {
                   "type": "string",
@@ -6267,7 +6285,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
                 }
               }
             }
@@ -6333,16 +6351,22 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -6350,7 +6374,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -6365,12 +6389,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -6384,7 +6408,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -8854,10 +8878,16 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -8865,7 +8895,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8880,12 +8910,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -8899,7 +8929,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -9065,16 +9095,22 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -9082,7 +9118,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -9097,12 +9133,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -9116,7 +9152,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -10450,10 +10486,16 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -10461,7 +10503,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10476,12 +10518,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -10495,7 +10537,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -10554,16 +10596,22 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -10571,7 +10619,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10586,12 +10634,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -10605,7 +10653,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 8
@@ -12001,10 +12049,16 @@
                         "type": "string",
                         "x-order": 9
                       },
+                      "query_length": {
+                        "description": "Define how many chars can a query have until it's truncated.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 10
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -12012,7 +12066,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12027,12 +12081,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "log_level": {
                         "type": "string",
@@ -12046,7 +12100,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 14
+                        "x-order": 15
                       }
                     }
                   },
@@ -12108,16 +12162,22 @@
                         "type": "string",
                         "x-order": 9
                       },
+                      "query_length": {
+                        "description": "Define how many chars can a query have until it's truncated.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 10
+                      },
                       "query_examples_disabled": {
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "max_slowlog_file_size": {
                         "description": "Slowlog file is rotated at this size if \u003e 0.",
                         "type": "string",
                         "format": "int64",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
@@ -12125,7 +12185,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12140,12 +12200,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "process_exec_path": {
                         "type": "string",
                         "title": "mod tidy",
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "log_level": {
                         "type": "string",
@@ -12159,7 +12219,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 15
+                        "x-order": 16
                       }
                     }
                   },
@@ -22505,47 +22565,53 @@
                   "type": "boolean",
                   "x-order": 16
                 },
+                "query_length": {
+                  "description": "Define how many chars can a query have until it's truncated.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 17
+                },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "tls_ca": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "tls_cert": {
                   "description": "Client certificate.",
                   "type": "string",
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "tls_key": {
                   "description": "Password for decrypting tls_cert.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tablestats_group_table_limit": {
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -22556,7 +22622,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -22564,12 +22630,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "log_level": {
                   "type": "string",
@@ -22583,7 +22649,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 28
+                  "x-order": 29
                 }
               }
             }
@@ -22839,10 +22905,16 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -22850,7 +22922,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22865,12 +22937,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -22884,7 +22956,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 2
@@ -22943,16 +23015,22 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -22960,7 +23038,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22975,12 +23053,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "log_level": {
                       "type": "string",
@@ -22994,7 +23072,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     }
                   },
                   "x-order": 3
@@ -24972,10 +25050,16 @@
                       "type": "string",
                       "x-order": 9
                     },
+                    "query_length": {
+                      "description": "Define how many chars can a query have until it's truncated.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -24983,7 +25067,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -24998,12 +25082,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "log_level": {
                       "type": "string",
@@ -25017,7 +25101,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 4
