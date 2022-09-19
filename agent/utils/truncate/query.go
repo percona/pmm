@@ -15,8 +15,6 @@
 // Package truncate privides strings truncation utilities.
 package truncate
 
-import "sync"
-
 var defaultQueryLength = 2048
 
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
@@ -40,9 +38,5 @@ func Query(q string, queryLength int) (query string, truncated bool) {
 
 // GetDefaultQueryLength returns default decimal value for query length.
 func GetDefaultQueryLength() int {
-	var mx sync.RWMutex
-	mx.RLock()
-	defer mx.RUnlock()
-
 	return defaultQueryLength
 }
