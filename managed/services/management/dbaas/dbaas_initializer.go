@@ -86,22 +86,30 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		return nil
 	}
 	timeoutCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
 	err := in.dbaasClient.Connect(timeoutCtx)
-	cancel()
 	if err != nil {
 		return err
 	}
 	ctx, in.cancel = context.WithCancel(ctx)
 
 	in.enabled = true
+	return in.registerInCluster(ctx)
+}
+
+// registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
+func (in *Initializer) registerInCluster(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
 	if err == nil {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
+			if errors.Is(err, reform.ErrNoRows) {
+				return nil
+			}
 			if err != nil {
 				in.l.Errorf("failed finding cluster: %v", err)
-				return nil
+				return err
 			}
 			if cluster != nil {
 				return errClusterExists
@@ -129,7 +137,6 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	} else {
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
-
 	return nil
 }
 
