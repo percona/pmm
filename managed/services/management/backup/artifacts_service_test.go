@@ -44,7 +44,7 @@ func TestListPitrTimelines(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedRemovalSvc := &mockRemovalService{}
-	mockedStorageSvc := &mockStorageService{}
+	mockedStorageSvc := &mockPitrStorage{}
 
 	timelines := []*backupv1beta1.PitrTimeline{
 		{
