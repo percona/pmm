@@ -52,10 +52,12 @@ func NewChangeMySQLdExporterParamsWithHTTPClient(client *http.Client) *ChangeMyS
 	}
 }
 
-/* ChangeMySQLdExporterParams contains all the parameters to send to the API endpoint
-   for the change my s q ld exporter operation.
+/*
+ChangeMySQLdExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change my s q ld exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeMySQLdExporterParams struct {
 	// Body.

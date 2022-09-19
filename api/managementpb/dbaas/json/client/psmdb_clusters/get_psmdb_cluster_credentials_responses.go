@@ -48,7 +48,8 @@ func NewGetPSMDBClusterCredentialsOK() *GetPSMDBClusterCredentialsOK {
 	return &GetPSMDBClusterCredentialsOK{}
 }
 
-/* GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
+/*
+	GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetPSMDBClusterCredentialsDefault(code int) *GetPSMDBClusterCredentialsD
 	}
 }
 
-/* GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
+/*
+	GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetPSMDBClusterCredentialsDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsBody get PSMDB cluster credentials body
+/*
+GetPSMDBClusterCredentialsBody get PSMDB cluster credentials body
 swagger:model GetPSMDBClusterCredentialsBody
 */
 type GetPSMDBClusterCredentialsBody struct {
@@ -155,7 +158,8 @@ func (o *GetPSMDBClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsDefaultBody get PSMDB cluster credentials default body
+/*
+GetPSMDBClusterCredentialsDefaultBody get PSMDB cluster credentials default body
 swagger:model GetPSMDBClusterCredentialsDefaultBody
 */
 type GetPSMDBClusterCredentialsDefaultBody struct {
@@ -258,7 +262,8 @@ func (o *GetPSMDBClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 get PSMDB cluster credentials default body details items0
+/*
+GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 get PSMDB cluster credentials default body details items0
 swagger:model GetPSMDBClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPSMDBClusterCredentialsDefaultBodyDetailsItems0 struct {
@@ -294,7 +299,8 @@ func (o *GetPSMDBClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsOKBody get PSMDB cluster credentials OK body
+/*
+GetPSMDBClusterCredentialsOKBody get PSMDB cluster credentials OK body
 swagger:model GetPSMDBClusterCredentialsOKBody
 */
 type GetPSMDBClusterCredentialsOKBody struct {
@@ -382,7 +388,8 @@ func (o *GetPSMDBClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
+/*
+GetPSMDBClusterCredentialsOKBodyConnectionCredentials PSMDBCredentials is a credentials to connect to PSMDB.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPSMDBClusterCredentialsOKBodyConnectionCredentials
 */

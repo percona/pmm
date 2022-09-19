@@ -48,7 +48,8 @@ func NewAddRemoteNodeOK() *AddRemoteNodeOK {
 	return &AddRemoteNodeOK{}
 }
 
-/* AddRemoteNodeOK describes a response with status code 200, with default header values.
+/*
+	AddRemoteNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
 	}
 }
 
-/* AddRemoteNodeDefault describes a response with status code -1, with default header values.
+/*
+	AddRemoteNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*AddRemoteNodeBody add remote node body
+/*
+AddRemoteNodeBody add remote node body
 swagger:model AddRemoteNodeBody
 */
 type AddRemoteNodeBody struct {
@@ -167,7 +170,8 @@ func (o *AddRemoteNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeDefaultBody add remote node default body
+/*
+AddRemoteNodeDefaultBody add remote node default body
 swagger:model AddRemoteNodeDefaultBody
 */
 type AddRemoteNodeDefaultBody struct {
@@ -270,7 +274,8 @@ func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeDefaultBodyDetailsItems0 add remote node default body details items0
+/*
+AddRemoteNodeDefaultBodyDetailsItems0 add remote node default body details items0
 swagger:model AddRemoteNodeDefaultBodyDetailsItems0
 */
 type AddRemoteNodeDefaultBodyDetailsItems0 struct {
@@ -306,7 +311,8 @@ func (o *AddRemoteNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*AddRemoteNodeOKBody add remote node OK body
+/*
+AddRemoteNodeOKBody add remote node OK body
 swagger:model AddRemoteNodeOKBody
 */
 type AddRemoteNodeOKBody struct {
@@ -394,7 +400,8 @@ func (o *AddRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+/*
+AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model AddRemoteNodeOKBodyRemote
 */
 type AddRemoteNodeOKBodyRemote struct {

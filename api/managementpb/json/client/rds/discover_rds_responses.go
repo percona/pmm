@@ -50,7 +50,8 @@ func NewDiscoverRDSOK() *DiscoverRDSOK {
 	return &DiscoverRDSOK{}
 }
 
-/* DiscoverRDSOK describes a response with status code 200, with default header values.
+/*
+	DiscoverRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewDiscoverRDSDefault(code int) *DiscoverRDSDefault {
 	}
 }
 
-/* DiscoverRDSDefault describes a response with status code -1, with default header values.
+/*
+	DiscoverRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *DiscoverRDSDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*DiscoverRDSBody discover RDS body
+/*
+DiscoverRDSBody discover RDS body
 swagger:model DiscoverRDSBody
 */
 type DiscoverRDSBody struct {
@@ -157,7 +160,8 @@ func (o *DiscoverRDSBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverRDSDefaultBody discover RDS default body
+/*
+DiscoverRDSDefaultBody discover RDS default body
 swagger:model DiscoverRDSDefaultBody
 */
 type DiscoverRDSDefaultBody struct {
@@ -260,7 +264,8 @@ func (o *DiscoverRDSDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverRDSDefaultBodyDetailsItems0 discover RDS default body details items0
+/*
+DiscoverRDSDefaultBodyDetailsItems0 discover RDS default body details items0
 swagger:model DiscoverRDSDefaultBodyDetailsItems0
 */
 type DiscoverRDSDefaultBodyDetailsItems0 struct {
@@ -296,7 +301,8 @@ func (o *DiscoverRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverRDSOKBody discover RDS OK body
+/*
+DiscoverRDSOKBody discover RDS OK body
 swagger:model DiscoverRDSOKBody
 */
 type DiscoverRDSOKBody struct {
@@ -393,7 +399,8 @@ func (o *DiscoverRDSOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverRDSOKBodyRDSInstancesItems0 DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
+/*
+DiscoverRDSOKBodyRDSInstancesItems0 DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.
 swagger:model DiscoverRDSOKBodyRDSInstancesItems0
 */
 type DiscoverRDSOKBodyRDSInstancesItems0 struct {

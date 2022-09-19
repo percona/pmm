@@ -52,10 +52,12 @@ func NewQueryExistsParamsWithHTTPClient(client *http.Client) *QueryExistsParams 
 	}
 }
 
-/* QueryExistsParams contains all the parameters to send to the API endpoint
-   for the query exists operation.
+/*
+QueryExistsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the query exists operation.
+
+	Typically these are written to a http.Request.
 */
 type QueryExistsParams struct {
 	/* Body.

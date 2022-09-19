@@ -48,7 +48,8 @@ func NewUpdateUserOK() *UpdateUserOK {
 	return &UpdateUserOK{}
 }
 
-/* UpdateUserOK describes a response with status code 200, with default header values.
+/*
+	UpdateUserOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewUpdateUserDefault(code int) *UpdateUserDefault {
 	}
 }
 
-/* UpdateUserDefault describes a response with status code -1, with default header values.
+/*
+	UpdateUserDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *UpdateUserDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*UpdateUserBody update user body
+/*
+UpdateUserBody update user body
 swagger:model UpdateUserBody
 */
 type UpdateUserBody struct {
@@ -152,7 +155,8 @@ func (o *UpdateUserBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserDefaultBody update user default body
+/*
+UpdateUserDefaultBody update user default body
 swagger:model UpdateUserDefaultBody
 */
 type UpdateUserDefaultBody struct {
@@ -255,7 +259,8 @@ func (o *UpdateUserDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserDefaultBodyDetailsItems0 update user default body details items0
+/*
+UpdateUserDefaultBodyDetailsItems0 update user default body details items0
 swagger:model UpdateUserDefaultBodyDetailsItems0
 */
 type UpdateUserDefaultBodyDetailsItems0 struct {
@@ -291,7 +296,8 @@ func (o *UpdateUserDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateUserOKBody update user OK body
+/*
+UpdateUserOKBody update user OK body
 swagger:model UpdateUserOKBody
 */
 type UpdateUserOKBody struct {

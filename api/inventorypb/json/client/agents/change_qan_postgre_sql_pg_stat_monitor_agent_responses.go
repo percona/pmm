@@ -50,7 +50,8 @@ func NewChangeQANPostgreSQLPgStatMonitorAgentOK() *ChangeQANPostgreSQLPgStatMoni
 	return &ChangeQANPostgreSQLPgStatMonitorAgentOK{}
 }
 
-/* ChangeQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
+/*
+	ChangeQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeQANPostgreSQLPgStatMonitorAgentDefault(code int) *ChangeQANPostgre
 	}
 }
 
-/* ChangeQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
+/*
+	ChangeQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response run
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentBody change QAN postgre SQL pg stat monitor agent body
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentBody change QAN postgre SQL pg stat monitor agent body
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody change QAN postgre SQL pg stat monitor agent default body
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody change QAN postgre SQL pg stat monitor agent default body
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []b
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 change QAN postgre SQL pg stat monitor agent default body details items0
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 change QAN postgre SQL pg stat monitor agent default body details items0
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) Unmarsha
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentOKBody change QAN postgre SQL pg stat monitor agent OK body
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentOKBody change QAN postgre SQL pg stat monitor agent OK body
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBody) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -638,7 +645,8 @@ func (o *ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAg
 	return nil
 }
 
-/*ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon
 */
 type ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon struct {

@@ -48,7 +48,8 @@ func NewGetNodeOK() *GetNodeOK {
 	return &GetNodeOK{}
 }
 
-/* GetNodeOK describes a response with status code 200, with default header values.
+/*
+	GetNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetNodeDefault(code int) *GetNodeDefault {
 	}
 }
 
-/* GetNodeDefault describes a response with status code -1, with default header values.
+/*
+	GetNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*GetNodeBody get node body
+/*
+GetNodeBody get node body
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
@@ -152,7 +155,8 @@ func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeDefaultBody get node default body
+/*
+GetNodeDefaultBody get node default body
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
@@ -255,7 +259,8 @@ func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeDefaultBodyDetailsItems0 get node default body details items0
+/*
+GetNodeDefaultBodyDetailsItems0 get node default body details items0
 swagger:model GetNodeDefaultBodyDetailsItems0
 */
 type GetNodeDefaultBodyDetailsItems0 struct {
@@ -291,7 +296,8 @@ func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBody get node OK body
+/*
+GetNodeOKBody get node OK body
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
@@ -559,7 +565,8 @@ func (o *GetNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyContainer ContainerNode represents a Docker container.
+/*
+GetNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
@@ -622,7 +629,8 @@ func (o *GetNodeOKBodyContainer) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
+/*
+GetNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
 swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
@@ -682,7 +690,8 @@ func (o *GetNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+/*
+GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
@@ -736,7 +745,8 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+/*
+GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 swagger:model GetNodeOKBodyRemoteAzureDatabase
 */
 type GetNodeOKBodyRemoteAzureDatabase struct {
@@ -790,7 +800,8 @@ func (o *GetNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*
+GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model GetNodeOKBodyRemoteRDS
 */
 type GetNodeOKBodyRemoteRDS struct {

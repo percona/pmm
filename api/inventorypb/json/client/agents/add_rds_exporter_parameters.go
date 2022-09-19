@@ -52,10 +52,12 @@ func NewAddRDSExporterParamsWithHTTPClient(client *http.Client) *AddRDSExporterP
 	}
 }
 
-/* AddRDSExporterParams contains all the parameters to send to the API endpoint
-   for the add RDS exporter operation.
+/*
+AddRDSExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add RDS exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type AddRDSExporterParams struct {
 	// Body.

@@ -48,7 +48,8 @@ func NewGetResourcesOK() *GetResourcesOK {
 	return &GetResourcesOK{}
 }
 
-/* GetResourcesOK describes a response with status code 200, with default header values.
+/*
+	GetResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetResourcesDefault(code int) *GetResourcesDefault {
 	}
 }
 
-/* GetResourcesDefault describes a response with status code -1, with default header values.
+/*
+	GetResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetResourcesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetResourcesBody get resources body
+/*
+GetResourcesBody get resources body
 swagger:model GetResourcesBody
 */
 type GetResourcesBody struct {
@@ -152,7 +155,8 @@ func (o *GetResourcesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetResourcesDefaultBody get resources default body
+/*
+GetResourcesDefaultBody get resources default body
 swagger:model GetResourcesDefaultBody
 */
 type GetResourcesDefaultBody struct {
@@ -255,7 +259,8 @@ func (o *GetResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetResourcesDefaultBodyDetailsItems0 get resources default body details items0
+/*
+GetResourcesDefaultBodyDetailsItems0 get resources default body details items0
 swagger:model GetResourcesDefaultBodyDetailsItems0
 */
 type GetResourcesDefaultBodyDetailsItems0 struct {
@@ -291,7 +296,8 @@ func (o *GetResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetResourcesOKBody get resources OK body
+/*
+GetResourcesOKBody get resources OK body
 swagger:model GetResourcesOKBody
 */
 type GetResourcesOKBody struct {
@@ -424,7 +430,8 @@ func (o *GetResourcesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetResourcesOKBodyAll Resources contains Kubernetes cluster resources.
+/*
+GetResourcesOKBodyAll Resources contains Kubernetes cluster resources.
 swagger:model GetResourcesOKBodyAll
 */
 type GetResourcesOKBodyAll struct {
@@ -467,7 +474,8 @@ func (o *GetResourcesOKBodyAll) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetResourcesOKBodyAvailable Resources contains Kubernetes cluster resources.
+/*
+GetResourcesOKBodyAvailable Resources contains Kubernetes cluster resources.
 swagger:model GetResourcesOKBodyAvailable
 */
 type GetResourcesOKBodyAvailable struct {

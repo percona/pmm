@@ -48,7 +48,8 @@ func NewUpdateTemplateOK() *UpdateTemplateOK {
 	return &UpdateTemplateOK{}
 }
 
-/* UpdateTemplateOK describes a response with status code 200, with default header values.
+/*
+	UpdateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewUpdateTemplateDefault(code int) *UpdateTemplateDefault {
 	}
 }
 
-/* UpdateTemplateDefault describes a response with status code -1, with default header values.
+/*
+	UpdateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *UpdateTemplateDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*UpdateTemplateBody update template body
+/*
+UpdateTemplateBody update template body
 swagger:model UpdateTemplateBody
 */
 type UpdateTemplateBody struct {
@@ -153,7 +156,8 @@ func (o *UpdateTemplateBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateTemplateDefaultBody update template default body
+/*
+UpdateTemplateDefaultBody update template default body
 swagger:model UpdateTemplateDefaultBody
 */
 type UpdateTemplateDefaultBody struct {
@@ -256,7 +260,8 @@ func (o *UpdateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UpdateTemplateDefaultBodyDetailsItems0 update template default body details items0
+/*
+UpdateTemplateDefaultBodyDetailsItems0 update template default body details items0
 swagger:model UpdateTemplateDefaultBodyDetailsItems0
 */
 type UpdateTemplateDefaultBodyDetailsItems0 struct {

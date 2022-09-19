@@ -48,7 +48,8 @@ func NewAddPostgreSQLServiceOK() *AddPostgreSQLServiceOK {
 	return &AddPostgreSQLServiceOK{}
 }
 
-/* AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
+/*
+	AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddPostgreSQLServiceDefault(code int) *AddPostgreSQLServiceDefault {
 	}
 }
 
-/* AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
+/*
+	AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddPostgreSQLServiceDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*AddPostgreSQLServiceBody add postgre SQL service body
+/*
+AddPostgreSQLServiceBody add postgre SQL service body
 swagger:model AddPostgreSQLServiceBody
 */
 type AddPostgreSQLServiceBody struct {
@@ -179,7 +182,8 @@ func (o *AddPostgreSQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgreSQLServiceDefaultBody add postgre SQL service default body
+/*
+AddPostgreSQLServiceDefaultBody add postgre SQL service default body
 swagger:model AddPostgreSQLServiceDefaultBody
 */
 type AddPostgreSQLServiceDefaultBody struct {
@@ -282,7 +286,8 @@ func (o *AddPostgreSQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgreSQLServiceDefaultBodyDetailsItems0 add postgre SQL service default body details items0
+/*
+AddPostgreSQLServiceDefaultBodyDetailsItems0 add postgre SQL service default body details items0
 swagger:model AddPostgreSQLServiceDefaultBodyDetailsItems0
 */
 type AddPostgreSQLServiceDefaultBodyDetailsItems0 struct {
@@ -318,7 +323,8 @@ func (o *AddPostgreSQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*AddPostgreSQLServiceOKBody add postgre SQL service OK body
+/*
+AddPostgreSQLServiceOKBody add postgre SQL service OK body
 swagger:model AddPostgreSQLServiceOKBody
 */
 type AddPostgreSQLServiceOKBody struct {
@@ -406,7 +412,8 @@ func (o *AddPostgreSQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgreSQLServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
+/*
+AddPostgreSQLServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
 swagger:model AddPostgreSQLServiceOKBodyPostgresql
 */
 type AddPostgreSQLServiceOKBodyPostgresql struct {

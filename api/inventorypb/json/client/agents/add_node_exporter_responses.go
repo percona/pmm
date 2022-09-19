@@ -50,7 +50,8 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 	return &AddNodeExporterOK{}
 }
 
-/* AddNodeExporterOK describes a response with status code 200, with default header values.
+/*
+	AddNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
 	}
 }
 
-/* AddNodeExporterDefault describes a response with status code -1, with default header values.
+/*
+	AddNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*AddNodeExporterBody add node exporter body
+/*
+AddNodeExporterBody add node exporter body
 swagger:model AddNodeExporterBody
 */
 type AddNodeExporterBody struct {
@@ -230,7 +233,8 @@ func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterDefaultBody add node exporter default body
+/*
+AddNodeExporterDefaultBody add node exporter default body
 swagger:model AddNodeExporterDefaultBody
 */
 type AddNodeExporterDefaultBody struct {
@@ -333,7 +337,8 @@ func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterDefaultBodyDetailsItems0 add node exporter default body details items0
+/*
+AddNodeExporterDefaultBodyDetailsItems0 add node exporter default body details items0
 swagger:model AddNodeExporterDefaultBodyDetailsItems0
 */
 type AddNodeExporterDefaultBodyDetailsItems0 struct {
@@ -369,7 +374,8 @@ func (o *AddNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*AddNodeExporterOKBody add node exporter OK body
+/*
+AddNodeExporterOKBody add node exporter OK body
 swagger:model AddNodeExporterOKBody
 */
 type AddNodeExporterOKBody struct {
@@ -457,7 +463,8 @@ func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*
+AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model AddNodeExporterOKBodyNodeExporter
 */
 type AddNodeExporterOKBodyNodeExporter struct {

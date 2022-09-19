@@ -48,7 +48,8 @@ func NewStartMongoDBExplainActionOK() *StartMongoDBExplainActionOK {
 	return &StartMongoDBExplainActionOK{}
 }
 
-/* StartMongoDBExplainActionOK describes a response with status code 200, with default header values.
+/*
+	StartMongoDBExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartMongoDBExplainActionDefault(code int) *StartMongoDBExplainActionDef
 	}
 }
 
-/* StartMongoDBExplainActionDefault describes a response with status code -1, with default header values.
+/*
+	StartMongoDBExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartMongoDBExplainActionDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*StartMongoDBExplainActionBody start mongo DB explain action body
+/*
+StartMongoDBExplainActionBody start mongo DB explain action body
 swagger:model StartMongoDBExplainActionBody
 */
 type StartMongoDBExplainActionBody struct {
@@ -158,7 +161,8 @@ func (o *StartMongoDBExplainActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMongoDBExplainActionDefaultBody start mongo DB explain action default body
+/*
+StartMongoDBExplainActionDefaultBody start mongo DB explain action default body
 swagger:model StartMongoDBExplainActionDefaultBody
 */
 type StartMongoDBExplainActionDefaultBody struct {
@@ -261,7 +265,8 @@ func (o *StartMongoDBExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMongoDBExplainActionDefaultBodyDetailsItems0 start mongo DB explain action default body details items0
+/*
+StartMongoDBExplainActionDefaultBodyDetailsItems0 start mongo DB explain action default body details items0
 swagger:model StartMongoDBExplainActionDefaultBodyDetailsItems0
 */
 type StartMongoDBExplainActionDefaultBodyDetailsItems0 struct {
@@ -297,7 +302,8 @@ func (o *StartMongoDBExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*StartMongoDBExplainActionOKBody start mongo DB explain action OK body
+/*
+StartMongoDBExplainActionOKBody start mongo DB explain action OK body
 swagger:model StartMongoDBExplainActionOKBody
 */
 type StartMongoDBExplainActionOKBody struct {

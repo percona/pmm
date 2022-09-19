@@ -48,7 +48,8 @@ func NewTestEmailAlertingSettingsOK() *TestEmailAlertingSettingsOK {
 	return &TestEmailAlertingSettingsOK{}
 }
 
-/* TestEmailAlertingSettingsOK describes a response with status code 200, with default header values.
+/*
+	TestEmailAlertingSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewTestEmailAlertingSettingsDefault(code int) *TestEmailAlertingSettingsDef
 	}
 }
 
-/* TestEmailAlertingSettingsDefault describes a response with status code -1, with default header values.
+/*
+	TestEmailAlertingSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *TestEmailAlertingSettingsDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*TestEmailAlertingSettingsBody test email alerting settings body
+/*
+TestEmailAlertingSettingsBody test email alerting settings body
 swagger:model TestEmailAlertingSettingsBody
 */
 type TestEmailAlertingSettingsBody struct {
@@ -205,7 +208,8 @@ func (o *TestEmailAlertingSettingsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestEmailAlertingSettingsDefaultBody test email alerting settings default body
+/*
+TestEmailAlertingSettingsDefaultBody test email alerting settings default body
 swagger:model TestEmailAlertingSettingsDefaultBody
 */
 type TestEmailAlertingSettingsDefaultBody struct {
@@ -308,7 +312,8 @@ func (o *TestEmailAlertingSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*TestEmailAlertingSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+TestEmailAlertingSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -451,7 +456,8 @@ func (o *TestEmailAlertingSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*
+TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model TestEmailAlertingSettingsParamsBodyEmailAlertingSettings
 */
 type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {

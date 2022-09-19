@@ -48,7 +48,8 @@ func NewAddMySQLServiceOK() *AddMySQLServiceOK {
 	return &AddMySQLServiceOK{}
 }
 
-/* AddMySQLServiceOK describes a response with status code 200, with default header values.
+/*
+	AddMySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddMySQLServiceDefault(code int) *AddMySQLServiceDefault {
 	}
 }
 
-/* AddMySQLServiceDefault describes a response with status code -1, with default header values.
+/*
+	AddMySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddMySQLServiceDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*AddMySQLServiceBody add my SQL service body
+/*
+AddMySQLServiceBody add my SQL service body
 swagger:model AddMySQLServiceBody
 */
 type AddMySQLServiceBody struct {
@@ -179,7 +182,8 @@ func (o *AddMySQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLServiceDefaultBody add my SQL service default body
+/*
+AddMySQLServiceDefaultBody add my SQL service default body
 swagger:model AddMySQLServiceDefaultBody
 */
 type AddMySQLServiceDefaultBody struct {
@@ -282,7 +286,8 @@ func (o *AddMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLServiceDefaultBodyDetailsItems0 add my SQL service default body details items0
+/*
+AddMySQLServiceDefaultBodyDetailsItems0 add my SQL service default body details items0
 swagger:model AddMySQLServiceDefaultBodyDetailsItems0
 */
 type AddMySQLServiceDefaultBodyDetailsItems0 struct {
@@ -318,7 +323,8 @@ func (o *AddMySQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*AddMySQLServiceOKBody add my SQL service OK body
+/*
+AddMySQLServiceOKBody add my SQL service OK body
 swagger:model AddMySQLServiceOKBody
 */
 type AddMySQLServiceOKBody struct {
@@ -406,7 +412,8 @@ func (o *AddMySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLServiceOKBodyMysql MySQLService represents a generic MySQL instance.
+/*
+AddMySQLServiceOKBodyMysql MySQLService represents a generic MySQL instance.
 swagger:model AddMySQLServiceOKBodyMysql
 */
 type AddMySQLServiceOKBodyMysql struct {

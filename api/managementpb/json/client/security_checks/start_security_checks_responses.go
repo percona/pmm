@@ -48,7 +48,8 @@ func NewStartSecurityChecksOK() *StartSecurityChecksOK {
 	return &StartSecurityChecksOK{}
 }
 
-/* StartSecurityChecksOK describes a response with status code 200, with default header values.
+/*
+	StartSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewStartSecurityChecksDefault(code int) *StartSecurityChecksDefault {
 	}
 }
 
-/* StartSecurityChecksDefault describes a response with status code -1, with default header values.
+/*
+	StartSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *StartSecurityChecksDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*StartSecurityChecksBody start security checks body
+/*
+StartSecurityChecksBody start security checks body
 swagger:model StartSecurityChecksBody
 */
 type StartSecurityChecksBody struct {
@@ -150,7 +153,8 @@ func (o *StartSecurityChecksBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartSecurityChecksDefaultBody start security checks default body
+/*
+StartSecurityChecksDefaultBody start security checks default body
 swagger:model StartSecurityChecksDefaultBody
 */
 type StartSecurityChecksDefaultBody struct {
@@ -253,7 +257,8 @@ func (o *StartSecurityChecksDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartSecurityChecksDefaultBodyDetailsItems0 start security checks default body details items0
+/*
+StartSecurityChecksDefaultBodyDetailsItems0 start security checks default body details items0
 swagger:model StartSecurityChecksDefaultBodyDetailsItems0
 */
 type StartSecurityChecksDefaultBodyDetailsItems0 struct {

@@ -48,7 +48,8 @@ func NewStartPostgreSQLShowIndexActionOK() *StartPostgreSQLShowIndexActionOK {
 	return &StartPostgreSQLShowIndexActionOK{}
 }
 
-/* StartPostgreSQLShowIndexActionOK describes a response with status code 200, with default header values.
+/*
+	StartPostgreSQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartPostgreSQLShowIndexActionDefault(code int) *StartPostgreSQLShowInde
 	}
 }
 
-/* StartPostgreSQLShowIndexActionDefault describes a response with status code -1, with default header values.
+/*
+	StartPostgreSQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartPostgreSQLShowIndexActionDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*StartPostgreSQLShowIndexActionBody start postgre SQL show index action body
+/*
+StartPostgreSQLShowIndexActionBody start postgre SQL show index action body
 swagger:model StartPostgreSQLShowIndexActionBody
 */
 type StartPostgreSQLShowIndexActionBody struct {
@@ -161,7 +164,8 @@ func (o *StartPostgreSQLShowIndexActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPostgreSQLShowIndexActionDefaultBody start postgre SQL show index action default body
+/*
+StartPostgreSQLShowIndexActionDefaultBody start postgre SQL show index action default body
 swagger:model StartPostgreSQLShowIndexActionDefaultBody
 */
 type StartPostgreSQLShowIndexActionDefaultBody struct {
@@ -264,7 +268,8 @@ func (o *StartPostgreSQLShowIndexActionDefaultBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0 start postgre SQL show index action default body details items0
+/*
+StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0 start postgre SQL show index action default body details items0
 swagger:model StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0
 */
 type StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0 struct {
@@ -300,7 +305,8 @@ func (o *StartPostgreSQLShowIndexActionDefaultBodyDetailsItems0) UnmarshalBinary
 	return nil
 }
 
-/*StartPostgreSQLShowIndexActionOKBody start postgre SQL show index action OK body
+/*
+StartPostgreSQLShowIndexActionOKBody start postgre SQL show index action OK body
 swagger:model StartPostgreSQLShowIndexActionOKBody
 */
 type StartPostgreSQLShowIndexActionOKBody struct {

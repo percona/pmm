@@ -48,7 +48,8 @@ func NewChangePXCComponentsOK() *ChangePXCComponentsOK {
 	return &ChangePXCComponentsOK{}
 }
 
-/* ChangePXCComponentsOK describes a response with status code 200, with default header values.
+/*
+	ChangePXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewChangePXCComponentsDefault(code int) *ChangePXCComponentsDefault {
 	}
 }
 
-/* ChangePXCComponentsDefault describes a response with status code -1, with default header values.
+/*
+	ChangePXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *ChangePXCComponentsDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*ChangePXCComponentsBody change PXC components body
+/*
+ChangePXCComponentsBody change PXC components body
 swagger:model ChangePXCComponentsBody
 */
 type ChangePXCComponentsBody struct {
@@ -295,7 +298,8 @@ func (o *ChangePXCComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsDefaultBody change PXC components default body
+/*
+ChangePXCComponentsDefaultBody change PXC components default body
 swagger:model ChangePXCComponentsDefaultBody
 */
 type ChangePXCComponentsDefaultBody struct {
@@ -398,7 +402,8 @@ func (o *ChangePXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsDefaultBodyDetailsItems0 change PXC components default body details items0
+/*
+ChangePXCComponentsDefaultBodyDetailsItems0 change PXC components default body details items0
 swagger:model ChangePXCComponentsDefaultBodyDetailsItems0
 */
 type ChangePXCComponentsDefaultBodyDetailsItems0 struct {
@@ -434,7 +439,8 @@ func (o *ChangePXCComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyHaproxy ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyHaproxy ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyHaproxy
 */
 type ChangePXCComponentsParamsBodyHaproxy struct {
@@ -534,7 +540,8 @@ func (o *ChangePXCComponentsParamsBodyHaproxy) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyHaproxyVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyHaproxyVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyHaproxyVersionsItems0
 */
 type ChangePXCComponentsParamsBodyHaproxyVersionsItems0 struct {
@@ -576,7 +583,8 @@ func (o *ChangePXCComponentsParamsBodyHaproxyVersionsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyPXC ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyPXC ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyPXC
 */
 type ChangePXCComponentsParamsBodyPXC struct {
@@ -676,7 +684,8 @@ func (o *ChangePXCComponentsParamsBodyPXC) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyPXCVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyPXCVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyPXCVersionsItems0
 */
 type ChangePXCComponentsParamsBodyPXCVersionsItems0 struct {
@@ -718,7 +727,8 @@ func (o *ChangePXCComponentsParamsBodyPXCVersionsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyProxysql ChangeComponent contains fields to manage components.
+/*
+ChangePXCComponentsParamsBodyProxysql ChangeComponent contains fields to manage components.
 swagger:model ChangePXCComponentsParamsBodyProxysql
 */
 type ChangePXCComponentsParamsBodyProxysql struct {
@@ -818,7 +828,8 @@ func (o *ChangePXCComponentsParamsBodyProxysql) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*ChangePXCComponentsParamsBodyProxysqlVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*
+ChangePXCComponentsParamsBodyProxysqlVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePXCComponentsParamsBodyProxysqlVersionsItems0
 */
 type ChangePXCComponentsParamsBodyProxysqlVersionsItems0 struct {

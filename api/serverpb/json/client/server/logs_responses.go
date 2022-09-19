@@ -49,7 +49,8 @@ func NewLogsOK(writer io.Writer) *LogsOK {
 	}
 }
 
-/* LogsOK describes a response with status code 200, with default header values.
+/*
+	LogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,7 +82,8 @@ func NewLogsDefault(code int) *LogsDefault {
 	}
 }
 
-/* LogsDefault describes a response with status code -1, with default header values.
+/*
+	LogsDefault describes a response with status code -1, with default header values.
 
 An error response.
 */
@@ -115,7 +117,8 @@ func (o *LogsDefault) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
-/*LogsDefaultBody ErrorResponse is a message returned on HTTP error.
+/*
+LogsDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model LogsDefaultBody
 */
 type LogsDefaultBody struct {

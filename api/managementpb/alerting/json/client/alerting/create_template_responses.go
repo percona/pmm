@@ -48,7 +48,8 @@ func NewCreateTemplateOK() *CreateTemplateOK {
 	return &CreateTemplateOK{}
 }
 
-/* CreateTemplateOK describes a response with status code 200, with default header values.
+/*
+	CreateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewCreateTemplateDefault(code int) *CreateTemplateDefault {
 	}
 }
 
-/* CreateTemplateDefault describes a response with status code -1, with default header values.
+/*
+	CreateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *CreateTemplateDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*CreateTemplateBody create template body
+/*
+CreateTemplateBody create template body
 swagger:model CreateTemplateBody
 */
 type CreateTemplateBody struct {
@@ -150,7 +153,8 @@ func (o *CreateTemplateBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateTemplateDefaultBody create template default body
+/*
+CreateTemplateDefaultBody create template default body
 swagger:model CreateTemplateDefaultBody
 */
 type CreateTemplateDefaultBody struct {
@@ -253,7 +257,8 @@ func (o *CreateTemplateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateTemplateDefaultBodyDetailsItems0 create template default body details items0
+/*
+CreateTemplateDefaultBodyDetailsItems0 create template default body details items0
 swagger:model CreateTemplateDefaultBodyDetailsItems0
 */
 type CreateTemplateDefaultBodyDetailsItems0 struct {

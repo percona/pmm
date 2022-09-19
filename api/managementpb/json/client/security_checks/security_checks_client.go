@@ -46,9 +46,9 @@ type ClientService interface {
 }
 
 /*
-  ChangeSecurityChecks changes security checks
+ChangeSecurityChecks changes security checks
 
-  Enables/disables Security Thread Tool checks or changes their interval by names.
+Enables/disables Security Thread Tool checks or changes their interval by names.
 */
 func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams, opts ...ClientOption) (*ChangeSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -85,9 +85,9 @@ func (a *Client) ChangeSecurityChecks(params *ChangeSecurityChecksParams, opts .
 }
 
 /*
-  GetFailedChecks gets failed checks
+GetFailedChecks gets failed checks
 
-  Returns the latest check results for a given service.
+Returns the latest check results for a given service.
 */
 func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOption) (*GetFailedChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -124,9 +124,9 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 }
 
 /*
-  GetSecurityCheckResults gets security check results
+GetSecurityCheckResults gets security check results
 
-  Returns Security Thread Tool's latest checks results.
+Returns Security Thread Tool's latest checks results.
 */
 func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams, opts ...ClientOption) (*GetSecurityCheckResultsOK, error) {
 	// TODO: Validate the params before sending
@@ -163,9 +163,9 @@ func (a *Client) GetSecurityCheckResults(params *GetSecurityCheckResultsParams, 
 }
 
 /*
-  ListFailedServices lists failed services
+ListFailedServices lists failed services
 
-  Returns a list of services with failed checks and a summary of check results.
+Returns a list of services with failed checks and a summary of check results.
 */
 func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error) {
 	// TODO: Validate the params before sending
@@ -202,9 +202,9 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 }
 
 /*
-  ListSecurityChecks lists security checks
+ListSecurityChecks lists security checks
 
-  Returns a list of available Security Thread Tool checks.
+Returns a list of available Security Thread Tool checks.
 */
 func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...ClientOption) (*ListSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -241,9 +241,9 @@ func (a *Client) ListSecurityChecks(params *ListSecurityChecksParams, opts ...Cl
 }
 
 /*
-  StartSecurityChecks starts security checks
+StartSecurityChecks starts security checks
 
-  Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
+Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.
 */
 func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams, opts ...ClientOption) (*StartSecurityChecksOK, error) {
 	// TODO: Validate the params before sending
@@ -280,9 +280,9 @@ func (a *Client) StartSecurityChecks(params *StartSecurityChecksParams, opts ...
 }
 
 /*
-  ToggleCheckAlert toggles check alert
+ToggleCheckAlert toggles check alert
 
-  Silence/Unsilence alerts for a specific check result.
+Silence/Unsilence alerts for a specific check result.
 */
 func (a *Client) ToggleCheckAlert(params *ToggleCheckAlertParams, opts ...ClientOption) (*ToggleCheckAlertOK, error) {
 	// TODO: Validate the params before sending

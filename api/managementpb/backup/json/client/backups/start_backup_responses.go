@@ -50,7 +50,8 @@ func NewStartBackupOK() *StartBackupOK {
 	return &StartBackupOK{}
 }
 
-/* StartBackupOK describes a response with status code 200, with default header values.
+/*
+	StartBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewStartBackupDefault(code int) *StartBackupDefault {
 	}
 }
 
-/* StartBackupDefault describes a response with status code -1, with default header values.
+/*
+	StartBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *StartBackupDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*StartBackupBody start backup body
+/*
+StartBackupBody start backup body
 swagger:model StartBackupBody
 */
 type StartBackupBody struct {
@@ -227,7 +230,8 @@ func (o *StartBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupDefaultBody start backup default body
+/*
+StartBackupDefaultBody start backup default body
 swagger:model StartBackupDefaultBody
 */
 type StartBackupDefaultBody struct {
@@ -330,7 +334,8 @@ func (o *StartBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupDefaultBodyDetailsItems0 start backup default body details items0
+/*
+StartBackupDefaultBodyDetailsItems0 start backup default body details items0
 swagger:model StartBackupDefaultBodyDetailsItems0
 */
 type StartBackupDefaultBodyDetailsItems0 struct {
@@ -366,7 +371,8 @@ func (o *StartBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartBackupOKBody start backup OK body
+/*
+StartBackupOKBody start backup OK body
 swagger:model StartBackupOKBody
 */
 type StartBackupOKBody struct {

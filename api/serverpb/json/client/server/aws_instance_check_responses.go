@@ -48,7 +48,8 @@ func NewAWSInstanceCheckOK() *AWSInstanceCheckOK {
 	return &AWSInstanceCheckOK{}
 }
 
-/* AWSInstanceCheckOK describes a response with status code 200, with default header values.
+/*
+	AWSInstanceCheckOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewAWSInstanceCheckDefault(code int) *AWSInstanceCheckDefault {
 	}
 }
 
-/* AWSInstanceCheckDefault describes a response with status code -1, with default header values.
+/*
+	AWSInstanceCheckDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *AWSInstanceCheckDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*AWSInstanceCheckBody AWS instance check body
+/*
+AWSInstanceCheckBody AWS instance check body
 swagger:model AWSInstanceCheckBody
 */
 type AWSInstanceCheckBody struct {
@@ -150,7 +153,8 @@ func (o *AWSInstanceCheckBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AWSInstanceCheckDefaultBody AWS instance check default body
+/*
+AWSInstanceCheckDefaultBody AWS instance check default body
 swagger:model AWSInstanceCheckDefaultBody
 */
 type AWSInstanceCheckDefaultBody struct {
@@ -253,7 +257,8 @@ func (o *AWSInstanceCheckDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AWSInstanceCheckDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+AWSInstanceCheckDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form

@@ -50,7 +50,8 @@ func NewRegisterNodeOK() *RegisterNodeOK {
 	return &RegisterNodeOK{}
 }
 
-/* RegisterNodeOK describes a response with status code 200, with default header values.
+/*
+	RegisterNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewRegisterNodeDefault(code int) *RegisterNodeDefault {
 	}
 }
 
-/* RegisterNodeDefault describes a response with status code -1, with default header values.
+/*
+	RegisterNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*RegisterNodeBody register node body
+/*
+RegisterNodeBody register node body
 swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
@@ -311,7 +314,8 @@ func (o *RegisterNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeDefaultBody register node default body
+/*
+RegisterNodeDefaultBody register node default body
 swagger:model RegisterNodeDefaultBody
 */
 type RegisterNodeDefaultBody struct {
@@ -414,7 +418,8 @@ func (o *RegisterNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeDefaultBodyDetailsItems0 register node default body details items0
+/*
+RegisterNodeDefaultBodyDetailsItems0 register node default body details items0
 swagger:model RegisterNodeDefaultBodyDetailsItems0
 */
 type RegisterNodeDefaultBodyDetailsItems0 struct {
@@ -450,7 +455,8 @@ func (o *RegisterNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeOKBody register node OK body
+/*
+RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
@@ -628,7 +634,8 @@ func (o *RegisterNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeOKBodyContainerNode ContainerNode represents a Docker container.
+/*
+RegisterNodeOKBodyContainerNode ContainerNode represents a Docker container.
 swagger:model RegisterNodeOKBodyContainerNode
 */
 type RegisterNodeOKBodyContainerNode struct {
@@ -691,7 +698,8 @@ func (o *RegisterNodeOKBodyContainerNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeOKBodyGenericNode GenericNode represents a bare metal server or virtual machine.
+/*
+RegisterNodeOKBodyGenericNode GenericNode represents a bare metal server or virtual machine.
 swagger:model RegisterNodeOKBodyGenericNode
 */
 type RegisterNodeOKBodyGenericNode struct {
@@ -751,7 +759,8 @@ func (o *RegisterNodeOKBodyGenericNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
+/*
+RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model RegisterNodeOKBodyPMMAgent
 */
 type RegisterNodeOKBodyPMMAgent struct {

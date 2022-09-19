@@ -50,7 +50,8 @@ func NewDiscoverAzureDatabaseOK() *DiscoverAzureDatabaseOK {
 	return &DiscoverAzureDatabaseOK{}
 }
 
-/* DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
+/*
+	DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewDiscoverAzureDatabaseDefault(code int) *DiscoverAzureDatabaseDefault {
 	}
 }
 
-/* DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
+/*
+	DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *DiscoverAzureDatabaseDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases request.
+/*
+DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases request.
 swagger:model DiscoverAzureDatabaseBody
 */
 type DiscoverAzureDatabaseBody struct {
@@ -163,7 +166,8 @@ func (o *DiscoverAzureDatabaseBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverAzureDatabaseDefaultBody discover azure database default body
+/*
+DiscoverAzureDatabaseDefaultBody discover azure database default body
 swagger:model DiscoverAzureDatabaseDefaultBody
 */
 type DiscoverAzureDatabaseDefaultBody struct {
@@ -269,7 +273,8 @@ func (o *DiscoverAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default body details items0
+/*
+DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default body details items0
 swagger:model DiscoverAzureDatabaseDefaultBodyDetailsItems0
 */
 type DiscoverAzureDatabaseDefaultBodyDetailsItems0 struct {
@@ -309,7 +314,8 @@ func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databases response.
+/*
+DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databases response.
 swagger:model DiscoverAzureDatabaseOKBody
 */
 type DiscoverAzureDatabaseOKBody struct {
@@ -406,7 +412,8 @@ func (o *DiscoverAzureDatabaseOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
+/*
+DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
 swagger:model DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0
 */
 type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {

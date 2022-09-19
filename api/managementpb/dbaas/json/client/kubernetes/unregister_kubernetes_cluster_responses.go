@@ -48,7 +48,8 @@ func NewUnregisterKubernetesClusterOK() *UnregisterKubernetesClusterOK {
 	return &UnregisterKubernetesClusterOK{}
 }
 
-/* UnregisterKubernetesClusterOK describes a response with status code 200, with default header values.
+/*
+	UnregisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewUnregisterKubernetesClusterDefault(code int) *UnregisterKubernetesCluste
 	}
 }
 
-/* UnregisterKubernetesClusterDefault describes a response with status code -1, with default header values.
+/*
+	UnregisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *UnregisterKubernetesClusterDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*UnregisterKubernetesClusterBody unregister kubernetes cluster body
+/*
+UnregisterKubernetesClusterBody unregister kubernetes cluster body
 swagger:model UnregisterKubernetesClusterBody
 */
 type UnregisterKubernetesClusterBody struct {
@@ -154,7 +157,8 @@ func (o *UnregisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*UnregisterKubernetesClusterDefaultBody unregister kubernetes cluster default body
+/*
+UnregisterKubernetesClusterDefaultBody unregister kubernetes cluster default body
 swagger:model UnregisterKubernetesClusterDefaultBody
 */
 type UnregisterKubernetesClusterDefaultBody struct {
@@ -257,7 +261,8 @@ func (o *UnregisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluster default body details items0
+/*
+UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluster default body details items0
 swagger:model UnregisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type UnregisterKubernetesClusterDefaultBodyDetailsItems0 struct {

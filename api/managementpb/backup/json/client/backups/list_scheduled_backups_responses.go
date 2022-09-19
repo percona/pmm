@@ -50,7 +50,8 @@ func NewListScheduledBackupsOK() *ListScheduledBackupsOK {
 	return &ListScheduledBackupsOK{}
 }
 
-/* ListScheduledBackupsOK describes a response with status code 200, with default header values.
+/*
+	ListScheduledBackupsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListScheduledBackupsDefault(code int) *ListScheduledBackupsDefault {
 	}
 }
 
-/* ListScheduledBackupsDefault describes a response with status code -1, with default header values.
+/*
+	ListScheduledBackupsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListScheduledBackupsDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ListScheduledBackupsDefaultBody list scheduled backups default body
+/*
+ListScheduledBackupsDefaultBody list scheduled backups default body
 swagger:model ListScheduledBackupsDefaultBody
 */
 type ListScheduledBackupsDefaultBody struct {
@@ -221,7 +224,8 @@ func (o *ListScheduledBackupsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListScheduledBackupsDefaultBodyDetailsItems0 list scheduled backups default body details items0
+/*
+ListScheduledBackupsDefaultBodyDetailsItems0 list scheduled backups default body details items0
 swagger:model ListScheduledBackupsDefaultBodyDetailsItems0
 */
 type ListScheduledBackupsDefaultBodyDetailsItems0 struct {
@@ -257,7 +261,8 @@ func (o *ListScheduledBackupsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ListScheduledBackupsOKBody list scheduled backups OK body
+/*
+ListScheduledBackupsOKBody list scheduled backups OK body
 swagger:model ListScheduledBackupsOKBody
 */
 type ListScheduledBackupsOKBody struct {
@@ -354,7 +359,8 @@ func (o *ListScheduledBackupsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListScheduledBackupsOKBodyScheduledBackupsItems0 ScheduledBackup represents scheduled task for backup.
+/*
+ListScheduledBackupsOKBodyScheduledBackupsItems0 ScheduledBackup represents scheduled task for backup.
 swagger:model ListScheduledBackupsOKBodyScheduledBackupsItems0
 */
 type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {

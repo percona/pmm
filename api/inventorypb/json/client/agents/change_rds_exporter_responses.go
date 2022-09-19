@@ -50,7 +50,8 @@ func NewChangeRDSExporterOK() *ChangeRDSExporterOK {
 	return &ChangeRDSExporterOK{}
 }
 
-/* ChangeRDSExporterOK describes a response with status code 200, with default header values.
+/*
+	ChangeRDSExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeRDSExporterDefault(code int) *ChangeRDSExporterDefault {
 	}
 }
 
-/* ChangeRDSExporterDefault describes a response with status code -1, with default header values.
+/*
+	ChangeRDSExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeRDSExporterDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*ChangeRDSExporterBody change RDS exporter body
+/*
+ChangeRDSExporterBody change RDS exporter body
 swagger:model ChangeRDSExporterBody
 */
 type ChangeRDSExporterBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeRDSExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterDefaultBody change RDS exporter default body
+/*
+ChangeRDSExporterDefaultBody change RDS exporter default body
 swagger:model ChangeRDSExporterDefaultBody
 */
 type ChangeRDSExporterDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterDefaultBodyDetailsItems0 change RDS exporter default body details items0
+/*
+ChangeRDSExporterDefaultBodyDetailsItems0 change RDS exporter default body details items0
 swagger:model ChangeRDSExporterDefaultBodyDetailsItems0
 */
 type ChangeRDSExporterDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeRDSExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*ChangeRDSExporterOKBody change RDS exporter OK body
+/*
+ChangeRDSExporterOKBody change RDS exporter OK body
 swagger:model ChangeRDSExporterOKBody
 */
 type ChangeRDSExporterOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeRDSExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*
+ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model ChangeRDSExporterOKBodyRDSExporter
 */
 type ChangeRDSExporterOKBodyRDSExporter struct {
@@ -641,7 +648,8 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRDSExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeRDSExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeRDSExporterParamsBodyCommon
 */
 type ChangeRDSExporterParamsBodyCommon struct {

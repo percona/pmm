@@ -48,7 +48,8 @@ func NewServerInfoOK() *ServerInfoOK {
 	return &ServerInfoOK{}
 }
 
-/* ServerInfoOK describes a response with status code 200, with default header values.
+/*
+	ServerInfoOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewServerInfoDefault(code int) *ServerInfoDefault {
 	}
 }
 
-/* ServerInfoDefault describes a response with status code -1, with default header values.
+/*
+	ServerInfoDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *ServerInfoDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*ServerInfoDefaultBody server info default body
+/*
+ServerInfoDefaultBody server info default body
 swagger:model ServerInfoDefaultBody
 */
 type ServerInfoDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *ServerInfoDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ServerInfoDefaultBodyDetailsItems0 server info default body details items0
+/*
+ServerInfoDefaultBodyDetailsItems0 server info default body details items0
 swagger:model ServerInfoDefaultBodyDetailsItems0
 */
 type ServerInfoDefaultBodyDetailsItems0 struct {
@@ -255,7 +259,8 @@ func (o *ServerInfoDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ServerInfoOKBody server info OK body
+/*
+ServerInfoOKBody server info OK body
 swagger:model ServerInfoOKBody
 */
 type ServerInfoOKBody struct {

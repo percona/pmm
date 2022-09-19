@@ -50,7 +50,8 @@ func NewCreateRuleOK() *CreateRuleOK {
 	return &CreateRuleOK{}
 }
 
-/* CreateRuleOK describes a response with status code 200, with default header values.
+/*
+	CreateRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewCreateRuleDefault(code int) *CreateRuleDefault {
 	}
 }
 
-/* CreateRuleDefault describes a response with status code -1, with default header values.
+/*
+	CreateRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *CreateRuleDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*CreateRuleBody create rule body
+/*
+CreateRuleBody create rule body
 swagger:model CreateRuleBody
 */
 type CreateRuleBody struct {
@@ -356,7 +359,8 @@ func (o *CreateRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateRuleDefaultBody create rule default body
+/*
+CreateRuleDefaultBody create rule default body
 swagger:model CreateRuleDefaultBody
 */
 type CreateRuleDefaultBody struct {
@@ -459,7 +463,8 @@ func (o *CreateRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateRuleDefaultBodyDetailsItems0 create rule default body details items0
+/*
+CreateRuleDefaultBodyDetailsItems0 create rule default body details items0
 swagger:model CreateRuleDefaultBodyDetailsItems0
 */
 type CreateRuleDefaultBodyDetailsItems0 struct {
@@ -495,7 +500,8 @@ func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateRuleParamsBodyFiltersItems0 Filter represents a single filter condition.
+/*
+CreateRuleParamsBodyFiltersItems0 Filter represents a single filter condition.
 swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
@@ -592,7 +598,8 @@ func (o *CreateRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CreateRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value.
+/*
+CreateRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value.
 swagger:model CreateRuleParamsBodyParamsItems0
 */
 type CreateRuleParamsBodyParamsItems0 struct {

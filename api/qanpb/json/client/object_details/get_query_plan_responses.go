@@ -48,7 +48,8 @@ func NewGetQueryPlanOK() *GetQueryPlanOK {
 	return &GetQueryPlanOK{}
 }
 
-/* GetQueryPlanOK describes a response with status code 200, with default header values.
+/*
+	GetQueryPlanOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetQueryPlanDefault(code int) *GetQueryPlanDefault {
 	}
 }
 
-/* GetQueryPlanDefault describes a response with status code -1, with default header values.
+/*
+	GetQueryPlanDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetQueryPlanBody QueryPlanRequest defines filtering by queryid.
+/*
+GetQueryPlanBody QueryPlanRequest defines filtering by queryid.
 swagger:model GetQueryPlanBody
 */
 type GetQueryPlanBody struct {
@@ -152,7 +155,8 @@ func (o *GetQueryPlanBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryPlanDefaultBody get query plan default body
+/*
+GetQueryPlanDefaultBody get query plan default body
 swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
@@ -255,7 +259,8 @@ func (o *GetQueryPlanDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryPlanDefaultBodyDetailsItems0 get query plan default body details items0
+/*
+GetQueryPlanDefaultBodyDetailsItems0 get query plan default body details items0
 swagger:model GetQueryPlanDefaultBodyDetailsItems0
 */
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
@@ -291,7 +296,8 @@ func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
+/*
+GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {

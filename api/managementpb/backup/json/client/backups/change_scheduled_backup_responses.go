@@ -49,7 +49,8 @@ func NewChangeScheduledBackupOK() *ChangeScheduledBackupOK {
 	return &ChangeScheduledBackupOK{}
 }
 
-/* ChangeScheduledBackupOK describes a response with status code 200, with default header values.
+/*
+	ChangeScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -81,7 +82,8 @@ func NewChangeScheduledBackupDefault(code int) *ChangeScheduledBackupDefault {
 	}
 }
 
-/* ChangeScheduledBackupDefault describes a response with status code -1, with default header values.
+/*
+	ChangeScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -115,7 +117,8 @@ func (o *ChangeScheduledBackupDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*ChangeScheduledBackupBody change scheduled backup body
+/*
+ChangeScheduledBackupBody change scheduled backup body
 swagger:model ChangeScheduledBackupBody
 */
 type ChangeScheduledBackupBody struct {
@@ -197,7 +200,8 @@ func (o *ChangeScheduledBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeScheduledBackupDefaultBody change scheduled backup default body
+/*
+ChangeScheduledBackupDefaultBody change scheduled backup default body
 swagger:model ChangeScheduledBackupDefaultBody
 */
 type ChangeScheduledBackupDefaultBody struct {
@@ -300,7 +304,8 @@ func (o *ChangeScheduledBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeScheduledBackupDefaultBodyDetailsItems0 change scheduled backup default body details items0
+/*
+ChangeScheduledBackupDefaultBodyDetailsItems0 change scheduled backup default body details items0
 swagger:model ChangeScheduledBackupDefaultBodyDetailsItems0
 */
 type ChangeScheduledBackupDefaultBodyDetailsItems0 struct {

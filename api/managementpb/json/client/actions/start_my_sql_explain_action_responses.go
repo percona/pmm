@@ -48,7 +48,8 @@ func NewStartMySQLExplainActionOK() *StartMySQLExplainActionOK {
 	return &StartMySQLExplainActionOK{}
 }
 
-/* StartMySQLExplainActionOK describes a response with status code 200, with default header values.
+/*
+	StartMySQLExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartMySQLExplainActionDefault(code int) *StartMySQLExplainActionDefault
 	}
 }
 
-/* StartMySQLExplainActionDefault describes a response with status code -1, with default header values.
+/*
+	StartMySQLExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartMySQLExplainActionDefault) readResponse(response runtime.ClientRes
 	return nil
 }
 
-/*StartMySQLExplainActionBody start my SQL explain action body
+/*
+StartMySQLExplainActionBody start my SQL explain action body
 swagger:model StartMySQLExplainActionBody
 */
 type StartMySQLExplainActionBody struct {
@@ -161,7 +164,8 @@ func (o *StartMySQLExplainActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLExplainActionDefaultBody start my SQL explain action default body
+/*
+StartMySQLExplainActionDefaultBody start my SQL explain action default body
 swagger:model StartMySQLExplainActionDefaultBody
 */
 type StartMySQLExplainActionDefaultBody struct {
@@ -264,7 +268,8 @@ func (o *StartMySQLExplainActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartMySQLExplainActionDefaultBodyDetailsItems0 start my SQL explain action default body details items0
+/*
+StartMySQLExplainActionDefaultBodyDetailsItems0 start my SQL explain action default body details items0
 swagger:model StartMySQLExplainActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainActionDefaultBodyDetailsItems0 struct {
@@ -300,7 +305,8 @@ func (o *StartMySQLExplainActionDefaultBodyDetailsItems0) UnmarshalBinary(b []by
 	return nil
 }
 
-/*StartMySQLExplainActionOKBody start my SQL explain action OK body
+/*
+StartMySQLExplainActionOKBody start my SQL explain action OK body
 swagger:model StartMySQLExplainActionOKBody
 */
 type StartMySQLExplainActionOKBody struct {
