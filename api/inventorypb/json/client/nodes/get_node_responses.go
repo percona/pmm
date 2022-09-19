@@ -56,36 +56,7 @@ type GetNodeOK struct {
 	Payload *GetNodeOKBody
 }
 
-// IsSuccess returns true when this get node Ok response has a 2xx status code
-func (o *GetNodeOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this get node Ok response has a 3xx status code
-func (o *GetNodeOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this get node Ok response has a 4xx status code
-func (o *GetNodeOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this get node Ok response has a 5xx status code
-func (o *GetNodeOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this get node Ok response a status code equal to that given
-func (o *GetNodeOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *GetNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
-}
-
-func (o *GetNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
 
@@ -126,36 +97,7 @@ func (o *GetNodeDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this get node default response has a 2xx status code
-func (o *GetNodeDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this get node default response has a 3xx status code
-func (o *GetNodeDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this get node default response has a 4xx status code
-func (o *GetNodeDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this get node default response has a 5xx status code
-func (o *GetNodeDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this get node default response a status code equal to that given
-func (o *GetNodeDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *GetNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *GetNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
 

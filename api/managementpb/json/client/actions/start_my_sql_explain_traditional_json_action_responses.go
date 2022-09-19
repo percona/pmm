@@ -56,36 +56,7 @@ type StartMySQLExplainTraditionalJSONActionOK struct {
 	Payload *StartMySQLExplainTraditionalJSONActionOKBody
 }
 
-// IsSuccess returns true when this start my Sql explain traditional Json action Ok response has a 2xx status code
-func (o *StartMySQLExplainTraditionalJSONActionOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this start my Sql explain traditional Json action Ok response has a 3xx status code
-func (o *StartMySQLExplainTraditionalJSONActionOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this start my Sql explain traditional Json action Ok response has a 4xx status code
-func (o *StartMySQLExplainTraditionalJSONActionOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this start my Sql explain traditional Json action Ok response has a 5xx status code
-func (o *StartMySQLExplainTraditionalJSONActionOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this start my Sql explain traditional Json action Ok response a status code equal to that given
-func (o *StartMySQLExplainTraditionalJSONActionOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *StartMySQLExplainTraditionalJSONActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] startMySqlExplainTraditionalJsonActionOk  %+v", 200, o.Payload)
-}
-
-func (o *StartMySQLExplainTraditionalJSONActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] startMySqlExplainTraditionalJsonActionOk  %+v", 200, o.Payload)
 }
 
@@ -126,36 +97,7 @@ func (o *StartMySQLExplainTraditionalJSONActionDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this start my SQL explain traditional JSON action default response has a 2xx status code
-func (o *StartMySQLExplainTraditionalJSONActionDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this start my SQL explain traditional JSON action default response has a 3xx status code
-func (o *StartMySQLExplainTraditionalJSONActionDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this start my SQL explain traditional JSON action default response has a 4xx status code
-func (o *StartMySQLExplainTraditionalJSONActionDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this start my SQL explain traditional JSON action default response has a 5xx status code
-func (o *StartMySQLExplainTraditionalJSONActionDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this start my SQL explain traditional JSON action default response a status code equal to that given
-func (o *StartMySQLExplainTraditionalJSONActionDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *StartMySQLExplainTraditionalJSONActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] StartMySQLExplainTraditionalJSONAction default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *StartMySQLExplainTraditionalJSONActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] StartMySQLExplainTraditionalJSONAction default  %+v", o._statusCode, o.Payload)
 }
 
