@@ -41,11 +41,13 @@ func New() *Service {
 	}
 }
 
+// Client is a wrapper around minio.Client with the bucket name included.
 type Client struct {
 	bucketName string
 	*minio.Client
 }
 
+// FileInfo contains information about a single file in the bucket.
 type FileInfo struct {
 	Name string // with path
 	Size int64
@@ -125,18 +127,17 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 // List provides an abstraction over the minio API to list all objects in the bucket
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
-func (m *Client) List(ctx context.Context, prefix, suffix string) (files []FileInfo, rerr error) {
-	// prfx := path.Join(s.opts.Prefix, prefix)
-	prfx := prefix
-	if prfx != "" && !strings.HasSuffix(prfx, "/") {
-		prfx = prfx + "/"
+func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, error) {
+	var files []FileInfo
+	if prefix != "" && !strings.HasSuffix(prefix, "/") {
+		prefix += "/"
 	}
 
 	var g errgroup.Group
 
 	g.Go(func() error {
 		options := minio.ListObjectsOptions{
-			Prefix:    prfx,
+			Prefix:    prefix,
 			Recursive: true,
 		}
 
@@ -163,18 +164,10 @@ func (m *Client) List(ctx context.Context, prefix, suffix string) (files []FileI
 		return nil
 	})
 
-	defer func() {
-		err := g.Wait()
-		if err == nil {
-			return
-		}
-
-		if rerr != nil {
-			rerr = errors.Wrapf(rerr, "listing objects error: %s", err.Error())
-		} else {
-			rerr = errors.WithStack(err)
-		}
-	}()
+	err := g.Wait()
+	if err != nil {
+		return files, errors.Wrapf(err, "listing objects in bucket")
+	}
 
 	return files, nil
 }
@@ -203,6 +196,7 @@ func (m *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	return file, nil
 }
 
+// NewClient returns a new wrapper around minio.Client.
 func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
 	url, err := models.ParseEndpoint(endpoint)
 	if err != nil {

@@ -56,9 +56,10 @@ type oplogChunk struct {
 
 // Timeline is an internal representation of a PITR Timeline
 type Timeline struct {
-	Start uint32 `json:"start"`
-	End   uint32 `json:"end"`
-	Size  int64  `json:"-"`
+	ReplicaSet string `json:"replica_set"`
+	Start      uint32 `json:"start"`
+	End        uint32 `json:"end"`
+	Size       int64  `json:"-"`
 }
 
 type gap struct {
@@ -111,7 +112,7 @@ func NewPITRStorageService() *PITRStorageService {
 	}
 }
 
-func (ss *PITRStorageService) getPITRTimeRanges(ctx context.Context) ([]*oplogChunk, error) {
+func (ss *PITRStorageService) getPITRArtifacts(ctx context.Context) ([]*oplogChunk, error) {
 	var err error
 	var oplogChunks []*oplogChunk
 
@@ -131,6 +132,7 @@ func (ss *PITRStorageService) getPITRTimeRanges(ctx context.Context) ([]*oplogCh
 		}
 		chunk := pitrMetaFromFileName(f.Name)
 		if chunk != nil {
+			chunk.size = f.Size
 			oplogChunks = append(oplogChunks, chunk)
 		}
 	}
@@ -219,6 +221,9 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet string) (tlines []Timeline, err error) {
 	now := primitive.Timestamp{T: uint32(time.Now().Unix())}
 	var tlns [][]Timeline
+
+	// In PBM, flist is a cache of chunk sizes but we already store chunks in memory and have the sizes set,
+	// hence, we call pitrGetValidTimelines with a nil flist.
 	t, err := ss.pitrGetValidTimelines(ctx, replicaSet, now, nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get PITR timelines for %s replset", replicaSet)
@@ -237,7 +242,7 @@ func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet stri
 // the slice wouldn't be done otherwise.
 // `flist` is a cache of chunk sizes.
 func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs string, until primitive.Timestamp, flist map[string]int64) (tlines []Timeline, err error) {
-	slices, err := ss.getPITRTimeRanges(ctx)
+	slices, err := ss.getPITRArtifacts(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
 	}
@@ -265,6 +270,7 @@ func gettimelines(slices []*oplogChunk) (tlines []Timeline) {
 		prevEnd = s.EndTS
 		tl.End = s.EndTS.T
 		tl.Size += s.size
+		tl.ReplicaSet = s.RS
 	}
 
 	tlines = append(tlines, tl)
@@ -283,7 +289,7 @@ func mergeTimelines(tlns ...[]Timeline) []Timeline {
 		return tlns[0]
 	}
 
-	// First, we define the avaliagble range. It equals to the beginning of the latest start of the first
+	// First, we define the avaliable range. It equals to the beginning of the latest start of the first
 	// Timeline of any set and to the earliest end of the last Timeline of any set. Then define timelines' gaps
 	// merge overlapping and apply resulted gap on the avaliagble range.
 	//
