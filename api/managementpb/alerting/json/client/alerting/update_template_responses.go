@@ -56,36 +56,7 @@ type UpdateTemplateOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this update template Ok response has a 2xx status code
-func (o *UpdateTemplateOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this update template Ok response has a 3xx status code
-func (o *UpdateTemplateOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this update template Ok response has a 4xx status code
-func (o *UpdateTemplateOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this update template Ok response has a 5xx status code
-func (o *UpdateTemplateOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this update template Ok response a status code equal to that given
-func (o *UpdateTemplateOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *UpdateTemplateOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
-}
-
-func (o *UpdateTemplateOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
 }
 
@@ -124,36 +95,7 @@ func (o *UpdateTemplateDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this update template default response has a 2xx status code
-func (o *UpdateTemplateDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this update template default response has a 3xx status code
-func (o *UpdateTemplateDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this update template default response has a 4xx status code
-func (o *UpdateTemplateDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this update template default response has a 5xx status code
-func (o *UpdateTemplateDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this update template default response a status code equal to that given
-func (o *UpdateTemplateDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *UpdateTemplateDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *UpdateTemplateDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] UpdateTemplate default  %+v", o._statusCode, o.Payload)
 }
 
