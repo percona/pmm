@@ -24,6 +24,7 @@ import (
 //go:generate ../../bin/reform
 
 // UserDetails represents user related flags
+//
 //reform:user_flags
 type UserDetails struct {
 	ID   int  `reform:"id,pk"`
