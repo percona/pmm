@@ -732,6 +732,16 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
 		`UPDATE ia_rules SET disabled = TRUE`,
 	},
+	67: {
+		`UPDATE agents
+		SET log_level = 'error'
+		WHERE log_level = 'fatal'
+		AND agent_type IN (
+			'node_exporter',
+			'mysqld_exporter',
+			'postgres_exporter'
+		);`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

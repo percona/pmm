@@ -72,7 +72,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
 
-	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 
 	sort.Strings(args)
 
