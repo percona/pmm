@@ -9,7 +9,7 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
 	github.com/bufbuild/buf v1.7.0
-	github.com/daixiang0/gci v0.6.3
+	github.com/daixiang0/gci v0.7.0
 	github.com/go-delve/delve v1.9.1
 	github.com/go-openapi/runtime v0.24.1
 	github.com/go-openapi/spec v0.20.4
@@ -21,8 +21,8 @@ require (
 	github.com/reviewdog/reviewdog v0.14.1
 	github.com/vektra/mockery v1.1.2
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
-	golang.org/x/tools v0.1.13-0.20220812184215-3f9b119300de
-	golang.org/x/tools/gopls v0.9.4
+	golang.org/x/tools v0.1.13-0.20220908144252-ce397412b6a4
+	golang.org/x/tools/gopls v0.9.5
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.2.0
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/reform.v1 v1.5.1
@@ -175,6 +175,7 @@ require (
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/build v0.0.0-20200616162219-07bebbe343e9 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220726230323-06994584191e // indirect
@@ -184,7 +185,7 @@ require (
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	golang.org/x/vuln v0.0.0-20220725105440-4151a5aca1df // indirect
+	golang.org/x/vuln v0.0.0-20220901221904-62b0186a1058 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
