@@ -89,7 +89,7 @@ telemetry:
     query: sum(count(mysql_info_schema_table_version{engine="InnoDB"}) by (schema,table) * sum (mysql_info_schema_table_size{component=~"data_length|index_length"}) by (schema,table))
     summary: "Data usage of MySQL"
     data:
-      - metric_name: "mysql_space_used"
+      - metric_name: "mysql_innodb_space_used"
         value: 1
 
   - id: MongoDBVersion
