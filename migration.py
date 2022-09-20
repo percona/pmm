@@ -31,8 +31,8 @@ def convert_rule(rule):
         "grafana_alert": {
             "title": rule["name"],
             "condition": "A",
-            "noDataState": "OK",
-            "execErrState": "Alerting",
+            "no_data_state": "OK",
+            "exec_err_state": "Alerting",
             "data": [
                 {
                     "refId": "A",
