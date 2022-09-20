@@ -149,7 +149,7 @@ type AddQANMySQLSlowlogAgentBody struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	QueryLength int32 `json:"query_length,omitempty"`
 
 	// Disable query examples.
@@ -522,7 +522,7 @@ type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit)
 	QueryLength int32 `json:"query_length,omitempty"`
 
 	// True if query examples are disabled.

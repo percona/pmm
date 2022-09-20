@@ -71,7 +71,7 @@ type AddMySQLRequest struct {
 	CustomLabels map[string]string `protobuf:"bytes,15,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	QueryLength int32 `protobuf:"varint,30,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// Disable query examples.
 	DisableQueryExamples bool `protobuf:"varint,17,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`

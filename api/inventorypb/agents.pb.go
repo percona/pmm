@@ -1180,7 +1180,7 @@ type QANMySQLPerfSchemaAgent struct {
 	TlsCert string `protobuf:"bytes,12,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// Password for decrypting tls_cert.
 	TlsKey string `protobuf:"bytes,13,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	QueryLength int32 `protobuf:"varint,16,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `protobuf:"varint,8,opt,name=query_examples_disabled,json=queryExamplesDisabled,proto3" json:"query_examples_disabled,omitempty"`
@@ -1364,7 +1364,7 @@ type QANMySQLSlowlogAgent struct {
 	TlsCert string `protobuf:"bytes,13,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// Password for decrypting tls_cert.
 	TlsKey string `protobuf:"bytes,14,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit)
 	QueryLength int32 `protobuf:"varint,17,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `protobuf:"varint,8,opt,name=query_examples_disabled,json=queryExamplesDisabled,proto3" json:"query_examples_disabled,omitempty"`
@@ -4840,7 +4840,7 @@ type AddQANMySQLPerfSchemaAgentRequest struct {
 	TlsCert string `protobuf:"bytes,11,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// Password for decrypting tls_cert.
 	TlsKey string `protobuf:"bytes,12,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit)
 	QueryLength int32 `protobuf:"varint,14,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// Disable query examples.
 	DisableQueryExamples bool `protobuf:"varint,7,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`
@@ -5154,7 +5154,7 @@ type AddQANMySQLSlowlogAgentRequest struct {
 	TlsCert string `protobuf:"bytes,12,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// Password for decrypting tls_cert.
 	TlsKey string `protobuf:"bytes,13,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	QueryLength int32 `protobuf:"varint,15,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// Disable query examples.
 	DisableQueryExamples bool `protobuf:"varint,7,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`

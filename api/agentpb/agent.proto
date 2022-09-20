@@ -67,7 +67,7 @@ message SetStateRequest {
   message BuiltinAgent {
     inventory.AgentType type = 1;
     string dsn = 2;
-    // Define how many chars can a query have until it's truncated.
+    // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 query_length = 8;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;

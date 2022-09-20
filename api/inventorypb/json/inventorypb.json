@@ -2088,9 +2088,9 @@
                   "x-order": 0
                 },
                 "query_length": {
-                  "description": "Define how many chars can a query have until it's truncated.",
                   "type": "integer",
                   "format": "int32",
+                  "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                   "x-order": 9
                 },
                 "service_id": {
@@ -2195,7 +2195,7 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 10
@@ -2350,7 +2350,7 @@
                   "x-order": 0
                 },
                 "query_length": {
-                  "description": "Define how many chars can a query have until it's truncated.",
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
                   "x-order": 9
@@ -2463,9 +2463,9 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
                       "type": "integer",
                       "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                       "x-order": 10
                     },
                     "service_id": {
@@ -4984,7 +4984,7 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 10
@@ -5207,9 +5207,9 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
                       "type": "integer",
                       "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                       "x-order": 10
                     },
                     "service_id": {
@@ -6789,7 +6789,7 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 10
@@ -6905,9 +6905,9 @@
                       "x-order": 11
                     },
                     "query_length": {
-                      "description": "Define how many chars can a query have until it's truncated.",
                       "type": "integer",
                       "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                       "x-order": 10
                     },
                     "service_id": {
@@ -8358,7 +8358,7 @@
                         "x-order": 11
                       },
                       "query_length": {
-                        "description": "Define how many chars can a query have until it's truncated.",
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 10
@@ -8477,9 +8477,9 @@
                         "x-order": 11
                       },
                       "query_length": {
-                        "description": "Define how many chars can a query have until it's truncated.",
                         "type": "integer",
                         "format": "int32",
+                        "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
                         "x-order": 10
                       },
                       "service_id": {

@@ -3564,7 +3564,7 @@ type SetStateRequest_BuiltinAgent struct {
 
 	Type inventorypb.AgentType `protobuf:"varint,1,opt,name=type,proto3,enum=inventory.AgentType" json:"type,omitempty"`
 	Dsn  string                `protobuf:"bytes,2,opt,name=dsn,proto3" json:"dsn,omitempty"`
-	// Define how many chars can a query have until it's truncated.
+	// Limit query length in QAN (default: server-defined; -1: no limit).
 	QueryLength int32 `protobuf:"varint,8,opt,name=query_length,json=queryLength,proto3" json:"query_length,omitempty"`
 	// Disables query examples for QAN Agents if true.
 	DisableQueryExamples bool `protobuf:"varint,3,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`
