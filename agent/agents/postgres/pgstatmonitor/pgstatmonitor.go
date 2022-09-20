@@ -55,6 +55,7 @@ type PGStatMonitorQAN struct {
 // Params represent Agent parameters.
 type Params struct {
 	DSN                  string
+	QueryLength          int
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	AgentID              string

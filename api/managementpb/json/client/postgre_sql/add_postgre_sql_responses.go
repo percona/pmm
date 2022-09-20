@@ -172,6 +172,9 @@ type AddPostgreSQLBody struct {
 	// If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
 	QANPostgresqlPgstatmonitorAgent bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	QueryLength int32 `json:"query_length,omitempty"`
+
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
 
@@ -991,6 +994,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	QueryLength int32 `json:"query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -1195,6 +1201,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	QueryLength int32 `json:"query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

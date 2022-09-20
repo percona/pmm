@@ -2580,12 +2580,12 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 7
+                  "x-order": 8
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 6
+                  "x-order": 7
                 },
                 "log_level": {
                   "type": "string",
@@ -2599,7 +2599,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat monitor data.",
@@ -2611,6 +2611,12 @@
                   "type": "string",
                   "x-order": 0
                 },
+                "query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 6
+                },
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string",
@@ -2619,7 +2625,7 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
@@ -2629,17 +2635,17 @@
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -2676,7 +2682,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -2695,7 +2701,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2705,11 +2711,17 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
+                      "x-order": 8
+                    },
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 7
                     },
                     "service_id": {
@@ -2730,7 +2742,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -2823,7 +2835,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat statements data.",
@@ -2834,6 +2846,12 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
+                },
+                "query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 8
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -2853,17 +2871,17 @@
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 8
+                  "x-order": 9
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
@@ -2900,7 +2918,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -2919,7 +2937,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2929,7 +2947,13 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2949,17 +2973,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
@@ -5387,7 +5411,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5406,7 +5430,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5416,11 +5440,17 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
+                      "x-order": 8
+                    },
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
                       "x-order": 7
                     },
                     "service_id": {
@@ -5441,7 +5471,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5583,7 +5613,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5602,7 +5632,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5612,7 +5642,13 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
+                    },
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5632,17 +5668,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
@@ -6978,90 +7014,6 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "log_level": {
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "auto",
-                      "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
-                      ],
-                      "x-order": 10
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 9
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
-                      ],
-                      "x-order": 8
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 5
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 6
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string",
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 10
-                },
-                "qan_postgresql_pgstatmonitor_agent": {
-                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
                       "x-order": 8
                     },
                     "disabled": {
@@ -7093,10 +7045,11 @@
                       "type": "string",
                       "x-order": 10
                     },
-                    "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
-                      "type": "boolean",
-                      "x-order": 7
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -7117,6 +7070,101 @@
                         "UNKNOWN"
                       ],
                       "x-order": 9
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 10
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 12
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE",
+                        "UNKNOWN"
+                      ],
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -8553,93 +8601,6 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
-                      },
-                      "disabled": {
-                        "description": "Desired Agent status: enabled (false) or disabled (true).",
-                        "type": "boolean",
-                        "x-order": 2
-                      },
-                      "log_level": {
-                        "type": "string",
-                        "title": "Log level for exporters",
-                        "default": "auto",
-                        "enum": [
-                          "auto",
-                          "fatal",
-                          "error",
-                          "warn",
-                          "info",
-                          "debug"
-                        ],
-                        "x-order": 10
-                      },
-                      "pmm_agent_id": {
-                        "description": "The pmm-agent identifier which runs this instance.",
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "process_exec_path": {
-                        "description": "Path to exec process.",
-                        "type": "string",
-                        "x-order": 9
-                      },
-                      "service_id": {
-                        "description": "Service identifier.",
-                        "type": "string",
-                        "x-order": 3
-                      },
-                      "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                        "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
-                        "enum": [
-                          "AGENT_STATUS_INVALID",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE",
-                          "UNKNOWN"
-                        ],
-                        "x-order": 8
-                      },
-                      "tls": {
-                        "description": "Use TLS for database connections.",
-                        "type": "boolean",
-                        "x-order": 5
-                      },
-                      "tls_skip_verify": {
-                        "description": "Skip TLS certificate and hostname validation.",
-                        "type": "boolean",
-                        "x-order": 6
-                      },
-                      "username": {
-                        "description": "PostgreSQL username for getting pg stat statements data.",
-                        "type": "string",
-                        "x-order": 4
-                      }
-                    }
-                  },
-                  "x-order": 10
-                },
-                "qan_postgresql_pgstatmonitor_agent": {
-                  "type": "array",
-                  "items": {
-                    "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                    "type": "object",
-                    "properties": {
-                      "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "custom_labels": {
-                        "description": "Custom user-assigned labels.",
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "string"
-                        },
                         "x-order": 8
                       },
                       "disabled": {
@@ -8671,10 +8632,11 @@
                         "type": "string",
                         "x-order": 10
                       },
-                      "query_examples_disabled": {
-                        "description": "True if query examples are disabled.",
-                        "type": "boolean",
-                        "x-order": 7
+                      "query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -8695,6 +8657,104 @@
                           "UNKNOWN"
                         ],
                         "x-order": 9
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 7
+                      },
+                      "username": {
+                        "description": "PostgreSQL username for getting pg stat statements data.",
+                        "type": "string",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 10
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "log_level": {
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "auto",
+                        "enum": [
+                          "auto",
+                          "fatal",
+                          "error",
+                          "warn",
+                          "info",
+                          "debug"
+                        ],
+                        "x-order": 12
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "process_exec_path": {
+                        "description": "Path to exec process.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "query_examples_disabled": {
+                        "description": "True if query examples are disabled.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 10
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
