@@ -20,10 +20,11 @@ var defaultQueryLength = 2048
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
 // Also truncate all invalid UTF-8 chars.
 func Query(q string, queryLength int) (query string, truncated bool) {
-	switch queryLength {
-	case -1:
+	if queryLength < 0 {
 		return string([]rune(q)), false
-	case 0:
+	}
+
+	if queryLength == 0 {
 		queryLength = defaultQueryLength
 	}
 
