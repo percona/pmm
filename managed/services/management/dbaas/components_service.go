@@ -49,6 +49,15 @@ type installedComponentsVersion struct {
 	psmdbOperatorVersion  string
 }
 
+// globallyDisabledPSMDBVersions holds a list of versions that might exist in the version service but
+// we want to disable them anyway. For example, MongoDB versions from 5.0 to 5.0.11 are not ment for
+// production environments but we have them in the version service for testing pusposes.
+// These versions are disabled in DBaaS side to prevent problems.
+var globallyDisabledPSMDBVersions = []*goversion.Version{
+	goversion.Must(goversion.NewVersion("5.0.2-1")),
+	goversion.Must(goversion.NewVersion("5.0.4-3")),
+}
+
 // NewComponentsService creates Components Service.
 func NewComponentsService(db *reform.DB, dbaasClient dbaasClient, versionServiceClient versionService) *ComponentsService {
 	l := logrus.WithField("component", "components_service")
@@ -314,14 +323,14 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 			Product:  v.Product,
 			Operator: v.ProductVersion,
 			Matrix: &dbaasv1beta1.Matrix{
-				Mongod:       c.matrix(v.Matrix.Mongod, mongodMinimalVersion, mongod),
-				Pxc:          c.matrix(v.Matrix.Pxc, pxcMinimalVersion, pxc),
-				Pmm:          c.matrix(v.Matrix.Pmm, nil, nil),
-				Proxysql:     c.matrix(v.Matrix.Proxysql, nil, proxySQL),
-				Haproxy:      c.matrix(v.Matrix.Haproxy, nil, haproxy),
-				Backup:       c.matrix(v.Matrix.Backup, nil, nil),
-				Operator:     c.matrix(v.Matrix.Operator, nil, nil),
-				LogCollector: c.matrix(v.Matrix.LogCollector, nil, nil),
+				Mongod:       c.matrix(v.Matrix.Mongod, mongodMinimalVersion, mongod, globallyDisabledPSMDBVersions),
+				Pxc:          c.matrix(v.Matrix.Pxc, pxcMinimalVersion, pxc, nil),
+				Pmm:          c.matrix(v.Matrix.Pmm, nil, nil, nil),
+				Proxysql:     c.matrix(v.Matrix.Proxysql, nil, proxySQL, nil),
+				Haproxy:      c.matrix(v.Matrix.Haproxy, nil, haproxy, nil),
+				Backup:       c.matrix(v.Matrix.Backup, nil, nil, nil),
+				Operator:     c.matrix(v.Matrix.Operator, nil, nil, nil),
+				LogCollector: c.matrix(v.Matrix.LogCollector, nil, nil, nil),
 			},
 		}
 		versions = append(versions, respVersion)
@@ -330,7 +339,18 @@ func (c ComponentsService) versions(ctx context.Context, params componentsParams
 	return versions, nil
 }
 
-func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version, kc *models.Component) map[string]*dbaasv1beta1.Component {
+func isGloballyDisabled(ver *goversion.Version, globallyDisabledVersions []*goversion.Version) bool {
+	for _, disabledVersion := range globallyDisabledVersions {
+		if ver.Equal(disabledVersion) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version,
+	kc *models.Component, globallyDisabledVersions []*goversion.Version) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
@@ -344,6 +364,10 @@ func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion 
 		if minimalVersion != nil && parsedVersion.LessThan(minimalVersion) {
 			continue
 		}
+		if isGloballyDisabled(parsedVersion, globallyDisabledVersions) {
+			continue
+		}
+
 		result[v] = &dbaasv1beta1.Component{
 			ImagePath: component.ImagePath,
 			ImageHash: component.ImageHash,
