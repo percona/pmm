@@ -15,6 +15,7 @@
 // Package docker holds the "pmm server install docker" command
 package docker
 
+// BaseCommand contains all commands for docker.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM server"`
 }

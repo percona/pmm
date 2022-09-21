@@ -80,6 +80,8 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 	return true
 }
 
+var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
+
 func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
 	res, err := http.Get("https://get.docker.com/")
 	if err != nil {
@@ -87,7 +89,7 @@ func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("received HTTP %d when downloading Docker install script", res.StatusCode)
+		return nil, fmt.Errorf("%w: received HTTP %d when downloading Docker install script", ErrInvalidStatusCode, res.StatusCode)
 	}
 
 	return res.Body, nil
@@ -119,7 +121,7 @@ func (b *Base) GetDockerClient() *client.Client {
 
 // FindServerContainers finds all containers running PMM Server.
 func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, error) {
-	return b.Cli.ContainerList(ctx, types.ContainerListOptions{
+	return b.Cli.ContainerList(ctx, types.ContainerListOptions{ //nolint:exhaustruct
 		All: true,
 		Filters: filters.NewArgs(filters.KeyValuePair{
 			Key:   "label",
@@ -132,7 +134,7 @@ func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, err
 func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPassword string) error {
 	logrus.Info("Changing password")
 
-	exec, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+	exec, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{ //nolint:exhaustruct
 		Cmd:          []string{"change-admin-password", newPassword},
 		Tty:          true,
 		AttachStderr: true,
@@ -151,6 +153,7 @@ func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPasswor
 	return nil
 }
 
+// WaitHealthyResponse holds information about container being healthy.
 type WaitHealthyResponse struct {
 	Healthy bool
 	Error   error
@@ -193,12 +196,14 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 		return "", err
 	}
 
-	if err := b.Cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
+	if err := b.Cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil { //nolint:exhaustruct
 		return "", err
 	}
 
 	return res.ID, nil
 }
+
+var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.
 func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
@@ -210,10 +215,10 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 	}
 
 	if len(v.Volumes) != 0 {
-		return nil, fmt.Errorf("Docker volume with name %q already exists", volumeName)
+		return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
 	}
 
-	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{
+	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
 		Name: volumeName,
 		Labels: map[string]string{
 			"percona.pmm": "server",

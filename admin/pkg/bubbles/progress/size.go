@@ -63,8 +63,7 @@ func (m SizeModel) Init() tea.Cmd {
 func (m SizeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch keypress := msg.String(); keypress {
-		case "ctrl+c":
+		if keypress := msg.String(); keypress == "ctrl+c" {
 			m.Quitting = true
 			return m, tea.Quit
 		}
@@ -81,35 +80,39 @@ func (m SizeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case UpdateProgressMsg:
-		ix := -1
-		for k, p := range m.progressBars {
-			if p.ID == msg.ID {
-				ix = k
-				break
-			}
-		}
-
-		if ix == -1 {
-			p := size{
-				progress:       progress.New(progress.WithDefaultGradient()),
-				SizeProperties: SizeProperties{ID: msg.ID},
-			}
-			m.progressBars = append(m.progressBars, p)
-			ix = len(m.progressBars) - 1
-		}
-
-		p := m.progressBars[ix]
-		p.Current = msg.Current
-		p.Total = msg.Total
-		p.Prefix = msg.Prefix
-		p.Suffix = msg.Suffix
-		m.progressBars[ix] = p
-
-		return m, nil
+		return m.processUpdateProgressMsg(msg)
 
 	default:
 		return m, nil
 	}
+}
+
+func (m SizeModel) processUpdateProgressMsg(msg UpdateProgressMsg) (tea.Model, tea.Cmd) {
+	ix := -1
+	for k, p := range m.progressBars {
+		if p.ID == msg.ID {
+			ix = k
+			break
+		}
+	}
+
+	if ix == -1 {
+		p := size{
+			progress:       progress.New(progress.WithDefaultGradient()),
+			SizeProperties: SizeProperties{ID: msg.ID}, //nolint:exhaustruct
+		}
+		m.progressBars = append(m.progressBars, p)
+		ix = len(m.progressBars) - 1
+	}
+
+	p := m.progressBars[ix]
+	p.Current = msg.Current
+	p.Total = msg.Total
+	p.Prefix = msg.Prefix
+	p.Suffix = msg.Suffix
+	m.progressBars[ix] = p
+
+	return m, nil
 }
 
 // View renders the model.
@@ -132,6 +135,9 @@ func (m SizeModel) View() string {
 
 // NewSize creates new model.
 func NewSize() SizeModel {
-	m := SizeModel{progressBars: []size{}}
+	m := SizeModel{
+		progressBars: []size{},
+		Quitting:     false,
+	}
 	return m
 }

@@ -34,7 +34,7 @@ func (b *Base) PullImage(ctx context.Context, dockerImage string, opts types.Ima
 // StatusMsg is a struct to unmarshal Docker json status to.
 type StatusMsg struct {
 	Status         string `json:"status"`
-	Id             string `json:"id"`
+	ID             string `json:"id"`
 	ProgressDetail *struct {
 		Current *int `json:"current"`
 		Total   *int `json:"total"`
@@ -52,8 +52,10 @@ func (b *Base) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struc
 
 		scanner := bufio.NewScanner(r)
 		for scanner.Scan() {
-			s := StatusMsg{}
-			json.Unmarshal(scanner.Bytes(), &s)
+			var s *StatusMsg
+			if err := json.Unmarshal(scanner.Bytes(), &s); err != nil {
+				continue
+			}
 
 			if s.ProgressDetail == nil {
 				continue
@@ -69,10 +71,10 @@ func (b *Base) ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struc
 
 			p.Send(progress.UpdateProgressMsg{
 				SizeProperties: progress.SizeProperties{
-					ID:      s.Id,
+					ID:      s.ID,
 					Total:   total,
 					Current: current,
-					Prefix:  s.Id,
+					Prefix:  s.ID,
 					Suffix:  s.Status,
 				},
 			})

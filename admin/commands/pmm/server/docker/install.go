@@ -66,25 +66,14 @@ User: admin
 Password: ` + r.adminPassword
 }
 
+var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
+
 // RunCmd runs install command.
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
 	logrus.Info("Starting PMM Server installation in Docker")
 
-	if c.dockerFn == nil {
-		d, err := docker.New(nil)
-		if err != nil {
-			return nil, err
-		}
-
-		c.dockerFn = d
-	}
-
-	if err := c.installDocker(); err != nil {
+	if err := c.prepareDocker(ctx); err != nil {
 		return nil, err
-	}
-
-	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return nil, fmt.Errorf("Docker is either not running or this user has no access to Docker. Try running as root.")
 	}
 
 	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
@@ -119,6 +108,27 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	return &installResult{
 		adminPassword: c.AdminPassword,
 	}, nil
+}
+
+func (c *InstallCommand) prepareDocker(ctx context.Context) error {
+	if c.dockerFn == nil {
+		d, err := docker.New(nil)
+		if err != nil {
+			return err
+		}
+
+		c.dockerFn = d
+	}
+
+	if err := c.installDocker(); err != nil {
+		return err
+	}
+
+	if !c.dockerFn.HaveDockerAccess(ctx) {
+		return fmt.Errorf("%w: docker is either not running or this user has no access to Docker. Try running as root", ErrDockerNoAccess)
+	}
+
+	return nil
 }
 
 func (c *InstallCommand) installDocker() error {
@@ -186,7 +196,10 @@ func (c *InstallCommand) pullImage(ctx context.Context, globals *flags.GlobalFla
 	}
 
 	if globals.JSON {
-		io.Copy(os.Stdout, reader)
+		_, err := io.Copy(os.Stdout, reader)
+		if err != nil {
+			logrus.Error(err)
+		}
 		return nil, nil
 	}
 
