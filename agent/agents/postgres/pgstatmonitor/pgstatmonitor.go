@@ -437,6 +437,16 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 }
 
 func (m *PGStatMonitorQAN) checkErrorsView(ctx context.Context) error {
+	vPGSM, _, err := getPGMonitorVersion(m.q)
+	if err != nil {
+		return errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
+	}
+
+	// Errors view is supported in PGSM 2.0 and higher.
+	if vPGSM < pgStatMonitorVersion20PG12 {
+		return nil
+	}
+
 	row := &pgStatMonitorErrors{}
 	rows, err := m.q.SelectRows(pgStatMonitorErrorsView, "")
 	if err != nil {
