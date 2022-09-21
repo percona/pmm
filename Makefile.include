@@ -1,3 +1,6 @@
+# vim: ts=8:sw=8:ft=make:noai:noet
+SWAGGER_UI_VERSION?=latest
+
 .PHONY: default init release gen test clean all
 default: help
 
@@ -34,7 +37,7 @@ gen: clean            ## Generate files.
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -54,10 +57,11 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/alerting, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
+		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
 		api/managementpb/json/managementpb.json
 	bin/swagger validate api/swagger/swagger.json
@@ -68,10 +72,12 @@ gen: clean            ## Generate files.
 	bin/swagger mixin --output=api/swagger/swagger-dev.json \
 		api/swagger/header-dev.json \
 		api/serverpb/json/serverpb.json \
+		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
 		api/managementpb/json/managementpb.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -85,6 +91,7 @@ gen: clean            ## Generate files.
 		api/swagger/header-dev.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -110,11 +117,25 @@ gen-alertmanager:     # Generate Alertmanager client.
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete
 
+
+ifeq ($(shell test "${SWAGGER_UI_VERSION}" = "latest" && echo 1 || echo 0), 1)
+get_swagger_version:
+override SWAGGER_UI_VERSION = $(shell curl --silent --head https://github.com/swagger-api/swagger-ui/releases/latest | grep -E '^[lL]ocation' | sed 's;^.*/;;')
+else
+get_swagger_version:
+endif
+
+update-swagger: get_swagger_version               ## Update Swagger UI in api/swagger, use `SWAGGER_UI_VERSION=xxx make update-swagger` to choose a version other than latest.
+	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
+	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;api/swagger/;g'
+	rm -f api/swagger/.npmrc
+	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' api/swagger/swagger-initializer.js
+
 clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json

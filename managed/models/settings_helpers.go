@@ -249,26 +249,26 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableAlerting {
-		settings.IntegratedAlerting.Enabled = false
+		settings.Alerting.Disabled = true
 	}
 
 	if params.EnableAlerting {
-		settings.IntegratedAlerting.Enabled = true
+		settings.Alerting.Disabled = false
 	}
 
 	if params.RemoveEmailAlertingSettings {
-		settings.IntegratedAlerting.EmailAlertingSettings = nil
+		settings.Alerting.EmailAlertingSettings = nil
 	}
 
 	if params.RemoveSlackAlertingSettings {
-		settings.IntegratedAlerting.SlackAlertingSettings = nil
+		settings.Alerting.SlackAlertingSettings = nil
 	}
 
 	if params.EmailAlertingSettings != nil {
-		settings.IntegratedAlerting.EmailAlertingSettings = params.EmailAlertingSettings
+		settings.Alerting.EmailAlertingSettings = params.EmailAlertingSettings
 	}
 	if params.SlackAlertingSettings != nil {
-		settings.IntegratedAlerting.SlackAlertingSettings = params.SlackAlertingSettings
+		settings.Alerting.SlackAlertingSettings = params.SlackAlertingSettings
 	}
 
 	if params.DisableBackupManagement {

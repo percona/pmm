@@ -25,9 +25,19 @@ import (
 // Log level available in exporters with pmm 2.28
 var exporterLogLevelCommandVersion = version.MustParse("2.27.99")
 
-func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed) []string {
-	if pointer.GetString(logLevel) != "" && !pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
-		args = append(args, "--log.level="+pointer.GetString(logLevel))
+// withLogLevel - append CLI args --log.level
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
+	level := pointer.GetString(logLevel)
+
+	if level != "" && !pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
+		// exists exporters that not support --log.level=fatal anymore after last update
+		// so replace "fatal" to "error" for previous stored state
+		if !supportLogLevelFatal && level == "fatal" {
+			level = "error"
+		}
+
+		args = append(args, "--log.level="+level)
 	}
 
 	return args

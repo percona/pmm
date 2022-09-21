@@ -16,7 +16,6 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -43,53 +42,55 @@ func (res *addPostgreSQLResult) String() string {
 	return commands.RenderTemplate(addPostgreSQLResultT, res)
 }
 
-type addPostgreSQLCommand struct {
-	Address             string
-	Socket              string
-	Username            string
-	Password            string
-	Database            string
-	AgentPassword       string
-	CredentialsSource   string
-	SkipConnectionCheck bool
+// AddPostgreSQLCommand is used by Kong for CLI flags and commands.
+type AddPostgreSQLCommand struct {
+	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
+	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Socket            string `help:"Path to socket"`
+	Username          string `default:"postgres" help:"PostgreSQL username"`
+	Password          string `help:"PostgreSQL password"`
+	Database          string `help:"PostgreSQL database"`
+	AgentPassword     string `help:"Custom password for /metrics endpoint"`
+	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
+	NodeID            string `help:"Node ID (default is autodetected)"`
+	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	// TODO add "auto"
+	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
+	Environment          string            `help:"Environment name"`
+	Cluster              string            `help:"Cluster name"`
+	ReplicationSet       string            `help:"Replication set name"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	TLS                  bool              `help:"Use TLS to connect to the database"`
+	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
+	TLSCertFile          string            `help:"TLS certificate file"`
+	TLSKeyFile           string            `help:"TLS certificate key file"`
+	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
+	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
-	NodeID            string
-	PMMAgentID        string
-	ServiceName       string
-	Environment       string
-	Cluster           string
-	ReplicationSet    string
-	CustomLabels      string
-	MetricsMode       string
-	DisableCollectors string
-
-	QuerySource          string
-	DisableQueryExamples bool
-
-	TLS           bool
-	TLSSkipVerify bool
-	TLSCAFile     string
-	TLSCertFile   string
-	TLSKeyFile    string
+	AddCommonFlags
+	AddLogLevelNoFatalFlags
 }
 
-func (cmd *addPostgreSQLCommand) GetServiceName() string {
+func (cmd *AddPostgreSQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
-func (cmd *addPostgreSQLCommand) GetAddress() string {
+func (cmd *AddPostgreSQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
-func (cmd *addPostgreSQLCommand) GetDefaultAddress() string {
+func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
-func (cmd *addPostgreSQLCommand) GetSocket() string {
+func (cmd *AddPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
-func (cmd *addPostgreSQLCommand) GetCredentials() error {
+func (cmd *AddPostgreSQLCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -102,11 +103,8 @@ func (cmd *addPostgreSQLCommand) GetCredentials() error {
 	return nil
 }
 
-func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -121,7 +119,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +192,7 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:             &addLogLevel,
+			LogLevel:             &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -206,54 +204,4 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 	return &addPostgreSQLResult{
 		Service: resp.Payload.Service,
 	}, nil
-}
-
-// register command
-var (
-	AddPostgreSQL  addPostgreSQLCommand
-	AddPostgreSQLC = AddC.Command("postgresql", "Add PostgreSQL to monitoring")
-)
-
-func init() {
-	hostname, _ := os.Hostname()
-	serviceName := hostname + "-postgresql"
-	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
-	AddPostgreSQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddPostgreSQL.ServiceName)
-
-	AddPostgreSQLC.Arg("address", "PostgreSQL address and port (default: 127.0.0.1:5432)").StringVar(&AddPostgreSQL.Address)
-	AddPostgreSQLC.Flag("socket", "Path to socket").StringVar(&AddPostgreSQL.Socket)
-	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
-	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
-	AddPostgreSQLC.Flag("database", "PostgreSQL database").StringVar(&AddPostgreSQL.Database)
-	AddPostgreSQLC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddPostgreSQL.AgentPassword)
-	AddPostgreSQLC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddPostgreSQL.CredentialsSource)
-
-	AddPostgreSQLC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddPostgreSQL.NodeID)
-	AddPostgreSQLC.Flag("pmm-agent-id", "The pmm-agent identifier which runs this instance (default is autodetected)").StringVar(&AddPostgreSQL.PMMAgentID)
-
-	querySources := []string{"pgstatements", "pgstatmonitor", "none"} // TODO add "auto"
-	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
-	AddPostgreSQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddPostgreSQL.QuerySource, querySources...)
-
-	AddPostgreSQLC.Flag("environment", "Environment name").StringVar(&AddPostgreSQL.Environment)
-	AddPostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddPostgreSQL.Cluster)
-	AddPostgreSQLC.Flag("replication-set", "Replication set name").StringVar(&AddPostgreSQL.ReplicationSet)
-	AddPostgreSQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddPostgreSQL.CustomLabels)
-
-	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
-
-	AddPostgreSQLC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddPostgreSQL.TLS)
-	AddPostgreSQLC.Flag("tls-ca-file", "TLS CA certificate file").StringVar(&AddPostgreSQL.TLSCAFile)
-	AddPostgreSQLC.Flag("tls-cert-file", "TLS certificate file").StringVar(&AddPostgreSQL.TLSCertFile)
-	AddPostgreSQLC.Flag("tls-key-file", "TLS certificate key file").StringVar(&AddPostgreSQL.TLSKeyFile)
-	AddPostgreSQLC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddPostgreSQL.TLSSkipVerify)
-
-	AddPostgreSQLC.Flag("disable-queryexamples", "Disable collection of query examples").BoolVar(&AddPostgreSQL.DisableQueryExamples)
-	AddPostgreSQLC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").
-		Default("auto").
-		EnumVar(&AddPostgreSQL.MetricsMode, metricsModes...)
-	AddPostgreSQLC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&AddPostgreSQL.DisableCollectors)
-
-	addGlobalFlags(AddPostgreSQLC)
 }

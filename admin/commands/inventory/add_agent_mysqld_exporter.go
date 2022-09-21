@@ -78,33 +78,35 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	return s
 }
 
-type addAgentMysqldExporterCommand struct {
-	PMMAgentID                string
-	ServiceID                 string
-	Username                  string
-	Password                  string
-	AgentPassword             string
-	CustomLabels              string
-	SkipConnectionCheck       bool
-	TLS                       bool
-	TLSSkipVerify             bool
-	TLSCaFile                 string
-	TLSCertFile               string
-	TLSKeyFile                string
-	TablestatsGroupTableLimit int32
-	PushMetrics               bool
-	DisableCollectors         string
+// AddAgentMysqldExporterCommand is used by Kong for CLI flags and commands.
+type AddAgentMysqldExporterCommand struct {
+	PMMAgentID                string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
+	ServiceID                 string            `arg:"" help:"Service identifier"`
+	Username                  string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
+	Password                  string            `help:"MySQL password for scraping metrics"`
+	AgentPassword             string            `help:"Custom password for /metrics endpoint"`
+	CustomLabels              map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck       bool              `help:"Skip connection check"`
+	TLS                       bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify             bool              `help:"Skip TLS certificates validation"`
+	TLSCAFile                 string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
+	TLSCertFile               string            `name:"tls-cert" help:"Path to client certificate file"`
+	TLSKeyFile                string            `name:"tls-key" help:"Path to client key file"`
+	TablestatsGroupTableLimit int32             `placeholder:"number" help:"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)"`
+	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	LogLevel                  string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
 }
 
-func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	var tlsCa, tlsCert, tlsKey string
+	var (
+		err                    error
+		tlsCa, tlsCert, tlsKey string
+	)
 	if cmd.TLS {
-		tlsCa, err = commands.ReadFile(cmd.TLSCaFile)
+		tlsCa, err = commands.ReadFile(cmd.TLSCAFile)
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +139,7 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
 			PushMetrics:               cmd.PushMetrics,
 			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &addExporterLogLevel,
+			LogLevel:                  &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}
@@ -150,33 +152,4 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 		Agent:      resp.Payload.MysqldExporter,
 		TableCount: resp.Payload.TableCount,
 	}, nil
-}
-
-// register command
-var (
-	AddAgentMysqldExporter  addAgentMysqldExporterCommand
-	AddAgentMysqldExporterC = addAgentC.Command("mysqld-exporter", "Add mysqld_exporter to inventory").Hide(hide)
-)
-
-func init() {
-	AddAgentMysqldExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").Required().StringVar(&AddAgentMysqldExporter.PMMAgentID)
-	AddAgentMysqldExporterC.Arg("service-id", "Service identifier").Required().StringVar(&AddAgentMysqldExporter.ServiceID)
-	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentMysqldExporter.Username)
-	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentMysqldExporter.Password)
-	AddAgentMysqldExporterC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&AddAgentMysqldExporter.AgentPassword)
-	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMysqldExporter.CustomLabels)
-	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
-	AddAgentMysqldExporterC.Flag("tls", "Use TLS to connect to the database").BoolVar(&AddAgentMysqldExporter.TLS)
-	AddAgentMysqldExporterC.Flag("tls-skip-verify", "Skip TLS certificates validation").BoolVar(&AddAgentMysqldExporter.TLSSkipVerify)
-	AddAgentMysqldExporterC.Flag("tls-ca", "Path to certificate authority certificate file").StringVar(&AddAgentMysqldExporter.TLSCaFile)
-	AddAgentMysqldExporterC.Flag("tls-cert", "Path to client certificate file").StringVar(&AddAgentMysqldExporter.TLSCertFile)
-	AddAgentMysqldExporterC.Flag("tls-key", "Path to client key file").StringVar(&AddAgentMysqldExporter.TLSKeyFile)
-	AddAgentMysqldExporterC.Flag("tablestats-group-table-limit",
-		"Tablestats group collectors will be disabled if there are more than that number of tables (default: 0 - always enabled; negative value - always disabled)").
-		Int32Var(&AddAgentMysqldExporter.TablestatsGroupTableLimit)
-	AddAgentMysqldExporterC.Flag("push-metrics", "Enables push metrics model flow,"+
-		" it will be sent to the server by an agent").BoolVar(&AddAgentMysqldExporter.PushMetrics)
-	AddAgentMysqldExporterC.Flag("disable-collectors",
-		"Comma-separated list of collector names to exclude from exporter").StringVar(&AddAgentMysqldExporter.DisableCollectors)
-	addExporterGlobalFlags(AddAgentMysqldExporterC)
 }

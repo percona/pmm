@@ -8,8 +8,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "managementpb/dbaas/dbaas.proto";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 message KubeAuth {
   // Kubeconfig file content.

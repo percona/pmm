@@ -27,6 +27,8 @@ import (
 )
 
 var (
+	v20 = version.Must(version.NewVersion("2.0.0"))
+	v11 = version.Must(version.NewVersion("1.1.0"))
 	v10 = version.Must(version.NewVersion("1.0.0"))
 	v09 = version.Must(version.NewVersion("0.9"))
 	v08 = version.Must(version.NewVersion("0.8"))
@@ -105,7 +107,7 @@ type field struct {
 	pointer interface{}
 }
 
-func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
@@ -130,24 +132,24 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 		{info: parse.FieldInfo{Name: "CPUSysTime", Type: "float64", Column: "cpu_sys_time"}, pointer: &s.CPUSysTime},
 	}
 
-	if v == pgStatMonitorVersion06 {
+	if vPGSM == pgStatMonitorVersion06 {
 		// versions older than 0.8
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "tables_names"}, pointer: &s.Relations},
 			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID},
 			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID})
 	}
-	if v <= pgStatMonitorVersion08 {
+	if vPGSM <= pgStatMonitorVersion08 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows"}, pointer: &s.Rows})
 	}
-	if v >= pgStatMonitorVersion08 {
+	if vPGSM >= pgStatMonitorVersion08 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "relations"}, pointer: &s.Relations},
 			field{info: parse.FieldInfo{Name: "DatName", Type: "string", Column: "datname"}, pointer: &s.DatName},
 			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "userid"}, pointer: &s.UserName})
 	}
-	if v == pgStatMonitorVersion09 {
+	if vPGSM == pgStatMonitorVersion09 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "PlanTotalTime", Type: "float64", Column: "plan_total_time"}, pointer: &s.PlanTotalTime},
 			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "plan_min_time"}, pointer: &s.PlanMinTime},
@@ -155,7 +157,7 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "plan_mean_time"}, pointer: &s.PlanMeanTime},
 			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
 	}
-	if v >= pgStatMonitorVersion09 {
+	if vPGSM >= pgStatMonitorVersion09 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows_retrieved"}, pointer: &s.Rows},
 			field{info: parse.FieldInfo{Name: "TopQueryID", Type: "*string", Column: "top_queryid"}, pointer: &s.TopQueryID},
@@ -172,7 +174,8 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 			field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
 			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
 	}
-	if v <= pgStatMonitorVersion10PG12 {
+
+	if vPG <= 12 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "TotalTime", Type: "float64", Column: "total_time"}, pointer: &s.TotalTime},
 			field{info: parse.FieldInfo{Name: "MinTime", Type: "float64", Column: "min_time"}, pointer: &s.MinTime},
@@ -180,7 +183,7 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 			field{info: parse.FieldInfo{Name: "MeanTime", Type: "float64", Column: "mean_time"}, pointer: &s.MeanTime},
 			field{info: parse.FieldInfo{Name: "StddevTime", Type: "float64", Column: "stddev_time"}, pointer: &s.StddevTime})
 	}
-	if v >= pgStatMonitorVersion10PG13 {
+	if vPG >= 13 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "TotalTime", Type: "float64", Column: "total_exec_time"}, pointer: &s.TotalTime},
 			field{info: parse.FieldInfo{Name: "MinTime", Type: "float64", Column: "min_exec_time"}, pointer: &s.MinTime},
@@ -209,8 +212,9 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 			Fields:       make([]parse.FieldInfo, len(fields)),
 			PKFieldIndex: -1,
 		},
-		c: make([]string, len(fields)),
-		v: v,
+		c:     make([]string, len(fields)),
+		vPGSM: vPGSM,
+		vPG:   vPG,
 	}
 	for i, field := range fields {
 		pgStatMonitorDefaultView.s.Fields[i] = field.info
@@ -224,11 +228,11 @@ func NewPgStatMonitorStructs(v pgStatMonitorVersion, p pgStatMonitorPrerelease) 
 
 //
 type pgStatMonitorAllViewType struct {
-	s parse.StructInfo
-	z []interface{}
-	c []string
-	v pgStatMonitorVersion
-	p pgStatMonitorPrerelease
+	s     parse.StructInfo
+	z     []interface{}
+	c     []string
+	vPGSM pgStatMonitorVersion
+	vPG   pgVersion
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -248,7 +252,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 
 // NewStruct makes a new struct for that view or table.
 func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
-	str, _ := NewPgStatMonitorStructs(v.v, v.p)
+	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
 	return str
 }
 

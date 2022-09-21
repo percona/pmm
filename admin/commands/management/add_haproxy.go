@@ -16,7 +16,6 @@ package management
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -44,24 +43,25 @@ func (res *addHAProxyResult) String() string {
 	return commands.RenderTemplate(addHAProxyResultT, res)
 }
 
-type addHAProxyCommand struct {
-	ServiceName         string
-	Username            string
-	Password            string
-	CredentialsSource   string
-	Scheme              string
-	MetricsPath         string
-	ListenPort          uint16
-	NodeID              string
-	Environment         string
-	Cluster             string
-	ReplicationSet      string
-	CustomLabels        string
-	MetricsMode         string
-	SkipConnectionCheck bool
+// AddHAProxyCommand is used by Kong for CLI flags and commands.
+type AddHAProxyCommand struct {
+	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
+	Username            string            `help:"HAProxy username"`
+	Password            string            `help:"HAProxy password"`
+	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
+	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
+	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
+	NodeID              string            `help:"Node ID (default is autodetected)"`
+	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
+	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
+	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	SkipConnectionCheck bool              `help:"Skip connection check"`
 }
 
-func (cmd *addHAProxyCommand) GetCredentials() error {
+func (cmd *AddHAProxyCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -73,16 +73,13 @@ func (cmd *addHAProxyCommand) GetCredentials() error {
 	return nil
 }
 
-func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
+func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {
 		return nil, err
 	}
 
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -130,41 +127,4 @@ func (cmd *addHAProxyCommand) Run() (commands.Result, error) {
 	return &addHAProxyResult{
 		Service: resp.Payload.Service,
 	}, nil
-}
-
-// register command
-var (
-	AddHAProxy  addHAProxyCommand
-	AddHAProxyC = AddC.Command("haproxy", "Add HAProxy to monitoring")
-)
-
-func init() {
-	hostname, _ := os.Hostname()
-	defaultServiceName := hostname + "-haproxy"
-	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", defaultServiceName)
-	AddHAProxyC.Arg("name", serviceNameHelp).Default(defaultServiceName).StringVar(&AddHAProxy.ServiceName)
-
-	AddHAProxyC.Flag("username", "HAProxy username").StringVar(&AddHAProxy.Username)
-	AddHAProxyC.Flag("password", "HAProxy password").StringVar(&AddHAProxy.Password)
-	AddHAProxyC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddHAProxy.CredentialsSource)
-
-	AddHAProxyC.Flag("scheme", "Scheme to generate URI to exporter metrics endpoints").
-		PlaceHolder("http or https").StringVar(&AddHAProxy.Scheme)
-	AddHAProxyC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URI").
-		PlaceHolder("/metrics").StringVar(&AddHAProxy.MetricsPath)
-	AddHAProxyC.Flag("listen-port", "Listen port of haproxy exposing the metrics for scraping metrics (Required)").Required().Uint16Var(&AddHAProxy.ListenPort)
-
-	AddHAProxyC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&AddHAProxy.NodeID)
-	AddHAProxyC.Flag("environment", "Environment name like 'production' or 'qa'").
-		PlaceHolder("prod").StringVar(&AddHAProxy.Environment)
-	AddHAProxyC.Flag("cluster", "Cluster name").
-		PlaceHolder("east-cluster").StringVar(&AddHAProxy.Cluster)
-	AddHAProxyC.Flag("replication-set", "Replication set name").
-		PlaceHolder("rs1").StringVar(&AddHAProxy.ReplicationSet)
-	AddHAProxyC.Flag("custom-labels", "Custom user-assigned labels. Example: region=east,app=app1").StringVar(&AddHAProxy.CustomLabels)
-	AddHAProxyC.Flag("metrics-mode", "Metrics flow mode, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server").
-		Default("auto").
-		EnumVar(&AddHAProxy.MetricsMode, metricsModes...)
-	AddHAProxyC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddHAProxy.SkipConnectionCheck)
 }

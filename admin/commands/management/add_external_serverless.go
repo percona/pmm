@@ -46,36 +46,49 @@ func (res *addExternalServerlessResult) String() string {
 	return commands.RenderTemplate(addExternalServerlessResultT, res)
 }
 
-type addExternalServerlessCommand struct {
-	Name              string
-	Username          string
-	Password          string
-	CredentialsSource string
-
-	URL         string
-	Scheme      string
-	Address     string
-	Host        string
-	ListenPort  uint16
-	MetricsPath string
-
-	Environment    string
-	Cluster        string
-	ReplicationSet string
-	CustomLabels   string
-	Group          string
-
-	MachineID           string
-	Distro              string
-	ContainerID         string
-	ContainerName       string
-	NodeModel           string
-	Region              string
-	Az                  string
-	SkipConnectionCheck bool
+// AddExternalServerlessCommand is used by Kong for CLI flags and commands.
+type AddExternalServerlessCommand struct {
+	Name                string            `name:"external-name" help:"Service name"`
+	URL                 string            `help:"Full URL to exporter metrics endpoints"`
+	Scheme              string            `placeholder:"https" help:"Scheme to generate URI to exporter metrics endpoints"`
+	Username            string            `help:"External username"`
+	Password            string            `help:"External password"`
+	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	Address             string            `placeholder:"1.2.3.4:9000" help:"External exporter address and port"`
+	Host                string            `placeholder:"1.2.3.4" help:"External exporters hostname or IP address"`
+	ListenPort          uint16            `placeholder:"9999" help:"Listen port of external exporter for scraping metrics"`
+	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URL"`
+	Environment         string            `placeholder:"testing" help:"Environment name"`
+	Cluster             string            `help:"Cluster name"`
+	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
+	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
+	MachineID           string            `help:"Node machine-id"`
+	Distro              string            `help:"Node OS distribution"`
+	ContainerID         string            `help:"Container ID"`
+	ContainerName       string            `help:"Container name"`
+	NodeModel           string            `help:"Node model"`
+	Region              string            `help:"Node region"`
+	Az                  string            `help:"Node availability zone"`
+	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 }
 
-func (cmd *addExternalServerlessCommand) GetCredentials() error {
+// Help returns cli usage help.
+func (cmd *AddExternalServerlessCommand) Help() string {
+	return `Usage example:
+sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics
+
+Also, individual parameters can be set instead of --url like:
+sudo pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125
+
+Notice that some parameters are mandatory depending on the context. 
+For example, if you specify --url, --schema and other related parameters are not mandatory but,
+if you specify --host you must provide all other parameters needed to build the destination URL 
+or even you can specify --address instead of host and port as individual parameters.
+`
+}
+
+func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -87,11 +100,8 @@ func (cmd *addExternalServerlessCommand) GetCredentials() error {
 	return nil
 }
 
-func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
-	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
-	if err != nil {
-		return nil, err
-	}
+func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
+	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	scheme, metricsPath, address, port, err := cmd.processURLFlags()
 	if err != nil {
@@ -154,7 +164,7 @@ func (cmd *addExternalServerlessCommand) Run() (commands.Result, error) {
 	}, nil
 }
 
-func (cmd *addExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
+func (cmd *AddExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
 	scheme = cmd.Scheme
 	address = cmd.Host
 	port = cmd.ListenPort
@@ -191,72 +201,4 @@ func (cmd *addExternalServerlessCommand) processURLFlags() (scheme, metricsPath,
 	}
 
 	return scheme, metricsPath, address, port, nil
-}
-
-const (
-	serverlessHelp = `Add External Service on Remote node to monitoring.
-
-Usage example:
-sudo pmm-admin add external-serverless --url=http://1.2.3.4:9093/metrics
-
-Also, individual parameters can be set instead of --url like:
-sudo pmm-admin add external-serverless --scheme=http --host=1.2.3.4 --listen-port=9093 --metrics-path=/metrics --container-name=ddd --external-name=e125
-
-Notice that some parameters are mandatory depending on the context. 
-For example, if you specify --url, --schema and other related parameters are not mandatory but,
-if you specify --host you must provide all other parameters needed to build the destination URL 
-or even you can specify --address instead of host and port as individual parameters.
-`
-)
-
-// register command.
-var (
-	AddExternalServerless  addExternalServerlessCommand
-	AddExternalServerlessC = AddC.Command("external-serverless", serverlessHelp)
-)
-
-func init() {
-	AddExternalServerlessC.Flag("external-name", "Service name").StringVar(&AddExternalServerless.Name)
-
-	AddExternalServerlessC.Flag("url", "Full URL to exporter metrics endpoints").StringVar(&AddExternalServerless.URL)
-	AddExternalServerlessC.Flag("scheme", "Scheme to generate URL to exporter metrics endpoints").
-		PlaceHolder("https").StringVar(&AddExternalServerless.Scheme)
-
-	AddExternalServerlessC.Flag("username", "External username").StringVar(&AddExternalServerless.Username)
-	AddExternalServerlessC.Flag("password", "External password").StringVar(&AddExternalServerless.Password)
-	AddExternalServerlessC.Flag("credentials-source", "Credentials provider").ExistingFileVar(&AddExternalServerless.CredentialsSource)
-
-	AddExternalServerlessC.Flag("address", "External exporter address and port").
-		PlaceHolder("1.2.3.4:9000").StringVar(&AddExternalServerless.Address)
-
-	AddExternalServerlessC.Flag("host", "External exporters hostname or IP address").
-		PlaceHolder("1.2.3.4").StringVar(&AddExternalServerless.Host)
-
-	AddExternalServerlessC.Flag("listen-port", "Listen port of external exporter for scraping metrics.").
-		PlaceHolder("9999").Uint16Var(&AddExternalServerless.ListenPort)
-
-	AddExternalServerlessC.Flag("metrics-path", "Path under which metrics are exposed, used to generate URL.").
-		PlaceHolder("/metrics").StringVar(&AddExternalServerless.MetricsPath)
-
-	AddExternalServerlessC.Flag("environment", "Environment name").
-		PlaceHolder("testing").StringVar(&AddExternalServerless.Environment)
-
-	AddExternalServerlessC.Flag("cluster", "Cluster name").StringVar(&AddExternalServerless.Cluster)
-	AddExternalServerlessC.Flag("replication-set", "Replication set name").
-		PlaceHolder("rs1").StringVar(&AddExternalServerless.ReplicationSet)
-
-	AddExternalServerlessC.Flag("custom-labels", "Custom user-assigned labels").
-		PlaceHolder("'app=myapp,region=s1'").StringVar(&AddExternalServerless.CustomLabels)
-
-	groupHelp := fmt.Sprintf("Group name of external service (default: %s)", defaultGroupExternalExporter)
-	AddExternalServerlessC.Flag("group", groupHelp).Default(defaultGroupExternalExporter).StringVar(&AddExternalServerless.Group)
-
-	AddExternalServerlessC.Flag("machine-id", "Node machine-id").StringVar(&AddExternalServerless.MachineID)
-	AddExternalServerlessC.Flag("distro", "Node OS distribution").StringVar(&AddExternalServerless.Distro)
-	AddExternalServerlessC.Flag("container-id", "Container ID").StringVar(&AddExternalServerless.ContainerID)
-	AddExternalServerlessC.Flag("container-name", "Container name").StringVar(&AddExternalServerless.ContainerName)
-	AddExternalServerlessC.Flag("node-model", "Node model").StringVar(&AddExternalServerless.NodeModel)
-	AddExternalServerlessC.Flag("region", "Node region").StringVar(&AddExternalServerless.Region)
-	AddExternalServerlessC.Flag("az", "Node availability zone").StringVar(&AddExternalServerless.Az)
-	AddExternalServerlessC.Flag("skip-connection-check", "Skip exporter connection checks").BoolVar(&AddExternalServerless.SkipConnectionCheck)
 }

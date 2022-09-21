@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
         may-fail: [ true ]
 
         images:
@@ -112,7 +112,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
+        uses: codecov/codecov-action@v3
         with:
           file: cover.out
           flags: agent
