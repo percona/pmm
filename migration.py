@@ -1,8 +1,6 @@
-#!/usr/bin/python3
-
+#!/usr/bin/env python3
 import argparse
 import json
-
 import requests
 
 
@@ -10,30 +8,32 @@ def prepare_labels(rule):
     if "labels" not in rule:
         return
 
-    labels = rule["labels"]
+    labels = rule.get("labels")
     labels.update({
         "percona_alerting": "1",
-        "severity": rule["severity"].lstrip("SEVERITY_").lower(),
-        "template_name": rule["template_name"]
+        "severity": rule.get("severity", "").lstrip("SEVERITY_").lower(),
+        "template_name": rule.get("template_name", "")
     })
     return labels
 
 
 def prepare_annotations(rule):
-    annotations = rule["annotations"]
-    annotations.update({"rule": rule["name"]})
+    annotations = rule.get("annotations", {})
+    annotations.update({"rule": rule.get("name")})
 
     return annotations
 
 
 def prepare_expression(rule):
-    expr = rule["expr"]
+    expr = rule.get("expr", "")
 
     if "filters" not in rule:
         return expr
 
     for f in rule["filters"]:
-        expr = 'label_match({}, "{}", "{}")'.format(expr, f["key"], f["value"])
+        key = f.get("key", "")
+        value = f.get("value", "")
+        expr = f'label_match({expr}, "{key}", "{value}")'
 
     return expr
 
@@ -41,7 +41,7 @@ def prepare_expression(rule):
 def convert_rule(rule):
     return {
         "grafana_alert": {
-            "title": rule["name"] + "_" + rule["rule_id"],
+            "title": rule.get("name", "") + "_" + rule.get("rule_id", ""),
             "condition": "A",
             "no_data_state": "OK",
             "exec_err_state": "Alerting",
@@ -58,7 +58,7 @@ def convert_rule(rule):
                 },
             ]
         },
-        "for": rule["for"],
+        "for": rule.get("for"),
         "annotations": prepare_annotations(rule),
         "labels": prepare_labels(rule),
     }
@@ -80,20 +80,21 @@ auth = (config["user"], config["password"])
 # Create alert group for migrated rules
 groupURL = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}/{group}'.format(**config)
 groupReq = requests.get(groupURL, auth=auth, verify=config["insecure"])
-alertRulesGroup = json.loads(groupReq.text)
+alertRulesGroup = groupReq.json()
 if "interval" not in alertRulesGroup:
     alertRulesGroup["interval"] = "1m"
 
 # Get Metrics datasource UID
 datasourceURL = '{server_url}/graph/api/datasources/1'.format(**config)
 datasourceReq = requests.get(datasourceURL, auth=auth, verify=config["insecure"])
-datasource = json.loads(datasourceReq.text)
+datasource = datasourceReq.json()
 datasourceUID = datasource["uid"]
 
 # Get existing Integrated Alerting alert rules
 iaRulesURL = '{server_url}/v1/management/ia/Rules/List'.format(**config)
 iaRulesReq = requests.post(iaRulesURL, auth=auth, verify=config["insecure"])
-iaRules = json.loads(iaRulesReq.text)
+iaRules = iaRulesReq.json()
+
 if "rules" not in iaRules:
     print("There are no rules to migrate")
     exit(1)
