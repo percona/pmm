@@ -26,10 +26,22 @@ def prepare_annotations(rule):
     return annotations
 
 
+def prepare_expression(rule):
+    expr = rule["expr"]
+
+    if "filters" not in rule:
+        return expr
+
+    for f in rule["filters"]:
+        expr = 'label_match({}, "{}", "{}")'.format(expr, f["key"], f["value"])
+
+    return expr
+
+
 def convert_rule(rule):
     return {
         "grafana_alert": {
-            "title": rule["name"],
+            "title": rule["name"] + "_" + rule["rule_id"],
             "condition": "A",
             "no_data_state": "OK",
             "exec_err_state": "Alerting",
@@ -39,7 +51,7 @@ def convert_rule(rule):
                     "datasourceUid": datasourceUID,
                     "relativeTimeRange": {"from": 600, "to": 0},
                     "model": {
-                        "expr": rule["expr"],
+                        "expr": prepare_expression(rule),
                         "refId": "A",
                         "instant": True,
                     },
@@ -63,20 +75,14 @@ parser.add_argument("-g", "--group", default="migrated",
                     help="alert group name for migrated alert rules (default: %(default)s)")
 
 config = vars(parser.parse_args())
-
 auth = (config["user"], config["password"])
 
 # Create alert group for migrated rules
 groupURL = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}/{group}'.format(**config)
 groupReq = requests.get(groupURL, auth=auth, verify=config["insecure"])
 alertRulesGroup = json.loads(groupReq.text)
-print(alertRulesGroup)
 if "interval" not in alertRulesGroup:
     alertRulesGroup["interval"] = "1m"
-
-# print(alertRulesGroup)
-# exit(1)
-
 
 # Get Metrics datasource UID
 datasourceURL = '{server_url}/graph/api/datasources/1'.format(**config)
@@ -96,8 +102,7 @@ if "rules" not in iaRules:
 for rule in iaRules["rules"]:
     alertRulesGroup["rules"].append(convert_rule(rule))
 
-print(alertRulesGroup)
 # Update alert group
 rulesURL = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}'.format(**config)
 resp = requests.post(rulesURL, None, alertRulesGroup, auth=auth, verify=config["insecure"])
-print(resp.status_code)
+print(resp.text)
