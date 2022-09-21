@@ -393,9 +393,6 @@ func (o *ListPitrTimelinesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ListPitrTimelinesOKBodyTimelinesItems0
 */
 type ListPitrTimelinesOKBodyTimelinesItems0 struct {
-	// Filename is the filename of the PITR oplog archive.
-	Filename string `json:"filename,omitempty"`
-
 	// ReplicaSet is the name of the replica set that the backup was taken from.
 	ReplicaSet string `json:"replica_set,omitempty"`
 

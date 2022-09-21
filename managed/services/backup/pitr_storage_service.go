@@ -78,30 +78,30 @@ func (x gaps) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
 type compressionType string
 
 const (
-	CompressionTypeNone      compressionType = "none"
-	CompressionTypeGZIP      compressionType = "gzip"
-	CompressionTypePGZIP     compressionType = "pgzip"
-	CompressionTypeSNAPPY    compressionType = "snappy"
-	CompressionTypeLZ4       compressionType = "lz4"
-	CompressionTypeS2        compressionType = "s2"
-	CompressionTypeZstandard compressionType = "zstd"
+	compressionTypeNone      compressionType = "none"
+	compressionTypeGZIP      compressionType = "gzip"
+	compressionTypePGZIP     compressionType = "pgzip"
+	compressionTypeSNAPPY    compressionType = "snappy"
+	compressionTypeLZ4       compressionType = "lz4"
+	compressionTypeS2        compressionType = "s2"
+	compressionTypeZstandard compressionType = "zstd"
 )
 
 // file return compression alg based on given file extension
 func file(ext string) compressionType {
 	switch ext {
 	case "gz":
-		return CompressionTypePGZIP
+		return compressionTypePGZIP
 	case "lz4":
-		return CompressionTypeLZ4
+		return compressionTypeLZ4
 	case "snappy":
-		return CompressionTypeSNAPPY
+		return compressionTypeSNAPPY
 	case "s2":
-		return CompressionTypeS2
+		return compressionTypeS2
 	case "zst":
-		return CompressionTypeZstandard
+		return compressionTypeZstandard
 	default:
-		return CompressionTypeNone
+		return compressionTypeNone
 	}
 }
 
@@ -179,7 +179,7 @@ func pitrMetaFromFileName(f string) *oplogChunk {
 	if len(fparts) == 4 {
 		chnk.Compression = file(fparts[3])
 	} else {
-		chnk.Compression = CompressionTypeNone
+		chnk.Compression = compressionTypeNone
 	}
 
 	start := pitrParseTS(fparts[0])
@@ -358,7 +358,7 @@ func mergeTimelines(tlns ...[]Timeline) []Timeline {
 			break
 		}
 
-		if len(g2) > 0 {
+		if len(g2) != 0 {
 			cend = g2[len(g2)-1].e
 		}
 

@@ -62,8 +62,6 @@ message DeleteArtifactRequest {
 message DeleteArtifactResponse {}
 
 message PitrTimeline {
-  // Filename is the filename of the PITR oplog archive.
-  string filename = 1;
   // ReplicaSet is the name of the replica set that the backup was taken from.
   string replica_set = 2;
   // start_timestamp is the time of the first event in the PITR chunk.

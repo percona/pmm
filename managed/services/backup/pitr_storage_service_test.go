@@ -41,7 +41,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 			expected: &oplogChunk{
 				RS:          "rs0",
 				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-				Compression: CompressionTypeS2,
+				Compression: compressionTypeS2,
 				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
 				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
 			},
@@ -62,7 +62,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 			expected: &oplogChunk{
 				RS:          "rs0",
 				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog",
-				Compression: CompressionTypeNone,
+				Compression: compressionTypeNone,
 				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
 				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
 			},

@@ -28,12 +28,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -46,12 +46,11 @@ func TestListPitrTimelines(t *testing.T) {
 	mockedRemovalSvc := &mockRemovalService{}
 	mockedStorageSvc := &mockPitrStorage{}
 
-	timelines := []*backupv1beta1.PitrTimeline{
+	timelines := []backup.Timeline{
 		{
-			Filename:       "2022.tar.gz",
-			ReplicaSet:     "rs0",
-			StartTimestamp: timestamppb.New(time.Now()),
-			EndTimestamp:   timestamppb.New(time.Now()),
+			ReplicaSet: "rs0",
+			Start:      uint32(time.Now().Unix()),
+			End:        uint32(time.Now().Unix()),
 		},
 	}
 
