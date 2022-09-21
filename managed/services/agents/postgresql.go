@@ -29,12 +29,15 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+var (
+	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+)
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) *agentpb.SetStateRequest_AgentProcess {
+) (*agentpb.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
@@ -69,7 +72,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.DisabledCollectors)
 
-	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
+	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 
 	sort.Strings(args)
 
@@ -85,14 +88,19 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		Args:               args,
 		Env: []string{
 			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, timeout, service.DatabaseName, nil)),
-			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		},
 		TextFiles: exporter.Files(),
 	}
+
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
-	return res
+
+	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion); err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
