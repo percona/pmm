@@ -28,8 +28,8 @@ import (
 
 //go:generate ../../../../../bin/mockery -name=DockerFunctions -case=snake -inpkg -testonly
 
-// DockerFunctions contain methods required to interact with Docker.
-type DockerFunctions interface {
+// Functions contain methods required to interact with Docker.
+type Functions interface {
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
 	CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error)
 	FindServerContainers(ctx context.Context) ([]types.Container, error)

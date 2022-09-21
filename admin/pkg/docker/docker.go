@@ -80,6 +80,7 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 	return true
 }
 
+// ErrInvalidStatusCode is returned when HTTP status is not 200.
 var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
 
 func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
@@ -203,6 +204,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 	return res.ID, nil
 }
 
+// ErrVolumeExists is returned when Docker volume already exists.
 var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.

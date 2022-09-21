@@ -46,7 +46,7 @@ type InstallCommand struct {
 	SkipDockerCheck    bool   `help:"Do not check if Docker is installed."`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
-	dockerFn DockerFunctions
+	dockerFn Functions
 }
 
 type installResult struct {
@@ -66,9 +66,10 @@ User: admin
 Password: ` + r.adminPassword
 }
 
+// ErrDockerNoAccess is returned when there is no access to Docker or Docker is not running.
 var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 
-// RunCmd runs install command.
+// RunCmdWithContext runs install command.
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
 	logrus.Info("Starting PMM Server installation in Docker")
 
