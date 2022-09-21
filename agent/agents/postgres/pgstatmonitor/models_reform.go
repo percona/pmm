@@ -332,9 +332,100 @@ var (
 	_ fmt.Stringer  = (*pgStatMonitorSettingsTextValue)(nil)
 )
 
+type pgStatMonitorErrorsViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *pgStatMonitorErrorsViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("pg_stat_monitor_errors").
+func (v *pgStatMonitorErrorsViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *pgStatMonitorErrorsViewType) Columns() []string {
+	return []string{
+		"severity",
+		"message",
+		"msgtime",
+		"calls",
+	}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *pgStatMonitorErrorsViewType) NewStruct() reform.Struct {
+	return new(pgStatMonitorErrors)
+}
+
+// pgStatMonitorErrorsView represents pg_stat_monitor_errors view or table in SQL database.
+var pgStatMonitorErrorsView = &pgStatMonitorErrorsViewType{
+	s: parse.StructInfo{
+		Type:    "pgStatMonitorErrors",
+		SQLName: "pg_stat_monitor_errors",
+		Fields: []parse.FieldInfo{
+			{Name: "Severity", Type: "string", Column: "severity"},
+			{Name: "Message", Type: "string", Column: "message"},
+			{Name: "MessageTime", Type: "string", Column: "msgtime"},
+			{Name: "Calls", Type: "int64", Column: "calls"},
+		},
+		PKFieldIndex: -1,
+	},
+	z: new(pgStatMonitorErrors).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s pgStatMonitorErrors) String() string {
+	res := make([]string, 4)
+	res[0] = "Severity: " + reform.Inspect(s.Severity, true)
+	res[1] = "Message: " + reform.Inspect(s.Message, true)
+	res[2] = "MessageTime: " + reform.Inspect(s.MessageTime, true)
+	res[3] = "Calls: " + reform.Inspect(s.Calls, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitorErrors) Values() []interface{} {
+	return []interface{}{
+		s.Severity,
+		s.Message,
+		s.MessageTime,
+		s.Calls,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *pgStatMonitorErrors) Pointers() []interface{} {
+	return []interface{}{
+		&s.Severity,
+		&s.Message,
+		&s.MessageTime,
+		&s.Calls,
+	}
+}
+
+// View returns View object for that struct.
+func (s *pgStatMonitorErrors) View() reform.View {
+	return pgStatMonitorErrorsView
+}
+
+// check interfaces
+var (
+	_ reform.View   = pgStatMonitorErrorsView
+	_ reform.Struct = (*pgStatMonitorErrors)(nil)
+	_ fmt.Stringer  = (*pgStatMonitorErrors)(nil)
+)
+
 func init() {
 	parse.AssertUpToDate(&pgStatDatabaseView.s, new(pgStatDatabase))
 	parse.AssertUpToDate(&pgUserView.s, new(pgUser))
 	parse.AssertUpToDate(&pgStatMonitorSettingsView.s, new(pgStatMonitorSettings))
 	parse.AssertUpToDate(&pgStatMonitorSettingsTextValueView.s, new(pgStatMonitorSettingsTextValue))
+	parse.AssertUpToDate(&pgStatMonitorErrorsView.s, new(pgStatMonitorErrors))
 }
