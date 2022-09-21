@@ -62,6 +62,8 @@ var rules = map[string]role{
 	"/v1/Platform/ServerInfo":                     viewer,
 	"/v1/Platform/UserStatus":                     viewer,
 
+	"/v1/user": viewer,
+
 	// must be available without authentication for health checking
 	"/v1/readyz": none,
 	"/ping":      none, // PMM 1.x variant

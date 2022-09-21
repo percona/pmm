@@ -58,7 +58,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	ServiceID            string            `arg:"" help:"Service identifier"`
 	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
 	Password             string            `help:"MySQL password for scraping metrics"`
-	CustomLabels         map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
@@ -66,7 +66,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
-	LogLevel             string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
+	LogLevel             string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
 
 func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {

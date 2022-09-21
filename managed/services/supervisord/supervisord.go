@@ -593,6 +593,22 @@ stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
 
+{{define "prometheus"}}
+[program:prometheus]
+command = /bin/echo Prometheus is substituted by VictoriaMetrics
+user = pmm
+autorestart = false
+autostart = false
+startretries = 10
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/prometheus.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
 {{define "victoriametrics"}}
 [program:victoriametrics]
 priority = 7
@@ -605,10 +621,11 @@ command =
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=1MB
 		--search.latencyOffset=5s
-		--search.maxUniqueTimeseries=60000000
+		--search.maxUniqueTimeseries=100000000
+		--search.maxSamplesPerQuery=1500000000
 		--search.maxQueueDuration=30s
 		--search.logSlowQueryDuration=30s
-		--search.maxQueryDuration=60s
+		--search.maxQueryDuration=90s
 		--promscrape.streamParse=true
 		--prometheusDataPath=/srv/prometheus/data
 		--http.pathPrefix=/prometheus

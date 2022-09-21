@@ -45,7 +45,7 @@ func (res *addPostgreSQLResult) String() string {
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
-	Address           string `arg:"" default:"127.0.0.1:5432" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
 	Socket            string `help:"Path to socket"`
 	Username          string `default:"postgres" help:"PostgreSQL username"`
 	Password          string `help:"PostgreSQL password"`
@@ -59,7 +59,7 @@ type AddPostgreSQLCommand struct {
 	Environment          string            `help:"Environment name"`
 	Cluster              string            `help:"Cluster name"`
 	ReplicationSet       string            `help:"Replication set name"`
-	CustomLabels         map[string]string `help:"Custom user-assigned labels"`
+	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
@@ -71,7 +71,7 @@ type AddPostgreSQLCommand struct {
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 
 	AddCommonFlags
-	AddLogLevelFatalFlags
+	AddLogLevelNoFatalFlags
 }
 
 func (cmd *AddPostgreSQLCommand) GetServiceName() string {
