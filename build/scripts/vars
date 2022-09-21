@@ -50,7 +50,7 @@ source_tarball=${root_dir}/results/source_tarball/pmm2-client-${pmm_version}.tar
 binary_tarball=${root_dir}/results/tarball/pmm2-client-${pmm_version}.tar.gz
 keep_pmm_binary=0
 
-if [[ "${pmm_version}" == xPR-* ]]; then
+if [[ "${pmm_version}" == PR-* ]]; then
     keep_pmm_binary=1
 fi
 
