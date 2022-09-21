@@ -128,6 +128,11 @@ main() {
 
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
+    
+    if [[ $keep_pmm_binary != "1" ]]; then
+        rm -f "${binary_dir}/bin/pmm"
+    fi
+
     tar -C $(dirname ${binary_dir}) -zcpf ${binary_tarball} $(basename ${binary_dir})
 }
 
