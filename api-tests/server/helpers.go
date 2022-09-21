@@ -36,6 +36,7 @@ func restoreSettingsDefaults(t *testing.T) {
 		Body: server.ChangeSettingsBody{
 			EnableStt:       true,
 			EnableTelemetry: true,
+			EnableAlerting:  true,
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",
