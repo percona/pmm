@@ -240,6 +240,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
+		var target *agents.ErrUnsupportedAgent
+		if errors.As(err, &target) {
+			return "", status.Error(codes.FailedPrecondition, target.Error())
+		}
 		return "", err
 	}
 

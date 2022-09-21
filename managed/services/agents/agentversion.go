@@ -16,12 +16,24 @@
 package agents
 
 import (
+	"fmt"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 )
+
+type ErrUnsupportedAgent struct {
+	Functionality string
+	AgentID       string
+	AgentVersion  string
+}
+
+func (e *ErrUnsupportedAgent) Error() string {
+	return fmt.Sprintf("%s is not supported on pmm-agent %q version %q", e.Functionality,
+		e.AgentID, e.AgentVersion)
+}
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
@@ -38,8 +50,11 @@ func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.Errorf("%s is not supported on pmm-agent %q version %q", functionalityPrefix,
-			pmmAgentID, *pmmAgent.Version)
+		return errors.WithStack(&ErrUnsupportedAgent{
+			AgentID:       pmmAgentID,
+			Functionality: functionalityPrefix,
+			AgentVersion:  *pmmAgent.Version,
+		})
 	}
 
 	return nil
