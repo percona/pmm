@@ -23,6 +23,37 @@
 
 - You have an AWS S3 storage account and location details for it.
 
+    !!! note alert alert-primary ""
+        In addition to bucket location details, you will also need to ensure proper S3 permissions.  General minimum permissions
+        are LIST/PUT/GET/DELETE.  A sample IAM policy is:
+
+        ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:ListBucket"
+                    ],
+                    "Resource": "arn:aws:s3:::pmm-backup-testing"
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:PutObject",
+                        "s3:PutObjectAcl",
+                        "s3:GetObject",
+                        "s3:GetObjectAcl",
+                        "s3:DeleteObject"
+                    ],
+                    "Resource": "arn:aws:s3:::pmm-backup-testing/*"
+                }
+            ]
+        }
+        ```
+
+
 - Backup management has been enabled:
 
     1. Select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
