@@ -57,7 +57,6 @@ type pgStatMonitorExtended struct {
 
 	Fingerprint      string
 	Example          string
-	QueryLength      int
 	Database         string
 	Username         string
 	IsQueryTruncated bool
