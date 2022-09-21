@@ -107,7 +107,7 @@ type field struct {
 	pointer interface{}
 }
 
-func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, prereleasePGSM pgStatMonitorPrerelease, vPG pgVersion) (*pgStatMonitor, reform.View) {
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
@@ -196,7 +196,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.PlanMaxTime},
 			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.PlanMeanTime})
 	}
-	if v >= pgStatMonitorVersion08 && v <= pgStatMonitorVersion10PG14 && p != "" {
+	if vPGSM >= pgStatMonitorVersion08 && vPGSM <= pgStatMonitorVersion10PG14 && prereleasePGSM != "" {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString})
 	} else {
@@ -226,13 +226,13 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	return s, pgStatMonitorDefaultView
 }
 
-//
 type pgStatMonitorAllViewType struct {
-	s     parse.StructInfo
-	z     []interface{}
-	c     []string
-	vPGSM pgStatMonitorVersion
-	vPG   pgVersion
+	s              parse.StructInfo
+	z              []interface{}
+	c              []string
+	vPGSM          pgStatMonitorVersion
+	prereleasePGSM pgStatMonitorPrerelease
+	vPG            pgVersion
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -252,7 +252,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 
 // NewStruct makes a new struct for that view or table.
 func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
-	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
+	str, _ := newPgStatMonitorStructs(v.vPGSM, v.prereleasePGSM, v.vPG)
 	return str
 }
 

@@ -89,14 +89,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 	}
 	ssc.l.Infof("pg version = %f", vPG)
 
-	vPGSM, _, err := getPGMonitorVersion(q)
+	vPGSM, prereleasePGSM, err := getPGMonitorVersion(q)
 	if err != nil {
 		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
 		return
 	}
 	ssc.l.Infof("pg monitor version = %d", vPGSM)
 
-	row, view := newPgStatMonitorStructs(vPGSM, vPG)
+	row, view := newPgStatMonitorStructs(vPGSM, prereleasePGSM, vPG)
 	conditions := "WHERE queryid IS NOT NULL AND query IS NOT NULL"
 	if vPGSM >= pgStatMonitorVersion09 && vPGSM < pgStatMonitorVersion20PG12 {
 		// only pg_stat_monitor from 0.9.0 until 2.0.0 supports state_code. It tells what is the query's current state.
@@ -127,7 +127,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 			c.Database = databases[row.DBID]
 			c.Username = usernames[row.UserID]
 		default:
-			if pgMonitorVersion >= pgStatMonitorVersion08 && pgMonitorVersion <= pgStatMonitorVersion10PG14 && prerelease != "" {
+			if vPGSM >= pgStatMonitorVersion08 && vPGSM <= pgStatMonitorVersion10PG14 && prereleasePGSM != "" {
 				row.BucketStartTime, e = time.Parse("2006-01-02 15:04:05", row.BucketStartTimeString)
 				if e != nil {
 					err = e
