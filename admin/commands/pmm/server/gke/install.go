@@ -122,6 +122,7 @@ func createGKECluster(ctx context.Context, containerService *container.Service) 
 
 	rb := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
+			Name:             "michal-dbaas",
 			Zone:             "europe-west1-b",
 			InitialNodeCount: 3,
 			NodeConfig: &container.NodeConfig{
