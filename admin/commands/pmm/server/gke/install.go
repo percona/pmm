@@ -41,6 +41,8 @@ func (res *installResult) String() string {
 	return "works"
 }
 
+const location = "europe-west1-b"
+
 // RunCmdWithContext runs install command.
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.GlobalFlags) (commands.Result, error) {
 	start := time.Now()
@@ -66,7 +68,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	go func() {
 		defer close(ch)
 		t := time.NewTicker(5 * time.Second)
-		name := "projects/percona-gcp-dev/locations/europe-west1/operations/"
+		name := "projects/percona-gcp-dev/locations/" + location + "/operations/"
 
 		for {
 			<-t.C
@@ -95,7 +97,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"clusters",
 		"get-credentials",
 		"michal-dbaas",
-		"--zone=europe-west1-b",
+		"--zone="+location,
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -120,7 +122,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 }
 
 func createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
-	parent := "projects/percona-gcp-dev/locations/europe-west1-b"
+	parent := "projects/percona-gcp-dev/locations/" + location
 
 	rb := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
