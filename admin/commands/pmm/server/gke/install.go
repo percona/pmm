@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
 	"os"
 	"os/exec"
 	"time"
@@ -124,6 +125,32 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 
 	ipChan := c.getIngressIp()
 	ip := <-ipChan
+
+	logrus.Infof("Elapsed time %s\n", time.Since(start))
+	logrus.Infof("Got IP %s", ip)
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for range time.Tick(5 * time.Second) {
+			logrus.Info("Checking ingress health")
+			res, err := http.Get("http://" + ip)
+			res.Body.Close()
+
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			if res.StatusCode >= 500 {
+				continue
+			}
+
+			return
+		}
+	}()
+
+	<-done
 
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 	logrus.Info("Visit http://" + ip)
