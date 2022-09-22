@@ -29,7 +29,9 @@ import (
 )
 
 // InstallCommand is used by Kong for CLI flags and commands.
-type InstallCommand struct{}
+type InstallCommand struct {
+	Name string `default:"michal-dbaas"`
+}
 
 type installResult struct{}
 
@@ -59,7 +61,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		return nil, err
 	}
 
-	op, err := createGKECluster(ctx, containerService)
+	op, err := c.createGKECluster(ctx, containerService)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +98,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"container",
 		"clusters",
 		"get-credentials",
-		"michal-dbaas",
+		c.Name,
 		"--zone="+location,
 	)
 	cmd.Stdout = os.Stdout
@@ -121,12 +123,12 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	return &installResult{}, nil
 }
 
-func createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
+func (c *InstallCommand) createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
 	parent := "projects/percona-gcp-dev/locations/" + location
 
 	rb := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
-			Name:             "michal-dbaas",
+			Name:             c.Name,
 			InitialNodeCount: 3,
 			NodeConfig: &container.NodeConfig{
 				Preemptible: true,
