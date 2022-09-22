@@ -15,6 +15,7 @@
 package gke
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
@@ -172,14 +173,15 @@ func (c *InstallCommand) getIngressIp() <-chan string {
 			<-t.C
 			logrus.Info("Checking IP")
 			cmd := exec.Command("kubectl", "get", "ing", "pmm-http", "-o", "json")
-			out, err := cmd.CombinedOutput()
-			if err != nil {
+			var b bytes.Buffer
+			cmd.Stdout = &b
+
+			if err := cmd.Run(); err != nil {
 				continue
 			}
 
 			res := getIngress{}
-			err = json.Unmarshal(out, &res)
-			if err != nil {
+			if err := json.Unmarshal(b.Bytes(), &res); err != nil {
 				logrus.Error(err)
 				continue
 			}
