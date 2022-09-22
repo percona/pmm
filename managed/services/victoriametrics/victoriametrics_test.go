@@ -75,7 +75,7 @@ func TestVictoriaMetrics(t *testing.T) {
 
 		actual, err := ioutil.ReadFile(configPath)
 		check.NoError(err)
-		check.Equal(string(original), string(actual))
+		check.Equal(string(original), string(actual), "actual:\n%s", actual)
 	})
 
 	t.Run("Normal", func(t *testing.T) {
@@ -319,6 +319,17 @@ scrape_configs:
       static_configs:
         - targets:
             - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: pmm-agent
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7777
           labels:
             instance: pmm-server
       follow_redirects: false
@@ -883,6 +894,17 @@ scrape_configs:
       static_configs:
         - targets:
             - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: pmm-agent
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7777
           labels:
             instance: pmm-server
       follow_redirects: false

@@ -416,3 +416,21 @@ func (svc *Service) IsReady(ctx context.Context) error {
 
 	return nil
 }
+
+// scrapeConfigForServerPMMAgent returns scrape config for Server PMMAgent in Prometheus format.
+func scrapeConfigForServerPMMAgent(interval time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        string(models.PMMAgentType),
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  ScrapeTimeout(interval),
+		MetricsPath:    "/debug/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{
+				{
+					Targets: []string{"127.0.0.1:7777"},
+					Labels:  map[string]string{"instance": models.PMMServerAgentID},
+				},
+			},
+		},
+	}
+}
