@@ -72,7 +72,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"clusters",
 		"get-credentials",
 		"pmm-dbaas-cluster",
-		"--zone=europe-west3-c",
+		"--zone=europe-west1-b",
 	)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
