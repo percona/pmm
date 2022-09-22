@@ -51,7 +51,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"create",
 		"--zone",
 		"europe-west1-b",
-		"pmm-dbaas-cluster",
+		"michal-dbaas",
 		"--machine-type",
 		"e2-standard-4",
 		"--preemptible",
@@ -71,7 +71,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"container",
 		"clusters",
 		"get-credentials",
-		"pmm-dbaas-cluster",
+		"michal-dbaas",
 		"--zone=europe-west1-b",
 	)
 	cmd.Stdout = os.Stdout
