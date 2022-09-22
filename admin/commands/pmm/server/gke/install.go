@@ -129,28 +129,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 	logrus.Infof("Got IP %s", ip)
 
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		for range time.Tick(5 * time.Second) {
-			logrus.Info("Checking ingress health")
-			res, err := http.Get("http://" + ip)
-			res.Body.Close()
-
-			if err != nil {
-				logrus.Error(err)
-				continue
-			}
-
-			if res.StatusCode >= 500 {
-				continue
-			}
-
-			return
-		}
-	}()
-
-	<-done
+	<-c.checkHealthyIngress(ip)
 
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 	logrus.Info("Visit http://" + ip)
@@ -220,6 +199,31 @@ func (c *InstallCommand) getIngressIp() <-chan string {
 				done <- res.Status.LoadBalancer.Ingress[0].Ip
 				return
 			}
+		}
+	}()
+
+	return done
+}
+
+func (c *InstallCommand) checkHealthyIngress(ip string) <-chan struct{} {
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		for range time.Tick(5 * time.Second) {
+			logrus.Info("Checking ingress health")
+			res, err := http.Get("http://" + ip)
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			res.Body.Close()
+
+			if res.StatusCode >= 500 {
+				continue
+			}
+
+			return
 		}
 	}()
 
