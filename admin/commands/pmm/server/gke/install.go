@@ -83,7 +83,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 	logrus.Info("Running kubectl")
-	cmd = exec.Command("kubectl", "apply", "-f", "pmm-server.yaml")
+	cmd = exec.Command("kubectl", "apply", "-f", "/home/michal/pmm-server.yaml")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -91,7 +91,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		return nil, err
 	}
 
-	logrus.Info("Elapsed time %s\n", time.Since(start))
+	logrus.Infof("Elapsed time %s\n", time.Since(start))
 
 	return &installResult{}, nil
 }
