@@ -16,10 +16,11 @@ package gke
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
@@ -41,6 +42,8 @@ func (res *installResult) String() string {
 // RunCmdWithContext runs install command.
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.GlobalFlags) (commands.Result, error) {
 	start := time.Now()
+
+	logrus.Info("Creating GKE")
 	cmd := exec.Command(
 		"gcloud",
 		"container",
@@ -61,6 +64,8 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		return nil, err
 	}
 
+	logrus.Infof("Elapsed time %s\n", time.Since(start))
+	logrus.Info("Getting credentials")
 	cmd = exec.Command(
 		"gcloud",
 		"container",
@@ -76,6 +81,8 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		return nil, err
 	}
 
+	logrus.Infof("Elapsed time %s\n", time.Since(start))
+	logrus.Info("Running kubectl")
 	cmd = exec.Command("kubectl", "apply", "-f", "pmm-server.yaml")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -84,7 +91,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		return nil, err
 	}
 
-	fmt.Printf("Elapsed time %s\n", time.Since(start))
+	logrus.Info("Elapsed time %s\n", time.Since(start))
 
 	return &installResult{}, nil
 }
