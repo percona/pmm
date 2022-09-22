@@ -79,7 +79,9 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 				return
 			}
 
-			logrus.Info(op.Progress.Metrics)
+			for _, m := range op.Progress.Metrics {
+				logrus.Infof("%#v", m)
+			}
 		}
 	}()
 
@@ -118,12 +120,11 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 }
 
 func createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
-	parent := "projects/percona-gcp-dev/locations/europe-west1"
+	parent := "projects/percona-gcp-dev/locations/europe-west1-b"
 
 	rb := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
 			Name:             "michal-dbaas",
-			Zone:             "europe-west1-b",
 			InitialNodeCount: 3,
 			NodeConfig: &container.NodeConfig{
 				Preemptible: true,
