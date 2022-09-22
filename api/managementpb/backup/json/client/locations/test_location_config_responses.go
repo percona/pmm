@@ -56,36 +56,7 @@ type TestLocationConfigOK struct {
 	Payload interface{}
 }
 
-// IsSuccess returns true when this test location config Ok response has a 2xx status code
-func (o *TestLocationConfigOK) IsSuccess() bool {
-	return true
-}
-
-// IsRedirect returns true when this test location config Ok response has a 3xx status code
-func (o *TestLocationConfigOK) IsRedirect() bool {
-	return false
-}
-
-// IsClientError returns true when this test location config Ok response has a 4xx status code
-func (o *TestLocationConfigOK) IsClientError() bool {
-	return false
-}
-
-// IsServerError returns true when this test location config Ok response has a 5xx status code
-func (o *TestLocationConfigOK) IsServerError() bool {
-	return false
-}
-
-// IsCode returns true when this test location config Ok response a status code equal to that given
-func (o *TestLocationConfigOK) IsCode(code int) bool {
-	return code == 200
-}
-
 func (o *TestLocationConfigOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
-}
-
-func (o *TestLocationConfigOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
 }
 
@@ -124,36 +95,7 @@ func (o *TestLocationConfigDefault) Code() int {
 	return o._statusCode
 }
 
-// IsSuccess returns true when this test location config default response has a 2xx status code
-func (o *TestLocationConfigDefault) IsSuccess() bool {
-	return o._statusCode/100 == 2
-}
-
-// IsRedirect returns true when this test location config default response has a 3xx status code
-func (o *TestLocationConfigDefault) IsRedirect() bool {
-	return o._statusCode/100 == 3
-}
-
-// IsClientError returns true when this test location config default response has a 4xx status code
-func (o *TestLocationConfigDefault) IsClientError() bool {
-	return o._statusCode/100 == 4
-}
-
-// IsServerError returns true when this test location config default response has a 5xx status code
-func (o *TestLocationConfigDefault) IsServerError() bool {
-	return o._statusCode/100 == 5
-}
-
-// IsCode returns true when this test location config default response a status code equal to that given
-func (o *TestLocationConfigDefault) IsCode(code int) bool {
-	return o._statusCode == code
-}
-
 func (o *TestLocationConfigDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
-}
-
-func (o *TestLocationConfigDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
 }
 
