@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/container/v1"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
@@ -44,29 +46,48 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	start := time.Now()
 
 	logrus.Info("Creating GKE")
-	cmd := exec.Command(
-		"gcloud",
-		"container",
-		"clusters",
-		"create",
-		"--zone",
-		"europe-west1-b",
-		"michal-dbaas",
-		"--machine-type",
-		"e2-standard-4",
-		"--preemptible",
-		"--num-nodes=3",
-	)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
+	cl, err := google.DefaultClient(ctx, container.CloudPlatformScope)
+	if err != nil {
 		return nil, err
 	}
 
+	containerService, err := container.New(cl)
+	if err != nil {
+		return nil, err
+	}
+
+	op, err := createGKECluster(ctx, containerService)
+	if err != nil {
+		return nil, err
+	}
+
+	ch := make(chan struct{})
+	go func() {
+		defer close(ch)
+		t := time.NewTicker(5 * time.Second)
+		name := "projects/percona-pmm-dev/locations/europe-west-1/operations/"
+
+		for {
+			<-t.C
+			op, err := containerService.Projects.Locations.Operations.Get(name + op.Name).Context(ctx).Do()
+			if err != nil {
+				logrus.Info(err)
+			}
+
+			if op.Status == "DONE" {
+				return
+			}
+
+			logrus.Info(op.Progress.Metrics)
+		}
+	}()
+
+	<-ch
+
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 	logrus.Info("Getting credentials")
-	cmd = exec.Command(
+	cmd := exec.Command(
 		"gcloud",
 		"container",
 		"clusters",
@@ -94,4 +115,26 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 
 	return &installResult{}, nil
+}
+
+func createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
+	parent := "projects/percona-pmm-dev/locations/europe-west-1"
+
+	rb := &container.CreateClusterRequest{
+		Cluster: &container.Cluster{
+			Zone:             "europe-west1-b",
+			InitialNodeCount: 3,
+			NodeConfig: &container.NodeConfig{
+				Preemptible: true,
+				MachineType: "e2-standard-4",
+			},
+		},
+	}
+
+	resp, err := containerService.Projects.Locations.Clusters.Create(parent, rb).Context(ctx).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
