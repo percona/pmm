@@ -46,9 +46,11 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 		"container",
 		"clusters",
 		"create",
-		"--zone europe-west1-b",
+		"--zone",
+		"europe-west1-b",
 		"pmm-dbaas-cluster",
-		"--machine-type e2-standard-4",
+		"--machine-type",
+		"e2-standard-4",
 		"--preemptible",
 		"--num-nodes=3",
 	)
