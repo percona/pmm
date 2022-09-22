@@ -129,7 +129,8 @@ main() {
     rm -rf ${binary_tarball}
     mkdir -p $(dirname ${binary_tarball}) || :
     
-    if [[ $keep_pmm_binary != "1" ]]; then
+    # Removes pmm binary in case this is not a PR build - such as RC/GA build
+    if [[ "$(basename ${root_dir})" != PR-* ]]; then
         rm -f "${binary_dir}/bin/pmm"
     fi
 
