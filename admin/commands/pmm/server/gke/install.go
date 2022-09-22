@@ -66,7 +66,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 	go func() {
 		defer close(ch)
 		t := time.NewTicker(5 * time.Second)
-		name := "projects/percona-pmm-dev/locations/europe-west-1/operations/"
+		name := "projects/percona-pmm-dev/locations/europe-west1/operations/"
 
 		for {
 			<-t.C
@@ -118,7 +118,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 }
 
 func createGKECluster(ctx context.Context, containerService *container.Service) (*container.Operation, error) {
-	parent := "projects/percona-pmm-dev/locations/europe-west-1"
+	parent := "projects/percona-pmm-dev/locations/europe-west1"
 
 	rb := &container.CreateClusterRequest{
 		Cluster: &container.Cluster{
