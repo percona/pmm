@@ -15,11 +15,14 @@
 // Package server holds the "pmm server" command
 package server
 
-import "github.com/percona/pmm/admin/commands"
+import (
+	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/commands/pmm/server/gke"
+)
 
 // BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
 type BaseCommand struct {
-	Install InstallCommand `cmd:"" help:"Install PMM server"`
+	GKE gke.BaseCommand `cmd:"" help:"Google Kubernetes Engine"`
 }
 
 // BeforeApply is run before the command is applied.

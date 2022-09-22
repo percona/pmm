@@ -12,24 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+// Package gke holds the "pmm server gke" command
+package gke
 
-import "github.com/percona/pmm/admin/commands"
-
-// InstallCommand is used by Kong for CLI flags and commands.
-type InstallCommand struct{}
-
-type installResult struct{}
-
-// Result is a command run result.
-func (res *installResult) Result() {}
-
-// String stringifies command result.
-func (res *installResult) String() string {
-	return "works"
-}
-
-// RunCmd runs install command.
-func (c *InstallCommand) RunCmd() (commands.Result, error) {
-	return &installResult{}, nil
+// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
+type BaseCommand struct {
+	Install InstallCommand `cmd:"" help:"Install PMM server"`
 }
