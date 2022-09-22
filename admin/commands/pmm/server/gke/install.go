@@ -16,6 +16,7 @@ package gke
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"os/exec"
 	"time"
@@ -120,6 +121,12 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, flags *flags.Glo
 
 	logrus.Infof("Elapsed time %s\n", time.Since(start))
 
+	ipChan := c.getIngressIp()
+	ip := <-ipChan
+
+	logrus.Infof("Elapsed time %s\n", time.Since(start))
+	logrus.Info("Visit http://" + ip)
+
 	return &installResult{}, nil
 }
 
@@ -143,4 +150,49 @@ func (c *InstallCommand) createGKECluster(ctx context.Context, containerService 
 	}
 
 	return resp, nil
+}
+
+type getIngress struct {
+	Status *struct {
+		LoadBalancer *struct {
+			Ingress []struct {
+				Ip string `json:"ip"`
+			} `json:"ingress"`
+		} `json:"loadBalancer"`
+	} `json:"status"`
+}
+
+func (c *InstallCommand) getIngressIp() <-chan string {
+	done := make(chan string)
+	go func() {
+		defer close(done)
+
+		t := time.NewTicker(5 * time.Second)
+		for {
+			<-t.C
+			logrus.Info("Checking IP")
+			cmd := exec.Command("kubectl", "get", "ing", "pmm-http", "-o", "json")
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				continue
+			}
+
+			res := getIngress{}
+			err = json.Unmarshal(out, &res)
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
+
+			if res.Status != nil &&
+				res.Status.LoadBalancer != nil &&
+				res.Status.LoadBalancer.Ingress != nil &&
+				len(res.Status.LoadBalancer.Ingress) > 0 {
+				done <- res.Status.LoadBalancer.Ingress[0].Ip
+				return
+			}
+		}
+	}()
+
+	return done
 }
