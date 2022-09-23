@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -282,7 +281,7 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Templ
 			return nil, ctx.Err()
 		}
 
-		data, err := ioutil.ReadFile(path) //nolint:gosec
+		data, err := os.ReadFile(path) //nolint:gosec
 		if err != nil {
 			s.l.Warnf("Failed to load rule template file %s.", path)
 			continue

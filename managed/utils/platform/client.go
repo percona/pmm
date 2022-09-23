@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	api "github.com/percona-platform/saas/gen/check/retrieval"
@@ -259,7 +258,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 
 	defer resp.Body.Close() //nolint:errcheck
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

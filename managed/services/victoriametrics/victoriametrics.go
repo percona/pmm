@@ -18,7 +18,7 @@ package victoriametrics
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -175,7 +175,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM reload: %s", b)
 	if err != nil {
 		return errors.WithStack(err)
@@ -189,7 +189,7 @@ func (svc *Service) reload(ctx context.Context) error {
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *config.Config {
-	buf, err := ioutil.ReadFile(svc.baseConfigPath)
+	buf, err := os.ReadFile(svc.baseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.baseConfigPath, err)
@@ -227,7 +227,7 @@ func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 
 // validateConfig validates given configuration with `victoriametrics -dryRun`.
 func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
-	f, err := ioutil.TempFile("", "pmm-managed-config-victoriametrics-")
+	f, err := os.CreateTemp("", "pmm-managed-config-victoriametrics-")
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -276,7 +276,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 // configAndReload saves given VictoriaMetrics configuration to file and reloads VictoriaMetrics.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
-	oldCfg, err := ioutil.ReadFile(svc.scrapeConfigPath)
+	oldCfg, err := os.ReadFile(svc.scrapeConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -290,7 +290,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()); err != nil {
+			if err = os.WriteFile(svc.scrapeConfigPath, oldCfg, fi.Mode()); err != nil {
 				svc.l.Error(err)
 			}
 			if err = svc.reload(ctx); err != nil {
@@ -304,7 +304,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	}
 
 	restore = true
-	if err = ioutil.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
+	if err = os.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = svc.reload(ctx); err != nil {
@@ -405,7 +405,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VM health: %s", b)
 	if err != nil {
 		return errors.WithStack(err)

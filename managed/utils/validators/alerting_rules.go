@@ -17,7 +17,6 @@ package validators
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"time"
@@ -44,14 +43,14 @@ func (e *InvalidAlertingRuleError) Error() string {
 // Returned error is nil, *InvalidAlertingRuleError for "normal" validation errors,
 // or some other fatal error.
 func ValidateAlertingRules(ctx context.Context, rules string) error {
-	tempFile, err := ioutil.TempFile("", "temp_rules_*.yml")
+	tempFile, err := os.CreateTemp("", "temp_rules_*.yml")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	tempFile.Close()                 //nolint:errcheck
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
-	if err = ioutil.WriteFile(tempFile.Name(), []byte(rules), 0o644); err != nil { //nolint:gosec
+	if err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644); err != nil { //nolint:gosec
 		return errors.WithStack(err)
 	}
 

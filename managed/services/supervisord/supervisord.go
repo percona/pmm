@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/url"
 	"os"
 	"os/exec"
@@ -493,7 +492,7 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	// read existing content
 	path := filepath.Join(s.configDir, name+".ini")
-	oldCfg, err := ioutil.ReadFile(path) //nolint:gosec
+	oldCfg, err := os.ReadFile(path) //nolint:gosec
 	if os.IsNotExist(err) {
 		err = nil
 	}
@@ -511,7 +510,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(path, oldCfg, 0o644); err != nil {
+			if err = os.WriteFile(path, oldCfg, 0o644); err != nil {
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -521,7 +520,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = ioutil.WriteFile(path, cfg, 0o644); err != nil {
+	if err = os.WriteFile(path, cfg, 0o644); err != nil {
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
