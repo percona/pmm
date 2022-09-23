@@ -49,7 +49,7 @@ func NewListChannelsOK() *ListChannelsOK {
 }
 
 /*
-	ListChannelsOK describes a response with status code 200, with default header values.
+ListChannelsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewListChannelsDefault(code int) *ListChannelsDefault {
 }
 
 /*
-	ListChannelsDefault describes a response with status code -1, with default header values.
+ListChannelsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

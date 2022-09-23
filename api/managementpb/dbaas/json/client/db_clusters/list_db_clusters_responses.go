@@ -51,7 +51,7 @@ func NewListDBClustersOK() *ListDBClustersOK {
 }
 
 /*
-	ListDBClustersOK describes a response with status code 200, with default header values.
+ListDBClustersOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListDBClustersDefault(code int) *ListDBClustersDefault {
 }
 
 /*
-	ListDBClustersDefault describes a response with status code -1, with default header values.
+ListDBClustersDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

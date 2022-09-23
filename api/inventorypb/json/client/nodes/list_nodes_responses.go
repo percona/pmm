@@ -51,7 +51,7 @@ func NewListNodesOK() *ListNodesOK {
 }
 
 /*
-	ListNodesOK describes a response with status code 200, with default header values.
+ListNodesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 }
 
 /*
-	ListNodesDefault describes a response with status code -1, with default header values.
+ListNodesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

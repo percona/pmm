@@ -49,7 +49,7 @@ func NewAddProxySQLServiceOK() *AddProxySQLServiceOK {
 }
 
 /*
-	AddProxySQLServiceOK describes a response with status code 200, with default header values.
+AddProxySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddProxySQLServiceDefault(code int) *AddProxySQLServiceDefault {
 }
 
 /*
-	AddProxySQLServiceDefault describes a response with status code -1, with default header values.
+AddProxySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

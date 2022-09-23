@@ -51,7 +51,7 @@ func NewListAlertRulesOK() *ListAlertRulesOK {
 }
 
 /*
-	ListAlertRulesOK describes a response with status code 200, with default header values.
+ListAlertRulesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListAlertRulesDefault(code int) *ListAlertRulesDefault {
 }
 
 /*
-	ListAlertRulesDefault describes a response with status code -1, with default header values.
+ListAlertRulesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

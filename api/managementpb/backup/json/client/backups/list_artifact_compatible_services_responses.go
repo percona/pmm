@@ -49,7 +49,7 @@ func NewListArtifactCompatibleServicesOK() *ListArtifactCompatibleServicesOK {
 }
 
 /*
-	ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
+ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewListArtifactCompatibleServicesDefault(code int) *ListArtifactCompatibleS
 }
 
 /*
-	ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
+ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

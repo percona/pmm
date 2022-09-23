@@ -49,7 +49,7 @@ func NewServerInfoOK() *ServerInfoOK {
 }
 
 /*
-	ServerInfoOK describes a response with status code 200, with default header values.
+ServerInfoOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewServerInfoDefault(code int) *ServerInfoDefault {
 }
 
 /*
-	ServerInfoDefault describes a response with status code -1, with default header values.
+ServerInfoDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

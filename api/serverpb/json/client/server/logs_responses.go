@@ -50,7 +50,7 @@ func NewLogsOK(writer io.Writer) *LogsOK {
 }
 
 /*
-	LogsOK describes a response with status code 200, with default header values.
+LogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +83,7 @@ func NewLogsDefault(code int) *LogsDefault {
 }
 
 /*
-	LogsDefault describes a response with status code -1, with default header values.
+LogsDefault describes a response with status code -1, with default header values.
 
 An error response.
 */

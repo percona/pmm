@@ -51,7 +51,7 @@ func NewAddQANPostgreSQLPgStatementsAgentOK() *AddQANPostgreSQLPgStatementsAgent
 }
 
 /*
-	AddQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
+AddQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddQANPostgreSQLPgStatementsAgentDefault(code int) *AddQANPostgreSQLPgSt
 }
 
 /*
-	AddQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
+AddQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

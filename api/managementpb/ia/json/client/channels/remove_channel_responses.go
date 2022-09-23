@@ -49,7 +49,7 @@ func NewRemoveChannelOK() *RemoveChannelOK {
 }
 
 /*
-	RemoveChannelOK describes a response with status code 200, with default header values.
+RemoveChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewRemoveChannelDefault(code int) *RemoveChannelDefault {
 }
 
 /*
-	RemoveChannelDefault describes a response with status code -1, with default header values.
+RemoveChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

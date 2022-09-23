@@ -51,7 +51,7 @@ func NewAddAzureDatabaseExporterOK() *AddAzureDatabaseExporterOK {
 }
 
 /*
-	AddAzureDatabaseExporterOK describes a response with status code 200, with default header values.
+AddAzureDatabaseExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddAzureDatabaseExporterDefault(code int) *AddAzureDatabaseExporterDefau
 }
 
 /*
-	AddAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
+AddAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewCheckForOperatorUpdateOK() *CheckForOperatorUpdateOK {
 }
 
 /*
-	CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
+CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewCheckForOperatorUpdateDefault(code int) *CheckForOperatorUpdateDefault {
 }
 
 /*
-	CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
+CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

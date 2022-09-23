@@ -51,7 +51,7 @@ func NewAddMongoDBOK() *AddMongoDBOK {
 }
 
 /*
-	AddMongoDBOK describes a response with status code 200, with default header values.
+AddMongoDBOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
 }
 
 /*
-	AddMongoDBDefault describes a response with status code -1, with default header values.
+AddMongoDBDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

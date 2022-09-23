@@ -50,7 +50,7 @@ func NewSearchOrganizationEntitlementsOK() *SearchOrganizationEntitlementsOK {
 }
 
 /*
-	SearchOrganizationEntitlementsOK describes a response with status code 200, with default header values.
+SearchOrganizationEntitlementsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewSearchOrganizationEntitlementsDefault(code int) *SearchOrganizationEntit
 }
 
 /*
-	SearchOrganizationEntitlementsDefault describes a response with status code -1, with default header values.
+SearchOrganizationEntitlementsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

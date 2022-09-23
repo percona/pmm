@@ -49,7 +49,7 @@ func NewGetPXCClusterCredentialsOK() *GetPXCClusterCredentialsOK {
 }
 
 /*
-	GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
+GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetPXCClusterCredentialsDefault(code int) *GetPXCClusterCredentialsDefau
 }
 
 /*
-	GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
+GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

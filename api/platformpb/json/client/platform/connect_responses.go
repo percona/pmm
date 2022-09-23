@@ -49,7 +49,7 @@ func NewConnectOK() *ConnectOK {
 }
 
 /*
-	ConnectOK describes a response with status code 200, with default header values.
+ConnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewConnectDefault(code int) *ConnectDefault {
 }
 
 /*
-	ConnectDefault describes a response with status code -1, with default header values.
+ConnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

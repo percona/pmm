@@ -51,7 +51,7 @@ func NewRegisterNodeOK() *RegisterNodeOK {
 }
 
 /*
-	RegisterNodeOK describes a response with status code 200, with default header values.
+RegisterNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewRegisterNodeDefault(code int) *RegisterNodeDefault {
 }
 
 /*
-	RegisterNodeDefault describes a response with status code -1, with default header values.
+RegisterNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

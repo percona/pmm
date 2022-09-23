@@ -51,7 +51,7 @@ func NewDeleteDBClusterOK() *DeleteDBClusterOK {
 }
 
 /*
-	DeleteDBClusterOK describes a response with status code 200, with default header values.
+DeleteDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewDeleteDBClusterDefault(code int) *DeleteDBClusterDefault {
 }
 
 /*
-	DeleteDBClusterDefault describes a response with status code -1, with default header values.
+DeleteDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewGetPXCClusterResourcesOK() *GetPXCClusterResourcesOK {
 }
 
 /*
-	GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
+GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetPXCClusterResourcesDefault(code int) *GetPXCClusterResourcesDefault {
 }
 
 /*
-	GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
+GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

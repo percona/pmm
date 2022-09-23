@@ -51,7 +51,7 @@ func NewCreateAlertRuleOK() *CreateAlertRuleOK {
 }
 
 /*
-	CreateAlertRuleOK describes a response with status code 200, with default header values.
+CreateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewCreateAlertRuleDefault(code int) *CreateAlertRuleDefault {
 }
 
 /*
-	CreateAlertRuleDefault describes a response with status code -1, with default header values.
+CreateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

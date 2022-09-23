@@ -49,7 +49,7 @@ func NewChangeExternalExporterOK() *ChangeExternalExporterOK {
 }
 
 /*
-	ChangeExternalExporterOK describes a response with status code 200, with default header values.
+ChangeExternalExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewChangeExternalExporterDefault(code int) *ChangeExternalExporterDefault {
 }
 
 /*
-	ChangeExternalExporterDefault describes a response with status code -1, with default header values.
+ChangeExternalExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

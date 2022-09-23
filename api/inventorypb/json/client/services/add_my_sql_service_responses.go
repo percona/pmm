@@ -49,7 +49,7 @@ func NewAddMySQLServiceOK() *AddMySQLServiceOK {
 }
 
 /*
-	AddMySQLServiceOK describes a response with status code 200, with default header values.
+AddMySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddMySQLServiceDefault(code int) *AddMySQLServiceDefault {
 }
 
 /*
-	AddMySQLServiceDefault describes a response with status code -1, with default header values.
+AddMySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

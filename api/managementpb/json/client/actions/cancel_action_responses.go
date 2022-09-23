@@ -49,7 +49,7 @@ func NewCancelActionOK() *CancelActionOK {
 }
 
 /*
-	CancelActionOK describes a response with status code 200, with default header values.
+CancelActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewCancelActionDefault(code int) *CancelActionDefault {
 }
 
 /*
-	CancelActionDefault describes a response with status code -1, with default header values.
+CancelActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

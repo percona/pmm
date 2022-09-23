@@ -50,7 +50,7 @@ func NewGetReportOK() *GetReportOK {
 }
 
 /*
-	GetReportOK describes a response with status code 200, with default header values.
+GetReportOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewGetReportDefault(code int) *GetReportDefault {
 }
 
 /*
-	GetReportDefault describes a response with status code -1, with default header values.
+GetReportDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -51,7 +51,7 @@ func NewAddExternalOK() *AddExternalOK {
 }
 
 /*
-	AddExternalOK describes a response with status code 200, with default header values.
+AddExternalOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddExternalDefault(code int) *AddExternalDefault {
 }
 
 /*
-	AddExternalDefault describes a response with status code -1, with default header values.
+AddExternalDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

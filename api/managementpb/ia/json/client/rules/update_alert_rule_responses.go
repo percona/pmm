@@ -51,7 +51,7 @@ func NewUpdateAlertRuleOK() *UpdateAlertRuleOK {
 }
 
 /*
-	UpdateAlertRuleOK describes a response with status code 200, with default header values.
+UpdateAlertRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewUpdateAlertRuleDefault(code int) *UpdateAlertRuleDefault {
 }
 
 /*
-	UpdateAlertRuleDefault describes a response with status code -1, with default header values.
+UpdateAlertRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

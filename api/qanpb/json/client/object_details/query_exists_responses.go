@@ -49,7 +49,7 @@ func NewQueryExistsOK() *QueryExistsOK {
 }
 
 /*
-	QueryExistsOK describes a response with status code 200, with default header values.
+QueryExistsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewQueryExistsDefault(code int) *QueryExistsDefault {
 }
 
 /*
-	QueryExistsDefault describes a response with status code -1, with default header values.
+QueryExistsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

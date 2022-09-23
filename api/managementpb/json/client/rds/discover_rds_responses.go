@@ -51,7 +51,7 @@ func NewDiscoverRDSOK() *DiscoverRDSOK {
 }
 
 /*
-	DiscoverRDSOK describes a response with status code 200, with default header values.
+DiscoverRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewDiscoverRDSDefault(code int) *DiscoverRDSDefault {
 }
 
 /*
-	DiscoverRDSDefault describes a response with status code -1, with default header values.
+DiscoverRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

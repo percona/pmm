@@ -49,7 +49,7 @@ func NewGetQueryPlanOK() *GetQueryPlanOK {
 }
 
 /*
-	GetQueryPlanOK describes a response with status code 200, with default header values.
+GetQueryPlanOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetQueryPlanDefault(code int) *GetQueryPlanDefault {
 }
 
 /*
-	GetQueryPlanDefault describes a response with status code -1, with default header values.
+GetQueryPlanDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewAddChannelOK() *AddChannelOK {
 }
 
 /*
-	AddChannelOK describes a response with status code 200, with default header values.
+AddChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddChannelDefault(code int) *AddChannelDefault {
 }
 
 /*
-	AddChannelDefault describes a response with status code -1, with default header values.
+AddChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

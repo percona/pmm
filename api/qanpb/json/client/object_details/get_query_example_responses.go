@@ -51,7 +51,7 @@ func NewGetQueryExampleOK() *GetQueryExampleOK {
 }
 
 /*
-	GetQueryExampleOK describes a response with status code 200, with default header values.
+GetQueryExampleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 }
 
 /*
-	GetQueryExampleDefault describes a response with status code -1, with default header values.
+GetQueryExampleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

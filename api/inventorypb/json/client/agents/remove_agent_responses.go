@@ -49,7 +49,7 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 }
 
 /*
-	RemoveAgentOK describes a response with status code 200, with default header values.
+RemoveAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewRemoveAgentDefault(code int) *RemoveAgentDefault {
 }
 
 /*
-	RemoveAgentDefault describes a response with status code -1, with default header values.
+RemoveAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

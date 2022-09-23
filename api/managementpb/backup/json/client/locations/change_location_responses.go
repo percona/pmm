@@ -49,7 +49,7 @@ func NewChangeLocationOK() *ChangeLocationOK {
 }
 
 /*
-	ChangeLocationOK describes a response with status code 200, with default header values.
+ChangeLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewChangeLocationDefault(code int) *ChangeLocationDefault {
 }
 
 /*
-	ChangeLocationDefault describes a response with status code -1, with default header values.
+ChangeLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -51,7 +51,7 @@ func NewListAgentsOK() *ListAgentsOK {
 }
 
 /*
-	ListAgentsOK describes a response with status code 200, with default header values.
+ListAgentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListAgentsDefault(code int) *ListAgentsDefault {
 }
 
 /*
-	ListAgentsDefault describes a response with status code -1, with default header values.
+ListAgentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewRemoveScheduledBackupOK() *RemoveScheduledBackupOK {
 }
 
 /*
-	RemoveScheduledBackupOK describes a response with status code 200, with default header values.
+RemoveScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewRemoveScheduledBackupDefault(code int) *RemoveScheduledBackupDefault {
 }
 
 /*
-	RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
+RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -51,7 +51,7 @@ func NewGetSecurityCheckResultsOK() *GetSecurityCheckResultsOK {
 }
 
 /*
-	GetSecurityCheckResultsOK describes a response with status code 200, with default header values.
+GetSecurityCheckResultsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewGetSecurityCheckResultsDefault(code int) *GetSecurityCheckResultsDefault
 }
 
 /*
-	GetSecurityCheckResultsDefault describes a response with status code -1, with default header values.
+GetSecurityCheckResultsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

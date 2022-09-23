@@ -49,7 +49,7 @@ func NewAddLocationOK() *AddLocationOK {
 }
 
 /*
-	AddLocationOK describes a response with status code 200, with default header values.
+AddLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddLocationDefault(code int) *AddLocationDefault {
 }
 
 /*
-	AddLocationDefault describes a response with status code -1, with default header values.
+AddLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

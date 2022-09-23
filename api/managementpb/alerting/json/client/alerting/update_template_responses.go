@@ -49,7 +49,7 @@ func NewUpdateTemplateOK() *UpdateTemplateOK {
 }
 
 /*
-	UpdateTemplateOK describes a response with status code 200, with default header values.
+UpdateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewUpdateTemplateDefault(code int) *UpdateTemplateDefault {
 }
 
 /*
-	UpdateTemplateDefault describes a response with status code -1, with default header values.
+UpdateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

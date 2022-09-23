@@ -40,7 +40,7 @@ func NewGetStatusOK() *GetStatusOK {
 }
 
 /*
-	GetStatusOK describes a response with status code 200, with default header values.
+GetStatusOK describes a response with status code 200, with default header values.
 
 Get status response
 */

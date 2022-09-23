@@ -51,7 +51,7 @@ func NewRestartDBClusterOK() *RestartDBClusterOK {
 }
 
 /*
-	RestartDBClusterOK describes a response with status code 200, with default header values.
+RestartDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewRestartDBClusterDefault(code int) *RestartDBClusterDefault {
 }
 
 /*
-	RestartDBClusterDefault describes a response with status code -1, with default header values.
+RestartDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

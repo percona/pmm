@@ -49,7 +49,7 @@ func NewDeleteTemplateOK() *DeleteTemplateOK {
 }
 
 /*
-	DeleteTemplateOK describes a response with status code 200, with default header values.
+DeleteTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewDeleteTemplateDefault(code int) *DeleteTemplateDefault {
 }
 
 /*
-	DeleteTemplateDefault describes a response with status code -1, with default header values.
+DeleteTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

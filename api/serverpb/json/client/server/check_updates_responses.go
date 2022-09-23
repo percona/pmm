@@ -50,7 +50,7 @@ func NewCheckUpdatesOK() *CheckUpdatesOK {
 }
 
 /*
-	CheckUpdatesOK describes a response with status code 200, with default header values.
+CheckUpdatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewCheckUpdatesDefault(code int) *CheckUpdatesDefault {
 }
 
 /*
-	CheckUpdatesDefault describes a response with status code -1, with default header values.
+CheckUpdatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

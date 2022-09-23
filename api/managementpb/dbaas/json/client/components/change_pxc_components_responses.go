@@ -49,7 +49,7 @@ func NewChangePXCComponentsOK() *ChangePXCComponentsOK {
 }
 
 /*
-	ChangePXCComponentsOK describes a response with status code 200, with default header values.
+ChangePXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewChangePXCComponentsDefault(code int) *ChangePXCComponentsDefault {
 }
 
 /*
-	ChangePXCComponentsDefault describes a response with status code -1, with default header values.
+ChangePXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

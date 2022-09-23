@@ -49,7 +49,7 @@ func NewAddRemoteNodeOK() *AddRemoteNodeOK {
 }
 
 /*
-	AddRemoteNodeOK describes a response with status code 200, with default header values.
+AddRemoteNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
 }
 
 /*
-	AddRemoteNodeDefault describes a response with status code -1, with default header values.
+AddRemoteNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

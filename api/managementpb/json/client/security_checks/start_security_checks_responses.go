@@ -49,7 +49,7 @@ func NewStartSecurityChecksOK() *StartSecurityChecksOK {
 }
 
 /*
-	StartSecurityChecksOK describes a response with status code 200, with default header values.
+StartSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewStartSecurityChecksDefault(code int) *StartSecurityChecksDefault {
 }
 
 /*
-	StartSecurityChecksDefault describes a response with status code -1, with default header values.
+StartSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

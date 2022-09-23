@@ -49,7 +49,7 @@ func NewGetLogsOK() *GetLogsOK {
 }
 
 /*
-	GetLogsOK describes a response with status code 200, with default header values.
+GetLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetLogsDefault(code int) *GetLogsDefault {
 }
 
 /*
-	GetLogsDefault describes a response with status code -1, with default header values.
+GetLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

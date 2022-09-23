@@ -51,7 +51,7 @@ func NewAddRDSOK() *AddRDSOK {
 }
 
 /*
-	AddRDSOK describes a response with status code 200, with default header values.
+AddRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddRDSDefault(code int) *AddRDSDefault {
 }
 
 /*
-	AddRDSDefault describes a response with status code -1, with default header values.
+AddRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

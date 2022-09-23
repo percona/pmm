@@ -49,7 +49,7 @@ func NewChangeChannelOK() *ChangeChannelOK {
 }
 
 /*
-	ChangeChannelOK describes a response with status code 200, with default header values.
+ChangeChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewChangeChannelDefault(code int) *ChangeChannelDefault {
 }
 
 /*
-	ChangeChannelDefault describes a response with status code -1, with default header values.
+ChangeChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

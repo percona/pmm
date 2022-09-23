@@ -51,7 +51,7 @@ func NewAddQANMySQLSlowlogAgentOK() *AddQANMySQLSlowlogAgentOK {
 }
 
 /*
-	AddQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
+AddQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddQANMySQLSlowlogAgentDefault(code int) *AddQANMySQLSlowlogAgentDefault
 }
 
 /*
-	AddQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
+AddQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

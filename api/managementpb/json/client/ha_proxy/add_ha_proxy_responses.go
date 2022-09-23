@@ -51,7 +51,7 @@ func NewAddHAProxyOK() *AddHAProxyOK {
 }
 
 /*
-	AddHAProxyOK describes a response with status code 200, with default header values.
+AddHAProxyOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddHAProxyDefault(code int) *AddHAProxyDefault {
 }
 
 /*
-	AddHAProxyDefault describes a response with status code -1, with default header values.
+AddHAProxyDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

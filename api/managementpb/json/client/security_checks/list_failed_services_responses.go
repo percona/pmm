@@ -49,7 +49,7 @@ func NewListFailedServicesOK() *ListFailedServicesOK {
 }
 
 /*
-	ListFailedServicesOK describes a response with status code 200, with default header values.
+ListFailedServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewListFailedServicesDefault(code int) *ListFailedServicesDefault {
 }
 
 /*
-	ListFailedServicesDefault describes a response with status code -1, with default header values.
+ListFailedServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

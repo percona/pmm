@@ -49,7 +49,7 @@ func NewReadinessOK() *ReadinessOK {
 }
 
 /*
-	ReadinessOK describes a response with status code 200, with default header values.
+ReadinessOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewReadinessDefault(code int) *ReadinessDefault {
 }
 
 /*
-	ReadinessDefault describes a response with status code -1, with default header values.
+ReadinessDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

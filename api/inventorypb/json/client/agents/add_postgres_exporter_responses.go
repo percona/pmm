@@ -51,7 +51,7 @@ func NewAddPostgresExporterOK() *AddPostgresExporterOK {
 }
 
 /*
-	AddPostgresExporterOK describes a response with status code 200, with default header values.
+AddPostgresExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddPostgresExporterDefault(code int) *AddPostgresExporterDefault {
 }
 
 /*
-	AddPostgresExporterDefault describes a response with status code -1, with default header values.
+AddPostgresExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

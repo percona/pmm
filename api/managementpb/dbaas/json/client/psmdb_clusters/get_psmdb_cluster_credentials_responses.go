@@ -49,7 +49,7 @@ func NewGetPSMDBClusterCredentialsOK() *GetPSMDBClusterCredentialsOK {
 }
 
 /*
-	GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
+GetPSMDBClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetPSMDBClusterCredentialsDefault(code int) *GetPSMDBClusterCredentialsD
 }
 
 /*
-	GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
+GetPSMDBClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

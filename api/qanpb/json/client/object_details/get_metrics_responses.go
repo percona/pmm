@@ -50,7 +50,7 @@ func NewGetMetricsOK() *GetMetricsOK {
 }
 
 /*
-	GetMetricsOK describes a response with status code 200, with default header values.
+GetMetricsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 }
 
 /*
-	GetMetricsDefault describes a response with status code -1, with default header values.
+GetMetricsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

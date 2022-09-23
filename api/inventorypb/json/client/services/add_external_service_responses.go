@@ -49,7 +49,7 @@ func NewAddExternalServiceOK() *AddExternalServiceOK {
 }
 
 /*
-	AddExternalServiceOK describes a response with status code 200, with default header values.
+AddExternalServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddExternalServiceDefault(code int) *AddExternalServiceDefault {
 }
 
 /*
-	AddExternalServiceDefault describes a response with status code -1, with default header values.
+AddExternalServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

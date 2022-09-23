@@ -49,7 +49,7 @@ func NewGetResourcesOK() *GetResourcesOK {
 }
 
 /*
-	GetResourcesOK describes a response with status code 200, with default header values.
+GetResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetResourcesDefault(code int) *GetResourcesDefault {
 }
 
 /*
-	GetResourcesDefault describes a response with status code -1, with default header values.
+GetResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

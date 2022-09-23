@@ -49,7 +49,7 @@ func NewDeleteArtifactOK() *DeleteArtifactOK {
 }
 
 /*
-	DeleteArtifactOK describes a response with status code 200, with default header values.
+DeleteArtifactOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewDeleteArtifactDefault(code int) *DeleteArtifactDefault {
 }
 
 /*
-	DeleteArtifactDefault describes a response with status code -1, with default header values.
+DeleteArtifactDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

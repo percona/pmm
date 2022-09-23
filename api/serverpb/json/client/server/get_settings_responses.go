@@ -49,7 +49,7 @@ func NewGetSettingsOK() *GetSettingsOK {
 }
 
 /*
-	GetSettingsOK describes a response with status code 200, with default header values.
+GetSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 }
 
 /*
-	GetSettingsDefault describes a response with status code -1, with default header values.
+GetSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

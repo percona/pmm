@@ -49,7 +49,7 @@ func NewStartPTMySQLSummaryActionOK() *StartPTMySQLSummaryActionOK {
 }
 
 /*
-	StartPTMySQLSummaryActionOK describes a response with status code 200, with default header values.
+StartPTMySQLSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartPTMySQLSummaryActionDefault(code int) *StartPTMySQLSummaryActionDef
 }
 
 /*
-	StartPTMySQLSummaryActionDefault describes a response with status code -1, with default header values.
+StartPTMySQLSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

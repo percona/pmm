@@ -49,7 +49,7 @@ func NewStartMongoDBExplainActionOK() *StartMongoDBExplainActionOK {
 }
 
 /*
-	StartMongoDBExplainActionOK describes a response with status code 200, with default header values.
+StartMongoDBExplainActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartMongoDBExplainActionDefault(code int) *StartMongoDBExplainActionDef
 }
 
 /*
-	StartMongoDBExplainActionDefault describes a response with status code -1, with default header values.
+StartMongoDBExplainActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

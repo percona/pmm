@@ -49,7 +49,7 @@ func NewRestoreBackupOK() *RestoreBackupOK {
 }
 
 /*
-	RestoreBackupOK describes a response with status code 200, with default header values.
+RestoreBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewRestoreBackupDefault(code int) *RestoreBackupDefault {
 }
 
 /*
-	RestoreBackupDefault describes a response with status code -1, with default header values.
+RestoreBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

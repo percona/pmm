@@ -49,7 +49,7 @@ func NewGetUserOK() *GetUserOK {
 }
 
 /*
-	GetUserOK describes a response with status code 200, with default header values.
+GetUserOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetUserDefault(code int) *GetUserDefault {
 }
 
 /*
-	GetUserDefault describes a response with status code -1, with default header values.
+GetUserDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

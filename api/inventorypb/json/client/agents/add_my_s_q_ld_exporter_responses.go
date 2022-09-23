@@ -51,7 +51,7 @@ func NewAddMySQLdExporterOK() *AddMySQLdExporterOK {
 }
 
 /*
-	AddMySQLdExporterOK describes a response with status code 200, with default header values.
+AddMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddMySQLdExporterDefault(code int) *AddMySQLdExporterDefault {
 }
 
 /*
-	AddMySQLdExporterDefault describes a response with status code -1, with default header values.
+AddMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -51,7 +51,7 @@ func NewListSecurityChecksOK() *ListSecurityChecksOK {
 }
 
 /*
-	ListSecurityChecksOK describes a response with status code 200, with default header values.
+ListSecurityChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListSecurityChecksDefault(code int) *ListSecurityChecksDefault {
 }
 
 /*
-	ListSecurityChecksDefault describes a response with status code -1, with default header values.
+ListSecurityChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

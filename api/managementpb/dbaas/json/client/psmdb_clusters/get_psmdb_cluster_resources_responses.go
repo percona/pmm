@@ -49,7 +49,7 @@ func NewGetPSMDBClusterResourcesOK() *GetPSMDBClusterResourcesOK {
 }
 
 /*
-	GetPSMDBClusterResourcesOK describes a response with status code 200, with default header values.
+GetPSMDBClusterResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetPSMDBClusterResourcesDefault(code int) *GetPSMDBClusterResourcesDefau
 }
 
 /*
-	GetPSMDBClusterResourcesDefault describes a response with status code -1, with default header values.
+GetPSMDBClusterResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

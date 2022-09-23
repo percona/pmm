@@ -49,7 +49,7 @@ func NewGetKubernetesClusterOK() *GetKubernetesClusterOK {
 }
 
 /*
-	GetKubernetesClusterOK describes a response with status code 200, with default header values.
+GetKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetKubernetesClusterDefault(code int) *GetKubernetesClusterDefault {
 }
 
 /*
-	GetKubernetesClusterDefault describes a response with status code -1, with default header values.
+GetKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -51,7 +51,7 @@ func NewChangeProxySQLExporterOK() *ChangeProxySQLExporterOK {
 }
 
 /*
-	ChangeProxySQLExporterOK describes a response with status code 200, with default header values.
+ChangeProxySQLExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewChangeProxySQLExporterDefault(code int) *ChangeProxySQLExporterDefault {
 }
 
 /*
-	ChangeProxySQLExporterDefault describes a response with status code -1, with default header values.
+ChangeProxySQLExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

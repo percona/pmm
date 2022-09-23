@@ -49,7 +49,7 @@ func NewAddMongoDBServiceOK() *AddMongoDBServiceOK {
 }
 
 /*
-	AddMongoDBServiceOK describes a response with status code 200, with default header values.
+AddMongoDBServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddMongoDBServiceDefault(code int) *AddMongoDBServiceDefault {
 }
 
 /*
-	AddMongoDBServiceDefault describes a response with status code -1, with default header values.
+AddMongoDBServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

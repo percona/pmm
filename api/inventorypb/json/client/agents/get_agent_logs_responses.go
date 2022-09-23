@@ -49,7 +49,7 @@ func NewGetAgentLogsOK() *GetAgentLogsOK {
 }
 
 /*
-	GetAgentLogsOK describes a response with status code 200, with default header values.
+GetAgentLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetAgentLogsDefault(code int) *GetAgentLogsDefault {
 }
 
 /*
-	GetAgentLogsDefault describes a response with status code -1, with default header values.
+GetAgentLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

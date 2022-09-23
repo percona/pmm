@@ -50,7 +50,7 @@ func NewGetHistogramOK() *GetHistogramOK {
 }
 
 /*
-	GetHistogramOK describes a response with status code 200, with default header values.
+GetHistogramOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewGetHistogramDefault(code int) *GetHistogramDefault {
 }
 
 /*
-	GetHistogramDefault describes a response with status code -1, with default header values.
+GetHistogramDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

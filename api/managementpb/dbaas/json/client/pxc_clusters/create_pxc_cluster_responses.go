@@ -49,7 +49,7 @@ func NewCreatePXCClusterOK() *CreatePXCClusterOK {
 }
 
 /*
-	CreatePXCClusterOK describes a response with status code 200, with default header values.
+CreatePXCClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewCreatePXCClusterDefault(code int) *CreatePXCClusterDefault {
 }
 
 /*
-	CreatePXCClusterDefault describes a response with status code -1, with default header values.
+CreatePXCClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

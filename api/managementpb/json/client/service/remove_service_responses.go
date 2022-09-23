@@ -51,7 +51,7 @@ func NewRemoveServiceOK() *RemoveServiceOK {
 }
 
 /*
-	RemoveServiceOK describes a response with status code 200, with default header values.
+RemoveServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewRemoveServiceDefault(code int) *RemoveServiceDefault {
 }
 
 /*
-	RemoveServiceDefault describes a response with status code -1, with default header values.
+RemoveServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

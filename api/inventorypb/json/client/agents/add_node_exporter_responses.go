@@ -51,7 +51,7 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 }
 
 /*
-	AddNodeExporterOK describes a response with status code 200, with default header values.
+AddNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
 }
 
 /*
-	AddNodeExporterDefault describes a response with status code -1, with default header values.
+AddNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

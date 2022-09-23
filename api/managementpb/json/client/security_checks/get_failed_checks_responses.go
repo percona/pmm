@@ -51,7 +51,7 @@ func NewGetFailedChecksOK() *GetFailedChecksOK {
 }
 
 /*
-	GetFailedChecksOK describes a response with status code 200, with default header values.
+GetFailedChecksOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewGetFailedChecksDefault(code int) *GetFailedChecksDefault {
 }
 
 /*
-	GetFailedChecksDefault describes a response with status code -1, with default header values.
+GetFailedChecksDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

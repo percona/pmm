@@ -49,7 +49,7 @@ func NewRemoveLocationOK() *RemoveLocationOK {
 }
 
 /*
-	RemoveLocationOK describes a response with status code 200, with default header values.
+RemoveLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewRemoveLocationDefault(code int) *RemoveLocationDefault {
 }
 
 /*
-	RemoveLocationDefault describes a response with status code -1, with default header values.
+RemoveLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

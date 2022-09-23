@@ -51,7 +51,7 @@ func NewStatus2OK() *Status2OK {
 }
 
 /*
-	Status2OK describes a response with status code 200, with default header values.
+Status2OK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewStatus2Default(code int) *Status2Default {
 }
 
 /*
-	Status2Default describes a response with status code -1, with default header values.
+Status2Default describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

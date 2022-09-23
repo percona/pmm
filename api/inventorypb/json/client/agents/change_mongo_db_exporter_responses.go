@@ -51,7 +51,7 @@ func NewChangeMongoDBExporterOK() *ChangeMongoDBExporterOK {
 }
 
 /*
-	ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
+ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewChangeMongoDBExporterDefault(code int) *ChangeMongoDBExporterDefault {
 }
 
 /*
-	ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
+ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

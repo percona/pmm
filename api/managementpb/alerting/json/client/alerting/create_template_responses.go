@@ -49,7 +49,7 @@ func NewCreateTemplateOK() *CreateTemplateOK {
 }
 
 /*
-	CreateTemplateOK describes a response with status code 200, with default header values.
+CreateTemplateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewCreateTemplateDefault(code int) *CreateTemplateDefault {
 }
 
 /*
-	CreateTemplateDefault describes a response with status code -1, with default header values.
+CreateTemplateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

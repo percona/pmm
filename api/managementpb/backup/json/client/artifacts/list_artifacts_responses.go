@@ -51,7 +51,7 @@ func NewListArtifactsOK() *ListArtifactsOK {
 }
 
 /*
-	ListArtifactsOK describes a response with status code 200, with default header values.
+ListArtifactsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewListArtifactsDefault(code int) *ListArtifactsDefault {
 }
 
 /*
-	ListArtifactsDefault describes a response with status code -1, with default header values.
+ListArtifactsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

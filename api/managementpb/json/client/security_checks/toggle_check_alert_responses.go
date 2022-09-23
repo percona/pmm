@@ -49,7 +49,7 @@ func NewToggleCheckAlertOK() *ToggleCheckAlertOK {
 }
 
 /*
-	ToggleCheckAlertOK describes a response with status code 200, with default header values.
+ToggleCheckAlertOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewToggleCheckAlertDefault(code int) *ToggleCheckAlertDefault {
 }
 
 /*
-	ToggleCheckAlertDefault describes a response with status code -1, with default header values.
+ToggleCheckAlertDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

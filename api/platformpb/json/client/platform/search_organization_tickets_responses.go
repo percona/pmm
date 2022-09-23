@@ -50,7 +50,7 @@ func NewSearchOrganizationTicketsOK() *SearchOrganizationTicketsOK {
 }
 
 /*
-	SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
+SearchOrganizationTicketsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewSearchOrganizationTicketsDefault(code int) *SearchOrganizationTicketsDef
 }
 
 /*
-	SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
+SearchOrganizationTicketsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

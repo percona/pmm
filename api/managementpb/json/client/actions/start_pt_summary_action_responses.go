@@ -49,7 +49,7 @@ func NewStartPTSummaryActionOK() *StartPTSummaryActionOK {
 }
 
 /*
-	StartPTSummaryActionOK describes a response with status code 200, with default header values.
+StartPTSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartPTSummaryActionDefault(code int) *StartPTSummaryActionDefault {
 }
 
 /*
-	StartPTSummaryActionDefault describes a response with status code -1, with default header values.
+StartPTSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

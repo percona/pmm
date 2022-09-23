@@ -49,7 +49,7 @@ func NewStartPostgreSQLShowCreateTableActionOK() *StartPostgreSQLShowCreateTable
 }
 
 /*
-	StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
+StartPostgreSQLShowCreateTableActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartPostgreSQLShowCreateTableActionDefault(code int) *StartPostgreSQLSh
 }
 
 /*
-	StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
+StartPostgreSQLShowCreateTableActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

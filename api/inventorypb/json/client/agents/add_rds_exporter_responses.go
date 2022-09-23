@@ -51,7 +51,7 @@ func NewAddRDSExporterOK() *AddRDSExporterOK {
 }
 
 /*
-	AddRDSExporterOK describes a response with status code 200, with default header values.
+AddRDSExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddRDSExporterDefault(code int) *AddRDSExporterDefault {
 }
 
 /*
-	AddRDSExporterDefault describes a response with status code -1, with default header values.
+AddRDSExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

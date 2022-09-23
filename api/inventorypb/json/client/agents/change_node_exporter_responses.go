@@ -51,7 +51,7 @@ func NewChangeNodeExporterOK() *ChangeNodeExporterOK {
 }
 
 /*
-	ChangeNodeExporterOK describes a response with status code 200, with default header values.
+ChangeNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewChangeNodeExporterDefault(code int) *ChangeNodeExporterDefault {
 }
 
 /*
-	ChangeNodeExporterDefault describes a response with status code -1, with default header values.
+ChangeNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

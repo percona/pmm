@@ -49,7 +49,7 @@ func NewAddAnnotationOK() *AddAnnotationOK {
 }
 
 /*
-	AddAnnotationOK describes a response with status code 200, with default header values.
+AddAnnotationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewAddAnnotationDefault(code int) *AddAnnotationDefault {
 }
 
 /*
-	AddAnnotationDefault describes a response with status code -1, with default header values.
+AddAnnotationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

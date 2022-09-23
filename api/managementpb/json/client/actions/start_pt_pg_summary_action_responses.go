@@ -49,7 +49,7 @@ func NewStartPTPgSummaryActionOK() *StartPTPgSummaryActionOK {
 }
 
 /*
-	StartPTPgSummaryActionOK describes a response with status code 200, with default header values.
+StartPTPgSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartPTPgSummaryActionDefault(code int) *StartPTPgSummaryActionDefault {
 }
 
 /*
-	StartPTPgSummaryActionDefault describes a response with status code -1, with default header values.
+StartPTPgSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

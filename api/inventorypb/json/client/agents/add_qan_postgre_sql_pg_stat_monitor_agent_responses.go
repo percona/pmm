@@ -51,7 +51,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentOK() *AddQANPostgreSQLPgStatMonitorAge
 }
 
 /*
-	AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
+AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentDefault(code int) *AddQANPostgreSQLPgS
 }
 
 /*
-	AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
+AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

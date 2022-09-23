@@ -50,7 +50,7 @@ func NewGetLabelsOK() *GetLabelsOK {
 }
 
 /*
-	GetLabelsOK describes a response with status code 200, with default header values.
+GetLabelsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -85,7 +85,7 @@ func NewGetLabelsDefault(code int) *GetLabelsDefault {
 }
 
 /*
-	GetLabelsDefault describes a response with status code -1, with default header values.
+GetLabelsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

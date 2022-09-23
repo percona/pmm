@@ -49,7 +49,7 @@ func NewDisconnectOK() *DisconnectOK {
 }
 
 /*
-	DisconnectOK describes a response with status code 200, with default header values.
+DisconnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewDisconnectDefault(code int) *DisconnectDefault {
 }
 
 /*
-	DisconnectDefault describes a response with status code -1, with default header values.
+DisconnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewAWSInstanceCheckOK() *AWSInstanceCheckOK {
 }
 
 /*
-	AWSInstanceCheckOK describes a response with status code 200, with default header values.
+AWSInstanceCheckOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewAWSInstanceCheckDefault(code int) *AWSInstanceCheckDefault {
 }
 
 /*
-	AWSInstanceCheckDefault describes a response with status code -1, with default header values.
+AWSInstanceCheckDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

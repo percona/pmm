@@ -49,7 +49,7 @@ func NewGetServiceOK() *GetServiceOK {
 }
 
 /*
-	GetServiceOK describes a response with status code 200, with default header values.
+GetServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetServiceDefault(code int) *GetServiceDefault {
 }
 
 /*
-	GetServiceDefault describes a response with status code -1, with default header values.
+GetServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

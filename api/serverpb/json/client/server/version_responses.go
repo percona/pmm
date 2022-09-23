@@ -51,7 +51,7 @@ func NewVersionOK() *VersionOK {
 }
 
 /*
-	VersionOK describes a response with status code 200, with default header values.
+VersionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewVersionDefault(code int) *VersionDefault {
 }
 
 /*
-	VersionDefault describes a response with status code -1, with default header values.
+VersionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

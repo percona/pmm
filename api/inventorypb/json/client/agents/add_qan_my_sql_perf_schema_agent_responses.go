@@ -51,7 +51,7 @@ func NewAddQANMySQLPerfSchemaAgentOK() *AddQANMySQLPerfSchemaAgentOK {
 }
 
 /*
-	AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
+AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentD
 }
 
 /*
-	AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
+AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

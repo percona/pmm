@@ -52,7 +52,7 @@ func NewPostSilencesOK() *PostSilencesOK {
 }
 
 /*
-	PostSilencesOK describes a response with status code 200, with default header values.
+PostSilencesOK describes a response with status code 200, with default header values.
 
 Create / update silence response
 */
@@ -85,7 +85,7 @@ func NewPostSilencesBadRequest() *PostSilencesBadRequest {
 }
 
 /*
-	PostSilencesBadRequest describes a response with status code 400, with default header values.
+PostSilencesBadRequest describes a response with status code 400, with default header values.
 
 Bad request
 */
@@ -116,7 +116,7 @@ func NewPostSilencesNotFound() *PostSilencesNotFound {
 }
 
 /*
-	PostSilencesNotFound describes a response with status code 404, with default header values.
+PostSilencesNotFound describes a response with status code 404, with default header values.
 
 A silence with the specified ID was not found
 */

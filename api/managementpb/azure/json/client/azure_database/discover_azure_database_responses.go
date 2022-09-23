@@ -51,7 +51,7 @@ func NewDiscoverAzureDatabaseOK() *DiscoverAzureDatabaseOK {
 }
 
 /*
-	DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
+DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewDiscoverAzureDatabaseDefault(code int) *DiscoverAzureDatabaseDefault {
 }
 
 /*
-	DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
+DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

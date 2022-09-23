@@ -51,7 +51,7 @@ func NewCreateRuleOK() *CreateRuleOK {
 }
 
 /*
-	CreateRuleOK describes a response with status code 200, with default header values.
+CreateRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewCreateRuleDefault(code int) *CreateRuleDefault {
 }
 
 /*
-	CreateRuleDefault describes a response with status code -1, with default header values.
+CreateRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

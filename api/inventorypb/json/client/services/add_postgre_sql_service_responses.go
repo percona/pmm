@@ -49,7 +49,7 @@ func NewAddPostgreSQLServiceOK() *AddPostgreSQLServiceOK {
 }
 
 /*
-	AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
+AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddPostgreSQLServiceDefault(code int) *AddPostgreSQLServiceDefault {
 }
 
 /*
-	AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
+AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

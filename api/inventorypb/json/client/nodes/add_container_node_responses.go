@@ -49,7 +49,7 @@ func NewAddContainerNodeOK() *AddContainerNodeOK {
 }
 
 /*
-	AddContainerNodeOK describes a response with status code 200, with default header values.
+AddContainerNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddContainerNodeDefault(code int) *AddContainerNodeDefault {
 }
 
 /*
-	AddContainerNodeDefault describes a response with status code -1, with default header values.
+AddContainerNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

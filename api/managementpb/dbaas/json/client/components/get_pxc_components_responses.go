@@ -49,7 +49,7 @@ func NewGetPXCComponentsOK() *GetPXCComponentsOK {
 }
 
 /*
-	GetPXCComponentsOK describes a response with status code 200, with default header values.
+GetPXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetPXCComponentsDefault(code int) *GetPXCComponentsDefault {
 }
 
 /*
-	GetPXCComponentsDefault describes a response with status code -1, with default header values.
+GetPXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

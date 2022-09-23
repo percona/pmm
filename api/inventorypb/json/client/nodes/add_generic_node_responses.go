@@ -49,7 +49,7 @@ func NewAddGenericNodeOK() *AddGenericNodeOK {
 }
 
 /*
-	AddGenericNodeOK describes a response with status code 200, with default header values.
+AddGenericNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
 }
 
 /*
-	AddGenericNodeDefault describes a response with status code -1, with default header values.
+AddGenericNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

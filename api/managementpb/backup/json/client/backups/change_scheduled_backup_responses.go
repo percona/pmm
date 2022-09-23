@@ -50,7 +50,7 @@ func NewChangeScheduledBackupOK() *ChangeScheduledBackupOK {
 }
 
 /*
-	ChangeScheduledBackupOK describes a response with status code 200, with default header values.
+ChangeScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +83,7 @@ func NewChangeScheduledBackupDefault(code int) *ChangeScheduledBackupDefault {
 }
 
 /*
-	ChangeScheduledBackupDefault describes a response with status code -1, with default header values.
+ChangeScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

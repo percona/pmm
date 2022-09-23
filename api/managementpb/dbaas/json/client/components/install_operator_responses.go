@@ -51,7 +51,7 @@ func NewInstallOperatorOK() *InstallOperatorOK {
 }
 
 /*
-	InstallOperatorOK describes a response with status code 200, with default header values.
+InstallOperatorOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewInstallOperatorDefault(code int) *InstallOperatorDefault {
 }
 
 /*
-	InstallOperatorDefault describes a response with status code -1, with default header values.
+InstallOperatorDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

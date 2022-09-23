@@ -51,7 +51,7 @@ func NewAddMongoDBExporterOK() *AddMongoDBExporterOK {
 }
 
 /*
-	AddMongoDBExporterOK describes a response with status code 200, with default header values.
+AddMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -86,7 +86,7 @@ func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
 }
 
 /*
-	AddMongoDBExporterDefault describes a response with status code -1, with default header values.
+AddMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

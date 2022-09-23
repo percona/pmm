@@ -49,7 +49,7 @@ func NewStartPostgreSQLShowIndexActionOK() *StartPostgreSQLShowIndexActionOK {
 }
 
 /*
-	StartPostgreSQLShowIndexActionOK describes a response with status code 200, with default header values.
+StartPostgreSQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartPostgreSQLShowIndexActionDefault(code int) *StartPostgreSQLShowInde
 }
 
 /*
-	StartPostgreSQLShowIndexActionDefault describes a response with status code -1, with default header values.
+StartPostgreSQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

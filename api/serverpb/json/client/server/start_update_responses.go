@@ -49,7 +49,7 @@ func NewStartUpdateOK() *StartUpdateOK {
 }
 
 /*
-	StartUpdateOK describes a response with status code 200, with default header values.
+StartUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartUpdateDefault(code int) *StartUpdateDefault {
 }
 
 /*
-	StartUpdateDefault describes a response with status code -1, with default header values.
+StartUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

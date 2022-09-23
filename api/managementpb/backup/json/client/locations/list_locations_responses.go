@@ -49,7 +49,7 @@ func NewListLocationsOK() *ListLocationsOK {
 }
 
 /*
-	ListLocationsOK describes a response with status code 200, with default header values.
+ListLocationsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewListLocationsDefault(code int) *ListLocationsDefault {
 }
 
 /*
-	ListLocationsDefault describes a response with status code -1, with default header values.
+ListLocationsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

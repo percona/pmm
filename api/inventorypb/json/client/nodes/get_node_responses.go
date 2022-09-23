@@ -49,7 +49,7 @@ func NewGetNodeOK() *GetNodeOK {
 }
 
 /*
-	GetNodeOK describes a response with status code 200, with default header values.
+GetNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetNodeDefault(code int) *GetNodeDefault {
 }
 
 /*
-	GetNodeDefault describes a response with status code -1, with default header values.
+GetNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

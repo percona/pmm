@@ -49,7 +49,7 @@ func NewUserStatusOK() *UserStatusOK {
 }
 
 /*
-	UserStatusOK describes a response with status code 200, with default header values.
+UserStatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewUserStatusDefault(code int) *UserStatusDefault {
 }
 
 /*
-	UserStatusDefault describes a response with status code -1, with default header values.
+UserStatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

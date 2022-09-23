@@ -49,7 +49,7 @@ func NewStartMySQLShowTableStatusActionOK() *StartMySQLShowTableStatusActionOK {
 }
 
 /*
-	StartMySQLShowTableStatusActionOK describes a response with status code 200, with default header values.
+StartMySQLShowTableStatusActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartMySQLShowTableStatusActionDefault(code int) *StartMySQLShowTableSta
 }
 
 /*
-	StartMySQLShowTableStatusActionDefault describes a response with status code -1, with default header values.
+StartMySQLShowTableStatusActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

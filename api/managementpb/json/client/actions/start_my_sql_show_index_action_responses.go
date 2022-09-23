@@ -49,7 +49,7 @@ func NewStartMySQLShowIndexActionOK() *StartMySQLShowIndexActionOK {
 }
 
 /*
-	StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
+StartMySQLShowIndexActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartMySQLShowIndexActionDefault(code int) *StartMySQLShowIndexActionDef
 }
 
 /*
-	StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
+StartMySQLShowIndexActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

@@ -49,7 +49,7 @@ func NewGetContactInformationOK() *GetContactInformationOK {
 }
 
 /*
-	GetContactInformationOK describes a response with status code 200, with default header values.
+GetContactInformationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewGetContactInformationDefault(code int) *GetContactInformationDefault {
 }
 
 /*
-	GetContactInformationDefault describes a response with status code -1, with default header values.
+GetContactInformationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

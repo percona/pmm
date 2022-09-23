@@ -49,7 +49,7 @@ func NewStartMySQLExplainJSONActionOK() *StartMySQLExplainJSONActionOK {
 }
 
 /*
-	StartMySQLExplainJSONActionOK describes a response with status code 200, with default header values.
+StartMySQLExplainJSONActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +84,7 @@ func NewStartMySQLExplainJSONActionDefault(code int) *StartMySQLExplainJSONActio
 }
 
 /*
-	StartMySQLExplainJSONActionDefault describes a response with status code -1, with default header values.
+StartMySQLExplainJSONActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */

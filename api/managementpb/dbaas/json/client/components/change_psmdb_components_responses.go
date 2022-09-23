@@ -49,7 +49,7 @@ func NewChangePSMDBComponentsOK() *ChangePSMDBComponentsOK {
 }
 
 /*
-	ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
+ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +82,7 @@ func NewChangePSMDBComponentsDefault(code int) *ChangePSMDBComponentsDefault {
 }
 
 /*
-	ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
+ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
