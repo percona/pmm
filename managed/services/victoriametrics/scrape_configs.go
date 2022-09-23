@@ -590,5 +590,23 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 			Labels:  labels,
 		}},
 	}
-	return []*config.ScrapeConfig{cfg}, nil
+	return []*config.ScrapeConfig{cfg, scrapeConfigForPmmAgent(s, params)}, nil
+}
+
+// scrapeConfigForPmmAgent returns scrape config endpoint for vmagent with default pmm-agent parameters.
+func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigParams) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        fmt.Sprintf("%s%s_%s", models.PMMAgentType, strings.Map(jobNameMapping, *params.agent.PMMAgentID), "mr"),
+		ScrapeInterval: config.Duration(s.MR),
+		ScrapeTimeout:  ScrapeTimeout(s.MR),
+		MetricsPath:    "/debug/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{
+				{
+					Targets: []string{"127.0.0.1:7777"},
+					Labels:  map[string]string{"instance": string(models.PMMAgentType)},
+				},
+			},
+		},
+	}
 }
