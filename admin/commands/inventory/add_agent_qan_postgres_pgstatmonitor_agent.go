@@ -53,7 +53,7 @@ type AddAgentQANPostgreSQLPgStatMonitorAgentCommand struct {
 	Password              string            `help:"PostgreSQL password for QAN agent"`
 	CustomLabels          map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck   bool              `help:"Skip connection check"`
-	QueryLength           int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	MaxQueryLength        int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	QueryExamplesDisabled bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                   bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify         bool              `help:"Skip TLS certificates validation"`
@@ -95,7 +95,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatMonitorAgentCommand) RunCmd() (commands.Re
 			Password:             cmd.Password,
 			CustomLabels:         customLabels,
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
-			QueryLength:          cmd.QueryLength,
+			MaxQueryLength:       cmd.MaxQueryLength,
 			DisableQueryExamples: cmd.QueryExamplesDisabled,
 
 			TLS:           cmd.TLS,

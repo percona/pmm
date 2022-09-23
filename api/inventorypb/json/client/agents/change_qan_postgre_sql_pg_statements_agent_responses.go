@@ -456,7 +456,7 @@ type ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent st
 	Username string `json:"username,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	QueryLength int32 `json:"query_length,omitempty"`
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`

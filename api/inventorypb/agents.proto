@@ -383,7 +383,7 @@ message QANPostgreSQLPgStatementsAgent {
   // PostgreSQL username for getting pg stat statements data.
   string username = 5;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 12;
+  int32 max_query_length = 12;
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -419,7 +419,7 @@ message QANPostgreSQLPgStatMonitorAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 13;
+  int32 max_query_length = 13;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Custom user-assigned labels.
@@ -1174,7 +1174,7 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   // Skip connection check.
   bool skip_connection_check = 8;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 13;
+  int32 max_query_length = 13;
   // TLS CA certificate.
   string tls_ca = 9;
   // TLS Certifcate.
@@ -1230,7 +1230,7 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 14;
+  int32 max_query_length = 14;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Custom user-assigned labels.

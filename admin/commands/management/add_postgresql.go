@@ -66,7 +66,7 @@ type AddPostgreSQLCommand struct {
 	TLSCertFile          string            `help:"TLS certificate file"`
 	TLSKeyFile           string            `help:"TLS certificate key file"`
 	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
-	QueryLength          int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
@@ -190,7 +190,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			TLSKey:        tlsKey,
 			TLSSkipVerify: cmd.TLSSkipVerify,
 
-			QueryLength:          cmd.QueryLength,
+			MaxQueryLength:       cmd.MaxQueryLength,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),

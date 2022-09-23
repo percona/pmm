@@ -107,9 +107,9 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:        inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:         agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
-		QueryLength: agent.QueryLength,
+		Type:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		Dsn:            agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		MaxQueryLength: agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -125,7 +125,7 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		Type:                 inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, service.DatabaseName, nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
-		QueryLength:          agent.QueryLength,
+		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

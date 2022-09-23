@@ -51,7 +51,7 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	normalizedQuery, err := settings.getNormalizedQueryValue()
 	assert.NoError(t, err)
 
-	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery, truncate.GetDefaultQueryLength())
+	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery, truncate.GetDefaultMaxQueryLength())
 
 	require.NoError(t, err)
 	require.NotNil(t, current)

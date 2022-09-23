@@ -6496,7 +6496,7 @@
                   "type": "boolean",
                   "x-order": 5
                 },
-                "query_length": {
+                "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
@@ -6598,7 +6598,7 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -6750,7 +6750,7 @@
                   "type": "boolean",
                   "x-order": 7
                 },
-                "query_length": {
+                "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
@@ -6824,7 +6824,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -9327,7 +9327,7 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -9519,7 +9519,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -10807,7 +10807,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -10907,7 +10907,7 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -12391,7 +12391,7 @@
                         "type": "string",
                         "x-order": 4
                       },
-                      "query_length": {
+                      "max_query_length": {
                         "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                         "type": "integer",
                         "format": "int32",
@@ -12494,7 +12494,7 @@
                         "type": "boolean",
                         "x-order": 6
                       },
-                      "query_length": {
+                      "max_query_length": {
                         "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                         "type": "integer",
                         "format": "int32",
@@ -23650,7 +23650,7 @@
                   "type": "boolean",
                   "x-order": 15
                 },
-                "query_length": {
+                "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
@@ -23945,7 +23945,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -24045,7 +24045,7 @@
                       "type": "boolean",
                       "x-order": 6
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
@@ -25388,7 +25388,7 @@
                       "type": "string",
                       "x-order": 4
                     },
-                    "query_length": {
+                    "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",

@@ -45,7 +45,7 @@ func setup(t *testing.T, db *reform.DB) *PGStatStatementsQAN {
 	_, err := db.Exec(selectQuery + "pg_stat_statements_reset()")
 	require.NoError(t, err)
 
-	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", truncate.GetDefaultQueryLength(), logrus.WithField("test", t.Name()))
+	p, err := newPgStatStatementsQAN(db.WithTag(queryTag), nil, "agent_id", truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return p

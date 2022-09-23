@@ -56,7 +56,7 @@ type PGStatMonitorQAN struct {
 // Params represent Agent parameters.
 type Params struct {
 	DSN                  string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	AgentID              string
@@ -118,7 +118,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.QueryLength, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {

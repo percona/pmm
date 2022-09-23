@@ -2601,6 +2601,12 @@
                   ],
                   "x-order": 13
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 6
+                },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat monitor data.",
                   "type": "string",
@@ -2610,12 +2616,6 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
-                },
-                "query_length": {
-                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 6
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -2703,6 +2703,12 @@
                       ],
                       "x-order": 12
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2717,12 +2723,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 8
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2837,6 +2837,12 @@
                   ],
                   "x-order": 12
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 8
+                },
                 "password": {
                   "description": "PostgreSQL password for getting pg stat statements data.",
                   "type": "string",
@@ -2846,12 +2852,6 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
-                },
-                "query_length": {
-                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 8
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -2939,6 +2939,12 @@
                       ],
                       "x-order": 11
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2948,12 +2954,6 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5432,6 +5432,12 @@
                       ],
                       "x-order": 12
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5446,12 +5452,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 8
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5634,6 +5634,12 @@
                       ],
                       "x-order": 11
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5643,12 +5649,6 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -7035,6 +7035,12 @@
                       ],
                       "x-order": 11
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -7044,12 +7050,6 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 10
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 5
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -7125,6 +7125,12 @@
                       ],
                       "x-order": 12
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -7139,12 +7145,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 8
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 7
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -8622,6 +8622,12 @@
                         ],
                         "x-order": 11
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8631,12 +8637,6 @@
                         "description": "Path to exec process.",
                         "type": "string",
                         "x-order": 10
-                      },
-                      "query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                        "type": "integer",
-                        "format": "int32",
-                        "x-order": 5
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -8715,6 +8715,12 @@
                         ],
                         "x-order": 12
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8729,12 +8735,6 @@
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "x-order": 8
-                      },
-                      "query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                        "type": "integer",
-                        "format": "int32",
-                        "x-order": 7
                       },
                       "service_id": {
                         "description": "Service identifier.",

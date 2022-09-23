@@ -52,7 +52,7 @@ type AddAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	Password            string            `help:"PostgreSQL password for QAN agent"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	QueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	MaxQueryLength      int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	TLSCAFile           string            `name:"tls-ca-file" help:"TLS CA certificate file"`
@@ -93,7 +93,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Res
 			Password:            cmd.Password,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			QueryLength:         cmd.QueryLength,
+			MaxQueryLength:      cmd.MaxQueryLength,
 
 			TLS:           cmd.TLS,
 			TLSSkipVerify: cmd.TLSSkipVerify,

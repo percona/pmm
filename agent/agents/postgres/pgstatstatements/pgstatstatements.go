@@ -54,7 +54,7 @@ type PGStatStatementsQAN struct {
 	q               *reform.Querier
 	dbCloser        io.Closer
 	agentID         string
-	queryLength     int
+	maxQueryLength  int
 	l               *logrus.Entry
 	changes         chan agents.Change
 	statementsCache *statementsCache
@@ -62,10 +62,10 @@ type PGStatStatementsQAN struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN         string
-	AgentID     string
-	QueryLength int
-	TextFiles   *agentpb.TextFiles
+	DSN            string
+	AgentID        string
+	MaxQueryLength int
+	TextFiles      *agentpb.TextFiles
 }
 
 const queryTag = "pmm-agent:pgstatstatements"
@@ -83,10 +83,10 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	reformL := sqlmetrics.NewReform("postgres", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
-	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.QueryLength, l)
+	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, queryLength int, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
@@ -96,7 +96,7 @@ func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID strin
 		q:               q,
 		dbCloser:        dbCloser,
 		agentID:         agentID,
-		queryLength:     queryLength,
+		maxQueryLength:  maxQueryLength,
 		l:               l,
 		changes:         make(chan agents.Change, 10),
 		statementsCache: statementCache,
@@ -141,7 +141,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
 
-	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.queryLength); err == nil {
+	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
@@ -265,7 +265,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 }
 
 func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
-	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.queryLength)
+	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength)
 	if err != nil {
 		return nil, err
 	}
