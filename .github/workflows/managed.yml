@@ -27,38 +27,26 @@ on:
 
 jobs:
   test:
-    name: Test pmm-managed
+    name: Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         use-cache: [false]
-        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
-
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
 
     env:
       GO_VERSION: ${{ matrix.go-version }}
-      # no `-mod=readonly` to test PRs made by @dependabot;
-      # `git diff --exit-code` step below still checks what we need
-      GOFLAGS: -v
       PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
-      WORKING_DIR: ${{ github.workspace }}/src/github.com/percona/pmm
-
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
 
     steps:
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: percona-platform/checkout@v3
-        with:
-          fetch-depth: 1
-          path: ${{ env.WORKING_DIR }}
 
       - name: Enable Go build cache
         if: matrix.use-cache
@@ -81,7 +69,9 @@ jobs:
 
       - name: Download Go modules
         if: matrix.use-cache
-        run: go mod download
+        run: |
+          pushd tools && go mod download
+          popd        && go mod download
 
       - name: Initialize CI environment
         run: make env-compose-up
@@ -103,9 +93,9 @@ jobs:
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-update
 
       - name: Upload coverage results
-        uses: percona-platform/codecov-action@v3
+        uses: codecov/codecov-action@v3
         with:
-          file: ./src/github.com/percona/pmm/managed/cover.out
+          file: managed/cover.out
           flags: managed
           env_vars: GO_VERSION,PMM_SERVER_IMAGE
           fail_ci_if_error: false

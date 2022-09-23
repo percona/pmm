@@ -350,16 +350,16 @@ func TestSettings(t *testing.T) {
 				SlackAlertingSettings: slackSettings,
 			})
 			require.NoError(t, err)
-			assert.True(t, ns.IntegratedAlerting.Enabled)
-			assert.Equal(t, ns.IntegratedAlerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.IntegratedAlerting.SlackAlertingSettings, slackSettings)
+			assert.False(t, ns.Alerting.Disabled)
+			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
+			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
 
 			// check that we don't lose settings on empty updates
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
 			require.NoError(t, err)
-			assert.True(t, ns.IntegratedAlerting.Enabled)
-			assert.Equal(t, ns.IntegratedAlerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.IntegratedAlerting.SlackAlertingSettings, slackSettings)
+			assert.False(t, ns.Alerting.Disabled)
+			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
+			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				RemoveEmailAlertingSettings: true,
@@ -419,8 +419,8 @@ func TestSettings(t *testing.T) {
 				RemoveSlackAlertingSettings: true,
 			})
 			require.NoError(t, err)
-			assert.Empty(t, ns.IntegratedAlerting.EmailAlertingSettings)
-			assert.False(t, ns.IntegratedAlerting.Enabled)
+			assert.Empty(t, ns.Alerting.EmailAlertingSettings)
+			assert.True(t, ns.Alerting.Disabled)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DisableAlerting: true,

@@ -2,11 +2,12 @@
 version: '3.7'
 services:
   pmm-managed-server:
-    build:
-      context: .
-      args:
-        PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-container}
-      dockerfile: devcontainer.Dockerfile
+    image: perconalab/pmm-server:dev-container
+    # build:
+    #   context: .
+    #   args:
+    #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    #   dockerfile: devcontainer.Dockerfile
     container_name: pmm-managed-server
     hostname: pmm-managed-server
     networks:
@@ -17,7 +18,6 @@ services:
       - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      - ENABLE_ALERTING=1
       - ENABLE_BACKUP_MANAGEMENT=1
 #      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
 #      - PERCONA_TEST_PLATFORM_INSECURE=1

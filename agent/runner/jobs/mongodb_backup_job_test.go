@@ -16,8 +16,11 @@ package jobs
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 )
 
 func TestCreateDBURL(t *testing.T) {
@@ -70,6 +73,57 @@ func TestCreateDBURL(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, test.url, createDBURL(test.dbConfig).String())
+		})
+	}
+}
+
+func TestNewMongoDBBackupJob(t *testing.T) {
+	t.Parallel()
+	testJobDuration := 1 * time.Second
+	tests := []struct {
+		name      string
+		dbConfig  DBConnConfig
+		dataModel backupv1beta1.DataModel
+		pitr      bool
+		errMsg    string
+	}{
+		{
+			name:      "logical backup model",
+			dbConfig:  DBConnConfig{},
+			dataModel: backupv1beta1.DataModel_LOGICAL,
+			errMsg:    "",
+		},
+		{
+			name:      "physical backup model",
+			dbConfig:  DBConnConfig{},
+			dataModel: backupv1beta1.DataModel_PHYSICAL,
+			errMsg:    "",
+		},
+		{
+			name:      "invalid backup model",
+			dbConfig:  DBConnConfig{},
+			dataModel: backupv1beta1.DataModel_DATA_MODEL_INVALID,
+			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
+		},
+		{
+			name:      "pitr fails for physical backups",
+			dbConfig:  DBConnConfig{},
+			pitr:      true,
+			dataModel: backupv1beta1.DataModel_PHYSICAL,
+			errMsg:    "PITR is only supported for logical backups",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), tc.dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel)
+			if tc.errMsg == "" {
+				assert.NoError(t, err)
+			} else {
+				assert.ErrorContains(t, err, tc.errMsg)
+			}
 		})
 	}
 }

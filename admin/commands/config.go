@@ -16,14 +16,12 @@ package commands
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm/utils/nodeinfo"
+	"github.com/percona/pmm/admin/cli/flags"
 )
 
 type configResult struct {
@@ -41,62 +39,59 @@ func (res *configResult) String() string {
 	return s
 }
 
-type configCommand struct {
-	NodeAddress string
-	NodeType    string
-	NodeName    string
-
-	AgentPassword     string
-	NodeModel         string
-	Region            string
-	Az                string
-	MetricsMode       string
-	DisableCollectors string
-	CustomLabels      string
-	BasePath          string
-	ListenPort        uint32
-	LogLevel          string
-
-	LogLinesCount uint
-
-	Force bool
+// ConfigCommand is used by Kong for CLI flags and commands.
+type ConfigCommand struct {
+	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
+	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type, one of: generic, container (default: ${nodeTypeDefault})"`
+	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected default: ${hostname})"`
+	NodeModel         string   `help:"Node model"`
+	Region            string   `help:"Node region"`
+	Az                string   `help:"Node availability zone"`
+	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
+	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
+	MetricsMode       string   `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode for agents node-exporter, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
+	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
+	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
+	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
+	LogLevel          string   `enum:"debug,info,warn,error,fatal" default:"warn" help:"Logging level"`
+	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
-func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
-	port := GlobalFlags.ServerURL.Port()
+func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) (res []string, switchedToTLS bool) {
+	port := globals.ServerURL.Port()
 	if port == "" {
 		port = "443"
 	}
-	if GlobalFlags.ServerURL.Scheme == "http" {
+	if globals.ServerURL.Scheme == "http" {
 		port = "443"
 		switchedToTLS = true
-		GlobalFlags.ServerInsecureTLS = true
+		globals.SkipTLSCertificateCheck = true
 	}
-	res = append(res, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
+	res = append(res, fmt.Sprintf("--server-address=%s:%s", globals.ServerURL.Hostname(), port))
 
-	if GlobalFlags.ServerURL.User != nil {
-		res = append(res, fmt.Sprintf("--server-username=%s", GlobalFlags.ServerURL.User.Username()))
-		password, ok := GlobalFlags.ServerURL.User.Password()
+	if globals.ServerURL.User != nil {
+		res = append(res, fmt.Sprintf("--server-username=%s", globals.ServerURL.User.Username()))
+		password, ok := globals.ServerURL.User.Password()
 		if ok {
 			res = append(res, fmt.Sprintf("--server-password=%s", password))
 		}
 	}
 
-	if GlobalFlags.PMMAgentListenPort != 0 {
-		res = append(res, fmt.Sprintf("--listen-port=%d", GlobalFlags.PMMAgentListenPort))
+	if globals.PMMAgentListenPort != 0 {
+		res = append(res, fmt.Sprintf("--listen-port=%d", globals.PMMAgentListenPort))
 	}
 
-	if GlobalFlags.ServerInsecureTLS {
+	if globals.SkipTLSCertificateCheck {
 		res = append(res, "--server-insecure-tls")
 	}
 
 	if cmd.LogLevel != "" {
 		res = append(res, fmt.Sprintf("--log-level=%s", cmd.LogLevel))
 	}
-	if GlobalFlags.Debug {
+	if globals.EnableDebug {
 		res = append(res, "--debug")
 	}
-	if GlobalFlags.Trace {
+	if globals.EnableTrace {
 		res = append(res, "--trace")
 	}
 
@@ -122,8 +117,8 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 		res = append(res, fmt.Sprintf("--metrics-mode=%s", cmd.MetricsMode))
 	}
 
-	if cmd.DisableCollectors != "" {
-		res = append(res, fmt.Sprintf("--disable-collectors=%s", cmd.DisableCollectors))
+	if len(cmd.DisableCollectors) != 0 {
+		res = append(res, fmt.Sprintf("--disable-collectors=%s", strings.Join(cmd.DisableCollectors, ",")))
 	}
 
 	if cmd.CustomLabels != "" {
@@ -143,8 +138,9 @@ func (cmd *configCommand) args() (res []string, switchedToTLS bool) {
 	return //nolint:nakedret
 }
 
-func (cmd *configCommand) Run() (Result, error) {
-	args, switchedToTLS := cmd.args()
+// RunCmd runs config command.
+func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
+	args, switchedToTLS := cmd.args(globals)
 	c := exec.Command("pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.Output() // hide pmm-agent's stderr logging
@@ -155,46 +151,4 @@ func (cmd *configCommand) Run() (Result, error) {
 		res.Warning = `Warning: PMM Server requires TLS communications with client.`
 	}
 	return res, err
-}
-
-// register command
-var (
-	Config  configCommand
-	ConfigC = kingpin.Command("config", "Configure local pmm-agent")
-)
-
-func init() {
-	nodeinfo := nodeinfo.Get()
-	if nodeinfo.PublicAddress == "" {
-		ConfigC.Arg("node-address", "Node address").Required().StringVar(&Config.NodeAddress)
-	} else {
-		help := fmt.Sprintf("Node address (autodetected default: %s)", nodeinfo.PublicAddress)
-		ConfigC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Config.NodeAddress)
-	}
-
-	configNodeTypeKeys := []string{"generic", "container"} // "remote" Node can't be registered with that API
-	nodeTypeDefault := "generic"
-	if nodeinfo.Container {
-		nodeTypeDefault = "container"
-	}
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(configNodeTypeKeys, ", "), nodeTypeDefault)
-	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, configNodeTypeKeys...)
-
-	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
-	ConfigC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Config.NodeName)
-
-	ConfigC.Flag("node-model", "Node model").StringVar(&Config.NodeModel)
-	ConfigC.Flag("region", "Node region").StringVar(&Config.Region)
-	ConfigC.Flag("az", "Node availability zone").StringVar(&Config.Az)
-
-	ConfigC.Flag("agent-password", "Custom password for /metrics endpoint").StringVar(&Config.AgentPassword)
-	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Config.Force)
-	ConfigC.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
-		" pull - server scrape metrics from agent  or auto - chosen by server.").Default("auto").EnumVar(&Config.MetricsMode, "auto", "push", "pull")
-	ConfigC.Flag("disable-collectors", "Comma-separated list of collector names to exclude from exporter").StringVar(&Config.DisableCollectors)
-	ConfigC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&Config.CustomLabels)
-	ConfigC.Flag("paths-base", "Base path where all binaries, tools and collectors of PMM client are located").StringVar(&Config.BasePath)
-	ConfigC.Flag("log-level", "Logging level").Default("warn").EnumVar(&Config.LogLevel, "debug", "info", "warn", "error", "fatal")
-	ConfigC.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents").Default("1024").UintVar(&Config.LogLinesCount)
 }

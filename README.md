@@ -3,6 +3,8 @@
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
+[![Discord](https://img.shields.io/discord/808660945513611334?label=Discord&logo=Discord&style=flat)](https://per.co.na/discord)
+[![Forum](https://img.shields.io/badge/Forum-join-brightgreen)](https://forums.percona.com/)
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
 
@@ -65,7 +67,15 @@ percona/pmm-server:2
 
 <img src="https://docs.percona.com/percona-monitoring-and-management/_images/PMM_Login.jpg" width="280">
 
-Enter the username and password. The defaults are username: **admin** and password: **admim**
+Enter the username and password. The defaults are username: **admin** and password: **admin**
+
+## How to get involved
+
+We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
+
+If you’re looking for information about how you can contribute, we have [contribution guidelines](CONTRIBUTING.md) across all our repositories in `CONTRIBUTING.md` files. Some of them may just link to the main project’s repository’s contribution guidelines.
+
+We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://per.co.na/discord).
 
 ## Submitting Bug Reports
 
@@ -92,12 +102,3 @@ As a general rule of thumb, please try to create bug reports that are:
 
 Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](https://github.com/percona/pmm/blob/main/LICENSE) license.
 
-## How to get involved
-
-First please check [contribution guidelines](CONTRIBUTING.md) for this repo to get started.
-
-We encourage contributions and are always looking for new members that are as dedicated to serving the community as we are.
-
-If you’re looking for information about how you can contribute, we have [contribution guidelines](CONTRIBUTING.md) across all our repositories in `CONTRIBUTING.md` files. Some of them may just link to the main project’s repository’s contribution guidelines.
-
-We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://discord.gg/mQEyGPkNbR).

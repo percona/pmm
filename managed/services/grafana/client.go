@@ -30,6 +30,7 @@ import (
 	"strings"
 	"time"
 
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -37,11 +38,14 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
+
+const defaultEvaluationInterval = time.Minute
 
 // Client represents a client for Grafana API.
 type Client struct {
@@ -132,7 +136,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 200 && resp.StatusCode != 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -179,6 +183,28 @@ func (r role) String() string {
 	default:
 		return fmt.Sprintf("unexpected role %d", int(r))
 	}
+}
+
+// getUserID returns user ID from Grafana for given user
+func (c *Client) GetUserID(ctx context.Context) (int, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	var m map[string]interface{}
+	err = c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
+
+	if err != nil {
+		return 0, err
+	}
+
+	userID, ok := m["id"].(float64)
+	if !ok {
+		return 0, errors.New("Missing User ID in Grafana response")
+	}
+
+	return int(userID), nil
 }
 
 // getRole returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
@@ -352,6 +378,123 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 		return err
 	}
 	return c.deleteAPIKey(ctx, id, authHeaders)
+}
+
+// CreateAlertRule creates Grafana alert rule.
+func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	type AlertRuleGroup struct {
+		Name     string            `json:"name"`
+		Interval string            `json:"interval"`
+		Rules    []json.RawMessage `json:"rules"`
+	}
+
+	var group AlertRuleGroup
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderName, groupName), "", authHeaders, nil, &group); err != nil {
+		return err
+	}
+
+	b, err := json.Marshal(rule)
+	if err != nil {
+		return err
+	}
+
+	group.Rules = append(group.Rules, b)
+
+	if group.Interval == "" {
+		// TODO: align it with grafanas default value: https://grafana.com/docs/grafana/v9.0/setup-grafana/configure-grafana/#min_interval
+		group.Interval = defaultEvaluationInterval.String()
+	}
+
+	if err = validateDurations(group.Interval, rule.For); err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(group)
+	if err != nil {
+		return err
+	}
+
+	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
+		if err != nil {
+			if cErr, ok := errors.Cause(err).(*clientError); ok {
+				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateDurations(intervalD, forD string) error {
+	i, err := time.ParseDuration(intervalD)
+	if err != nil {
+		return err
+	}
+
+	f, err := time.ParseDuration(forD)
+	if err != nil {
+		return err
+	}
+
+	if f < i {
+		return status.Errorf(codes.InvalidArgument, "Duration (%s) can't be less then evaluation interval for the given group (%s).", forD, intervalD)
+	}
+
+	return nil
+}
+
+// GetDatasourceUIDByID returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create grafana client")
+	}
+
+	ds, err := grafanaClient.DataSource(id)
+	if err != nil {
+		return "", err
+	}
+	return ds.UID, nil
+}
+
+// GetFolderByUID returns folder with given UID.
+func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create grafana client")
+	}
+
+	folder, err := grafanaClient.FolderByUID(uid)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to find folder")
+	}
+
+	return folder, nil
+}
+
+func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	headers := make(map[string]string, len(authHeaders))
+	for k := range authHeaders {
+		headers[k] = authHeaders.Get(k)
+	}
+
+	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return grafanaClient, nil
 }
 
 func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {

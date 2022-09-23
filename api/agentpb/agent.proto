@@ -11,6 +11,7 @@ import "google/rpc/status.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
+import "managementpb/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -414,6 +415,18 @@ message ParseDefaultsFileResponse {
   string socket = 6;
 }
 
+// AgentLogsRequest is an ServerMessage asking logs by Agent ID.
+message AgentLogsRequest {
+  string agent_id = 1;
+  uint32 limit = 2;
+}
+
+// AgentLogsResponse is an AgentMessage containing logs by Agent ID.
+message AgentLogsResponse {
+  repeated string logs = 1;
+  uint32 agent_config_log_lines_count = 2;
+}
+
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
@@ -507,6 +520,8 @@ message StartJobRequest {
     string name = 6;
     // Enable Point-in-Time recovery feature.
     bool enable_pitr = 7;
+    // Backup data model (physical or logical).
+    backup.v1beta1.DataModel data_model = 8;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
@@ -676,6 +691,7 @@ message AgentMessage {
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;
+    AgentLogsResponse agent_logs = 21;
   }
 }
 
@@ -707,6 +723,7 @@ message ServerMessage {
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     ParseDefaultsFileRequest parse_defaults_file = 18;
+    AgentLogsRequest agent_logs = 19;
   }
 }
 

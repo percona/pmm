@@ -4,8 +4,6 @@ package ia.v1beta1;
 
 option go_package = "api/managementpb/ia;iav1beta1";
 
-// TODO move it to parent directory / package once API is v1-stable
-
 // Status represents Alert Rule's and Alert's combined status.
 enum Status {
   STATUS_INVALID = 0;

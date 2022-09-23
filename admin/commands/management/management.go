@@ -36,7 +36,9 @@ var (
 		"external":   service.RemoveServiceBodyServiceTypeEXTERNALSERVICE,
 	}
 
-	allServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "haproxy", "external"}
+	// AllServiceTypesKeys lists all possible service types.
+	AllServiceTypesKeys = []string{"mysql", "mongodb", "postgresql", "proxysql", "haproxy", "external"}
 
-	metricsModes = []string{"auto", "push", "pull"}
+	// MetricsModes lists all possible metrics modes.
+	MetricsModes = []string{"auto", "push", "pull"}
 )

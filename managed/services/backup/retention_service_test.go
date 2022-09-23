@@ -41,7 +41,7 @@ func TestEnsureRetention(t *testing.T) {
 	mockedS3.On("RemoveRecursive", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
 		mock.Anything).Return(nil)
 
-	agent := setup(t, db.Querier, "test-service")
+	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"
 	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
 

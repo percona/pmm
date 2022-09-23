@@ -42,6 +42,7 @@ import (
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	channelz "google.golang.org/grpc/channelz/service"
@@ -56,12 +57,14 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
+	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
@@ -74,6 +77,7 @@ import (
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
+	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
@@ -85,6 +89,7 @@ import (
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
+	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
@@ -114,6 +119,8 @@ const (
 	pProfTraceDuration    = 10 * time.Second
 )
 
+var pprofSemaphore = semaphore.NewWeighted(1)
+
 func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
@@ -126,6 +133,16 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		}
 		var pprofConfig *supervisord.PprofConfig
 		if pprofQueryParameter {
+			if !pprofSemaphore.TryAcquire(1) {
+				rw.WriteHeader(http.StatusLocked)
+				_, err := rw.Write([]byte("Pprof is already running. Please try again later."))
+				if err != nil {
+					l.Errorf("%+v", err)
+				}
+				return
+			}
+			defer pprofSemaphore.Release(1)
+
 			contextTimeout += pProfProfileDuration + pProfTraceDuration
 			pprofConfig = &supervisord.PprofConfig{
 				ProfileDuration: pProfProfileDuration,
@@ -166,7 +183,7 @@ type gRPCServerDeps struct {
 	vmalert              *vmalert.Service
 	settings             *models.Settings
 	alertsService        *ia.AlertsService
-	templatesService     *ia.TemplatesService
+	templatesService     *alerting.Service
 	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
 	versionServiceClient *managementdbaas.VersionServiceClient
@@ -232,9 +249,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
 	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterTemplatesServer(gRPCServer, deps.templatesService)
 	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
+	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
 	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
@@ -247,6 +264,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db, deps.dbaasClient))
 	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient))
+
+	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	platformService, err := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	if err == nil {
@@ -360,7 +379,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		iav1beta1.RegisterAlertsHandlerFromEndpoint,
 		iav1beta1.RegisterChannelsHandlerFromEndpoint,
 		iav1beta1.RegisterRulesHandlerFromEndpoint,
-		iav1beta1.RegisterTemplatesHandlerFromEndpoint,
+		alertingpb.RegisterAlertingHandlerFromEndpoint,
 
 		backupv1beta1.RegisterBackupsHandlerFromEndpoint,
 		backupv1beta1.RegisterLocationsHandlerFromEndpoint,
@@ -375,6 +394,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		dbaasv1beta1.RegisterComponentsHandlerFromEndpoint,
 
 		platformpb.RegisterPlatformHandlerFromEndpoint,
+
+		userpb.RegisterUserHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -752,7 +773,7 @@ func main() {
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
-	templatesService, err := ia.NewTemplatesService(db, platformClient)
+	templatesService, err := alerting.NewService(db, platformClient, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create templates service: %s", err)
 	}

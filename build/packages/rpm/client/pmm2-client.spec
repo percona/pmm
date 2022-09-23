@@ -12,8 +12,11 @@ Source:         pmm2-client-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 Summary:        PMM-agent
 
-BuildRequires:  systemd
-BuildRequires:  pkgconfig(systemd)
+BuildRequires:    systemd
+BuildRequires:    pkgconfig(systemd)
+%if 0%{?rhel} && 0%{?rhel} >= 9
+Requires:         perl-interpreter
+%endif
 Requires(post):   systemd
 Requires(preun):  systemd
 Requires(postun): systemd

@@ -36,9 +36,11 @@ import (
 
 	"github.com/percona/pmm/agent/client/channel"
 	"github.com/percona/pmm/agent/config"
+	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/agent/runner/actions" // TODO https://jira.percona.com/browse/PMM-7206
 	"github.com/percona/pmm/agent/runner/jobs"
+	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -72,12 +74,15 @@ type Client struct {
 	rw      sync.RWMutex
 	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
+
+	cus      *connectionuptime.Service
+	logStore *tailog.Store
 }
 
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -89,6 +94,8 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		dialTimeout:        dialTimeout,
 		runner:             runner.New(cfg.RunnerCapacity),
 		defaultsFileParser: dfp,
+		cus:                cus,
+		logStore:           logStore,
 	}
 }
 
@@ -123,6 +130,8 @@ func (c *Client) Run(ctx context.Context) error {
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
+
+		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -288,7 +297,6 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			}
-
 		case *agentpb.SetStateRequest:
 			c.supervisor.SetState(p)
 			responsePayload = &agentpb.SetStateResponse{}
@@ -333,9 +341,17 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			responsePayload = &resp
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
+		case *agentpb.AgentLogsRequest:
+			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
+			responsePayload = &agentpb.AgentLogsResponse{
+				Logs:                     logs,
+				AgentConfigLogLinesCount: uint32(configLogLinesCount),
+			}
 		default:
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
+		c.cus.RegisterConnectionStatus(time.Now(), true)
+
 		response := &channel.AgentResponse{
 			ID:      req.ID,
 			Payload: responsePayload,
@@ -514,6 +530,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
+		var err error
 		switch cfg := j.MongodbBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBBackup_S3Config:
 			locationConfig.S3Config = &jobs.S3LocationConfig{
@@ -534,7 +551,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig, j.MongodbBackup.EnablePitr)
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		if err != nil {
+			return err
+		}
 	case *agentpb.StartJobRequest_MongodbRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {
@@ -564,6 +584,29 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	}
 
 	return c.runner.StartJob(job)
+}
+
+func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
+	var (
+		logs     []string
+		capacity uint
+	)
+
+	if c.cfg.ID == agentID {
+		logs, capacity = c.logStore.GetLogs()
+	} else {
+		logs, capacity = c.supervisor.AgentLogByID(agentID)
+	}
+
+	if limit > 0 && len(logs) > int(limit) {
+		logs = logs[len(logs)-int(limit):]
+	}
+
+	for i, log := range logs {
+		logs[i] = strings.TrimSuffix(log, "\n")
+	}
+
+	return logs, capacity
 }
 
 type dialResult struct {
@@ -736,6 +779,11 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	md := c.md
 	c.rw.RUnlock()
 	return md
+}
+
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+func (c *Client) GetConnectionUpTime() float32 {
+	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
 
 // Describe implements "unchecked" prometheus.Collector.
