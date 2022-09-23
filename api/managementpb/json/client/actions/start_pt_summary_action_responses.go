@@ -48,7 +48,8 @@ func NewStartPTSummaryActionOK() *StartPTSummaryActionOK {
 	return &StartPTSummaryActionOK{}
 }
 
-/* StartPTSummaryActionOK describes a response with status code 200, with default header values.
+/*
+StartPTSummaryActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewStartPTSummaryActionDefault(code int) *StartPTSummaryActionDefault {
 	}
 }
 
-/* StartPTSummaryActionDefault describes a response with status code -1, with default header values.
+/*
+StartPTSummaryActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*StartPTSummaryActionBody start PT summary action body
+/*
+StartPTSummaryActionBody start PT summary action body
 swagger:model StartPTSummaryActionBody
 */
 type StartPTSummaryActionBody struct {
@@ -155,7 +158,8 @@ func (o *StartPTSummaryActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTSummaryActionDefaultBody start PT summary action default body
+/*
+StartPTSummaryActionDefaultBody start PT summary action default body
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
@@ -258,7 +262,8 @@ func (o *StartPTSummaryActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StartPTSummaryActionDefaultBodyDetailsItems0 start PT summary action default body details items0
+/*
+StartPTSummaryActionDefaultBodyDetailsItems0 start PT summary action default body details items0
 swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
@@ -294,7 +299,8 @@ func (o *StartPTSummaryActionDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*StartPTSummaryActionOKBody start PT summary action OK body
+/*
+StartPTSummaryActionOKBody start PT summary action OK body
 swagger:model StartPTSummaryActionOKBody
 */
 type StartPTSummaryActionOKBody struct {

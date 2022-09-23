@@ -265,6 +265,7 @@ func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventory
 }
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.AddQANMySQLPerfSchemaAgentRequest) (*inventorypb.AddQANMySQLPerfSchemaAgentResponse, error) {
 	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, req)
@@ -279,6 +280,7 @@ func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent changes disabled flag and custom labels of MySQL PerfSchema QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLPerfSchemaAgentRequest) (*inventorypb.ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	agent, err := s.s.ChangeQANMySQLPerfSchemaAgent(ctx, req)
@@ -293,6 +295,7 @@ func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *i
 }
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.AddQANMySQLSlowlogAgentRequest) (*inventorypb.AddQANMySQLSlowlogAgentResponse, error) {
 	agent, err := s.s.AddQANMySQLSlowlogAgent(ctx, req)
@@ -307,6 +310,7 @@ func (s *agentsServer) AddQANMySQLSlowlogAgent(ctx context.Context, req *invento
 }
 
 // ChangeQANMySQLSlowlogAgent changes disabled flag and custom labels of MySQL Slowlog QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLSlowlogAgentRequest) (*inventorypb.ChangeQANMySQLSlowlogAgentResponse, error) {
 	agent, err := s.s.ChangeQANMySQLSlowlogAgent(ctx, req)
@@ -334,6 +338,7 @@ func (s *agentsServer) AddPostgresExporter(ctx context.Context, req *inventorypb
 }
 
 // ChangePostgresExporter changes disabled flag and custom labels of postgres_exporter Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventorypb.ChangePostgresExporterRequest) (*inventorypb.ChangePostgresExporterResponse, error) {
 	agent, err := s.s.ChangePostgresExporter(ctx, req)
@@ -348,6 +353,7 @@ func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventor
 }
 
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.AddQANMongoDBProfilerAgentRequest) (*inventorypb.AddQANMongoDBProfilerAgentResponse, error) {
 	agent, err := s.s.AddQANMongoDBProfilerAgent(ctx, req)
@@ -362,6 +368,7 @@ func (s *agentsServer) AddQANMongoDBProfilerAgent(ctx context.Context, req *inve
 }
 
 // ChangeQANMongoDBProfilerAgent changes disabled flag and custom labels of MongoDB Profiler QAN Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.ChangeQANMongoDBProfilerAgentRequest) (*inventorypb.ChangeQANMongoDBProfilerAgentResponse, error) {
 	agent, err := s.s.ChangeQANMongoDBProfilerAgent(ctx, req)
@@ -389,6 +396,7 @@ func (s *agentsServer) AddProxySQLExporter(ctx context.Context, req *inventorypb
 }
 
 // ChangeProxySQLExporter changes disabled flag and custom labels of proxysql_exporter Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventorypb.ChangeProxySQLExporterRequest) (*inventorypb.ChangeProxySQLExporterResponse, error) {
 	agent, err := s.s.ChangeProxySQLExporter(ctx, req)
@@ -468,6 +476,7 @@ func (s *agentsServer) AddRDSExporter(ctx context.Context, req *inventorypb.AddR
 }
 
 // ChangeRDSExporter changes disabled flag and custom labels of rds_exporter Agent.
+//
 //nolint:lll
 func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventorypb.ChangeRDSExporterRequest) (*inventorypb.ChangeRDSExporterResponse, error) {
 	agent, err := s.s.ChangeRDSExporter(ctx, req)

@@ -52,10 +52,12 @@ func NewStartMySQLShowTableStatusActionParamsWithHTTPClient(client *http.Client)
 	}
 }
 
-/* StartMySQLShowTableStatusActionParams contains all the parameters to send to the API endpoint
-   for the start my SQL show table status action operation.
+/*
+StartMySQLShowTableStatusActionParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start my SQL show table status action operation.
+
+	Typically these are written to a http.Request.
 */
 type StartMySQLShowTableStatusActionParams struct {
 	// Body.

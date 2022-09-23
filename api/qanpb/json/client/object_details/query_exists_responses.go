@@ -48,7 +48,8 @@ func NewQueryExistsOK() *QueryExistsOK {
 	return &QueryExistsOK{}
 }
 
-/* QueryExistsOK describes a response with status code 200, with default header values.
+/*
+QueryExistsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -80,7 +81,8 @@ func NewQueryExistsDefault(code int) *QueryExistsDefault {
 	}
 }
 
-/* QueryExistsDefault describes a response with status code -1, with default header values.
+/*
+QueryExistsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -114,7 +116,8 @@ func (o *QueryExistsDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*QueryExistsBody QueryExistsRequest check if provided query exists or not.
+/*
+QueryExistsBody QueryExistsRequest check if provided query exists or not.
 swagger:model QueryExistsBody
 */
 type QueryExistsBody struct {
@@ -153,7 +156,8 @@ func (o *QueryExistsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*QueryExistsDefaultBody query exists default body
+/*
+QueryExistsDefaultBody query exists default body
 swagger:model QueryExistsDefaultBody
 */
 type QueryExistsDefaultBody struct {
@@ -256,7 +260,8 @@ func (o *QueryExistsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*QueryExistsDefaultBodyDetailsItems0 query exists default body details items0
+/*
+QueryExistsDefaultBodyDetailsItems0 query exists default body details items0
 swagger:model QueryExistsDefaultBodyDetailsItems0
 */
 type QueryExistsDefaultBodyDetailsItems0 struct {

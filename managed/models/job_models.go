@@ -102,6 +102,7 @@ func (c JobData) Value() (driver.Value, error) { return jsonValue(c) }
 func (c *JobData) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // Job describes a job result which is storing in persistent storage.
+//
 //reform:jobs
 type Job struct {
 	ID         string        `reform:"id,pk"`
@@ -143,6 +144,7 @@ func (r *Job) AfterFind() error {
 }
 
 // JobLog stores chunk of logs from job.
+//
 //reform:job_logs
 type JobLog struct {
 	JobID     string `reform:"job_id"`
