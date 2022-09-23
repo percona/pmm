@@ -234,7 +234,7 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 		return nil, err
 	}
 
-	switch req.ClusterType {
+	switch req.ClusterType { //nolint:exhaustive
 	case dbaasv1beta1.DBClusterType_DB_CLUSTER_TYPE_PXC:
 		in := dbaascontrollerv1beta1.RestartPXCClusterRequest{
 			Name: req.Name,
@@ -259,7 +259,6 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	return &dbaasv1beta1.RestartDBClusterResponse{}, nil
