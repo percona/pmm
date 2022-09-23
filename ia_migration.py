@@ -3,6 +3,8 @@ import argparse
 import json
 import requests
 
+# This script migrates Integrated Alerting alert rules to the new Alerting system that was introduced in PMM 2.31
+# Migration is partial, it covers only alert rules but not Notification Channels, Silences, etc...
 
 def prepare_labels(rule):
     if "labels" not in rule:
