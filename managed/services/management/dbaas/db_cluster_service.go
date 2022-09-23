@@ -259,6 +259,7 @@ func (s DBClusterService) RestartDBCluster(ctx context.Context, req *dbaasv1beta
 		if err != nil {
 			return nil, err
 		}
+
 	}
 
 	return &dbaasv1beta1.RestartDBClusterResponse{}, nil

@@ -333,7 +333,7 @@ func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 				Type:    alert.Type(param.Type),
 			}
 
-			switch alert.Type(param.Type) {
+			switch alert.Type(param.Type) { //nolint:exhaustive
 			case alert.Float:
 				f := param.FloatParam
 

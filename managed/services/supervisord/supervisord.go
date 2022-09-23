@@ -510,7 +510,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := true
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o644); err != nil {
+			if err = os.WriteFile(path, oldCfg, 0o644); err != nil { //nolint:gosec
 				s.l.Errorf("Failed to restore: %s.", err)
 			}
 			if err = s.reload(name); err != nil {
@@ -520,7 +520,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o644); err != nil {
+	if err = os.WriteFile(path, cfg, 0o644); err != nil { //nolint:gosec
 		return false, errors.WithStack(err)
 	}
 	if err = s.reload(name); err != nil {
