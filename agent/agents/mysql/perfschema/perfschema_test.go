@@ -169,7 +169,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 
 type setupParams struct {
 	db                   *reform.DB
-	queryLength          int
+	maxQueryLength       int
 	disableQueryExamples bool
 }
 
@@ -186,7 +186,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		Querier:              sp.db.WithTag(queryTag),
 		DBCloser:             nil,
 		AgentID:              "agent_id",
-		MaxQueryLength:       sp.queryLength,
+		MaxQueryLength:       sp.maxQueryLength,
 		DisableQueryExamples: sp.disableQueryExamples,
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}
