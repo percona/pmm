@@ -52,10 +52,12 @@ func NewRemoveChannelParamsWithHTTPClient(client *http.Client) *RemoveChannelPar
 	}
 }
 
-/* RemoveChannelParams contains all the parameters to send to the API endpoint
-   for the remove channel operation.
+/*
+RemoveChannelParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the remove channel operation.
+
+	Typically these are written to a http.Request.
 */
 type RemoveChannelParams struct {
 	// Body.

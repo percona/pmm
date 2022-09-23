@@ -52,10 +52,12 @@ func NewAddAzureDatabaseParamsWithHTTPClient(client *http.Client) *AddAzureDatab
 	}
 }
 
-/* AddAzureDatabaseParams contains all the parameters to send to the API endpoint
-   for the add azure database operation.
+/*
+AddAzureDatabaseParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add azure database operation.
+
+	Typically these are written to a http.Request.
 */
 type AddAzureDatabaseParams struct {
 	// Body.
