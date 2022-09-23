@@ -1,5 +1,5 @@
 ---
-# This role contains tasks executed during initialization PMM Server
+# This role contains tasks executed during initialization of PMM Server
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -11,25 +11,25 @@
     src: /usr/share/percona-dashboards/VERSION
   register: image_version_file
 
-- name: Set current version if VERSION fail doen't exist
+- name: Set current version if VERSION doesn't exist
   set_fact:
-      pmm_current_version: "0.0"
+    pmm_current_version: "0.0"
   when: current_version_file['failed'] == true
 
-- name: Setting current and image version
+- name: Setting current PMM version
   set_fact:
     pmm_current_version: "{{ current_version_file['content'] | b64decode | trim }}"
   when: current_version_file['failed'] != true
 
-- name: Setting current and image version
+- name: Setting current PMM image version
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
-- name: Print current version
+- name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
-- name: Checking if we need an update or not
+- name: Check if we need an update or not
   include_role:
     name: dashboards_upgrade
   when: not pmm_current_version is version(pmm_image_version, '>=')
