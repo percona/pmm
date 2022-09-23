@@ -88,7 +88,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
 
-	expectedBuckets := []*agentpb.MetricsBucket{}
+	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
 
 	countActualBuckets := len(actualBuckets)
