@@ -200,7 +200,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, queryLength int) (current, prev statementsMap, err error) {
+func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int) (current, prev statementsMap, err error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {
@@ -249,7 +249,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 		} else {
 			newN++
 
-			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, queryLength)
+			c.Query, c.IsQueryTruncated = truncate.Query(c.Query, maxQueryLength)
 		}
 
 		current[c.QueryID] = c

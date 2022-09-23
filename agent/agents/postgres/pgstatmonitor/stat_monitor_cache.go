@@ -62,7 +62,7 @@ func newStatMonitorCache(l *logrus.Entry) *statMonitorCache {
 
 // getStatMonitorExtended returns the current state of pg_stat_monitor table with extended information (database, username)
 // and the previous cashed state grouped by bucket start time.
-func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *reform.Querier, normalizedQuery bool, queryLength int) (current, cache map[time.Time]map[string]*pgStatMonitorExtended, err error) {
+func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *reform.Querier, normalizedQuery bool, maxQueryLength int) (current, cache map[time.Time]map[string]*pgStatMonitorExtended, err error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {
@@ -169,11 +169,11 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				c.Fingerprint = c.Query
 			} else {
 				var isTruncated bool
-				c.Fingerprint, isTruncated = truncate.Query(fingerprint, queryLength)
+				c.Fingerprint, isTruncated = truncate.Query(fingerprint, maxQueryLength)
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
-				c.Example, isTruncated = truncate.Query(example, queryLength)
+				c.Example, isTruncated = truncate.Query(example, maxQueryLength)
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}

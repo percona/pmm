@@ -49,7 +49,7 @@ type PGStatMonitorQAN struct {
 	l                    *logrus.Entry
 	changes              chan agents.Change
 	monitorCache         *statMonitorCache
-	queryLength          int
+	maxQueryLength       int
 	disableQueryExamples bool
 }
 
@@ -134,7 +134,7 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, queryLength int, l *logrus.Entry) (*PGStatMonitorQAN, error) {
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                    q,
 		dbCloser:             dbCloser,
@@ -142,7 +142,7 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 		l:                    l,
 		changes:              make(chan agents.Change, 10),
 		monitorCache:         newStatMonitorCache(l),
-		queryLength:          queryLength,
+		maxQueryLength:       maxQueryLength,
 		disableQueryExamples: disableQueryExamples,
 	}, nil
 }
@@ -241,7 +241,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.queryLength); err == nil {
+	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -405,7 +405,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 }
 
 func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentpb.MetricsBucket, error) {
-	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.queryLength)
+	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
 	if err != nil {
 		return nil, err
 	}
