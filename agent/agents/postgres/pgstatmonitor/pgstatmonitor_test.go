@@ -181,7 +181,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	var mPlansCallsCnt, mPlansTimeCnt float32
 	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
-	switch pgsmVersion {
+	switch pgsmVersion { //nolint:exhaustive //TODO:@Nurlan please check if this was good warning and we should add more cases
 	case pgStatMonitorVersion06:
 	case pgStatMonitorVersion08:
 	case pgStatMonitorVersion09:
