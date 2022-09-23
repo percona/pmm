@@ -98,7 +98,7 @@ type PerfSchema struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	TLSSkipVerify        bool
@@ -109,7 +109,7 @@ type newPerfSchemaParams struct {
 	Querier              *reform.Querier
 	DBCloser             io.Closer
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	LogEntry             *logrus.Entry
 }
@@ -140,7 +140,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		Querier:              q,
 		DBCloser:             sqlDB,
 		AgentID:              params.AgentID,
-		QueryLength:          params.QueryLength,
+		MaxQueryLength:       params.MaxQueryLength,
 		DisableQueryExamples: params.DisableQueryExamples,
 		LogEntry:             l,
 	}
@@ -162,7 +162,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		q:                    params.Querier,
 		dbCloser:             params.DBCloser,
 		agentID:              params.AgentID,
-		queryLength:          params.QueryLength,
+		queryLength:          params.MaxQueryLength,
 		disableQueryExamples: params.DisableQueryExamples,
 		l:                    params.LogEntry,
 		changes:              make(chan agents.Change, 10),

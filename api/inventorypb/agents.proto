@@ -278,7 +278,7 @@ message QANMySQLPerfSchemaAgent {
   // Password for decrypting tls_cert.
   string tls_key = 13;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 16;
+  int32 max_query_length = 16;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Custom user-assigned labels.
@@ -318,7 +318,7 @@ message QANMySQLSlowlogAgent {
   // Password for decrypting tls_cert.
   string tls_key = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit)
-  int32 query_length = 17;
+  int32 max_query_length = 17;
   // True if query examples are disabled.
   bool query_examples_disabled = 8;
   // Slowlog file is rotated at this size if > 0.
@@ -985,7 +985,7 @@ message AddQANMySQLPerfSchemaAgentRequest {
   // Password for decrypting tls_cert.
   string tls_key = 12;
   // Limit query length in QAN (default: server-defined; -1: no limit)
-  int32 query_length = 14;
+  int32 max_query_length = 14;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Custom user-assigned labels.
@@ -1047,7 +1047,7 @@ message AddQANMySQLSlowlogAgentRequest {
   // Password for decrypting tls_cert.
   string tls_key = 13;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 query_length = 15;
+  int32 max_query_length = 15;
   // Disable query examples.
   bool disable_query_examples = 7;
   // Rotate slowlog file at this size if > 0.

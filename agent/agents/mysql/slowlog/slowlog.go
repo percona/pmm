@@ -61,7 +61,7 @@ type SlowLog struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   int64
 	SlowLogFilePrefix    string // for development and testing
@@ -371,7 +371,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.QueryLength)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -431,7 +431,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		// https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html
 		// TimeMetrics: query_time, lock_time, rows_sent, innodb_io_r_wait, innodb_rec_lock_wait, innodb_queue_wait.
 		// NumberMetrics: rows_examined, rows_affected, rows_read, merge_passes, innodb_io_r_ops, innodb_io_r_bytes,
-		// innodb_pages_distinct, query_length, bytes_sent, tmp_tables, tmp_disk_tables, tmp_table_sizes.
+		// innodb_pages_distinct, max_query_length, bytes_sent, tmp_tables, tmp_disk_tables, tmp_table_sizes.
 		// BooleanMetrics: qc_hit, full_scan, full_join, tmp_table, tmp_table_on_disk, filesort, filesort_on_disk,
 		// select_full_range_join, select_range, select_range_check, sort_range, sort_rows, sort_scan,
 		// no_index_used, no_good_index_used.
@@ -540,7 +540,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			mb.Mysql.MInnodbPagesDistinctMin = float32(*m.Min)
 			mb.Mysql.MInnodbPagesDistinctP99 = float32(*m.P99)
 		}
-		// query_length - Query_length
+		// max_query_length - Query_length
 		if m, ok := v.Metrics.NumberMetrics["Query_length"]; ok {
 			mb.Mysql.MQueryLengthCnt = float32(m.Cnt)
 			mb.Mysql.MQueryLengthSum = float32(m.Sum)

@@ -34,7 +34,7 @@ import (
 )
 
 func TestPerfSchemaMakeBuckets(t *testing.T) {
-	defaultQueryLength := truncate.GetDefaultQueryLength()
+	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
 
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
@@ -53,7 +53,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 60, // +10
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -80,7 +80,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -114,7 +114,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 50,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -128,7 +128,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			},
 		}
 		current := make(map[string]*eventsStatementsSummaryByDigest)
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 0)
 	})
 
@@ -149,7 +149,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 				SumRowsAffected: 25,
 			},
 		}
-		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultQueryLength)
+		actual := makeBuckets(current, prev, logrus.WithField("test", t.Name()), defaultMaxQueryLength)
 		require.Len(t, actual, 1)
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -186,7 +186,7 @@ func setup(t *testing.T, sp *setupParams) *PerfSchema {
 		Querier:              sp.db.WithTag(queryTag),
 		DBCloser:             nil,
 		AgentID:              "agent_id",
-		QueryLength:          sp.queryLength,
+		MaxQueryLength:       sp.queryLength,
 		DisableQueryExamples: sp.disableQueryExamples,
 		LogEntry:             logrus.WithField("test", t.Name()),
 	}

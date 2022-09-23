@@ -176,7 +176,7 @@ type AddMySQLBody struct {
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	QueryLength int32 `json:"query_length,omitempty"`
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
@@ -1037,7 +1037,7 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 	TLSKey string `json:"tls_key,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	QueryLength int32 `json:"query_length,omitempty"`
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
@@ -1251,7 +1251,7 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 	TLSKey string `json:"tls_key,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit)
-	QueryLength int32 `json:"query_length,omitempty"`
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

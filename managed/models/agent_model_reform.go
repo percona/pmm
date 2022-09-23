@@ -52,7 +52,7 @@ func (v *agentTableType) Columns() []string {
 		"azure_options",
 		"table_count",
 		"table_count_tablestats_group_limit",
-		"query_length",
+		"max_query_length",
 		"query_examples_disabled",
 		"max_query_log_size",
 		"metrics_path",
@@ -113,7 +113,7 @@ var AgentTable = &agentTableType{
 			{Name: "AzureOptions", Type: "*AzureOptions", Column: "azure_options"},
 			{Name: "TableCount", Type: "*int32", Column: "table_count"},
 			{Name: "TableCountTablestatsGroupLimit", Type: "int32", Column: "table_count_tablestats_group_limit"},
-			{Name: "QueryLength", Type: "int32", Column: "query_length"},
+			{Name: "MaxQueryLength", Type: "int32", Column: "max_query_length"},
 			{Name: "QueryExamplesDisabled", Type: "bool", Column: "query_examples_disabled"},
 			{Name: "MaxQueryLogSize", Type: "int64", Column: "max_query_log_size"},
 			{Name: "MetricsPath", Type: "*string", Column: "metrics_path"},
@@ -159,7 +159,7 @@ func (s Agent) String() string {
 	res[21] = "AzureOptions: " + reform.Inspect(s.AzureOptions, true)
 	res[22] = "TableCount: " + reform.Inspect(s.TableCount, true)
 	res[23] = "TableCountTablestatsGroupLimit: " + reform.Inspect(s.TableCountTablestatsGroupLimit, true)
-	res[24] = "QueryLength: " + reform.Inspect(s.QueryLength, true)
+	res[24] = "MaxQueryLength: " + reform.Inspect(s.MaxQueryLength, true)
 	res[25] = "QueryExamplesDisabled: " + reform.Inspect(s.QueryExamplesDisabled, true)
 	res[26] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
 	res[27] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
@@ -203,7 +203,7 @@ func (s *Agent) Values() []interface{} {
 		s.AzureOptions,
 		s.TableCount,
 		s.TableCountTablestatsGroupLimit,
-		s.QueryLength,
+		s.MaxQueryLength,
 		s.QueryExamplesDisabled,
 		s.MaxQueryLogSize,
 		s.MetricsPath,
@@ -247,7 +247,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.AzureOptions,
 		&s.TableCount,
 		&s.TableCountTablestatsGroupLimit,
-		&s.QueryLength,
+		&s.MaxQueryLength,
 		&s.QueryExamplesDisabled,
 		&s.MaxQueryLogSize,
 		&s.MetricsPath,

@@ -144,7 +144,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		QueryLength:          agent.QueryLength,
+		MaxQueryLength:       agent.MaxQueryLength,
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
@@ -161,7 +161,7 @@ func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *a
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		QueryLength:          agent.QueryLength,
+		MaxQueryLength:       agent.MaxQueryLength,
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLogSize:      agent.MaxQueryLogSize,
 		TextFiles: &agentpb.TextFiles{
