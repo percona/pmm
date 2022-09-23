@@ -387,7 +387,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, queryLength int) []*agentpb.MetricsBucket {
+func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
@@ -395,7 +395,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
-		fingerprint, isTruncated := truncate.Query(v.Fingerprint, queryLength)
+		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
@@ -417,7 +417,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query, queryLength)
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
 			if truncated {
 				mb.Common.IsTruncated = truncated
 			}

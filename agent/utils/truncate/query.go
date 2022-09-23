@@ -19,22 +19,22 @@ var defaultMaxQueryLength = 2048
 
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
 // Also truncate all invalid UTF-8 chars.
-func Query(q string, queryLength int) (query string, truncated bool) {
-	if queryLength < 0 {
+func Query(q string, maxQueryLength int) (query string, truncated bool) {
+	if maxQueryLength < 0 {
 		return string([]rune(q)), false
 	}
 
-	if queryLength == 0 {
-		queryLength = defaultMaxQueryLength
+	if maxQueryLength == 0 {
+		maxQueryLength = defaultMaxQueryLength
 	}
 
 	runes := []rune(q)
-	if len(runes) <= queryLength {
+	if len(runes) <= maxQueryLength {
 		return string(runes), false
 	}
 
 	// copy MySQL behavior
-	return string(runes[:queryLength-4]) + " ...", true
+	return string(runes[:maxQueryLength-4]) + " ...", true
 }
 
 // GetDefaultMaxQueryLength returns default decimal value for query length.
