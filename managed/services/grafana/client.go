@@ -185,7 +185,7 @@ func (r role) String() string {
 	}
 }
 
-// getUserID returns user ID from Grafana for given user
+// GetUserID returns user ID from Grafana for given user
 func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
