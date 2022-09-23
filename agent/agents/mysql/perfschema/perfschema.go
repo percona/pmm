@@ -85,7 +85,7 @@ type PerfSchema struct {
 	q                    *reform.Querier
 	dbCloser             io.Closer
 	agentID              string
-	queryLength          int
+	maxQueryLength       int
 	disableQueryExamples bool
 	l                    *logrus.Entry
 	changes              chan agents.Change
@@ -98,7 +98,7 @@ type PerfSchema struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	TLSSkipVerify        bool
@@ -109,7 +109,7 @@ type newPerfSchemaParams struct {
 	Querier              *reform.Querier
 	DBCloser             io.Closer
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	LogEntry             *logrus.Entry
 }
@@ -140,7 +140,7 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 		Querier:              q,
 		DBCloser:             sqlDB,
 		AgentID:              params.AgentID,
-		QueryLength:          params.QueryLength,
+		MaxQueryLength:       params.MaxQueryLength,
 		DisableQueryExamples: params.DisableQueryExamples,
 		LogEntry:             l,
 	}
@@ -162,7 +162,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		q:                    params.Querier,
 		dbCloser:             params.DBCloser,
 		agentID:              params.AgentID,
-		queryLength:          params.QueryLength,
+		maxQueryLength:       params.MaxQueryLength,
 		disableQueryExamples: params.DisableQueryExamples,
 		l:                    params.LogEntry,
 		changes:              make(chan agents.Change, 10),
@@ -308,7 +308,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.l, m.queryLength)
+	buckets := makeBuckets(current, prev, m.l, m.maxQueryLength)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d summaries in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -338,7 +338,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if !m.disableQueryExamples && esh.SQLText != nil {
-				example, truncated := truncate.Query(*esh.SQLText, m.queryLength)
+				example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
 				if truncated {
 					b.Common.IsTruncated = truncated
 				}
@@ -366,7 +366,7 @@ func inc(current, prev uint64) float32 {
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev summaryMap, l *logrus.Entry, queryLength int) []*agentpb.MetricsBucket {
+func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
@@ -393,7 +393,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, queryLength int) []*
 		}
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
-		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, queryLength)
+		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?

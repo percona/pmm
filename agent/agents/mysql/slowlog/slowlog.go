@@ -61,7 +61,7 @@ type SlowLog struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	QueryLength          int
+	MaxQueryLength       int
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   int64
 	SlowLogFilePrefix    string // for development and testing
@@ -371,7 +371,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.QueryLength)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -387,7 +387,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, queryLength int) []*agentpb.MetricsBucket {
+func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
@@ -395,7 +395,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
-		fingerprint, isTruncated := truncate.Query(v.Fingerprint, queryLength)
+		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
@@ -417,7 +417,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		}
 
 		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query, queryLength)
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
 			if truncated {
 				mb.Common.IsTruncated = truncated
 			}

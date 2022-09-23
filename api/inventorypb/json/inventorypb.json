@@ -2077,6 +2077,12 @@
                   ],
                   "x-order": 13
                 },
+                "max_query_length": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                  "x-order": 9
+                },
                 "password": {
                   "description": "MySQL password for getting performance data.",
                   "type": "string",
@@ -2086,12 +2092,6 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
-                },
-                "query_length": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                  "x-order": 9
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -2179,6 +2179,12 @@
                       ],
                       "x-order": 15
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -2193,12 +2199,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2333,6 +2333,12 @@
                   ],
                   "x-order": 14
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "max_slowlog_file_size": {
                   "description": "Rotate slowlog file at this size if \u003e 0.\nUse zero or negative value to disable rotation.",
                   "type": "string",
@@ -2348,12 +2354,6 @@
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string",
                   "x-order": 0
-                },
-                "query_length": {
-                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 9
                 },
                 "service_id": {
                   "description": "Service identifier.",
@@ -2441,6 +2441,12 @@
                       ],
                       "x-order": 16
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
@@ -2461,12 +2467,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "type": "integer",
-                      "format": "int32",
-                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4992,6 +4992,12 @@
                       ],
                       "x-order": 15
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -5006,12 +5012,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5209,6 +5209,12 @@
                       ],
                       "x-order": 16
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
@@ -5229,12 +5235,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "type": "integer",
-                      "format": "int32",
-                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -6809,6 +6809,12 @@
                       ],
                       "x-order": 15
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 10
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
@@ -6823,12 +6829,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -6919,6 +6919,12 @@
                       ],
                       "x-order": 16
                     },
+                    "max_query_length": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                      "x-order": 10
+                    },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
@@ -6939,12 +6945,6 @@
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
                       "x-order": 11
-                    },
-                    "query_length": {
-                      "type": "integer",
-                      "format": "int32",
-                      "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -8390,6 +8390,12 @@
                         ],
                         "x-order": 15
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 10
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string",
@@ -8404,12 +8410,6 @@
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "x-order": 11
-                      },
-                      "query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                        "type": "integer",
-                        "format": "int32",
-                        "x-order": 10
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -8503,6 +8503,12 @@
                         ],
                         "x-order": 16
                       },
+                      "max_query_length": {
+                        "type": "integer",
+                        "format": "int32",
+                        "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
+                        "x-order": 10
+                      },
                       "max_slowlog_file_size": {
                         "description": "Slowlog file is rotated at this size if \u003e 0.",
                         "type": "string",
@@ -8523,12 +8529,6 @@
                         "description": "True if query examples are disabled.",
                         "type": "boolean",
                         "x-order": 11
-                      },
-                      "query_length": {
-                        "type": "integer",
-                        "format": "int32",
-                        "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                        "x-order": 10
                       },
                       "service_id": {
                         "description": "Service identifier.",

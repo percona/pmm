@@ -68,7 +68,7 @@ message SetStateRequest {
     inventory.AgentType type = 1;
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
-    int32 query_length = 8;
+    int32 max_query_length = 8;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.

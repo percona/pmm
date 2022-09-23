@@ -744,10 +744,10 @@ var databaseSchema = [][]string{
 	},
 	68: {
 		`ALTER TABLE agents
-			ADD COLUMN query_length INTEGER NOT NULL DEFAULT 0`,
+			ADD COLUMN max_query_length INTEGER NOT NULL DEFAULT 0`,
 
 		`ALTER TABLE agents
-			ALTER COLUMN query_length DROP DEFAULT`,
+			ALTER COLUMN max_query_length DROP DEFAULT`,
 	},
 }
 
