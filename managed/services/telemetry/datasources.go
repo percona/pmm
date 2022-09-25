@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -105,14 +106,11 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 
 		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
-			var value string
-
-			// skip empty values
-			if strs[idx] == nil || *strs[idx] == "" {
+			var value = pointer.GetString(strs[idx])
+			if value == "" {
 				continue
 			}
 
-			value = *strs[idx]
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
 					metric = append(metric, &pmmv1.ServerMetric_Metric{
