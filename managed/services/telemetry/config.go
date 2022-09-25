@@ -18,6 +18,7 @@ package telemetry
 
 import (
 	_ "embed" //nolint:golint
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -35,6 +36,10 @@ const (
 	envDisableStartDelay     = "PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY"
 	envReportingInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
 	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
+	envClickhouseAddr        = "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+	envClickHouseDatabase    = "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE"
+	envClickhousePoolSize    = "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE"
+	envClickhouseBlockSize   = "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE"
 )
 
 // ServiceConfig telemetry config.
@@ -183,7 +188,36 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
+	testClickhouseDSN := c.testClickhouseDSN()
+	if testClickhouseDSN != "" {
+		c.l.Debugf("Overriding Telemetry.DataSources.QanDBSelect.DSN with environment variables [%s][%s][%s][%s] to %q.", envClickhouseAddr, envClickHouseDatabase, envClickhouseBlockSize, envClickhousePoolSize, testClickhouseDSN)
+		c.DataSources.QanDBSelect.DSN = testClickhouseDSN
+	}
+
 	return nil
+}
+
+func (c *ServiceConfig) testClickhouseDSN() string {
+	var (
+		addr      = os.Getenv(envClickhouseAddr)
+		database  = os.Getenv(envClickHouseDatabase)
+		poolSize  = os.Getenv(envClickhousePoolSize)
+		blockSize = os.Getenv(envClickhouseBlockSize)
+	)
+	if addr == "" {
+		return ""
+	}
+	if database == "" {
+		database = "pmm"
+	}
+	if blockSize == "" {
+		blockSize = "10000"
+	}
+	if poolSize == "" {
+		poolSize = "2"
+	}
+
+	return fmt.Sprintf("tcp://%s?database=%s&block_size=%s&pool_size=%s", addr, database, blockSize, poolSize)
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
