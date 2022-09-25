@@ -241,7 +241,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
-		running = true //nolint:ineffassign //TODO: @Nurlan please check this warning, it seems that we may have a bug here.
+		running = true
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
 	} else {
 		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
@@ -252,7 +252,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Warning(err)
 	}
-	running = m.checkDefaultWaitTime(waitTime)
+	running = running && m.checkDefaultWaitTime(waitTime)
 
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
