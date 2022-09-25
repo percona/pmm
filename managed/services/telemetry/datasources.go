@@ -72,6 +72,8 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 }
 
 func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+	// @TODO db *sql.DB can be nil!!!
+
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
