@@ -50,7 +50,8 @@ func NewListAlertRulesOK() *ListAlertRulesOK {
 	return &ListAlertRulesOK{}
 }
 
-/* ListAlertRulesOK describes a response with status code 200, with default header values.
+/*
+ListAlertRulesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListAlertRulesDefault(code int) *ListAlertRulesDefault {
 	}
 }
 
-/* ListAlertRulesDefault describes a response with status code -1, with default header values.
+/*
+ListAlertRulesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListAlertRulesDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ListAlertRulesBody list alert rules body
+/*
+ListAlertRulesBody list alert rules body
 swagger:model ListAlertRulesBody
 */
 type ListAlertRulesBody struct {
@@ -206,7 +209,8 @@ func (o *ListAlertRulesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAlertRulesDefaultBody list alert rules default body
+/*
+ListAlertRulesDefaultBody list alert rules default body
 swagger:model ListAlertRulesDefaultBody
 */
 type ListAlertRulesDefaultBody struct {
@@ -309,7 +313,8 @@ func (o *ListAlertRulesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAlertRulesDefaultBodyDetailsItems0 list alert rules default body details items0
+/*
+ListAlertRulesDefaultBodyDetailsItems0 list alert rules default body details items0
 swagger:model ListAlertRulesDefaultBodyDetailsItems0
 */
 type ListAlertRulesDefaultBodyDetailsItems0 struct {
@@ -345,7 +350,8 @@ func (o *ListAlertRulesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ListAlertRulesOKBody list alert rules OK body
+/*
+ListAlertRulesOKBody list alert rules OK body
 swagger:model ListAlertRulesOKBody
 */
 type ListAlertRulesOKBody struct {
@@ -487,7 +493,8 @@ func (o *ListAlertRulesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0 Rule represents Alert Rule.
+/*
+ListAlertRulesOKBodyRulesItems0 Rule represents Alert Rule.
 swagger:model ListAlertRulesOKBodyRulesItems0
 */
 type ListAlertRulesOKBodyRulesItems0 struct {
@@ -944,7 +951,8 @@ func (o *ListAlertRulesOKBodyRulesItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0 Channel represents a single Notification Channel.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0 Channel represents a single Notification Channel.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0 struct {
@@ -1176,7 +1184,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0EmailConfig EmailConfig represents email configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0EmailConfig EmailConfig represents email configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0EmailConfig
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0EmailConfig struct {
@@ -1215,7 +1224,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0EmailConfig) UnmarshalBina
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0PagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0PagerdutyConfig PagerDutyConfig represents PagerDuty configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0PagerdutyConfig
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0PagerdutyConfig struct {
@@ -1257,7 +1267,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0PagerdutyConfig) Unmarshal
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0SlackConfig SlackConfig represents Slack configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0SlackConfig SlackConfig represents Slack configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0SlackConfig
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0SlackConfig struct {
@@ -1296,7 +1307,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0SlackConfig) UnmarshalBina
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig WebhookConfig represents webhook configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig struct {
@@ -1393,7 +1405,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfig) UnmarshalBi
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HTTP client configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig struct {
@@ -1535,7 +1548,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfig) U
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth represents basic HTTP auth configuration.
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth
 */
 type ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
@@ -1577,7 +1591,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigBas
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
+/*
+ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig represents TLS configuration for alertmanager
 // https://prometheus.io/docs/alerting/latest/configuration/#tls_config
 swagger:model ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
@@ -1641,7 +1656,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ChannelsItems0WebhookConfigHTTPConfigTLS
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0FiltersItems0 Filter repsents a single filter condition.
+/*
+ListAlertRulesOKBodyRulesItems0FiltersItems0 Filter repsents a single filter condition.
 swagger:model ListAlertRulesOKBodyRulesItems0FiltersItems0
 */
 type ListAlertRulesOKBodyRulesItems0FiltersItems0 struct {
@@ -1741,7 +1757,8 @@ func (o *ListAlertRulesOKBodyRulesItems0FiltersItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0 ParamDefinition represents a single query parameter.
+/*
+ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0 ParamDefinition represents a single query parameter.
 swagger:model ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0
 */
 type ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0 struct {
@@ -2038,7 +2055,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0) UnmarshalBinary
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool BoolParamDefinition represents boolean parameter's default value.
+/*
+ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool BoolParamDefinition represents boolean parameter's default value.
 swagger:model ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool
 */
 type ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool struct {
@@ -2134,7 +2152,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool) UnmarshalBi
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
+/*
+ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Float FloatParamDefinition represents float parameter's default value and valid range.
 swagger:model ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Float
 */
 type ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Float struct {
@@ -2185,7 +2204,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Float) UnmarshalB
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0String StringParamDefinition represents string parameter's default value.
+/*
+ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0String StringParamDefinition represents string parameter's default value.
 swagger:model ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0String
 */
 type ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0String struct {
@@ -2224,7 +2244,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0String) Unmarshal
 	return nil
 }
 
-/*ListAlertRulesOKBodyRulesItems0ParamsValuesItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
+/*
+ListAlertRulesOKBodyRulesItems0ParamsValuesItems0 ParamValue represents a single rule parameter value for List, Change and Update APIs.
 swagger:model ListAlertRulesOKBodyRulesItems0ParamsValuesItems0
 */
 type ListAlertRulesOKBodyRulesItems0ParamsValuesItems0 struct {
@@ -2330,7 +2351,8 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsValuesItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*ListAlertRulesOKBodyTotals PageTotals represents total values for pagination.
+/*
+ListAlertRulesOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListAlertRulesOKBodyTotals
 */
 type ListAlertRulesOKBodyTotals struct {
@@ -2369,7 +2391,8 @@ func (o *ListAlertRulesOKBodyTotals) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAlertRulesParamsBodyPageParams PageParams represents page request parameters for pagination.
+/*
+ListAlertRulesParamsBodyPageParams PageParams represents page request parameters for pagination.
 swagger:model ListAlertRulesParamsBodyPageParams
 */
 type ListAlertRulesParamsBodyPageParams struct {

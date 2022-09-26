@@ -354,6 +354,7 @@ type ParamDefinition struct {
 	// Parameter value.
 	//
 	// Types that are assignable to Value:
+	//
 	//	*ParamDefinition_Bool
 	//	*ParamDefinition_Float
 	//	*ParamDefinition_String_
@@ -1068,6 +1069,7 @@ type ParamValue struct {
 	// Parameter value.
 	//
 	// Types that are assignable to Value:
+	//
 	//	*ParamValue_Bool
 	//	*ParamValue_Float
 	//	*ParamValue_String_

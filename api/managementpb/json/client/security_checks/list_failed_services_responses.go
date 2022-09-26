@@ -48,7 +48,8 @@ func NewListFailedServicesOK() *ListFailedServicesOK {
 	return &ListFailedServicesOK{}
 }
 
-/* ListFailedServicesOK describes a response with status code 200, with default header values.
+/*
+ListFailedServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewListFailedServicesDefault(code int) *ListFailedServicesDefault {
 	}
 }
 
-/* ListFailedServicesDefault describes a response with status code -1, with default header values.
+/*
+ListFailedServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *ListFailedServicesDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*ListFailedServicesDefaultBody list failed services default body
+/*
+ListFailedServicesDefaultBody list failed services default body
 swagger:model ListFailedServicesDefaultBody
 */
 type ListFailedServicesDefaultBody struct {
@@ -219,7 +222,8 @@ func (o *ListFailedServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListFailedServicesDefaultBodyDetailsItems0 list failed services default body details items0
+/*
+ListFailedServicesDefaultBodyDetailsItems0 list failed services default body details items0
 swagger:model ListFailedServicesDefaultBodyDetailsItems0
 */
 type ListFailedServicesDefaultBodyDetailsItems0 struct {
@@ -255,7 +259,8 @@ func (o *ListFailedServicesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ListFailedServicesOKBody list failed services OK body
+/*
+ListFailedServicesOKBody list failed services OK body
 swagger:model ListFailedServicesOKBody
 */
 type ListFailedServicesOKBody struct {
@@ -352,7 +357,8 @@ func (o *ListFailedServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check results.
+/*
+ListFailedServicesOKBodyResultItems0 CheckResultSummary is a summary of check results.
 swagger:model ListFailedServicesOKBodyResultItems0
 */
 type ListFailedServicesOKBodyResultItems0 struct {
