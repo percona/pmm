@@ -613,18 +613,5 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 
 // scrapeConfigForServerPMMAgent returns scrape config for Server PMMAgent in Prometheus format.
 func scrapeConfigForServerPMMAgent(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        string(models.PMMAgentType),
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  ScrapeTimeout(interval),
-		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{
-				{
-					Targets: []string{"127.0.0.1:7777"},
-					Labels:  map[string]string{"instance": models.PMMServerAgentID},
-				},
-			},
-		},
-	}
+	return scrapeConfigForPmmAgent(&models.MetricsResolutions{MR: interval}, &scrapeConfigParams{agent: &models.Agent{PMMAgentID: pointer.ToString("/pmm-server")}})
 }

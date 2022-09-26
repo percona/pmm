@@ -322,7 +322,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-agent
+    - job_name: pmm-agent_pmm-server_mr
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -331,7 +331,7 @@ scrape_configs:
         - targets:
             - 127.0.0.1:7777
           labels:
-            instance: pmm-server
+            instance: pmm-agent
       follow_redirects: false
     - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
@@ -897,7 +897,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-agent
+    - job_name: pmm-agent_pmm-server_mr
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -906,7 +906,7 @@ scrape_configs:
         - targets:
             - 127.0.0.1:7777
           labels:
-            instance: pmm-server
+            instance: pmm-agent
       follow_redirects: false
 `) + "\n"
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
