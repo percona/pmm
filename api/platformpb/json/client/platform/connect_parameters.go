@@ -52,10 +52,12 @@ func NewConnectParamsWithHTTPClient(client *http.Client) *ConnectParams {
 	}
 }
 
-/* ConnectParams contains all the parameters to send to the API endpoint
-   for the connect operation.
+/*
+ConnectParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the connect operation.
+
+	Typically these are written to a http.Request.
 */
 type ConnectParams struct {
 	// Body.

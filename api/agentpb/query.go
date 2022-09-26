@@ -147,15 +147,15 @@ func makeValue(value interface{}) (*QueryActionValue, error) {
 // MarshalActionQuerySQLResult returns serialized form of query Action SQL result.
 //
 // It supports the following types:
-//  * untyped nil;
-//  * bool;
-//  * int, int8, int16, int32, int64;
-//  * uint, uint8, uint16, uint32, uint64;
-//  * float32, float64;
-//  * string, []byte;
-//  * time.Time;
-//  * []T for any T from above, including other slices and maps;
-//  * map[string]T for any T from above, including other slices and maps.
+//   - untyped nil;
+//   - bool;
+//   - int, int8, int16, int32, int64;
+//   - uint, uint8, uint16, uint32, uint64;
+//   - float32, float64;
+//   - string, []byte;
+//   - time.Time;
+//   - []T for any T from above, including other slices and maps;
+//   - map[string]T for any T from above, including other slices and maps.
 func MarshalActionQuerySQLResult(columns []string, rows [][]interface{}) ([]byte, error) {
 	res := QueryActionResult{
 		Columns: columns,

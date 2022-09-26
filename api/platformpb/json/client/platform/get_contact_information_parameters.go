@@ -52,10 +52,12 @@ func NewGetContactInformationParamsWithHTTPClient(client *http.Client) *GetConta
 	}
 }
 
-/* GetContactInformationParams contains all the parameters to send to the API endpoint
-   for the get contact information operation.
+/*
+GetContactInformationParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get contact information operation.
+
+	Typically these are written to a http.Request.
 */
 type GetContactInformationParams struct {
 	// Body.
