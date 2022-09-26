@@ -52,10 +52,12 @@ func NewGetSecurityCheckResultsParamsWithHTTPClient(client *http.Client) *GetSec
 	}
 }
 
-/* GetSecurityCheckResultsParams contains all the parameters to send to the API endpoint
-   for the get security check results operation.
+/*
+GetSecurityCheckResultsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get security check results operation.
+
+	Typically these are written to a http.Request.
 */
 type GetSecurityCheckResultsParams struct {
 	// Body.

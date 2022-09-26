@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.18.x"]') }}
+        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
         may-fail: [false]
 
     env:
@@ -65,6 +65,9 @@ jobs:
 
       - name: Install development tools
         run: make init
+
+      - name: Format sources
+        run: make format
 
       - name: Check build
         run: make release

@@ -50,7 +50,8 @@ func NewChangeAzureDatabaseExporterOK() *ChangeAzureDatabaseExporterOK {
 	return &ChangeAzureDatabaseExporterOK{}
 }
 
-/* ChangeAzureDatabaseExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeAzureDatabaseExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeAzureDatabaseExporterDefault(code int) *ChangeAzureDatabaseExporte
 	}
 }
 
-/* ChangeAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeAzureDatabaseExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeAzureDatabaseExporterDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterBody change azure database exporter body
+/*
+ChangeAzureDatabaseExporterBody change azure database exporter body
 swagger:model ChangeAzureDatabaseExporterBody
 */
 type ChangeAzureDatabaseExporterBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeAzureDatabaseExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterDefaultBody change azure database exporter default body
+/*
+ChangeAzureDatabaseExporterDefaultBody change azure database exporter default body
 swagger:model ChangeAzureDatabaseExporterDefaultBody
 */
 type ChangeAzureDatabaseExporterDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database exporter default body details items0
+/*
+ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database exporter default body details items0
 swagger:model ChangeAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeAzureDatabaseExporterDefaultBodyDetailsItems0) UnmarshalBinary(b 
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterOKBody change azure database exporter OK body
+/*
+ChangeAzureDatabaseExporterOKBody change azure database exporter OK body
 swagger:model ChangeAzureDatabaseExporterOKBody
 */
 type ChangeAzureDatabaseExporterOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeAzureDatabaseExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*
+ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter
 */
 type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
@@ -638,7 +645,8 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) UnmarshalBinary
 	return nil
 }
 
-/*ChangeAzureDatabaseExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeAzureDatabaseExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeAzureDatabaseExporterParamsBodyCommon
 */
 type ChangeAzureDatabaseExporterParamsBodyCommon struct {

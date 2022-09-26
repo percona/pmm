@@ -29,6 +29,7 @@ import (
 )
 
 // ExternalService External Management Service.
+//
 //nolint:unused
 type ExternalService struct {
 	db    *reform.DB
