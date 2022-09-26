@@ -1,10 +1,42 @@
-# Troubleshoot
+# Resolve issues
 
-## Update
+This section describes solutions to common problems and scenarios you might encounter while using PMM.
 
-If PMM server wasn't updated properly, or if you have concerns about the release, you can force the update process in 2 ways:
 
-1. From the UI - Home panel: click with the Alt key on the reload icon in the Update panel to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end.
+## Troubleshooting checklist
+
+The following questions might help you identify the origin of the problem while using Percona Monitoring and Management:
+
+1. Are you using the latest PMM version?
+2. Did you check the known issues section in the Release Notes for that particular PMM release?
+3. Are you receiving any error messages?
+4. Do the logs contain any messages about the problem? See Message logs and Trace logs for more information.
+5. Does the problem occur while configuring PMM, such as:
+     - Does the problem occur while you configure a specific function?
+     - Does the problem occur when you perform a particular task?
+6. Are you using the recommended [authentication](../details/api.md#authenticate) method?
+7. Does your system’s firewall allow TCP traffic on the [ports](../setting-up/server/network.md#ports) used by PMM?
+8. Have you allocated enough [disk space](https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/) for installing PMM? If not, check the disk allocation space.
+9. Are you using a Technical Preview feature? Technical Preview features are not production-ready and should only be used in testing environments. For more information, see the relevant Release Notes.
+10. For installing the PMM client, are you using a package other than a binary package without root permissions?
+11. Is your [PMM Server](../setting-up/server/index.md) installed and running with a known IP address accessible from the client node?
+12. Is the [PMM Client](../setting-up/client/index.md) installed, and is the node [registered with PMM Server](../setting-up/client/index.md#register)?
+13. Is PMM-client configured correctly and has access to the config file?
+14. For monitoring MongoDB, do you have adminUserAnyDatabase or superuser role privilege to any database servers you want to monitor?
+15. For monitoring Amazon RDS using PMM, is there too much latency between PMM Server and the Amazon RDS instance?
+16. Have you upgraded the PMM Server before you upgraded the PMM Client? If yes, there might be configuration issues, thus leading to failure in the client-server communication, as PMM Server might not be able to identify all the parameters in the configuration.
+17. Is the PMM Server version higher than or equal to the PMM Client version? Otherwise, there might be configuration issues, thus leading to failure in the client-server communication, as PMM Server might not be able to identify all the parameters in the configuration.
+
+## Troubleshooting areas
+
+### Upgrade issues
+
+#### PMM server not updating correctly
+
+
+If the PMM server wasn't updated correctly, or if you have concerns about the release, you can force the update process in 2 ways:
+
+1. From the UI - Home panel: click the Alt key on the reload icon in the Update panel to make the Update Button visible even if you are on the same version as available for update. Pressing this button will force the system to rerun the update so that any broken or not installed components can be installed. In this case, you'll go through the usual update process with update logs and successful messages at the end.
 
 2. By API call (if UI not available): You can call the Update API directly with:
 
@@ -17,41 +49,47 @@ If PMM server wasn't updated properly, or if you have concerns about the release
     !!! note alert alert-primary ""
         You will not see the logs using this method.
 
-Refresh The Home page in 2-5 minutes and you should see that PMM was updated.
+    Refresh The Home page in 2-5 minutes, and you should see that PMM was updated.
 
-## Client-server connections
+3. Upgrade PMM server using [Docker](../setting-up/server/docker.md#upgrade).
+
+### Configuration issues
+
+This section focuses on configuration issues, such as PMM-agent connection, adding and removing services for monitoring, and so on.
+
+#### Client-server connections
 
 There are many causes of broken network connectivity.
 
-When [using Docker](../setting-up/server/docker.md) the container is constrained by the host-level routing and firewall rules. For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
+The container is constrained by the host-level routing and firewall rules when using [using Docker](../setting-up/server/docker.md). For example, your hosting provider might have default `iptables` rules on their hosts that block communication between PMM Server and PMM Client, resulting in *DOWN* targets in VictoriaMetrics. If this happens, check the firewall and routing settings on the Docker host.
 
-PMM is also able to generate diagnostics data which can be examined and/or shared with our support team to help solve an issue. You can get collected logs from PMM Client using the `pmm-admin summary` command.
+PMM can also generate diagnostics data that can be examined and/or shared with our support team to help solve an issue. You can get collected logs from PMM Client using the pmm-admin summary command.
 
-Logs obtained in this way includes PMM Client logs and logs which were received from the PMM Server, stored separately in the `client` and `server` folders. The `server` folder also contains its own `client` subfolder with the self-monitoring client information collected on the PMM Server.
+Logs obtained in this way include PMM Client logs and logs received from the PMM Server, and stored separately in the `client` and `server` folders. The `server` folder also contains its `client` subfolder with the self-monitoring client information collected on the PMM Server.
 
 Beginning with [PMM 2.4.0](../release-notes/2.4.0.md), there is a flag that enables the fetching of [`pprof`](https://github.com/google/pprof) debug profiles and adds them to the diagnostics data. To enable, run `pmm-admin summary --pprof`.
 
 You can get PMM Server logs with either of these methods:
 
-### Direct download
+**Direct download**
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
-### From Help menu
+**From Help menu**
 
 1. Select <i class="uil uil-question-circle"></i> *Help* → <i class="uil uil-download-alt"></i> *PMM Logs*.
 
 2. Click *PMM Logs* to retrieve PMM diagnostics data which can be examined and shared with our support team should you need help.
 
-## Connection difficulties
+#### Connection difficulties
 
-### Passwords
+**Passwords**
 
-When adding a service, the host might not be detected if the password contains special symbols (e.g. `@`, `%`, etc.).
+When adding a service, the host might not be detected if the password contains special symbols (e.g., `@`, `%`, etc.).
 
 In such cases, you should convert any password, replacing special characters with their escape sequence equivalents.
 
-One way to do this is to use the [`encodeURIComponent`][ENCODE_URI] JavaScript function in your browser's web console (commonly found under a *Development Tools* menu). Run the function with your password as the parameter. For example:
+One way to do this is to use the [`encodeURIComponent`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) JavaScript function in your browser's web console (commonly found under a *Development Tools* menu). Run the function with your password as the parameter. For example:
 
 ```js
 > encodeURIComponent("s3cR#tpa$$worD")
@@ -63,87 +101,68 @@ will give:
 "s3cR%23tpa%24%24worD"
 ```
 
-### Password change
+**Password change**
 
-When adding clients to the PMM server, you use the `admin` user. However, if you change the password for the admin user from the PMM UI, then the clients will not be able to access PMM due to authentication issues. Also, due to multiple unsuccessful login attempts, Grafana will lock out the admin user.
+When adding clients to the PMM server, you use the `admin` user. However, if you change the password for the admin user from the PMM UI, then the clients will not be able to access PMM due to authentication issues. Also, Grafana will lock out the admin user due to multiple unsuccessful login attempts.
 
 In such a scenario, use [API key](../../details/api.md#api-keys-and-authentication) for authentication. You can use API keys as a replacement for basic authentication.
 
-## Integrated Alerting
+### Integrated Alerting issues
 
-### No <i class="uil uil-bell"></i> Integrated Alerting icon
+#### No <i class="uil uil-bell"></i> Integrated Alerting icon
 
 You are not logged in as a privileged user. You need either Admin or Editor roles to work with Integrated Alerting.
 
-### <i class="uil uil-bell"></i> Integrated Alerting icon but no submenu
+** <i class="uil uil-bell"></i> Integrated Alerting icon but no submenu**
 
-Integrated Alerting isn't activated.
+#### Integrated Alerting isn't activated.
 
 1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 2. Enable *Integrated Alerting*.
 
-### Unreachable external IP addresses
+#### Unreachable external IP addresses
 
-**When I get an email or page from my system the IP is not reachable from outside my organization how do I fix this?**
+If you get an email or page from your system that the IP is not reachable from outside my organization, do the following:
 
 To configure your PMM Server’s Public Address, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
 
-### What is 'Alertmanager integration'?
 
-**There’s already an Alertmanager integration tab without me turning it on, I know because I was using your existing Alertmanager integration.**
+#### Notification channels not working
 
-This will continue to work but will be renamed *External Alertmanager*.
-
-### Notification channels not working
-
-**I tried to setup a Slack/Email channel but nothing happened.**
+**I tried to set up a Slack/Email channel but nothing happened.**
 
 Before you can use a notification channel you must provide your connection details.
 
 1. Go to *PMM* → *PMM Settings* → *Communication*.
 2. Define your SMTP server or Slack incoming webhook URL.
 
-For PagerDuty you can configure in the notification channel tab of Integrated Alerting by supplying your server/routing key.
+For PagerDuty you can configure it in the notification channel tab of Integrated Alerting by supplying your server/routing key.
 
-### What's the difference: Username/Password vs Identity/Secret
 
-**In configuring my email server I’m being asked for a Username and Password as well as Identity and Secret. What is the difference between these and which do I use or do I need both?**
-
-It depends on what kind of authentication your system uses:
-
-- `LOGIN`: Use Username/Password.
-- `PLAIN`: Use either Username or Identity and Password.
-- `CRAM-MD5`: Use Username and Secret.
-
-### Alert Rule Templates is disabled
+#### Alert Rule Templates are disabled
 
 Built-In alerts are not editable, but you can copy them and edit the copies. (In [PMM 2.14.0](../release-notes/2.14.0.md) and above).
 
-If you create a custom alert rule template you will have access to edit.
+If you create a custom alert rule template, you will have access to edit.
 
-### Creating rules
 
-**I'm ready to create my first rule! I've chosen a template and given it a name... what is the format of the fields?**
+### QAN issues
 
-- Duration - specifies the duration of time that the expression must be met before the alert will be fired.
+This section focuses on problems with QAN, such as queries not being retrieved so on.
 
-- Filters - A label, an operator, and a value. For example: Label: `service_name'`, Operator:`=(EQUAL)`, VALUE: `ps5.7`.
-    - The **Label** field requires an exact match. You can find a complete list of labels under <i class="uil uil-compass"></i> **Explore > Metrics > Metrics browser > 2. Select labels to search in**.
-    - The **Value** also requires an exact match, but when used with a ‘fuzzy’ (`=~`) evaluator, this can be a regular expression. For example: *=~ps.**
+#### Missing data
 
-### Variables in Templates
+**Why don't I see any query-related information?**
 
-**The concept of *template* implies features like variable substitutions...where can I use these? Where can I find a complete list of them?**
+There might be multiple places where the problem might come from:
 
-Here is a guide to creating templates for Alertmanager: <https://prometheus.io/docs/prometheus/latest/configuration/template_examples/>
+- Connection problem between pmm-agent and pmm-managed
+- PMM-agent cannot connect to the database.
+- Data source is not properly configured.
 
-## Missing data
 
 **Why don't I see the whole query?**
 
-To reduce space usage, long query examples and fingerprints can be truncated to 1024 symbols. In this case, the query explains section will not work.
-
-[ENCODE_URI]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-
+Long query examples and fingerprints can be truncated to 1024 symbols to reduce space usage. In this case, the query explains section will not work.
 
 
