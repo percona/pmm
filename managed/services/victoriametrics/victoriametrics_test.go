@@ -952,6 +952,16 @@ func TestPMMAgent(t *testing.T) {
 				NodeID:     pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				ListenPort: pointer.ToUint16(42002),
 			},
+			&models.Agent{
+				AgentID:        "/agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7",
+				AgentType:      models.MongoDBExporterType,
+				PMMAgentID:     pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:         pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				CustomLabels:   []byte(`{"_agent_label": "mongodb-baz-push"}`),
+				ListenPort:     pointer.ToUint16(12346),
+				MongoDBOptions: &models.MongoDBOptions{EnableAllCollectors: true},
+				PushMetrics:    true,
+			},
 		} {
 			check.NoError(db.Insert(str), "%+v", str)
 		}
@@ -959,6 +969,38 @@ func TestPMMAgent(t *testing.T) {
 		expected := strings.TrimSpace(`
 global: {}
 scrape_configs:
+    - job_name: mongodb_exporter_agent_id_386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7_hr
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:12346
+          labels:
+            _agent_label: mongodb-baz-push
+            _node_label: foo
+            agent_id: /agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7
+            agent_type: mongodb_exporter
+            instance: /agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7
+      follow_redirects: false
+    - job_name: pmm-agent_agent_id_217907dc-d34d-4e2e-aa84-a1b765d49853_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7777
+          labels:
+            instance: pmm-agent
+      follow_redirects: false
     - job_name: vmagent_agent_id_6eb04a49-432f-4535-89fe-1e656bb6c9d0_mr
       honor_timestamps: false
       scrape_interval: 10s
@@ -974,17 +1016,6 @@ scrape_configs:
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
-      follow_redirects: false
-    - job_name: pmm-agent_agent_id_217907dc-d34d-4e2e-aa84-a1b765d49853_mr
-      honor_timestamps: false
-      scrape_interval: 10s
-      scrape_timeout: 9s
-      metrics_path: /debug/metrics
-      static_configs:
-        - targets:
-            - 127.0.0.1:7777
-          labels:
-            instance: pmm-agent
       follow_redirects: false
 `) + "\n"
 		actual, err := svc.BuildScrapeConfigForVMAgent("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853")
