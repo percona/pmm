@@ -242,9 +242,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	if err != nil {
 		var target *agents.ErrUnsupportedAgent
 		if errors.As(err, &target) {
-			return "", status.Error(codes.FailedPrecondition, target.Error())
+			return artifact.ID, status.Error(codes.FailedPrecondition, target.Error())
 		}
-		return "", err
+		return artifact.ID, err
 	}
 
 	return artifact.ID, nil

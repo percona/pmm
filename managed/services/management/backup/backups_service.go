@@ -130,6 +130,15 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 		RetryInterval: req.RetryInterval.AsDuration(),
 	})
 	if err != nil {
+		if artifactID != "" {
+			_, dbErr := models.UpdateArtifact(s.db.Querier, artifactID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			})
+
+			if dbErr != nil {
+				s.l.WithError(err).Error("update backup artifact status")
+			}
+		}
 		return nil, convertBackupError(err)
 	}
 
