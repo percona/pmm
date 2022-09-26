@@ -99,9 +99,6 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
-			if errors.Is(err, reform.ErrNoRows) {
-				return nil
-			}
 			if err != nil {
 				in.l.Errorf("failed finding cluster: %v", err)
 				return err
