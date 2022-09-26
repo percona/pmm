@@ -220,7 +220,6 @@ nav:
                             - details/dashboards/dashboard-postgresql-instance-summary.md
                             - details/dashboards/dashboard-postgresql-instances-compare.md
                             - details/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
-
                         - ProxySQL Dashboards:
                             - details/dashboards/dashboard-proxysql-instance-summary.md
                         - HA Dashboards:
