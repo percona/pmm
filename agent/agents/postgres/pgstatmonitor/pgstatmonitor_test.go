@@ -181,16 +181,20 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	var mPlansCallsCnt, mPlansTimeCnt float32
 	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
 	assert.NoError(t, err)
-	switch pgsmVersion { //nolint:exhaustive //TODO:@Nurlan please check if this was good warning and we should add more cases
+	switch pgsmVersion {
 	case pgStatMonitorVersion06:
 	case pgStatMonitorVersion08:
 	case pgStatMonitorVersion09:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG12:
+	case pgStatMonitorVersion10PG12,
+		pgStatMonitorVersion11PG12,
+		pgStatMonitorVersion20PG12:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14:
+	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14,
+		pgStatMonitorVersion11PG13, pgStatMonitorVersion11PG14,
+		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1
