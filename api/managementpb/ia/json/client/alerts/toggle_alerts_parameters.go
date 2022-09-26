@@ -52,10 +52,12 @@ func NewToggleAlertsParamsWithHTTPClient(client *http.Client) *ToggleAlertsParam
 	}
 }
 
-/* ToggleAlertsParams contains all the parameters to send to the API endpoint
-   for the toggle alerts operation.
+/*
+ToggleAlertsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the toggle alerts operation.
+
+	Typically these are written to a http.Request.
 */
 type ToggleAlertsParams struct {
 	// Body.

@@ -48,7 +48,8 @@ func NewGetPXCClusterResourcesOK() *GetPXCClusterResourcesOK {
 	return &GetPXCClusterResourcesOK{}
 }
 
-/* GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
+/*
+GetPXCClusterResourcesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetPXCClusterResourcesDefault(code int) *GetPXCClusterResourcesDefault {
 	}
 }
 
-/* GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
+/*
+GetPXCClusterResourcesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetPXCClusterResourcesDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*GetPXCClusterResourcesBody get PXC cluster resources body
+/*
+GetPXCClusterResourcesBody get PXC cluster resources body
 swagger:model GetPXCClusterResourcesBody
 */
 type GetPXCClusterResourcesBody struct {
@@ -204,7 +207,8 @@ func (o *GetPXCClusterResourcesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesDefaultBody get PXC cluster resources default body
+/*
+GetPXCClusterResourcesDefaultBody get PXC cluster resources default body
 swagger:model GetPXCClusterResourcesDefaultBody
 */
 type GetPXCClusterResourcesDefaultBody struct {
@@ -307,7 +311,8 @@ func (o *GetPXCClusterResourcesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesDefaultBodyDetailsItems0 get PXC cluster resources default body details items0
+/*
+GetPXCClusterResourcesDefaultBodyDetailsItems0 get PXC cluster resources default body details items0
 swagger:model GetPXCClusterResourcesDefaultBodyDetailsItems0
 */
 type GetPXCClusterResourcesDefaultBodyDetailsItems0 struct {
@@ -343,7 +348,8 @@ func (o *GetPXCClusterResourcesDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetPXCClusterResourcesOKBody get PXC cluster resources OK body
+/*
+GetPXCClusterResourcesOKBody get PXC cluster resources OK body
 swagger:model GetPXCClusterResourcesOKBody
 */
 type GetPXCClusterResourcesOKBody struct {
@@ -431,7 +437,8 @@ func (o *GetPXCClusterResourcesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
+/*
+GetPXCClusterResourcesOKBodyExpected Resources contains Kubernetes cluster resources.
 swagger:model GetPXCClusterResourcesOKBodyExpected
 */
 type GetPXCClusterResourcesOKBodyExpected struct {
@@ -474,7 +481,8 @@ func (o *GetPXCClusterResourcesOKBodyExpected) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
+/*
+GetPXCClusterResourcesParamsBodyParams PXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model GetPXCClusterResourcesParamsBodyParams
 */
 type GetPXCClusterResourcesParamsBodyParams struct {
@@ -655,7 +663,8 @@ func (o *GetPXCClusterResourcesParamsBodyParams) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsHaproxy HAProxy container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsHaproxy HAProxy container parameters.
 // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxy
 */
@@ -747,7 +756,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxy) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources struct {
@@ -786,7 +796,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsHaproxyComputeResources) Unmarsha
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsPXC PXC container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsPXC PXC container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXC
 */
@@ -881,7 +892,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXC) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsPXCComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsPXCComputeResources struct {
@@ -920,7 +932,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources) UnmarshalBin
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsProxysql ProxySQL container parameters.
+/*
+GetPXCClusterResourcesParamsBodyParamsProxysql ProxySQL container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysql
 */
@@ -1015,7 +1028,8 @@ func (o *GetPXCClusterResourcesParamsBodyParamsProxysql) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources
 */
 type GetPXCClusterResourcesParamsBodyParamsProxysqlComputeResources struct {

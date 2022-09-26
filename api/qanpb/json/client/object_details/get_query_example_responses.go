@@ -50,7 +50,8 @@ func NewGetQueryExampleOK() *GetQueryExampleOK {
 	return &GetQueryExampleOK{}
 }
 
-/* GetQueryExampleOK describes a response with status code 200, with default header values.
+/*
+GetQueryExampleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 	}
 }
 
-/* GetQueryExampleDefault describes a response with status code -1, with default header values.
+/*
+GetQueryExampleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
+/*
+GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
 // dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetQueryExampleBody
 */
@@ -265,7 +268,8 @@ func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryExampleDefaultBody get query example default body
+/*
+GetQueryExampleDefaultBody get query example default body
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
@@ -368,7 +372,8 @@ func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryExampleDefaultBodyDetailsItems0 get query example default body details items0
+/*
+GetQueryExampleDefaultBodyDetailsItems0 get query example default body details items0
 swagger:model GetQueryExampleDefaultBodyDetailsItems0
 */
 type GetQueryExampleDefaultBodyDetailsItems0 struct {
@@ -404,7 +409,8 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*GetQueryExampleOKBody QueryExampleReply list of query examples.
+/*
+GetQueryExampleOKBody QueryExampleReply list of query examples.
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {
@@ -501,7 +507,8 @@ func (o *GetQueryExampleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and their metrics.
+/*
+GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and their metrics.
 swagger:model GetQueryExampleOKBodyQueryExamplesItems0
 */
 type GetQueryExampleOKBodyQueryExamplesItems0 struct {
@@ -674,7 +681,8 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*
+GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetQueryExampleParamsBodyLabelsItems0
 */
 type GetQueryExampleParamsBodyLabelsItems0 struct {

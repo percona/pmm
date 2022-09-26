@@ -48,7 +48,7 @@ type ClientService interface {
 }
 
 /*
-  ChangeScheduledBackup changes scheduled backup changes existing scheduled backup
+ChangeScheduledBackup changes scheduled backup changes existing scheduled backup
 */
 func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts ...ClientOption) (*ChangeScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -85,7 +85,7 @@ func (a *Client) ChangeScheduledBackup(params *ChangeScheduledBackupParams, opts
 }
 
 /*
-  GetLogs gets logs returns logs for provided artifact
+GetLogs gets logs returns logs for provided artifact
 */
 func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending
@@ -122,7 +122,7 @@ func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsO
 }
 
 /*
-  ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
+ListArtifactCompatibleServices lists artifact compatible services lists compatible services for restoring a backup
 */
 func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleServicesParams, opts ...ClientOption) (*ListArtifactCompatibleServicesOK, error) {
 	// TODO: Validate the params before sending
@@ -159,7 +159,7 @@ func (a *Client) ListArtifactCompatibleServices(params *ListArtifactCompatibleSe
 }
 
 /*
-  ListScheduledBackups lists scheduled backups returns all scheduled backups
+ListScheduledBackups lists scheduled backups returns all scheduled backups
 */
 func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts ...ClientOption) (*ListScheduledBackupsOK, error) {
 	// TODO: Validate the params before sending
@@ -196,7 +196,7 @@ func (a *Client) ListScheduledBackups(params *ListScheduledBackupsParams, opts .
 }
 
 /*
-  RemoveScheduledBackup removes scheduled backup removes existing scheduled backup
+RemoveScheduledBackup removes scheduled backup removes existing scheduled backup
 */
 func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts ...ClientOption) (*RemoveScheduledBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -233,9 +233,10 @@ func (a *Client) RemoveScheduledBackup(params *RemoveScheduledBackupParams, opts
 }
 
 /*
-  RestoreBackup restores backup requests the backup restore
+	RestoreBackup restores backup requests the backup restore
 
-  Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+	Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+
 ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
 ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
@@ -276,7 +277,7 @@ func (a *Client) RestoreBackup(params *RestoreBackupParams, opts ...ClientOption
 }
 
 /*
-  ScheduleBackup schedules backup schedules repeated backup
+ScheduleBackup schedules backup schedules repeated backup
 */
 func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOption) (*ScheduleBackupOK, error) {
 	// TODO: Validate the params before sending
@@ -313,9 +314,10 @@ func (a *Client) ScheduleBackup(params *ScheduleBackupParams, opts ...ClientOpti
 }
 
 /*
-  StartBackup starts backup request backup specified service to location
+	StartBackup starts backup request backup specified service to location
 
-  Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+	Could return the Error message in the details containing specific ErrorCode indicating failure reason:
+
 ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
 ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
 ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup

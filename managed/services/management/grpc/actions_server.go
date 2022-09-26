@@ -130,6 +130,7 @@ func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, dat
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *managementpb.StartMySQLExplainActionRequest) (*managementpb.StartMySQLExplainActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -157,6 +158,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 }
 
 // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *managementpb.StartMySQLExplainJSONActionRequest) (*managementpb.StartMySQLExplainJSONActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -184,6 +186,7 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 }
 
 // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Context, req *managementpb.StartMySQLExplainTraditionalJSONActionRequest) (*managementpb.StartMySQLExplainTraditionalJSONActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -211,6 +214,7 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 }
 
 // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req *managementpb.StartMySQLShowCreateTableActionRequest) (*managementpb.StartMySQLShowCreateTableActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -238,6 +242,7 @@ func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req
 }
 
 // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req *managementpb.StartMySQLShowTableStatusActionRequest) (*managementpb.StartMySQLShowTableStatusActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -265,6 +270,7 @@ func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req
 }
 
 // StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
+//
 //nolint:lll
 func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *managementpb.StartMySQLShowIndexActionRequest) (*managementpb.StartMySQLShowIndexActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
@@ -292,6 +298,7 @@ func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *mana
 }
 
 // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
+//
 //nolint:lll
 func (s *actionsServer) StartPostgreSQLShowCreateTableAction(ctx context.Context, req *managementpb.StartPostgreSQLShowCreateTableActionRequest) (*managementpb.StartPostgreSQLShowCreateTableActionResponse, error) {
 	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
@@ -311,6 +318,7 @@ func (s *actionsServer) StartPostgreSQLShowCreateTableAction(ctx context.Context
 }
 
 // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
+//
 //nolint:lll
 func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req *managementpb.StartPostgreSQLShowIndexActionRequest) (*managementpb.StartPostgreSQLShowIndexActionResponse, error) {
 	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
@@ -330,6 +338,7 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 }
 
 // StartMongoDBExplainAction starts MongoDB Explain action
+//
 //nolint:lll
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error,
@@ -352,6 +361,7 @@ func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *mana
 }
 
 // StartPTSummaryAction starts pt-summary action.
+//
 //nolint:lll
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
@@ -394,6 +404,7 @@ func pointerToAgentType(agentType models.AgentType) *models.AgentType {
 }
 
 // StartPTPgSummaryAction starts pt-pg-summary (PostgreSQL) action and returns the pointer to the response message
+//
 //nolint:lll
 func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *managementpb.StartPTPgSummaryActionRequest) (*managementpb.StartPTPgSummaryActionResponse, error) {
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
@@ -458,6 +469,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *managem
 }
 
 // StartPTMongoDBSummaryAction starts pt-mongodb-summary action and returns the pointer to the response message
+//
 //nolint:lll
 func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *managementpb.StartPTMongoDBSummaryActionRequest) (*managementpb.StartPTMongoDBSummaryActionResponse, error) {
 	// Need to get the service id's pointer to retrieve the list of agent pointers therefrom
@@ -516,6 +528,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ma
 }
 
 // StartPTMySQLSummaryAction starts pt-mysql-summary action and returns the pointer to the response message
+//
 //nolint:lll
 func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *managementpb.StartPTMySQLSummaryActionRequest) (*managementpb.StartPTMySQLSummaryActionResponse, error) {
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
