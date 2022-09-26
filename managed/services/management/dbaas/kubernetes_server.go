@@ -17,10 +17,13 @@ package dbaas
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"regexp"
 	"strings"
 	"sync"
 
+	goversion "github.com/hashicorp/go-version"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -49,24 +52,24 @@ var (
 )
 
 type kubernetesServer struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	dbaasClient      dbaasClient
-	versionService   versionService
-	dbaasInitializer *Initializer
+	l              *logrus.Entry
+	db             *reform.DB
+	dbaasClient    dbaasClient
+	versionService versionService
+	grafanaClient  grafanaClient
 
 	dbaasv1beta1.UnimplementedKubernetesServer
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, dbaasInitializer *Initializer) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
-		l:                l,
-		db:               db,
-		dbaasClient:      dbaasClient,
-		versionService:   versionService,
-		dbaasInitializer: dbaasInitializer,
+		l:              l,
+		db:             db,
+		dbaasClient:    dbaasClient,
+		versionService: versionService,
+		grafanaClient:  grafanaClient,
 	}
 }
 
@@ -258,7 +261,101 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
-	return k.dbaasInitializer.RegisterCluster(ctx, req)
+	var err error
+	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
+	if err != nil {
+		if errors.Is(err, errKubeconfigIsEmpty) {
+			return nil, status.Error(codes.InvalidArgument, "Kubeconfig can't be empty")
+		} else if errors.Is(err, errMissingRequiredKubeconfigEnvVar) {
+			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to transform kubeconfig to work with aws-iam-authenticator: %s", err))
+		}
+		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
+		return nil, status.Error(codes.Internal, "Internal server error")
+	}
+	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
+	err = k.db.InTransaction(func(t *reform.TX) error {
+		var e error
+		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+		if e != nil {
+			return e
+		}
+
+		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
+			KubernetesClusterName: req.KubernetesClusterName,
+			KubeConfig:            req.KubeAuth.Kubeconfig,
+		})
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
+	if err != nil {
+		return nil, err
+	}
+	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+		_, err = k.dbaasClient.InstallPXCOperator(ctx, &dbaascontrollerv1beta1.InstallPXCOperatorRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Version: pxcOperatorVersion.String(),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+		_, err = k.dbaasClient.InstallPSMDBOperator(ctx, &dbaascontrollerv1beta1.InstallPSMDBOperatorRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Version: psmdbOperatorVersion.String(),
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	settings, err := models.GetSettings(k.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if settings.PMMPublicAddress != "" {
+		var apiKeyID int64
+		var apiKey string
+		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
+		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+		if err != nil {
+			return nil, err
+		}
+		pmmParams := &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+			Login:         "api_key",
+			Password:      apiKey,
+		}
+
+		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Pmm: pmmParams,
+		})
+		if err != nil {
+			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+			}
+			k.l.Warnf("couldn't start monitoring of the kubernetes cluster: %s", err)
+			return nil, status.Errorf(codes.Internal, "couldn't start monitoring of the kubernetes cluster: %s", err.Error())
+		}
+	}
+
+	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
