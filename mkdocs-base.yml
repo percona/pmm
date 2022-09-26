@@ -216,6 +216,7 @@ nav:
                             - details/dashboards/dashboard-mongodb-mmapv1-details.md
                             - details/dashboards/dashboard-mongodb-wiredtiger-details.md
                         - PostgreSQL Dashboards:
+                            - details/dashboards/dashboard-postgresql-vacuum-monitoring-experimental.md
                             - details/dashboards/dashboard-postgresql-instances-overview.md
                             - details/dashboards/dashboard-postgresql-instance-summary.md
                             - details/dashboards/dashboard-postgresql-instances-compare.md
