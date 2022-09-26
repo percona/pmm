@@ -52,10 +52,12 @@ func NewGetQueryExampleParamsWithHTTPClient(client *http.Client) *GetQueryExampl
 	}
 }
 
-/* GetQueryExampleParams contains all the parameters to send to the API endpoint
-   for the get query example operation.
+/*
+GetQueryExampleParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get query example operation.
+
+	Typically these are written to a http.Request.
 */
 type GetQueryExampleParams struct {
 	/* Body.

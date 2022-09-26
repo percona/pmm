@@ -48,7 +48,8 @@ func NewGetPXCClusterCredentialsOK() *GetPXCClusterCredentialsOK {
 	return &GetPXCClusterCredentialsOK{}
 }
 
-/* GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
+/*
+GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewGetPXCClusterCredentialsDefault(code int) *GetPXCClusterCredentialsDefau
 	}
 }
 
-/* GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
+/*
+GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *GetPXCClusterCredentialsDefault) readResponse(response runtime.ClientRe
 	return nil
 }
 
-/*GetPXCClusterCredentialsBody get PXC cluster credentials body
+/*
+GetPXCClusterCredentialsBody get PXC cluster credentials body
 swagger:model GetPXCClusterCredentialsBody
 */
 type GetPXCClusterCredentialsBody struct {
@@ -155,7 +158,8 @@ func (o *GetPXCClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterCredentialsDefaultBody get PXC cluster credentials default body
+/*
+GetPXCClusterCredentialsDefaultBody get PXC cluster credentials default body
 swagger:model GetPXCClusterCredentialsDefaultBody
 */
 type GetPXCClusterCredentialsDefaultBody struct {
@@ -258,7 +262,8 @@ func (o *GetPXCClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials default body details items0
+/*
+GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials default body details items0
 swagger:model GetPXCClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPXCClusterCredentialsDefaultBodyDetailsItems0 struct {
@@ -294,7 +299,8 @@ func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 	return nil
 }
 
-/*GetPXCClusterCredentialsOKBody get PXC cluster credentials OK body
+/*
+GetPXCClusterCredentialsOKBody get PXC cluster credentials OK body
 swagger:model GetPXCClusterCredentialsOKBody
 */
 type GetPXCClusterCredentialsOKBody struct {
@@ -382,7 +388,8 @@ func (o *GetPXCClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetPXCClusterCredentialsOKBodyConnectionCredentials PXCClusterConnectionCredentials is cluster connection credentials.
+/*
+GetPXCClusterCredentialsOKBodyConnectionCredentials PXCClusterConnectionCredentials is cluster connection credentials.
 swagger:model GetPXCClusterCredentialsOKBodyConnectionCredentials
 */
 type GetPXCClusterCredentialsOKBodyConnectionCredentials struct {

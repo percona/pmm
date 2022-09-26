@@ -52,10 +52,12 @@ func NewChangeSettingsParamsWithHTTPClient(client *http.Client) *ChangeSettingsP
 	}
 }
 
-/* ChangeSettingsParams contains all the parameters to send to the API endpoint
-   for the change settings operation.
+/*
+ChangeSettingsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change settings operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeSettingsParams struct {
 	// Body.

@@ -53,6 +53,7 @@ func NewServicesService(
 }
 
 // List selects all Services in a stable order.
+//
 //nolint:unparam
 func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error) {
 	var servicesM []*models.Service
@@ -76,6 +77,7 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 }
 
 // Get selects a single Service by ID.
+//
 //nolint:unparam
 func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) {
 	service := &models.Service{}
@@ -96,6 +98,7 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 }
 
 // AddMySQL inserts MySQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
 	service := &models.Service{}
@@ -122,6 +125,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 }
 
 // AddMongoDB inserts MongoDB Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
 	service := &models.Service{}
@@ -145,6 +149,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 }
 
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
 	service := &models.Service{}
@@ -168,6 +173,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 }
 
 // AddProxySQL inserts ProxySQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ProxySQLService, error) {
 	service := &models.Service{}
@@ -210,6 +216,7 @@ func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models
 }
 
 // AddExternalService inserts External Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
 	service := &models.Service{}
