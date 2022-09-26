@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// ErrUnsupportedAgent is used when the target PMM agent doesn't support the requested functionality.
 type ErrUnsupportedAgent struct {
 	Functionality string
 	AgentID       string
