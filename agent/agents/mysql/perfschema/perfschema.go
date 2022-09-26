@@ -85,7 +85,7 @@ type PerfSchema struct {
 	q                    *reform.Querier
 	dbCloser             io.Closer
 	agentID              string
-	maxQueryLength       int
+	maxQueryLength       int32
 	disableQueryExamples bool
 	l                    *logrus.Entry
 	changes              chan agents.Change
@@ -98,7 +98,7 @@ type PerfSchema struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	MaxQueryLength       int
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	TLSSkipVerify        bool
@@ -109,7 +109,7 @@ type newPerfSchemaParams struct {
 	Querier              *reform.Querier
 	DBCloser             io.Closer
 	AgentID              string
-	MaxQueryLength       int
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	LogEntry             *logrus.Entry
 }
@@ -366,7 +366,7 @@ func inc(current, prev uint64) float32 {
 // to make metrics buckets.
 //
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int) []*agentpb.MetricsBucket {
+func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {

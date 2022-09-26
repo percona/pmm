@@ -169,7 +169,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 
 type setupParams struct {
 	db                   *reform.DB
-	maxQueryLength       int
+	maxQueryLength       int32
 	disableQueryExamples bool
 }
 

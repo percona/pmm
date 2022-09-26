@@ -15,11 +15,11 @@
 // Package truncate privides strings truncation utilities.
 package truncate
 
-var defaultMaxQueryLength = 2048
+var defaultMaxQueryLength = int32(2048)
 
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
 // Also truncate all invalid UTF-8 chars.
-func Query(q string, maxQueryLength int) (query string, truncated bool) {
+func Query(q string, maxQueryLength int32) (string, bool) {
 	if maxQueryLength < 0 {
 		return string([]rune(q)), false
 	}
@@ -29,7 +29,7 @@ func Query(q string, maxQueryLength int) (query string, truncated bool) {
 	}
 
 	runes := []rune(q)
-	if len(runes) <= maxQueryLength {
+	if int32(len(runes)) <= maxQueryLength {
 		return string(runes), false
 	}
 
@@ -38,6 +38,6 @@ func Query(q string, maxQueryLength int) (query string, truncated bool) {
 }
 
 // GetDefaultMaxQueryLength returns default decimal value for query length.
-func GetDefaultMaxQueryLength() int {
+func GetDefaultMaxQueryLength() int32 {
 	return defaultMaxQueryLength
 }
