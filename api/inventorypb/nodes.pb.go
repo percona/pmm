@@ -825,6 +825,7 @@ type GetNodeResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Node:
+	//
 	//	*GetNodeResponse_Generic
 	//	*GetNodeResponse_Container
 	//	*GetNodeResponse_Remote
