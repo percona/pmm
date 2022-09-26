@@ -1,6 +1,6 @@
 FROM redhat/ubi9-minimal
 
-RUN microdnf install shadow-utils
+RUN microdnf install shadow-utils -y
 
 RUN groupadd -g 1002 pmm-agent && \
     useradd -u 1002 -r -g pmm-agent -s /sbin/nologin \

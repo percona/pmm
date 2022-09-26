@@ -36,7 +36,7 @@ type ClientService interface {
 }
 
 /*
-  ListAlerts lists alerts returns a list of all alerts
+ListAlerts lists alerts returns a list of all alerts
 */
 func (a *Client) ListAlerts(params *ListAlertsParams, opts ...ClientOption) (*ListAlertsOK, error) {
 	// TODO: Validate the params before sending
@@ -73,9 +73,9 @@ func (a *Client) ListAlerts(params *ListAlertsParams, opts ...ClientOption) (*Li
 }
 
 /*
-  ToggleAlerts toggles alerts allows to switch alerts state between silenced and unsilenced
+ToggleAlerts toggles alerts allows to switch alerts state between silenced and unsilenced
 
-  Pass empty list to apply toggle action to all existing alerts
+Pass empty list to apply toggle action to all existing alerts
 */
 func (a *Client) ToggleAlerts(params *ToggleAlertsParams, opts ...ClientOption) (*ToggleAlertsOK, error) {
 	// TODO: Validate the params before sending

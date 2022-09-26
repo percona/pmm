@@ -52,10 +52,12 @@ func NewChangeMongoDBExporterParamsWithHTTPClient(client *http.Client) *ChangeMo
 	}
 }
 
-/* ChangeMongoDBExporterParams contains all the parameters to send to the API endpoint
-   for the change mongo DB exporter operation.
+/*
+ChangeMongoDBExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change mongo DB exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeMongoDBExporterParams struct {
 	// Body.
