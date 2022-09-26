@@ -97,8 +97,7 @@ func TestPXCClusterService(t *testing.T) {
 	defer teardown(t)
 	versionService := NewVersionServiceClient(versionServiceURL)
 
-	dbaasInitializer := NewInitializer(db, dbaasClient, grafanaClient, versionService)
-	ks := NewKubernetesServer(db, dbaasClient, versionService, dbaasInitializer)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, pxcKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",
