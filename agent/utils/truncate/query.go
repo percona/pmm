@@ -19,7 +19,7 @@ var defaultMaxQueryLength = int32(2048)
 
 // Query truncate query to specific length of chars, if needed. -1: No limit, 0: Default (2048).
 // Also truncate all invalid UTF-8 chars.
-func Query(q string, maxQueryLength int32) (query string, truncated bool) {
+func Query(q string, maxQueryLength int32) (string, bool) {
 	if maxQueryLength < 0 {
 		return string([]rune(q)), false
 	}
