@@ -61,7 +61,7 @@ type SlowLog struct {
 type Params struct {
 	DSN                  string
 	AgentID              string
-	MaxQueryLength       int
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	MaxSlowlogFileSize   int64
 	SlowLogFilePrefix    string // for development and testing
@@ -387,7 +387,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int) []*agentpb.MetricsBucket {
+func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
