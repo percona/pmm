@@ -49,14 +49,14 @@ type PGStatMonitorQAN struct {
 	l                    *logrus.Entry
 	changes              chan agents.Change
 	monitorCache         *statMonitorCache
-	maxQueryLength       int
+	maxQueryLength       int32
 	disableQueryExamples bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
 	DSN                  string
-	MaxQueryLength       int
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	AgentID              string
@@ -134,7 +134,7 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int, l *logrus.Entry) (*PGStatMonitorQAN, error) {
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                    q,
 		dbCloser:             dbCloser,

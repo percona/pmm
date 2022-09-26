@@ -54,7 +54,7 @@ type PGStatStatementsQAN struct {
 	q               *reform.Querier
 	dbCloser        io.Closer
 	agentID         string
-	maxQueryLength  int
+	maxQueryLength  int32
 	l               *logrus.Entry
 	changes         chan agents.Change
 	statementsCache *statementsCache
@@ -64,7 +64,7 @@ type PGStatStatementsQAN struct {
 type Params struct {
 	DSN            string
 	AgentID        string
-	MaxQueryLength int
+	MaxQueryLength int32
 	TextFiles      *agentpb.TextFiles
 }
 
@@ -86,7 +86,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
@@ -200,7 +200,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int) (current, prev statementsMap, err error) {
+func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int32) (current, prev statementsMap, err error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {

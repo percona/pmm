@@ -62,7 +62,7 @@ func newStatMonitorCache(l *logrus.Entry) *statMonitorCache {
 
 // getStatMonitorExtended returns the current state of pg_stat_monitor table with extended information (database, username)
 // and the previous cashed state grouped by bucket start time.
-func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *reform.Querier, normalizedQuery bool, maxQueryLength int) (current, cache map[time.Time]map[string]*pgStatMonitorExtended, err error) {
+func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *reform.Querier, normalizedQuery bool, maxQueryLength int32) (current, cache map[time.Time]map[string]*pgStatMonitorExtended, err error) {
 	var totalN, newN, newSharedN, oldN int
 	start := time.Now()
 	defer func() {

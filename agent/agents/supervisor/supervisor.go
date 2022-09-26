@@ -492,7 +492,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatstatements.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
-			MaxQueryLength: int(builtinAgent.MaxQueryLength),
+			MaxQueryLength: builtinAgent.MaxQueryLength,
 			TextFiles:      builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
@@ -501,7 +501,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatmonitor.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
-			MaxQueryLength:       int(builtinAgent.MaxQueryLength),
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
