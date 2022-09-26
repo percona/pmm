@@ -101,7 +101,7 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
 			if err != nil {
 				in.l.Errorf("failed finding cluster: %v", err)
-				return err
+				return nil
 			}
 			if cluster != nil {
 				return errClusterExists
