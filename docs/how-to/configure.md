@@ -17,9 +17,9 @@ On the left are the selector tabs:
     - [Advisors](#advisors)
   - [Public address](#public-address)
     - [DBaaS](#dbaas)
-    - [Integrated Alerting](#integrated-alerting)
+    - [Alerting](#alerting)
     - [Microsoft Azure Monitoring](#microsoft-azure-monitoring)
-    - [Public Address](#public-address-1)
+    - [Public Address {: #public-address-1 }](#public-address--public-address-1-)
   - [SSH Key](#ssh-key)
   - [Alertmanager integration](#alertmanager-integration)
   - [Percona Platform](#percona-platform)
@@ -27,9 +27,6 @@ On the left are the selector tabs:
     - [Password Reset](#password-reset)
       - [Password Forgotten](#password-forgotten)
       - [Change Password after Login](#change-password-after-login)
-  - [Communication](#communication)
-    - [Email](#email)
-    - [Slack](#slack)
 
 !!! hint alert alert-success "Tip"
     Click *Apply changes* to save any changes made here.
@@ -140,9 +137,9 @@ Enables/disables [DBaaS features](../using/dbaas.md) on this server.
 !!! caution alert alert-warning "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
 
-### Integrated Alerting
+### Alerting
 
-Enables [Integrated Alerting](../using/alerting.md) and reveals the [Communication](#communication) tab.
+Enables [Percona Alerting](../using/alerting.md) and reveals the **Percona templated alerts** option on the Alerting page.
 
 ### Microsoft Azure Monitoring
 
@@ -211,41 +208,3 @@ If you did not forget your password but you still want to change it, go to <http
 Insert you current password and the new password in the form to the bottom right of the page. If you cannot see the form, you will need to click on the *Edit Profile* green button (you will be prompted for you password).
 
 Click on *Change Password*. If everything goes well, you will see a confirmation message.
-
-## Communication
-
-Global communications settings for [Integrated Alerting](../using/alerting.md).
-
-!!! hint alert alert-success "Tip"
-    If there is no *Communication* tab, go to the *Advanced Settings* tab and activate *Integrated Alerting*.
-
-![!](../_images/PMM_Settings_Communication.jpg)
-
-(Integrated Alerting uses a separate instance of Alertmanager run by `pmm-managed`.)
-
-### Email
-
-Settings for the SMTP email server:
-
-- *Server Address*: The default SMTP smarthost used for sending emails, including port number.
-- *Hello*: The default hostname to identify to the SMTP server.
-- *From*: The sender's email address.
-- *Auth type*: Authentication type. Choose from:
-    - *None*
-    - *Plain*
-    - *Login*
-    - *CRAM-MD5*
-- *Username*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
-- *Password*: SMTP Auth using CRAM-MD5, LOGIN and PLAIN.
-After setting up the SMTP server, click *Test* to confirm that you can connect to the server with the current settings.
-
-### Slack
-
-![!](../_images/PMM_Settings_Communication_Slack.png)
-
-Settings for Slack notifications:
-
-- *URL*: The Slack webhook URL to use for Slack notifications.
-
-!!! seealso alert alert-info "See also"
-    [Prometheus Alertmanager configuration](https://prometheus.io/docs/alerting/latest/configuration/)

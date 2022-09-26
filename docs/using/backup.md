@@ -178,8 +178,8 @@ Make regular scheduled backups.
     - *Vendor*: A value is automatically selected based on the service type.
     - *Location*: Choose from the menu the storage location.
     - *Data model*: Select one of the options:
-        - *Physical*: Backup the physical data model.
-        - *Logical*: (Not currently implemented)
+        - *Physical*: Takes a physical backup of the database files.
+        - *Logical*: Takes a logical backup of data in the database. Currently not supported for MySQL.
     - *Description*: (Optional) Enter a long description for this scheduled backup.
     - *Schedule*: The schedule for the backup.
         - *Every*: The backup interval. Choose from the menu one of:
@@ -280,7 +280,7 @@ The above constraint applies at the service level. That said, you can still have
 ## Restore a backup
 
 !!! note alert alert-primary ""
-    For now, you can only restore a backup to the same service it was created from, or to a compatible one.
+  MySQL backups can be restored to the same service it was created from, or to a compatible one. MongoDB backups   can only be restored to the same service it was created from. 
 
 1. Select <i class="uil uil-history"></i> → *Backup* → *Backup Inventory*.
 
