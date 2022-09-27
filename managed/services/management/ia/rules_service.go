@@ -18,7 +18,6 @@ package ia
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -257,7 +256,7 @@ func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 
 	fileName := strings.TrimPrefix(alertRule.Alert, "/rule_id/")
 	path := s.rulesPath + "/" + fileName + ".yml"
-	if err = ioutil.WriteFile(path, b, 0o644); err != nil {
+	if err = os.WriteFile(path, b, 0o644); err != nil { //nolint:gosec
 		return errors.Errorf("failed to dump rule to file %s: %v", s.rulesPath, err)
 	}
 

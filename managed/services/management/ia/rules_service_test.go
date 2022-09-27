@@ -99,7 +99,7 @@ import (
 // 		// Write vmAlert rules files
 // 		rules.WriteVMAlertRulesFiles()
 //
-// 		file, err := ioutil.ReadFile(ruleFileName(testDir, ruleID))
+// 		file, err := os.ReadFile(ruleFileName(testDir, ruleID))
 // 		require.NoError(t, err)
 //
 // 		expected := fmt.Sprintf(`---
