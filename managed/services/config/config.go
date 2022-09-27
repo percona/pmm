@@ -18,7 +18,6 @@ package config
 
 import (
 	_ "embed"
-	"io/ioutil"
 	"os"
 
 	"github.com/pkg/errors"
@@ -73,7 +72,7 @@ func (s *Service) Load() error {
 
 	if _, err := os.Stat(configPath); err == nil {
 		s.l.Trace("config exist, reading file")
-		buf, err := ioutil.ReadFile(configPath) //nolint:gosec
+		buf, err := os.ReadFile(configPath) //nolint:gosec
 		if err != nil {
 			return errors.Wrapf(err, "error while reading config [%s]", configPath)
 		}

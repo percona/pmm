@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/types"
@@ -58,7 +60,7 @@ func (res *statusResult) HumanReadableAgentType(agentType string) string {
 }
 
 func (res *statusResult) NiceAgentStatus(status string) string {
-	return strings.Title(strings.ToLower(status))
+	return cases.Title(language.English).String(strings.ToLower(status))
 }
 
 func (res *statusResult) Result() {}
