@@ -112,7 +112,7 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption
 }
 
 /*
-  ListPitrTimelines lists pitr timelines list the available mongo DB p i t r timeranges in a given backup location
+ListPitrTimelines lists pitr timelines list the available mongo DB p i t r timeranges in a given backup location
 */
 func (a *Client) ListPitrTimelines(params *ListPitrTimelinesParams, opts ...ClientOption) (*ListPitrTimelinesOK, error) {
 	// TODO: Validate the params before sending

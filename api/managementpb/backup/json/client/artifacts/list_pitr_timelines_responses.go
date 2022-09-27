@@ -49,7 +49,8 @@ func NewListPitrTimelinesOK() *ListPitrTimelinesOK {
 	return &ListPitrTimelinesOK{}
 }
 
-/* ListPitrTimelinesOK describes a response with status code 200, with default header values.
+/*
+	ListPitrTimelinesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewListPitrTimelinesDefault(code int) *ListPitrTimelinesDefault {
 	}
 }
 
-/* ListPitrTimelinesDefault describes a response with status code -1, with default header values.
+/*
+	ListPitrTimelinesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *ListPitrTimelinesDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*ListPitrTimelinesBody list pitr timelines body
+/*
+ListPitrTimelinesBody list pitr timelines body
 swagger:model ListPitrTimelinesBody
 */
 type ListPitrTimelinesBody struct {
@@ -153,7 +156,8 @@ func (o *ListPitrTimelinesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimelinesDefaultBody list pitr timelines default body
+/*
+ListPitrTimelinesDefaultBody list pitr timelines default body
 swagger:model ListPitrTimelinesDefaultBody
 */
 type ListPitrTimelinesDefaultBody struct {
@@ -256,7 +260,8 @@ func (o *ListPitrTimelinesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimelinesDefaultBodyDetailsItems0 list pitr timelines default body details items0
+/*
+ListPitrTimelinesDefaultBodyDetailsItems0 list pitr timelines default body details items0
 swagger:model ListPitrTimelinesDefaultBodyDetailsItems0
 */
 type ListPitrTimelinesDefaultBodyDetailsItems0 struct {
@@ -292,7 +297,8 @@ func (o *ListPitrTimelinesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*ListPitrTimelinesOKBody list pitr timelines OK body
+/*
+ListPitrTimelinesOKBody list pitr timelines OK body
 swagger:model ListPitrTimelinesOKBody
 */
 type ListPitrTimelinesOKBody struct {
@@ -389,7 +395,8 @@ func (o *ListPitrTimelinesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListPitrTimelinesOKBodyTimelinesItems0 list pitr timelines OK body timelines items0
+/*
+ListPitrTimelinesOKBodyTimelinesItems0 list pitr timelines OK body timelines items0
 swagger:model ListPitrTimelinesOKBodyTimelinesItems0
 */
 type ListPitrTimelinesOKBodyTimelinesItems0 struct {
