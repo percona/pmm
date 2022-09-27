@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
+// Package server holds the "pmm client" command
 package client
 
 import "github.com/percona/pmm/admin/commands"
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
+// BaseCommand is used by Kong for CLI flags and commands and holds all client commands.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM client"`
 }

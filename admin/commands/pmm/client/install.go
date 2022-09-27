@@ -34,8 +34,8 @@ import (
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
 	InstallPath  string `default:"/usr/local/percona/pmm2" help:"Path where PMM Server shall be installed"`
-	User         string `help:"Set files ownership instead of current user"`
-	Group        string `help:"Set group ownership instead of current group"`
+	User         string `help:"Set file ownership instead of the current user"`
+	Group        string `help:"Set group ownership instead of the current group"`
 	Version      string `name:"use-version" help:"PMM Server version to install (default: latest)"`
 	SkipChecksum bool   `help:"Skip checksum validation of the downloaded files"`
 }
@@ -103,6 +103,7 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	return &installResult{}, nil
 }
 
+// ErrLatestVersionNotFound is returned when we cannot determine what the latest version is.
 var ErrLatestVersionNotFound = fmt.Errorf("LatestVersionNotFound")
 
 func (c *InstallCommand) getLatestVersion() (string, error) {
@@ -135,6 +136,7 @@ func (c *InstallCommand) getLatestVersion() (string, error) {
 	return latest, nil
 }
 
+// ErrHTTPStatusNotOk is returned when HTTP call returns other than HTTP 200 response.
 var ErrHTTPStatusNotOk = fmt.Errorf("HTTPStatusNotOk")
 
 func (c *InstallCommand) downloadTarball(link string) (string, error) {
@@ -163,6 +165,7 @@ func (c *InstallCommand) downloadTarball(link string) (string, error) {
 	return f.Name(), nil
 }
 
+// ErrInvalidChecksum is returned when checksums don't match.
 var ErrInvalidChecksum = fmt.Errorf("InvalidChecksum")
 
 func (c *InstallCommand) checksumTarball(link string, path string) (bool, error) {
