@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm client" command
+// Package client holds the "pmm client" command
 package client
 
 import "github.com/percona/pmm/admin/commands"

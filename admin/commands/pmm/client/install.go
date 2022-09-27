@@ -16,6 +16,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -25,9 +26,11 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 )
 
@@ -50,12 +53,13 @@ func (res *installResult) String() string {
 	return "ok"
 }
 
+// ErrSumsDontMatch is returned when checksums do not match.
 var ErrSumsDontMatch = fmt.Errorf("SumsDontMatch")
 
-// RunCmd runs install command.
-func (c *InstallCommand) RunCmd() (commands.Result, error) {
+// RunCmdWithContext runs install command.
+func (c *InstallCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) {
 	if c.Version == "" {
-		latestVersion, err := c.getLatestVersion()
+		latestVersion, err := c.getLatestVersion(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -68,16 +72,16 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 		c.Version)
 
 	logrus.Infof("Downloading %s", link)
-	tarPath, err := c.downloadTarball(link)
+	tarPath, err := c.downloadTarball(ctx, link)
 	if err != nil {
 		return nil, err
 	}
 
-	defer os.Remove(tarPath)
+	defer os.Remove(tarPath) //nolint:errcheck
 
 	if !c.SkipChecksum {
 		logrus.Infof("Verifying tarball %s", tarPath)
-		ok, err := c.checksumTarball(link, tarPath)
+		ok, err := c.checksumTarball(ctx, link, tarPath)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +97,7 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	}
 
 	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", c.Version))
-	defer os.RemoveAll(extractedPath)
+	defer os.RemoveAll(extractedPath) //nolint:errcheck
 
 	if err := c.installTarball(extractedPath); err != nil {
 		return nil, err
@@ -105,23 +109,24 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 // ErrLatestVersionNotFound is returned when we cannot determine what the latest version is.
 var ErrLatestVersionNotFound = fmt.Errorf("LatestVersionNotFound")
 
-func (c *InstallCommand) getLatestVersion() (string, error) {
-	req, err := http.NewRequest(http.MethodHead, "https://github.com/percona/pmm/releases/latest", nil)
+func (c *InstallCommand) getLatestVersion(ctx context.Context) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://github.com/percona/pmm/releases/latest", nil)
 	if err != nil {
 		return "", err
 	}
 
-	cl := &http.Client{
+	cl := &http.Client{ //nolint:exhaustruct
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
+		Timeout: 10 * time.Second,
 	}
 	res, err := cl.Do(req)
 	if err != nil {
 		return "", err
 	}
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	url, err := res.Location()
 	if err != nil {
@@ -138,21 +143,26 @@ func (c *InstallCommand) getLatestVersion() (string, error) {
 // ErrHTTPStatusNotOk is returned when HTTP call returns other than HTTP 200 response.
 var ErrHTTPStatusNotOk = fmt.Errorf("HTTPStatusNotOk")
 
-func (c *InstallCommand) downloadTarball(link string) (string, error) {
+func (c *InstallCommand) downloadTarball(ctx context.Context, link string) (string, error) {
 	base := path.Base(link)
 	f, err := os.CreateTemp("", base)
 	if err != nil {
 		return "", err
 	}
 
-	defer f.Close()
+	defer f.Close() //nolint:gosec,errcheck
 
-	res, err := http.Get(link)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, link, nil)
 	if err != nil {
 		return "", err
 	}
 
-	defer res.Body.Close()
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+
+	defer res.Body.Close() //nolint:errcheck
 	if res.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("%w: cannot download installation tarball (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
@@ -164,25 +174,32 @@ func (c *InstallCommand) downloadTarball(link string) (string, error) {
 	return f.Name(), nil
 }
 
-// ErrInvalidChecksum is returned when checksums don't match.
+// ErrInvalidChecksum is returned when checksum cannot be extracted from sha256sum file.
 var ErrInvalidChecksum = fmt.Errorf("InvalidChecksum")
 
-func (c *InstallCommand) checksumTarball(link string, path string) (bool, error) {
+func (c *InstallCommand) checksumTarball(ctx context.Context, link string, path string) (bool, error) {
 	shaLink := link + ".sha256sum"
 	logrus.Debugf("Downloading tarball sha256sum from %s", shaLink)
 
-	res, err := http.Get(shaLink)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, shaLink, nil)
 	if err != nil {
 		return false, err
 	}
 
-	defer res.Body.Close()
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+
+	defer res.Body.Close() //nolint:errcheck
 	if res.StatusCode != http.StatusOK {
 		return false, fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
 
 	sumLine := &bytes.Buffer{}
-	io.Copy(sumLine, res.Body)
+	if _, err := io.Copy(sumLine, res.Body); err != nil {
+		return false, err
+	}
 
 	sum, _, found := strings.Cut(sumLine.String(), " ")
 	if !found {
@@ -191,12 +208,12 @@ func (c *InstallCommand) checksumTarball(link string, path string) (bool, error)
 
 	logrus.Infof("Downloaded checksum %s", sum)
 
-	f, err := os.Open(path)
+	f, err := os.Open(path) //nolint:gosec
 	if err != nil {
 		return false, err
 	}
 
-	defer f.Close()
+	defer f.Close() //nolint:errcheck,gosec
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
@@ -217,7 +234,7 @@ func (c *InstallCommand) extractTarball(tarPath string) error {
 		return err
 	}
 
-	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxvf", tarPath)
+	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxvf", tarPath) //nolint:gosec
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -231,7 +248,7 @@ func (c *InstallCommand) extractTarball(tarPath string) error {
 func (c *InstallCommand) installTarball(extractedPath string) error {
 	logrus.Infof("Installing to %s", c.InstallPath)
 
-	cmd := exec.Command(path.Join(extractedPath, "install_tarball"))
+	cmd := exec.Command(path.Join(extractedPath, "install_tarball")) //nolint:gosec
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
