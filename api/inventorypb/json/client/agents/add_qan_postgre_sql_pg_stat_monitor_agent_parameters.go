@@ -52,10 +52,12 @@ func NewAddQANPostgreSQLPgStatMonitorAgentParamsWithHTTPClient(client *http.Clie
 	}
 }
 
-/* AddQANPostgreSQLPgStatMonitorAgentParams contains all the parameters to send to the API endpoint
-   for the add QAN postgre SQL pg stat monitor agent operation.
+/*
+AddQANPostgreSQLPgStatMonitorAgentParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add QAN postgre SQL pg stat monitor agent operation.
+
+	Typically these are written to a http.Request.
 */
 type AddQANPostgreSQLPgStatMonitorAgentParams struct {
 	// Body.

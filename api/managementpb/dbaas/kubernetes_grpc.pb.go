@@ -33,8 +33,9 @@ type KubernetesClient interface {
 	GetKubernetesCluster(ctx context.Context, in *GetKubernetesClusterRequest, opts ...grpc.CallOption) (*GetKubernetesClusterResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	// NOTE: The user defined in kubeconfig for the cluster has to have rights to
-	//       list and get Pods from all Namespaces. Also getting and listing Nodes
-	//       has to be allowed.
+	//
+	//	list and get Pods from all Namespaces. Also getting and listing Nodes
+	//	has to be allowed.
 	GetResources(ctx context.Context, in *GetResourcesRequest, opts ...grpc.CallOption) (*GetResourcesResponse, error)
 }
 
@@ -105,8 +106,9 @@ type KubernetesServer interface {
 	GetKubernetesCluster(context.Context, *GetKubernetesClusterRequest) (*GetKubernetesClusterResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	// NOTE: The user defined in kubeconfig for the cluster has to have rights to
-	//       list and get Pods from all Namespaces. Also getting and listing Nodes
-	//       has to be allowed.
+	//
+	//	list and get Pods from all Namespaces. Also getting and listing Nodes
+	//	has to be allowed.
 	GetResources(context.Context, *GetResourcesRequest) (*GetResourcesResponse, error)
 	mustEmbedUnimplementedKubernetesServer()
 }

@@ -551,6 +551,7 @@ type Channel struct {
 	// Short human-readable summary.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Types that are assignable to Channel:
+	//
 	//	*Channel_EmailConfig
 	//	*Channel_PagerdutyConfig
 	//	*Channel_SlackConfig

@@ -18,7 +18,7 @@ package victoriametrics
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 
@@ -47,7 +47,7 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
 	check.NoError(err)
 
-	original, err := ioutil.ReadFile(configPath)
+	original, err := os.ReadFile(configPath)
 	check.NoError(err)
 
 	check.NoError(svc.IsReady(context.Background()))
@@ -59,7 +59,7 @@ func teardown(t *testing.T, db *reform.DB, svc *Service, original []byte) {
 	t.Helper()
 	check := assert.New(t)
 
-	check.NoError(ioutil.WriteFile(configPath, original, 0o600))
+	check.NoError(os.WriteFile(configPath, original, 0o600))
 	check.NoError(svc.reload(context.Background()))
 
 	check.NoError(db.DBInterface().(*sql.DB).Close())
@@ -73,7 +73,7 @@ func TestVictoriaMetrics(t *testing.T) {
 
 		check.NoError(svc.updateConfiguration(context.Background()))
 
-		actual, err := ioutil.ReadFile(configPath)
+		actual, err := os.ReadFile(configPath)
 		check.NoError(err)
 		check.Equal(string(original), string(actual))
 	})
@@ -720,7 +720,7 @@ scrape_configs:
       follow_redirects: false
       stream_parse: true
 `) + "\n"
-		actual, err := ioutil.ReadFile(configPath)
+		actual, err := os.ReadFile(configPath)
 		check.NoError(err)
 		check.Equal(expected, string(actual), "actual:\n%s", actual)
 	})

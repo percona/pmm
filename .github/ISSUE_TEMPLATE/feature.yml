@@ -2,7 +2,8 @@ name: Feature Request
 description: Suggest an idea for this project
 labels: ["feature", "triage"]
 assignees:
-  - percona/pmm-devs
+  - BupycHuk
+  - artemgavrilov
 body:
   - type: markdown
     attributes:

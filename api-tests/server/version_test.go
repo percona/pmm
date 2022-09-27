@@ -17,7 +17,7 @@ package server
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -49,7 +49,7 @@ func TestVersion(t *testing.T) {
 			resp, err := http.Get(uri.String())
 			require.NoError(t, err)
 			defer resp.Body.Close() //nolint:errcheck
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 			t.Logf("Response: %s", b)
 			assert.Equal(t, 200, resp.StatusCode)

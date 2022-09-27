@@ -50,7 +50,8 @@ func NewAddMongoDBOK() *AddMongoDBOK {
 	return &AddMongoDBOK{}
 }
 
-/* AddMongoDBOK describes a response with status code 200, with default header values.
+/*
+AddMongoDBOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
 	}
 }
 
-/* AddMongoDBDefault describes a response with status code -1, with default header values.
+/*
+AddMongoDBDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*AddMongoDBBody add mongo DB body
+/*
+AddMongoDBBody add mongo DB body
 swagger:model AddMongoDBBody
 */
 type AddMongoDBBody struct {
@@ -411,7 +414,8 @@ func (o *AddMongoDBBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBDefaultBody add mongo DB default body
+/*
+AddMongoDBDefaultBody add mongo DB default body
 swagger:model AddMongoDBDefaultBody
 */
 type AddMongoDBDefaultBody struct {
@@ -514,7 +518,8 @@ func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBDefaultBodyDetailsItems0 add mongo DB default body details items0
+/*
+AddMongoDBDefaultBodyDetailsItems0 add mongo DB default body details items0
 swagger:model AddMongoDBDefaultBodyDetailsItems0
 */
 type AddMongoDBDefaultBodyDetailsItems0 struct {
@@ -550,7 +555,8 @@ func (o *AddMongoDBDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBOKBody add mongo DB OK body
+/*
+AddMongoDBOKBody add mongo DB OK body
 swagger:model AddMongoDBOKBody
 */
 type AddMongoDBOKBody struct {
@@ -728,7 +734,8 @@ func (o *AddMongoDBOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*
+AddMongoDBOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model AddMongoDBOKBodyMongodbExporter
 */
 type AddMongoDBOKBodyMongodbExporter struct {
@@ -946,7 +953,8 @@ func (o *AddMongoDBOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBOKBodyQANMongodbProfiler QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*
+AddMongoDBOKBodyQANMongodbProfiler QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model AddMongoDBOKBodyQANMongodbProfiler
 */
 type AddMongoDBOKBodyQANMongodbProfiler struct {
@@ -1145,7 +1153,8 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBOKBodyService MongoDBService represents a generic MongoDB instance.
+/*
+AddMongoDBOKBodyService MongoDBService represents a generic MongoDB instance.
 swagger:model AddMongoDBOKBodyService
 */
 type AddMongoDBOKBodyService struct {
@@ -1211,7 +1220,8 @@ func (o *AddMongoDBOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddMongoDBParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddMongoDBParamsBodyAddNode
 */
 type AddMongoDBParamsBodyAddNode struct {
