@@ -49,7 +49,8 @@ func NewGetMetricsOK() *GetMetricsOK {
 	return &GetMetricsOK{}
 }
 
-/* GetMetricsOK describes a response with status code 200, with default header values.
+/*
+GetMetricsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 	}
 }
 
-/* GetMetricsDefault describes a response with status code -1, with default header values.
+/*
+GetMetricsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*
+GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
@@ -266,7 +269,8 @@ func (o *GetMetricsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsDefaultBody get metrics default body
+/*
+GetMetricsDefaultBody get metrics default body
 swagger:model GetMetricsDefaultBody
 */
 type GetMetricsDefaultBody struct {
@@ -369,7 +373,8 @@ func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
+/*
+GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
 swagger:model GetMetricsDefaultBodyDetailsItems0
 */
 type GetMetricsDefaultBodyDetailsItems0 struct {
@@ -405,7 +410,8 @@ func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*
+GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
@@ -606,7 +612,8 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
+/*
+GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyMetricsAnon
 */
 type GetMetricsOKBodyMetricsAnon struct {
@@ -663,7 +670,8 @@ func (o *GetMetricsOKBodyMetricsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+/*
+GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 swagger:model GetMetricsOKBodySparklineItems0
 */
@@ -892,7 +900,8 @@ func (o *GetMetricsOKBodySparklineItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
+/*
+GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyTotalsAnon
 */
 type GetMetricsOKBodyTotalsAnon struct {
@@ -949,7 +958,8 @@ func (o *GetMetricsOKBodyTotalsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*
+GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetMetricsParamsBodyLabelsItems0
 */
 type GetMetricsParamsBodyLabelsItems0 struct {

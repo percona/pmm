@@ -28,6 +28,7 @@ import (
 )
 
 // MongoDBService MongoDB Management Service.
+//
 //nolint:unused
 type MongoDBService struct {
 	db    *reform.DB

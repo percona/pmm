@@ -50,7 +50,8 @@ func NewInstallOperatorOK() *InstallOperatorOK {
 	return &InstallOperatorOK{}
 }
 
-/* InstallOperatorOK describes a response with status code 200, with default header values.
+/*
+InstallOperatorOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewInstallOperatorDefault(code int) *InstallOperatorDefault {
 	}
 }
 
-/* InstallOperatorDefault describes a response with status code -1, with default header values.
+/*
+InstallOperatorDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *InstallOperatorDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*InstallOperatorBody install operator body
+/*
+InstallOperatorBody install operator body
 swagger:model InstallOperatorBody
 */
 type InstallOperatorBody struct {
@@ -160,7 +163,8 @@ func (o *InstallOperatorBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*InstallOperatorDefaultBody install operator default body
+/*
+InstallOperatorDefaultBody install operator default body
 swagger:model InstallOperatorDefaultBody
 */
 type InstallOperatorDefaultBody struct {
@@ -263,7 +267,8 @@ func (o *InstallOperatorDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*InstallOperatorDefaultBodyDetailsItems0 install operator default body details items0
+/*
+InstallOperatorDefaultBodyDetailsItems0 install operator default body details items0
 swagger:model InstallOperatorDefaultBodyDetailsItems0
 */
 type InstallOperatorDefaultBodyDetailsItems0 struct {
@@ -299,7 +304,8 @@ func (o *InstallOperatorDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*InstallOperatorOKBody install operator OK body
+/*
+InstallOperatorOKBody install operator OK body
 swagger:model InstallOperatorOKBody
 */
 type InstallOperatorOKBody struct {

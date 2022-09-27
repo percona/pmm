@@ -17,7 +17,6 @@ package vmalert
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -52,7 +51,7 @@ func (s *ExternalRules) ValidateRules(ctx context.Context, rules string) error {
 
 // ReadRules reads current rules from FS.
 func (s *ExternalRules) ReadRules() (string, error) {
-	b, err := ioutil.ReadFile(externalRulesFile)
+	b, err := os.ReadFile(externalRulesFile)
 	if err != nil && !os.IsNotExist(err) {
 		return "", err
 	}
@@ -66,5 +65,5 @@ func (s *ExternalRules) RemoveRulesFile() error {
 
 // WriteRules writes rules to file.
 func (s *ExternalRules) WriteRules(rules string) error {
-	return ioutil.WriteFile(externalRulesFile, []byte(rules), 0o644) //nolint:gosec
+	return os.WriteFile(externalRulesFile, []byte(rules), 0o644) //nolint:gosec
 }

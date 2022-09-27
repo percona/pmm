@@ -18,7 +18,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -966,7 +966,7 @@ groups:
 							require.NoError(t, err)
 							t.Logf("Response:\n%s", b)
 						}
-						b, err = ioutil.ReadAll(resp.Body)
+						b, err = io.ReadAll(resp.Body)
 						assert.NoError(t, err)
 						resp.Body.Close() //nolint:errcheck
 
@@ -996,7 +996,7 @@ groups:
 							require.NoError(t, err)
 							t.Logf("Response:\n%s", b)
 						}
-						b, err = ioutil.ReadAll(resp.Body)
+						b, err = io.ReadAll(resp.Body)
 						assert.NoError(t, err)
 						resp.Body.Close() //nolint:errcheck
 						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)

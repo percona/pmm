@@ -50,7 +50,8 @@ func NewAddPostgresExporterOK() *AddPostgresExporterOK {
 	return &AddPostgresExporterOK{}
 }
 
-/* AddPostgresExporterOK describes a response with status code 200, with default header values.
+/*
+AddPostgresExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddPostgresExporterDefault(code int) *AddPostgresExporterDefault {
 	}
 }
 
-/* AddPostgresExporterDefault describes a response with status code -1, with default header values.
+/*
+AddPostgresExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddPostgresExporterDefault) readResponse(response runtime.ClientRespons
 	return nil
 }
 
-/*AddPostgresExporterBody add postgres exporter body
+/*
+AddPostgresExporterBody add postgres exporter body
 swagger:model AddPostgresExporterBody
 */
 type AddPostgresExporterBody struct {
@@ -260,7 +263,8 @@ func (o *AddPostgresExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterDefaultBody add postgres exporter default body
+/*
+AddPostgresExporterDefaultBody add postgres exporter default body
 swagger:model AddPostgresExporterDefaultBody
 */
 type AddPostgresExporterDefaultBody struct {
@@ -363,7 +367,8 @@ func (o *AddPostgresExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterDefaultBodyDetailsItems0 add postgres exporter default body details items0
+/*
+AddPostgresExporterDefaultBodyDetailsItems0 add postgres exporter default body details items0
 swagger:model AddPostgresExporterDefaultBodyDetailsItems0
 */
 type AddPostgresExporterDefaultBodyDetailsItems0 struct {
@@ -399,7 +404,8 @@ func (o *AddPostgresExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*AddPostgresExporterOKBody add postgres exporter OK body
+/*
+AddPostgresExporterOKBody add postgres exporter OK body
 swagger:model AddPostgresExporterOKBody
 */
 type AddPostgresExporterOKBody struct {
@@ -487,7 +493,8 @@ func (o *AddPostgresExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*
+AddPostgresExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model AddPostgresExporterOKBodyPostgresExporter
 */
 type AddPostgresExporterOKBodyPostgresExporter struct {
