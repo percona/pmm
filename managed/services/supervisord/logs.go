@@ -23,7 +23,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"mime"
 	"net/http"
 	"os"
@@ -324,7 +323,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 // readFile reads the whole file and returns content together with modification time.
 func readFile(name string) ([]byte, time.Time, error) {
 	var m time.Time
-	b, err := ioutil.ReadFile(name) //nolint:gosec
+	b, err := os.ReadFile(name) //nolint:gosec
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
@@ -356,7 +355,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -373,7 +372,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 }
 
 func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
-	sf, err := ioutil.TempFile("", "*-pmm-admin-summary.zip")
+	sf, err := os.CreateTemp("", "*-pmm-admin-summary.zip")
 	if err != nil {
 		return errors.WithStack(err)
 	}

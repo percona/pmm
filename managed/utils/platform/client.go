@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	api "github.com/percona-platform/saas/gen/check/retrieval"
@@ -259,7 +258,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 
 	defer resp.Body.Close() //nolint:errcheck
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -298,20 +297,20 @@ type SearchOrganizationEntitlementsResponse struct {
 }
 
 type EntitlementResponse struct {
-	Number           string           `json:"number"`
-	Name             string           `json:"name"`
-	Summary          string           `json:"summary"`
-	Tier             string           `json:"tier"`
-	TotalUnits       string           `json:"total_units"`       //nolint:tagliatelle
-	UnlimitedUnits   bool             `json:"unlimited_units"`   //nolint:tagliatelle
-	SupportLevel     string           `json:"support_level"`     //nolint:tagliatelle
-	SoftwareFamilies []string         `json:"software_families"` //nolint:tagliatelle
-	StartDate        string           `json:"start_date"`        //nolint:tagliatelle
-	EndDate          string           `json:"end_date"`          //nolint:tagliatelle
-	Platform         PlatformResponse `json:"platform"`
+	Number           string   `json:"number"`
+	Name             string   `json:"name"`
+	Summary          string   `json:"summary"`
+	Tier             string   `json:"tier"`
+	TotalUnits       string   `json:"total_units"`       //nolint:tagliatelle
+	UnlimitedUnits   bool     `json:"unlimited_units"`   //nolint:tagliatelle
+	SupportLevel     string   `json:"support_level"`     //nolint:tagliatelle
+	SoftwareFamilies []string `json:"software_families"` //nolint:tagliatelle
+	StartDate        string   `json:"start_date"`        //nolint:tagliatelle
+	EndDate          string   `json:"end_date"`          //nolint:tagliatelle
+	Platform         Response `json:"platform"`
 }
 
-type PlatformResponse struct {
+type Response struct {
 	SecurityAdvisor string `json:"security_advisor"` //nolint:tagliatelle
 	ConfigAdvisor   string `json:"config_advisor"`   //nolint:tagliatelle
 }

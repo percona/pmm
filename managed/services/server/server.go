@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -848,7 +847,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = ioutil.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
+	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = os.Chown(keysPath, uid, gid); err != nil {

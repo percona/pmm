@@ -19,7 +19,6 @@ import (
 	// go-fuzz uses SHA1 for non-cryptographic hashing
 	"crypto/sha1" //nolint:gosec
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -49,6 +48,6 @@ func AddToFuzzCorpus(t testing.TB, prefix string, data []byte) {
 	}
 
 	path := filepath.Join(dir, file)
-	err = ioutil.WriteFile(path, data, 0o640) //nolint:gosec
+	err = os.WriteFile(path, data, 0o640) //nolint:gosec
 	require.NoError(t, err)
 }

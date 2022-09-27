@@ -344,7 +344,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	// https://github.com/golang/go/issues/4373
 	// https://github.com/golang/go/blob/master/src/internal/poll/fd.go#L20
 	errConnClosed := errors.New("use of closed network connection")
-	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) // nolint:varnamelen
+	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) //nolint:varnamelen
 	defer teardown()
 
 	req := <-channel.Requests()
