@@ -65,8 +65,7 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	link := fmt.Sprintf(
 		"https://downloads.percona.com/downloads/pmm2/%s/binary/tarball/pmm2-client-%s.tar.gz",
 		c.Version,
-		c.Version,
-	)
+		c.Version)
 
 	logrus.Infof("Downloading %s", link)
 	tarPath, err := c.downloadTarball(link)
