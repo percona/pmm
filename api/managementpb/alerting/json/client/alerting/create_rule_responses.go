@@ -59,7 +59,36 @@ type CreateRuleOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this create rule Ok response has a 2xx status code
+func (o *CreateRuleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create rule Ok response has a 3xx status code
+func (o *CreateRuleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create rule Ok response has a 4xx status code
+func (o *CreateRuleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create rule Ok response has a 5xx status code
+func (o *CreateRuleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create rule Ok response a status code equal to that given
+func (o *CreateRuleOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreateRuleOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
+}
+
+func (o *CreateRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *CreateRuleDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this create rule default response has a 2xx status code
+func (o *CreateRuleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create rule default response has a 3xx status code
+func (o *CreateRuleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create rule default response has a 4xx status code
+func (o *CreateRuleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create rule default response has a 5xx status code
+func (o *CreateRuleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create rule default response a status code equal to that given
+func (o *CreateRuleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CreateRuleDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CreateRuleDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
 }
 

@@ -57,7 +57,36 @@ type GetQueryPlanOK struct {
 	Payload *GetQueryPlanOKBody
 }
 
+// IsSuccess returns true when this get query plan Ok response has a 2xx status code
+func (o *GetQueryPlanOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get query plan Ok response has a 3xx status code
+func (o *GetQueryPlanOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get query plan Ok response has a 4xx status code
+func (o *GetQueryPlanOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get query plan Ok response has a 5xx status code
+func (o *GetQueryPlanOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get query plan Ok response a status code equal to that given
+func (o *GetQueryPlanOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetQueryPlanOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
+}
+
+func (o *GetQueryPlanOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *GetQueryPlanDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get query plan default response has a 2xx status code
+func (o *GetQueryPlanDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get query plan default response has a 3xx status code
+func (o *GetQueryPlanDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get query plan default response has a 4xx status code
+func (o *GetQueryPlanDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get query plan default response has a 5xx status code
+func (o *GetQueryPlanDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get query plan default response a status code equal to that given
+func (o *GetQueryPlanDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetQueryPlanDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetQueryPlanDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
 }
 

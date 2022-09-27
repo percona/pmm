@@ -59,7 +59,36 @@ type ChangeMySQLdExporterOK struct {
 	Payload *ChangeMySQLdExporterOKBody
 }
 
+// IsSuccess returns true when this change my s q ld exporter Ok response has a 2xx status code
+func (o *ChangeMySQLdExporterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change my s q ld exporter Ok response has a 3xx status code
+func (o *ChangeMySQLdExporterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change my s q ld exporter Ok response has a 4xx status code
+func (o *ChangeMySQLdExporterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change my s q ld exporter Ok response has a 5xx status code
+func (o *ChangeMySQLdExporterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change my s q ld exporter Ok response a status code equal to that given
+func (o *ChangeMySQLdExporterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangeMySQLdExporterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeMySQLdExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySQLdExporterOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *ChangeMySQLdExporterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change my s q ld exporter default response has a 2xx status code
+func (o *ChangeMySQLdExporterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change my s q ld exporter default response has a 3xx status code
+func (o *ChangeMySQLdExporterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change my s q ld exporter default response has a 4xx status code
+func (o *ChangeMySQLdExporterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change my s q ld exporter default response has a 5xx status code
+func (o *ChangeMySQLdExporterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change my s q ld exporter default response a status code equal to that given
+func (o *ChangeMySQLdExporterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangeMySQLdExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeMySQLdExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
 

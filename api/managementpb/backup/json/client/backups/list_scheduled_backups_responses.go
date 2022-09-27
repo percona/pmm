@@ -59,7 +59,36 @@ type ListScheduledBackupsOK struct {
 	Payload *ListScheduledBackupsOKBody
 }
 
+// IsSuccess returns true when this list scheduled backups Ok response has a 2xx status code
+func (o *ListScheduledBackupsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list scheduled backups Ok response has a 3xx status code
+func (o *ListScheduledBackupsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list scheduled backups Ok response has a 4xx status code
+func (o *ListScheduledBackupsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list scheduled backups Ok response has a 5xx status code
+func (o *ListScheduledBackupsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list scheduled backups Ok response a status code equal to that given
+func (o *ListScheduledBackupsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListScheduledBackupsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] listScheduledBackupsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListScheduledBackupsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] listScheduledBackupsOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *ListScheduledBackupsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list scheduled backups default response has a 2xx status code
+func (o *ListScheduledBackupsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list scheduled backups default response has a 3xx status code
+func (o *ListScheduledBackupsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list scheduled backups default response has a 4xx status code
+func (o *ListScheduledBackupsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list scheduled backups default response has a 5xx status code
+func (o *ListScheduledBackupsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list scheduled backups default response a status code equal to that given
+func (o *ListScheduledBackupsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListScheduledBackupsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] ListScheduledBackups default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListScheduledBackupsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListScheduled][%d] ListScheduledBackups default  %+v", o._statusCode, o.Payload)
 }
 

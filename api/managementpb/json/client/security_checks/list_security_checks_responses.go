@@ -59,7 +59,36 @@ type ListSecurityChecksOK struct {
 	Payload *ListSecurityChecksOKBody
 }
 
+// IsSuccess returns true when this list security checks Ok response has a 2xx status code
+func (o *ListSecurityChecksOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list security checks Ok response has a 3xx status code
+func (o *ListSecurityChecksOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list security checks Ok response has a 4xx status code
+func (o *ListSecurityChecksOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list security checks Ok response has a 5xx status code
+func (o *ListSecurityChecksOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list security checks Ok response a status code equal to that given
+func (o *ListSecurityChecksOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListSecurityChecksOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] listSecurityChecksOk  %+v", 200, o.Payload)
+}
+
+func (o *ListSecurityChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] listSecurityChecksOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *ListSecurityChecksDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list security checks default response has a 2xx status code
+func (o *ListSecurityChecksDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list security checks default response has a 3xx status code
+func (o *ListSecurityChecksDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list security checks default response has a 4xx status code
+func (o *ListSecurityChecksDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list security checks default response has a 5xx status code
+func (o *ListSecurityChecksDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list security checks default response a status code equal to that given
+func (o *ListSecurityChecksDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListSecurityChecksDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] ListSecurityChecks default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListSecurityChecksDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/List][%d] ListSecurityChecks default  %+v", o._statusCode, o.Payload)
 }
 

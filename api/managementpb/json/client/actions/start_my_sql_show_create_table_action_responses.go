@@ -57,7 +57,36 @@ type StartMySQLShowCreateTableActionOK struct {
 	Payload *StartMySQLShowCreateTableActionOKBody
 }
 
+// IsSuccess returns true when this start my Sql show create table action Ok response has a 2xx status code
+func (o *StartMySQLShowCreateTableActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start my Sql show create table action Ok response has a 3xx status code
+func (o *StartMySQLShowCreateTableActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start my Sql show create table action Ok response has a 4xx status code
+func (o *StartMySQLShowCreateTableActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start my Sql show create table action Ok response has a 5xx status code
+func (o *StartMySQLShowCreateTableActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start my Sql show create table action Ok response a status code equal to that given
+func (o *StartMySQLShowCreateTableActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *StartMySQLShowCreateTableActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] startMySqlShowCreateTableActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMySQLShowCreateTableActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] startMySqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *StartMySQLShowCreateTableActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this start my SQL show create table action default response has a 2xx status code
+func (o *StartMySQLShowCreateTableActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start my SQL show create table action default response has a 3xx status code
+func (o *StartMySQLShowCreateTableActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start my SQL show create table action default response has a 4xx status code
+func (o *StartMySQLShowCreateTableActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start my SQL show create table action default response has a 5xx status code
+func (o *StartMySQLShowCreateTableActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start my SQL show create table action default response a status code equal to that given
+func (o *StartMySQLShowCreateTableActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *StartMySQLShowCreateTableActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] StartMySQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMySQLShowCreateTableActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] StartMySQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
 

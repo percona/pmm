@@ -57,7 +57,36 @@ type ListLocationsOK struct {
 	Payload *ListLocationsOKBody
 }
 
+// IsSuccess returns true when this list locations Ok response has a 2xx status code
+func (o *ListLocationsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list locations Ok response has a 3xx status code
+func (o *ListLocationsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list locations Ok response has a 4xx status code
+func (o *ListLocationsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list locations Ok response has a 5xx status code
+func (o *ListLocationsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list locations Ok response a status code equal to that given
+func (o *ListLocationsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListLocationsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] listLocationsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListLocationsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] listLocationsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *ListLocationsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list locations default response has a 2xx status code
+func (o *ListLocationsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list locations default response has a 3xx status code
+func (o *ListLocationsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list locations default response has a 4xx status code
+func (o *ListLocationsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list locations default response has a 5xx status code
+func (o *ListLocationsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list locations default response a status code equal to that given
+func (o *ListLocationsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListLocationsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] ListLocations default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListLocationsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] ListLocations default  %+v", o._statusCode, o.Payload)
 }
 

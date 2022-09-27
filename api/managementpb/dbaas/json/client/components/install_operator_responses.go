@@ -59,7 +59,36 @@ type InstallOperatorOK struct {
 	Payload *InstallOperatorOKBody
 }
 
+// IsSuccess returns true when this install operator Ok response has a 2xx status code
+func (o *InstallOperatorOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this install operator Ok response has a 3xx status code
+func (o *InstallOperatorOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this install operator Ok response has a 4xx status code
+func (o *InstallOperatorOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this install operator Ok response has a 5xx status code
+func (o *InstallOperatorOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this install operator Ok response a status code equal to that given
+func (o *InstallOperatorOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *InstallOperatorOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] installOperatorOk  %+v", 200, o.Payload)
+}
+
+func (o *InstallOperatorOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] installOperatorOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *InstallOperatorDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this install operator default response has a 2xx status code
+func (o *InstallOperatorDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this install operator default response has a 3xx status code
+func (o *InstallOperatorDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this install operator default response has a 4xx status code
+func (o *InstallOperatorDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this install operator default response has a 5xx status code
+func (o *InstallOperatorDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this install operator default response a status code equal to that given
+func (o *InstallOperatorDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *InstallOperatorDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] InstallOperator default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *InstallOperatorDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/InstallOperator][%d] InstallOperator default  %+v", o._statusCode, o.Payload)
 }
 

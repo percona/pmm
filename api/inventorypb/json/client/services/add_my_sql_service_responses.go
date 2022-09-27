@@ -57,7 +57,36 @@ type AddMySQLServiceOK struct {
 	Payload *AddMySQLServiceOKBody
 }
 
+// IsSuccess returns true when this add my Sql service Ok response has a 2xx status code
+func (o *AddMySQLServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add my Sql service Ok response has a 3xx status code
+func (o *AddMySQLServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add my Sql service Ok response has a 4xx status code
+func (o *AddMySQLServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add my Sql service Ok response has a 5xx status code
+func (o *AddMySQLServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add my Sql service Ok response a status code equal to that given
+func (o *AddMySQLServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddMySQLServiceOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMySQLServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *AddMySQLServiceDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add my SQL service default response has a 2xx status code
+func (o *AddMySQLServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add my SQL service default response has a 3xx status code
+func (o *AddMySQLServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add my SQL service default response has a 4xx status code
+func (o *AddMySQLServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add my SQL service default response has a 5xx status code
+func (o *AddMySQLServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add my SQL service default response a status code equal to that given
+func (o *AddMySQLServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddMySQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySQLServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
 }
 

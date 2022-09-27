@@ -57,7 +57,36 @@ type ListArtifactCompatibleServicesOK struct {
 	Payload *ListArtifactCompatibleServicesOKBody
 }
 
+// IsSuccess returns true when this list artifact compatible services Ok response has a 2xx status code
+func (o *ListArtifactCompatibleServicesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list artifact compatible services Ok response has a 3xx status code
+func (o *ListArtifactCompatibleServicesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list artifact compatible services Ok response has a 4xx status code
+func (o *ListArtifactCompatibleServicesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list artifact compatible services Ok response has a 5xx status code
+func (o *ListArtifactCompatibleServicesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list artifact compatible services Ok response a status code equal to that given
+func (o *ListArtifactCompatibleServicesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListArtifactCompatibleServicesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
+}
+
+func (o *ListArtifactCompatibleServicesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list artifact compatible services default response has a 2xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list artifact compatible services default response has a 3xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list artifact compatible services default response has a 4xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list artifact compatible services default response has a 5xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list artifact compatible services default response a status code equal to that given
+func (o *ListArtifactCompatibleServicesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListArtifactCompatibleServicesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
 

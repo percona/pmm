@@ -57,7 +57,36 @@ type GetPSMDBComponentsOK struct {
 	Payload *GetPSMDBComponentsOKBody
 }
 
+// IsSuccess returns true when this get Psmdb components Ok response has a 2xx status code
+func (o *GetPSMDBComponentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get Psmdb components Ok response has a 3xx status code
+func (o *GetPSMDBComponentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get Psmdb components Ok response has a 4xx status code
+func (o *GetPSMDBComponentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get Psmdb components Ok response has a 5xx status code
+func (o *GetPSMDBComponentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get Psmdb components Ok response a status code equal to that given
+func (o *GetPSMDBComponentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPSMDBComponentsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetPSMDBComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *GetPSMDBComponentsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get PSMDB components default response has a 2xx status code
+func (o *GetPSMDBComponentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get PSMDB components default response has a 3xx status code
+func (o *GetPSMDBComponentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get PSMDB components default response has a 4xx status code
+func (o *GetPSMDBComponentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get PSMDB components default response has a 5xx status code
+func (o *GetPSMDBComponentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get PSMDB components default response a status code equal to that given
+func (o *GetPSMDBComponentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetPSMDBComponentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetPSMDBComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
 

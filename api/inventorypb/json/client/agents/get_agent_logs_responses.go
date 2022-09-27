@@ -57,7 +57,36 @@ type GetAgentLogsOK struct {
 	Payload *GetAgentLogsOKBody
 }
 
+// IsSuccess returns true when this get agent logs Ok response has a 2xx status code
+func (o *GetAgentLogsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get agent logs Ok response has a 3xx status code
+func (o *GetAgentLogsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get agent logs Ok response has a 4xx status code
+func (o *GetAgentLogsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get agent logs Ok response has a 5xx status code
+func (o *GetAgentLogsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get agent logs Ok response a status code equal to that given
+func (o *GetAgentLogsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetAgentLogsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetAgentLogsOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] getAgentLogsOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *GetAgentLogsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get agent logs default response has a 2xx status code
+func (o *GetAgentLogsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get agent logs default response has a 3xx status code
+func (o *GetAgentLogsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get agent logs default response has a 4xx status code
+func (o *GetAgentLogsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get agent logs default response has a 5xx status code
+func (o *GetAgentLogsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get agent logs default response a status code equal to that given
+func (o *GetAgentLogsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetAgentLogsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetAgentLogsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/GetLogs][%d] GetAgentLogs default  %+v", o._statusCode, o.Payload)
 }
 

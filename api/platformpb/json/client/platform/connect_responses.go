@@ -57,7 +57,36 @@ type ConnectOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this connect Ok response has a 2xx status code
+func (o *ConnectOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this connect Ok response has a 3xx status code
+func (o *ConnectOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this connect Ok response has a 4xx status code
+func (o *ConnectOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this connect Ok response has a 5xx status code
+func (o *ConnectOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this connect Ok response a status code equal to that given
+func (o *ConnectOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ConnectOK) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] connectOk  %+v", 200, o.Payload)
+}
+
+func (o *ConnectOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] connectOk  %+v", 200, o.Payload)
 }
 
@@ -97,7 +126,36 @@ func (o *ConnectDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this connect default response has a 2xx status code
+func (o *ConnectDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this connect default response has a 3xx status code
+func (o *ConnectDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this connect default response has a 4xx status code
+func (o *ConnectDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this connect default response has a 5xx status code
+func (o *ConnectDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this connect default response a status code equal to that given
+func (o *ConnectDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ConnectDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] Connect default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ConnectDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] Connect default  %+v", o._statusCode, o.Payload)
 }
 

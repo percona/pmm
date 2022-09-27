@@ -58,7 +58,36 @@ type CheckUpdatesOK struct {
 	Payload *CheckUpdatesOKBody
 }
 
+// IsSuccess returns true when this check updates Ok response has a 2xx status code
+func (o *CheckUpdatesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this check updates Ok response has a 3xx status code
+func (o *CheckUpdatesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this check updates Ok response has a 4xx status code
+func (o *CheckUpdatesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this check updates Ok response has a 5xx status code
+func (o *CheckUpdatesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this check updates Ok response a status code equal to that given
+func (o *CheckUpdatesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CheckUpdatesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
+}
+
+func (o *CheckUpdatesOK) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] checkUpdatesOk  %+v", 200, o.Payload)
 }
 
@@ -100,7 +129,36 @@ func (o *CheckUpdatesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this check updates default response has a 2xx status code
+func (o *CheckUpdatesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this check updates default response has a 3xx status code
+func (o *CheckUpdatesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this check updates default response has a 4xx status code
+func (o *CheckUpdatesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this check updates default response has a 5xx status code
+func (o *CheckUpdatesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this check updates default response a status code equal to that given
+func (o *CheckUpdatesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CheckUpdatesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CheckUpdatesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Updates/Check][%d] CheckUpdates default  %+v", o._statusCode, o.Payload)
 }
 

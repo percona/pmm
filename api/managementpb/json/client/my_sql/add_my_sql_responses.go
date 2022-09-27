@@ -59,7 +59,36 @@ type AddMySQLOK struct {
 	Payload *AddMySQLOKBody
 }
 
+// IsSuccess returns true when this add my Sql Ok response has a 2xx status code
+func (o *AddMySQLOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add my Sql Ok response has a 3xx status code
+func (o *AddMySQLOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add my Sql Ok response has a 4xx status code
+func (o *AddMySQLOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add my Sql Ok response has a 5xx status code
+func (o *AddMySQLOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add my Sql Ok response a status code equal to that given
+func (o *AddMySQLOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddMySQLOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMySQLOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *AddMySQLDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add my SQL default response has a 2xx status code
+func (o *AddMySQLDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add my SQL default response has a 3xx status code
+func (o *AddMySQLDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add my SQL default response has a 4xx status code
+func (o *AddMySQLDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add my SQL default response has a 5xx status code
+func (o *AddMySQLDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add my SQL default response a status code equal to that given
+func (o *AddMySQLDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddMySQLDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySQLDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
 }
 

@@ -57,7 +57,36 @@ type GetPSMDBClusterResourcesOK struct {
 	Payload *GetPSMDBClusterResourcesOKBody
 }
 
+// IsSuccess returns true when this get Psmdb cluster resources Ok response has a 2xx status code
+func (o *GetPSMDBClusterResourcesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get Psmdb cluster resources Ok response has a 3xx status code
+func (o *GetPSMDBClusterResourcesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get Psmdb cluster resources Ok response has a 4xx status code
+func (o *GetPSMDBClusterResourcesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get Psmdb cluster resources Ok response has a 5xx status code
+func (o *GetPSMDBClusterResourcesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get Psmdb cluster resources Ok response a status code equal to that given
+func (o *GetPSMDBClusterResourcesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPSMDBClusterResourcesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] getPsmdbClusterResourcesOk  %+v", 200, o.Payload)
+}
+
+func (o *GetPSMDBClusterResourcesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] getPsmdbClusterResourcesOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *GetPSMDBClusterResourcesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get PSMDB cluster resources default response has a 2xx status code
+func (o *GetPSMDBClusterResourcesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get PSMDB cluster resources default response has a 3xx status code
+func (o *GetPSMDBClusterResourcesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get PSMDB cluster resources default response has a 4xx status code
+func (o *GetPSMDBClusterResourcesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get PSMDB cluster resources default response has a 5xx status code
+func (o *GetPSMDBClusterResourcesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get PSMDB cluster resources default response a status code equal to that given
+func (o *GetPSMDBClusterResourcesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetPSMDBClusterResourcesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] GetPSMDBClusterResources default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetPSMDBClusterResourcesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Resources/Get][%d] GetPSMDBClusterResources default  %+v", o._statusCode, o.Payload)
 }
 

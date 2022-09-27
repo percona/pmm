@@ -59,7 +59,36 @@ type ToggleAlertRuleOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this toggle alert rule Ok response has a 2xx status code
+func (o *ToggleAlertRuleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this toggle alert rule Ok response has a 3xx status code
+func (o *ToggleAlertRuleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this toggle alert rule Ok response has a 4xx status code
+func (o *ToggleAlertRuleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this toggle alert rule Ok response has a 5xx status code
+func (o *ToggleAlertRuleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this toggle alert rule Ok response a status code equal to that given
+func (o *ToggleAlertRuleOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ToggleAlertRuleOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] toggleAlertRuleOk  %+v", 200, o.Payload)
+}
+
+func (o *ToggleAlertRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] toggleAlertRuleOk  %+v", 200, o.Payload)
 }
 
@@ -99,7 +128,36 @@ func (o *ToggleAlertRuleDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this toggle alert rule default response has a 2xx status code
+func (o *ToggleAlertRuleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this toggle alert rule default response has a 3xx status code
+func (o *ToggleAlertRuleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this toggle alert rule default response has a 4xx status code
+func (o *ToggleAlertRuleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this toggle alert rule default response has a 5xx status code
+func (o *ToggleAlertRuleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this toggle alert rule default response a status code equal to that given
+func (o *ToggleAlertRuleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ToggleAlertRuleDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] ToggleAlertRule default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ToggleAlertRuleDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] ToggleAlertRule default  %+v", o._statusCode, o.Payload)
 }
 

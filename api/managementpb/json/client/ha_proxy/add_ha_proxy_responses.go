@@ -59,7 +59,36 @@ type AddHAProxyOK struct {
 	Payload *AddHAProxyOKBody
 }
 
+// IsSuccess returns true when this add Ha proxy Ok response has a 2xx status code
+func (o *AddHAProxyOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Ha proxy Ok response has a 3xx status code
+func (o *AddHAProxyOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Ha proxy Ok response has a 4xx status code
+func (o *AddHAProxyOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Ha proxy Ok response has a 5xx status code
+func (o *AddHAProxyOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Ha proxy Ok response a status code equal to that given
+func (o *AddHAProxyOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddHAProxyOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
+}
+
+func (o *AddHAProxyOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *AddHAProxyDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add HA proxy default response has a 2xx status code
+func (o *AddHAProxyDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add HA proxy default response has a 3xx status code
+func (o *AddHAProxyDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add HA proxy default response has a 4xx status code
+func (o *AddHAProxyDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add HA proxy default response has a 5xx status code
+func (o *AddHAProxyDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add HA proxy default response a status code equal to that given
+func (o *AddHAProxyDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddHAProxyDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddHAProxyDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
 }
 

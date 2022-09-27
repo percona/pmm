@@ -59,7 +59,36 @@ type ListKubernetesClustersOK struct {
 	Payload *ListKubernetesClustersOKBody
 }
 
+// IsSuccess returns true when this list kubernetes clusters Ok response has a 2xx status code
+func (o *ListKubernetesClustersOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list kubernetes clusters Ok response has a 3xx status code
+func (o *ListKubernetesClustersOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list kubernetes clusters Ok response has a 4xx status code
+func (o *ListKubernetesClustersOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list kubernetes clusters Ok response has a 5xx status code
+func (o *ListKubernetesClustersOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list kubernetes clusters Ok response a status code equal to that given
+func (o *ListKubernetesClustersOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListKubernetesClustersOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] listKubernetesClustersOk  %+v", 200, o.Payload)
+}
+
+func (o *ListKubernetesClustersOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] listKubernetesClustersOk  %+v", 200, o.Payload)
 }
 
@@ -101,7 +130,36 @@ func (o *ListKubernetesClustersDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list kubernetes clusters default response has a 2xx status code
+func (o *ListKubernetesClustersDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list kubernetes clusters default response has a 3xx status code
+func (o *ListKubernetesClustersDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list kubernetes clusters default response has a 4xx status code
+func (o *ListKubernetesClustersDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list kubernetes clusters default response has a 5xx status code
+func (o *ListKubernetesClustersDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list kubernetes clusters default response a status code equal to that given
+func (o *ListKubernetesClustersDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListKubernetesClustersDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] ListKubernetesClusters default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListKubernetesClustersDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/List][%d] ListKubernetesClusters default  %+v", o._statusCode, o.Payload)
 }
 
