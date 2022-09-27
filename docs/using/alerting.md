@@ -33,7 +33,7 @@ Provide a simplified framework for configuring complex alert rules.
 
 PMM includes a set of default templates with common events and expressions for alerting. You can also create your own templates if you need custom expressions on which to base your alert rules.
 
-You can check the  alert templates available for your account under **Alerting > Alert rule templats** tab. PMM lists here the following types of templates:
+You can check the  alert templates available for your account under **Alerting > Alert rule templates** tab. PMM lists here the following types of templates:
 
 1) Build-in templates, available out-of-the box with PMM.
 2) Alert templates fetched from Percona Platform, according to the entitlements available for your Percona Account. 
