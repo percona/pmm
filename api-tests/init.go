@@ -21,7 +21,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -102,7 +101,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
+		b, _ := io.ReadAll(reader)
 		err := ErrFromNginx(string(b))
 		return &err
 	})
@@ -209,7 +208,7 @@ func init() {
 	}
 
 	if *kubeconfigF != "" {
-		data, err := ioutil.ReadFile(*kubeconfigF)
+		data, err := os.ReadFile(*kubeconfigF)
 		if err != nil {
 			logrus.Fatalf("Failed to read kubeconfig: %s", err)
 		}
