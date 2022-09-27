@@ -2,7 +2,8 @@ name: Bug Report
 description: File a bug report
 labels: ["bug", "triage"]
 assignees:
-  - percona/pmm-devs
+  - BupycHuk
+  - artemgavrilov
 body:
   - type: markdown
     attributes:
