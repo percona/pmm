@@ -252,7 +252,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Warning(err)
 	}
-	running = m.checkDefaultWaitTime(waitTime)
+	running = running && m.checkDefaultWaitTime(waitTime)
 
 	// query pg_stat_monitor every waitTime seconds
 	start := time.Now()
@@ -503,7 +503,6 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 

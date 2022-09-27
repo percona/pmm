@@ -16,7 +16,7 @@
 package supervisord
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 	"text/template"
@@ -51,7 +51,7 @@ func TestConfig(t *testing.T) {
 
 		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
-			expected, err := ioutil.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings, nil)
 			require.NoError(t, err)
@@ -98,7 +98,7 @@ func TestDBaaSController(t *testing.T) {
 			},
 		}
 
-		expected, err := ioutil.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
+		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
 		require.NoError(t, err)
 		actual, err := s.marshalConfig(tp, &st, nil)
 		require.NoError(t, err)

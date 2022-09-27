@@ -18,7 +18,7 @@ package telemetry
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"regexp"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
@@ -43,7 +43,7 @@ func newDistributionUtilServiceImpl(distributionFilePath, osInfoFilePath string,
 }
 
 func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
-	b, err := ioutil.ReadFile(d.distributionInfoFilePath)
+	b, err := os.ReadFile(d.distributionInfoFilePath)
 	if err != nil {
 		d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
 	}
@@ -59,7 +59,7 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.Dist
 	case "digitalocean":
 		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
-		if b, err = ioutil.ReadFile(d.osInfoFilePath); err != nil {
+		if b, err = os.ReadFile(d.osInfoFilePath); err != nil {
 			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
 		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
