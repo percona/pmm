@@ -147,6 +147,7 @@ nav:
           - details/index.md
           - details/architecture.md
           - details/interface.md
+          - details/pmm_components_and_versions.md
 
 
           - Develop checks:
