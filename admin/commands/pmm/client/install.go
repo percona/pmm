@@ -36,6 +36,7 @@ type InstallCommand struct {
 	InstallPath  string `default:"/usr/local/percona/pmm2" help:"Path where PMM Server shall be installed"`
 	User         string `help:"Set files ownership instead of current user"`
 	Group        string `help:"Set group ownership instead of current group"`
+	Version      string `name:"use-version" help:"PMM Server version to install (default: latest)"`
 	SkipChecksum bool   `help:"Skip checksum validation of the downloaded files"`
 }
 
@@ -46,22 +47,25 @@ func (res *installResult) Result() {}
 
 // String stringifies command result.
 func (res *installResult) String() string {
-	return "works"
+	return "ok"
 }
 
-var ErrSumDontMatch = fmt.Errorf("SumsDontMatch")
+var ErrSumsDontMatch = fmt.Errorf("SumsDontMatch")
 
 // RunCmd runs install command.
 func (c *InstallCommand) RunCmd() (commands.Result, error) {
-	latestVersion, err := c.getLatestVersion()
-	if err != nil {
-		return nil, err
+	if c.Version == "" {
+		latestVersion, err := c.getLatestVersion()
+		if err != nil {
+			return nil, err
+		}
+		c.Version = latestVersion
 	}
 
 	link := fmt.Sprintf(
 		"https://downloads.percona.com/downloads/pmm2/%s/binary/tarball/pmm2-client-%s.tar.gz",
-		latestVersion,
-		latestVersion,
+		c.Version,
+		c.Version,
 	)
 
 	logrus.Infof("Downloading %s", link)
@@ -73,26 +77,26 @@ func (c *InstallCommand) RunCmd() (commands.Result, error) {
 	defer os.Remove(tarPath)
 
 	if !c.SkipChecksum {
-		logrus.Info("Verifying tarball %s", tarPath)
+		logrus.Infof("Verifying tarball %s", tarPath)
 		ok, err := c.checksumTarball(link, tarPath)
 		if err != nil {
 			return nil, err
 		}
 
 		if !ok {
-			return nil, fmt.Errorf("%w: downloaded file verification failed", ErrSumDontMatch)
+			return nil, fmt.Errorf("%w: downloaded file verification failed", ErrSumsDontMatch)
 		}
 	}
 
 	logrus.Infof("Extracting tarball %s", tarPath)
-	if err := c.extractTarball(tarPath, latestVersion); err != nil {
+	if err := c.extractTarball(tarPath); err != nil {
 		return nil, err
 	}
 
-	dstPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", latestVersion))
-	defer os.RemoveAll(dstPath)
+	extractedPath := path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", c.Version))
+	defer os.RemoveAll(extractedPath)
 
-	if err := c.installTarball(dstPath); err != nil {
+	if err := c.installTarball(extractedPath); err != nil {
 		return nil, err
 	}
 
@@ -149,7 +153,7 @@ func (c *InstallCommand) downloadTarball(link string) (string, error) {
 
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("%w: cannot download latest tarball (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
+		return "", fmt.Errorf("%w: cannot download installation tarball (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
 
 	if _, err = io.Copy(f, res.Body); err != nil {
@@ -162,7 +166,10 @@ func (c *InstallCommand) downloadTarball(link string) (string, error) {
 var ErrInvalidChecksum = fmt.Errorf("InvalidChecksum")
 
 func (c *InstallCommand) checksumTarball(link string, path string) (bool, error) {
-	res, err := http.Get(link + ".sha256sum")
+	shaLink := link + ".sha256sum"
+	logrus.Debugf("Downloading tarball sha256sum from %s", shaLink)
+
+	res, err := http.Get(shaLink)
 	if err != nil {
 		return false, err
 	}
@@ -172,7 +179,7 @@ func (c *InstallCommand) checksumTarball(link string, path string) (bool, error)
 		return false, fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
 
-	sumLine := bytes.NewBuffer([]byte{})
+	sumLine := &bytes.Buffer{}
 	io.Copy(sumLine, res.Body)
 
 	sum, _, found := strings.Cut(sumLine.String(), " ")
@@ -203,12 +210,12 @@ func (c *InstallCommand) checksumTarball(link string, path string) (bool, error)
 	return true, nil
 }
 
-func (c *InstallCommand) extractTarball(tarPath, latestVersion string) error {
-	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", latestVersion))); err != nil {
+func (c *InstallCommand) extractTarball(tarPath string) error {
+	if err := os.RemoveAll(path.Join(os.TempDir(), fmt.Sprintf("pmm2-client-%s", c.Version))); err != nil {
 		return err
 	}
 
-	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxf", tarPath)
+	cmd := exec.Command("tar", "-C", os.TempDir(), "-zxvf", tarPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
