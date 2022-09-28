@@ -44,7 +44,8 @@ func Setup() {
 	*/
 
 	l := logrus.WithField("component", "setup")
-	cfg, configFilepath, err := config.Get(l)
+	cfg := &config.Config{}
+	configFilepath, err := config.Get(cfg, l)
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {

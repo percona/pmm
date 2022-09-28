@@ -82,7 +82,7 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
+func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
 	return &Client{
 		cfg:                cfg,
 		supervisor:         supervisor,
@@ -92,7 +92,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
 		done:               make(chan struct{}),
 		dialTimeout:        dialTimeout,
-		runner:             runner.New(cfg.RunnerCapacity),
+		runner:             r,
 		defaultsFileParser: dfp,
 		cus:                cus,
 		logStore:           logStore,
@@ -108,6 +108,10 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
+
+	c.rw.Lock()
+	c.done = make(chan struct{})
+	c.rw.Unlock()
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -185,31 +189,30 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
-	oneDone := make(chan struct{}, 5)
+	oneDone := make(chan struct{}, 4)
 	go func() {
-		c.runner.Run(ctx)
+		c.processActionResults(ctx)
+		c.l.Infof("processActionResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
-		c.processActionResults()
+		c.processJobsResults(ctx)
+		c.l.Infof("processJobsResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
-		c.processJobsResults()
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processSupervisorRequests()
+		c.processSupervisorRequests(ctx)
+		c.l.Infof("processSupervisorRequests is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
 		c.processChannelRequests(ctx)
+		c.l.Infof("processChannelRequests is finished")
 		oneDone <- struct{}{}
 	}()
 
 	<-oneDone
 	go func() {
-		<-oneDone
 		<-oneDone
 		<-oneDone
 		<-oneDone
@@ -224,144 +227,172 @@ func (c *Client) Done() <-chan struct{} {
 	return c.done
 }
 
-func (c *Client) processActionResults() {
-	for result := range c.runner.ActionsResults() {
-		resp, err := c.channel.SendAndWaitResponse(result)
-		if err != nil {
-			c.l.Error(err)
-			continue
-		}
-		if resp == nil {
-			c.l.Warn("Failed to send ActionResult request.")
+func (c *Client) processActionResults(ctx context.Context) {
+	for {
+		select {
+		case result := <-c.runner.ActionsResults():
+			resp, err := c.channel.SendAndWaitResponse(result)
+			if err != nil {
+				c.l.Error(err)
+				continue
+			}
+			if resp == nil {
+				c.l.Warn("Failed to send ActionResult request.")
+			}
+		case <-ctx.Done():
+			c.l.Infof("Actions runner Results() channel drained.")
+			return
 		}
 	}
-	c.l.Debugf("Actions runner Results() channel drained.")
 }
 
-func (c *Client) processJobsResults() {
-	for message := range c.runner.JobsMessages() {
-		c.channel.Send(&channel.AgentResponse{
-			ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
-			Payload: message,
-		})
+func (c *Client) processJobsResults(ctx context.Context) {
+	for {
+		select {
+		case message := <-c.runner.JobsMessages():
+			c.channel.Send(&channel.AgentResponse{
+				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
+				Payload: message,
+			})
+		case <-ctx.Done():
+			c.l.Infof("Jobs runner Messages() channel drained.")
+			return
+		}
 	}
-	c.l.Debugf("Jobs runner Messages() channel drained.")
 }
 
-func (c *Client) processSupervisorRequests() {
+func (c *Client) processSupervisorRequests(ctx context.Context) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		for state := range c.supervisor.Changes() {
-			resp, err := c.channel.SendAndWaitResponse(state)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send StateChanged request.")
+		for {
+			select {
+			case state := <-c.supervisor.Changes():
+				resp, err := c.channel.SendAndWaitResponse(state)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send StateChanged request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor Changes() channel drained.")
+				return
 			}
 		}
-		c.l.Debugf("Supervisor Changes() channel drained.")
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
-		for collect := range c.supervisor.QANRequests() {
-			resp, err := c.channel.SendAndWaitResponse(collect)
-			if err != nil {
-				c.l.Error(err)
-				continue
-			}
-			if resp == nil {
-				c.l.Warn("Failed to send QanCollect request.")
+		for {
+			select {
+			case collect := <-c.supervisor.QANRequests():
+				resp, err := c.channel.SendAndWaitResponse(collect)
+				if err != nil {
+					c.l.Error(err)
+					continue
+				}
+				if resp == nil {
+					c.l.Warn("Failed to send QanCollect request.")
+				}
+			case <-ctx.Done():
+				c.l.Infof("Supervisor QANRequests() channel drained.")
+				return
 			}
 		}
-		c.l.Debugf("Supervisor QANRequests() channel drained.")
 	}()
 
 	wg.Wait()
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-	for req := range c.channel.Requests() {
-		var responsePayload agentpb.AgentResponsePayload
-		var status *grpcstatus.Status
-		switch p := req.Payload.(type) {
-		case *agentpb.Ping:
-			responsePayload = &agentpb.Pong{
-				CurrentTime: timestamppb.Now(),
+L:
+	for {
+		select {
+		case req, more := <-c.channel.Requests():
+			if !more {
+				break L
 			}
-		case *agentpb.SetStateRequest:
-			c.supervisor.SetState(p)
-			responsePayload = &agentpb.SetStateResponse{}
+			var responsePayload agentpb.AgentResponsePayload
+			var status *grpcstatus.Status
+			switch p := req.Payload.(type) {
+			case *agentpb.Ping:
+				responsePayload = &agentpb.Pong{
+					CurrentTime: timestamppb.Now(),
+				}
+			case *agentpb.SetStateRequest:
+				c.supervisor.SetState(p)
+				responsePayload = &agentpb.SetStateResponse{}
 
-		case *agentpb.StartActionRequest:
-			responsePayload = &agentpb.StartActionResponse{}
-			if err := c.handleStartActionRequest(p); err != nil {
-				responsePayload = nil
-				status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
-				break
+			case *agentpb.StartActionRequest:
+				responsePayload = &agentpb.StartActionResponse{}
+				if err := c.handleStartActionRequest(p); err != nil {
+					responsePayload = nil
+					status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+					break
+				}
+
+			case *agentpb.StopActionRequest:
+				c.runner.Stop(p.ActionId)
+				responsePayload = &agentpb.StopActionResponse{}
+
+			case *agentpb.CheckConnectionRequest:
+				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
+
+			case *agentpb.StartJobRequest:
+				var resp agentpb.StartJobResponse
+				if err := c.handleStartJobRequest(p); err != nil {
+					resp.Error = err.Error()
+				}
+				responsePayload = &resp
+
+			case *agentpb.StopJobRequest:
+				c.runner.Stop(p.JobId)
+				responsePayload = &agentpb.StopJobResponse{}
+
+			case *agentpb.JobStatusRequest:
+				alive := c.runner.IsRunning(p.JobId)
+				responsePayload = &agentpb.JobStatusResponse{Alive: alive}
+
+			case *agentpb.GetVersionsRequest:
+				responsePayload = &agentpb.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
+			case *agentpb.PBMSwitchPITRRequest:
+				var resp agentpb.PBMSwitchPITRResponse
+				if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+					resp.Error = err.Error()
+				}
+				responsePayload = &resp
+			case *agentpb.ParseDefaultsFileRequest:
+				responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
+			case *agentpb.AgentLogsRequest:
+				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
+				responsePayload = &agentpb.AgentLogsResponse{
+					Logs:                     logs,
+					AgentConfigLogLinesCount: uint32(configLogLinesCount),
+				}
+			default:
+				c.l.Errorf("Unhandled server request: %v.", req)
 			}
+			c.cus.RegisterConnectionStatus(time.Now(), true)
 
-		case *agentpb.StopActionRequest:
-			c.runner.Stop(p.ActionId)
-			responsePayload = &agentpb.StopActionResponse{}
-
-		case *agentpb.CheckConnectionRequest:
-			responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
-
-		case *agentpb.StartJobRequest:
-			var resp agentpb.StartJobResponse
-			if err := c.handleStartJobRequest(p); err != nil {
-				resp.Error = err.Error()
+			response := &channel.AgentResponse{
+				ID:      req.ID,
+				Payload: responsePayload,
 			}
-			responsePayload = &resp
-
-		case *agentpb.StopJobRequest:
-			c.runner.Stop(p.JobId)
-			responsePayload = &agentpb.StopJobResponse{}
-
-		case *agentpb.JobStatusRequest:
-			alive := c.runner.IsRunning(p.JobId)
-			responsePayload = &agentpb.JobStatusResponse{Alive: alive}
-
-		case *agentpb.GetVersionsRequest:
-			responsePayload = &agentpb.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
-		case *agentpb.PBMSwitchPITRRequest:
-			var resp agentpb.PBMSwitchPITRResponse
-			if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
-				resp.Error = err.Error()
+			if status != nil {
+				response.Status = status
 			}
-			responsePayload = &resp
-		case *agentpb.ParseDefaultsFileRequest:
-			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
-		case *agentpb.AgentLogsRequest:
-			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
-			responsePayload = &agentpb.AgentLogsResponse{
-				Logs:                     logs,
-				AgentConfigLogLinesCount: uint32(configLogLinesCount),
-			}
-		default:
-			c.l.Errorf("Unhandled server request: %v.", req)
+			c.channel.Send(response)
+		case <-ctx.Done():
+			break L
 		}
-		c.cus.RegisterConnectionStatus(time.Now(), true)
-
-		response := &channel.AgentResponse{
-			ID:      req.ID,
-			Payload: responsePayload,
-		}
-		if status != nil {
-			response.Status = status
-		}
-		c.channel.Send(response)
 	}
-
 	if err := c.channel.Wait(); err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
 		return
