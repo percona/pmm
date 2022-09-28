@@ -18,7 +18,6 @@ package telemetry
 
 import (
 	_ "embed" //nolint:golint
-	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -199,25 +198,28 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 
 func (c *ServiceConfig) testClickhouseDSN() string {
 	var (
-		addr      = os.Getenv(envClickhouseAddr)
-		database  = os.Getenv(envClickHouseDatabase)
-		poolSize  = os.Getenv(envClickhousePoolSize)
-		blockSize = os.Getenv(envClickhouseBlockSize)
+		addr     = os.Getenv(envClickhouseAddr)
+		database = os.Getenv(envClickHouseDatabase)
 	)
 	if addr == "" {
 		return ""
 	}
+
 	if database == "" {
 		database = "pmm"
 	}
-	if blockSize == "" {
-		blockSize = "10000"
-	}
-	if poolSize == "" {
-		poolSize = "2"
+
+	_, blockSizeOk := os.LookupEnv(envClickhouseBlockSize)
+	if blockSizeOk {
+		c.l.Warnf("Environment variable [%s] not available in github.com/clickhouse/clickhouse-go/v2", envClickhouseBlockSize)
 	}
 
-	return fmt.Sprintf("tcp://%s?database=%s&block_size=%s&pool_size=%s", addr, database, blockSize, poolSize)
+	_, poolSizeOk := os.LookupEnv(envClickhousePoolSize)
+	if poolSizeOk {
+		c.l.Warnf("Environment variable [%s] not available in github.com/clickhouse/clickhouse-go/v2", envClickhousePoolSize)
+	}
+
+	return "tcp://" + addr + "/" + database
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
