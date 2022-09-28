@@ -53,9 +53,6 @@ func (res *installResult) String() string {
 	return "ok"
 }
 
-// ErrSumsDontMatch is returned when checksums do not match.
-var ErrSumsDontMatch = fmt.Errorf("SumsDontMatch")
-
 // RunCmdWithContext runs install command.
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) {
 	if c.Version == "" {
@@ -81,13 +78,8 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 
 	if !c.SkipChecksum {
 		logrus.Infof("Verifying tarball %s", tarPath)
-		ok, err := c.checksumTarball(ctx, link, tarPath)
-		if err != nil {
+		if err := c.checksumTarball(ctx, link, tarPath); err != nil {
 			return nil, err
-		}
-
-		if !ok {
-			return nil, fmt.Errorf("%w: downloaded file verification failed", ErrSumsDontMatch)
 		}
 	}
 
@@ -177,56 +169,59 @@ func (c *InstallCommand) downloadTarball(ctx context.Context, link string) (stri
 // ErrInvalidChecksum is returned when checksum cannot be extracted from sha256sum file.
 var ErrInvalidChecksum = fmt.Errorf("InvalidChecksum")
 
-func (c *InstallCommand) checksumTarball(ctx context.Context, link string, path string) (bool, error) {
+// ErrSumsDontMatch is returned when checksums do not match.
+var ErrSumsDontMatch = fmt.Errorf("SumsDontMatch")
+
+func (c *InstallCommand) checksumTarball(ctx context.Context, link string, path string) error {
 	shaLink := link + ".sha256sum"
 	logrus.Debugf("Downloading tarball sha256sum from %s", shaLink)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, shaLink, nil)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	defer res.Body.Close() //nolint:errcheck
 	if res.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
+		return fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
 
 	sumLine := &bytes.Buffer{}
 	if _, err := io.Copy(sumLine, res.Body); err != nil {
-		return false, err
+		return err
 	}
 
 	sum, _, found := strings.Cut(sumLine.String(), " ")
 	if !found {
-		return false, fmt.Errorf("%w: invalid checksum", ErrInvalidChecksum)
+		return fmt.Errorf("%w: invalid checksum", ErrInvalidChecksum)
 	}
 
 	logrus.Infof("Downloaded checksum %s", sum)
 
 	f, err := os.Open(path) //nolint:gosec
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	defer f.Close() //nolint:errcheck,gosec
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return false, err
+		return err
 	}
 
 	computedSum := hex.EncodeToString(h.Sum(nil))
 	logrus.Infof("Computed sum %s", computedSum)
 	if computedSum != sum {
-		return false, nil
+		return fmt.Errorf("%w: downloaded file verification failed", ErrSumsDontMatch)
 	}
 
-	return true, nil
+	return nil
 }
 
 func (c *InstallCommand) extractTarball(tarPath string) error {
