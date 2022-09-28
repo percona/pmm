@@ -178,13 +178,6 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 				agent:   agent,
 			})
 
-			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForPmmAgent(s, &scrapeConfigParams{
-				host:    paramsHost,
-				node:    paramsNode,
-				service: nil,
-				agent:   agent,
-			}))
-
 		case models.AzureDatabaseExporterType:
 			scfgs, err = scrapeConfigsForAzureDatabase(s, &scrapeConfigParams{
 				host:    paramsHost,
@@ -202,6 +195,14 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 			l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+	}
+
+	if pmmAgentID != nil {
+		pmmAgentConfig, err := GetPmmAgentScrapeConfig(l, q, s, pmmAgentID)
+		if err != nil {
+			return err
+		}
+		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, pmmAgentConfig)
 	}
 
 	scfgs := scrapeConfigsForRDSExporter(s, rdsParams)

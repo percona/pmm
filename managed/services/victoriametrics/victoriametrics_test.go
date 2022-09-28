@@ -322,7 +322,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-agent_pmm-server_mr
+    - job_name: pmm-server-pmm-agent
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -331,7 +331,7 @@ scrape_configs:
         - targets:
             - 127.0.0.1:7777
           labels:
-            instance: pmm-agent
+            instance: pmm-server
       follow_redirects: false
     - job_name: mongodb_exporter_agent_id_cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8_hr
       honor_timestamps: false
@@ -897,7 +897,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-agent_pmm-server_mr
+    - job_name: pmm-server-pmm-agent
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -906,7 +906,7 @@ scrape_configs:
         - targets:
             - 127.0.0.1:7777
           labels:
-            instance: pmm-agent
+            instance: pmm-server
       follow_redirects: false
 `) + "\n"
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
@@ -930,6 +930,7 @@ func TestPMMAgent(t *testing.T) {
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_node_label": "foo"}`),
 			},
+
 			&models.Agent{
 				AgentID:      "/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853",
 				AgentType:    models.PMMAgentType,
@@ -946,11 +947,19 @@ func TestPMMAgent(t *testing.T) {
 				PushMetrics: true,
 			},
 			&models.Agent{
-				AgentID:    "/agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a",
+				AgentID:    "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:  models.NodeExporterType,
 				PMMAgentID: pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
 				NodeID:     pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
 				ListenPort: pointer.ToUint16(42002),
+			},
+			&models.Agent{
+				AgentID:     "/agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a",
+				AgentType:   models.NodeExporterType,
+				PMMAgentID:  pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
+				NodeID:      pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+				ListenPort:  pointer.ToUint16(42002),
+				PushMetrics: true,
 			},
 			&models.Agent{
 				AgentID:        "/agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7",
@@ -990,16 +999,94 @@ scrape_configs:
         username: pmm
         password: /agent_id/386c4ce6-7cd2-4bc9-9d6f-b4691c6e7eb7
       follow_redirects: false
-    - job_name: pmm-agent_agent_id_217907dc-d34d-4e2e-aa84-a1b765d49853_mr
+    - job_name: node_exporter_agent_id_711674c2-36e6-42d5-8e63-5d7c84c9053a_hr
       honor_timestamps: false
-      scrape_interval: 10s
-      scrape_timeout: 9s
-      metrics_path: /debug/metrics
+      params:
+        collect[]:
+            - buddyinfo
+            - cpu
+            - diskstats
+            - filefd
+            - filesystem
+            - loadavg
+            - meminfo
+            - meminfo_numa
+            - netdev
+            - netstat
+            - processes
+            - standard.go
+            - standard.process
+            - stat
+            - textfile.hr
+            - time
+            - vmstat
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
       static_configs:
         - targets:
-            - 127.0.0.1:7777
+            - 127.0.0.1:42002
           labels:
-            instance: pmm-agent
+            _node_label: foo
+            agent_id: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            agent_type: node_exporter
+            instance: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+      follow_redirects: false
+    - job_name: node_exporter_agent_id_711674c2-36e6-42d5-8e63-5d7c84c9053a_mr
+      honor_timestamps: false
+      params:
+        collect[]:
+            - hwmon
+            - textfile.mr
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42002
+          labels:
+            _node_label: foo
+            agent_id: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            agent_type: node_exporter
+            instance: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+      follow_redirects: false
+    - job_name: node_exporter_agent_id_711674c2-36e6-42d5-8e63-5d7c84c9053a_lr
+      honor_timestamps: false
+      params:
+        collect[]:
+            - bonding
+            - entropy
+            - textfile.lr
+            - uname
+      scrape_interval: 1m
+      scrape_timeout: 54s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42002
+          labels:
+            _node_label: foo
+            agent_id: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            agent_type: node_exporter
+            instance: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
+      basic_auth:
+        username: pmm
+        password: /agent_id/711674c2-36e6-42d5-8e63-5d7c84c9053a
       follow_redirects: false
     - job_name: vmagent_agent_id_6eb04a49-432f-4535-89fe-1e656bb6c9d0_mr
       honor_timestamps: false
@@ -1016,6 +1103,19 @@ scrape_configs:
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
             node_type: generic
+      follow_redirects: false
+    - job_name: pmm-agent_agent_id_217907dc-d34d-4e2e-aa84-a1b765d49853_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 1.2.3.4:7777
+          labels:
+            agent_id: /agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853
+            agent_type: pmm-agent
+            instance: /agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853
       follow_redirects: false
 `) + "\n"
 		actual, err := svc.BuildScrapeConfigForVMAgent("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853")
