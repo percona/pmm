@@ -198,7 +198,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 	}
 
 	if pmmAgentID != nil {
-		pmmAgentConfig, err := GetPmmAgentScrapeConfig(l, q, s, pmmAgentID)
+		pmmAgentConfig, err := AddPmmAgentScrapeConfig(l, q, s, pmmAgentID)
 		if err != nil {
 			return err
 		}
@@ -223,4 +223,62 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 	if dbaas {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForDBaaSController(s.MR))
 	}
+}
+
+// AddPmmAgentScrapeConfig adds pmm-agent metrics to scrape targets.
+func AddPmmAgentScrapeConfig(l *logrus.Entry, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string) (*config.ScrapeConfig, error) {
+	agent, err := models.FindAgentByID(q, pointer.GetString(pmmAgentID))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	// sanity check
+	if (agent.NodeID != nil) && (agent.ServiceID != nil) {
+		l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
+	}
+
+	// find Service for this Agent
+	var paramsService *models.Service
+	if agent.ServiceID != nil {
+		paramsService, err = models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// find Node for this Agent or Service
+	var paramsNode *models.Node
+	switch {
+	case agent.NodeID != nil:
+		paramsNode, err = models.FindNodeByID(q, pointer.GetString(agent.NodeID))
+	case paramsService != nil:
+		paramsNode, err = models.FindNodeByID(q, paramsService.NodeID)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	pmmAgentNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
+	if err = q.Reload(pmmAgentNode); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	paramsHost := pmmAgentNode.Address
+	paramPMMAgentVersion, err := version.Parse(pointer.GetString(agent.Version))
+	if err != nil {
+		l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", agent.AgentID, err)
+	}
+
+	scfg, err := scrapeConfigForPmmAgent(s, &scrapeConfigParams{
+		host:            paramsHost,
+		node:            paramsNode,
+		service:         paramsService,
+		agent:           agent,
+		pmmAgentVersion: paramPMMAgentVersion,
+	})
+	if err != nil {
+		l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+	}
+
+	return scfg, nil
 }
