@@ -35,10 +35,10 @@ PMM includes a set of default templates with common events and expressions for a
 
 You can check the  alert templates available for your account under **Alerting > Alert rule templates** tab. PMM lists here the following types of templates:
 
-1) Build-in templates, available out-of-the box with PMM.
-2) Alert templates fetched from Percona Platform, according to the entitlements available for your Percona Account. 
-3) Custom templates created or uploaded on the **Alerting page > Alert Templates**.tab. 
-4) Custom template files  available in your  ``yaml srv/alerting/templates`` directory. PMM load them during startup.
+1. Built-in templates, available out-of-the-box with PMM.
+2. Alert templates fetched from Percona Platform, according to the entitlements available for your Percona Account. 
+3. Custom templates created or uploaded on the **Alerting page > Alert Templates** Tab. 
+4. Custom template files available in your  ``yaml srv/alerting/templates`` directory. PMM loads them during startup.
 
 ### Silences
 Silences specify periods of time to suppress notifications. During a silence, PMM continues to track metrics and trigger alerts but does not send notifications to the specified contact points. Once the specified silence expires, notifications are resumed. 
