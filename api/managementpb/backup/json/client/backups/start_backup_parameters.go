@@ -52,10 +52,12 @@ func NewStartBackupParamsWithHTTPClient(client *http.Client) *StartBackupParams 
 	}
 }
 
-/* StartBackupParams contains all the parameters to send to the API endpoint
-   for the start backup operation.
+/*
+StartBackupParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the start backup operation.
+
+	Typically these are written to a http.Request.
 */
 type StartBackupParams struct {
 	// Body.

@@ -52,10 +52,12 @@ func NewUpdateUserParamsWithHTTPClient(client *http.Client) *UpdateUserParams {
 	}
 }
 
-/* UpdateUserParams contains all the parameters to send to the API endpoint
-   for the update user operation.
+/*
+UpdateUserParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the update user operation.
+
+	Typically these are written to a http.Request.
 */
 type UpdateUserParams struct {
 	// Body.

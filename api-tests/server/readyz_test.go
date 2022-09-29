@@ -16,7 +16,7 @@
 package server
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -50,7 +50,7 @@ func TestReadyz(t *testing.T) {
 			resp, err := http.Get(uri.String())
 			require.NoError(t, err)
 			defer resp.Body.Close() //nolint:errcheck
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 			assert.Equal(t, "{}", string(b))

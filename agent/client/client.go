@@ -760,7 +760,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 		return
 	}
 	roundtrip := time.Since(start)
-	currentTime := resp.(*agentpb.Pong).CurrentTime // nolint:forcetypeassert
+	currentTime := resp.(*agentpb.Pong).CurrentTime //nolint:forcetypeassert
 	serverTime := currentTime.AsTime()
 	err = currentTime.CheckValid()
 	if err != nil {

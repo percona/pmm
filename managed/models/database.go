@@ -733,6 +733,16 @@ var databaseSchema = [][]string{
 		`UPDATE ia_rules SET disabled = TRUE`,
 	},
 	67: {
+		`UPDATE agents
+		SET log_level = 'error'
+		WHERE log_level = 'fatal'
+		AND agent_type IN (
+			'node_exporter',
+			'mysqld_exporter',
+			'postgres_exporter'
+		);`,
+	},
+	68: {
 		`ALTER TABLE backup_locations
 			DROP COLUMN pmm_server_config`,
 	},

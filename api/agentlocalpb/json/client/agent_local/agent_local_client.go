@@ -38,7 +38,7 @@ type ClientService interface {
 }
 
 /*
-  Reload reloads reloads pmm agent configuration
+Reload reloads reloads pmm agent configuration
 */
 func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, error) {
 	// TODO: Validate the params before sending
@@ -75,7 +75,7 @@ func (a *Client) Reload(params *ReloadParams, opts ...ClientOption) (*ReloadOK, 
 }
 
 /*
-  Status statuses returns current pmm agent status
+Status statuses returns current pmm agent status
 */
 func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, error) {
 	// TODO: Validate the params before sending
@@ -112,7 +112,7 @@ func (a *Client) Status(params *StatusParams, opts ...ClientOption) (*StatusOK, 
 }
 
 /*
-  Status2 statuses returns current pmm agent status
+Status2 statuses returns current pmm agent status
 */
 func (a *Client) Status2(params *Status2Params, opts ...ClientOption) (*Status2OK, error) {
 	// TODO: Validate the params before sending
