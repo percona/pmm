@@ -35,6 +35,7 @@ const (
 )
 
 // BackupLocation represents destination for backup.
+//
 //reform:backup_locations
 type BackupLocation struct {
 	ID              string                   `reform:"id,pk"`

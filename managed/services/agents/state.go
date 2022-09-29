@@ -225,7 +225,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return err
 			}
 
-			switch row.AgentType {
+			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode, pmmAgentVersion)
 			case models.MongoDBExporterType:

@@ -44,7 +44,7 @@ type ClientService interface {
 }
 
 /*
-  GetHistogram gets histogram gets histogram items for specific filtering
+GetHistogram gets histogram gets histogram items for specific filtering
 */
 func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) (*GetHistogramOK, error) {
 	// TODO: Validate the params before sending
@@ -81,7 +81,7 @@ func (a *Client) GetHistogram(params *GetHistogramParams, opts ...ClientOption) 
 }
 
 /*
-  GetLabels gets labels gets list of labels for object details
+GetLabels gets labels gets list of labels for object details
 */
 func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetLabelsOK, error) {
 	// TODO: Validate the params before sending
@@ -118,7 +118,7 @@ func (a *Client) GetLabels(params *GetLabelsParams, opts ...ClientOption) (*GetL
 }
 
 /*
-  GetMetrics gets metrics gets map of metrics for specific filtering
+GetMetrics gets metrics gets map of metrics for specific filtering
 */
 func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*GetMetricsOK, error) {
 	// TODO: Validate the params before sending
@@ -155,7 +155,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams, opts ...ClientOption) (*Ge
 }
 
 /*
-  GetQueryExample gets query example gets list of query examples
+GetQueryExample gets query example gets list of query examples
 */
 func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOption) (*GetQueryExampleOK, error) {
 	// TODO: Validate the params before sending
@@ -192,7 +192,7 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams, opts ...ClientOp
 }
 
 /*
-  GetQueryPlan gets query plan gets query plan and plan id for specific filtering
+GetQueryPlan gets query plan gets query plan and plan id for specific filtering
 */
 func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) (*GetQueryPlanOK, error) {
 	// TODO: Validate the params before sending
@@ -229,7 +229,7 @@ func (a *Client) GetQueryPlan(params *GetQueryPlanParams, opts ...ClientOption) 
 }
 
 /*
-  QueryExists queries exists check if query exists in clickhouse
+QueryExists queries exists check if query exists in clickhouse
 */
 func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*QueryExistsOK, error) {
 	// TODO: Validate the params before sending

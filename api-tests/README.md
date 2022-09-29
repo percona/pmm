@@ -4,8 +4,8 @@ API tests for PMM 2.x
 
 # Setup Instructions
 
-Make sure you have Go 1.18.x installed on your systems, execute the following steps
-to setup API-tests in your local systems.
+Make sure you have the latest Go version installed on your systems, execute the following steps
+to set up API-tests in your local systems.
 
 1. Run PMM Server. This can be done by running `make env-up` in the root (`pmm`) directory.
 2. In the case below, `$PMM_SERVER_URL` should be replaced with a URL in format `http://USERNAME:PASSWORD@HOST`. For local development it's usually `http://admin:admin@127.0.0.1`.

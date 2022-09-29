@@ -52,10 +52,12 @@ func NewGetAgentLogsParamsWithHTTPClient(client *http.Client) *GetAgentLogsParam
 	}
 }
 
-/* GetAgentLogsParams contains all the parameters to send to the API endpoint
-   for the get agent logs operation.
+/*
+GetAgentLogsParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get agent logs operation.
+
+	Typically these are written to a http.Request.
 */
 type GetAgentLogsParams struct {
 	// Body.
