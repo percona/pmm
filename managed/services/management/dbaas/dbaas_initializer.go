@@ -114,18 +114,19 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			}
 			return err
 		}
-
-		req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
-			KubernetesClusterName: defaultClusterName,
-			KubeAuth: &dbaasv1beta1.KubeAuth{
-				Kubeconfig: kubeConfig.Kubeconfig,
-			},
+		if len(kubeConfig.Kubeconfig) != 0 {
+			req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
+				KubernetesClusterName: defaultClusterName,
+				KubeAuth: &dbaasv1beta1.KubeAuth{
+					Kubeconfig: kubeConfig.Kubeconfig,
+				},
+			}
+			_, err = in.kubernetesServer.RegisterKubernetesCluster(ctx, req)
+			if err != nil {
+				return err
+			}
+			in.l.Info("Cluster is successfully initialized")
 		}
-		_, err = in.kubernetesServer.RegisterKubernetesCluster(ctx, req)
-		if err != nil {
-			return err
-		}
-		in.l.Info("Cluster is successfully initialized")
 	} else {
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
