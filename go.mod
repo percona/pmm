@@ -15,7 +15,7 @@ require (
 	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.28
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
-	github.com/ClickHouse/clickhouse-go/v2 v2.3.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.2.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.6.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
@@ -81,17 +81,13 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/ClickHouse/ch-go v0.47.3 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
-	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/armon/go-metrics v0.4.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
-	github.com/go-faster/city v1.0.1 // indirect
-	github.com/go-faster/errors v0.6.1 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-openapi/analysis v0.21.3 // indirect
@@ -140,7 +136,6 @@ require (
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
-	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749 // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546 // indirect
@@ -148,8 +143,8 @@ require (
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.opentelemetry.io/otel v1.9.0 // indirect
-	go.opentelemetry.io/otel/trace v1.9.0 // indirect
+	go.opentelemetry.io/otel v1.7.0 // indirect
+	go.opentelemetry.io/otel/trace v1.7.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
