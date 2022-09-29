@@ -322,7 +322,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-server-pmm-agent
+    - job_name: pmm-agent
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -897,7 +897,7 @@ scrape_configs:
           labels:
             instance: pmm-server
       follow_redirects: false
-    - job_name: pmm-server-pmm-agent
+    - job_name: pmm-agent
       honor_timestamps: false
       scrape_interval: 10s
       scrape_timeout: 9s
@@ -1113,9 +1113,13 @@ scrape_configs:
         - targets:
             - 1.2.3.4:7777
           labels:
+            _node_label: foo
             agent_id: /agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853
             agent_type: pmm-agent
             instance: /agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853
+            node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+            node_name: test-generic-node
+            node_type: generic
       follow_redirects: false
 `) + "\n"
 		actual, err := svc.BuildScrapeConfigForVMAgent("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853")

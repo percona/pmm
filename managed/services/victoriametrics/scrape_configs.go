@@ -47,6 +47,21 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
+func scrapeConfigForServerPMMAgent(interval time.Duration) *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "pmm-agent",
+		ScrapeInterval: config.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
+		MetricsPath:    "/debug/metrics",
+		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+			StaticConfigs: []*config.Group{{
+				Targets: []string{"127.0.0.1:7777"},
+				Labels:  map[string]string{"instance": "pmm-server"},
+			}},
+		},
+	}
+}
+
 func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "alertmanager",
@@ -614,19 +629,4 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 			},
 		},
 	}, nil
-}
-
-func scrapeConfigForServerPMMAgent(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "pmm-server-pmm-agent",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7777"},
-				Labels:  map[string]string{"instance": "pmm-server"},
-			}},
-		},
-	}
 }
