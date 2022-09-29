@@ -39,6 +39,8 @@ const (
 	envClickHouseDatabase    = "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE"
 	envClickhousePoolSize    = "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE"
 	envClickhouseBlockSize   = "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE"
+
+	defaultClickhouseDatabase = "pmm"
 )
 
 // ServiceConfig telemetry config.
@@ -206,7 +208,7 @@ func (c *ServiceConfig) testClickhouseDSN() string {
 	}
 
 	if database == "" {
-		database = "pmm"
+		database = defaultClickhouseDatabase
 	}
 
 	_, blockSizeOk := os.LookupEnv(envClickhouseBlockSize)
