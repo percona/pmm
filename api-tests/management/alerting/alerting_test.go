@@ -17,7 +17,7 @@ package alerting
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -120,10 +120,10 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 func TestTemplatesAPI(t *testing.T) {
 	client := alertingClient.Default.Alerting
 
-	templateData, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
+	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
-	invalidTemplateData, err := ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
+	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
 	require.NoError(t, err)
 
 	t.Run("add", func(t *testing.T) {

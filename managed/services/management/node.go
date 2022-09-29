@@ -47,7 +47,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
-		switch status.Code(err) {
+		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			if !req.Reregister {
 				return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", req.NodeName)
@@ -61,7 +61,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		}
 
 		node, err = models.CheckUniqueNodeInstanceRegion(tx.Querier, req.Address, &req.Region)
-		switch status.Code(err) {
+		switch status.Code(err) { //nolint:exhaustive
 		case codes.OK:
 			// nothing
 		case codes.AlreadyExists:

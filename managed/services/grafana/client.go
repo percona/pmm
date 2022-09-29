@@ -22,7 +22,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -132,7 +132,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -185,7 +185,7 @@ func (r role) String() string {
 	}
 }
 
-// getUserID returns user ID from Grafana for given user
+// GetUserID returns user ID from Grafana for given user
 func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {

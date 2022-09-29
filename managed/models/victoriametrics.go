@@ -16,7 +16,6 @@
 package models
 
 import (
-	"io/ioutil"
 	"os"
 
 	config "github.com/percona/promconfig"
@@ -55,7 +54,7 @@ func (vmp *VictoriaMetricsParams) UpdateParams() error {
 
 // loadVMAlertParams - load params and converts it to vmalert flags.
 func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
-	buf, err := ioutil.ReadFile(vmp.BaseConfigPath)
+	buf, err := os.ReadFile(vmp.BaseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "cannot read baseConfigPath for VMAlertParams")
