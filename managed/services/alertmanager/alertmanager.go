@@ -22,7 +22,7 @@ import (
 	_ "embed" // for email templates
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -126,7 +126,7 @@ receivers:
 	svc.l.Debugf("%s status: %v", alertmanagerBaseConfigPath, err)
 	if os.IsNotExist(err) {
 		svc.l.Infof("Creating %s", alertmanagerBaseConfigPath)
-		err = ioutil.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
+		err = os.WriteFile(alertmanagerBaseConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		if err != nil {
 			svc.l.Errorf("Failed to write %s: %s", alertmanagerBaseConfigPath, err)
 		}
@@ -137,7 +137,7 @@ receivers:
 	stat, err := os.Stat(alertmanagerConfigPath)
 	if err != nil || int(stat.Size()) <= len("---\n") { // https://github.com/percona/pmm-server/blob/main/alertmanager.yml
 		svc.l.Infof("Creating %s", alertmanagerConfigPath)
-		err = ioutil.WriteFile(alertmanagerConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
+		err = os.WriteFile(alertmanagerConfigPath, []byte(defaultBase), 0o644) //nolint:gosec
 		if err != nil {
 			svc.l.Errorf("Failed to write %s: %s", alertmanagerConfigPath, err)
 		}
@@ -223,7 +223,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager reload: %s", b)
 	if err != nil {
 		return errors.WithStack(err)
@@ -237,7 +237,7 @@ func (svc *Service) reload(ctx context.Context) error {
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
 func (svc *Service) loadBaseConfig() *alertmanager.Config {
-	buf, err := ioutil.ReadFile(alertmanagerBaseConfigPath)
+	buf, err := os.ReadFile(alertmanagerBaseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			svc.l.Errorf("Failed to load base Alertmanager config %s: %s", alertmanagerBaseConfigPath, err)
@@ -275,7 +275,7 @@ func (svc *Service) marshalConfig(base *alertmanager.Config) ([]byte, error) {
 
 // validateConfig validates given configuration with `amtool check-config`.
 func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
-	f, err := ioutil.TempFile("", "pmm-managed-config-alertmanager-")
+	f, err := os.CreateTemp("", "pmm-managed-config-alertmanager-")
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -304,7 +304,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 // configAndReload saves given Alertmanager configuration to file and reloads Alertmanager.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
-	oldCfg, err := ioutil.ReadFile(alertmanagerConfigPath)
+	oldCfg, err := os.ReadFile(alertmanagerConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -318,7 +318,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	var restore bool
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(alertmanagerConfigPath, oldCfg, fi.Mode()); err != nil {
+			if err = os.WriteFile(alertmanagerConfigPath, oldCfg, fi.Mode()); err != nil {
 				svc.l.Error(err)
 			}
 			if err = svc.reload(ctx); err != nil {
@@ -332,7 +332,7 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	}
 
 	restore = true
-	if err = ioutil.WriteFile(alertmanagerConfigPath, b, fi.Mode()); err != nil {
+	if err = os.WriteFile(alertmanagerConfigPath, b, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = svc.reload(ctx); err != nil {
@@ -431,7 +431,7 @@ func recreateTLSConfigFiles(chanMap map[string]*models.Channel) error {
 				continue
 			}
 
-			if err := ioutil.WriteFile(filePath, []byte(content), fi.Mode()); err != nil {
+			if err := os.WriteFile(filePath, []byte(content), fi.Mode()); err != nil {
 				return errors.WithStack(err)
 			}
 		}
@@ -861,7 +861,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("Alertmanager ready: %s", b)
 	if err != nil {
 		return errors.WithStack(err)

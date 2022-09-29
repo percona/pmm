@@ -17,7 +17,6 @@ package supervisord
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -126,13 +125,13 @@ func TestDevContainer(t *testing.T) {
 		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
 		require.NoError(t, err)
 		for _, m := range matches {
-			b, err := ioutil.ReadFile(m) //nolint:gosec
+			b, err := os.ReadFile(m) //nolint:gosec
 			require.NoError(t, err)
 			originals[m] = b
 		}
 		defer func() {
 			for name, b := range originals {
-				err = ioutil.WriteFile(name, b, 0)
+				err = os.WriteFile(name, b, 0)
 				assert.NoError(t, err)
 			}
 			// force update supervisor config

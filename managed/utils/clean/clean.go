@@ -27,17 +27,17 @@ import (
 )
 
 // CleanResults has unexported fields for the results cleanup function.
-type CleanResults struct {
+type Results struct {
 	db *reform.DB
 }
 
 // New returns a new CleanResults instance.
-func New(db *reform.DB) *CleanResults {
-	return &CleanResults{db: db}
+func New(db *reform.DB) *Results {
+	return &Results{db: db}
 }
 
 // Run starts the clean process.
-func (c *CleanResults) Run(ctx context.Context, interval time.Duration, olderThan time.Duration) {
+func (c *Results) Run(ctx context.Context, interval time.Duration, olderThan time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	l := logrus.WithField("component", "cleaner")

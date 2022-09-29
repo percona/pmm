@@ -422,7 +422,6 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 				mb.Common.IsTruncated = truncated
 			}
 			mb.Common.Example = example
-			mb.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
