@@ -197,12 +197,8 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 	}
 
-	if pmmAgentID != nil {
-		pmmAgentConfig, err := AddPmmAgentScrapeConfig(l, q, s, pmmAgentID)
-		if err != nil {
-			return err
-		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, pmmAgentConfig)
+	if err := AddPmmAgentScrapeConfig(cfg, l, q, s, pmmAgentID); err != nil {
+		return err
 	}
 
 	scfgs := scrapeConfigsForRDSExporter(s, rdsParams)
@@ -226,33 +222,46 @@ func AddInternalServicesToScrape(cfg *config.Config, s models.MetricsResolutions
 }
 
 // AddPmmAgentScrapeConfig adds pmm-agent metrics to scrape targets.
-func AddPmmAgentScrapeConfig(l *logrus.Entry, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string) (*config.ScrapeConfig, error) {
-	agent, err := models.FindAgentByID(q, pointer.GetString(pmmAgentID))
-	if err != nil {
-		return nil, errors.WithStack(err)
+func AddPmmAgentScrapeConfig(cfg *config.Config, l *logrus.Entry, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string) error {
+	if pmmAgentID == nil {
+		return nil
+	}
+
+	var (
+		err   error
+		agent *models.Agent
+		node  *models.Node
+		scfg  *config.ScrapeConfig
+	)
+
+	// find agent by id
+	if agent, err = models.FindAgentByID(q, pointer.GetString(pmmAgentID)); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// check that agent not disabled
+	if agent.Disabled {
+		l.Warnf(`failed to add %s %q, skipping: "agent disabled".`, agent.AgentType, agent.AgentID)
+		return nil
 	}
 
 	// find Node for this Agent
-	node, err := models.FindNodeByID(q, pointer.GetString(agent.RunsOnNodeID))
-	if err != nil {
-		return nil, err
+	if node, err = models.FindNodeByID(q, pointer.GetString(agent.RunsOnNodeID)); err != nil {
+		return errors.WithStack(err)
 	}
 
-	pmmAgentVersion, err := version.Parse(pointer.GetString(agent.Version))
-	if err != nil {
-		l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", agent.AgentID, err)
+	// check that database pmm-agent version is valid
+	if _, err = version.Parse(pointer.GetString(agent.Version)); err != nil {
+		l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: skipping: %q", agent.AgentID, err)
+		return nil
 	}
 
-	scfg, err := scrapeConfigForPmmAgent(s, &scrapeConfigParams{
-		host:            node.Address,
-		node:            node,
-		service:         nil,
-		agent:           agent,
-		pmmAgentVersion: pmmAgentVersion,
-	})
-	if err != nil {
-		l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+	params := &scrapeConfigParams{host: node.Address, node: node, agent: agent}
+	if scfg, err = scrapeConfigForPmmAgent(s, params); err != nil {
+		l.Warnf("failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+		return nil
 	}
 
-	return scfg, nil
+	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+	return nil
 }
