@@ -343,7 +343,6 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					b.Common.IsTruncated = truncated
 				}
 				b.Common.Example = example
-				b.Common.ExampleFormat = agentpb.ExampleFormat_EXAMPLE
 				b.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 		}

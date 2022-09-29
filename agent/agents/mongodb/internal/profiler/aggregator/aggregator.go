@@ -268,7 +268,6 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
 				Example:             query,
-				ExampleFormat:       agentpb.ExampleFormat_EXAMPLE,
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          float32(v.Count),
 				IsTruncated:         truncated,
