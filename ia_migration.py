@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import json
 import requests
 
 # This script migrates Integrated Alerting alert rules to the new Alerting system that was introduced in PMM 2.31
