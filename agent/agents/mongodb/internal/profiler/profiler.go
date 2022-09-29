@@ -60,7 +60,7 @@ type profiler struct {
 	doneChan chan struct{}   // close(doneChan) to notify goroutines that they should shutdown
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 
-	//others
+	// others
 	maxQueryLength int32
 }
 
