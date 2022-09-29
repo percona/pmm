@@ -6,7 +6,9 @@ import requests
 # Migration is partial, it covers only alert rules but not Notification Channels, Silences, etc...
 
 def prepare_labels(rule):
+    custom_labels = rule.get("custom_labels", {})
     labels = rule.get("labels", {})
+    labels.update(custom_labels)
     labels.update({
         "percona_alerting": "1",
         "severity": rule.get("severity", "").lstrip("SEVERITY_").lower(),
