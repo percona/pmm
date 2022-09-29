@@ -306,18 +306,16 @@ func TestRestoreBackup(t *testing.T) {
 			assert.Empty(t, restoreID)
 		})
 
-		t.Run("physical restore is successful", func(t *testing.T) {
+		t.Run("physical backups is not supported", func(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
-			mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-				mock.Anything, artifact.Name, mock.Anything, artifact.DataModel, mock.Anything).Return(nil).Once()
 
 			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
-			require.NoError(t, err)
-			assert.NotEmpty(t, restoreID)
+			require.ErrorIs(t, err, ErrIncompatibleService)
+			assert.Empty(t, restoreID)
 		})
 	})
 
