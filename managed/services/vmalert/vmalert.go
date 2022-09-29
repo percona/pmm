@@ -18,7 +18,7 @@ package vmalert
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -161,7 +161,7 @@ func (svc *Service) reload(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert reload: %s", b)
 	if err != nil {
 		return errors.WithStack(err)
@@ -187,7 +187,7 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	svc.l.Debugf("VMAlert health: %s", b)
 	if err != nil {
 		return errors.WithStack(err)

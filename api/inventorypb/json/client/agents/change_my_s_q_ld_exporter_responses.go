@@ -50,7 +50,8 @@ func NewChangeMySQLdExporterOK() *ChangeMySQLdExporterOK {
 	return &ChangeMySQLdExporterOK{}
 }
 
-/* ChangeMySQLdExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeMySQLdExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeMySQLdExporterDefault(code int) *ChangeMySQLdExporterDefault {
 	}
 }
 
-/* ChangeMySQLdExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeMySQLdExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeMySQLdExporterDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*ChangeMySQLdExporterBody change my s q ld exporter body
+/*
+ChangeMySQLdExporterBody change my s q ld exporter body
 swagger:model ChangeMySQLdExporterBody
 */
 type ChangeMySQLdExporterBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeMySQLdExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterDefaultBody change my s q ld exporter default body
+/*
+ChangeMySQLdExporterDefaultBody change my s q ld exporter default body
 swagger:model ChangeMySQLdExporterDefaultBody
 */
 type ChangeMySQLdExporterDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeMySQLdExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterDefaultBodyDetailsItems0 change my s q ld exporter default body details items0
+/*
+ChangeMySQLdExporterDefaultBodyDetailsItems0 change my s q ld exporter default body details items0
 swagger:model ChangeMySQLdExporterDefaultBodyDetailsItems0
 */
 type ChangeMySQLdExporterDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeMySQLdExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*ChangeMySQLdExporterOKBody change my s q ld exporter OK body
+/*
+ChangeMySQLdExporterOKBody change my s q ld exporter OK body
 swagger:model ChangeMySQLdExporterOKBody
 */
 type ChangeMySQLdExporterOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeMySQLdExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*
+ChangeMySQLdExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model ChangeMySQLdExporterOKBodyMysqldExporter
 */
 type ChangeMySQLdExporterOKBodyMysqldExporter struct {
@@ -661,7 +668,8 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*ChangeMySQLdExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeMySQLdExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeMySQLdExporterParamsBodyCommon
 */
 type ChangeMySQLdExporterParamsBodyCommon struct {

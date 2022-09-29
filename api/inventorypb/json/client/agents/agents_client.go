@@ -94,9 +94,9 @@ type ClientService interface {
 }
 
 /*
-  AddAzureDatabaseExporter adds azure database exporter
+AddAzureDatabaseExporter adds azure database exporter
 
-  Adds azure_database_exporter Agent.
+Adds azure_database_exporter Agent.
 */
 func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams, opts ...ClientOption) (*AddAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -133,9 +133,9 @@ func (a *Client) AddAzureDatabaseExporter(params *AddAzureDatabaseExporterParams
 }
 
 /*
-  AddExternalExporter adds external exporter
+AddExternalExporter adds external exporter
 
-  Adds external_exporter Agent.
+Adds external_exporter Agent.
 */
 func (a *Client) AddExternalExporter(params *AddExternalExporterParams, opts ...ClientOption) (*AddExternalExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -172,9 +172,9 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams, opts ...
 }
 
 /*
-  AddMongoDBExporter adds mongo DB exporter
+AddMongoDBExporter adds mongo DB exporter
 
-  Adds mongodb_exporter Agent.
+Adds mongodb_exporter Agent.
 */
 func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams, opts ...ClientOption) (*AddMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -211,9 +211,9 @@ func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams, opts ...Cl
 }
 
 /*
-  AddMySQLdExporter adds mysqld exporter
+AddMySQLdExporter adds mysqld exporter
 
-  Adds mysqld_exporter Agent.
+Adds mysqld_exporter Agent.
 */
 func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams, opts ...ClientOption) (*AddMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -250,9 +250,9 @@ func (a *Client) AddMySQLdExporter(params *AddMySQLdExporterParams, opts ...Clie
 }
 
 /*
-  AddNodeExporter adds node exporter
+AddNodeExporter adds node exporter
 
-  Adds node_exporter Agent.
+Adds node_exporter Agent.
 */
 func (a *Client) AddNodeExporter(params *AddNodeExporterParams, opts ...ClientOption) (*AddNodeExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -289,9 +289,9 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams, opts ...ClientOp
 }
 
 /*
-  AddPMMAgent adds PMM agent
+AddPMMAgent adds PMM agent
 
-  Adds PMM Agent.
+Adds PMM Agent.
 */
 func (a *Client) AddPMMAgent(params *AddPMMAgentParams, opts ...ClientOption) (*AddPMMAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -328,9 +328,9 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams, opts ...ClientOption) (*
 }
 
 /*
-  AddPostgresExporter adds postgres exporter
+AddPostgresExporter adds postgres exporter
 
-  Adds postgres_exporter Agent.
+Adds postgres_exporter Agent.
 */
 func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams, opts ...ClientOption) (*AddPostgresExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -367,9 +367,9 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams, opts ...
 }
 
 /*
-  AddProxySQLExporter adds proxy SQL exporter
+AddProxySQLExporter adds proxy SQL exporter
 
-  Adds proxysql_exporter Agent.
+Adds proxysql_exporter Agent.
 */
 func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams, opts ...ClientOption) (*AddProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -406,9 +406,9 @@ func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams, opts ...
 }
 
 /*
-  AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent
+AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent
 
-  Adds 'Query Analytics MongoDB Profiler' Agent.
+Adds 'Query Analytics MongoDB Profiler' Agent.
 */
 func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams, opts ...ClientOption) (*AddQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -445,9 +445,9 @@ func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentPa
 }
 
 /*
-  AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent
+AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent
 
-  Adds 'Query Analytics MySQL PerfSchema' Agent.
+Adds 'Query Analytics MySQL PerfSchema' Agent.
 */
 func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*AddQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -484,9 +484,9 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 }
 
 /*
-  AddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent
+AddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent
 
-  Adds 'Query Analytics MySQL Slowlog' Agent.
+Adds 'Query Analytics MySQL Slowlog' Agent.
 */
 func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams, opts ...ClientOption) (*AddQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -523,9 +523,9 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams, 
 }
 
 /*
-  AddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent
+AddQANPostgreSQLPgStatMonitorAgent adds QAN postgre SQL pg stat monitor agent
 
-  Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
+Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
 func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -562,9 +562,9 @@ func (a *Client) AddQANPostgreSQLPgStatMonitorAgent(params *AddQANPostgreSQLPgSt
 }
 
 /*
-  AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg stat statements agent
+AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg stat statements agent
 
-  Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.
+Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
 func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -601,9 +601,9 @@ func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgSta
 }
 
 /*
-  AddRDSExporter adds RDS exporter
+AddRDSExporter adds RDS exporter
 
-  Adds rds_exporter Agent.
+Adds rds_exporter Agent.
 */
 func (a *Client) AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOption) (*AddRDSExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -640,9 +640,9 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams, opts ...ClientOpti
 }
 
 /*
-  ChangeAzureDatabaseExporter changes azure database exporter
+ChangeAzureDatabaseExporter changes azure database exporter
 
-  Changes azure_database_exporter Agent.
+Changes azure_database_exporter Agent.
 */
 func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporterParams, opts ...ClientOption) (*ChangeAzureDatabaseExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -679,9 +679,9 @@ func (a *Client) ChangeAzureDatabaseExporter(params *ChangeAzureDatabaseExporter
 }
 
 /*
-  ChangeExternalExporter changes external exporter
+ChangeExternalExporter changes external exporter
 
-  Changes external_exporter Agent.
+Changes external_exporter Agent.
 */
 func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams, opts ...ClientOption) (*ChangeExternalExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -718,9 +718,9 @@ func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams, op
 }
 
 /*
-  ChangeMongoDBExporter changes mongo DB exporter
+ChangeMongoDBExporter changes mongo DB exporter
 
-  Changes mongodb_exporter Agent.
+Changes mongodb_exporter Agent.
 */
 func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams, opts ...ClientOption) (*ChangeMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -757,9 +757,9 @@ func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams, opts
 }
 
 /*
-  ChangeMySQLdExporter changes mysqld exporter
+ChangeMySQLdExporter changes mysqld exporter
 
-  Changes mysqld_exporter Agent.
+Changes mysqld_exporter Agent.
 */
 func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams, opts ...ClientOption) (*ChangeMySQLdExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -796,9 +796,9 @@ func (a *Client) ChangeMySQLdExporter(params *ChangeMySQLdExporterParams, opts .
 }
 
 /*
-  ChangeNodeExporter changes node exporter
+ChangeNodeExporter changes node exporter
 
-  Changes node_exporter Agent.
+Changes node_exporter Agent.
 */
 func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams, opts ...ClientOption) (*ChangeNodeExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -835,9 +835,9 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams, opts ...Cl
 }
 
 /*
-  ChangePostgresExporter changes postgres exporter
+ChangePostgresExporter changes postgres exporter
 
-  Changes postgres_exporter Agent.
+Changes postgres_exporter Agent.
 */
 func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams, opts ...ClientOption) (*ChangePostgresExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -874,9 +874,9 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams, op
 }
 
 /*
-  ChangeProxySQLExporter changes proxy SQL exporter
+ChangeProxySQLExporter changes proxy SQL exporter
 
-  Changes proxysql_exporter Agent.
+Changes proxysql_exporter Agent.
 */
 func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams, opts ...ClientOption) (*ChangeProxySQLExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -913,9 +913,9 @@ func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams, op
 }
 
 /*
-  ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent
+ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent
 
-  Changes 'Query Analytics MongoDB Profiler' Agent.
+Changes 'Query Analytics MongoDB Profiler' Agent.
 */
 func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams, opts ...ClientOption) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -952,9 +952,9 @@ func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerA
 }
 
 /*
-  ChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent
+ChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent
 
-  Changes 'Query Analytics MySQL PerfSchema' Agent.
+Changes 'Query Analytics MySQL PerfSchema' Agent.
 */
 func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams, opts ...ClientOption) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -991,9 +991,9 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 }
 
 /*
-  ChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent
+ChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent
 
-  Changes 'Query Analytics MySQL Slowlog' Agent.
+Changes 'Query Analytics MySQL Slowlog' Agent.
 */
 func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams, opts ...ClientOption) (*ChangeQANMySQLSlowlogAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -1030,9 +1030,9 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 }
 
 /*
-  ChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent
+ChangeQANPostgreSQLPgStatMonitorAgent changes QAN postgre SQL pg stat monitor agent
 
-  Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
+Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.
 */
 func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreSQLPgStatMonitorAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatMonitorAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -1069,9 +1069,9 @@ func (a *Client) ChangeQANPostgreSQLPgStatMonitorAgent(params *ChangeQANPostgreS
 }
 
 /*
-  ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg stat statements agent
+ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg stat statements agent
 
-  Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.
+Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.
 */
 func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams, opts ...ClientOption) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -1108,9 +1108,9 @@ func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQ
 }
 
 /*
-  ChangeRDSExporter changes RDS exporter
+ChangeRDSExporter changes RDS exporter
 
-  Changes rds_exporter Agent.
+Changes rds_exporter Agent.
 */
 func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams, opts ...ClientOption) (*ChangeRDSExporterOK, error) {
 	// TODO: Validate the params before sending
@@ -1147,9 +1147,9 @@ func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams, opts ...Clie
 }
 
 /*
-  GetAgent gets agent
+GetAgent gets agent
 
-  Returns a single Agent by ID.
+Returns a single Agent by ID.
 */
 func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -1186,9 +1186,9 @@ func (a *Client) GetAgent(params *GetAgentParams, opts ...ClientOption) (*GetAge
 }
 
 /*
-  GetAgentLogs gets agent logs
+GetAgentLogs gets agent logs
 
-  Returns Agent logs by ID.
+Returns Agent logs by ID.
 */
 func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) (*GetAgentLogsOK, error) {
 	// TODO: Validate the params before sending
@@ -1225,9 +1225,9 @@ func (a *Client) GetAgentLogs(params *GetAgentLogsParams, opts ...ClientOption) 
 }
 
 /*
-  ListAgents lists agents
+ListAgents lists agents
 
-  Returns a list of all Agents.
+Returns a list of all Agents.
 */
 func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error) {
 	// TODO: Validate the params before sending
@@ -1264,9 +1264,9 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 }
 
 /*
-  RemoveAgent removes agent
+RemoveAgent removes agent
 
-  Removes Agent.
+Removes Agent.
 */
 func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*RemoveAgentOK, error) {
 	// TODO: Validate the params before sending

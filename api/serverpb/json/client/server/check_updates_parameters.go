@@ -52,10 +52,12 @@ func NewCheckUpdatesParamsWithHTTPClient(client *http.Client) *CheckUpdatesParam
 	}
 }
 
-/* CheckUpdatesParams contains all the parameters to send to the API endpoint
-   for the check updates operation.
+/*
+CheckUpdatesParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the check updates operation.
+
+	Typically these are written to a http.Request.
 */
 type CheckUpdatesParams struct {
 	// Body.
