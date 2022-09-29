@@ -115,6 +115,8 @@ telemetry:
     data:
       - metric_name: "mongodb_edition"
         label: "edition"
+      - metric_name: "mongodb_vendor"
+        label: "vendor"
 
   - id: PMMPostgresDBVersion
     source: VM
