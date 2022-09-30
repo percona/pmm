@@ -5,13 +5,19 @@ import requests
 # This script migrates Integrated Alerting alert rules to the new Alerting system that was introduced in PMM 2.31
 # Migration is partial, it covers only alert rules but not Notification Channels, Silences, etc...
 
+def remove_prefix(string, prefix):
+    if string.startswith(prefix):
+        return string[len(prefix):]
+    return string
+
+
 def prepare_labels(rule):
     custom_labels = rule.get("custom_labels", {})
     labels = rule.get("labels", {})
     labels.update(custom_labels)
     labels.update({
         "percona_alerting": "1",
-        "severity": rule.get("severity", "").lstrip("SEVERITY_").lower(),
+        "severity": remove_prefix(rule.get("severity", ""), "SEVERITY_").lower(),
         "template_name": rule.get("template_name", "")
     })
     return labels
