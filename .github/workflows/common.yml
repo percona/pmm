@@ -84,7 +84,7 @@ jobs:
         uses: reviewdog/action-golangci-lint@v2
         with: 
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-          go_version: "1.19"
+          go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
           reviewdog_flags: "-f=golangci-lint"
           fail_on_error: true
