@@ -89,7 +89,7 @@ jobs:
           reviewdog_flags: "-f=golangci-lint"
           fail_on_error: true
           golangci_lint_flags: "-c=.golangci-required.yml --out-format=line-number"
-          golangci_lint_version: v1.46.2
+          golangci_lint_version: v1.49.0
 
       - name: Run go-consistent
         env:
