@@ -98,16 +98,6 @@ type AzureDatabaseInstanceData struct {
 }
 
 func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
-	// authSettings := auth.EnvironmentSettings{
-	// 	Values: map[string]string{
-	// 		auth.ClientID:       req.AzureClientId,
-	// 		auth.ClientSecret:   req.AzureClientSecret,
-	// 		auth.SubscriptionID: req.AzureSubscriptionId,
-	// 		auth.TenantID:       req.AzureTenantId,
-	// 		auth.Resource:       azure.PublicCloud.ResourceManagerEndpoint,
-	// 	},
-	// 	Environment: azure.PublicCloud,
-	// }
 	credential, err := azidentity.NewClientSecretCredential(req.AzureTenantId, req.AzureClientId, req.AzureClientSecret, nil)
 	if err != nil {
 		return nil, err
@@ -118,12 +108,7 @@ func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDat
 	if err != nil {
 		return nil, err
 	}
-	// authorizer, err := authSettings.GetAuthorizer()
-	// if err != nil {
-	// 	return nil, err
-	// }
 
-	// client.Authorizer = authorizer
 	return client, nil
 }
 
