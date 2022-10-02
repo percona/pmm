@@ -5,6 +5,7 @@ import requests
 # This script migrates Integrated Alerting alert rules to the new Alerting system that was introduced in PMM 2.31
 # Migration is partial, it covers only alert rules but not Notification Channels, Silences, etc...
 
+
 def prepare_labels(rule):
     custom_labels = rule.get("custom_labels", {})
     labels = rule.get("labels", {})
@@ -38,7 +39,7 @@ def prepare_expression(rule):
     return expr
 
 
-def convert_rule(rule):
+def convert_rule(rule, datasource_uid):
     return {
         "grafana_alert": {
             "title": rule.get("name", "") + "_" + rule.get("rule_id", ""),
@@ -48,7 +49,7 @@ def convert_rule(rule):
             "data": [
                 {
                     "refId": "A",
-                    "datasourceUid": datasourceUID,
+                    "datasourceUid": datasource_uid,
                     "relativeTimeRange": {"from": 600, "to": 0},
                     "model": {
                         "expr": prepare_expression(rule),
@@ -64,46 +65,64 @@ def convert_rule(rule):
     }
 
 
-parser = argparse.ArgumentParser(description="Migration script for Integrated Alerting alert rules")
-parser.add_argument("-u", "--user", required=True, help="PMM user login")
-parser.add_argument("-p", "--password", required=True, help="PMM user password")
-parser.add_argument("-s", "--server-url", default="http://localhost/", help="PMM server URL (default: %(default)s)")
-parser.add_argument("-i", "--insecure", action="store_false", help="skip TLS certificates verification")
-parser.add_argument("-f", "--folder", default="Experimental",
-                    help="folder in Grafana where to put migrated alert rules (default: %(default)s)")
-parser.add_argument("-g", "--group", default="migrated",
-                    help="alert group name for migrated alert rules (default: %(default)s)")
+def main():
+    parser = argparse.ArgumentParser(description="Migration script for Integrated Alerting alert rules")
+    parser.add_argument("-u", "--user", required=True, help="PMM user login")
+    parser.add_argument("-p", "--password", required=True, help="PMM user password")
+    parser.add_argument("-s", "--server-url", default="http://localhost/", help="PMM server URL (default: %(default)s)")
+    parser.add_argument("-i", "--insecure", action="store_false", help="skip TLS certificates verification")
+    parser.add_argument("-f", "--folder", default="Experimental",
+                        help="folder in Grafana where to put migrated alert rules (default: %(default)s)")
+    parser.add_argument("-g", "--group", default="migrated",
+                        help="alert group name for migrated alert rules (default: %(default)s)")
 
-config = vars(parser.parse_args())
-auth = (config["user"], config["password"])
+    config = vars(parser.parse_args())
+    auth = (config["user"], config["password"])
 
-# Create alert group for migrated rules
-groupURL = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}/{group}'.format(**config)
-groupReq = requests.get(groupURL, auth=auth, verify=config["insecure"])
-alertRulesGroup = groupReq.json()
-if "interval" not in alertRulesGroup:
-    alertRulesGroup["interval"] = "1m"
+    # Get existing Integrated Alerting alert rules
+    print("Request existing IA rules.")
+    ia_rules_url = '{server_url}/v1/management/ia/Rules/List'.format(**config)
+    ia_rules_resp = requests.post(ia_rules_url, auth=auth, verify=config["insecure"])
+    ia_rules = ia_rules_resp.json()
+    print("Request existing IA rules done.")
 
-# Get Metrics datasource UID
-datasourceURL = '{server_url}/graph/api/datasources/1'.format(**config)
-datasourceReq = requests.get(datasourceURL, auth=auth, verify=config["insecure"])
-datasource = datasourceReq.json()
-datasourceUID = datasource["uid"]
+    if "rules" not in ia_rules:
+        print("There are no rules to migrate, exiting.")
+        return
 
-# Get existing Integrated Alerting alert rules
-iaRulesURL = '{server_url}/v1/management/ia/Rules/List'.format(**config)
-iaRulesReq = requests.post(iaRulesURL, auth=auth, verify=config["insecure"])
-iaRules = iaRulesReq.json()
+    print("Found rules: {count}.".format(count=len(ia_rules["rules"])))
 
-if "rules" not in iaRules:
-    print("There are no rules to migrate")
-    exit(1)
+    # Create alert group for migrated rules
+    print("Create alert group for migrated rules.")
+    group_url = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}/{group}'.format(**config)
+    group_resp = requests.get(group_url, auth=auth, verify=config["insecure"])
+    alert_rules_group = group_resp.json()
+    print("Create alert group for migrated rules done.")
+    if "interval" not in alert_rules_group:
+        alert_rules_group["interval"] = "1m"
 
-# Convert IA rules and add them to alert group
-for rule in iaRules["rules"]:
-    alertRulesGroup["rules"].append(convert_rule(rule))
+    # Get Metrics datasource UID
+    print("Get datasource UID.")
+    datasource_url = '{server_url}/graph/api/datasources/1'.format(**config)
+    datasource_resp = requests.get(datasource_url, auth=auth, verify=config["insecure"])
+    datasource = datasource_resp.json()
+    datasource_uid = datasource["uid"]
+    print("Get datasource UID done.")
 
-# Update alert group
-rulesURL = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}'.format(**config)
-resp = requests.post(rulesURL, None, alertRulesGroup, auth=auth, verify=config["insecure"])
-print(resp.text)
+    # Convert IA rules and add them to alert group
+    print("Convert IA rules.")
+    for rule in ia_rules["rules"]:
+        alert_rules_group["rules"].append(convert_rule(rule, datasource_uid))
+    print("Convert IA rules done.")
+
+    # Update alert group
+    print("Send request to create migrated alerts.")
+    rules_url = '{server_url}/graph/api/ruler/grafana/api/v1/rules/{folder}'.format(**config)
+    resp = requests.post(rules_url, None, alert_rules_group, auth=auth, verify=config["insecure"])
+    print("Send request to create migrated alerts done.")
+    print("Server response:")
+    print(resp.text)
+
+
+if __name__ == "__main__":
+    main()
