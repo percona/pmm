@@ -140,7 +140,7 @@ func (ss *PITRStorageService) getPITRArtifacts(ctx context.Context) ([]*oplogChu
 	return oplogChunks, nil
 }
 
-func (ss *PITRStorageService) ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]Timeline, error) {
+func (ss *PITRStorageService) ListPITRTimeranges(ctx context.Context, location models.BackupLocation) ([]Timeline, error) {
 	var err error
 	switch {
 	case location.S3Config != nil:

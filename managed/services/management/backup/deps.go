@@ -27,7 +27,7 @@ import (
 //go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pitrStorage -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=pitrStorageService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -55,8 +55,8 @@ type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
 }
 
-// pitrStorage provides methods that help us inspect PITR artifacts
-type pitrStorage interface {
-	// ListPITRTimelines list the available PITR timelines in the provided location
-	ListPITRTimelines(ctx context.Context, location models.BackupLocation) ([]backup.Timeline, error)
+// pitrStorageService provides methods that help us inspect PITR artifacts
+type pitrStorageService interface {
+	// ListPITRTimeranges list the available PITR timelines in the provided location
+	ListPITRTimeranges(ctx context.Context, location models.BackupLocation) ([]backup.Timeline, error)
 }

@@ -33,21 +33,21 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l          *logrus.Entry
-	db         *reform.DB
-	removalSVC removalService
-	storageSVC pitrStorage
+	l              *logrus.Entry
+	db             *reform.DB
+	removalSVC     removalService
+	pitrStorageSVC pitrStorageService
 
 	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrStorage) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrStorageService) *ArtifactsService {
 	return &ArtifactsService{
-		l:          logrus.WithField("component", "management/backup/artifacts"),
-		db:         db,
-		removalSVC: removalSVC,
-		storageSVC: storage,
+		l:              logrus.WithField("component", "management/backup/artifacts"),
+		db:             db,
+		removalSVC:     removalSVC,
+		pitrStorageSVC: storage,
 	}
 }
 
@@ -116,11 +116,11 @@ func (s *ArtifactsService) DeleteArtifact(
 	return &backupv1beta1.DeleteArtifactResponse{}, nil
 }
 
-// ListPitrTimelines lists available PITR timelines/time-ranges (for MongoDB)
-func (s *ArtifactsService) ListPitrTimelines(
+// ListPitrTimeRanges lists available PITR timelines/time-ranges (for MongoDB)
+func (s *ArtifactsService) ListPitrTimeRanges(
 	ctx context.Context,
-	req *backupv1beta1.ListPitrTimelinesRequest,
-) (*backupv1beta1.ListPitrTimelinesResponse, error) {
+	req *backupv1beta1.ListPitrTimerangesRequest,
+) (*backupv1beta1.ListPitrTimerangesResponse, error) {
 	var artifact *models.Artifact
 	var err error
 
@@ -141,20 +141,20 @@ func (s *ArtifactsService) ListPitrTimelines(
 		return nil, err
 	}
 
-	timelines, err := s.storageSVC.ListPITRTimelines(ctx, *location)
+	timelines, err := s.pitrStorageSVC.ListPITRTimeranges(ctx, *location)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]*backupv1beta1.PitrTimeline, 0, len(timelines))
+	result := make([]*backupv1beta1.PitrTimerange, 0, len(timelines))
 	for _, tl := range timelines {
-		result = append(result, &backupv1beta1.PitrTimeline{
+		result = append(result, &backupv1beta1.PitrTimerange{
 			ReplicaSet:     tl.ReplicaSet,
 			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
 			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
 		})
 	}
-	return &backupv1beta1.ListPitrTimelinesResponse{
-		Timelines: result,
+	return &backupv1beta1.ListPitrTimerangesResponse{
+		Timeranges: result,
 	}, nil
 }
 

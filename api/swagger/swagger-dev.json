@@ -27566,13 +27566,13 @@
         }
       }
     },
-    "/v1/management/backup/Artifacts/ListPITRTimelines": {
+    "/v1/management/backup/Artifacts/ListPITRTimeranges": {
       "post": {
         "tags": [
           "Artifacts"
         ],
-        "summary": "ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location",
-        "operationId": "ListPitrTimelines",
+        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimeranges",
         "parameters": [
           {
             "name": "body",
@@ -27596,7 +27596,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "timelines": {
+                "timeranges": {
                   "type": "array",
                   "items": {
                     "type": "object",

@@ -98,8 +98,8 @@ func local_request_Artifacts_DeleteArtifact_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_Artifacts_ListPitrTimelines_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListPitrTimelinesRequest
+func request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -110,12 +110,12 @@ func request_Artifacts_ListPitrTimelines_0(ctx context.Context, marshaler runtim
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListPitrTimelines(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListPitrTimeranges(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_Artifacts_ListPitrTimelines_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListPitrTimelinesRequest
+func local_request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -126,7 +126,7 @@ func local_request_Artifacts_ListPitrTimelines_0(ctx context.Context, marshaler 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListPitrTimelines(ctx, &protoReq)
+	msg, err := server.ListPitrTimeranges(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -183,7 +183,7 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_ListPitrTimelines_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Artifacts_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -191,12 +191,12 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimelines"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_ListPitrTimelines_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_Artifacts_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -204,7 +204,7 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_Artifacts_ListPitrTimelines_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -289,25 +289,25 @@ func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_ListPitrTimelines_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Artifacts_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimelines", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimelines"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Artifacts/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_ListPitrTimelines_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Artifacts_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_ListPitrTimelines_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Artifacts_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -318,7 +318,7 @@ var (
 
 	pattern_Artifacts_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Delete"}, ""))
 
-	pattern_Artifacts_ListPitrTimelines_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "ListPITRTimelines"}, ""))
+	pattern_Artifacts_ListPitrTimeranges_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "ListPITRTimeranges"}, ""))
 )
 
 var (
@@ -326,5 +326,5 @@ var (
 
 	forward_Artifacts_DeleteArtifact_0 = runtime.ForwardResponseMessage
 
-	forward_Artifacts_ListPitrTimelines_0 = runtime.ForwardResponseMessage
+	forward_Artifacts_ListPitrTimeranges_0 = runtime.ForwardResponseMessage
 )

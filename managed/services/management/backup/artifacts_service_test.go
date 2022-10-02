@@ -44,7 +44,7 @@ func TestListPitrTimelines(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedRemovalSvc := &mockRemovalService{}
-	mockedStorageSvc := &mockPitrStorage{}
+	mockedStorageSvc := &mockPitrStorageService{}
 
 	timelines := []backup.Timeline{
 		{
@@ -89,17 +89,17 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, response)
-		assert.Len(t, response.Timelines, 1)
+		assert.Len(t, response.Timeranges, 1)
 	})
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
 		unknownID := "artifact_id/" + uuid.New().String()
-		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID %q not found.", unknownID)), err)
@@ -119,7 +119,7 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := svc.ListPitrTimelines(ctx, &backupv1beta1.ListPitrTimelinesRequest{
+		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)

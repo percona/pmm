@@ -53,7 +53,7 @@ func (this *DeleteArtifactResponse) Validate() error {
 	return nil
 }
 
-func (this *PitrTimeline) Validate() error {
+func (this *PitrTimerange) Validate() error {
 	if this.StartTimestamp != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTimestamp); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("StartTimestamp", err)
@@ -67,15 +67,15 @@ func (this *PitrTimeline) Validate() error {
 	return nil
 }
 
-func (this *ListPitrTimelinesRequest) Validate() error {
+func (this *ListPitrTimerangesRequest) Validate() error {
 	return nil
 }
 
-func (this *ListPitrTimelinesResponse) Validate() error {
-	for _, item := range this.Timelines {
+func (this *ListPitrTimerangesResponse) Validate() error {
+	for _, item := range this.Timeranges {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Timelines", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Timeranges", err)
 			}
 		}
 	}

@@ -61,7 +61,7 @@ message DeleteArtifactRequest {
 
 message DeleteArtifactResponse {}
 
-message PitrTimeline {
+message PitrTimerange {
   // ReplicaSet is the name of the replica set that the backup was taken from.
   string replica_set = 2;
   // start_timestamp is the time of the first event in the PITR chunk.
@@ -70,13 +70,13 @@ message PitrTimeline {
   google.protobuf.Timestamp end_timestamp = 4;
 }
 
-message ListPitrTimelinesRequest {
+message ListPitrTimerangesRequest {
   // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
   string artifact_id = 1;
 }
 
-message ListPitrTimelinesResponse {
-  repeated PitrTimeline timelines = 1;
+message ListPitrTimerangesResponse {
+  repeated PitrTimerange timeranges = 1;
 }
 
 // Artifacts service provides public methods for managing backup artifacts.
@@ -96,10 +96,10 @@ service Artifacts {
     };
   }
 
-  // ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location
-  rpc ListPitrTimelines(ListPitrTimelinesRequest) returns (ListPitrTimelinesResponse) {
+  // ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+  rpc ListPitrTimeranges(ListPitrTimerangesRequest) returns (ListPitrTimerangesResponse) {
     option (google.api.http) = {
-      post: "/v1/management/backup/Artifacts/ListPITRTimelines"
+      post: "/v1/management/backup/Artifacts/ListPITRTimeranges"
       body: "*"
     };
   }

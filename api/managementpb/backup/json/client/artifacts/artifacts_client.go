@@ -32,7 +32,7 @@ type ClientService interface {
 
 	ListArtifacts(params *ListArtifactsParams, opts ...ClientOption) (*ListArtifactsOK, error)
 
-	ListPitrTimelines(params *ListPitrTimelinesParams, opts ...ClientOption) (*ListPitrTimelinesOK, error)
+	ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -112,22 +112,22 @@ func (a *Client) ListArtifacts(params *ListArtifactsParams, opts ...ClientOption
 }
 
 /*
-ListPitrTimelines lists pitr timelines list the available mongo DB p i t r timeranges in a given backup location
+ListPitrTimeranges lists pitr timeranges list the available mongo DB p i t r timeranges in a given backup location
 */
-func (a *Client) ListPitrTimelines(params *ListPitrTimelinesParams, opts ...ClientOption) (*ListPitrTimelinesOK, error) {
+func (a *Client) ListPitrTimeranges(params *ListPitrTimerangesParams, opts ...ClientOption) (*ListPitrTimerangesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListPitrTimelinesParams()
+		params = NewListPitrTimerangesParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListPitrTimelines",
+		ID:                 "ListPitrTimeranges",
 		Method:             "POST",
-		PathPattern:        "/v1/management/backup/Artifacts/ListPITRTimelines",
+		PathPattern:        "/v1/management/backup/Artifacts/ListPITRTimeranges",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListPitrTimelinesReader{formats: a.formats},
+		Reader:             &ListPitrTimerangesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -139,12 +139,12 @@ func (a *Client) ListPitrTimelines(params *ListPitrTimelinesParams, opts ...Clie
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListPitrTimelinesOK)
+	success, ok := result.(*ListPitrTimerangesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*ListPitrTimelinesDefault)
+	unexpectedSuccess := result.(*ListPitrTimerangesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

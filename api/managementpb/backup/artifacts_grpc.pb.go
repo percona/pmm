@@ -27,8 +27,8 @@ type ArtifactsClient interface {
 	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
-	// ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location
-	ListPitrTimelines(ctx context.Context, in *ListPitrTimelinesRequest, opts ...grpc.CallOption) (*ListPitrTimelinesResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
 }
 
 type artifactsClient struct {
@@ -57,9 +57,9 @@ func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifact
 	return out, nil
 }
 
-func (c *artifactsClient) ListPitrTimelines(ctx context.Context, in *ListPitrTimelinesRequest, opts ...grpc.CallOption) (*ListPitrTimelinesResponse, error) {
-	out := new(ListPitrTimelinesResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListPitrTimelines", in, out, opts...)
+func (c *artifactsClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
+	out := new(ListPitrTimerangesResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListPitrTimeranges", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,8 +74,8 @@ type ArtifactsServer interface {
 	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
-	// ListPitrTimelines list the available MongoDB PITR timeranges in a given backup location
-	ListPitrTimelines(context.Context, *ListPitrTimelinesRequest) (*ListPitrTimelinesResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
 	mustEmbedUnimplementedArtifactsServer()
 }
 
@@ -90,8 +90,8 @@ func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtif
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
 
-func (UnimplementedArtifactsServer) ListPitrTimelines(context.Context, *ListPitrTimelinesRequest) (*ListPitrTimelinesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimelines not implemented")
+func (UnimplementedArtifactsServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }
 func (UnimplementedArtifactsServer) mustEmbedUnimplementedArtifactsServer() {}
 
@@ -142,20 +142,20 @@ func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_ListPitrTimelines_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListPitrTimelinesRequest)
+func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPitrTimerangesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArtifactsServer).ListPitrTimelines(ctx, in)
+		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Artifacts/ListPitrTimelines",
+		FullMethod: "/backup.v1beta1.Artifacts/ListPitrTimeranges",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServer).ListPitrTimelines(ctx, req.(*ListPitrTimelinesRequest))
+		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -176,8 +176,8 @@ var Artifacts_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Artifacts_DeleteArtifact_Handler,
 		},
 		{
-			MethodName: "ListPitrTimelines",
-			Handler:    _Artifacts_ListPitrTimelines_Handler,
+			MethodName: "ListPitrTimeranges",
+			Handler:    _Artifacts_ListPitrTimeranges_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
