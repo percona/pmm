@@ -1,29 +1,48 @@
-# Host Makefile.
+# Devcontainer Makefile.
 
 include Makefile.include
 
-env-up: 							## Start devcontainer.
-	docker-compose up -d
+release-dev-managed:              ## Build pmm-managed
+	make -C managed release-dev
 
-env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
-	docker-compose up --build -d
+release-dev-agent:                ## Build pmm-agent
+	make -C agent release-dev
 
-env-update-image:					## Pull latest dev image
-	docker-compose pull
+# used by host Makefile
+_bash:
+	/bin/bash
 
-env-compose-up: env-update-image
-	docker-compose up --detach --renew-anon-volumes --remove-orphans
+PMM_RELEASE_PATH ?= ./bin
 
-env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
+run-managed: release-dev-managed    ## Replace pmm-managed from build, restart and tail logs
+	supervisorctl stop pmm-managed
+	cp $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/pmm-managed
+	supervisorctl start pmm-managed &
+	supervisorctl tail -f pmm-managed
 
-env-down:							## Stop devcontainer.
-	docker-compose down --remove-orphans
+run-agent: release-dev-agent        ## Replace pmm-agent from build and restart
+	supervisorctl stop pmm-agent
+	cp $(PMM_RELEASE_PATH)/pmm-agent /usr/sbin/pmm-agent
+	supervisorctl start pmm-agent
 
-env-remove:
-	docker-compose down --volumes --remove-orphans
+run-all: run-agent run-managed       ## Run pmm-managed and pmm-agent
 
-TARGET ?= _bash
+run:                                 ## Deprecated
+	echo "Deprecated: please use run-all"
 
-env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash.
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
+# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
+# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
+# 	go test -coverpkg="github.com/percona/pmm/managed/..." \
+# 			-tags maincover \
+# 			$(PMM_LD_FLAGS) \
+# 			-race -c -o bin/pmm-managed.test
+# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
+psql:                           ## Open database for the pmm-managed instance in psql shell.
+	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
+
+psql-test:                      ## Open database used in unit tests in psql shell.
+	env psql -U postgres pmm-managed-dev
+
+dlv/attach:						## Attache Delve to `pmm-managed`
+	dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient attach $(shell pgrep pmm-managed)
