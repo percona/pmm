@@ -60,7 +60,7 @@ type FileConfig struct {
 type DSConfigQAN struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
-	DSN     string        `yaml:"dsn"`
+	DSN     string        `yaml:"-"`
 }
 
 // DataSourceVictoriaMetrics telemetry config.
