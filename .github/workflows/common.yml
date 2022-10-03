@@ -87,7 +87,8 @@ jobs:
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
           fail_on_error: true
-          golangci_lint_flags: "-c=.golangci-required.yml --out-format=line-number"
+          cache: false
+          golangci_lint_flags: "-c=.golangci-required.yml"
           golangci_lint_version: v1.49.0
 
       - name: Run go-consistent
@@ -113,7 +114,9 @@ jobs:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
-          golangci_lint_flags: "-c=.golangci.yml --out-format=line-number --issues-exit-code=0"
+          fail_on_error: false
+          cache: false
+          golangci_lint_flags: "-c=.golangci.yml"
           golangci_lint_version: v1.49.0
 
       - name: Test common API
