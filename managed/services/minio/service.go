@@ -132,41 +132,30 @@ func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
 	}
+	options := minio.ListObjectsOptions{
+		Prefix:    prefix,
+		Recursive: true,
+	}
 
-	var g errgroup.Group
-
-	g.Go(func() error {
-		options := minio.ListObjectsOptions{
-			Prefix:    prefix,
-			Recursive: true,
+	for object := range m.ListObjects(ctx, m.bucketName, options) {
+		if object.Err != nil {
+			return files, errors.WithStack(object.Err)
+		}
+		f := object.Key
+		f = strings.TrimPrefix(f, options.Prefix)
+		if len(f) == 0 {
+			continue
+		}
+		if f[0] == '/' {
+			f = f[1:]
 		}
 
-		for object := range m.ListObjects(ctx, m.bucketName, options) {
-			if object.Err != nil {
-				return errors.WithStack(object.Err)
-			}
-			f := object.Key
-			f = strings.TrimPrefix(f, options.Prefix)
-			if len(f) == 0 {
-				continue
-			}
-			if f[0] == '/' {
-				f = f[1:]
-			}
-
-			if strings.HasSuffix(f, suffix) {
-				files = append(files, FileInfo{
-					Name: f,
-					Size: object.Size,
-				})
-			}
+		if strings.HasSuffix(f, suffix) {
+			files = append(files, FileInfo{
+				Name: f,
+				Size: object.Size,
+			})
 		}
-		return nil
-	})
-
-	err := g.Wait()
-	if err != nil {
-		return files, errors.Wrapf(err, "listing objects in bucket")
 	}
 
 	return files, nil
@@ -175,7 +164,7 @@ func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 // FileStat returns file info. It returns error if file is empty or not exists.
 func (m *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
-	file := FileInfo{}
+	var file FileInfo
 
 	stat, err := m.StatObject(ctx, m.bucketName, name, minio.StatObjectOptions{})
 	if err != nil {

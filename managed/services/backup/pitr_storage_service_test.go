@@ -111,9 +111,6 @@ func TestPitrParseTs(t *testing.T) {
 func TestListPITRTimelines(t *testing.T) {
 	ctx := context.Background()
 
-	t.Run("fails for empty storage location", func(t *testing.T) {
-	})
-
 	t.Run("successful", func(t *testing.T) {
 		mockedStorage := &mockBackupStorage{}
 		listedFiles := []minio.FileInfo{

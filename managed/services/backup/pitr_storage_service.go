@@ -218,21 +218,21 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 }
 
 // pitrTimelines returns cluster-wide time ranges valid for PITR restore
-func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet string) (tlines []Timeline, err error) {
+func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet string) ([]Timeline, error) {
 	now := primitive.Timestamp{T: uint32(time.Now().Unix())}
-	var tlns [][]Timeline
+	var timelines [][]Timeline
 
-	// In PBM, flist is a cache of chunk sizes but we already store chunks in memory and have the sizes set,
+	// In PBM, flist is a cache of chunk sizes, but we already store chunks in memory and have the sizes set,
 	// hence, we call pitrGetValidTimelines with a nil flist.
 	t, err := ss.pitrGetValidTimelines(ctx, replicaSet, now, nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get PITR timelines for %s replset", replicaSet)
 	}
 	if len(t) != 0 {
-		tlns = append(tlns, t)
+		timelines = append(timelines, t)
 	}
 
-	return mergeTimelines(tlns...), nil
+	return mergeTimelines(timelines...), nil
 }
 
 // pitrGetValidTimelines returns time ranges valid for PITR restore
@@ -241,7 +241,7 @@ func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet stri
 // any saved chunk already belongs to some valid Timeline,
 // the slice wouldn't be done otherwise.
 // `flist` is a cache of chunk sizes.
-func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs string, until primitive.Timestamp, flist map[string]int64) (tlines []Timeline, err error) {
+func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs string, until primitive.Timestamp, flist map[string]int64) ([]Timeline, error) {
 	slices, err := ss.getPITRArtifacts(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
@@ -256,12 +256,13 @@ func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs stri
 	return gettimelines(slices), nil
 }
 
-func gettimelines(slices []*oplogChunk) (tlines []Timeline) {
+func gettimelines(slices []*oplogChunk) []Timeline {
 	var tl Timeline
+	var timelines []Timeline
 	var prevEnd primitive.Timestamp
 	for _, s := range slices {
 		if prevEnd.T != 0 && primitive.CompareTimestamp(prevEnd, s.StartTS) == -1 {
-			tlines = append(tlines, tl)
+			timelines = append(timelines, tl)
 			tl = Timeline{}
 		}
 		if tl.Start == 0 {
@@ -273,32 +274,31 @@ func gettimelines(slices []*oplogChunk) (tlines []Timeline) {
 		tl.ReplicaSet = s.RS
 	}
 
-	tlines = append(tlines, tl)
-
-	return tlines
+	timelines = append(timelines, tl)
+	return timelines
 }
 
 // mergeTimelines merges overlapping sets on timelines
 // it presumes timelines are sorted and don't start from 0
-func mergeTimelines(tlns ...[]Timeline) []Timeline {
+func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	// fast paths
-	if len(tlns) == 0 {
+	if len(timelines) == 0 {
 		return nil
 	}
-	if len(tlns) == 1 {
-		return tlns[0]
+	if len(timelines) == 1 {
+		return timelines[0]
 	}
 
-	// First, we define the avaliable range. It equals to the beginning of the latest start of the first
+	// First, we define the available range. It equals to the beginning of the latest start of the first
 	// Timeline of any set and to the earliest end of the last Timeline of any set. Then define timelines' gaps
-	// merge overlapping and apply resulted gap on the avaliagble range.
+	// merge overlapping and apply resulted gap on the available range.
 	//
 	// given timelines:
 	// 1 2 3 4     7 8 10 11          16 17 18 19 20
 	//     3 4 5 6 7 8 10 11 12    15 16 17
 	// 1 2 3 4 5 6 7 8 10 11 12       16 17 18
 	//
-	// aavliable range:
+	// available range:
 	//     3 4 5 6 7 8 10 11 12 13 15 16 17
 	// merged gaps:
 	//         5 6           12 13 15       18 19 20
@@ -306,15 +306,15 @@ func mergeTimelines(tlns ...[]Timeline) []Timeline {
 	//     3 4     7 8 10 11          16 17
 	//
 
-	// limits of the avaliagble range
-	// `start` is the lates start the timelines range
+	// limits of the available range
+	// `start` is the latest start the timelines range
 	// `end` - is the earliest end
 	var start, end uint32
 
 	// iterating through the timelines  1) define `start` and `end`,
-	// 2) defiene gaps and add them into slice.
+	// 2) define gaps and add them into slice.
 	var g gaps
-	for _, tln := range tlns {
+	for _, tln := range timelines {
 		if len(tln) == 0 {
 			continue
 		}
