@@ -9,7 +9,6 @@ services:
       QANDB_SELECT:
         enabled: true
         timeout: 2s
-        dsn: tcp://localhost:9000/pmm
       PMMDB_SELECT:
         enabled: true
         timeout: 10s

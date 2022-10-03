@@ -35,12 +35,6 @@ const (
 	envDisableStartDelay     = "PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY"
 	envReportingInterval     = "PERCONA_TEST_TELEMETRY_INTERVAL"
 	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
-	envClickhouseAddr        = "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
-	envClickHouseDatabase    = "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE"
-	envClickhousePoolSize    = "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE"
-	envClickhouseBlockSize   = "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE"
-
-	defaultClickhouseDatabase = "pmm"
 )
 
 // ServiceConfig telemetry config.
@@ -189,39 +183,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 		}
 	}
 
-	testClickhouseDSN := c.testClickhouseDSN()
-	if testClickhouseDSN != "" {
-		c.l.Debugf("Overriding Telemetry.DataSources.QanDBSelect.DSN with environment variables [%s][%s][%s][%s] to %q.", envClickhouseAddr, envClickHouseDatabase, envClickhouseBlockSize, envClickhousePoolSize, testClickhouseDSN)
-		c.DataSources.QanDBSelect.DSN = testClickhouseDSN
-	}
-
 	return nil
-}
-
-func (c *ServiceConfig) testClickhouseDSN() string {
-	var (
-		addr     = os.Getenv(envClickhouseAddr)
-		database = os.Getenv(envClickHouseDatabase)
-	)
-	if addr == "" {
-		return ""
-	}
-
-	if database == "" {
-		database = defaultClickhouseDatabase
-	}
-
-	_, blockSizeOk := os.LookupEnv(envClickhouseBlockSize)
-	if blockSizeOk {
-		c.l.Warnf("Environment variable [%s] not available in github.com/clickhouse/clickhouse-go/v2", envClickhouseBlockSize)
-	}
-
-	_, poolSizeOk := os.LookupEnv(envClickhousePoolSize)
-	if poolSizeOk {
-		c.l.Warnf("Environment variable [%s] not available in github.com/clickhouse/clickhouse-go/v2", envClickhousePoolSize)
-	}
-
-	return "tcp://" + addr + "/" + database
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
