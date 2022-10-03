@@ -50,7 +50,8 @@ func NewGetDBClusterOK() *GetDBClusterOK {
 	return &GetDBClusterOK{}
 }
 
-/* GetDBClusterOK describes a response with status code 200, with default header values.
+/*
+GetDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewGetDBClusterDefault(code int) *GetDBClusterDefault {
 	}
 }
 
-/* GetDBClusterDefault describes a response with status code -1, with default header values.
+/*
+GetDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *GetDBClusterDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*GetDBClusterBody get DB cluster body
+/*
+GetDBClusterBody get DB cluster body
 swagger:model GetDBClusterBody
 */
 type GetDBClusterBody struct {
@@ -219,7 +222,8 @@ func (o *GetDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterDefaultBody get DB cluster default body
+/*
+GetDBClusterDefaultBody get DB cluster default body
 swagger:model GetDBClusterDefaultBody
 */
 type GetDBClusterDefaultBody struct {
@@ -322,7 +326,8 @@ func (o *GetDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterDefaultBodyDetailsItems0 get DB cluster default body details items0
+/*
+GetDBClusterDefaultBodyDetailsItems0 get DB cluster default body details items0
 swagger:model GetDBClusterDefaultBodyDetailsItems0
 */
 type GetDBClusterDefaultBodyDetailsItems0 struct {
@@ -358,7 +363,8 @@ func (o *GetDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBody get DB cluster OK body
+/*
+GetDBClusterOKBody get DB cluster OK body
 swagger:model GetDBClusterOKBody
 */
 type GetDBClusterOKBody struct {
@@ -491,7 +497,8 @@ func (o *GetDBClusterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBodyPSMDBCluster PSMDBCluster represents PSMDB cluster information.
+/*
+GetDBClusterOKBodyPSMDBCluster PSMDBCluster represents PSMDB cluster information.
 swagger:model GetDBClusterOKBodyPSMDBCluster
 */
 type GetDBClusterOKBodyPSMDBCluster struct {
@@ -704,7 +711,8 @@ func (o *GetDBClusterOKBodyPSMDBCluster) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBodyPSMDBClusterOperation RunningOperation respresents a long-running operation.
+/*
+GetDBClusterOKBodyPSMDBClusterOperation RunningOperation respresents a long-running operation.
 swagger:model GetDBClusterOKBodyPSMDBClusterOperation
 */
 type GetDBClusterOKBodyPSMDBClusterOperation struct {
@@ -746,7 +754,8 @@ func (o *GetDBClusterOKBodyPSMDBClusterOperation) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*GetDBClusterOKBodyPSMDBClusterParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*
+GetDBClusterOKBodyPSMDBClusterParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model GetDBClusterOKBodyPSMDBClusterParams
 */
 type GetDBClusterOKBodyPSMDBClusterParams struct {
@@ -840,7 +849,8 @@ func (o *GetDBClusterOKBodyPSMDBClusterParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBodyPSMDBClusterParamsReplicaset ReplicaSet container parameters.
+/*
+GetDBClusterOKBodyPSMDBClusterParamsReplicaset ReplicaSet container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetDBClusterOKBodyPSMDBClusterParamsReplicaset
 */
@@ -932,7 +942,8 @@ func (o *GetDBClusterOKBodyPSMDBClusterParamsReplicaset) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources
 */
 type GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources struct {
@@ -971,7 +982,8 @@ func (o *GetDBClusterOKBodyPSMDBClusterParamsReplicasetComputeResources) Unmarsh
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCCluster PXCCluster represents PXC cluster information.
+/*
+GetDBClusterOKBodyPXCCluster PXCCluster represents PXC cluster information.
 swagger:model GetDBClusterOKBodyPXCCluster
 */
 type GetDBClusterOKBodyPXCCluster struct {
@@ -1187,7 +1199,8 @@ func (o *GetDBClusterOKBodyPXCCluster) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterOperation RunningOperation respresents a long-running operation.
+/*
+GetDBClusterOKBodyPXCClusterOperation RunningOperation respresents a long-running operation.
 swagger:model GetDBClusterOKBodyPXCClusterOperation
 */
 type GetDBClusterOKBodyPXCClusterOperation struct {
@@ -1229,7 +1242,8 @@ func (o *GetDBClusterOKBodyPXCClusterOperation) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParams PXCClusterParams represents PXC cluster parameters that can be updated.
+/*
+GetDBClusterOKBodyPXCClusterParams PXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model GetDBClusterOKBodyPXCClusterParams
 */
 type GetDBClusterOKBodyPXCClusterParams struct {
@@ -1410,7 +1424,8 @@ func (o *GetDBClusterOKBodyPXCClusterParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsHaproxy HAProxy container parameters.
+/*
+GetDBClusterOKBodyPXCClusterParamsHaproxy HAProxy container parameters.
 // NOTE: HAProxy does not need disk size as ProxySQL does because the container does not require it.
 swagger:model GetDBClusterOKBodyPXCClusterParamsHaproxy
 */
@@ -1502,7 +1517,8 @@ func (o *GetDBClusterOKBodyPXCClusterParamsHaproxy) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources struct {
@@ -1541,7 +1557,8 @@ func (o *GetDBClusterOKBodyPXCClusterParamsHaproxyComputeResources) UnmarshalBin
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsPXC PXC container parameters.
+/*
+GetDBClusterOKBodyPXCClusterParamsPXC PXC container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetDBClusterOKBodyPXCClusterParamsPXC
 */
@@ -1636,7 +1653,8 @@ func (o *GetDBClusterOKBodyPXCClusterParamsPXC) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetDBClusterOKBodyPXCClusterParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetDBClusterOKBodyPXCClusterParamsPXCComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsPXCComputeResources struct {
@@ -1675,7 +1693,8 @@ func (o *GetDBClusterOKBodyPXCClusterParamsPXCComputeResources) UnmarshalBinary(
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsProxysql ProxySQL container parameters.
+/*
+GetDBClusterOKBodyPXCClusterParamsProxysql ProxySQL container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model GetDBClusterOKBodyPXCClusterParamsProxysql
 */
@@ -1770,7 +1789,8 @@ func (o *GetDBClusterOKBodyPXCClusterParamsProxysql) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*
+GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources
 */
 type GetDBClusterOKBodyPXCClusterParamsProxysqlComputeResources struct {

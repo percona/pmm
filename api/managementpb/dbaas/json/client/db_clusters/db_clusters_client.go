@@ -77,7 +77,7 @@ func (a *Client) DeleteDBCluster(params *DeleteDBClusterParams, opts ...ClientOp
 }
 
 /*
-  GetDBCluster gets DB cluster returns a DB cluster by cluster name
+GetDBCluster gets DB cluster returns a DB cluster by cluster name
 */
 func (a *Client) GetDBCluster(params *GetDBClusterParams, opts ...ClientOption) (*GetDBClusterOK, error) {
 	// TODO: Validate the params before sending

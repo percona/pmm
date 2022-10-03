@@ -525,6 +525,7 @@ type GetDBClusterResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Cluster:
+	//
 	//	*GetDBClusterResponse_PxcCluster
 	//	*GetDBClusterResponse_PsmdbCluster
 	Cluster isGetDBClusterResponse_Cluster `protobuf_oneof:"cluster"`

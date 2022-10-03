@@ -52,10 +52,12 @@ func NewGetDBClusterParamsWithHTTPClient(client *http.Client) *GetDBClusterParam
 	}
 }
 
-/* GetDBClusterParams contains all the parameters to send to the API endpoint
-   for the get DB cluster operation.
+/*
+GetDBClusterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the get DB cluster operation.
+
+	Typically these are written to a http.Request.
 */
 type GetDBClusterParams struct {
 	// Body.

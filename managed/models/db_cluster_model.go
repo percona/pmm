@@ -66,6 +66,7 @@ const (
 )
 
 // DBCluster represents a Database cluster as stored in database.
+//
 //reform:db_clusters
 type DBCluster struct {
 	ID                  string        `reform:"id,pk"`
