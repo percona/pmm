@@ -68,7 +68,7 @@ func (sso *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *r
 		"scope":      []string{sso.Scope},
 	}
 	requestURL := fmt.Sprintf("%s/token?%s", sso.IssuerURL, values.Encode())
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "POST", requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
