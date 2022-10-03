@@ -115,7 +115,7 @@ jobs:
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
           reviewdog_flags: "-f=golangci-lint"
-          golangci_lint_flags: "-c=.golangci-required.yml --out-format=line-number --issues-exit-code=0"
+          golangci_lint_flags: "-c=.golangci.yml --out-format=line-number --issues-exit-code=0"
           golangci_lint_version: v1.49.0
 
       - name: Test common API
