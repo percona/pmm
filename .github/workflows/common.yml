@@ -86,7 +86,6 @@ jobs:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
-          reviewdog_flags: "-f=golangci-lint"
           fail_on_error: true
           golangci_lint_flags: "-c=.golangci-required.yml --out-format=line-number"
           golangci_lint_version: v1.49.0
@@ -114,7 +113,6 @@ jobs:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version: ${{ env.GO_VERSION }}
           reporter: github-pr-review
-          reviewdog_flags: "-f=golangci-lint"
           golangci_lint_flags: "-c=.golangci.yml --out-format=line-number --issues-exit-code=0"
           golangci_lint_version: v1.49.0
 
