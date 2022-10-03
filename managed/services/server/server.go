@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path"
@@ -450,29 +449,29 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
-		AlertingEnabled:         settings.IntegratedAlerting.Enabled,
+		AlertingEnabled:         !settings.Alerting.Disabled,
 		BackupManagementEnabled: settings.BackupManagement.Enabled,
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 	}
 
-	if settings.IntegratedAlerting.EmailAlertingSettings != nil {
+	if settings.Alerting.EmailAlertingSettings != nil {
 		res.EmailAlertingSettings = &serverpb.EmailAlertingSettings{
-			From:       settings.IntegratedAlerting.EmailAlertingSettings.From,
-			Smarthost:  settings.IntegratedAlerting.EmailAlertingSettings.Smarthost,
-			Hello:      settings.IntegratedAlerting.EmailAlertingSettings.Hello,
-			Username:   settings.IntegratedAlerting.EmailAlertingSettings.Username,
+			From:       settings.Alerting.EmailAlertingSettings.From,
+			Smarthost:  settings.Alerting.EmailAlertingSettings.Smarthost,
+			Hello:      settings.Alerting.EmailAlertingSettings.Hello,
+			Username:   settings.Alerting.EmailAlertingSettings.Username,
 			Password:   "",
-			Identity:   settings.IntegratedAlerting.EmailAlertingSettings.Identity,
-			Secret:     settings.IntegratedAlerting.EmailAlertingSettings.Secret,
-			RequireTls: settings.IntegratedAlerting.EmailAlertingSettings.RequireTLS,
+			Identity:   settings.Alerting.EmailAlertingSettings.Identity,
+			Secret:     settings.Alerting.EmailAlertingSettings.Secret,
+			RequireTls: settings.Alerting.EmailAlertingSettings.RequireTLS,
 		}
 	}
 
-	if settings.IntegratedAlerting.SlackAlertingSettings != nil {
+	if settings.Alerting.SlackAlertingSettings != nil {
 		res.SlackAlertingSettings = &serverpb.SlackAlertingSettings{
-			Url: settings.IntegratedAlerting.SlackAlertingSettings.URL,
+			Url: settings.Alerting.SlackAlertingSettings.URL,
 		}
 	}
 
@@ -684,12 +683,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}
 
 	// When IA moved from disabled state to enabled create rules files.
-	if !oldSettings.IntegratedAlerting.Enabled && req.EnableAlerting {
+	if oldSettings.Alerting.Disabled && req.EnableAlerting {
 		s.rulesService.WriteVMAlertRulesFiles()
 	}
 
-	// When IA moved from enabled state to disables cleanup rules files.
-	if oldSettings.IntegratedAlerting.Enabled && req.DisableAlerting {
+	// When IA moved from enabled state to disabled cleanup rules files.
+	if !oldSettings.Alerting.Disabled && req.DisableAlerting {
 		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
 			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
 		}
@@ -848,7 +847,7 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return errors.WithStack(err)
 	}
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = ioutil.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
+	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = os.Chown(keysPath, uid, gid); err != nil {

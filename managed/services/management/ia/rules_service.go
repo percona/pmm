@@ -18,7 +18,6 @@ package ia
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -37,6 +36,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/api/managementpb"
+	alerting "github.com/percona/pmm/api/managementpb/alerting"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
@@ -51,7 +51,7 @@ const (
 type RulesService struct {
 	db           *reform.DB
 	l            *logrus.Entry
-	templates    *TemplatesService
+	templates    templatesService
 	vmalert      vmAlert
 	alertManager alertManager
 	rulesPath    string // used for testing
@@ -60,7 +60,7 @@ type RulesService struct {
 }
 
 // NewRulesService creates an API for Integrated Alerting Rules.
-func NewRulesService(db *reform.DB, templates *TemplatesService, vmalert vmAlert, alertManager alertManager) *RulesService {
+func NewRulesService(db *reform.DB, templates templatesService, vmalert vmAlert, alertManager alertManager) *RulesService {
 	l := logrus.WithField("component", "management/ia/rules")
 
 	err := dir.CreateDataDir(rulesDir, "pmm", "pmm", dirPerm)
@@ -88,7 +88,7 @@ func (s *RulesService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.IntegratedAlerting.Enabled
+	return !settings.Alerting.Disabled
 }
 
 // TODO Move this and related types to https://github.com/percona/promconfig
@@ -256,7 +256,7 @@ func (s *RulesService) writeRuleFile(rule *ruleFile) error {
 
 	fileName := strings.TrimPrefix(alertRule.Alert, "/rule_id/")
 	path := s.rulesPath + "/" + fileName + ".yml"
-	if err = ioutil.WriteFile(path, b, 0o644); err != nil {
+	if err = os.WriteFile(path, b, 0o644); err != nil { //nolint:gosec
 		return errors.Errorf("failed to dump rule to file %s: %v", s.rulesPath, err)
 	}
 
@@ -366,7 +366,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 	}
 
 	if req.TemplateName != "" {
-		template, ok := s.templates.getTemplates()[req.TemplateName]
+		template, ok := s.templates.GetTemplates()[req.TemplateName]
 		if !ok {
 			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
 		}
@@ -516,11 +516,21 @@ func (s *RulesService) updateConfigurations() {
 	s.alertManager.RequestConfigurationUpdate()
 }
 
-func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*iav1beta1.ParamDefinition, error) {
-	res := make([]*iav1beta1.ParamDefinition, 0, len(definitions))
+func convertParamType(t alert.Type) alerting.ParamType {
+	// TODO: add another types.
+	switch t {
+	case alert.Float:
+		return alerting.ParamType_FLOAT
+	default:
+		return alerting.ParamType_PARAM_TYPE_INVALID
+	}
+}
+
+func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitions) ([]*alerting.ParamDefinition, error) {
+	res := make([]*alerting.ParamDefinition, 0, len(definitions))
 	for _, definition := range definitions {
 		t := alert.Type(definition.Type)
-		p := &iav1beta1.ParamDefinition{
+		p := &alerting.ParamDefinition{
 			Name:    definition.Name,
 			Summary: definition.Summary,
 			Unit:    convertParamUnit(alert.Unit(definition.Unit)),
@@ -529,7 +539,7 @@ func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitio
 
 		switch t {
 		case alert.Float:
-			var value iav1beta1.FloatParamDefinition
+			var value alerting.FloatParamDefinition
 			float := definition.FloatParam
 			if float.Default != nil {
 				value.HasDefault = true
@@ -545,7 +555,7 @@ func convertModelToParamsDefinitions(definitions models.AlertExprParamsDefinitio
 				value.HasMax = true
 				value.Max = pointer.GetFloat64(float.Max)
 			}
-			p.Value = &iav1beta1.ParamDefinition_Float{Float: &value}
+			p.Value = &alerting.ParamDefinition_Float{Float: &value}
 		case alert.Bool, alert.String:
 			return nil, errors.Errorf("unsupported parameter type %s", t)
 		}
@@ -565,13 +575,13 @@ func convertModelToParamValues(values models.AlertExprParamsValues) ([]*iav1beta
 
 		switch param.Type {
 		case models.Bool:
-			p.Type = iav1beta1.ParamType_BOOL
+			p.Type = alerting.ParamType_BOOL
 			p.Value = &iav1beta1.ParamValue_Bool{Bool: param.BoolValue}
 		case models.Float:
-			p.Type = iav1beta1.ParamType_FLOAT
+			p.Type = alerting.ParamType_FLOAT
 			p.Value = &iav1beta1.ParamValue_Float{Float: param.FloatValue}
 		case models.String:
-			p.Type = iav1beta1.ParamType_STRING
+			p.Type = alerting.ParamType_STRING
 			p.Value = &iav1beta1.ParamValue_String_{String_: param.StringValue}
 		default:
 			return nil, errors.Errorf("unknown rule param value type %s", param.Type)
@@ -587,15 +597,15 @@ func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExp
 		p := models.AlertExprParamValue{Name: param.Name}
 
 		switch param.Type {
-		case iav1beta1.ParamType_PARAM_TYPE_INVALID:
+		case alerting.ParamType_PARAM_TYPE_INVALID:
 			return nil, errors.New("invalid model rule param value type")
-		case iav1beta1.ParamType_BOOL:
+		case alerting.ParamType_BOOL:
 			p.Type = models.Bool
 			p.BoolValue = param.GetBool()
-		case iav1beta1.ParamType_FLOAT:
+		case alerting.ParamType_FLOAT:
 			p.Type = models.Float
 			p.FloatValue = param.GetFloat()
-		case iav1beta1.ParamType_STRING:
+		case alerting.ParamType_STRING:
 			p.Type = models.Float
 			p.StringValue = param.GetString_()
 		default:
@@ -607,13 +617,13 @@ func convertParamsValuesToModel(params []*iav1beta1.ParamValue) (models.AlertExp
 	return ruleParams, nil
 }
 
-func parseBooleanFlag(bf iav1beta1.BooleanFlag) *bool {
+func parseBooleanFlag(bf managementpb.BooleanFlag) *bool {
 	switch bf {
-	case iav1beta1.BooleanFlag_TRUE:
+	case managementpb.BooleanFlag_TRUE:
 		return pointer.ToBool(true)
-	case iav1beta1.BooleanFlag_FALSE:
+	case managementpb.BooleanFlag_FALSE:
 		return pointer.ToBool(false)
-	case iav1beta1.BooleanFlag_DO_NOT_CHANGE:
+	case managementpb.BooleanFlag_DO_NOT_CHANGE:
 		return nil
 	default:
 		panic("unexpected value of boolean flag")

@@ -50,7 +50,8 @@ func NewListDBClustersOK() *ListDBClustersOK {
 	return &ListDBClustersOK{}
 }
 
-/* ListDBClustersOK describes a response with status code 200, with default header values.
+/*
+ListDBClustersOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListDBClustersDefault(code int) *ListDBClustersDefault {
 	}
 }
 
-/* ListDBClustersDefault describes a response with status code -1, with default header values.
+/*
+ListDBClustersDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListDBClustersDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*ListDBClustersBody list DB clusters body
+/*
+ListDBClustersBody list DB clusters body
 swagger:model ListDBClustersBody
 */
 type ListDBClustersBody struct {
@@ -154,7 +157,8 @@ func (o *ListDBClustersBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListDBClustersDefaultBody list DB clusters default body
+/*
+ListDBClustersDefaultBody list DB clusters default body
 swagger:model ListDBClustersDefaultBody
 */
 type ListDBClustersDefaultBody struct {
@@ -257,7 +261,8 @@ func (o *ListDBClustersDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListDBClustersDefaultBodyDetailsItems0 list DB clusters default body details items0
+/*
+ListDBClustersDefaultBodyDetailsItems0 list DB clusters default body details items0
 swagger:model ListDBClustersDefaultBodyDetailsItems0
 */
 type ListDBClustersDefaultBodyDetailsItems0 struct {
@@ -293,7 +298,8 @@ func (o *ListDBClustersDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*ListDBClustersOKBody list DB clusters OK body
+/*
+ListDBClustersOKBody list DB clusters OK body
 swagger:model ListDBClustersOKBody
 */
 type ListDBClustersOKBody struct {
@@ -390,7 +396,8 @@ func (o *ListDBClustersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListDBClustersOKBodyDBClustersItems0 list DB clusters OK body DB clusters items0
+/*
+ListDBClustersOKBodyDBClustersItems0 list DB clusters OK body DB clusters items0
 swagger:model ListDBClustersOKBodyDBClustersItems0
 */
 type ListDBClustersOKBodyDBClustersItems0 struct {

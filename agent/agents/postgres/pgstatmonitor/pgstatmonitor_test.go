@@ -113,10 +113,13 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	version, _, err := getPGMonitorVersion(db.Querier)
+	vPG, err := getPGVersion(db.Querier)
 	assert.NoError(t, err)
 
-	_, view := NewPgStatMonitorStructs(version)
+	vPGSM, _, err := getPGMonitorVersion(db.Querier)
+	assert.NoError(t, err)
+
+	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
@@ -184,10 +187,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	case pgStatMonitorVersion09:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG12:
+	case pgStatMonitorVersion10PG12,
+		pgStatMonitorVersion11PG12,
+		pgStatMonitorVersion20PG12:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14:
+	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14,
+		pgStatMonitorVersion11PG13, pgStatMonitorVersion11PG14,
+		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1

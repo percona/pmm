@@ -24,6 +24,7 @@ import (
 //go:generate $PMM_RELEASE_PATH/reform
 
 // ActionResult describes an action result which is storing in persistent storage.
+//
 //reform:action_results
 type ActionResult struct {
 	ID         string    `reform:"id,pk"`

@@ -117,6 +117,7 @@ func (m BackupMode) Validate() error {
 }
 
 // Artifact represents result of a backup.
+//
 //reform:artifacts
 type Artifact struct {
 	ID         string       `reform:"id,pk"`

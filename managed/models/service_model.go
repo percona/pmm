@@ -38,6 +38,7 @@ const (
 )
 
 // Service represents Service as stored in database.
+//
 //reform:services
 type Service struct {
 	ServiceID      string      `reform:"service_id,pk"`

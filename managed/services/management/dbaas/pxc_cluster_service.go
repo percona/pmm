@@ -105,6 +105,7 @@ func (s PXCClustersService) GetPXCClusterCredentials(ctx context.Context, req *d
 }
 
 // CreatePXCCluster creates PXC cluster with given parameters.
+//
 //nolint:dupl
 func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1beta1.CreatePXCClusterRequest) (*dbaasv1beta1.CreatePXCClusterResponse, error) {
 	settings, err := models.GetSettings(s.db.Querier)
@@ -329,6 +330,7 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesCluster 
 }
 
 // UpdatePXCCluster updates PXC cluster.
+//
 //nolint:dupl
 func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1beta1.UpdatePXCClusterRequest) (*dbaasv1beta1.UpdatePXCClusterResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(s.db.Querier, req.KubernetesClusterName)

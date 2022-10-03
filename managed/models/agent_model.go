@@ -137,6 +137,7 @@ func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src
 var PMMAgentWithPushMetricsSupport = version.MustParse("2.11.99")
 
 // Agent represents Agent as stored in database.
+//
 //reform:agents
 type Agent struct {
 	AgentID      string    `reform:"agent_id,pk"`

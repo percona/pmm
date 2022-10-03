@@ -41,6 +41,7 @@ const (
 const PMMServerNodeID = string("pmm-server") // no /node_id/ prefix
 
 // Node represents Node as stored in database.
+//
 //reform:nodes
 type Node struct {
 	NodeID       string   `reform:"node_id,pk"`

@@ -2,7 +2,7 @@ telemetry:
   # PMM - generic information
   - id: PMMServerIAEnabled
     source: PMMDB_SELECT
-    query: (CASE WHEN ia->'enabled' = 'true' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'ia') AS ia
+    query: (CASE WHEN alerting->'disabled' = 'false' THEN '1' ELSE '0' END) AS ia_enabled FROM settings s, jsonb_extract_path(s.settings, 'alerting') AS ia
     summary: "PMM Server Integration Alerting feature enabled/disabled"
     data:
       - metric_name: "pmm_server_ia_enabled"
@@ -60,6 +60,46 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
+  - id: MySQLEngineRocksDBCount
+    source: VM
+    query: count({__name__="mysql_global_variables_rocksdb_block_cache_size"})
+    summary: "Number of monitored MySQL services with RocksDB Engine"
+    data:
+      - metric_name: "mysql_rocksdb_count"
+        value: 1
+
+  - id: MySQLInnodbBufferPoolSize
+    source: VM
+    query: mysql_global_variables_innodb_buffer_pool_size
+    summary: "InnoDB buffer pool size"
+    data:
+      - metric_name: "mysql_global_variables_innodb_buffer_pool_size"
+        value: 1
+
+  - id: MySQLAvgThreadsRunning
+    source: VM
+    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
+    summary: "Average number of running threads for last day"
+    data:
+      - metric_name: "mysql_global_status_threads_running"
+        value: 1
+
+  - id: MySQLAvgQueriesRunning
+    source: VM
+    query: avg by (service_name) (rate(mysql_global_status_commands_total{command=~"select|delete|update|insert"}[1d]))
+    summary: "Average number of running queries"
+    data:
+      - metric_name: "mysql_global_status_queries_running"
+        value: 1
+
+  - id: MySQLInnodbSpaceUsed
+    source: VM
+    query: sum(count(mysql_info_schema_table_version{engine="InnoDB"}) by (schema,table) * sum (mysql_info_schema_table_size{component=~"data_length|index_length"}) by (schema,table))
+    summary: "Data usage of MySQL"
+    data:
+      - metric_name: "mysql_innodb_space_used"
+        value: 1
+
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
@@ -83,6 +123,22 @@ telemetry:
     data:
       - metric_name: "postgresql_version"
         label: "short_version"
+
+  - id: HAProxyVersion
+    source: VM
+    query: haproxy_process_build_info
+    summary: "Monitored HAProxy services version"
+    data:
+      - metric_name: "haproxy_version"
+        label: "version"
+
+  - id: ProxysqlVersion
+    source: VM
+    query: proxysql_info
+    summary: "Monitored ProxySQL services version"
+    data:
+      - metric_name: "proxysql_version"
+        label: "version"
 
   #
   - id: GrafanaStatTotalUsers

@@ -62,7 +62,7 @@ func TestKubernetesServer(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		ctx, ks, dc, teardown := setup(t)
 		defer teardown(t)
-		kubeconfig := "{}"
+		kubeconfig := "preferences: {}\n"
 
 		dc.On("CheckKubernetesClusterConnection", ctx, kubeconfig).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 			Operators: &controllerv1beta1.Operators{

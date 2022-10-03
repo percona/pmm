@@ -21,7 +21,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -39,9 +38,10 @@ import (
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
+	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -101,7 +101,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
+		b, _ := io.ReadAll(reader)
 		err := ErrFromNginx(string(b))
 		return &err
 	})
@@ -208,7 +208,7 @@ func init() {
 	}
 
 	if *kubeconfigF != "" {
-		data, err := ioutil.ReadFile(*kubeconfigF)
+		data, err := os.ReadFile(*kubeconfigF)
 		if err != nil {
 			logrus.Fatalf("Failed to read kubeconfig: %s", err)
 		}
@@ -224,9 +224,10 @@ func init() {
 	dbaasClient.Default = dbaasClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
-	channelsClient.Default = channelsClient.New(transport, nil)
+	iaClient.Default = iaClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
 	platformClient.Default = platformClient.New(transport, nil)
+	alertingClient.Default = alertingClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)

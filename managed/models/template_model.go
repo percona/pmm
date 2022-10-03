@@ -26,6 +26,7 @@ import (
 //go:generate $PMM_RELEASE_PATH/reform
 
 // Template represents Integrated Alerting rule template.
+//
 //reform:ia_templates
 type Template struct {
 	Name        string                     `reform:"name,pk"`

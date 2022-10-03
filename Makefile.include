@@ -21,7 +21,7 @@ init:                 ## Install tools.
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.46.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.49.0
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -36,7 +36,7 @@ gen-api: clean        ## Generate API
 
 	$(PMM_RELEASE_PATH)/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/qanpb api/platformpb api/userpb ; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -56,7 +56,7 @@ gen-api: clean        ## Generate API
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/alerting, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
 	$(PMM_RELEASE_PATH)/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
@@ -76,6 +76,7 @@ gen-api: clean        ## Generate API
 		api/managementpb/json/managementpb.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -89,6 +90,7 @@ gen-api: clean        ## Generate API
 		api/swagger/header-dev.json \
 		api/managementpb/dbaas/json/dbaas.json \
 		api/managementpb/ia/json/ia.json \
+		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
 		api/qanpb/json/qanpb.json \
@@ -139,7 +141,7 @@ clean: clean_swagger  ## Remove generated files.
 	find api -name '*.pb.go' -print -delete
 	find api -name '*.pb.gw.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/backup api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json api/swagger/swagger-dev-only.json
@@ -158,8 +160,7 @@ check:                ## Run required checkers and linters.
 check-license:          ## Run license header checks against source files.
 	$(PMM_RELEASE_PATH)/license-eye -c .licenserc.yaml header check
 
-check-all: check      ## Run golang ci linter to check new changes from main.
-	check-license
+check-all: check-license check    ## Run golang ci linter to check new changes from main.
 	$(PMM_RELEASE_PATH)/golangci-lint run -c=.golangci.yml --new-from-rev=main
 
 FILES = $(shell find . -type f -name '*.go')

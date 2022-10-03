@@ -37,6 +37,7 @@ func (c ComponentSettings) Value() (driver.Value, error) { return jsonValue(c) }
 func (c *ComponentSettings) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // KubernetesCluster represents a Kubernetes cluster as stored in database.
+//
 //reform:kubernetes_clusters
 type KubernetesCluster struct {
 	ID                    string             `reform:"id,pk"`

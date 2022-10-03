@@ -26,6 +26,7 @@ import (
 //go:generate $PMM_RELEASE_PATH/reform
 
 // Rule represents alert rule configuration.
+//
 //reform:ia_rules
 type Rule struct {
 	ID                string                     `reform:"id,pk"`

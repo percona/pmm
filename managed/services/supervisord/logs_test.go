@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -69,7 +68,7 @@ var commonExpectedFiles = []string{
 }
 
 func TestReadLog(t *testing.T) {
-	f, err := ioutil.TempFile("", "pmm-managed-supervisord-tests-")
+	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 	for i := 0; i < 10; i++ {
 		fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
@@ -97,7 +96,7 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestAddAdminSummary(t *testing.T) {
-	zipfile, err := ioutil.TempFile("", "*-test.zip")
+	zipfile, err := os.CreateTemp("", "*-test.zip")
 	assert.NoError(t, err)
 
 	zw := zip.NewWriter(zipfile)
