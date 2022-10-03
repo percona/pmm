@@ -190,7 +190,7 @@ type gRPCServerDeps struct {
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
 	backupRemovalService *backup.RemovalService
-	pitrStorageService   *backup.PITRStorageService
+	pitrStorageService   *backup.PITRService
 	minioService         *minio.Service
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service

@@ -89,7 +89,7 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := svc.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		require.NoError(t, err)
@@ -99,7 +99,7 @@ func TestListPitrTimelines(t *testing.T) {
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
 		unknownID := "artifact_id/" + uuid.New().String()
-		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := svc.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID %q not found.", unknownID)), err)
@@ -119,7 +119,7 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := svc.ListPitrTimeRanges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := svc.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)

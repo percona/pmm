@@ -38,8 +38,8 @@ const (
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PITRStorageService helps perform file lookups in a backup storage location
-type PITRStorageService struct {
+// PITRService helps perform file lookups in a backup storage location
+type PITRService struct {
 	l       *logrus.Entry
 	storage backupStorage
 }
@@ -106,17 +106,18 @@ func file(ext string) compressionType {
 }
 
 // NewPITRStorageService creates new backup storage service.
-func NewPITRStorageService() *PITRStorageService {
-	return &PITRStorageService{
+func NewPITRStorageService() *PITRService {
+	return &PITRService{
 		l: logrus.WithField("component", "services/backup/pitr_storage"),
 	}
 }
 
-func (ss *PITRStorageService) getPITRArtifacts(ctx context.Context) ([]*oplogChunk, error) {
+func (ss *PITRService) getPITROplogs(ctx context.Context, artifactName string) ([]*oplogChunk, error) {
 	var err error
 	var oplogChunks []*oplogChunk
+	prefix := path.Join(artifactName, PITRfsPrefix)
 
-	pitrf, err := ss.storage.List(ctx, PITRfsPrefix, "")
+	pitrf, err := ss.storage.List(ctx, prefix, "")
 	if err != nil {
 		return oplogChunks, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -125,12 +126,12 @@ func (ss *PITRStorageService) getPITRArtifacts(ctx context.Context) ([]*oplogChu
 	}
 
 	for _, f := range pitrf {
-		_, err := ss.storage.FileStat(ctx, PITRfsPrefix+"/"+f.Name)
+		_, err := ss.storage.FileStat(ctx, path.Join(prefix, f.Name))
 		if err != nil {
-			ss.l.Warningf("skip pitr chunk %s/%s because of %v", PITRfsPrefix, f.Name, err)
+			ss.l.Warningf("skip pitr chunk %s/%s because of %v", prefix, f.Name, err)
 			continue
 		}
-		chunk := pitrMetaFromFileName(f.Name)
+		chunk := pitrMetaFromFileName(prefix, f.Name)
 		if chunk != nil {
 			chunk.size = f.Size
 			oplogChunks = append(oplogChunks, chunk)
@@ -140,7 +141,7 @@ func (ss *PITRStorageService) getPITRArtifacts(ctx context.Context) ([]*oplogChu
 	return oplogChunks, nil
 }
 
-func (ss *PITRStorageService) ListPITRTimeranges(ctx context.Context, location models.BackupLocation) ([]Timeline, error) {
+func (ss *PITRService) ListPITRTimeranges(ctx context.Context, artifactName string, location models.BackupLocation) ([]Timeline, error) {
 	var err error
 	switch {
 	case location.S3Config != nil:
@@ -153,7 +154,7 @@ func (ss *PITRStorageService) ListPITRTimeranges(ctx context.Context, location m
 		return nil, errUnsupportedLocation
 	}
 
-	return ss.pitrTimelines(ctx, "")
+	return ss.pitrTimelines(ctx, artifactName)
 }
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
@@ -162,14 +163,14 @@ func (ss *PITRStorageService) ListPITRTimeranges(ctx context.Context, location m
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! should be agreed with pbm/pitr.chunkPath()
-func pitrMetaFromFileName(f string) *oplogChunk {
+func pitrMetaFromFileName(prefix, f string) *oplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {
 		return nil
 	}
 	chnk := &oplogChunk{}
 	chnk.RS = ppath[0]
-	chnk.FName = path.Join(PITRfsPrefix, f)
+	chnk.FName = path.Join(prefix, f)
 
 	fname := ppath[len(ppath)-1]
 	fparts := strings.Split(fname, ".")
@@ -218,15 +219,15 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 }
 
 // pitrTimelines returns cluster-wide time ranges valid for PITR restore
-func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet string) ([]Timeline, error) {
+func (ss *PITRService) pitrTimelines(ctx context.Context, artifactName string) ([]Timeline, error) {
 	now := primitive.Timestamp{T: uint32(time.Now().Unix())}
 	var timelines [][]Timeline
 
 	// In PBM, flist is a cache of chunk sizes, but we already store chunks in memory and have the sizes set,
 	// hence, we call pitrGetValidTimelines with a nil flist.
-	t, err := ss.pitrGetValidTimelines(ctx, replicaSet, now, nil)
+	t, err := ss.pitrGetValidTimelines(ctx, artifactName, now, nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timelines for %s replset", replicaSet)
+		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
 	}
 	if len(t) != 0 {
 		timelines = append(timelines, t)
@@ -241,8 +242,8 @@ func (ss *PITRStorageService) pitrTimelines(ctx context.Context, replicaSet stri
 // any saved chunk already belongs to some valid Timeline,
 // the slice wouldn't be done otherwise.
 // `flist` is a cache of chunk sizes.
-func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs string, until primitive.Timestamp, flist map[string]int64) ([]Timeline, error) {
-	slices, err := ss.getPITRArtifacts(ctx)
+func (ss *PITRService) pitrGetValidTimelines(ctx context.Context, artifactName string, until primitive.Timestamp, flist map[string]int64) ([]Timeline, error) {
+	slices, err := ss.getPITROplogs(ctx, artifactName)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
 	}
@@ -253,6 +254,9 @@ func (ss *PITRStorageService) pitrGetValidTimelines(ctx context.Context, rs stri
 		}
 	}
 
+	if len(slices) == 0 {
+		return nil, nil
+	}
 	return gettimelines(slices), nil
 }
 

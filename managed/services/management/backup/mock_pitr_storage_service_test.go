@@ -16,13 +16,13 @@ type mockPitrStorageService struct {
 	mock.Mock
 }
 
-// ListPITRTimeranges provides a mock function with given fields: ctx, location
-func (_m *mockPitrStorageService) ListPITRTimeranges(ctx context.Context, location models.BackupLocation) ([]backup.Timeline, error) {
-	ret := _m.Called(ctx, location)
+// ListPITRTimeranges provides a mock function with given fields: ctx, artifactName, location
+func (_m *mockPitrStorageService) ListPITRTimeranges(ctx context.Context, artifactName string, location models.BackupLocation) ([]backup.Timeline, error) {
+	ret := _m.Called(ctx, artifactName, location)
 
 	var r0 []backup.Timeline
-	if rf, ok := ret.Get(0).(func(context.Context, models.BackupLocation) []backup.Timeline); ok {
-		r0 = rf(ctx, location)
+	if rf, ok := ret.Get(0).(func(context.Context, string, models.BackupLocation) []backup.Timeline); ok {
+		r0 = rf(ctx, artifactName, location)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]backup.Timeline)
@@ -30,8 +30,8 @@ func (_m *mockPitrStorageService) ListPITRTimeranges(ctx context.Context, locati
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, models.BackupLocation) error); ok {
-		r1 = rf(ctx, location)
+	if rf, ok := ret.Get(1).(func(context.Context, string, models.BackupLocation) error); ok {
+		r1 = rf(ctx, artifactName, location)
 	} else {
 		r1 = ret.Error(1)
 	}

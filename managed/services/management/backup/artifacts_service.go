@@ -141,7 +141,7 @@ func (s *ArtifactsService) ListPitrTimeranges(
 		return nil, err
 	}
 
-	timelines, err := s.pitrStorageSVC.ListPITRTimeranges(ctx, *location)
+	timelines, err := s.pitrStorageSVC.ListPITRTimeranges(ctx, artifact.Name, *location)
 	if err != nil {
 		return nil, err
 	}

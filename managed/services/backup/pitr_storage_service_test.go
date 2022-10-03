@@ -129,7 +129,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITRArtifacts(ctx)
+		timelines, err := ss.getPITROplogs(ctx)
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
@@ -140,7 +140,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITRArtifacts(ctx)
+		timelines, err := ss.getPITROplogs(ctx)
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
@@ -159,7 +159,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITRArtifacts(ctx)
+		timelines, err := ss.getPITROplogs(ctx)
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)
 	})
