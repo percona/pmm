@@ -118,7 +118,7 @@ func (s *AzureDatabaseService) fetchAzureDatabaseInstancesData(
 	client *armresourcegraph.Client,
 ) ([]AzureDatabaseInstanceData, error) {
 	query := azureDatabaseResourceQuery
-	resultFormat := "objectArray"
+	resultFormat := armresourcegraph.ResultFormatObjectArray
 	request := armresourcegraph.QueryRequest{
 		Subscriptions: []*string{&req.AzureSubscriptionId},
 		Query:         &query,
