@@ -123,7 +123,7 @@ func (s *AzureDatabaseService) fetchAzureDatabaseInstancesData(
 		Subscriptions: []*string{&req.AzureSubscriptionId},
 		Query:         &query,
 		Options: &armresourcegraph.QueryRequestOptions{
-			ResultFormat: (*armresourcegraph.ResultFormat)(&resultFormat),
+			ResultFormat: &resultFormat,
 		},
 	}
 
