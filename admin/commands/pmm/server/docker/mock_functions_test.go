@@ -5,13 +5,13 @@ package docker
 import (
 	container "github.com/docker/docker/api/types/container"
 	client "github.com/docker/docker/client"
-	"github.com/percona/pmm/admin/pkg/docker"
 	mock "github.com/stretchr/testify/mock"
+
+	"github.com/percona/pmm/admin/pkg/docker"
 
 	context "context"
 
 	io "io"
-
 
 	tea "github.com/charmbracelet/bubbletea"
 
