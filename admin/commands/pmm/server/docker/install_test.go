@@ -32,7 +32,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall not install Docker if installed", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -45,7 +45,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall install Docker if not installed", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
@@ -59,7 +59,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall skip Docker check", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		c := InstallCommand{
@@ -73,7 +73,7 @@ func TestInstallDocker(t *testing.T) {
 
 	t.Run("shall skip Docker installation", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
@@ -93,7 +93,7 @@ func TestRunContainer(t *testing.T) {
 
 	t.Run("shall run container", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On(
@@ -117,7 +117,7 @@ func TestRunCmd(t *testing.T) {
 	t.Run("shall run command successfully", func(t *testing.T) {
 		t.Parallel()
 
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -145,7 +145,7 @@ func TestRunCmd(t *testing.T) {
 
 	t.Run("shall return error without Docker access", func(t *testing.T) {
 		t.Parallel()
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -161,7 +161,7 @@ func TestRunCmd(t *testing.T) {
 	t.Run("shall skip password change", func(t *testing.T) {
 		t.Parallel()
 
-		m := &MockDockerFunctions{}
+		m := &MockFunctions{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
 
 		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
@@ -195,7 +195,7 @@ func TestInstallResult(t *testing.T) {
 	require.NotEmpty(t, r.String())
 }
 
-func setWaitForHealthyContainerMock(m *MockDockerFunctions) {
+func setWaitForHealthyContainerMock(m *MockFunctions) {
 	ch := func() <-chan docker.WaitHealthyResponse {
 		c := make(chan docker.WaitHealthyResponse)
 		close(c)
