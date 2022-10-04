@@ -29,6 +29,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -60,7 +61,8 @@ func NewDockerClient() (*client.Client, error) {
 func (b *Base) IsDockerInstalled() (bool, error) {
 	path, err := exec.LookPath("docker")
 	if err != nil {
-		if err, ok := err.(*exec.Error); ok && err.Err == exec.ErrNotFound {
+		var execError *exec.Error
+		if ok := errors.As(err, execError); ok && execError.Err == exec.ErrNotFound {
 			return false, nil
 		}
 		return false, err
@@ -150,7 +152,7 @@ func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPasswor
 		return err
 	}
 
-	if err := b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil {
+	if err := b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil { //nolint:exhaustruct
 		return err
 	}
 
