@@ -41,11 +41,13 @@ type Functions interface {
 	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
 }
 
+// Imager holds methods to interact with Docker images.
 type Imager interface {
 	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
 }
 
+// Installer holds methods related to Docker installation.
 type Installer interface {
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker(ctx context.Context) error
