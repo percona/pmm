@@ -93,15 +93,16 @@ func (s *servicesServer) ListActiveServiceTypes(
 	ctx context.Context,
 	req *inventorypb.ListActiveServiceTypesRequest,
 ) (*inventorypb.ListActiveServiceTypesResponse, error) {
-	res := &inventorypb.ListActiveServiceTypesResponse{}
 	types, err := s.s.ListActiveServiceTypes(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, t := range types {
-		res.ServiceTypes = append(res.ServiceTypes, t)
+	res := &inventorypb.ListActiveServiceTypesResponse{
+		ServiceTypes: make([]inventorypb.ServiceType, 0, len(types)),
 	}
+
+	res.ServiceTypes = append(res.ServiceTypes, types...)
 
 	return res, nil
 }
