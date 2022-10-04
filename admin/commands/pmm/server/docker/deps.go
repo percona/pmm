@@ -30,15 +30,24 @@ import (
 
 // Functions contain methods required to interact with Docker.
 type Functions interface {
+	Imager
+	Installer
+
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
 	CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error)
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 	GetDockerClient() *client.Client
+	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)
+	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
+}
+
+type Imager interface {
+	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
+	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
+}
+
+type Installer interface {
 	HaveDockerAccess(ctx context.Context) bool
 	InstallDocker(ctx context.Context) error
 	IsDockerInstalled() (bool, error)
-	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
-	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)
-	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)
-	WaitForHealthyContainer(ctx context.Context, containerID string) <-chan docker.WaitHealthyResponse
 }
