@@ -260,7 +260,7 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 }
 
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
-func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
+func (k kubernetesServer) RegisterKubernetesClusterOLM(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
 	var err error
 	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
@@ -359,6 +359,135 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	}
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
+}
+
+// RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
+func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) {
+	var err error
+	req.KubeAuth.Kubeconfig, err = replaceAWSAuthIfPresent(req.KubeAuth.Kubeconfig, req.AwsAccessKeyId, req.AwsSecretAccessKey)
+	if err != nil {
+		if errors.Is(err, errKubeconfigIsEmpty) {
+			return nil, status.Error(codes.InvalidArgument, "Kubeconfig can't be empty")
+		} else if errors.Is(err, errMissingRequiredKubeconfigEnvVar) {
+			return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("Failed to transform kubeconfig to work with aws-iam-authenticator: %s", err))
+		}
+		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
+		return nil, status.Error(codes.Internal, "Internal server error")
+	}
+
+	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
+	err = k.db.InTransaction(func(t *reform.TX) error {
+		var e error
+		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
+		if e != nil {
+			return e
+		}
+
+		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
+			KubernetesClusterName: req.KubernetesClusterName,
+			KubeConfig:            req.KubeAuth.Kubeconfig,
+		})
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
+	if err != nil {
+		return nil, err
+	}
+
+	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+		_, err = k.dbaasClient.InstallOLMOperator(ctx, &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Version: "", // Use dbaas-controller default.
+		})
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot install OLM operator to register the Kubernetes cluster")
+		}
+	}
+
+	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+		if err := k.installOperator(ctx, "percona-xtradb-cluster-operator", "default", req.KubeAuth.Kubeconfig); err != nil {
+			return nil, err
+		}
+	}
+
+	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+		if err := k.installOperator(ctx, "percona-psmdb-operator", "default", req.KubeAuth.Kubeconfig); err != nil {
+			return nil, err
+		}
+	}
+
+	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
+		if err := k.installOperator(ctx, "victoriametrics-operator", "default", req.KubeAuth.Kubeconfig); err != nil {
+			return nil, err
+		}
+	}
+
+	settings, err := models.GetSettings(k.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	if settings.PMMPublicAddress != "" {
+		var apiKeyID int64
+		var apiKey string
+		apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63())
+		apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+		if err != nil {
+			return nil, err
+		}
+		pmmParams := &dbaascontrollerv1beta1.PMMParams{
+			PublicAddress: fmt.Sprintf("https://%s", settings.PMMPublicAddress),
+			Login:         "api_key",
+			Password:      apiKey,
+		}
+
+		_, err := k.dbaasClient.StartMonitoring(ctx, &dbaascontrollerv1beta1.StartMonitoringRequest{
+			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+				Kubeconfig: req.KubeAuth.Kubeconfig,
+			},
+			Pmm: pmmParams,
+		})
+		if err != nil {
+			e := k.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
+			if e != nil {
+				k.l.Warnf("couldn't delete created API Key %v: %s", apiKeyID, e)
+			}
+			k.l.Warnf("couldn't start monitoring of the kubernetes cluster: %s", err)
+			return nil, status.Errorf(codes.Internal, "couldn't start monitoring of the kubernetes cluster: %s", err.Error())
+		}
+	}
+
+	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
+}
+
+func (k kubernetesServer) installOperator(ctx context.Context, name, namespace, kubeConfig string) error {
+	catalosSourceNamespace := "olm"
+	catalogSource := "operatorhubio-catalog"
+
+	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
+		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
+			Kubeconfig: kubeConfig,
+		},
+		Namespace:              namespace,
+		Name:                   name,
+		OperatorGroup:          "og" + name,
+		CatalogSource:          catalogSource,
+		CatalogSourceNamespace: catalosSourceNamespace,
+		Channel:                "stable",
+		InstallPlanApproval:    "automatic",
+	})
+
+	return err
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
