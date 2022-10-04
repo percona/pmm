@@ -46,7 +46,7 @@ var rules = map[string]role{
 	"/server.":                        admin,
 
 	"/v1/inventory/":                              admin,
-	"/v1/inventory/Services/ListTypes":            none,
+	"/v1/inventory/Services/ListTypes":            viewer,
 	"/v1/management/":                             admin,
 	"/v1/management/Actions/":                     viewer,
 	"/v1/management/Jobs":                         viewer,
