@@ -121,7 +121,7 @@ func (c *InstallCommand) prepareDocker(ctx context.Context) error {
 		c.dockerFn = d
 	}
 
-	if err := c.installDocker(); err != nil {
+	if err := c.installDocker(ctx); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func (c *InstallCommand) prepareDocker(ctx context.Context) error {
 	return nil
 }
 
-func (c *InstallCommand) installDocker() error {
+func (c *InstallCommand) installDocker(ctx context.Context) error {
 	if c.SkipDockerCheck {
 		logrus.Debugf("Docker check is disabled")
 		return nil
@@ -153,7 +153,7 @@ func (c *InstallCommand) installDocker() error {
 	}
 
 	logrus.Infoln("Installing Docker")
-	err = c.dockerFn.InstallDocker()
+	err = c.dockerFn.InstallDocker(ctx)
 	if err != nil {
 		return err
 	}

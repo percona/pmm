@@ -35,7 +35,7 @@ type Functions interface {
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 	GetDockerClient() *client.Client
 	HaveDockerAccess(ctx context.Context) bool
-	InstallDocker() error
+	InstallDocker(ctx context.Context) error
 	IsDockerInstalled() (bool, error)
 	ParsePullImageProgress(r io.Reader, p *tea.Program) (<-chan struct{}, <-chan error)
 	PullImage(ctx context.Context, dockerImage string, opts types.ImagePullOptions) (io.Reader, error)

@@ -83,8 +83,13 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 // ErrInvalidStatusCode is returned when HTTP status is not 200.
 var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
 
-func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
-	res, err := http.Get("https://get.docker.com/")
+func (b *Base) downloadDockerInstallScript(ctx context.Context) (io.ReadCloser, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://get.docker.com/", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +102,8 @@ func (b *Base) downloadDockerInstallScript() (io.ReadCloser, error) {
 }
 
 // InstallDocker installs Docker locally.
-func (b *Base) InstallDocker() error {
-	script, err := b.downloadDockerInstallScript()
+func (b *Base) InstallDocker(ctx context.Context) error {
+	script, err := b.downloadDockerInstallScript(ctx)
 	if err != nil {
 		return err
 	}
