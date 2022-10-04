@@ -88,6 +88,24 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 	return res, nil
 }
 
+// ListActiveServiceTypes returns list of active Services.
+func (s *servicesServer) ListActiveServiceTypes(
+	ctx context.Context,
+	req *inventorypb.ListActiveServiceTypesRequest,
+) (*inventorypb.ListActiveServiceTypesResponse, error) {
+	res := &inventorypb.ListActiveServiceTypesResponse{}
+	types, err := s.s.ListActiveServiceTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, t := range types {
+		res.ServiceTypes = append(res.ServiceTypes, t)
+	}
+
+	return res, nil
+}
+
 // GetService returns a single Service by ID.
 func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetServiceRequest) (*inventorypb.GetServiceResponse, error) {
 	service, err := s.s.Get(ctx, req.ServiceId)
