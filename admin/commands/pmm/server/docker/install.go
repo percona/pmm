@@ -70,7 +70,7 @@ Password: ` + r.adminPassword
 var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 
 // RunCmdWithContext runs install command.
-func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) {
+func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server installation in Docker")
 
 	if err := c.prepareDocker(ctx); err != nil {
