@@ -12,16 +12,13 @@ replace golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa => github.com/per
 
 require (
 	github.com/AlekSi/pointer v1.2.0
-	github.com/Azure/azure-sdk-for-go v66.0.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.28
-	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.6.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.105
-	github.com/brianvoe/gofakeit/v6 v6.18.0
+	github.com/aws/aws-sdk-go v1.44.109
+	github.com/brianvoe/gofakeit/v6 v6.19.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-co-op/gocron v1.17.0
 	github.com/go-openapi/errors v0.20.3
@@ -38,7 +35,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.7
-	github.com/minio/minio-go/v7 v7.0.38
+	github.com/minio/minio-go/v7 v7.0.39
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20220627132007-e6e85c6e26dc
 	github.com/percona-platform/saas v0.0.0-20220427162947-f9d246ad0f16
@@ -74,13 +71,17 @@ require (
 )
 
 require (
-	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
-	github.com/Azure/go-autorest/autorest/azure/cli v0.4.5 // indirect
-	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
-	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
-	github.com/Azure/go-autorest/logger v0.2.1 // indirect
-	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/AzureAD/microsoft-authentication-library-for-go v0.5.1 // indirect
+	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
+	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4 // indirect
+)
+
+require (
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.6.0
 	github.com/ClickHouse/ch-go v0.47.3 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
@@ -88,7 +89,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.6.1 // indirect
@@ -123,7 +123,6 @@ require (
 	github.com/miekg/dns v1.1.49 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
