@@ -92,8 +92,8 @@ func TestPSMDBClusterServer(t *testing.T) {
 
 		for _, name := range []string{"first-psmdb-test", "second-psmdb-test"} {
 			foundPSMDB := false
-			for _, psmdb := range dbClusters.Payload.PSMDBClusters {
-				if name == psmdb.Name {
+			for _, psmdb := range dbClusters.Payload.DBClusters {
+				if name == psmdb.Name && *psmdb.ClusterType == dbclusters.ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPSMDB {
 					foundPSMDB = true
 
 					break
@@ -122,8 +122,8 @@ func TestPSMDBClusterServer(t *testing.T) {
 		_, err = dbaasClient.Default.PSMDBClusters.UpdatePSMDBCluster(&paramsUpdatePSMDB)
 		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `state is initializing: PSMDB cluster is not ready`)
 
-		for _, psmdb := range dbClusters.Payload.PSMDBClusters {
-			if psmdb.Name == "" {
+		for _, psmdb := range dbClusters.Payload.DBClusters {
+			if psmdb.Name == "" && *psmdb.ClusterType == dbclusters.ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPSMDB {
 				continue
 			}
 			deletePSMDBClusterParamsParam := dbclusters.DeleteDBClusterParams{

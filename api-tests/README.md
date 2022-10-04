@@ -15,7 +15,7 @@ to set up API-tests in your local systems.
 Run the tests using the following command:
 
 ```
-go test ./... -pmm.server-url $PMM_SERVER_URL -v
+go test ./... -pmm.server-url $PMM_SERVER_URL -pmm.server-insecure-tls -v
 ```
 
 # Docker

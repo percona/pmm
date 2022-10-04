@@ -106,8 +106,8 @@ func TestPXCClusterServer(t *testing.T) {
 
 		for _, name := range []string{"first-pxc-test", "second-pxc-test"} {
 			foundPXC := false
-			for _, pxc := range pxcClusters.Payload.PXCClusters {
-				if name == pxc.Name {
+			for _, pxc := range pxcClusters.Payload.DBClusters {
+				if name == pxc.Name && *pxc.ClusterType == dbclusters.ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPXC {
 					foundPXC = true
 
 					break
@@ -156,8 +156,8 @@ func TestPXCClusterServer(t *testing.T) {
 		_, err = dbaasClient.Default.PXCClusters.UpdatePXCCluster(&paramsUpdatePXC)
 		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `state is Error: PXC cluster is not ready`)
 
-		for _, pxc := range pxcClusters.Payload.PXCClusters {
-			if pxc.Name == "" {
+		for _, pxc := range pxcClusters.Payload.DBClusters {
+			if pxc.Name == "" && *pxc.ClusterType == dbclusters.ListDBClustersOKBodyDBClustersItems0ClusterTypeDBCLUSTERTYPEPXC {
 				continue
 			}
 			deletePXCClusterParamsParam := dbclusters.DeleteDBClusterParams{
