@@ -29,22 +29,44 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Service is wrapper around minio client.
-type Service struct {
-	l *logrus.Entry
+// NewClient returns a new wrapper around minio.Client.
+func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
+	url, err := models.ParseEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	secure := true
+	if url.Scheme == "http" {
+		secure = false
+	}
+
+	client, err := minio.New(url.Host, &minio.Options{
+		Secure: secure,
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{
+		l:          logrus.WithField("component", "minio-client"),
+		bucketName: bucketName,
+		mc:         client,
+	}, nil
 }
 
-// New creates new minio service.
-func New() *Service {
-	return &Service{
+func New() *Client {
+	return &Client{
 		l: logrus.WithField("component", "minio-client"),
 	}
 }
 
 // Client is a wrapper around minio.Client with the bucket name included.
 type Client struct {
+	l          *logrus.Entry
 	bucketName string
-	*minio.Client
+	mc         *minio.Client
 }
 
 // FileInfo contains information about a single file in the bucket.
@@ -54,26 +76,26 @@ type FileInfo struct {
 }
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
-func (s *Service) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, name string) (bool, error) {
-	minioClient, err := NewClient(endpoint, accessKey, secretKey, name)
+func (c *Client) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, bucketName string) (bool, error) {
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return false, err
 	}
-	return minioClient.BucketExists(ctx, name)
+	return mc.BucketExists(ctx, c.bucketName)
 }
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
-func (s *Service) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, name string) (string, error) {
-	minioClient, err := NewClient(endpoint, accessKey, secretKey, name)
+func (c *Client) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, bucketName string) (string, error) {
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return "", err
 	}
-	return minioClient.GetBucketLocation(ctx, name)
+	return mc.GetBucketLocation(ctx, bucketName)
 }
 
 // RemoveRecursive removes objects recursively from storage with given prefix.
-func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
-	minioClient, err := NewClient(endpoint, accessKey, secretKey, bucketName)
+func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return err
 	}
@@ -87,7 +109,7 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 			Prefix:    prefix,
 			Recursive: true,
 		}
-		for object := range minioClient.ListObjects(ctx, bucketName, options) {
+		for object := range mc.ListObjects(ctx, bucketName, options) {
 			if object.Err != nil {
 				return errors.WithStack(object.Err)
 			}
@@ -112,13 +134,13 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 	}()
 
 	var errorsEncountered bool
-	for rErr := range minioClient.RemoveObjects(ctx, bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
+	for rErr := range mc.RemoveObjects(ctx, c.bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
 		errorsEncountered = true
-		s.l.WithError(rErr.Err).Debugf("failed to remove object %q", rErr.ObjectName)
+		c.l.WithError(rErr.Err).Debugf("failed to remove object %q", rErr.ObjectName)
 	}
 
 	if errorsEncountered {
-		return errors.Errorf("errors encountered while removing objects from bucket %q", bucketName)
+		return errors.Errorf("errors encountered while removing objects from bucket %q", c.bucketName)
 	}
 
 	return nil
@@ -127,7 +149,7 @@ func (s *Service) RemoveRecursive(ctx context.Context, endpoint, accessKey, secr
 // List provides an abstraction over the minio API to list all objects in the bucket
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
-func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, error) {
+func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, error) {
 	var files []FileInfo
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
@@ -137,7 +159,7 @@ func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 		Recursive: true,
 	}
 
-	for object := range m.ListObjects(ctx, m.bucketName, options) {
+	for object := range c.mc.ListObjects(ctx, c.bucketName, options) {
 		if object.Err != nil {
 			return files, errors.WithStack(object.Err)
 		}
@@ -162,11 +184,11 @@ func (m *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 }
 
 // FileStat returns file info. It returns error if file is empty or not exists.
-func (m *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
+func (c *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	var file FileInfo
 
-	stat, err := m.StatObject(ctx, m.bucketName, name, minio.StatObjectOptions{})
+	stat, err := c.mc.StatObject(ctx, c.bucketName, name, minio.StatObjectOptions{})
 	if err != nil {
 		return file, err
 	}
@@ -185,8 +207,7 @@ func (m *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	return file, nil
 }
 
-// NewClient returns a new wrapper around minio.Client.
-func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
+func createMinioClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
 	url, err := models.ParseEndpoint(endpoint)
 	if err != nil {
 		return nil, err
@@ -197,16 +218,8 @@ func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, erro
 		secure = false
 	}
 
-	client, err := minio.New(url.Host, &minio.Options{
+	return minio.New(url.Host, &minio.Options{
 		Secure: secure,
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	return &Client{
-		bucketName: bucketName,
-		Client:     client,
-	}, nil
 }

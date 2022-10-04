@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 	"testing"
 
@@ -40,7 +41,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 			expected: &oplogChunk{
 				RS:          "rs0",
-				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+				FName:       "test_artifact_name/pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 				Compression: compressionTypeS2,
 				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
 				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
@@ -61,7 +62,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 			filename: "rs0/20220829/20220829115611-1.20220829120544-10.oplog",
 			expected: &oplogChunk{
 				RS:          "rs0",
-				FName:       "pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog",
+				FName:       "test_artifact_name/pbmPitr/rs0/20220829/20220829115611-1.20220829120544-10.oplog",
 				Compression: compressionTypeNone,
 				StartTS:     primitive.Timestamp{T: uint32(1661774171), I: 1},
 				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
@@ -69,9 +70,10 @@ func TestPitrMetaFromFileName(t *testing.T) {
 		},
 	}
 
+	prefix := path.Join("test_artifact_name", PITRfsPrefix)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			chunk := pitrMetaFromFileName(tt.filename)
+			chunk := pitrMetaFromFileName(prefix, tt.filename)
 			assert.Equal(t, tt.expected, chunk)
 		})
 	}
@@ -129,7 +131,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx)
+		timelines, err := ss.getPITROplogs(ctx, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
@@ -140,7 +142,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx)
+		timelines, err := ss.getPITROplogs(ctx, "")
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
@@ -159,7 +161,7 @@ func TestListPITRTimelines(t *testing.T) {
 
 		ss := NewPITRStorageService()
 		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx)
+		timelines, err := ss.getPITROplogs(ctx, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)
 	})

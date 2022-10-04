@@ -191,7 +191,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	backupRemovalService *backup.RemovalService
 	pitrStorageService   *backup.PITRService
-	minioService         *minio.Service
+	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
 	config               *config.Config
@@ -255,7 +255,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
 	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
-	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
+	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrStorageService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
@@ -720,12 +720,12 @@ func main() {
 	}
 	prom.MustRegister(vmalert)
 
-	minioService := minio.New()
+	minioClient := minio.New()
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db)
-	backupRemovalService := backup.NewRemovalService(db, minioService)
+	backupRemovalService := backup.NewRemovalService(db, minioClient)
 	pitrStorage := backup.NewPITRStorageService()
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
@@ -993,7 +993,7 @@ func main() {
 				backupService:        backupService,
 				backupRemovalService: backupRemovalService,
 				pitrStorageService:   pitrStorage,
-				minioService:         minioService,
+				minioClient:          minioClient,
 				versionCache:         versionCache,
 				supervisord:          supervisord,
 				config:               &cfg.Config,

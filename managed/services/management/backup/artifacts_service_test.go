@@ -44,7 +44,7 @@ func TestListPitrTimelines(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	mockedRemovalSvc := &mockRemovalService{}
-	mockedStorageSvc := &mockPitrStorageService{}
+	mockedPitrStorageSvc := &mockPitrStorageService{}
 
 	timelines := []backup.Timeline{
 		{
@@ -54,8 +54,8 @@ func TestListPitrTimelines(t *testing.T) {
 		},
 	}
 
-	mockedStorageSvc.On("ListPITRTimelines", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	svc := NewArtifactsService(db, mockedRemovalSvc, mockedStorageSvc)
+	mockedPitrStorageSvc.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
+	svc := NewArtifactsService(db, mockedRemovalSvc, mockedPitrStorageSvc)
 	var locationID string
 
 	t.Run("add awsS3", func(t *testing.T) {
