@@ -29,18 +29,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// NewClientFromCredentials returns a new wrapper around minio.Client.
-func NewClientFromCredentials(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
-	client, err := createMinioClient(endpoint, accessKey, secretKey)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Client{
-		l:          logrus.WithField("component", "minio-client"),
-		bucketName: bucketName,
-		mc:         client,
-	}, nil
+// Client is a wrapper around minio.Client with the bucket name included.
+type Client struct {
+	l *logrus.Entry
 }
 
 // New creates a client with empty credentials.
@@ -48,13 +39,6 @@ func New() *Client {
 	return &Client{ //nolint:exhaustruct
 		l: logrus.WithField("component", "minio-client"),
 	}
-}
-
-// Client is a wrapper around minio.Client with the bucket name included.
-type Client struct {
-	l          *logrus.Entry
-	mc         *minio.Client
-	bucketName string
 }
 
 // FileInfo contains information about a single file in the bucket.
@@ -122,13 +106,13 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	}()
 
 	var errorsEncountered bool
-	for rErr := range mc.RemoveObjects(ctx, c.bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
+	for rErr := range mc.RemoveObjects(ctx, bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
 		errorsEncountered = true
 		c.l.WithError(rErr.Err).Debugf("failed to remove object %q", rErr.ObjectName)
 	}
 
 	if errorsEncountered {
-		return errors.Errorf("errors encountered while removing objects from bucket %q", c.bucketName)
+		return errors.Errorf("errors encountered while removing objects from bucket %q", bucketName)
 	}
 
 	return nil
@@ -137,17 +121,22 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 // List provides an abstraction over the minio API to list all objects in the bucket
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
-func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, error) {
+func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]FileInfo, error) {
 	var files []FileInfo
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
 	}
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	if err != nil {
+		return nil, err
+	}
+
 	options := minio.ListObjectsOptions{
 		Prefix:    prefix,
 		Recursive: true,
 	}
 
-	for object := range c.mc.ListObjects(ctx, c.bucketName, options) {
+	for object := range mc.ListObjects(ctx, bucketName, options) {
 		if object.Err != nil {
 			return nil, errors.WithStack(object.Err)
 		}
@@ -159,6 +148,8 @@ func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 		if f[0] == '/' {
 			f = f[1:]
 		}
+
+		c.l.Infof(f)
 
 		if strings.HasSuffix(f, suffix) {
 			files = append(files, FileInfo{
@@ -172,11 +163,14 @@ func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 }
 
 // FileStat returns file info. It returns error if file is empty or not exists.
-func (c *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
-	var err error
+func (c *Client) FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (FileInfo, error) {
 	var file FileInfo
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	if err != nil {
+		return file, err
+	}
 
-	stat, err := c.mc.StatObject(ctx, c.bucketName, name, minio.StatObjectOptions{}) //nolint:exhaustruct
+	stat, err := mc.StatObject(ctx, bucketName, name, minio.StatObjectOptions{}) //nolint:exhaustruct
 	if err != nil {
 		return file, err
 	}

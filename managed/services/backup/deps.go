@@ -92,9 +92,9 @@ type versioner interface {
 
 type backupStorage interface {
 	// FileStat returns file info. It returns error if file is empty or not exists.
-	FileStat(ctx context.Context, name string) (minio.FileInfo, error)
+	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
 
 	// List scans path with prefix and returns all files with given suffix.
 	// Both prefix and suffix can be omitted.
-	List(ctx context.Context, prefix, suffix string) ([]minio.FileInfo, error)
+	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
 }

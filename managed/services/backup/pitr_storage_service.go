@@ -28,7 +28,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/minio"
 )
 
 const (
@@ -42,6 +41,14 @@ var errUnsupportedLocation = errors.New("unsupported location config")
 type PITRTimerangeService struct {
 	l       *logrus.Entry
 	storage backupStorage
+}
+
+// NewPITRStorageService creates new backup storage service.
+func NewPITRStorageService(pitrLocationClient backupStorage) *PITRTimerangeService {
+	return &PITRTimerangeService{
+		l:       logrus.WithField("component", "services/backup/pitr_storage"),
+		storage: pitrLocationClient,
+	}
 }
 
 // oplogChunk is index metadata for the oplog chunks
@@ -105,28 +112,25 @@ func file(ext string) compressionType {
 	}
 }
 
-// NewPITRStorageService creates new backup storage service.
-func NewPITRStorageService() *PITRTimerangeService {
-	return &PITRTimerangeService{
-		l: logrus.WithField("component", "services/backup/pitr_storage"),
+func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *models.BackupLocation, artifactName string) ([]*oplogChunk, error) {
+	if location.S3Config == nil {
+		return nil, errUnsupportedLocation
 	}
-}
 
-func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, artifactName string) ([]*oplogChunk, error) {
 	var err error
 	var oplogChunks []*oplogChunk
-	prefix := path.Join(artifactName, pitrFSPrefix)
 
-	pitrf, err := ss.storage.List(ctx, prefix, "")
+	prefix := path.Join(artifactName, pitrFSPrefix)
+	pitrFiles, err := ss.storage.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
-	if len(pitrf) == 0 {
+	if len(pitrFiles) == 0 {
 		return nil, nil
 	}
 
-	for _, f := range pitrf {
-		_, err := ss.storage.FileStat(ctx, path.Join(prefix, f.Name))
+	for _, f := range pitrFiles {
+		_, err := ss.storage.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, path.Join(prefix, f.Name))
 		if err != nil {
 			ss.l.Warningf("skip pitr chunk %s/%s because of %v", prefix, f.Name, err)
 			continue
@@ -141,20 +145,26 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, artifactName 
 	return oplogChunks, nil
 }
 
-func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifactName string, location models.BackupLocation) ([]Timeline, error) {
-	var err error
-	switch {
-	case location.S3Config != nil:
-		ss.storage, err = minio.NewClientFromCredentials(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		// todo(idoqo): add support for local storage after https://github.com/percona/pmm/pull/1158/
-		return nil, errUnsupportedLocation
+func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error) {
+	var timelines [][]Timeline
+
+	oplogs, err := ss.getPITROplogs(ctx, location, artifactName)
+	if err != nil {
+		return nil, errors.Wrap(err, "get slice")
+	}
+	if len(oplogs) == 0 {
+		return nil, nil
 	}
 
-	return ss.pitrTimelines(ctx, artifactName)
+	t, err := gettimelines(oplogs), nil
+	if err != nil {
+		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
+	}
+	if len(t) != 0 {
+		timelines = append(timelines, t)
+	}
+
+	return mergeTimelines(timelines...), nil
 }
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
@@ -216,29 +226,6 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	}
 
 	return &ts
-}
-
-// pitrTimelines returns cluster-wide time ranges valid for PITR restore
-func (ss *PITRTimerangeService) pitrTimelines(ctx context.Context, artifactName string) ([]Timeline, error) {
-	var timelines [][]Timeline
-
-	oplogs, err := ss.getPITROplogs(ctx, artifactName)
-	if err != nil {
-		return nil, errors.Wrap(err, "get slice")
-	}
-	if len(oplogs) == 0 {
-		return nil, nil
-	}
-
-	t, err := gettimelines(oplogs), nil
-	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
-	}
-	if len(t) != 0 {
-		timelines = append(timelines, t)
-	}
-
-	return mergeTimelines(timelines...), nil
 }
 
 func gettimelines(slices []*oplogChunk) []Timeline {

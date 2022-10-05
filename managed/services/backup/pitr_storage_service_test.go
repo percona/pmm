@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 	"fmt"
+	"github.com/percona/pmm/managed/models"
 	"path"
 	"strings"
 	"testing"
@@ -112,6 +113,15 @@ func TestPitrParseTs(t *testing.T) {
 
 func TestListPITRTimelines(t *testing.T) {
 	ctx := context.Background()
+	location := &models.BackupLocation{
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		},
+	}
 
 	t.Run("successful", func(t *testing.T) {
 		mockedStorage := &mockBackupStorage{}
@@ -129,9 +139,8 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
 
-		ss := NewPITRStorageService()
-		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx, "")
+		ss := NewPITRStorageService(mockedStorage)
+		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
@@ -140,9 +149,8 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage := &mockBackupStorage{}
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
 
-		ss := NewPITRStorageService()
-		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx, "")
+		ss := NewPITRStorageService(mockedStorage)
+		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
@@ -159,9 +167,8 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(minio.FileInfo{}, errors.New("file stat error"))
 
-		ss := NewPITRStorageService()
-		ss.storage = mockedStorage
-		timelines, err := ss.getPITROplogs(ctx, "")
+		ss := NewPITRStorageService(mockedStorage)
+		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)
 	})
@@ -479,7 +486,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 }
 
 func printttl(tlns ...Timeline) string {
-	ret := []string{}
+	var ret []string
 	for _, t := range tlns {
 		ret = append(ret, fmt.Sprintf("[%v - %v]", t.Start, t.End))
 	}
