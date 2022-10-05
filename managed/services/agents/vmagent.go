@@ -35,7 +35,6 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		"-httpListenAddr=127.0.0.1:{{.listen_port}}",
 		// needed for login/password at client side.
 		"-envflag.enable=true",
-		"-promscrape.noStaleMarkers=true",
 		"-minStalenessInterval=1s",
 	}
 
