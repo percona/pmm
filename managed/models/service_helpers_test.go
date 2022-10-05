@@ -266,6 +266,15 @@ func TestServiceHelpers(t *testing.T) {
 		}})
 	})
 
+	t.Run("FindActiveServiceTypes", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		types, err := models.FindActiveServiceTypes(q)
+		assert.NoError(t, err)
+		assert.Equal(t, 6, len(types))
+	})
+
 	t.Run("RemoveService", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
