@@ -40,7 +40,7 @@ type ClientService interface {
 }
 
 /*
-AddChannel adds channel adds notification channel
+  AddChannel adds channel adds notification channel
 */
 func (a *Client) AddChannel(params *AddChannelParams, opts ...ClientOption) (*AddChannelOK, error) {
 	// TODO: Validate the params before sending
@@ -77,7 +77,7 @@ func (a *Client) AddChannel(params *AddChannelParams, opts ...ClientOption) (*Ad
 }
 
 /*
-ChangeChannel changes channel changes notification channel
+  ChangeChannel changes channel changes notification channel
 */
 func (a *Client) ChangeChannel(params *ChangeChannelParams, opts ...ClientOption) (*ChangeChannelOK, error) {
 	// TODO: Validate the params before sending
@@ -114,7 +114,7 @@ func (a *Client) ChangeChannel(params *ChangeChannelParams, opts ...ClientOption
 }
 
 /*
-ListChannels lists channels returns a list of all notifation channels
+  ListChannels lists channels returns a list of all notifation channels
 */
 func (a *Client) ListChannels(params *ListChannelsParams, opts ...ClientOption) (*ListChannelsOK, error) {
 	// TODO: Validate the params before sending
@@ -151,7 +151,7 @@ func (a *Client) ListChannels(params *ListChannelsParams, opts ...ClientOption) 
 }
 
 /*
-RemoveChannel removes channel removes notification channel
+  RemoveChannel removes channel removes notification channel
 */
 func (a *Client) RemoveChannel(params *RemoveChannelParams, opts ...ClientOption) (*RemoveChannelOK, error) {
 	// TODO: Validate the params before sending

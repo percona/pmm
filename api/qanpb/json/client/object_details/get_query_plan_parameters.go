@@ -52,12 +52,10 @@ func NewGetQueryPlanParamsWithHTTPClient(client *http.Client) *GetQueryPlanParam
 	}
 }
 
-/*
-GetQueryPlanParams contains all the parameters to send to the API endpoint
+/* GetQueryPlanParams contains all the parameters to send to the API endpoint
+   for the get query plan operation.
 
-	for the get query plan operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetQueryPlanParams struct {
 	/* Body.

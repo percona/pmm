@@ -50,8 +50,7 @@ func NewAddPostgreSQLOK() *AddPostgreSQLOK {
 	return &AddPostgreSQLOK{}
 }
 
-/*
-AddPostgreSQLOK describes a response with status code 200, with default header values.
+/* AddPostgreSQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddPostgreSQLOK struct {
 	Payload *AddPostgreSQLOKBody
 }
 
+// IsSuccess returns true when this add postgre Sql Ok response has a 2xx status code
+func (o *AddPostgreSQLOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add postgre Sql Ok response has a 3xx status code
+func (o *AddPostgreSQLOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add postgre Sql Ok response has a 4xx status code
+func (o *AddPostgreSQLOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add postgre Sql Ok response has a 5xx status code
+func (o *AddPostgreSQLOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add postgre Sql Ok response a status code equal to that given
+func (o *AddPostgreSQLOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddPostgreSQLOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPostgreSQLOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddPostgreSQLDefault(code int) *AddPostgreSQLDefault {
 	}
 }
 
-/*
-AddPostgreSQLDefault describes a response with status code -1, with default header values.
+/* AddPostgreSQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddPostgreSQLDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add postgre SQL default response has a 2xx status code
+func (o *AddPostgreSQLDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add postgre SQL default response has a 3xx status code
+func (o *AddPostgreSQLDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add postgre SQL default response has a 4xx status code
+func (o *AddPostgreSQLDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add postgre SQL default response has a 5xx status code
+func (o *AddPostgreSQLDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add postgre SQL default response a status code equal to that given
+func (o *AddPostgreSQLDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddPostgreSQLDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPostgreSQLDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddPostgreSQLDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-AddPostgreSQLBody add postgre SQL body
+/*AddPostgreSQLBody add postgre SQL body
 swagger:model AddPostgreSQLBody
 */
 type AddPostgreSQLBody struct {
@@ -405,8 +460,7 @@ func (o *AddPostgreSQLBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLDefaultBody add postgre SQL default body
+/*AddPostgreSQLDefaultBody add postgre SQL default body
 swagger:model AddPostgreSQLDefaultBody
 */
 type AddPostgreSQLDefaultBody struct {
@@ -509,8 +563,7 @@ func (o *AddPostgreSQLDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLDefaultBodyDetailsItems0 add postgre SQL default body details items0
+/*AddPostgreSQLDefaultBodyDetailsItems0 add postgre SQL default body details items0
 swagger:model AddPostgreSQLDefaultBodyDetailsItems0
 */
 type AddPostgreSQLDefaultBodyDetailsItems0 struct {
@@ -546,8 +599,7 @@ func (o *AddPostgreSQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddPostgreSQLOKBody add postgre SQL OK body
+/*AddPostgreSQLOKBody add postgre SQL OK body
 swagger:model AddPostgreSQLOKBody
 */
 type AddPostgreSQLOKBody struct {
@@ -770,8 +822,7 @@ func (o *AddPostgreSQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*AddPostgreSQLOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model AddPostgreSQLOKBodyPostgresExporter
 */
 type AddPostgreSQLOKBodyPostgresExporter struct {
@@ -979,8 +1030,7 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
 */
 type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
@@ -1179,8 +1229,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -1382,8 +1431,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddPostgreSQLOKBodyService PostgreSQLService represents a generic PostgreSQL instance.
+/*AddPostgreSQLOKBodyService PostgreSQLService represents a generic PostgreSQL instance.
 swagger:model AddPostgreSQLOKBodyService
 */
 type AddPostgreSQLOKBodyService struct {
@@ -1452,8 +1500,7 @@ func (o *AddPostgreSQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddPostgreSQLParamsBodyAddNode
 */
 type AddPostgreSQLParamsBodyAddNode struct {

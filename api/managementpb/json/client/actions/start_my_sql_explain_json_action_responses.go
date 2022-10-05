@@ -48,8 +48,7 @@ func NewStartMySQLExplainJSONActionOK() *StartMySQLExplainJSONActionOK {
 	return &StartMySQLExplainJSONActionOK{}
 }
 
-/*
-StartMySQLExplainJSONActionOK describes a response with status code 200, with default header values.
+/* StartMySQLExplainJSONActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type StartMySQLExplainJSONActionOK struct {
 	Payload *StartMySQLExplainJSONActionOKBody
 }
 
+// IsSuccess returns true when this start my Sql explain Json action Ok response has a 2xx status code
+func (o *StartMySQLExplainJSONActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this start my Sql explain Json action Ok response has a 3xx status code
+func (o *StartMySQLExplainJSONActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this start my Sql explain Json action Ok response has a 4xx status code
+func (o *StartMySQLExplainJSONActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this start my Sql explain Json action Ok response has a 5xx status code
+func (o *StartMySQLExplainJSONActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this start my Sql explain Json action Ok response a status code equal to that given
+func (o *StartMySQLExplainJSONActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *StartMySQLExplainJSONActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainJSON][%d] startMySqlExplainJsonActionOk  %+v", 200, o.Payload)
+}
+
+func (o *StartMySQLExplainJSONActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainJSON][%d] startMySqlExplainJsonActionOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewStartMySQLExplainJSONActionDefault(code int) *StartMySQLExplainJSONActio
 	}
 }
 
-/*
-StartMySQLExplainJSONActionDefault describes a response with status code -1, with default header values.
+/* StartMySQLExplainJSONActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *StartMySQLExplainJSONActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this start my SQL explain JSON action default response has a 2xx status code
+func (o *StartMySQLExplainJSONActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this start my SQL explain JSON action default response has a 3xx status code
+func (o *StartMySQLExplainJSONActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this start my SQL explain JSON action default response has a 4xx status code
+func (o *StartMySQLExplainJSONActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this start my SQL explain JSON action default response has a 5xx status code
+func (o *StartMySQLExplainJSONActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this start my SQL explain JSON action default response a status code equal to that given
+func (o *StartMySQLExplainJSONActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *StartMySQLExplainJSONActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainJSON][%d] StartMySQLExplainJSONAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StartMySQLExplainJSONActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainJSON][%d] StartMySQLExplainJSONAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *StartMySQLExplainJSONActionDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*
-StartMySQLExplainJSONActionBody start my SQL explain JSON action body
+/*StartMySQLExplainJSONActionBody start my SQL explain JSON action body
 swagger:model StartMySQLExplainJSONActionBody
 */
 type StartMySQLExplainJSONActionBody struct {
@@ -164,8 +219,7 @@ func (o *StartMySQLExplainJSONActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-StartMySQLExplainJSONActionDefaultBody start my SQL explain JSON action default body
+/*StartMySQLExplainJSONActionDefaultBody start my SQL explain JSON action default body
 swagger:model StartMySQLExplainJSONActionDefaultBody
 */
 type StartMySQLExplainJSONActionDefaultBody struct {
@@ -268,8 +322,7 @@ func (o *StartMySQLExplainJSONActionDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-StartMySQLExplainJSONActionDefaultBodyDetailsItems0 start my SQL explain JSON action default body details items0
+/*StartMySQLExplainJSONActionDefaultBodyDetailsItems0 start my SQL explain JSON action default body details items0
 swagger:model StartMySQLExplainJSONActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainJSONActionDefaultBodyDetailsItems0 struct {
@@ -305,8 +358,7 @@ func (o *StartMySQLExplainJSONActionDefaultBodyDetailsItems0) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-StartMySQLExplainJSONActionOKBody start my SQL explain JSON action OK body
+/*StartMySQLExplainJSONActionOKBody start my SQL explain JSON action OK body
 swagger:model StartMySQLExplainJSONActionOKBody
 */
 type StartMySQLExplainJSONActionOKBody struct {

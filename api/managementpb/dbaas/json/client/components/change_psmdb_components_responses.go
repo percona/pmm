@@ -48,8 +48,7 @@ func NewChangePSMDBComponentsOK() *ChangePSMDBComponentsOK {
 	return &ChangePSMDBComponentsOK{}
 }
 
-/*
-ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
+/* ChangePSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type ChangePSMDBComponentsOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this change Psmdb components Ok response has a 2xx status code
+func (o *ChangePSMDBComponentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change Psmdb components Ok response has a 3xx status code
+func (o *ChangePSMDBComponentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change Psmdb components Ok response has a 4xx status code
+func (o *ChangePSMDBComponentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change Psmdb components Ok response has a 5xx status code
+func (o *ChangePSMDBComponentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change Psmdb components Ok response a status code equal to that given
+func (o *ChangePSMDBComponentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangePSMDBComponentsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangePSMDBComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewChangePSMDBComponentsDefault(code int) *ChangePSMDBComponentsDefault {
 	}
 }
 
-/*
-ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
+/* ChangePSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *ChangePSMDBComponentsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change PSMDB components default response has a 2xx status code
+func (o *ChangePSMDBComponentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change PSMDB components default response has a 3xx status code
+func (o *ChangePSMDBComponentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change PSMDB components default response has a 4xx status code
+func (o *ChangePSMDBComponentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change PSMDB components default response has a 5xx status code
+func (o *ChangePSMDBComponentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change PSMDB components default response a status code equal to that given
+func (o *ChangePSMDBComponentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangePSMDBComponentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangePSMDBComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] ChangePSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *ChangePSMDBComponentsDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-ChangePSMDBComponentsBody change PSMDB components body
+/*ChangePSMDBComponentsBody change PSMDB components body
 swagger:model ChangePSMDBComponentsBody
 */
 type ChangePSMDBComponentsBody struct {
@@ -208,8 +263,7 @@ func (o *ChangePSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePSMDBComponentsDefaultBody change PSMDB components default body
+/*ChangePSMDBComponentsDefaultBody change PSMDB components default body
 swagger:model ChangePSMDBComponentsDefaultBody
 */
 type ChangePSMDBComponentsDefaultBody struct {
@@ -312,8 +366,7 @@ func (o *ChangePSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangePSMDBComponentsDefaultBodyDetailsItems0 change PSMDB components default body details items0
+/*ChangePSMDBComponentsDefaultBodyDetailsItems0 change PSMDB components default body details items0
 swagger:model ChangePSMDBComponentsDefaultBodyDetailsItems0
 */
 type ChangePSMDBComponentsDefaultBodyDetailsItems0 struct {
@@ -349,8 +402,7 @@ func (o *ChangePSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ChangePSMDBComponentsParamsBodyMongod ChangeComponent contains fields to manage components.
+/*ChangePSMDBComponentsParamsBodyMongod ChangeComponent contains fields to manage components.
 swagger:model ChangePSMDBComponentsParamsBodyMongod
 */
 type ChangePSMDBComponentsParamsBodyMongod struct {
@@ -450,8 +502,7 @@ func (o *ChangePSMDBComponentsParamsBodyMongod) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ChangePSMDBComponentsParamsBodyMongodVersionsItems0 ComponentVersion contains operations which should be done with component version.
+/*ChangePSMDBComponentsParamsBodyMongodVersionsItems0 ComponentVersion contains operations which should be done with component version.
 swagger:model ChangePSMDBComponentsParamsBodyMongodVersionsItems0
 */
 type ChangePSMDBComponentsParamsBodyMongodVersionsItems0 struct {

@@ -50,8 +50,7 @@ func NewChangeProxySQLExporterOK() *ChangeProxySQLExporterOK {
 	return &ChangeProxySQLExporterOK{}
 }
 
-/*
-ChangeProxySQLExporterOK describes a response with status code 200, with default header values.
+/* ChangeProxySQLExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ChangeProxySQLExporterOK struct {
 	Payload *ChangeProxySQLExporterOKBody
 }
 
+// IsSuccess returns true when this change proxy Sql exporter Ok response has a 2xx status code
+func (o *ChangeProxySQLExporterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change proxy Sql exporter Ok response has a 3xx status code
+func (o *ChangeProxySQLExporterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change proxy Sql exporter Ok response has a 4xx status code
+func (o *ChangeProxySQLExporterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change proxy Sql exporter Ok response has a 5xx status code
+func (o *ChangeProxySQLExporterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change proxy Sql exporter Ok response a status code equal to that given
+func (o *ChangeProxySQLExporterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangeProxySQLExporterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeProxySQLExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] changeProxySqlExporterOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewChangeProxySQLExporterDefault(code int) *ChangeProxySQLExporterDefault {
 	}
 }
 
-/*
-ChangeProxySQLExporterDefault describes a response with status code -1, with default header values.
+/* ChangeProxySQLExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ChangeProxySQLExporterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change proxy SQL exporter default response has a 2xx status code
+func (o *ChangeProxySQLExporterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change proxy SQL exporter default response has a 3xx status code
+func (o *ChangeProxySQLExporterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change proxy SQL exporter default response has a 4xx status code
+func (o *ChangeProxySQLExporterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change proxy SQL exporter default response has a 5xx status code
+func (o *ChangeProxySQLExporterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change proxy SQL exporter default response a status code equal to that given
+func (o *ChangeProxySQLExporterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangeProxySQLExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeProxySQLExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeProxySQLExporter][%d] ChangeProxySQLExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ChangeProxySQLExporterDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-ChangeProxySQLExporterBody change proxy SQL exporter body
+/*ChangeProxySQLExporterBody change proxy SQL exporter body
 swagger:model ChangeProxySQLExporterBody
 */
 type ChangeProxySQLExporterBody struct {
@@ -212,8 +267,7 @@ func (o *ChangeProxySQLExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeProxySQLExporterDefaultBody change proxy SQL exporter default body
+/*ChangeProxySQLExporterDefaultBody change proxy SQL exporter default body
 swagger:model ChangeProxySQLExporterDefaultBody
 */
 type ChangeProxySQLExporterDefaultBody struct {
@@ -316,8 +370,7 @@ func (o *ChangeProxySQLExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeProxySQLExporterDefaultBodyDetailsItems0 change proxy SQL exporter default body details items0
+/*ChangeProxySQLExporterDefaultBodyDetailsItems0 change proxy SQL exporter default body details items0
 swagger:model ChangeProxySQLExporterDefaultBodyDetailsItems0
 */
 type ChangeProxySQLExporterDefaultBodyDetailsItems0 struct {
@@ -353,8 +406,7 @@ func (o *ChangeProxySQLExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-ChangeProxySQLExporterOKBody change proxy SQL exporter OK body
+/*ChangeProxySQLExporterOKBody change proxy SQL exporter OK body
 swagger:model ChangeProxySQLExporterOKBody
 */
 type ChangeProxySQLExporterOKBody struct {
@@ -442,8 +494,7 @@ func (o *ChangeProxySQLExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeProxySQLExporterOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+/*ChangeProxySQLExporterOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model ChangeProxySQLExporterOKBodyProxysqlExporter
 */
 type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
@@ -651,8 +702,7 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-ChangeProxySQLExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeProxySQLExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeProxySQLExporterParamsBodyCommon
 */
 type ChangeProxySQLExporterParamsBodyCommon struct {

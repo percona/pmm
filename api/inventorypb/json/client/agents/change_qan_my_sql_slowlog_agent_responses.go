@@ -50,8 +50,7 @@ func NewChangeQANMySQLSlowlogAgentOK() *ChangeQANMySQLSlowlogAgentOK {
 	return &ChangeQANMySQLSlowlogAgentOK{}
 }
 
-/*
-ChangeQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
+/* ChangeQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ChangeQANMySQLSlowlogAgentOK struct {
 	Payload *ChangeQANMySQLSlowlogAgentOKBody
 }
 
+// IsSuccess returns true when this change Qan my Sql slowlog agent Ok response has a 2xx status code
+func (o *ChangeQANMySQLSlowlogAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change Qan my Sql slowlog agent Ok response has a 3xx status code
+func (o *ChangeQANMySQLSlowlogAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change Qan my Sql slowlog agent Ok response has a 4xx status code
+func (o *ChangeQANMySQLSlowlogAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change Qan my Sql slowlog agent Ok response has a 5xx status code
+func (o *ChangeQANMySQLSlowlogAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change Qan my Sql slowlog agent Ok response a status code equal to that given
+func (o *ChangeQANMySQLSlowlogAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangeQANMySQLSlowlogAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] changeQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeQANMySQLSlowlogAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] changeQanMySqlSlowlogAgentOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewChangeQANMySQLSlowlogAgentDefault(code int) *ChangeQANMySQLSlowlogAgentD
 	}
 }
 
-/*
-ChangeQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
+/* ChangeQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change QAN my SQL slowlog agent default response has a 2xx status code
+func (o *ChangeQANMySQLSlowlogAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change QAN my SQL slowlog agent default response has a 3xx status code
+func (o *ChangeQANMySQLSlowlogAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change QAN my SQL slowlog agent default response has a 4xx status code
+func (o *ChangeQANMySQLSlowlogAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change QAN my SQL slowlog agent default response has a 5xx status code
+func (o *ChangeQANMySQLSlowlogAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change QAN my SQL slowlog agent default response a status code equal to that given
+func (o *ChangeQANMySQLSlowlogAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangeQANMySQLSlowlogAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeQANMySQLSlowlogAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMySQLSlowlogAgent][%d] ChangeQANMySQLSlowlogAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentBody change QAN my SQL slowlog agent body
+/*ChangeQANMySQLSlowlogAgentBody change QAN my SQL slowlog agent body
 swagger:model ChangeQANMySQLSlowlogAgentBody
 */
 type ChangeQANMySQLSlowlogAgentBody struct {
@@ -212,8 +267,7 @@ func (o *ChangeQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentDefaultBody change QAN my SQL slowlog agent default body
+/*ChangeQANMySQLSlowlogAgentDefaultBody change QAN my SQL slowlog agent default body
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBody
 */
 type ChangeQANMySQLSlowlogAgentDefaultBody struct {
@@ -316,8 +370,7 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 change QAN my SQL slowlog agent default body details items0
+/*ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 change QAN my SQL slowlog agent default body details items0
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
@@ -353,8 +406,7 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentOKBody change QAN my SQL slowlog agent OK body
+/*ChangeQANMySQLSlowlogAgentOKBody change QAN my SQL slowlog agent OK body
 swagger:model ChangeQANMySQLSlowlogAgentOKBody
 */
 type ChangeQANMySQLSlowlogAgentOKBody struct {
@@ -442,8 +494,7 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 */
 type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
@@ -657,8 +708,7 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b
 	return nil
 }
 
-/*
-ChangeQANMySQLSlowlogAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeQANMySQLSlowlogAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeQANMySQLSlowlogAgentParamsBodyCommon
 */
 type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {

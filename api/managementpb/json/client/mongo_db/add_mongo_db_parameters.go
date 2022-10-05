@@ -52,12 +52,10 @@ func NewAddMongoDBParamsWithHTTPClient(client *http.Client) *AddMongoDBParams {
 	}
 }
 
-/*
-AddMongoDBParams contains all the parameters to send to the API endpoint
+/* AddMongoDBParams contains all the parameters to send to the API endpoint
+   for the add mongo DB operation.
 
-	for the add mongo DB operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddMongoDBParams struct {
 	// Body.

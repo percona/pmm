@@ -50,8 +50,7 @@ func NewListArtifactsOK() *ListArtifactsOK {
 	return &ListArtifactsOK{}
 }
 
-/*
-ListArtifactsOK describes a response with status code 200, with default header values.
+/* ListArtifactsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ListArtifactsOK struct {
 	Payload *ListArtifactsOKBody
 }
 
+// IsSuccess returns true when this list artifacts Ok response has a 2xx status code
+func (o *ListArtifactsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list artifacts Ok response has a 3xx status code
+func (o *ListArtifactsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list artifacts Ok response has a 4xx status code
+func (o *ListArtifactsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list artifacts Ok response has a 5xx status code
+func (o *ListArtifactsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list artifacts Ok response a status code equal to that given
+func (o *ListArtifactsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListArtifactsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListArtifactsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] listArtifactsOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewListArtifactsDefault(code int) *ListArtifactsDefault {
 	}
 }
 
-/*
-ListArtifactsDefault describes a response with status code -1, with default header values.
+/* ListArtifactsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ListArtifactsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list artifacts default response has a 2xx status code
+func (o *ListArtifactsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list artifacts default response has a 3xx status code
+func (o *ListArtifactsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list artifacts default response has a 4xx status code
+func (o *ListArtifactsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list artifacts default response has a 5xx status code
+func (o *ListArtifactsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list artifacts default response a status code equal to that given
+func (o *ListArtifactsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListArtifactsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListArtifactsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/List][%d] ListArtifacts default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ListArtifactsDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-ListArtifactsDefaultBody list artifacts default body
+/*ListArtifactsDefaultBody list artifacts default body
 swagger:model ListArtifactsDefaultBody
 */
 type ListArtifactsDefaultBody struct {
@@ -224,8 +279,7 @@ func (o *ListArtifactsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
+/*ListArtifactsDefaultBodyDetailsItems0 list artifacts default body details items0
 swagger:model ListArtifactsDefaultBodyDetailsItems0
 */
 type ListArtifactsDefaultBodyDetailsItems0 struct {
@@ -261,8 +315,7 @@ func (o *ListArtifactsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListArtifactsOKBody list artifacts OK body
+/*ListArtifactsOKBody list artifacts OK body
 swagger:model ListArtifactsOKBody
 */
 type ListArtifactsOKBody struct {
@@ -359,8 +412,7 @@ func (o *ListArtifactsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
+/*ListArtifactsOKBodyArtifactsItems0 Artifact represents single backup artifact.
 swagger:model ListArtifactsOKBodyArtifactsItems0
 */
 type ListArtifactsOKBodyArtifactsItems0 struct {

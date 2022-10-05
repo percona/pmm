@@ -48,8 +48,7 @@ func NewGetPXCClusterCredentialsOK() *GetPXCClusterCredentialsOK {
 	return &GetPXCClusterCredentialsOK{}
 }
 
-/*
-GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
+/* GetPXCClusterCredentialsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetPXCClusterCredentialsOK struct {
 	Payload *GetPXCClusterCredentialsOKBody
 }
 
+// IsSuccess returns true when this get Pxc cluster credentials Ok response has a 2xx status code
+func (o *GetPXCClusterCredentialsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get Pxc cluster credentials Ok response has a 3xx status code
+func (o *GetPXCClusterCredentialsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get Pxc cluster credentials Ok response has a 4xx status code
+func (o *GetPXCClusterCredentialsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get Pxc cluster credentials Ok response has a 5xx status code
+func (o *GetPXCClusterCredentialsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get Pxc cluster credentials Ok response a status code equal to that given
+func (o *GetPXCClusterCredentialsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPXCClusterCredentialsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] getPxcClusterCredentialsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetPXCClusterCredentialsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] getPxcClusterCredentialsOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetPXCClusterCredentialsDefault(code int) *GetPXCClusterCredentialsDefau
 	}
 }
 
-/*
-GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
+/* GetPXCClusterCredentialsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetPXCClusterCredentialsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get PXC cluster credentials default response has a 2xx status code
+func (o *GetPXCClusterCredentialsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get PXC cluster credentials default response has a 3xx status code
+func (o *GetPXCClusterCredentialsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get PXC cluster credentials default response has a 4xx status code
+func (o *GetPXCClusterCredentialsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get PXC cluster credentials default response has a 5xx status code
+func (o *GetPXCClusterCredentialsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get PXC cluster credentials default response a status code equal to that given
+func (o *GetPXCClusterCredentialsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetPXCClusterCredentialsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] GetPXCClusterCredentials default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetPXCClusterCredentialsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCClusters/GetCredentials][%d] GetPXCClusterCredentials default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetPXCClusterCredentialsDefault) readResponse(response runtime.ClientRe
 	return nil
 }
 
-/*
-GetPXCClusterCredentialsBody get PXC cluster credentials body
+/*GetPXCClusterCredentialsBody get PXC cluster credentials body
 swagger:model GetPXCClusterCredentialsBody
 */
 type GetPXCClusterCredentialsBody struct {
@@ -158,8 +213,7 @@ func (o *GetPXCClusterCredentialsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCClusterCredentialsDefaultBody get PXC cluster credentials default body
+/*GetPXCClusterCredentialsDefaultBody get PXC cluster credentials default body
 swagger:model GetPXCClusterCredentialsDefaultBody
 */
 type GetPXCClusterCredentialsDefaultBody struct {
@@ -262,8 +316,7 @@ func (o *GetPXCClusterCredentialsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials default body details items0
+/*GetPXCClusterCredentialsDefaultBodyDetailsItems0 get PXC cluster credentials default body details items0
 swagger:model GetPXCClusterCredentialsDefaultBodyDetailsItems0
 */
 type GetPXCClusterCredentialsDefaultBodyDetailsItems0 struct {
@@ -299,8 +352,7 @@ func (o *GetPXCClusterCredentialsDefaultBodyDetailsItems0) UnmarshalBinary(b []b
 	return nil
 }
 
-/*
-GetPXCClusterCredentialsOKBody get PXC cluster credentials OK body
+/*GetPXCClusterCredentialsOKBody get PXC cluster credentials OK body
 swagger:model GetPXCClusterCredentialsOKBody
 */
 type GetPXCClusterCredentialsOKBody struct {
@@ -388,8 +440,7 @@ func (o *GetPXCClusterCredentialsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCClusterCredentialsOKBodyConnectionCredentials PXCClusterConnectionCredentials is cluster connection credentials.
+/*GetPXCClusterCredentialsOKBodyConnectionCredentials PXCClusterConnectionCredentials is cluster connection credentials.
 swagger:model GetPXCClusterCredentialsOKBodyConnectionCredentials
 */
 type GetPXCClusterCredentialsOKBodyConnectionCredentials struct {

@@ -52,12 +52,10 @@ func NewStartPTMongoDBSummaryActionParamsWithHTTPClient(client *http.Client) *St
 	}
 }
 
-/*
-StartPTMongoDBSummaryActionParams contains all the parameters to send to the API endpoint
+/* StartPTMongoDBSummaryActionParams contains all the parameters to send to the API endpoint
+   for the start PT mongo DB summary action operation.
 
-	for the start PT mongo DB summary action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartPTMongoDBSummaryActionParams struct {
 	// Body.

@@ -48,8 +48,7 @@ func NewAddRemoteAzureDatabaseNodeOK() *AddRemoteAzureDatabaseNodeOK {
 	return &AddRemoteAzureDatabaseNodeOK{}
 }
 
-/*
-AddRemoteAzureDatabaseNodeOK describes a response with status code 200, with default header values.
+/* AddRemoteAzureDatabaseNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddRemoteAzureDatabaseNodeOK struct {
 	Payload *AddRemoteAzureDatabaseNodeOKBody
 }
 
+// IsSuccess returns true when this add remote azure database node Ok response has a 2xx status code
+func (o *AddRemoteAzureDatabaseNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add remote azure database node Ok response has a 3xx status code
+func (o *AddRemoteAzureDatabaseNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add remote azure database node Ok response has a 4xx status code
+func (o *AddRemoteAzureDatabaseNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add remote azure database node Ok response has a 5xx status code
+func (o *AddRemoteAzureDatabaseNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add remote azure database node Ok response a status code equal to that given
+func (o *AddRemoteAzureDatabaseNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddRemoteAzureDatabaseNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] addRemoteAzureDatabaseNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRemoteAzureDatabaseNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] addRemoteAzureDatabaseNodeOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddRemoteAzureDatabaseNodeDefault(code int) *AddRemoteAzureDatabaseNodeD
 	}
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefault describes a response with status code -1, with default header values.
+/* AddRemoteAzureDatabaseNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddRemoteAzureDatabaseNodeDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add remote azure database node default response has a 2xx status code
+func (o *AddRemoteAzureDatabaseNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add remote azure database node default response has a 3xx status code
+func (o *AddRemoteAzureDatabaseNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add remote azure database node default response has a 4xx status code
+func (o *AddRemoteAzureDatabaseNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add remote azure database node default response has a 5xx status code
+func (o *AddRemoteAzureDatabaseNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add remote azure database node default response a status code equal to that given
+func (o *AddRemoteAzureDatabaseNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddRemoteAzureDatabaseNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] AddRemoteAzureDatabaseNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteAzureDatabaseNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] AddRemoteAzureDatabaseNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddRemoteAzureDatabaseNodeDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeBody add remote azure database node body
+/*AddRemoteAzureDatabaseNodeBody add remote azure database node body
 swagger:model AddRemoteAzureDatabaseNodeBody
 */
 type AddRemoteAzureDatabaseNodeBody struct {
@@ -170,8 +225,7 @@ func (o *AddRemoteAzureDatabaseNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefaultBody add remote azure database node default body
+/*AddRemoteAzureDatabaseNodeDefaultBody add remote azure database node default body
 swagger:model AddRemoteAzureDatabaseNodeDefaultBody
 */
 type AddRemoteAzureDatabaseNodeDefaultBody struct {
@@ -274,8 +328,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 add remote azure database node default body details items0
+/*AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 add remote azure database node default body details items0
 swagger:model AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0
 */
 type AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 struct {
@@ -311,8 +364,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeOKBody add remote azure database node OK body
+/*AddRemoteAzureDatabaseNodeOKBody add remote azure database node OK body
 swagger:model AddRemoteAzureDatabaseNodeOKBody
 */
 type AddRemoteAzureDatabaseNodeOKBody struct {
@@ -400,8 +452,7 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+/*AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 swagger:model AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase
 */
 type AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase struct {

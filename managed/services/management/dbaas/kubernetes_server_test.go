@@ -57,6 +57,7 @@ func TestKubernetesServer(t *testing.T) {
 		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"))
 		return
 	}
+
 	t.Run("Basic", func(t *testing.T) {
 		ctx, ks, dc, teardown := setup(t)
 		defer teardown(t)
@@ -73,8 +74,8 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		require.Empty(t, clusters.KubernetesClusters)
 
-		dc.On("InstallPXCOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallPXCOperatorResponse{}, nil)
-
+		dc.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOLMOperatorResponse{}, nil)
+		dc.On("InstallOperator", mock.Anything, mock.Anything).Return(&controllerv1beta1.InstallOperatorResponse{}, nil)
 		dc.On("StopMonitoring", mock.Anything, mock.Anything).Return(&controllerv1beta1.StopMonitoringResponse{}, nil)
 
 		kubernetesClusterName := "test-cluster"

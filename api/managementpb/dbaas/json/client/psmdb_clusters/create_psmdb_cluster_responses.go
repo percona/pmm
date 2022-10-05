@@ -48,8 +48,7 @@ func NewCreatePSMDBClusterOK() *CreatePSMDBClusterOK {
 	return &CreatePSMDBClusterOK{}
 }
 
-/*
-CreatePSMDBClusterOK describes a response with status code 200, with default header values.
+/* CreatePSMDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type CreatePSMDBClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this create Psmdb cluster Ok response has a 2xx status code
+func (o *CreatePSMDBClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create Psmdb cluster Ok response has a 3xx status code
+func (o *CreatePSMDBClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create Psmdb cluster Ok response has a 4xx status code
+func (o *CreatePSMDBClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create Psmdb cluster Ok response has a 5xx status code
+func (o *CreatePSMDBClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create Psmdb cluster Ok response a status code equal to that given
+func (o *CreatePSMDBClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreatePSMDBClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] createPsmdbClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *CreatePSMDBClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] createPsmdbClusterOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewCreatePSMDBClusterDefault(code int) *CreatePSMDBClusterDefault {
 	}
 }
 
-/*
-CreatePSMDBClusterDefault describes a response with status code -1, with default header values.
+/* CreatePSMDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *CreatePSMDBClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this create PSMDB cluster default response has a 2xx status code
+func (o *CreatePSMDBClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create PSMDB cluster default response has a 3xx status code
+func (o *CreatePSMDBClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create PSMDB cluster default response has a 4xx status code
+func (o *CreatePSMDBClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create PSMDB cluster default response has a 5xx status code
+func (o *CreatePSMDBClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create PSMDB cluster default response a status code equal to that given
+func (o *CreatePSMDBClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CreatePSMDBClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] CreatePSMDBCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CreatePSMDBClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] CreatePSMDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *CreatePSMDBClusterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-CreatePSMDBClusterBody create PSMDB cluster body
+/*CreatePSMDBClusterBody create PSMDB cluster body
 swagger:model CreatePSMDBClusterBody
 */
 type CreatePSMDBClusterBody struct {
@@ -217,8 +272,7 @@ func (o *CreatePSMDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePSMDBClusterDefaultBody create PSMDB cluster default body
+/*CreatePSMDBClusterDefaultBody create PSMDB cluster default body
 swagger:model CreatePSMDBClusterDefaultBody
 */
 type CreatePSMDBClusterDefaultBody struct {
@@ -321,8 +375,7 @@ func (o *CreatePSMDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePSMDBClusterDefaultBodyDetailsItems0 create PSMDB cluster default body details items0
+/*CreatePSMDBClusterDefaultBodyDetailsItems0 create PSMDB cluster default body details items0
 swagger:model CreatePSMDBClusterDefaultBodyDetailsItems0
 */
 type CreatePSMDBClusterDefaultBodyDetailsItems0 struct {
@@ -358,8 +411,7 @@ func (o *CreatePSMDBClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-CreatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
+/*CreatePSMDBClusterParamsBodyParams PSMDBClusterParams represents PSMDB cluster parameters that can be updated.
 swagger:model CreatePSMDBClusterParamsBodyParams
 */
 type CreatePSMDBClusterParamsBodyParams struct {
@@ -453,8 +505,7 @@ func (o *CreatePSMDBClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
+/*CreatePSMDBClusterParamsBodyParamsReplicaset ReplicaSet container parameters.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model CreatePSMDBClusterParamsBodyParamsReplicaset
 */
@@ -546,8 +597,7 @@ func (o *CreatePSMDBClusterParamsBodyParamsReplicaset) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
+/*CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources
 */
 type CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources struct {

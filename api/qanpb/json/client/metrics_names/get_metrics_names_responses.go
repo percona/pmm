@@ -48,8 +48,7 @@ func NewGetMetricsNamesOK() *GetMetricsNamesOK {
 	return &GetMetricsNamesOK{}
 }
 
-/*
-GetMetricsNamesOK describes a response with status code 200, with default header values.
+/* GetMetricsNamesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetMetricsNamesOK struct {
 	Payload *GetMetricsNamesOKBody
 }
 
+// IsSuccess returns true when this get metrics names Ok response has a 2xx status code
+func (o *GetMetricsNamesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get metrics names Ok response has a 3xx status code
+func (o *GetMetricsNamesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get metrics names Ok response has a 4xx status code
+func (o *GetMetricsNamesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get metrics names Ok response has a 5xx status code
+func (o *GetMetricsNamesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get metrics names Ok response a status code equal to that given
+func (o *GetMetricsNamesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetMetricsNamesOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
+}
+
+func (o *GetMetricsNamesOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetMetricsNamesDefault(code int) *GetMetricsNamesDefault {
 	}
 }
 
-/*
-GetMetricsNamesDefault describes a response with status code -1, with default header values.
+/* GetMetricsNamesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetMetricsNamesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get metrics names default response has a 2xx status code
+func (o *GetMetricsNamesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get metrics names default response has a 3xx status code
+func (o *GetMetricsNamesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get metrics names default response has a 4xx status code
+func (o *GetMetricsNamesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get metrics names default response has a 5xx status code
+func (o *GetMetricsNamesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get metrics names default response a status code equal to that given
+func (o *GetMetricsNamesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetMetricsNamesDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetMetricsNamesDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-GetMetricsNamesDefaultBody get metrics names default body
+/*GetMetricsNamesDefaultBody get metrics names default body
 swagger:model GetMetricsNamesDefaultBody
 */
 type GetMetricsNamesDefaultBody struct {
@@ -222,8 +277,7 @@ func (o *GetMetricsNamesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details items0
+/*GetMetricsNamesDefaultBodyDetailsItems0 get metrics names default body details items0
 swagger:model GetMetricsNamesDefaultBodyDetailsItems0
 */
 type GetMetricsNamesDefaultBodyDetailsItems0 struct {
@@ -259,8 +313,7 @@ func (o *GetMetricsNamesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
+/*GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
 // key is root of metric name in db (Ex:. [m_]query_time[_sum]);
 // value - Human readable name of metrics.
 swagger:model GetMetricsNamesOKBody

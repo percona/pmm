@@ -48,8 +48,7 @@ func NewDeleteArtifactOK() *DeleteArtifactOK {
 	return &DeleteArtifactOK{}
 }
 
-/*
-DeleteArtifactOK describes a response with status code 200, with default header values.
+/* DeleteArtifactOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type DeleteArtifactOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this delete artifact Ok response has a 2xx status code
+func (o *DeleteArtifactOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this delete artifact Ok response has a 3xx status code
+func (o *DeleteArtifactOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this delete artifact Ok response has a 4xx status code
+func (o *DeleteArtifactOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this delete artifact Ok response has a 5xx status code
+func (o *DeleteArtifactOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this delete artifact Ok response a status code equal to that given
+func (o *DeleteArtifactOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *DeleteArtifactOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] deleteArtifactOk  %+v", 200, o.Payload)
+}
+
+func (o *DeleteArtifactOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] deleteArtifactOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewDeleteArtifactDefault(code int) *DeleteArtifactDefault {
 	}
 }
 
-/*
-DeleteArtifactDefault describes a response with status code -1, with default header values.
+/* DeleteArtifactDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *DeleteArtifactDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this delete artifact default response has a 2xx status code
+func (o *DeleteArtifactDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this delete artifact default response has a 3xx status code
+func (o *DeleteArtifactDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this delete artifact default response has a 4xx status code
+func (o *DeleteArtifactDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this delete artifact default response has a 5xx status code
+func (o *DeleteArtifactDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this delete artifact default response a status code equal to that given
+func (o *DeleteArtifactDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *DeleteArtifactDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *DeleteArtifactDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] DeleteArtifact default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *DeleteArtifactDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-DeleteArtifactBody delete artifact body
+/*DeleteArtifactBody delete artifact body
 swagger:model DeleteArtifactBody
 */
 type DeleteArtifactBody struct {
@@ -156,8 +211,7 @@ func (o *DeleteArtifactBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteArtifactDefaultBody delete artifact default body
+/*DeleteArtifactDefaultBody delete artifact default body
 swagger:model DeleteArtifactDefaultBody
 */
 type DeleteArtifactDefaultBody struct {
@@ -260,8 +314,7 @@ func (o *DeleteArtifactDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DeleteArtifactDefaultBodyDetailsItems0 delete artifact default body details items0
+/*DeleteArtifactDefaultBodyDetailsItems0 delete artifact default body details items0
 swagger:model DeleteArtifactDefaultBodyDetailsItems0
 */
 type DeleteArtifactDefaultBodyDetailsItems0 struct {

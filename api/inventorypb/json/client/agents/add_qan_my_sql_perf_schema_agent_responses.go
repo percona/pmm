@@ -50,8 +50,7 @@ func NewAddQANMySQLPerfSchemaAgentOK() *AddQANMySQLPerfSchemaAgentOK {
 	return &AddQANMySQLPerfSchemaAgentOK{}
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
+/* AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 	Payload *AddQANMySQLPerfSchemaAgentOKBody
 }
 
+// IsSuccess returns true when this add Qan my Sql perf schema agent Ok response has a 2xx status code
+func (o *AddQANMySQLPerfSchemaAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Qan my Sql perf schema agent Ok response has a 3xx status code
+func (o *AddQANMySQLPerfSchemaAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Qan my Sql perf schema agent Ok response has a 4xx status code
+func (o *AddQANMySQLPerfSchemaAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Qan my Sql perf schema agent Ok response has a 5xx status code
+func (o *AddQANMySQLPerfSchemaAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Qan my Sql perf schema agent Ok response a status code equal to that given
+func (o *AddQANMySQLPerfSchemaAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANMySQLPerfSchemaAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentD
 	}
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
+/* AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add QAN my SQL perf schema agent default response has a 2xx status code
+func (o *AddQANMySQLPerfSchemaAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add QAN my SQL perf schema agent default response has a 3xx status code
+func (o *AddQANMySQLPerfSchemaAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add QAN my SQL perf schema agent default response has a 4xx status code
+func (o *AddQANMySQLPerfSchemaAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add QAN my SQL perf schema agent default response has a 5xx status code
+func (o *AddQANMySQLPerfSchemaAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add QAN my SQL perf schema agent default response a status code equal to that given
+func (o *AddQANMySQLPerfSchemaAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANMySQLPerfSchemaAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
+/*AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
 swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
@@ -257,8 +312,7 @@ func (o *AddQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
+/*AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
 */
 type AddQANMySQLPerfSchemaAgentDefaultBody struct {
@@ -361,8 +415,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
+/*AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
@@ -398,8 +451,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
+/*AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
 swagger:model AddQANMySQLPerfSchemaAgentOKBody
 */
 type AddQANMySQLPerfSchemaAgentOKBody struct {
@@ -487,8 +539,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 */
 type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {

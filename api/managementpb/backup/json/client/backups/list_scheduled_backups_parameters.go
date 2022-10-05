@@ -52,12 +52,10 @@ func NewListScheduledBackupsParamsWithHTTPClient(client *http.Client) *ListSched
 	}
 }
 
-/*
-ListScheduledBackupsParams contains all the parameters to send to the API endpoint
+/* ListScheduledBackupsParams contains all the parameters to send to the API endpoint
+   for the list scheduled backups operation.
 
-	for the list scheduled backups operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListScheduledBackupsParams struct {
 	// Body.

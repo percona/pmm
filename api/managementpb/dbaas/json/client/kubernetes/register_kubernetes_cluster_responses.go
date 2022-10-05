@@ -48,8 +48,7 @@ func NewRegisterKubernetesClusterOK() *RegisterKubernetesClusterOK {
 	return &RegisterKubernetesClusterOK{}
 }
 
-/*
-RegisterKubernetesClusterOK describes a response with status code 200, with default header values.
+/* RegisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type RegisterKubernetesClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this register kubernetes cluster Ok response has a 2xx status code
+func (o *RegisterKubernetesClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this register kubernetes cluster Ok response has a 3xx status code
+func (o *RegisterKubernetesClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this register kubernetes cluster Ok response has a 4xx status code
+func (o *RegisterKubernetesClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this register kubernetes cluster Ok response has a 5xx status code
+func (o *RegisterKubernetesClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this register kubernetes cluster Ok response a status code equal to that given
+func (o *RegisterKubernetesClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *RegisterKubernetesClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] registerKubernetesClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *RegisterKubernetesClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] registerKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewRegisterKubernetesClusterDefault(code int) *RegisterKubernetesClusterDef
 	}
 }
 
-/*
-RegisterKubernetesClusterDefault describes a response with status code -1, with default header values.
+/* RegisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *RegisterKubernetesClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this register kubernetes cluster default response has a 2xx status code
+func (o *RegisterKubernetesClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this register kubernetes cluster default response has a 3xx status code
+func (o *RegisterKubernetesClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this register kubernetes cluster default response has a 4xx status code
+func (o *RegisterKubernetesClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this register kubernetes cluster default response has a 5xx status code
+func (o *RegisterKubernetesClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this register kubernetes cluster default response a status code equal to that given
+func (o *RegisterKubernetesClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *RegisterKubernetesClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] RegisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RegisterKubernetesClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] RegisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *RegisterKubernetesClusterDefault) readResponse(response runtime.ClientR
 	return nil
 }
 
-/*
-RegisterKubernetesClusterBody register kubernetes cluster body
+/*RegisterKubernetesClusterBody register kubernetes cluster body
 swagger:model RegisterKubernetesClusterBody
 */
 type RegisterKubernetesClusterBody struct {
@@ -214,8 +269,7 @@ func (o *RegisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RegisterKubernetesClusterDefaultBody register kubernetes cluster default body
+/*RegisterKubernetesClusterDefaultBody register kubernetes cluster default body
 swagger:model RegisterKubernetesClusterDefaultBody
 */
 type RegisterKubernetesClusterDefaultBody struct {
@@ -318,8 +372,7 @@ func (o *RegisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RegisterKubernetesClusterDefaultBodyDetailsItems0 register kubernetes cluster default body details items0
+/*RegisterKubernetesClusterDefaultBodyDetailsItems0 register kubernetes cluster default body details items0
 swagger:model RegisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type RegisterKubernetesClusterDefaultBodyDetailsItems0 struct {
@@ -355,8 +408,7 @@ func (o *RegisterKubernetesClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-RegisterKubernetesClusterParamsBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
+/*RegisterKubernetesClusterParamsBodyKubeAuth KubeAuth represents Kubernetes / kubectl authentication and authorization information.
 swagger:model RegisterKubernetesClusterParamsBodyKubeAuth
 */
 type RegisterKubernetesClusterParamsBodyKubeAuth struct {

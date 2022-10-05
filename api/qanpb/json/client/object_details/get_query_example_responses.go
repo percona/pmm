@@ -50,8 +50,7 @@ func NewGetQueryExampleOK() *GetQueryExampleOK {
 	return &GetQueryExampleOK{}
 }
 
-/*
-GetQueryExampleOK describes a response with status code 200, with default header values.
+/* GetQueryExampleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type GetQueryExampleOK struct {
 	Payload *GetQueryExampleOKBody
 }
 
+// IsSuccess returns true when this get query example Ok response has a 2xx status code
+func (o *GetQueryExampleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get query example Ok response has a 3xx status code
+func (o *GetQueryExampleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get query example Ok response has a 4xx status code
+func (o *GetQueryExampleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get query example Ok response has a 5xx status code
+func (o *GetQueryExampleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get query example Ok response a status code equal to that given
+func (o *GetQueryExampleOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetQueryExampleOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
+}
+
+func (o *GetQueryExampleOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewGetQueryExampleDefault(code int) *GetQueryExampleDefault {
 	}
 }
 
-/*
-GetQueryExampleDefault describes a response with status code -1, with default header values.
+/* GetQueryExampleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *GetQueryExampleDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get query example default response has a 2xx status code
+func (o *GetQueryExampleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get query example default response has a 3xx status code
+func (o *GetQueryExampleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get query example default response has a 4xx status code
+func (o *GetQueryExampleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get query example default response has a 5xx status code
+func (o *GetQueryExampleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get query example default response a status code equal to that given
+func (o *GetQueryExampleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetQueryExampleDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetQueryExampleDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
+/*GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
 // dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetQueryExampleBody
 */
@@ -268,8 +323,7 @@ func (o *GetQueryExampleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetQueryExampleDefaultBody get query example default body
+/*GetQueryExampleDefaultBody get query example default body
 swagger:model GetQueryExampleDefaultBody
 */
 type GetQueryExampleDefaultBody struct {
@@ -372,8 +426,7 @@ func (o *GetQueryExampleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetQueryExampleDefaultBodyDetailsItems0 get query example default body details items0
+/*GetQueryExampleDefaultBodyDetailsItems0 get query example default body details items0
 swagger:model GetQueryExampleDefaultBodyDetailsItems0
 */
 type GetQueryExampleDefaultBodyDetailsItems0 struct {
@@ -409,8 +462,7 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-GetQueryExampleOKBody QueryExampleReply list of query examples.
+/*GetQueryExampleOKBody QueryExampleReply list of query examples.
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {
@@ -507,8 +559,7 @@ func (o *GetQueryExampleOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and their metrics.
+/*GetQueryExampleOKBodyQueryExamplesItems0 QueryExample shows query examples and their metrics.
 swagger:model GetQueryExampleOKBodyQueryExamplesItems0
 */
 type GetQueryExampleOKBodyQueryExamplesItems0 struct {
@@ -681,8 +732,7 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*GetQueryExampleParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetQueryExampleParamsBodyLabelsItems0
 */
 type GetQueryExampleParamsBodyLabelsItems0 struct {

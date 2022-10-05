@@ -52,12 +52,10 @@ func NewAddPostgreSQLParamsWithHTTPClient(client *http.Client) *AddPostgreSQLPar
 	}
 }
 
-/*
-AddPostgreSQLParams contains all the parameters to send to the API endpoint
+/* AddPostgreSQLParams contains all the parameters to send to the API endpoint
+   for the add postgre SQL operation.
 
-	for the add postgre SQL operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddPostgreSQLParams struct {
 	// Body.

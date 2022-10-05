@@ -52,12 +52,10 @@ func NewVersionParamsWithHTTPClient(client *http.Client) *VersionParams {
 	}
 }
 
-/*
-VersionParams contains all the parameters to send to the API endpoint
+/* VersionParams contains all the parameters to send to the API endpoint
+   for the version operation.
 
-	for the version operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type VersionParams struct {
 	/* Dummy.

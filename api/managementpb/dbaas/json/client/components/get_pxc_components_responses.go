@@ -48,8 +48,7 @@ func NewGetPXCComponentsOK() *GetPXCComponentsOK {
 	return &GetPXCComponentsOK{}
 }
 
-/*
-GetPXCComponentsOK describes a response with status code 200, with default header values.
+/* GetPXCComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetPXCComponentsOK struct {
 	Payload *GetPXCComponentsOKBody
 }
 
+// IsSuccess returns true when this get Pxc components Ok response has a 2xx status code
+func (o *GetPXCComponentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get Pxc components Ok response has a 3xx status code
+func (o *GetPXCComponentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get Pxc components Ok response has a 4xx status code
+func (o *GetPXCComponentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get Pxc components Ok response has a 5xx status code
+func (o *GetPXCComponentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get Pxc components Ok response a status code equal to that given
+func (o *GetPXCComponentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPXCComponentsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] getPxcComponentsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetPXCComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] getPxcComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetPXCComponentsDefault(code int) *GetPXCComponentsDefault {
 	}
 }
 
-/*
-GetPXCComponentsDefault describes a response with status code -1, with default header values.
+/* GetPXCComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetPXCComponentsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get PXC components default response has a 2xx status code
+func (o *GetPXCComponentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get PXC components default response has a 3xx status code
+func (o *GetPXCComponentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get PXC components default response has a 4xx status code
+func (o *GetPXCComponentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get PXC components default response has a 5xx status code
+func (o *GetPXCComponentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get PXC components default response a status code equal to that given
+func (o *GetPXCComponentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetPXCComponentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] GetPXCComponents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetPXCComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPXC][%d] GetPXCComponents default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetPXCComponentsDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-GetPXCComponentsBody get PXC components body
+/*GetPXCComponentsBody get PXC components body
 swagger:model GetPXCComponentsBody
 */
 type GetPXCComponentsBody struct {
@@ -158,8 +213,7 @@ func (o *GetPXCComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCComponentsDefaultBody get PXC components default body
+/*GetPXCComponentsDefaultBody get PXC components default body
 swagger:model GetPXCComponentsDefaultBody
 */
 type GetPXCComponentsDefaultBody struct {
@@ -262,8 +316,7 @@ func (o *GetPXCComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCComponentsDefaultBodyDetailsItems0 get PXC components default body details items0
+/*GetPXCComponentsDefaultBodyDetailsItems0 get PXC components default body details items0
 swagger:model GetPXCComponentsDefaultBodyDetailsItems0
 */
 type GetPXCComponentsDefaultBodyDetailsItems0 struct {
@@ -299,8 +352,7 @@ func (o *GetPXCComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-GetPXCComponentsOKBody get PXC components OK body
+/*GetPXCComponentsOKBody get PXC components OK body
 swagger:model GetPXCComponentsOKBody
 */
 type GetPXCComponentsOKBody struct {
@@ -397,8 +449,7 @@ func (o *GetPXCComponentsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0 OperatorVersion contains information about operator and components matrix.
+/*GetPXCComponentsOKBodyVersionsItems0 OperatorVersion contains information about operator and components matrix.
 swagger:model GetPXCComponentsOKBodyVersionsItems0
 */
 type GetPXCComponentsOKBodyVersionsItems0 struct {
@@ -492,8 +543,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0Matrix Matrix contains all available components.
+/*GetPXCComponentsOKBodyVersionsItems0Matrix Matrix contains all available components.
 swagger:model GetPXCComponentsOKBodyVersionsItems0Matrix
 */
 type GetPXCComponentsOKBodyVersionsItems0Matrix struct {
@@ -928,8 +978,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0Matrix) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon struct {
@@ -980,8 +1029,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixBackupAnon) UnmarshalBinary(b
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon struct {
@@ -1032,8 +1080,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixHaproxyAnon) UnmarshalBinary(
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon struct {
@@ -1084,8 +1131,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) UnmarshalBi
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon struct {
@@ -1136,8 +1182,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixMongodAnon) UnmarshalBinary(b
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon struct {
@@ -1188,8 +1233,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixOperatorAnon) UnmarshalBinary
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon struct {
@@ -1240,8 +1284,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPMMAnon) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon struct {
@@ -1292,8 +1335,7 @@ func (o *GetPXCComponentsOKBodyVersionsItems0MatrixPXCAnon) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains information about component.
+/*GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains information about component.
 swagger:model GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 */
 type GetPXCComponentsOKBodyVersionsItems0MatrixProxysqlAnon struct {

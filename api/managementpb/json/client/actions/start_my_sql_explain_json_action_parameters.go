@@ -52,12 +52,10 @@ func NewStartMySQLExplainJSONActionParamsWithHTTPClient(client *http.Client) *St
 	}
 }
 
-/*
-StartMySQLExplainJSONActionParams contains all the parameters to send to the API endpoint
+/* StartMySQLExplainJSONActionParams contains all the parameters to send to the API endpoint
+   for the start my SQL explain JSON action operation.
 
-	for the start my SQL explain JSON action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartMySQLExplainJSONActionParams struct {
 	// Body.

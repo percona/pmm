@@ -50,8 +50,7 @@ func NewRestartDBClusterOK() *RestartDBClusterOK {
 	return &RestartDBClusterOK{}
 }
 
-/*
-RestartDBClusterOK describes a response with status code 200, with default header values.
+/* RestartDBClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type RestartDBClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this restart Db cluster Ok response has a 2xx status code
+func (o *RestartDBClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this restart Db cluster Ok response has a 3xx status code
+func (o *RestartDBClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this restart Db cluster Ok response has a 4xx status code
+func (o *RestartDBClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this restart Db cluster Ok response has a 5xx status code
+func (o *RestartDBClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this restart Db cluster Ok response a status code equal to that given
+func (o *RestartDBClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *RestartDBClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *RestartDBClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewRestartDBClusterDefault(code int) *RestartDBClusterDefault {
 	}
 }
 
-/*
-RestartDBClusterDefault describes a response with status code -1, with default header values.
+/* RestartDBClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *RestartDBClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this restart DB cluster default response has a 2xx status code
+func (o *RestartDBClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this restart DB cluster default response has a 3xx status code
+func (o *RestartDBClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this restart DB cluster default response has a 4xx status code
+func (o *RestartDBClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this restart DB cluster default response has a 5xx status code
+func (o *RestartDBClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this restart DB cluster default response a status code equal to that given
+func (o *RestartDBClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *RestartDBClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RestartDBClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] RestartDBCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *RestartDBClusterDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-RestartDBClusterBody restart DB cluster body
+/*RestartDBClusterBody restart DB cluster body
 swagger:model RestartDBClusterBody
 */
 type RestartDBClusterBody struct {
@@ -220,8 +275,7 @@ func (o *RestartDBClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestartDBClusterDefaultBody restart DB cluster default body
+/*RestartDBClusterDefaultBody restart DB cluster default body
 swagger:model RestartDBClusterDefaultBody
 */
 type RestartDBClusterDefaultBody struct {
@@ -324,8 +378,7 @@ func (o *RestartDBClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestartDBClusterDefaultBodyDetailsItems0 restart DB cluster default body details items0
+/*RestartDBClusterDefaultBodyDetailsItems0 restart DB cluster default body details items0
 swagger:model RestartDBClusterDefaultBodyDetailsItems0
 */
 type RestartDBClusterDefaultBodyDetailsItems0 struct {

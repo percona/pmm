@@ -50,8 +50,7 @@ func NewAddRDSOK() *AddRDSOK {
 	return &AddRDSOK{}
 }
 
-/*
-AddRDSOK describes a response with status code 200, with default header values.
+/* AddRDSOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddRDSOK struct {
 	Payload *AddRDSOKBody
 }
 
+// IsSuccess returns true when this add Rds Ok response has a 2xx status code
+func (o *AddRDSOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Rds Ok response has a 3xx status code
+func (o *AddRDSOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Rds Ok response has a 4xx status code
+func (o *AddRDSOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Rds Ok response has a 5xx status code
+func (o *AddRDSOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Rds Ok response a status code equal to that given
+func (o *AddRDSOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddRDSOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] addRdsOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRDSOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] addRdsOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddRDSDefault(code int) *AddRDSDefault {
 	}
 }
 
-/*
-AddRDSDefault describes a response with status code -1, with default header values.
+/* AddRDSDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddRDSDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add RDS default response has a 2xx status code
+func (o *AddRDSDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add RDS default response has a 3xx status code
+func (o *AddRDSDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add RDS default response has a 4xx status code
+func (o *AddRDSDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add RDS default response has a 5xx status code
+func (o *AddRDSDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add RDS default response a status code equal to that given
+func (o *AddRDSDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddRDSDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] AddRDS default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRDSDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/RDS/Add][%d] AddRDS default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddRDSDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-/*
-AddRDSBody add RDS body
+/*AddRDSBody add RDS body
 swagger:model AddRDSBody
 */
 type AddRDSBody struct {
@@ -349,8 +404,7 @@ func (o *AddRDSBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSDefaultBody add RDS default body
+/*AddRDSDefaultBody add RDS default body
 swagger:model AddRDSDefaultBody
 */
 type AddRDSDefaultBody struct {
@@ -453,8 +507,7 @@ func (o *AddRDSDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSDefaultBodyDetailsItems0 add RDS default body details items0
+/*AddRDSDefaultBodyDetailsItems0 add RDS default body details items0
 swagger:model AddRDSDefaultBodyDetailsItems0
 */
 type AddRDSDefaultBodyDetailsItems0 struct {
@@ -490,8 +543,7 @@ func (o *AddRDSDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBody add RDS OK body
+/*AddRDSOKBody add RDS OK body
 swagger:model AddRDSOKBody
 */
 type AddRDSOKBody struct {
@@ -897,8 +949,7 @@ func (o *AddRDSOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyMysql MySQLService represents a generic MySQL instance.
+/*AddRDSOKBodyMysql MySQLService represents a generic MySQL instance.
 swagger:model AddRDSOKBodyMysql
 */
 type AddRDSOKBodyMysql struct {
@@ -964,8 +1015,7 @@ func (o *AddRDSOKBodyMysql) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*AddRDSOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddRDSOKBodyMysqldExporter
 */
 type AddRDSOKBodyMysqldExporter struct {
@@ -1190,8 +1240,7 @@ func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyNode RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*AddRDSOKBodyNode RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model AddRDSOKBodyNode
 */
 type AddRDSOKBodyNode struct {
@@ -1245,8 +1294,7 @@ func (o *AddRDSOKBodyNode) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
+/*AddRDSOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
 swagger:model AddRDSOKBodyPostgresql
 */
 type AddRDSOKBodyPostgresql struct {
@@ -1315,8 +1363,7 @@ func (o *AddRDSOKBodyPostgresql) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyPostgresqlExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*AddRDSOKBodyPostgresqlExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model AddRDSOKBodyPostgresqlExporter
 */
 type AddRDSOKBodyPostgresqlExporter struct {
@@ -1524,8 +1571,7 @@ func (o *AddRDSOKBodyPostgresqlExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*AddRDSOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddRDSOKBodyQANMysqlPerfschema
 */
 type AddRDSOKBodyQANMysqlPerfschema struct {
@@ -1736,8 +1782,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRDSOKBodyQANPostgresqlPgstatements QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddRDSOKBodyQANPostgresqlPgstatements QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddRDSOKBodyQANPostgresqlPgstatements
 */
 type AddRDSOKBodyQANPostgresqlPgstatements struct {
@@ -1936,8 +1981,7 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddRDSOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*AddRDSOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model AddRDSOKBodyRDSExporter
 */
 type AddRDSOKBodyRDSExporter struct {

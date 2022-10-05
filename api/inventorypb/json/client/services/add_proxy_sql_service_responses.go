@@ -48,8 +48,7 @@ func NewAddProxySQLServiceOK() *AddProxySQLServiceOK {
 	return &AddProxySQLServiceOK{}
 }
 
-/*
-AddProxySQLServiceOK describes a response with status code 200, with default header values.
+/* AddProxySQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddProxySQLServiceOK struct {
 	Payload *AddProxySQLServiceOKBody
 }
 
+// IsSuccess returns true when this add proxy Sql service Ok response has a 2xx status code
+func (o *AddProxySQLServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add proxy Sql service Ok response has a 3xx status code
+func (o *AddProxySQLServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add proxy Sql service Ok response has a 4xx status code
+func (o *AddProxySQLServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add proxy Sql service Ok response has a 5xx status code
+func (o *AddProxySQLServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add proxy Sql service Ok response a status code equal to that given
+func (o *AddProxySQLServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddProxySQLServiceOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddProxySQLServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] addProxySqlServiceOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddProxySQLServiceDefault(code int) *AddProxySQLServiceDefault {
 	}
 }
 
-/*
-AddProxySQLServiceDefault describes a response with status code -1, with default header values.
+/* AddProxySQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddProxySQLServiceDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add proxy SQL service default response has a 2xx status code
+func (o *AddProxySQLServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add proxy SQL service default response has a 3xx status code
+func (o *AddProxySQLServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add proxy SQL service default response has a 4xx status code
+func (o *AddProxySQLServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add proxy SQL service default response has a 5xx status code
+func (o *AddProxySQLServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add proxy SQL service default response a status code equal to that given
+func (o *AddProxySQLServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddProxySQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddProxySQLServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddProxySQL][%d] AddProxySQLService default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddProxySQLServiceDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-AddProxySQLServiceBody add proxy SQL service body
+/*AddProxySQLServiceBody add proxy SQL service body
 swagger:model AddProxySQLServiceBody
 */
 type AddProxySQLServiceBody struct {
@@ -182,8 +237,7 @@ func (o *AddProxySQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceDefaultBody add proxy SQL service default body
+/*AddProxySQLServiceDefaultBody add proxy SQL service default body
 swagger:model AddProxySQLServiceDefaultBody
 */
 type AddProxySQLServiceDefaultBody struct {
@@ -286,8 +340,7 @@ func (o *AddProxySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceDefaultBodyDetailsItems0 add proxy SQL service default body details items0
+/*AddProxySQLServiceDefaultBodyDetailsItems0 add proxy SQL service default body details items0
 swagger:model AddProxySQLServiceDefaultBodyDetailsItems0
 */
 type AddProxySQLServiceDefaultBodyDetailsItems0 struct {
@@ -323,8 +376,7 @@ func (o *AddProxySQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-AddProxySQLServiceOKBody add proxy SQL service OK body
+/*AddProxySQLServiceOKBody add proxy SQL service OK body
 swagger:model AddProxySQLServiceOKBody
 */
 type AddProxySQLServiceOKBody struct {
@@ -412,8 +464,7 @@ func (o *AddProxySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddProxySQLServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
+/*AddProxySQLServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
 swagger:model AddProxySQLServiceOKBodyProxysql
 */
 type AddProxySQLServiceOKBodyProxysql struct {

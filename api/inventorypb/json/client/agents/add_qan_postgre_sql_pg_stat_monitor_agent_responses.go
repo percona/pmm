@@ -50,8 +50,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentOK() *AddQANPostgreSQLPgStatMonitorAge
 	return &AddQANPostgreSQLPgStatMonitorAgentOK{}
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
+/* AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddQANPostgreSQLPgStatMonitorAgentOK struct {
 	Payload *AddQANPostgreSQLPgStatMonitorAgentOKBody
 }
 
+// IsSuccess returns true when this add Qan postgre Sql pg stat monitor agent Ok response has a 2xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Qan postgre Sql pg stat monitor agent Ok response has a 3xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Qan postgre Sql pg stat monitor agent Ok response has a 4xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Qan postgre Sql pg stat monitor agent Ok response has a 5xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Qan postgre Sql pg stat monitor agent Ok response a status code equal to that given
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddQANPostgreSQLPgStatMonitorAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] addQanPostgreSqlPgStatMonitorAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatMonitorAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] addQanPostgreSqlPgStatMonitorAgentOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddQANPostgreSQLPgStatMonitorAgentDefault(code int) *AddQANPostgreSQLPgS
 	}
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
+/* AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add QAN postgre SQL pg stat monitor agent default response has a 2xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add QAN postgre SQL pg stat monitor agent default response has a 3xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add QAN postgre SQL pg stat monitor agent default response has a 4xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add QAN postgre SQL pg stat monitor agent default response has a 5xx status code
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add QAN postgre SQL pg stat monitor agent default response a status code equal to that given
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] AddQANPostgreSQLPgStatMonitorAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent][%d] AddQANPostgreSQLPgStatMonitorAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtim
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentBody add QAN postgre SQL pg stat monitor agent body
+/*AddQANPostgreSQLPgStatMonitorAgentBody add QAN postgre SQL pg stat monitor agent body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentBody struct {
@@ -257,8 +312,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentDefaultBody add QAN postgre SQL pg stat monitor agent default body
+/*AddQANPostgreSQLPgStatMonitorAgentDefaultBody add QAN postgre SQL pg stat monitor agent default body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
@@ -361,8 +415,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg stat monitor agent default body details items0
+/*AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg stat monitor agent default body details items0
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
@@ -398,8 +451,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) UnmarshalBi
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentOKBody add QAN postgre SQL pg stat monitor agent OK body
+/*AddQANPostgreSQLPgStatMonitorAgentOKBody add QAN postgre SQL pg stat monitor agent OK body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBody struct {
@@ -487,8 +539,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {

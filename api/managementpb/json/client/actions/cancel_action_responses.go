@@ -48,8 +48,7 @@ func NewCancelActionOK() *CancelActionOK {
 	return &CancelActionOK{}
 }
 
-/*
-CancelActionOK describes a response with status code 200, with default header values.
+/* CancelActionOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type CancelActionOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this cancel action Ok response has a 2xx status code
+func (o *CancelActionOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this cancel action Ok response has a 3xx status code
+func (o *CancelActionOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this cancel action Ok response has a 4xx status code
+func (o *CancelActionOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this cancel action Ok response has a 5xx status code
+func (o *CancelActionOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this cancel action Ok response a status code equal to that given
+func (o *CancelActionOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CancelActionOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
+}
+
+func (o *CancelActionOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewCancelActionDefault(code int) *CancelActionDefault {
 	}
 }
 
-/*
-CancelActionDefault describes a response with status code -1, with default header values.
+/* CancelActionDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *CancelActionDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this cancel action default response has a 2xx status code
+func (o *CancelActionDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this cancel action default response has a 3xx status code
+func (o *CancelActionDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this cancel action default response has a 4xx status code
+func (o *CancelActionDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this cancel action default response has a 5xx status code
+func (o *CancelActionDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this cancel action default response a status code equal to that given
+func (o *CancelActionDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CancelActionDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CancelActionDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*
-CancelActionBody cancel action body
+/*CancelActionBody cancel action body
 swagger:model CancelActionBody
 */
 type CancelActionBody struct {
@@ -153,8 +208,7 @@ func (o *CancelActionBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CancelActionDefaultBody cancel action default body
+/*CancelActionDefaultBody cancel action default body
 swagger:model CancelActionDefaultBody
 */
 type CancelActionDefaultBody struct {
@@ -257,8 +311,7 @@ func (o *CancelActionDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
+/*CancelActionDefaultBodyDetailsItems0 cancel action default body details items0
 swagger:model CancelActionDefaultBodyDetailsItems0
 */
 type CancelActionDefaultBodyDetailsItems0 struct {

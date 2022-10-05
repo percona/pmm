@@ -52,12 +52,10 @@ func NewStartMySQLExplainTraditionalJSONActionParamsWithHTTPClient(client *http.
 	}
 }
 
-/*
-StartMySQLExplainTraditionalJSONActionParams contains all the parameters to send to the API endpoint
+/* StartMySQLExplainTraditionalJSONActionParams contains all the parameters to send to the API endpoint
+   for the start my SQL explain traditional JSON action operation.
 
-	for the start my SQL explain traditional JSON action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartMySQLExplainTraditionalJSONActionParams struct {
 	// Body.

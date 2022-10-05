@@ -50,8 +50,7 @@ func NewDiscoverAzureDatabaseOK() *DiscoverAzureDatabaseOK {
 	return &DiscoverAzureDatabaseOK{}
 }
 
-/*
-DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
+/* DiscoverAzureDatabaseOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type DiscoverAzureDatabaseOK struct {
 	Payload *DiscoverAzureDatabaseOKBody
 }
 
+// IsSuccess returns true when this discover azure database Ok response has a 2xx status code
+func (o *DiscoverAzureDatabaseOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this discover azure database Ok response has a 3xx status code
+func (o *DiscoverAzureDatabaseOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this discover azure database Ok response has a 4xx status code
+func (o *DiscoverAzureDatabaseOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this discover azure database Ok response has a 5xx status code
+func (o *DiscoverAzureDatabaseOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this discover azure database Ok response a status code equal to that given
+func (o *DiscoverAzureDatabaseOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *DiscoverAzureDatabaseOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
+}
+
+func (o *DiscoverAzureDatabaseOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] discoverAzureDatabaseOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewDiscoverAzureDatabaseDefault(code int) *DiscoverAzureDatabaseDefault {
 	}
 }
 
-/*
-DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
+/* DiscoverAzureDatabaseDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *DiscoverAzureDatabaseDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this discover azure database default response has a 2xx status code
+func (o *DiscoverAzureDatabaseDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this discover azure database default response has a 3xx status code
+func (o *DiscoverAzureDatabaseDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this discover azure database default response has a 4xx status code
+func (o *DiscoverAzureDatabaseDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this discover azure database default response has a 5xx status code
+func (o *DiscoverAzureDatabaseDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this discover azure database default response a status code equal to that given
+func (o *DiscoverAzureDatabaseDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *DiscoverAzureDatabaseDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *DiscoverAzureDatabaseDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Discover][%d] DiscoverAzureDatabase default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *DiscoverAzureDatabaseDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases request.
+/*DiscoverAzureDatabaseBody DiscoverAzureDatabaseRequest discover azure databases request.
 swagger:model DiscoverAzureDatabaseBody
 */
 type DiscoverAzureDatabaseBody struct {
@@ -166,8 +221,7 @@ func (o *DiscoverAzureDatabaseBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DiscoverAzureDatabaseDefaultBody discover azure database default body
+/*DiscoverAzureDatabaseDefaultBody discover azure database default body
 swagger:model DiscoverAzureDatabaseDefaultBody
 */
 type DiscoverAzureDatabaseDefaultBody struct {
@@ -273,8 +327,7 @@ func (o *DiscoverAzureDatabaseDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default body details items0
+/*DiscoverAzureDatabaseDefaultBodyDetailsItems0 discover azure database default body details items0
 swagger:model DiscoverAzureDatabaseDefaultBodyDetailsItems0
 */
 type DiscoverAzureDatabaseDefaultBodyDetailsItems0 struct {
@@ -314,8 +367,7 @@ func (o *DiscoverAzureDatabaseDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databases response.
+/*DiscoverAzureDatabaseOKBody DiscoverAzureDatabaseResponse discover azure databases response.
 swagger:model DiscoverAzureDatabaseOKBody
 */
 type DiscoverAzureDatabaseOKBody struct {
@@ -412,8 +464,7 @@ func (o *DiscoverAzureDatabaseOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
+/*DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery.
 swagger:model DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0
 */
 type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {

@@ -50,8 +50,7 @@ func NewAddHAProxyOK() *AddHAProxyOK {
 	return &AddHAProxyOK{}
 }
 
-/*
-AddHAProxyOK describes a response with status code 200, with default header values.
+/* AddHAProxyOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddHAProxyOK struct {
 	Payload *AddHAProxyOKBody
 }
 
+// IsSuccess returns true when this add Ha proxy Ok response has a 2xx status code
+func (o *AddHAProxyOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Ha proxy Ok response has a 3xx status code
+func (o *AddHAProxyOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Ha proxy Ok response has a 4xx status code
+func (o *AddHAProxyOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Ha proxy Ok response has a 5xx status code
+func (o *AddHAProxyOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Ha proxy Ok response a status code equal to that given
+func (o *AddHAProxyOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddHAProxyOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
+}
+
+func (o *AddHAProxyOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] addHaProxyOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddHAProxyDefault(code int) *AddHAProxyDefault {
 	}
 }
 
-/*
-AddHAProxyDefault describes a response with status code -1, with default header values.
+/* AddHAProxyDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddHAProxyDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add HA proxy default response has a 2xx status code
+func (o *AddHAProxyDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add HA proxy default response has a 3xx status code
+func (o *AddHAProxyDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add HA proxy default response has a 4xx status code
+func (o *AddHAProxyDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add HA proxy default response has a 5xx status code
+func (o *AddHAProxyDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add HA proxy default response a status code equal to that given
+func (o *AddHAProxyDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddHAProxyDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddHAProxyDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/HAProxy/Add][%d] AddHAProxy default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddHAProxyDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-AddHAProxyBody add HA proxy body
+/*AddHAProxyBody add HA proxy body
 swagger:model AddHAProxyBody
 */
 type AddHAProxyBody struct {
@@ -308,8 +363,7 @@ func (o *AddHAProxyBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyDefaultBody add HA proxy default body
+/*AddHAProxyDefaultBody add HA proxy default body
 swagger:model AddHAProxyDefaultBody
 */
 type AddHAProxyDefaultBody struct {
@@ -412,8 +466,7 @@ func (o *AddHAProxyDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyDefaultBodyDetailsItems0 add HA proxy default body details items0
+/*AddHAProxyDefaultBodyDetailsItems0 add HA proxy default body details items0
 swagger:model AddHAProxyDefaultBodyDetailsItems0
 */
 type AddHAProxyDefaultBodyDetailsItems0 struct {
@@ -449,8 +502,7 @@ func (o *AddHAProxyDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyOKBody add HA proxy OK body
+/*AddHAProxyOKBody add HA proxy OK body
 swagger:model AddHAProxyOKBody
 */
 type AddHAProxyOKBody struct {
@@ -583,8 +635,7 @@ func (o *AddHAProxyOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*AddHAProxyOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model AddHAProxyOKBodyExternalExporter
 */
 type AddHAProxyOKBodyExternalExporter struct {
@@ -650,8 +701,7 @@ func (o *AddHAProxyOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyOKBodyService HAProxyService represents a generic HAProxy service instance.
+/*AddHAProxyOKBodyService HAProxyService represents a generic HAProxy service instance.
 swagger:model AddHAProxyOKBodyService
 */
 type AddHAProxyOKBodyService struct {
@@ -705,8 +755,7 @@ func (o *AddHAProxyOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddHAProxyParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*AddHAProxyParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddHAProxyParamsBodyAddNode
 */
 type AddHAProxyParamsBodyAddNode struct {

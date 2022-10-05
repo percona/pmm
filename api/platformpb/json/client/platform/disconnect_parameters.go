@@ -52,12 +52,10 @@ func NewDisconnectParamsWithHTTPClient(client *http.Client) *DisconnectParams {
 	}
 }
 
-/*
-DisconnectParams contains all the parameters to send to the API endpoint
+/* DisconnectParams contains all the parameters to send to the API endpoint
+   for the disconnect operation.
 
-	for the disconnect operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type DisconnectParams struct {
 	// Body.

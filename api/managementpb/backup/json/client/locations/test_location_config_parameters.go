@@ -52,12 +52,10 @@ func NewTestLocationConfigParamsWithHTTPClient(client *http.Client) *TestLocatio
 	}
 }
 
-/*
-TestLocationConfigParams contains all the parameters to send to the API endpoint
+/* TestLocationConfigParams contains all the parameters to send to the API endpoint
+   for the test location config operation.
 
-	for the test location config operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type TestLocationConfigParams struct {
 	// Body.

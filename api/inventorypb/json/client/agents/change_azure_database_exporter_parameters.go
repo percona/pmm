@@ -52,12 +52,10 @@ func NewChangeAzureDatabaseExporterParamsWithHTTPClient(client *http.Client) *Ch
 	}
 }
 
-/*
-ChangeAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
+/* ChangeAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
+   for the change azure database exporter operation.
 
-	for the change azure database exporter operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ChangeAzureDatabaseExporterParams struct {
 	// Body.

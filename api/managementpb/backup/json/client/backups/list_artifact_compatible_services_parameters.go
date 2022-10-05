@@ -52,12 +52,10 @@ func NewListArtifactCompatibleServicesParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/*
-ListArtifactCompatibleServicesParams contains all the parameters to send to the API endpoint
+/* ListArtifactCompatibleServicesParams contains all the parameters to send to the API endpoint
+   for the list artifact compatible services operation.
 
-	for the list artifact compatible services operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListArtifactCompatibleServicesParams struct {
 	// Body.

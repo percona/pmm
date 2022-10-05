@@ -34,9 +34,9 @@ type ClientService interface {
 }
 
 /*
-RegisterNode registers node
+  RegisterNode registers node
 
-Registers a new Node and pmm-agent.
+  Registers a new Node and pmm-agent.
 */
 func (a *Client) RegisterNode(params *RegisterNodeParams, opts ...ClientOption) (*RegisterNodeOK, error) {
 	// TODO: Validate the params before sending

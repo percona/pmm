@@ -48,8 +48,7 @@ func NewGetNodeOK() *GetNodeOK {
 	return &GetNodeOK{}
 }
 
-/*
-GetNodeOK describes a response with status code 200, with default header values.
+/* GetNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetNodeOK struct {
 	Payload *GetNodeOKBody
 }
 
+// IsSuccess returns true when this get node Ok response has a 2xx status code
+func (o *GetNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get node Ok response has a 3xx status code
+func (o *GetNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get node Ok response has a 4xx status code
+func (o *GetNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get node Ok response has a 5xx status code
+func (o *GetNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get node Ok response a status code equal to that given
+func (o *GetNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *GetNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetNodeDefault(code int) *GetNodeDefault {
 	}
 }
 
-/*
-GetNodeDefault describes a response with status code -1, with default header values.
+/* GetNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetNodeDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get node default response has a 2xx status code
+func (o *GetNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get node default response has a 3xx status code
+func (o *GetNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get node default response has a 4xx status code
+func (o *GetNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get node default response has a 5xx status code
+func (o *GetNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get node default response a status code equal to that given
+func (o *GetNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*
-GetNodeBody get node body
+/*GetNodeBody get node body
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
@@ -155,8 +210,7 @@ func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeDefaultBody get node default body
+/*GetNodeDefaultBody get node default body
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
@@ -259,8 +313,7 @@ func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeDefaultBodyDetailsItems0 get node default body details items0
+/*GetNodeDefaultBodyDetailsItems0 get node default body details items0
 swagger:model GetNodeDefaultBodyDetailsItems0
 */
 type GetNodeDefaultBodyDetailsItems0 struct {
@@ -296,8 +349,7 @@ func (o *GetNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBody get node OK body
+/*GetNodeOKBody get node OK body
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
@@ -565,8 +617,7 @@ func (o *GetNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBodyContainer ContainerNode represents a Docker container.
+/*GetNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
@@ -629,8 +680,7 @@ func (o *GetNodeOKBodyContainer) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
+/*GetNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
 swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
@@ -690,8 +740,7 @@ func (o *GetNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
+/*GetNodeOKBodyRemote RemoteNode represents generic remote Node. It's a node where we don't run pmm-agents. Only external exporters can run on Remote Nodes.
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
@@ -745,8 +794,7 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
+/*GetNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
 swagger:model GetNodeOKBodyRemoteAzureDatabase
 */
 type GetNodeOKBodyRemoteAzureDatabase struct {
@@ -800,8 +848,7 @@ func (o *GetNodeOKBodyRemoteAzureDatabase) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model GetNodeOKBodyRemoteRDS
 */
 type GetNodeOKBodyRemoteRDS struct {

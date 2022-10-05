@@ -52,12 +52,10 @@ func NewListDBClustersParamsWithHTTPClient(client *http.Client) *ListDBClustersP
 	}
 }
 
-/*
-ListDBClustersParams contains all the parameters to send to the API endpoint
+/* ListDBClustersParams contains all the parameters to send to the API endpoint
+   for the list DB clusters operation.
 
-	for the list DB clusters operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListDBClustersParams struct {
 	// Body.

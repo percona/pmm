@@ -34,7 +34,7 @@ type ClientService interface {
 }
 
 /*
-Get gets gets map of metrics names
+  Get gets gets map of metrics names
 */
 func (a *Client) Get(params *GetParams, opts ...ClientOption) (*GetOK, error) {
 	// TODO: Validate the params before sending

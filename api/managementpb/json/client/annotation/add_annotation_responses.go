@@ -48,8 +48,7 @@ func NewAddAnnotationOK() *AddAnnotationOK {
 	return &AddAnnotationOK{}
 }
 
-/*
-AddAnnotationOK describes a response with status code 200, with default header values.
+/* AddAnnotationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddAnnotationOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this add annotation Ok response has a 2xx status code
+func (o *AddAnnotationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add annotation Ok response has a 3xx status code
+func (o *AddAnnotationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add annotation Ok response has a 4xx status code
+func (o *AddAnnotationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add annotation Ok response has a 5xx status code
+func (o *AddAnnotationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add annotation Ok response a status code equal to that given
+func (o *AddAnnotationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddAnnotationOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
+}
+
+func (o *AddAnnotationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] addAnnotationOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewAddAnnotationDefault(code int) *AddAnnotationDefault {
 	}
 }
 
-/*
-AddAnnotationDefault describes a response with status code -1, with default header values.
+/* AddAnnotationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *AddAnnotationDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add annotation default response has a 2xx status code
+func (o *AddAnnotationDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add annotation default response has a 3xx status code
+func (o *AddAnnotationDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add annotation default response has a 4xx status code
+func (o *AddAnnotationDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add annotation default response has a 5xx status code
+func (o *AddAnnotationDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add annotation default response a status code equal to that given
+func (o *AddAnnotationDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddAnnotationDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddAnnotationDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/Annotations/Add][%d] AddAnnotation default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *AddAnnotationDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
+/*AddAnnotationBody AddAnnotationRequest is a params to add new annotation.
 swagger:model AddAnnotationBody
 */
 type AddAnnotationBody struct {
@@ -162,8 +217,7 @@ func (o *AddAnnotationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAnnotationDefaultBody add annotation default body
+/*AddAnnotationDefaultBody add annotation default body
 swagger:model AddAnnotationDefaultBody
 */
 type AddAnnotationDefaultBody struct {
@@ -266,8 +320,7 @@ func (o *AddAnnotationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
+/*AddAnnotationDefaultBodyDetailsItems0 add annotation default body details items0
 swagger:model AddAnnotationDefaultBodyDetailsItems0
 */
 type AddAnnotationDefaultBodyDetailsItems0 struct {

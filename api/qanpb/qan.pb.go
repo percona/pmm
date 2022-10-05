@@ -189,6 +189,7 @@ type Point struct {
 	MTmpDiskTablesSumPerSec float32 `protobuf:"fixed32,21,opt,name=m_tmp_disk_tables_sum_per_sec,json=mTmpDiskTablesSumPerSec,proto3" json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
 	// Total Size in bytes for all temporary tables used in the query.
 	MTmpTableSizesSumPerSec float32 `protobuf:"fixed32,22,opt,name=m_tmp_table_sizes_sum_per_sec,json=mTmpTableSizesSumPerSec,proto3" json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
+	//
 	// Boolean metrics:
 	// - *_sum_per_sec - how many times this matric was true.
 	//
@@ -222,6 +223,7 @@ type Point struct {
 	MNoIndexUsedSumPerSec float32 `protobuf:"fixed32,36,opt,name=m_no_index_used_sum_per_sec,json=mNoIndexUsedSumPerSec,proto3" json:"m_no_index_used_sum_per_sec,omitempty"`
 	// The number of queries without good index.
 	MNoGoodIndexUsedSumPerSec float32 `protobuf:"fixed32,37,opt,name=m_no_good_index_used_sum_per_sec,json=mNoGoodIndexUsedSumPerSec,proto3" json:"m_no_good_index_used_sum_per_sec,omitempty"`
+	//
 	// MongoDB metrics.
 	//
 	// The number of returned documents.
@@ -230,6 +232,7 @@ type Point struct {
 	MResponseLengthSumPerSec float32 `protobuf:"fixed32,39,opt,name=m_response_length_sum_per_sec,json=mResponseLengthSumPerSec,proto3" json:"m_response_length_sum_per_sec,omitempty"`
 	// The number of scanned documents.
 	MDocsScannedSumPerSec float32 `protobuf:"fixed32,40,opt,name=m_docs_scanned_sum_per_sec,json=mDocsScannedSumPerSec,proto3" json:"m_docs_scanned_sum_per_sec,omitempty"`
+	//
 	// PostgreSQL metrics.
 	//
 	// Total number of shared block cache hits by the statement.
@@ -260,6 +263,7 @@ type Point struct {
 	MCpuUserTimeSumPerSec float32 `protobuf:"fixed32,56,opt,name=m_cpu_user_time_sum_per_sec,json=mCpuUserTimeSumPerSec,proto3" json:"m_cpu_user_time_sum_per_sec,omitempty"`
 	// Total time system spent in query.
 	MCpuSysTimeSumPerSec float32 `protobuf:"fixed32,57,opt,name=m_cpu_sys_time_sum_per_sec,json=mCpuSysTimeSumPerSec,proto3" json:"m_cpu_sys_time_sum_per_sec,omitempty"`
+	//
 	// pg_stat_monitor 0.9 metrics
 	//
 	// Total number of planned calls.

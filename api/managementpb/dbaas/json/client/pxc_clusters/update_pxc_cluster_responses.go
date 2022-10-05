@@ -48,8 +48,7 @@ func NewUpdatePXCClusterOK() *UpdatePXCClusterOK {
 	return &UpdatePXCClusterOK{}
 }
 
-/*
-UpdatePXCClusterOK describes a response with status code 200, with default header values.
+/* UpdatePXCClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type UpdatePXCClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this update Pxc cluster Ok response has a 2xx status code
+func (o *UpdatePXCClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this update Pxc cluster Ok response has a 3xx status code
+func (o *UpdatePXCClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this update Pxc cluster Ok response has a 4xx status code
+func (o *UpdatePXCClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this update Pxc cluster Ok response has a 5xx status code
+func (o *UpdatePXCClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this update Pxc cluster Ok response a status code equal to that given
+func (o *UpdatePXCClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UpdatePXCClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *UpdatePXCClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewUpdatePXCClusterDefault(code int) *UpdatePXCClusterDefault {
 	}
 }
 
-/*
-UpdatePXCClusterDefault describes a response with status code -1, with default header values.
+/* UpdatePXCClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *UpdatePXCClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this update PXC cluster default response has a 2xx status code
+func (o *UpdatePXCClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this update PXC cluster default response has a 3xx status code
+func (o *UpdatePXCClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this update PXC cluster default response has a 4xx status code
+func (o *UpdatePXCClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this update PXC cluster default response has a 5xx status code
+func (o *UpdatePXCClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this update PXC cluster default response a status code equal to that given
+func (o *UpdatePXCClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *UpdatePXCClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UpdatePXCClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] UpdatePXCCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *UpdatePXCClusterDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-UpdatePXCClusterBody update PXC cluster body
+/*UpdatePXCClusterBody update PXC cluster body
 swagger:model UpdatePXCClusterBody
 */
 type UpdatePXCClusterBody struct {
@@ -211,8 +266,7 @@ func (o *UpdatePXCClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePXCClusterDefaultBody update PXC cluster default body
+/*UpdatePXCClusterDefaultBody update PXC cluster default body
 swagger:model UpdatePXCClusterDefaultBody
 */
 type UpdatePXCClusterDefaultBody struct {
@@ -315,8 +369,7 @@ func (o *UpdatePXCClusterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details items0
+/*UpdatePXCClusterDefaultBodyDetailsItems0 update PXC cluster default body details items0
 swagger:model UpdatePXCClusterDefaultBodyDetailsItems0
 */
 type UpdatePXCClusterDefaultBodyDetailsItems0 struct {
@@ -352,8 +405,7 @@ func (o *UpdatePXCClusterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParams UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
+/*UpdatePXCClusterParamsBodyParams UpdatePXCClusterParams represents PXC cluster parameters that can be updated.
 swagger:model UpdatePXCClusterParamsBodyParams
 */
 type UpdatePXCClusterParamsBodyParams struct {
@@ -540,8 +592,7 @@ func (o *UpdatePXCClusterParamsBodyParams) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
+/*UpdatePXCClusterParamsBodyParamsHaproxy HAProxy container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxy
 */
 type UpdatePXCClusterParamsBodyParamsHaproxy struct {
@@ -629,8 +680,7 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxy) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
+/*UpdatePXCClusterParamsBodyParamsHaproxyComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsHaproxyComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsHaproxyComputeResources struct {
@@ -669,8 +719,7 @@ func (o *UpdatePXCClusterParamsBodyParamsHaproxyComputeResources) UnmarshalBinar
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsPXC PXC container parameters.
+/*UpdatePXCClusterParamsBodyParamsPXC PXC container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsPXC
 */
 type UpdatePXCClusterParamsBodyParamsPXC struct {
@@ -762,8 +811,7 @@ func (o *UpdatePXCClusterParamsBodyParamsPXC) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
+/*UpdatePXCClusterParamsBodyParamsPXCComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsPXCComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsPXCComputeResources struct {
@@ -802,8 +850,7 @@ func (o *UpdatePXCClusterParamsBodyParamsPXCComputeResources) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
+/*UpdatePXCClusterParamsBodyParamsProxysql ProxySQL container parameters.
 swagger:model UpdatePXCClusterParamsBodyParamsProxysql
 */
 type UpdatePXCClusterParamsBodyParamsProxysql struct {
@@ -891,8 +938,7 @@ func (o *UpdatePXCClusterParamsBodyParamsProxysql) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-UpdatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
+/*UpdatePXCClusterParamsBodyParamsProxysqlComputeResources ComputeResources represents container computer resources requests or limits.
 swagger:model UpdatePXCClusterParamsBodyParamsProxysqlComputeResources
 */
 type UpdatePXCClusterParamsBodyParamsProxysqlComputeResources struct {

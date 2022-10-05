@@ -48,8 +48,7 @@ func NewRemoveScheduledBackupOK() *RemoveScheduledBackupOK {
 	return &RemoveScheduledBackupOK{}
 }
 
-/*
-RemoveScheduledBackupOK describes a response with status code 200, with default header values.
+/* RemoveScheduledBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type RemoveScheduledBackupOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this remove scheduled backup Ok response has a 2xx status code
+func (o *RemoveScheduledBackupOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this remove scheduled backup Ok response has a 3xx status code
+func (o *RemoveScheduledBackupOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this remove scheduled backup Ok response has a 4xx status code
+func (o *RemoveScheduledBackupOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this remove scheduled backup Ok response has a 5xx status code
+func (o *RemoveScheduledBackupOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this remove scheduled backup Ok response a status code equal to that given
+func (o *RemoveScheduledBackupOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *RemoveScheduledBackupOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] removeScheduledBackupOk  %+v", 200, o.Payload)
+}
+
+func (o *RemoveScheduledBackupOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] removeScheduledBackupOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewRemoveScheduledBackupDefault(code int) *RemoveScheduledBackupDefault {
 	}
 }
 
-/*
-RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
+/* RemoveScheduledBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *RemoveScheduledBackupDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this remove scheduled backup default response has a 2xx status code
+func (o *RemoveScheduledBackupDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this remove scheduled backup default response has a 3xx status code
+func (o *RemoveScheduledBackupDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this remove scheduled backup default response has a 4xx status code
+func (o *RemoveScheduledBackupDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this remove scheduled backup default response has a 5xx status code
+func (o *RemoveScheduledBackupDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this remove scheduled backup default response a status code equal to that given
+func (o *RemoveScheduledBackupDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *RemoveScheduledBackupDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] RemoveScheduledBackup default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RemoveScheduledBackupDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/RemoveScheduled][%d] RemoveScheduledBackup default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *RemoveScheduledBackupDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-RemoveScheduledBackupBody remove scheduled backup body
+/*RemoveScheduledBackupBody remove scheduled backup body
 swagger:model RemoveScheduledBackupBody
 */
 type RemoveScheduledBackupBody struct {
@@ -153,8 +208,7 @@ func (o *RemoveScheduledBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveScheduledBackupDefaultBody remove scheduled backup default body
+/*RemoveScheduledBackupDefaultBody remove scheduled backup default body
 swagger:model RemoveScheduledBackupDefaultBody
 */
 type RemoveScheduledBackupDefaultBody struct {
@@ -257,8 +311,7 @@ func (o *RemoveScheduledBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default body details items0
+/*RemoveScheduledBackupDefaultBodyDetailsItems0 remove scheduled backup default body details items0
 swagger:model RemoveScheduledBackupDefaultBodyDetailsItems0
 */
 type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {

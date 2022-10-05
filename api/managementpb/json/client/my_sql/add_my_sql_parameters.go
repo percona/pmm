@@ -52,12 +52,10 @@ func NewAddMySQLParamsWithHTTPClient(client *http.Client) *AddMySQLParams {
 	}
 }
 
-/*
-AddMySQLParams contains all the parameters to send to the API endpoint
+/* AddMySQLParams contains all the parameters to send to the API endpoint
+   for the add my SQL operation.
 
-	for the add my SQL operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddMySQLParams struct {
 	// Body.

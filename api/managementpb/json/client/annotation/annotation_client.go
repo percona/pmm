@@ -34,9 +34,9 @@ type ClientService interface {
 }
 
 /*
-AddAnnotation adds annotation
+  AddAnnotation adds annotation
 
-Adds annotation.
+  Adds annotation.
 */
 func (a *Client) AddAnnotation(params *AddAnnotationParams, opts ...ClientOption) (*AddAnnotationOK, error) {
 	// TODO: Validate the params before sending

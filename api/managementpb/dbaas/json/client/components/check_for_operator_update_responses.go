@@ -48,8 +48,7 @@ func NewCheckForOperatorUpdateOK() *CheckForOperatorUpdateOK {
 	return &CheckForOperatorUpdateOK{}
 }
 
-/*
-CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
+/* CheckForOperatorUpdateOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type CheckForOperatorUpdateOK struct {
 	Payload *CheckForOperatorUpdateOKBody
 }
 
+// IsSuccess returns true when this check for operator update Ok response has a 2xx status code
+func (o *CheckForOperatorUpdateOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this check for operator update Ok response has a 3xx status code
+func (o *CheckForOperatorUpdateOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this check for operator update Ok response has a 4xx status code
+func (o *CheckForOperatorUpdateOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this check for operator update Ok response has a 5xx status code
+func (o *CheckForOperatorUpdateOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this check for operator update Ok response a status code equal to that given
+func (o *CheckForOperatorUpdateOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CheckForOperatorUpdateOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] checkForOperatorUpdateOk  %+v", 200, o.Payload)
+}
+
+func (o *CheckForOperatorUpdateOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] checkForOperatorUpdateOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewCheckForOperatorUpdateDefault(code int) *CheckForOperatorUpdateDefault {
 	}
 }
 
-/*
-CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
+/* CheckForOperatorUpdateDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *CheckForOperatorUpdateDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this check for operator update default response has a 2xx status code
+func (o *CheckForOperatorUpdateDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this check for operator update default response has a 3xx status code
+func (o *CheckForOperatorUpdateDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this check for operator update default response has a 4xx status code
+func (o *CheckForOperatorUpdateDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this check for operator update default response has a 5xx status code
+func (o *CheckForOperatorUpdateDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this check for operator update default response a status code equal to that given
+func (o *CheckForOperatorUpdateDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CheckForOperatorUpdateDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] CheckForOperatorUpdate default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CheckForOperatorUpdateDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/CheckForOperatorUpdate][%d] CheckForOperatorUpdate default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *CheckForOperatorUpdateDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*
-CheckForOperatorUpdateDefaultBody check for operator update default body
+/*CheckForOperatorUpdateDefaultBody check for operator update default body
 swagger:model CheckForOperatorUpdateDefaultBody
 */
 type CheckForOperatorUpdateDefaultBody struct {
@@ -222,8 +277,7 @@ func (o *CheckForOperatorUpdateDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CheckForOperatorUpdateDefaultBodyDetailsItems0 check for operator update default body details items0
+/*CheckForOperatorUpdateDefaultBodyDetailsItems0 check for operator update default body details items0
 swagger:model CheckForOperatorUpdateDefaultBodyDetailsItems0
 */
 type CheckForOperatorUpdateDefaultBodyDetailsItems0 struct {
@@ -259,8 +313,7 @@ func (o *CheckForOperatorUpdateDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBody check for operator update OK body
+/*CheckForOperatorUpdateOKBody check for operator update OK body
 swagger:model CheckForOperatorUpdateOKBody
 */
 type CheckForOperatorUpdateOKBody struct {
@@ -352,8 +405,7 @@ func (o *CheckForOperatorUpdateOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBodyClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnon ComponentsUpdateInformation contains info about components and their available latest versions.
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnon struct {
@@ -446,8 +498,7 @@ func (o *CheckForOperatorUpdateOKBodyClusterToComponentsAnon) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
+/*CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon ComponentUpdateInformation contains version we can update to for certain component.
 swagger:model CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon
 */
 type CheckForOperatorUpdateOKBodyClusterToComponentsAnonComponentToUpdateInformationAnon struct {

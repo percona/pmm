@@ -52,12 +52,10 @@ func NewAddMongoDBExporterParamsWithHTTPClient(client *http.Client) *AddMongoDBE
 	}
 }
 
-/*
-AddMongoDBExporterParams contains all the parameters to send to the API endpoint
+/* AddMongoDBExporterParams contains all the parameters to send to the API endpoint
+   for the add mongo DB exporter operation.
 
-	for the add mongo DB exporter operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddMongoDBExporterParams struct {
 	// Body.

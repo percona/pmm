@@ -52,12 +52,10 @@ func NewSearchOrganizationEntitlementsParamsWithHTTPClient(client *http.Client) 
 	}
 }
 
-/*
-SearchOrganizationEntitlementsParams contains all the parameters to send to the API endpoint
+/* SearchOrganizationEntitlementsParams contains all the parameters to send to the API endpoint
+   for the search organization entitlements operation.
 
-	for the search organization entitlements operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type SearchOrganizationEntitlementsParams struct {
 	// Body.

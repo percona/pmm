@@ -537,7 +537,6 @@ type QueryActionValue struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Kind:
-	//
 	//	*QueryActionValue_Nil
 	//	*QueryActionValue_Bool
 	//	*QueryActionValue_Int64
@@ -951,7 +950,6 @@ type StartActionRequest struct {
 
 	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
 	// Types that are assignable to Params:
-	//
 	//	*StartActionRequest_MysqlExplainParams
 	//	*StartActionRequest_MysqlShowCreateTableParams
 	//	*StartActionRequest_MysqlShowTableStatusParams
@@ -2239,7 +2237,6 @@ type StartJobRequest struct {
 	// Timeout for the job.
 	Timeout *durationpb.Duration `protobuf:"bytes,2,opt,name=timeout,proto3" json:"timeout,omitempty"`
 	// Types that are assignable to Job:
-	//
 	//	*StartJobRequest_MysqlBackup
 	//	*StartJobRequest_MysqlRestoreBackup
 	//	*StartJobRequest_MongodbBackup
@@ -2500,7 +2497,6 @@ type JobResult struct {
 	JobId     string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	// Types that are assignable to Result:
-	//
 	//	*JobResult_Error_
 	//	*JobResult_MysqlBackup
 	//	*JobResult_MysqlRestoreBackup
@@ -2640,7 +2636,6 @@ type JobProgress struct {
 	JobId     string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
 	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	// Types that are assignable to Result:
-	//
 	//	*JobProgress_MysqlBackup
 	//	*JobProgress_MysqlRestoreBackup
 	//	*JobProgress_Logs_
@@ -2846,13 +2841,12 @@ type AgentMessage struct {
 
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The responder sets the status field in two situations:
-	//  1. When it received a request with the payload field not set.
-	//     That means that responded is older than the requester, and doesn't know about newer payload types.
-	//     Status code UNIMPLEMENTED (12) is reserved for that case.
-	//  2. When the payload is set, but the request can't be performed due to some error.
+	// 1. When it received a request with the payload field not set.
+	//    That means that responded is older than the requester, and doesn't know about newer payload types.
+	//    Status code UNIMPLEMENTED (12) is reserved for that case.
+	// 2. When the payload is set, but the request can't be performed due to some error.
 	Status *status.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
 	// Types that are assignable to Payload:
-	//
 	//	*AgentMessage_Ping
 	//	*AgentMessage_StateChanged
 	//	*AgentMessage_QanCollect
@@ -3174,13 +3168,12 @@ type ServerMessage struct {
 
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The responder sets the status field in two situations:
-	//  1. When it received a request with the payload field not set.
-	//     That means that responded is older than the requester, and doesn't know about newer payload types.
-	//     Status code UNIMPLEMENTED (12) is reserved for that case.
-	//  2. When the payload is set, but the request can't be performed due to some error.
+	// 1. When it received a request with the payload field not set.
+	//    That means that responded is older than the requester, and doesn't know about newer payload types.
+	//    Status code UNIMPLEMENTED (12) is reserved for that case.
+	// 2. When the payload is set, but the request can't be performed due to some error.
 	Status *status.Status `protobuf:"bytes,2047,opt,name=status,proto3" json:"status,omitempty"`
 	// Types that are assignable to Payload:
-	//
 	//	*ServerMessage_Pong
 	//	*ServerMessage_StateChanged
 	//	*ServerMessage_QanCollect
@@ -5112,7 +5105,6 @@ type StartJobRequest_MySQLBackup struct {
 	// Backup target location.
 	//
 	// Types that are assignable to LocationConfig:
-	//
 	//	*StartJobRequest_MySQLBackup_S3Config
 	LocationConfig isStartJobRequest_MySQLBackup_LocationConfig `protobuf_oneof:"location_config"`
 }
@@ -5228,7 +5220,6 @@ type StartJobRequest_MySQLRestoreBackup struct {
 	// Where backup is stored.
 	//
 	// Types that are assignable to LocationConfig:
-	//
 	//	*StartJobRequest_MySQLRestoreBackup_S3Config
 	LocationConfig isStartJobRequest_MySQLRestoreBackup_LocationConfig `protobuf_oneof:"location_config"`
 }
@@ -5329,7 +5320,6 @@ type StartJobRequest_MongoDBBackup struct {
 	// Backup target location.
 	//
 	// Types that are assignable to LocationConfig:
-	//
 	//	*StartJobRequest_MongoDBBackup_S3Config
 	LocationConfig isStartJobRequest_MongoDBBackup_LocationConfig `protobuf_oneof:"location_config"`
 }
@@ -5469,7 +5459,6 @@ type StartJobRequest_MongoDBRestoreBackup struct {
 	// Where backup is stored.
 	//
 	// Types that are assignable to LocationConfig:
-	//
 	//	*StartJobRequest_MongoDBRestoreBackup_S3Config
 	LocationConfig isStartJobRequest_MongoDBRestoreBackup_LocationConfig `protobuf_oneof:"location_config"`
 }
@@ -6089,7 +6078,6 @@ type GetVersionsRequest_Software struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Software:
-	//
 	//	*GetVersionsRequest_Software_Mysqld
 	//	*GetVersionsRequest_Software_Xtrabackup
 	//	*GetVersionsRequest_Software_Xbcloud

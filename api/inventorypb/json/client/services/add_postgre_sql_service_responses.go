@@ -48,8 +48,7 @@ func NewAddPostgreSQLServiceOK() *AddPostgreSQLServiceOK {
 	return &AddPostgreSQLServiceOK{}
 }
 
-/*
-AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
+/* AddPostgreSQLServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddPostgreSQLServiceOK struct {
 	Payload *AddPostgreSQLServiceOKBody
 }
 
+// IsSuccess returns true when this add postgre Sql service Ok response has a 2xx status code
+func (o *AddPostgreSQLServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add postgre Sql service Ok response has a 3xx status code
+func (o *AddPostgreSQLServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add postgre Sql service Ok response has a 4xx status code
+func (o *AddPostgreSQLServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add postgre Sql service Ok response has a 5xx status code
+func (o *AddPostgreSQLServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add postgre Sql service Ok response a status code equal to that given
+func (o *AddPostgreSQLServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddPostgreSQLServiceOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] addPostgreSqlServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPostgreSQLServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] addPostgreSqlServiceOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddPostgreSQLServiceDefault(code int) *AddPostgreSQLServiceDefault {
 	}
 }
 
-/*
-AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
+/* AddPostgreSQLServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddPostgreSQLServiceDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add postgre SQL service default response has a 2xx status code
+func (o *AddPostgreSQLServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add postgre SQL service default response has a 3xx status code
+func (o *AddPostgreSQLServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add postgre SQL service default response has a 4xx status code
+func (o *AddPostgreSQLServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add postgre SQL service default response has a 5xx status code
+func (o *AddPostgreSQLServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add postgre SQL service default response a status code equal to that given
+func (o *AddPostgreSQLServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddPostgreSQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] AddPostgreSQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPostgreSQLServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddPostgreSQL][%d] AddPostgreSQLService default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddPostgreSQLServiceDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
-/*
-AddPostgreSQLServiceBody add postgre SQL service body
+/*AddPostgreSQLServiceBody add postgre SQL service body
 swagger:model AddPostgreSQLServiceBody
 */
 type AddPostgreSQLServiceBody struct {
@@ -182,8 +237,7 @@ func (o *AddPostgreSQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLServiceDefaultBody add postgre SQL service default body
+/*AddPostgreSQLServiceDefaultBody add postgre SQL service default body
 swagger:model AddPostgreSQLServiceDefaultBody
 */
 type AddPostgreSQLServiceDefaultBody struct {
@@ -286,8 +340,7 @@ func (o *AddPostgreSQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLServiceDefaultBodyDetailsItems0 add postgre SQL service default body details items0
+/*AddPostgreSQLServiceDefaultBodyDetailsItems0 add postgre SQL service default body details items0
 swagger:model AddPostgreSQLServiceDefaultBodyDetailsItems0
 */
 type AddPostgreSQLServiceDefaultBodyDetailsItems0 struct {
@@ -323,8 +376,7 @@ func (o *AddPostgreSQLServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-AddPostgreSQLServiceOKBody add postgre SQL service OK body
+/*AddPostgreSQLServiceOKBody add postgre SQL service OK body
 swagger:model AddPostgreSQLServiceOKBody
 */
 type AddPostgreSQLServiceOKBody struct {
@@ -412,8 +464,7 @@ func (o *AddPostgreSQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPostgreSQLServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
+/*AddPostgreSQLServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
 swagger:model AddPostgreSQLServiceOKBodyPostgresql
 */
 type AddPostgreSQLServiceOKBodyPostgresql struct {

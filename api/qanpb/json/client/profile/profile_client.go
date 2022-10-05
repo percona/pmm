@@ -34,7 +34,7 @@ type ClientService interface {
 }
 
 /*
-GetReport gets report returns list of metrics group by queryid or other dimentions
+  GetReport gets report returns list of metrics group by queryid or other dimentions
 */
 func (a *Client) GetReport(params *GetReportParams, opts ...ClientOption) (*GetReportOK, error) {
 	// TODO: Validate the params before sending

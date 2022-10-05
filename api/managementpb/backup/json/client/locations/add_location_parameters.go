@@ -52,12 +52,10 @@ func NewAddLocationParamsWithHTTPClient(client *http.Client) *AddLocationParams 
 	}
 }
 
-/*
-AddLocationParams contains all the parameters to send to the API endpoint
+/* AddLocationParams contains all the parameters to send to the API endpoint
+   for the add location operation.
 
-	for the add location operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddLocationParams struct {
 	// Body.

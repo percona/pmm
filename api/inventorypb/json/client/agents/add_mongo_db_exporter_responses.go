@@ -50,8 +50,7 @@ func NewAddMongoDBExporterOK() *AddMongoDBExporterOK {
 	return &AddMongoDBExporterOK{}
 }
 
-/*
-AddMongoDBExporterOK describes a response with status code 200, with default header values.
+/* AddMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddMongoDBExporterOK struct {
 	Payload *AddMongoDBExporterOKBody
 }
 
+// IsSuccess returns true when this add mongo Db exporter Ok response has a 2xx status code
+func (o *AddMongoDBExporterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add mongo Db exporter Ok response has a 3xx status code
+func (o *AddMongoDBExporterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add mongo Db exporter Ok response has a 4xx status code
+func (o *AddMongoDBExporterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add mongo Db exporter Ok response has a 5xx status code
+func (o *AddMongoDBExporterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add mongo Db exporter Ok response a status code equal to that given
+func (o *AddMongoDBExporterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddMongoDBExporterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMongoDBExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddMongoDBExporterDefault(code int) *AddMongoDBExporterDefault {
 	}
 }
 
-/*
-AddMongoDBExporterDefault describes a response with status code -1, with default header values.
+/* AddMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddMongoDBExporterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add mongo DB exporter default response has a 2xx status code
+func (o *AddMongoDBExporterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add mongo DB exporter default response has a 3xx status code
+func (o *AddMongoDBExporterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add mongo DB exporter default response has a 4xx status code
+func (o *AddMongoDBExporterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add mongo DB exporter default response has a 5xx status code
+func (o *AddMongoDBExporterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add mongo DB exporter default response a status code equal to that given
+func (o *AddMongoDBExporterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddMongoDBExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMongoDBExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-AddMongoDBExporterBody add mongo DB exporter body
+/*AddMongoDBExporterBody add mongo DB exporter body
 swagger:model AddMongoDBExporterBody
 */
 type AddMongoDBExporterBody struct {
@@ -278,8 +333,7 @@ func (o *AddMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterDefaultBody add mongo DB exporter default body
+/*AddMongoDBExporterDefaultBody add mongo DB exporter default body
 swagger:model AddMongoDBExporterDefaultBody
 */
 type AddMongoDBExporterDefaultBody struct {
@@ -382,8 +436,7 @@ func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body details items0
+/*AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body details items0
 swagger:model AddMongoDBExporterDefaultBodyDetailsItems0
 */
 type AddMongoDBExporterDefaultBodyDetailsItems0 struct {
@@ -419,8 +472,7 @@ func (o *AddMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-AddMongoDBExporterOKBody add mongo DB exporter OK body
+/*AddMongoDBExporterOKBody add mongo DB exporter OK body
 swagger:model AddMongoDBExporterOKBody
 */
 type AddMongoDBExporterOKBody struct {
@@ -508,8 +560,7 @@ func (o *AddMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model AddMongoDBExporterOKBodyMongodbExporter
 */
 type AddMongoDBExporterOKBodyMongodbExporter struct {

@@ -52,12 +52,10 @@ func NewUpdatePSMDBClusterParamsWithHTTPClient(client *http.Client) *UpdatePSMDB
 	}
 }
 
-/*
-UpdatePSMDBClusterParams contains all the parameters to send to the API endpoint
+/* UpdatePSMDBClusterParams contains all the parameters to send to the API endpoint
+   for the update PSMDB cluster operation.
 
-	for the update PSMDB cluster operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type UpdatePSMDBClusterParams struct {
 	// Body.

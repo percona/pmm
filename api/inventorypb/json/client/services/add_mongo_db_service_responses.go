@@ -48,8 +48,7 @@ func NewAddMongoDBServiceOK() *AddMongoDBServiceOK {
 	return &AddMongoDBServiceOK{}
 }
 
-/*
-AddMongoDBServiceOK describes a response with status code 200, with default header values.
+/* AddMongoDBServiceOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddMongoDBServiceOK struct {
 	Payload *AddMongoDBServiceOKBody
 }
 
+// IsSuccess returns true when this add mongo Db service Ok response has a 2xx status code
+func (o *AddMongoDBServiceOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add mongo Db service Ok response has a 3xx status code
+func (o *AddMongoDBServiceOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add mongo Db service Ok response has a 4xx status code
+func (o *AddMongoDBServiceOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add mongo Db service Ok response has a 5xx status code
+func (o *AddMongoDBServiceOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add mongo Db service Ok response a status code equal to that given
+func (o *AddMongoDBServiceOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddMongoDBServiceOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
+}
+
+func (o *AddMongoDBServiceOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddMongoDBServiceDefault(code int) *AddMongoDBServiceDefault {
 	}
 }
 
-/*
-AddMongoDBServiceDefault describes a response with status code -1, with default header values.
+/* AddMongoDBServiceDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddMongoDBServiceDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add mongo DB service default response has a 2xx status code
+func (o *AddMongoDBServiceDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add mongo DB service default response has a 3xx status code
+func (o *AddMongoDBServiceDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add mongo DB service default response has a 4xx status code
+func (o *AddMongoDBServiceDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add mongo DB service default response has a 5xx status code
+func (o *AddMongoDBServiceDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add mongo DB service default response a status code equal to that given
+func (o *AddMongoDBServiceDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddMongoDBServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMongoDBServiceDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] AddMongoDBService default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*
-AddMongoDBServiceBody add mongo DB service body
+/*AddMongoDBServiceBody add mongo DB service body
 swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
@@ -182,8 +237,7 @@ func (o *AddMongoDBServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceDefaultBody add mongo DB service default body
+/*AddMongoDBServiceDefaultBody add mongo DB service default body
 swagger:model AddMongoDBServiceDefaultBody
 */
 type AddMongoDBServiceDefaultBody struct {
@@ -286,8 +340,7 @@ func (o *AddMongoDBServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceDefaultBodyDetailsItems0 add mongo DB service default body details items0
+/*AddMongoDBServiceDefaultBodyDetailsItems0 add mongo DB service default body details items0
 swagger:model AddMongoDBServiceDefaultBodyDetailsItems0
 */
 type AddMongoDBServiceDefaultBodyDetailsItems0 struct {
@@ -323,8 +376,7 @@ func (o *AddMongoDBServiceDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-AddMongoDBServiceOKBody add mongo DB service OK body
+/*AddMongoDBServiceOKBody add mongo DB service OK body
 swagger:model AddMongoDBServiceOKBody
 */
 type AddMongoDBServiceOKBody struct {
@@ -412,8 +464,7 @@ func (o *AddMongoDBServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddMongoDBServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
+/*AddMongoDBServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
 swagger:model AddMongoDBServiceOKBodyMongodb
 */
 type AddMongoDBServiceOKBodyMongodb struct {

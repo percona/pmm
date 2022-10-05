@@ -48,8 +48,7 @@ func NewGetLogsOK() *GetLogsOK {
 	return &GetLogsOK{}
 }
 
-/*
-GetLogsOK describes a response with status code 200, with default header values.
+/* GetLogsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetLogsOK struct {
 	Payload *GetLogsOKBody
 }
 
+// IsSuccess returns true when this get logs Ok response has a 2xx status code
+func (o *GetLogsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get logs Ok response has a 3xx status code
+func (o *GetLogsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get logs Ok response has a 4xx status code
+func (o *GetLogsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get logs Ok response has a 5xx status code
+func (o *GetLogsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get logs Ok response a status code equal to that given
+func (o *GetLogsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetLogsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] getLogsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetLogsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] getLogsOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetLogsDefault(code int) *GetLogsDefault {
 	}
 }
 
-/*
-GetLogsDefault describes a response with status code -1, with default header values.
+/* GetLogsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetLogsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get logs default response has a 2xx status code
+func (o *GetLogsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get logs default response has a 3xx status code
+func (o *GetLogsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get logs default response has a 4xx status code
+func (o *GetLogsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get logs default response has a 5xx status code
+func (o *GetLogsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get logs default response a status code equal to that given
+func (o *GetLogsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetLogsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetLogsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/GetLogs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetLogsDefault) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
-/*
-GetLogsBody get logs body
+/*GetLogsBody get logs body
 swagger:model GetLogsBody
 */
 type GetLogsBody struct {
@@ -161,8 +216,7 @@ func (o *GetLogsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetLogsDefaultBody get logs default body
+/*GetLogsDefaultBody get logs default body
 swagger:model GetLogsDefaultBody
 */
 type GetLogsDefaultBody struct {
@@ -265,8 +319,7 @@ func (o *GetLogsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetLogsDefaultBodyDetailsItems0 get logs default body details items0
+/*GetLogsDefaultBodyDetailsItems0 get logs default body details items0
 swagger:model GetLogsDefaultBodyDetailsItems0
 */
 type GetLogsDefaultBodyDetailsItems0 struct {
@@ -302,8 +355,7 @@ func (o *GetLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetLogsOKBody get logs OK body
+/*GetLogsOKBody get logs OK body
 swagger:model GetLogsOKBody
 */
 type GetLogsOKBody struct {
@@ -403,8 +455,7 @@ func (o *GetLogsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
+/*GetLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
 swagger:model GetLogsOKBodyLogsItems0
 */
 type GetLogsOKBodyLogsItems0 struct {

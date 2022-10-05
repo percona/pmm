@@ -50,8 +50,7 @@ func NewListAgentsOK() *ListAgentsOK {
 	return &ListAgentsOK{}
 }
 
-/*
-ListAgentsOK describes a response with status code 200, with default header values.
+/* ListAgentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ListAgentsOK struct {
 	Payload *ListAgentsOKBody
 }
 
+// IsSuccess returns true when this list agents Ok response has a 2xx status code
+func (o *ListAgentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list agents Ok response has a 3xx status code
+func (o *ListAgentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list agents Ok response has a 4xx status code
+func (o *ListAgentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list agents Ok response has a 5xx status code
+func (o *ListAgentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list agents Ok response a status code equal to that given
+func (o *ListAgentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListAgentsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
+}
+
+func (o *ListAgentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewListAgentsDefault(code int) *ListAgentsDefault {
 	}
 }
 
-/*
-ListAgentsDefault describes a response with status code -1, with default header values.
+/* ListAgentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ListAgentsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list agents default response has a 2xx status code
+func (o *ListAgentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list agents default response has a 3xx status code
+func (o *ListAgentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list agents default response has a 4xx status code
+func (o *ListAgentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list agents default response has a 5xx status code
+func (o *ListAgentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list agents default response a status code equal to that given
+func (o *ListAgentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListAgentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListAgentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-ListAgentsBody list agents body
+/*ListAgentsBody list agents body
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
@@ -263,8 +318,7 @@ func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsDefaultBody list agents default body
+/*ListAgentsDefaultBody list agents default body
 swagger:model ListAgentsDefaultBody
 */
 type ListAgentsDefaultBody struct {
@@ -367,8 +421,7 @@ func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsDefaultBodyDetailsItems0 list agents default body details items0
+/*ListAgentsDefaultBodyDetailsItems0 list agents default body details items0
 swagger:model ListAgentsDefaultBodyDetailsItems0
 */
 type ListAgentsDefaultBodyDetailsItems0 struct {
@@ -404,8 +457,7 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBody list agents OK body
+/*ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
@@ -1258,8 +1310,7 @@ func (o *ListAgentsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBodyAzureDatabaseExporterItems0 AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+/*ListAgentsOKBodyAzureDatabaseExporterItems0 AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
 swagger:model ListAgentsOKBodyAzureDatabaseExporterItems0
 */
 type ListAgentsOKBodyAzureDatabaseExporterItems0 struct {
@@ -1461,8 +1512,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-ListAgentsOKBodyExternalExporterItems0 ExternalExporter runs on any Node type, including Remote Node.
+/*ListAgentsOKBodyExternalExporterItems0 ExternalExporter runs on any Node type, including Remote Node.
 swagger:model ListAgentsOKBodyExternalExporterItems0
 */
 type ListAgentsOKBodyExternalExporterItems0 struct {
@@ -1528,8 +1578,7 @@ func (o *ListAgentsOKBodyExternalExporterItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ListAgentsOKBodyMongodbExporterItems0 MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*ListAgentsOKBodyMongodbExporterItems0 MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model ListAgentsOKBodyMongodbExporterItems0
 */
 type ListAgentsOKBodyMongodbExporterItems0 struct {
@@ -1747,8 +1796,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-ListAgentsOKBodyMysqldExporterItems0 MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*ListAgentsOKBodyMysqldExporterItems0 MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model ListAgentsOKBodyMysqldExporterItems0
 */
 type ListAgentsOKBodyMysqldExporterItems0 struct {
@@ -1973,8 +2021,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBodyNodeExporterItems0 NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*ListAgentsOKBodyNodeExporterItems0 NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model ListAgentsOKBodyNodeExporterItems0
 */
 type ListAgentsOKBodyNodeExporterItems0 struct {
@@ -2170,8 +2217,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBodyPMMAgentItems0 PMMAgent runs on Generic or Container Node.
+/*ListAgentsOKBodyPMMAgentItems0 PMMAgent runs on Generic or Container Node.
 swagger:model ListAgentsOKBodyPMMAgentItems0
 */
 type ListAgentsOKBodyPMMAgentItems0 struct {
@@ -2219,8 +2265,7 @@ func (o *ListAgentsOKBodyPMMAgentItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBodyPostgresExporterItems0 PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+/*ListAgentsOKBodyPostgresExporterItems0 PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
 swagger:model ListAgentsOKBodyPostgresExporterItems0
 */
 type ListAgentsOKBodyPostgresExporterItems0 struct {
@@ -2428,8 +2473,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ListAgentsOKBodyProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+/*ListAgentsOKBodyProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model ListAgentsOKBodyProxysqlExporterItems0
 */
 type ListAgentsOKBodyProxysqlExporterItems0 struct {
@@ -2637,8 +2681,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ListAgentsOKBodyQANMongodbProfilerAgentItems0 QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*ListAgentsOKBodyQANMongodbProfilerAgentItems0 QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANMongodbProfilerAgentItems0
 */
 type ListAgentsOKBodyQANMongodbProfilerAgentItems0 struct {
@@ -2837,8 +2880,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANMysqlPerfschemaAgentItems0
 */
 type ListAgentsOKBodyQANMysqlPerfschemaAgentItems0 struct {
@@ -3049,8 +3091,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ListAgentsOKBodyQANMysqlSlowlogAgentItems0 QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*ListAgentsOKBodyQANMysqlSlowlogAgentItems0 QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANMysqlSlowlogAgentItems0
 */
 type ListAgentsOKBodyQANMysqlSlowlogAgentItems0 struct {
@@ -3264,8 +3305,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0
 */
 type ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0 struct {
@@ -3464,8 +3504,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) UnmarshalBinary(b
 	return nil
 }
 
-/*
-ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0
 */
 type ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0 struct {
@@ -3667,8 +3706,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) UnmarshalBinary(
 	return nil
 }
 
-/*
-ListAgentsOKBodyRDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+/*ListAgentsOKBodyRDSExporterItems0 RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
 swagger:model ListAgentsOKBodyRDSExporterItems0
 */
 type ListAgentsOKBodyRDSExporterItems0 struct {
@@ -3873,8 +3911,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListAgentsOKBodyVMAgentItems0 VMAgent runs on Generic or Container Node alongside pmm-agent.
+/*ListAgentsOKBodyVMAgentItems0 VMAgent runs on Generic or Container Node alongside pmm-agent.
 // It scrapes other exporter Agents that are configured with push_metrics_enabled
 // and uses Prometheus remote write protocol to push metrics to PMM Server.
 swagger:model ListAgentsOKBodyVMAgentItems0

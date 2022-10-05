@@ -1363,7 +1363,7 @@ type QANMySQLSlowlogAgent struct {
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,11,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
-	// mod tidy
+	//  mod tidy
 	ProcessExecPath string `protobuf:"bytes,15,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
@@ -2770,7 +2770,6 @@ type GetAgentResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Agent:
-	//
 	//	*GetAgentResponse_PmmAgent
 	//	*GetAgentResponse_Vmagent
 	//	*GetAgentResponse_NodeExporter

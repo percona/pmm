@@ -52,12 +52,10 @@ func NewAddHAProxyServiceParamsWithHTTPClient(client *http.Client) *AddHAProxySe
 	}
 }
 
-/*
-AddHAProxyServiceParams contains all the parameters to send to the API endpoint
+/* AddHAProxyServiceParams contains all the parameters to send to the API endpoint
+   for the add HA proxy service operation.
 
-	for the add HA proxy service operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddHAProxyServiceParams struct {
 	// Body.
