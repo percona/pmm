@@ -36,7 +36,7 @@ func vmAgentConfig(scrapeCfg string) *agentpb.SetStateRequest_AgentProcess {
 		// needed for login/password at client side.
 		"-envflag.enable=true",
 		"-promscrape.noStaleMarkers=true",
-		"-minStalenessInterval=0s",
+		"-minStalenessInterval=1s",
 	}
 
 	sort.Strings(args)
