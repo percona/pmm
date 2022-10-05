@@ -70,7 +70,7 @@ func TestPitrMetaFromFileName(t *testing.T) {
 		},
 	}
 
-	prefix := path.Join("test_artifact_name", PITRfsPrefix)
+	prefix := path.Join("test_artifact_name", pitrFSPrefix)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			chunk := pitrMetaFromFileName(prefix, tt.filename)
@@ -123,7 +123,7 @@ func TestListPITRTimelines(t *testing.T) {
 		}
 
 		statFile := minio.FileInfo{
-			Name: PITRfsPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+			Name: pitrFSPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
 			Size: 1024,
 		}
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)

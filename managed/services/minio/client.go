@@ -29,22 +29,9 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// NewClient returns a new wrapper around minio.Client.
-func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
-	url, err := models.ParseEndpoint(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	secure := true
-	if url.Scheme == "http" {
-		secure = false
-	}
-
-	client, err := minio.New(url.Host, &minio.Options{
-		Secure: secure,
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-	})
+// NewClientFromCredentials returns a new wrapper around minio.Client.
+func NewClientFromCredentials(endpoint, accessKey, secretKey, bucketName string) (*Client, error) {
+	client, err := createMinioClient(endpoint, accessKey, secretKey)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +43,7 @@ func NewClient(endpoint, accessKey, secretKey, bucketName string) (*Client, erro
 	}, nil
 }
 
+// New creates a client with empty credentials.
 func New() *Client {
 	return &Client{
 		l: logrus.WithField("component", "minio-client"),
@@ -65,8 +53,8 @@ func New() *Client {
 // Client is a wrapper around minio.Client with the bucket name included.
 type Client struct {
 	l          *logrus.Entry
-	bucketName string
 	mc         *minio.Client
+	bucketName string
 }
 
 // FileInfo contains information about a single file in the bucket.
@@ -81,7 +69,7 @@ func (c *Client) BucketExists(ctx context.Context, endpoint, accessKey, secretKe
 	if err != nil {
 		return false, err
 	}
-	return mc.BucketExists(ctx, c.bucketName)
+	return mc.BucketExists(ctx, bucketName)
 }
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
@@ -161,7 +149,7 @@ func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 
 	for object := range c.mc.ListObjects(ctx, c.bucketName, options) {
 		if object.Err != nil {
-			return files, errors.WithStack(object.Err)
+			return nil, errors.WithStack(object.Err)
 		}
 		f := object.Key
 		f = strings.TrimPrefix(f, options.Prefix)
@@ -188,7 +176,8 @@ func (c *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	var file FileInfo
 
-	stat, err := c.mc.StatObject(ctx, c.bucketName, name, minio.StatObjectOptions{})
+	options := minio.StatObjectOptions{} //nolint:exhaustive
+	stat, err := c.mc.StatObject(ctx, c.bucketName, name, options)
 	if err != nil {
 		return file, err
 	}

@@ -148,7 +148,6 @@ func (s *ArtifactsService) ListPitrTimeranges(
 	result := make([]*backupv1beta1.PitrTimerange, 0, len(timelines))
 	for _, tl := range timelines {
 		result = append(result, &backupv1beta1.PitrTimerange{
-			ReplicaSet:     tl.ReplicaSet,
 			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
 			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
 		})

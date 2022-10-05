@@ -32,14 +32,14 @@ import (
 )
 
 const (
-	// PITRfsPrefix is a prefix (folder) for PITR chunks on the storage
-	PITRfsPrefix = "pbmPitr"
+	// pitrFSPrefix is a prefix (folder) for PITR chunks on the storage
+	pitrFSPrefix = "pbmPitr"
 )
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PITRService helps perform file lookups in a backup storage location
-type PITRService struct {
+// PITRTimerangeService helps perform file lookups in a backup storage location
+type PITRTimerangeService struct {
 	l       *logrus.Entry
 	storage backupStorage
 }
@@ -106,23 +106,23 @@ func file(ext string) compressionType {
 }
 
 // NewPITRStorageService creates new backup storage service.
-func NewPITRStorageService() *PITRService {
-	return &PITRService{
+func NewPITRStorageService() *PITRTimerangeService {
+	return &PITRTimerangeService{
 		l: logrus.WithField("component", "services/backup/pitr_storage"),
 	}
 }
 
-func (ss *PITRService) getPITROplogs(ctx context.Context, artifactName string) ([]*oplogChunk, error) {
+func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, artifactName string) ([]*oplogChunk, error) {
 	var err error
 	var oplogChunks []*oplogChunk
-	prefix := path.Join(artifactName, PITRfsPrefix)
+	prefix := path.Join(artifactName, pitrFSPrefix)
 
 	pitrf, err := ss.storage.List(ctx, prefix, "")
 	if err != nil {
-		return oplogChunks, errors.Wrap(err, "get list of pitr chunks")
+		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
 	if len(pitrf) == 0 {
-		return oplogChunks, nil
+		return nil, nil
 	}
 
 	for _, f := range pitrf {
@@ -141,11 +141,11 @@ func (ss *PITRService) getPITROplogs(ctx context.Context, artifactName string) (
 	return oplogChunks, nil
 }
 
-func (ss *PITRService) ListPITRTimeranges(ctx context.Context, artifactName string, location models.BackupLocation) ([]Timeline, error) {
+func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifactName string, location models.BackupLocation) ([]Timeline, error) {
 	var err error
 	switch {
 	case location.S3Config != nil:
-		ss.storage, err = minio.NewClient(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
+		ss.storage, err = minio.NewClientFromCredentials(location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName)
 		if err != nil {
 			return nil, err
 		}
@@ -219,13 +219,18 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 }
 
 // pitrTimelines returns cluster-wide time ranges valid for PITR restore
-func (ss *PITRService) pitrTimelines(ctx context.Context, artifactName string) ([]Timeline, error) {
-	now := primitive.Timestamp{T: uint32(time.Now().Unix())}
+func (ss *PITRTimerangeService) pitrTimelines(ctx context.Context, artifactName string) ([]Timeline, error) {
 	var timelines [][]Timeline
 
-	// In PBM, flist is a cache of chunk sizes, but we already store chunks in memory and have the sizes set,
-	// hence, we call pitrGetValidTimelines with a nil flist.
-	t, err := ss.pitrGetValidTimelines(ctx, artifactName, now, nil)
+	oplogs, err := ss.getPITROplogs(ctx, artifactName)
+	if err != nil {
+		return nil, errors.Wrap(err, "get slice")
+	}
+	if len(oplogs) == 0 {
+		return nil, nil
+	}
+
+	t, err := gettimelines(oplogs), nil
 	if err != nil {
 		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
 	}
@@ -234,30 +239,6 @@ func (ss *PITRService) pitrTimelines(ctx context.Context, artifactName string) (
 	}
 
 	return mergeTimelines(timelines...), nil
-}
-
-// pitrGetValidTimelines returns time ranges valid for PITR restore
-// for the given replicaset. We don't check for any "restore intrusions"
-// or other integrity issues since it's guaranteed be the slicer that
-// any saved chunk already belongs to some valid Timeline,
-// the slice wouldn't be done otherwise.
-// `flist` is a cache of chunk sizes.
-func (ss *PITRService) pitrGetValidTimelines(ctx context.Context, artifactName string, until primitive.Timestamp, flist map[string]int64) ([]Timeline, error) {
-	slices, err := ss.getPITROplogs(ctx, artifactName)
-	if err != nil {
-		return nil, errors.Wrap(err, "get slice")
-	}
-
-	if flist != nil {
-		for i, s := range slices {
-			slices[i].size = flist[s.FName]
-		}
-	}
-
-	if len(slices) == 0 {
-		return nil, nil
-	}
-	return gettimelines(slices), nil
 }
 
 func gettimelines(slices []*oplogChunk) []Timeline {

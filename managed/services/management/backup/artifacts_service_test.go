@@ -58,23 +58,22 @@ func TestListPitrTimelines(t *testing.T) {
 	svc := NewArtifactsService(db, mockedRemovalSvc, mockedPitrStorageSvc)
 	var locationID string
 
-	t.Run("add awsS3", func(t *testing.T) {
-		params := models.CreateBackupLocationParams{
-			Name:        gofakeit.Name(),
-			Description: "",
-		}
-		params.S3Config = &models.S3LocationConfig{
-			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-			AccessKey:    "access_key",
-			SecretKey:    "secret_key",
-			BucketName:   "example_bucket",
-			BucketRegion: "us-east-1",
-		}
-		loc, err := models.CreateBackupLocation(db.Querier, params)
-		require.NoError(t, err)
-		require.NotEmpty(t, loc.ID)
-		locationID = loc.ID
-	})
+	params := models.CreateBackupLocationParams{
+		Name:        gofakeit.Name(),
+		Description: "",
+	}
+	params.S3Config = &models.S3LocationConfig{
+		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+		AccessKey:    "access_key",
+		SecretKey:    "secret_key",
+		BucketName:   "example_bucket",
+		BucketRegion: "us-east-1",
+	}
+	loc, err := models.CreateBackupLocation(db.Querier, params)
+	require.NoError(t, err)
+	require.NotEmpty(t, loc.ID)
+
+	locationID = loc.ID
 
 	t.Run("successfully lists PITR time ranges", func(t *testing.T) {
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{

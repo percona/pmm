@@ -62,12 +62,10 @@ message DeleteArtifactRequest {
 message DeleteArtifactResponse {}
 
 message PitrTimerange {
-  // ReplicaSet is the name of the replica set that the backup was taken from.
-  string replica_set = 2;
   // start_timestamp is the time of the first event in the PITR chunk.
-  google.protobuf.Timestamp start_timestamp = 3;
+  google.protobuf.Timestamp start_timestamp = 1;
   // end_timestamp is the time of the last event in the PITR chunk.
-  google.protobuf.Timestamp end_timestamp = 4;
+  google.protobuf.Timestamp end_timestamp = 2;
 }
 
 message ListPitrTimerangesRequest {

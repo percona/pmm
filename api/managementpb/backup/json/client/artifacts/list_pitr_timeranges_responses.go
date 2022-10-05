@@ -400,9 +400,6 @@ ListPitrTimerangesOKBodyTimerangesItems0 list pitr timeranges OK body timeranges
 swagger:model ListPitrTimerangesOKBodyTimerangesItems0
 */
 type ListPitrTimerangesOKBodyTimerangesItems0 struct {
-	// ReplicaSet is the name of the replica set that the backup was taken from.
-	ReplicaSet string `json:"replica_set,omitempty"`
-
 	// start_timestamp is the time of the first event in the PITR chunk.
 	// Format: date-time
 	StartTimestamp strfmt.DateTime `json:"start_timestamp,omitempty"`

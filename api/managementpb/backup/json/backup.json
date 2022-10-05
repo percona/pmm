@@ -274,18 +274,13 @@
                         "description": "end_timestamp is the time of the last event in the PITR chunk.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 2
-                      },
-                      "replica_set": {
-                        "description": "ReplicaSet is the name of the replica set that the backup was taken from.",
-                        "type": "string",
-                        "x-order": 0
+                        "x-order": 1
                       },
                       "start_timestamp": {
                         "description": "start_timestamp is the time of the first event in the PITR chunk.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 1
+                        "x-order": 0
                       }
                     }
                   },
