@@ -45,7 +45,7 @@ func NewClientFromCredentials(endpoint, accessKey, secretKey, bucketName string)
 
 // New creates a client with empty credentials.
 func New() *Client {
-	return &Client{
+	return &Client{ //nolint:exhaustruct
 		l: logrus.WithField("component", "minio-client"),
 	}
 }
@@ -93,7 +93,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	g.Go(func() error {
 		defer close(objectsCh)
 
-		options := minio.ListObjectsOptions{
+		options := minio.ListObjectsOptions{ //nolint:exhaustruct
 			Prefix:    prefix,
 			Recursive: true,
 		}
@@ -175,9 +175,8 @@ func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 func (c *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	var file FileInfo
-	var options minio.StatObjectOptions
 
-	stat, err := c.mc.StatObject(ctx, c.bucketName, name, options)
+	stat, err := c.mc.StatObject(ctx, c.bucketName, name, minio.StatObjectOptions{}) //nolint:exhaustruct
 	if err != nil {
 		return file, err
 	}
