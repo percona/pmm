@@ -486,7 +486,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 }
 
 func printttl(tlns ...Timeline) string {
-	var ret []string
+	ret := make([]string, 0, len(tlns))
 	for _, t := range tlns {
 		ret = append(ret, fmt.Sprintf("[%v - %v]", t.Start, t.End))
 	}

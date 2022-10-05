@@ -29,14 +29,14 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Client is a wrapper around minio.Client with the bucket name included.
+// Client is a wrapper around minio.Client.
 type Client struct {
 	l *logrus.Entry
 }
 
-// New creates a client with empty credentials.
+// New creates a new minio client.
 func New() *Client {
-	return &Client{ //nolint:exhaustruct
+	return &Client{
 		l: logrus.WithField("component", "minio-client"),
 	}
 }
@@ -106,7 +106,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	}()
 
 	var errorsEncountered bool
-	for rErr := range mc.RemoveObjects(ctx, bucketName, objectsCh, minio.RemoveObjectsOptions{}) {
+	for rErr := range mc.RemoveObjects(ctx, bucketName, objectsCh, minio.RemoveObjectsOptions{}) { //nolint:exhaustruct
 		errorsEncountered = true
 		c.l.WithError(rErr.Err).Debugf("failed to remove object %q", rErr.ObjectName)
 	}
