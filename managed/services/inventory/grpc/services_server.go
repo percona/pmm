@@ -99,10 +99,8 @@ func (s *servicesServer) ListActiveServiceTypes(
 	}
 
 	res := &inventorypb.ListActiveServiceTypesResponse{
-		ServiceTypes: make([]inventorypb.ServiceType, 0, len(types)),
+		ServiceTypes: types,
 	}
-
-	res.ServiceTypes = append(res.ServiceTypes, types...)
 
 	return res, nil
 }

@@ -133,15 +133,15 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	}
 
 	defer func() {
-		if err := rows.Close(); err != nil {
-			logrus.Debug(err)
+		if rowsErr := rows.Close(); rowsErr != nil {
+			logrus.Debug(rowsErr)
 		}
 	}()
 
-	res := []ServiceType{}
+	var res []ServiceType
 	for rows.Next() {
 		var serviceType ServiceType
-		if err := rows.Scan(&serviceType); err != nil {
+		if err = rows.Scan(&serviceType); err != nil {
 			return nil, err
 		}
 

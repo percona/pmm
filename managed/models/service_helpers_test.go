@@ -272,7 +272,7 @@ func TestServiceHelpers(t *testing.T) {
 
 		types, err := models.FindActiveServiceTypes(q)
 		assert.NoError(t, err)
-		assert.Equal(t, 5, len(types))
+		assert.Equal(t, len(types), 5)
 	})
 
 	t.Run("RemoveService", func(t *testing.T) {

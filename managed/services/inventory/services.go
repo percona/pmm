@@ -81,13 +81,13 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 //nolint:unparam
 func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]inventorypb.ServiceType, error) {
 	var types []models.ServiceType
-	err := ss.db.InTransaction(func(tx *reform.TX) error {
+	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		types, err = models.FindActiveServiceTypes(tx.Querier)
 		return err
 	})
-	if err != nil {
-		return nil, err
+	if e != nil {
+		return nil, e
 	}
 
 	res := make([]inventorypb.ServiceType, 0, len(types))
