@@ -175,8 +175,8 @@ func (c *Client) List(ctx context.Context, prefix, suffix string) ([]FileInfo, e
 func (c *Client) FileStat(ctx context.Context, name string) (FileInfo, error) {
 	var err error
 	var file FileInfo
+	var options minio.StatObjectOptions
 
-	options := minio.StatObjectOptions{} //nolint:exhaustive
 	stat, err := c.mc.StatObject(ctx, c.bucketName, name, options)
 	if err != nil {
 		return file, err
