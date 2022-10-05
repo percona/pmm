@@ -28,7 +28,7 @@ import (
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=backupStorage -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -90,7 +90,7 @@ type versioner interface {
 	GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error)
 }
 
-type backupStorage interface {
+type pitrLocationClient interface {
 	// FileStat returns file info. It returns error if file is empty or not exists.
 	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
 

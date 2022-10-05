@@ -18,7 +18,6 @@ package backup
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/managed/models"
 	"path"
 	"strings"
 	"testing"
@@ -28,6 +27,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/minio"
 )
 
@@ -124,7 +124,7 @@ func TestListPITRTimelines(t *testing.T) {
 	}
 
 	t.Run("successful", func(t *testing.T) {
-		mockedStorage := &mockBackupStorage{}
+		mockedStorage := &mockPitrLocationClient{}
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
@@ -139,24 +139,24 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(statFile, nil)
 
-		ss := NewPITRStorageService(mockedStorage)
+		ss := NewPITRTimerangeService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
 
 	t.Run("fails on file list error", func(t *testing.T) {
-		mockedStorage := &mockBackupStorage{}
+		mockedStorage := &mockPitrLocationClient{}
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("listing object error"))
 
-		ss := NewPITRStorageService(mockedStorage)
+		ss := NewPITRTimerangeService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.Error(t, err)
 		assert.Nil(t, timelines)
 	})
 
 	t.Run("skips artifacts with file stat errors", func(t *testing.T) {
-		mockedStorage := &mockBackupStorage{}
+		mockedStorage := &mockPitrLocationClient{}
 		listedFiles := []minio.FileInfo{
 			{
 				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
@@ -167,7 +167,7 @@ func TestListPITRTimelines(t *testing.T) {
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
 		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(minio.FileInfo{}, errors.New("file stat error"))
 
-		ss := NewPITRStorageService(mockedStorage)
+		ss := NewPITRTimerangeService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
 		assert.NoError(t, err)
 		assert.Len(t, timelines, 0)

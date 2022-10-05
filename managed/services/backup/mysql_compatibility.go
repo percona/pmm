@@ -51,7 +51,7 @@ func init() {
 			xtrabackupMinVersion: "2.4.18", // https://jira.percona.com/browse/PXB-1978
 			xtrabackupMaxVersion: "2.5",
 		},
-		// In version 8.0.6, Percona XtraBackup introduces the support of the MyRocks storage engine
+		// In version 8.0.6, Percona XtraBackup introduces the support of the MyRocks locationClient engine
 		// with Percona Server for MySQL version 8.0.15-6 or higher.
 		// https://www.percona.com/doc/percona-xtrabackup/8.0/release-notes/8.0/8.0.6.html
 		{

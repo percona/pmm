@@ -31,23 +31,23 @@ import (
 )
 
 const (
-	// pitrFSPrefix is a prefix (folder) for PITR chunks on the storage
+	// pitrFSPrefix is a prefix (folder) for PITR chunks on the locationClient
 	pitrFSPrefix = "pbmPitr"
 )
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PITRTimerangeService helps perform file lookups in a backup storage location
+// PITRTimerangeService helps perform file lookups in a backup locationClient location
 type PITRTimerangeService struct {
-	l       *logrus.Entry
-	storage backupStorage
+	l              *logrus.Entry
+	locationClient pitrLocationClient
 }
 
-// NewPITRStorageService creates new backup storage service.
-func NewPITRStorageService(pitrLocationClient backupStorage) *PITRTimerangeService {
+// NewPITRTimerangeService creates new backup locationClient service.
+func NewPITRTimerangeService(pitrLocationClient pitrLocationClient) *PITRTimerangeService {
 	return &PITRTimerangeService{
-		l:       logrus.WithField("component", "services/backup/pitr_storage"),
-		storage: pitrLocationClient,
+		l:              logrus.WithField("component", "services/backup/pitr_storage"),
+		locationClient: pitrLocationClient,
 	}
 }
 
@@ -121,7 +121,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	var oplogChunks []*oplogChunk
 
 	prefix := path.Join(artifactName, pitrFSPrefix)
-	pitrFiles, err := ss.storage.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "")
+	pitrFiles, err := ss.locationClient.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -130,7 +130,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	}
 
 	for _, f := range pitrFiles {
-		_, err := ss.storage.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, path.Join(prefix, f.Name))
+		_, err := ss.locationClient.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, path.Join(prefix, f.Name))
 		if err != nil {
 			ss.l.Warningf("skip pitr chunk %s/%s because of %v", prefix, f.Name, err)
 			continue

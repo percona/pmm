@@ -726,7 +726,7 @@ func main() {
 
 	agentsRegistry := agents.NewRegistry(db)
 	backupRemovalService := backup.NewRemovalService(db, minioClient)
-	pitrStorage := backup.NewPITRStorageService(minioClient)
+	pitrStorage := backup.NewPITRTimerangeService(minioClient)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
