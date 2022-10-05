@@ -24,9 +24,8 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-
 var (
+	_ codes.Code
 	_ io.Reader
 	_ status.Status
 	_ = runtime.String
