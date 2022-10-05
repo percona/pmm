@@ -80,22 +80,16 @@ jobs:
       - name: Run go-sumtype
         run: bin/go-sumtype ./...
 
-      - name: Run golangci-lint
-        env:
-          COMMAND: "bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number"
-          REDIRECT: "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review -fail-on-error=true"
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
-            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
-              echo "$out"
-              exit $exit_code
-            else
-              echo "$out" ${{ env.REDIRECT }}
-            fi
-          else
-            echo "$out"
-          fi
+      - name: Run required linters
+        uses: reviewdog/action-golangci-lint@v2
+        with: 
+          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+          go_version: ${{ env.GO_VERSION }}
+          reporter: github-pr-review
+          fail_on_error: true
+          cache: false
+          golangci_lint_flags: "-c=.golangci-required.yml"
+          golangci_lint_version: v1.49.0
 
       - name: Run go-consistent
         env:
@@ -114,22 +108,17 @@ jobs:
             echo "$out"
           fi
 
-      - name: Run optional checks/linters
-        env:
-          COMMAND: "bin/golangci-lint run --out-format=line-number --issues-exit-code=0"
-          REDIRECT: "| bin/reviewdog -f=golangci-lint -reporter=github-pr-review"
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
-            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
-              echo "$out"
-              exit $exit_code
-            else
-              echo "$out" ${{ env.REDIRECT }}
-            fi
-          else
-            echo "$out"
-          fi
+      - name: Run optional linters
+        if: github.event_name == 'pull_request'
+        uses: reviewdog/action-golangci-lint@v2
+        with: 
+          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+          go_version: ${{ env.GO_VERSION }}
+          reporter: github-pr-review
+          fail_on_error: false
+          cache: false
+          golangci_lint_flags: "-c=.golangci.yml"
+          golangci_lint_version: v1.49.0
 
       - name: Test common API
         run: make test-common
