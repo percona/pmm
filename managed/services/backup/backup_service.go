@@ -240,8 +240,15 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		return "", status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		var target *agents.ErrUnsupportedAgent
+		var target *agents.UnsupportedAgentError
 		if errors.As(err, &target) {
+			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+			})
+
+			if dbErr != nil {
+				s.l.WithError(err).Error("update backup artifact status")
+			}
 			return artifact.ID, status.Error(codes.FailedPrecondition, target.Error())
 		}
 		return artifact.ID, err

@@ -25,14 +25,14 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// ErrUnsupportedAgent is used when the target PMM agent doesn't support the requested functionality.
-type ErrUnsupportedAgent struct {
+// UnsupportedAgentError is used when the target PMM agent doesn't support the requested functionality.
+type UnsupportedAgentError struct {
 	Functionality string
 	AgentID       string
 	AgentVersion  string
 }
 
-func (e *ErrUnsupportedAgent) Error() string {
+func (e *UnsupportedAgentError) Error() string {
 	return fmt.Sprintf("%s is not supported on pmm-agent %q version %q", e.Functionality,
 		e.AgentID, e.AgentVersion)
 }
@@ -52,7 +52,7 @@ func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.WithStack(&ErrUnsupportedAgent{
+		return errors.WithStack(&UnsupportedAgentError{
 			AgentID:       pmmAgentID,
 			Functionality: functionalityPrefix,
 			AgentVersion:  *pmmAgent.Version,
