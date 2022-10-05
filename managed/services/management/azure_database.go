@@ -21,9 +21,8 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/Azure/azure-sdk-for-go/services/resourcegraph/mgmt/2019-04-01/resourcegraph" //nolint:staticcheck
-	"github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -98,45 +97,38 @@ type AzureDatabaseInstanceData struct {
 	Zones         string                 `json:"zones"`
 }
 
-func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*resourcegraph.BaseClient, error) {
-	authSettings := auth.EnvironmentSettings{
-		Values: map[string]string{
-			auth.ClientID:       req.AzureClientId,
-			auth.ClientSecret:   req.AzureClientSecret,
-			auth.SubscriptionID: req.AzureSubscriptionId,
-			auth.TenantID:       req.AzureTenantId,
-			auth.Resource:       azure.PublicCloud.ResourceManagerEndpoint,
-		},
-		Environment: azure.PublicCloud,
-	}
-
-	// Create and authorize a ResourceGraph client
-	client := resourcegraph.New()
-	authorizer, err := authSettings.GetAuthorizer()
+func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
+	credential, err := azidentity.NewClientSecretCredential(req.AzureTenantId, req.AzureClientId, req.AzureClientSecret, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	client.Authorizer = authorizer
-	return &client, nil
+	// Create and authorize a ResourceGraph client
+	client, err := armresourcegraph.NewClient(credential, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func (s *AzureDatabaseService) fetchAzureDatabaseInstancesData(
 	ctx context.Context,
 	req *azurev1beta1.DiscoverAzureDatabaseRequest,
-	client *resourcegraph.BaseClient,
+	client *armresourcegraph.Client,
 ) ([]AzureDatabaseInstanceData, error) {
 	query := azureDatabaseResourceQuery
-	request := resourcegraph.QueryRequest{
-		Subscriptions: &[]string{req.AzureSubscriptionId},
+	resultFormat := armresourcegraph.ResultFormatObjectArray
+	request := armresourcegraph.QueryRequest{
+		Subscriptions: []*string{&req.AzureSubscriptionId},
 		Query:         &query,
-		Options: &resourcegraph.QueryRequestOptions{
-			ResultFormat: "objectArray",
+		Options: &armresourcegraph.QueryRequestOptions{
+			ResultFormat: &resultFormat,
 		},
 	}
 
 	// Run the query and get the results
-	results, err := client.Resources(ctx, request)
+	results, err := client.Resources(ctx, request, nil)
 	if err != nil {
 		return nil, err
 	}
