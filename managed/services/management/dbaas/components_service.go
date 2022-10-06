@@ -350,7 +350,8 @@ func isGloballyDisabled(ver *goversion.Version, globallyDisabledVersions []*gove
 }
 
 func (c ComponentsService) matrix(m map[string]componentVersion, minimalVersion *goversion.Version,
-	kc *models.Component, globallyDisabledVersions []*goversion.Version) map[string]*dbaasv1beta1.Component {
+	kc *models.Component, globallyDisabledVersions []*goversion.Version,
+) map[string]*dbaasv1beta1.Component {
 	result := make(map[string]*dbaasv1beta1.Component)
 
 	var lastVersion string
