@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	// pitrFSPrefix is a prefix (folder) for PITR chunks on the locationClient
+	// pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
 	pitrFSPrefix = "pbmPitr"
 )
 
@@ -86,7 +86,6 @@ type compressionType string
 
 const (
 	compressionTypeNone      compressionType = "none"
-	compressionTypeGZIP      compressionType = "gzip"
 	compressionTypePGZIP     compressionType = "pgzip"
 	compressionTypeSNAPPY    compressionType = "snappy"
 	compressionTypeLZ4       compressionType = "lz4"

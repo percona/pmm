@@ -33,21 +33,21 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l              *logrus.Entry
-	db             *reform.DB
-	removalSVC     removalService
-	pitrStorageSVC pitrStorageService
+	l                *logrus.Entry
+	db               *reform.DB
+	removalSVC       removalService
+	pitrTimerangeSVC pitrTimerangeService
 
 	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrStorageService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
 	return &ArtifactsService{
-		l:              logrus.WithField("component", "management/backup/artifacts"),
-		db:             db,
-		removalSVC:     removalSVC,
-		pitrStorageSVC: storage,
+		l:                logrus.WithField("component", "management/backup/artifacts"),
+		db:               db,
+		removalSVC:       removalSVC,
+		pitrTimerangeSVC: storage,
 	}
 }
 
@@ -141,7 +141,7 @@ func (s *ArtifactsService) ListPitrTimeranges(
 		return nil, err
 	}
 
-	timelines, err := s.pitrStorageSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
 	if err != nil {
 		return nil, err
 	}
