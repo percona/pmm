@@ -528,6 +528,9 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
 
+	// placeholders count
+	PlaceholdersCount int64 `json:"placeholders_count,omitempty"`
+
 	// example metrics
 	ExampleMetrics string `json:"example_metrics,omitempty"`
 
