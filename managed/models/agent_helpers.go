@@ -437,7 +437,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, fmt.Sprintf("(pmm_agent_id = %[1]s or agent_id = %[1]s)", q.Placeholder(1)))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
@@ -881,6 +881,7 @@ type ChangeCommonAgentParams struct {
 	CustomLabels       map[string]string
 	RemoveCustomLabels bool
 	DisablePushMetrics *bool
+	Port               *uint16
 }
 
 // ChangeAgent changes common parameters for given Agent.
@@ -915,6 +916,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 		if err = row.SetCustomLabels(params.CustomLabels); err != nil {
 			return nil, err
 		}
+	}
+	if params.Port != nil {
+		row.ListenPort = params.Port
 	}
 
 	if err = q.Update(row); err != nil {
