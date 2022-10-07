@@ -1209,7 +1209,7 @@ scrape_configs:
 				PushMetrics:  false,
 			},
 
-			// other container with pmm-agent having pull metrics-mode
+			// other container with pmm-agent having push metrics-mode
 			&models.Node{
 				NodeID:   "/node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d",
 				NodeType: models.ContainerNodeType,
