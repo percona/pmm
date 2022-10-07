@@ -181,9 +181,10 @@ func getServiceConfig() ServiceConfig {
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`     //nolint:tagliatelle
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`     //nolint:tagliatelle
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"` //nolint:tagliatelle
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
@@ -282,9 +283,10 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 		},
 		SaasHostname: "",
 		DataSources: struct {
-			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
 			SendOnStart:  sendOnStart,

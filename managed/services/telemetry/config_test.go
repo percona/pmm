@@ -68,9 +68,10 @@ reporting:
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
@@ -93,6 +94,11 @@ reporting:
 					Username: "pmm-managed",
 					Password: "pmm-managed",
 				},
+			},
+			GrafanaDBSelect: &DSGrafanaSqliteDB{
+				Enabled: true,
+				Timeout: time.Second * 2,
+				DbFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
