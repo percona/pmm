@@ -182,10 +182,12 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	}
 
 	// do not use default compact representation for large/complex messages
-	if size := proto.Size(msg); size < 100 {
-		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
-	} else {
-		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		if size := proto.Size(msg); size < 100 {
+			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+		} else {
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		}
 	}
 
 	err := c.s.Send(msg)
@@ -213,10 +215,12 @@ func (c *Channel) runReceiver() {
 		atomic.AddUint32(&c.mRecv, 1)
 
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
-		} else {
-			c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			if size := proto.Size(msg); size < 100 {
+				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+			} else {
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+			}
 		}
 
 		switch p := msg.Payload.(type) {

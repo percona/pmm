@@ -188,10 +188,12 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	}
 
 	// do not use default compact representation for large/complex messages
-	if size := proto.Size(msg); size < 100 {
-		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
-	} else {
-		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		if size := proto.Size(msg); size < 100 {
+			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+		} else {
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+		}
 	}
 
 	err := c.s.Send(msg)
@@ -219,10 +221,12 @@ func (c *Channel) runReceiver() {
 		c.mRecv.Inc()
 
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
-		} else {
-			c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			if size := proto.Size(msg); size < 100 {
+				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+			} else {
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+			}
 		}
 
 		switch p := msg.Payload.(type) {
