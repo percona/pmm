@@ -47,21 +47,6 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-func scrapeConfigForServerPMMAgent(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "pmm-agent",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7777"},
-				Labels:  map[string]string{"instance": "pmm-server"},
-			}},
-		},
-	}
-}
-
 func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "alertmanager",
@@ -608,14 +593,21 @@ func scrapeConfigsForVMAgent(s *models.MetricsResolutions, params *scrapeConfigP
 	return []*config.ScrapeConfig{cfg}, nil
 }
 
-func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigParams) (*config.ScrapeConfig, error) {
+func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(params.node, params.service, params.agent)
 	if err != nil {
 		return nil, err
 	}
 
-	hostport := net.JoinHostPort(params.host, strconv.Itoa(7777))
-	return &config.ScrapeConfig{
+	port := int(*params.agent.ListenPort)
+	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
+
+	// server's pmm-agent id does not match common agent id naming pattern
+	if params.agent.AgentID == models.PMMServerAgentID {
+		params.agent.AgentID = "/" + params.agent.AgentID
+	}
+
+	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(s.MR),
 		ScrapeTimeout:  ScrapeTimeout(s.MR),
@@ -628,5 +620,6 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 				},
 			},
 		},
-	}, nil
+	}
+	return []*config.ScrapeConfig{cfg}, nil
 }
