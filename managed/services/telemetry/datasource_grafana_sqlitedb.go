@@ -19,6 +19,10 @@ package telemetry
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
@@ -53,10 +57,51 @@ func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) (Da
 	return &dsGrafanaSelect{
 		l:      l,
 		config: config,
-		db:     nil, // TODO: sqlite3 initialization client
+		db:     nil,
 	}, nil
 }
 
 func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
-	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
+	// validate source file db
+	sourceFileStat, err := os.Stat(d.config.DbFile)
+	if err != nil {
+		return nil, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return nil, fmt.Errorf("%s is not a regular file", d.config.DbFile)
+	}
+
+	source, err := os.Open(d.config.DbFile)
+	if err != nil {
+		return nil, err
+	}
+	defer source.Close() //nolint:errcheck
+
+	tempFile, err := ioutil.TempFile(os.TempDir(), "grafana")
+	if err != nil {
+		d.l.Fatal(err)
+		return nil, err
+	}
+	defer os.Remove(tempFile.Name()) //nolint:errcheck
+
+	nBytes, err := io.Copy(tempFile, source)
+	if err != nil || nBytes == 0 {
+		d.l.Error(err)
+		return nil, fmt.Errorf("cannot copy file %s", d.config.DbFile)
+	}
+
+	db, err := sql.Open("sqlite3", tempFile.Name())
+	if err != nil {
+		d.l.Error(err)
+		return nil, err
+	}
+
+	result, err := fetchMetricsFromDB(ctx, d.l, d.config.Timeout, db, config)
+	if err != nil {
+		d.l.Error(err)
+		return nil, err
+	}
+
+	return result, nil
 }
