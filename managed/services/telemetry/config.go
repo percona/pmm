@@ -75,7 +75,7 @@ type DataSourceVictoriaMetrics struct {
 type DSGrafanaSqliteDB struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
-	DbFile  string        `yaml:"dbFile"`
+	DbFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.

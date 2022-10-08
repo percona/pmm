@@ -45,6 +45,11 @@ datasources:
     separate_credentials:
       username: pmm-managed
       password: pmm-managed
+  GRAFANADB_SELECT:
+    enabled: true
+    timeout: 2s
+    db_file: /srv/grafana/grafana.db
+
 reporting:
   send: true
   send_on_start: true

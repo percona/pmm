@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	_ "github.com/mattn/go-sqlite3" //nolint:golint
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 )
