@@ -16,8 +16,6 @@
 package main
 
 import (
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
@@ -30,7 +28,10 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/userpb"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 func main() {
@@ -42,7 +43,42 @@ func telemetryGenerateApiUsage() {
 
 	registerUnimplementedServer(gRPCServer)
 
-	grpc_prometheus.Register(gRPCServer)
+	getMetrics(gRPCServer)
+}
+
+func getMetrics(server *grpc.Server) {
+	_ = `grpc_server_handled_total{grpc_code="OK",grpc_method="Mark",grpc_service="employee.VacancyFavorite",grpc_type="unary"}`
+
+	// copy-paste from grpc_prometheus.NewServerMetrics().InitializeMetrics
+	serverHandledCounter := prom.NewCounterVec(
+		prom.CounterOpts{
+			Name: "grpc_server_handled_total",
+			Help: "Total number of RPCs completed on the server, regardless of success or failure.",
+		}, []string{"grpc_type", "grpc_service", "grpc_method", "grpc_code"})
+
+	serviceInfo := server.GetServiceInfo()
+	for serviceName, info := range serviceInfo {
+		for _, mInfo := range info.Methods {
+			methodName := mInfo.Name
+			methodType := typeFromMethodInfo(&mInfo)
+			counter := serverHandledCounter.WithLabelValues(methodType, serviceName, methodName, codes.OK.String())
+			_ = counter
+		}
+	}
+}
+
+// copy-paste from grpc_prometheus.NewServerMetrics().InitializeMetrics
+func typeFromMethodInfo(mInfo *grpc.MethodInfo) string {
+	if !mInfo.IsClientStream && !mInfo.IsServerStream {
+		return string(grpc_prometheus.Unary)
+	}
+	if mInfo.IsClientStream && !mInfo.IsServerStream {
+		return string(grpc_prometheus.ClientStream)
+	}
+	if !mInfo.IsClientStream && mInfo.IsServerStream {
+		return string(grpc_prometheus.ServerStream)
+	}
+	return string(grpc_prometheus.BidiStream)
 }
 
 func registerUnimplementedServer(gRPCServer grpc.ServiceRegistrar) {
