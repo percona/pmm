@@ -17,6 +17,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -29,9 +31,11 @@ import (
 	"github.com/percona/pmm/api/platformpb"
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/userpb"
+	"github.com/percona/pmm/managed/services/telemetry"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
@@ -43,21 +47,96 @@ func telemetryGenerateApiUsage() {
 
 	registerUnimplementedServer(gRPCServer)
 
-	getMetrics(gRPCServer)
+	metrics := getMetrics(gRPCServer)
+
+	content, err := yaml.Marshal(&telemetry.FileConfig{
+		Telemetry: toTelemetryConfig(metrics),
+	})
+
+	if err != nil {
+		fmt.Println(err)
+
+		os.Exit(1)
+	}
+
+	fmt.Println(string(content))
 }
 
-func getMetrics(server *grpc.Server) {
-	serviceInfo := server.GetServiceInfo()
-	for serviceName, info := range serviceInfo {
+type TelemetryMetric struct {
+	ServiceName   string
+	MethodName    string
+	MetricOkCode  string   // example increase(http_requests_total[24h])
+	MetricAllCode []string // example increase(http_requests_total1[24h]) + increase(http_requests_total2[24h])
+}
+
+func toTelemetryConfig(metrics []TelemetryMetric) []telemetry.Config {
+	result := make([]telemetry.Config, 0, len(metrics)*2)
+
+	for _, metric := range metrics {
+		result = append(result,
+			telemetry.Config{
+				ID:      "PMMServerAPI/" + metric.ServiceName + "/" + metric.MethodName + ":" + "all",
+				Source:  "VM",
+				Query:   sumMultiCount(metric.MetricAllCode),
+				Summary: fmt.Sprintf("PMM Server API usage status=all count of service %s method %s", metric.ServiceName, metric.MethodName),
+				Data: []telemetry.ConfigData{
+					{
+						MetricName: strings.ToLower(fmt.Sprintf("pmm_server_api_%s_%s_all", metric.ServiceName, metric.MethodName)),
+						Value:      "1",
+					},
+				},
+			},
+			telemetry.Config{
+				ID:      "PMMServerAPI/" + metric.ServiceName + "/" + metric.MethodName + ":" + "ok",
+				Source:  "VM",
+				Query:   fmt.Sprintf("increase(%s[24h])", metric.MetricOkCode),
+				Summary: fmt.Sprintf("PMM Server API usage status=ok count of service %s method %s", metric.ServiceName, metric.MethodName),
+				Data: []telemetry.ConfigData{
+					{
+						MetricName: strings.ToLower(fmt.Sprintf("pmm_server_api_%s_%s_ok", metric.ServiceName, metric.MethodName)),
+						Value:      "1",
+					},
+				},
+			},
+		)
+	}
+
+	return result
+}
+
+func sumMultiCount(names []string) string {
+	result := make([]string, len(names))
+
+	for i, name := range names {
+		result[i] = fmt.Sprintf("increase(%s[24h])", name)
+	}
+
+	return strings.Join(result, " + ")
+}
+
+func getMetrics(server *grpc.Server) []TelemetryMetric {
+	var result []TelemetryMetric
+
+	for serviceName, info := range server.GetServiceInfo() {
 		for _, mInfo := range info.Methods {
 			methodName := mInfo.Name
 			methodType := typeFromMethodInfo(mInfo)
 
-			for _, code := range allCodes {
-				fmt.Println(prometheusMetricName(methodType, serviceName, methodName, code.String()))
+			var metricAllCode = make([]string, len(allCodes))
+			for i, code := range allCodes {
+				metricAllCode[i] = prometheusMetricName(methodType, serviceName, methodName, code.String())
 			}
+
+			result = append(result, TelemetryMetric{
+				ServiceName:   serviceName,
+				MethodName:    methodName,
+				MetricOkCode:  prometheusMetricName(methodType, serviceName, methodName, codes.OK.String()),
+				MetricAllCode: metricAllCode,
+			})
 		}
 	}
+
+	return result
 }
 
 var (
