@@ -16,6 +16,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
@@ -28,8 +30,6 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/api/userpb"
 
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	prom "github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 )
@@ -47,38 +47,45 @@ func telemetryGenerateApiUsage() {
 }
 
 func getMetrics(server *grpc.Server) {
-	_ = `grpc_server_handled_total{grpc_code="OK",grpc_method="Mark",grpc_service="employee.VacancyFavorite",grpc_type="unary"}`
-
-	// copy-paste from grpc_prometheus.NewServerMetrics().InitializeMetrics
-	serverHandledCounter := prom.NewCounterVec(
-		prom.CounterOpts{
-			Name: "grpc_server_handled_total",
-			Help: "Total number of RPCs completed on the server, regardless of success or failure.",
-		}, []string{"grpc_type", "grpc_service", "grpc_method", "grpc_code"})
-
 	serviceInfo := server.GetServiceInfo()
 	for serviceName, info := range serviceInfo {
 		for _, mInfo := range info.Methods {
 			methodName := mInfo.Name
-			methodType := typeFromMethodInfo(&mInfo)
-			counter := serverHandledCounter.WithLabelValues(methodType, serviceName, methodName, codes.OK.String())
-			_ = counter
+			methodType := typeFromMethodInfo(mInfo)
+
+			for _, code := range allCodes {
+				fmt.Println(prometheusMetricName(methodType, serviceName, methodName, code.String()))
+			}
 		}
 	}
 }
 
-// copy-paste from grpc_prometheus.NewServerMetrics().InitializeMetrics
-func typeFromMethodInfo(mInfo *grpc.MethodInfo) string {
+var (
+	allCodes = []codes.Code{
+		codes.OK, codes.Canceled, codes.Unknown, codes.InvalidArgument, codes.DeadlineExceeded, codes.NotFound,
+		codes.AlreadyExists, codes.PermissionDenied, codes.Unauthenticated, codes.ResourceExhausted,
+		codes.FailedPrecondition, codes.Aborted, codes.OutOfRange, codes.Unimplemented, codes.Internal,
+		codes.Unavailable, codes.DataLoss,
+	}
+)
+
+func prometheusMetricName(methodType, serviceName, methodName, code string) string {
+	return fmt.Sprintf(`grpc_server_handled_total{grpc_code=%q,grpc_method=%q,grpc_service=%q,grpc_type=%q}`,
+		code, methodName, serviceName, methodType,
+	)
+}
+
+func typeFromMethodInfo(mInfo grpc.MethodInfo) string {
 	if !mInfo.IsClientStream && !mInfo.IsServerStream {
-		return string(grpc_prometheus.Unary)
+		return "unary"
 	}
 	if mInfo.IsClientStream && !mInfo.IsServerStream {
-		return string(grpc_prometheus.ClientStream)
+		return "client_stream"
 	}
 	if !mInfo.IsClientStream && mInfo.IsServerStream {
-		return string(grpc_prometheus.ServerStream)
+		return "server_stream"
 	}
-	return string(grpc_prometheus.BidiStream)
+	return "bidi_stream"
 }
 
 func registerUnimplementedServer(gRPCServer grpc.ServiceRegistrar) {
