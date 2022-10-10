@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3" //nolint:golint
@@ -30,9 +29,8 @@ import (
 )
 
 type dsGrafanaSelect struct {
-	l      *logrus.Entry
+	log    *logrus.Entry
 	config DSGrafanaSqliteDB
-	db     *sql.DB
 }
 
 // check interfaces
@@ -46,61 +44,58 @@ func (d *dsGrafanaSelect) Enabled() bool {
 }
 
 // NewDataSourceGrafanaSqliteDB makes new data source for grafana sqlite database metrics.
-func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
-	if !config.Enabled {
-		return &dsGrafanaSelect{
-			l:      l,
-			config: config,
-			db:     nil,
-		}, nil
-	}
-
+func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaSelect{
-		l:      l,
+		log:    l,
 		config: config,
-		db:     nil,
-	}, nil
+	}
 }
 
 func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+	// check if datasource is enabled
+	if !d.Enabled() {
+		d.log.Info("Telemetry for grafana database is disabled.")
+		return nil, nil
+	}
+
 	// validate source file db
-	sourceFileStat, err := os.Stat(d.config.DbFile)
+	sourceFileStat, err := os.Stat(d.config.DBFile)
 	if err != nil {
 		return nil, err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
-		return nil, fmt.Errorf("%s is not a regular file", d.config.DbFile)
+		return nil, fmt.Errorf("%s is not a regular file", d.config.DBFile)
 	}
 
-	source, err := os.Open(d.config.DbFile)
+	source, err := os.Open(d.config.DBFile)
 	if err != nil {
 		return nil, err
 	}
 	defer source.Close() //nolint:errcheck
 
-	tempFile, err := ioutil.TempFile(os.TempDir(), "grafana")
+	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
 	if err != nil {
-		d.l.Fatal(err)
+		d.log.Fatal(err)
 		return nil, err
 	}
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
 	nBytes, err := io.Copy(tempFile, source)
 	if err != nil || nBytes == 0 {
-		d.l.Error(err)
-		return nil, fmt.Errorf("cannot copy file %s", d.config.DbFile)
+		d.log.Error(err)
+		return nil, fmt.Errorf("cannot create copy of database file %s", d.config.DBFile)
 	}
 
 	db, err := sql.Open("sqlite3", tempFile.Name())
 	if err != nil {
-		d.l.Error(err)
+		d.log.Error(err)
 		return nil, err
 	}
 
-	result, err := fetchMetricsFromDB(ctx, d.l, d.config.Timeout, db, config)
+	result, err := fetchMetricsFromDB(ctx, d.log, d.config.Timeout, db, config)
 	if err != nil {
-		d.l.Error(err)
+		d.log.Error(err)
 		return nil, err
 	}
 

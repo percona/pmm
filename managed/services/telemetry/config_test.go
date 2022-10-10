@@ -103,7 +103,7 @@ reporting:
 			GrafanaDBSelect: &DSGrafanaSqliteDB{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				DbFile:  "/srv/grafana/grafana.db",
+				DBFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
