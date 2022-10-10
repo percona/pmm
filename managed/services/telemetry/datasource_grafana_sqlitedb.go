@@ -19,11 +19,11 @@ package telemetry
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3" //nolint:golint
+	_ "github.com/mattn/go-sqlite3"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 )
@@ -65,14 +65,18 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
-		return nil, fmt.Errorf("%s is not a regular file", d.config.DBFile)
+		return nil, errors.Wrapf(err, "%s is not a regular file", d.config.DBFile)
 	}
 
 	source, err := os.Open(d.config.DBFile)
 	if err != nil {
 		return nil, err
 	}
-	defer source.Close() //nolint:errcheck
+	defer func() {
+		if err := source.Close(); err != nil {
+			d.log.Error("Error closing file: %s\n", err)
+		}
+	}()
 
 	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
 	if err != nil {
@@ -84,7 +88,7 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]
 	nBytes, err := io.Copy(tempFile, source)
 	if err != nil || nBytes == 0 {
 		d.log.Error(err)
-		return nil, fmt.Errorf("cannot create copy of database file %s", d.config.DBFile)
+		return nil, errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
 	}
 
 	db, err := sql.Open("sqlite3", tempFile.Name())
