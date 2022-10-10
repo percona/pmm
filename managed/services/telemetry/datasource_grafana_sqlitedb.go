@@ -19,12 +19,12 @@ package telemetry
 import (
 	"context"
 	"database/sql"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -70,20 +70,24 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]
 
 	source, err := os.Open(d.config.DBFile)
 	if err != nil {
+		d.log.Error(err)
+		return nil, err
+	}
+
+	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
+	if err != nil {
+		d.log.Error(err)
 		return nil, err
 	}
 	defer func() {
 		if err := source.Close(); err != nil {
-			d.log.Error("Error closing file: %s\n", err)
+			d.log.Errorf("Error closing file. %s", err)
+		}
+
+		if err := os.Remove(tempFile.Name()); err != nil {
+			d.log.Errorf("Error removing file. %s", err)
 		}
 	}()
-
-	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
-	if err != nil {
-		d.log.Fatal(err)
-		return nil, err
-	}
-	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
 	nBytes, err := io.Copy(tempFile, source)
 	if err != nil || nBytes == 0 {

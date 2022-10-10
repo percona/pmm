@@ -78,5 +78,4 @@ func TestDatasource(t *testing.T) {
 		assert.Error(t, err, "no such file or directory")
 		assert.Nil(t, metrics)
 	})
-
 }

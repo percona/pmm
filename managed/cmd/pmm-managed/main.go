@@ -686,15 +686,9 @@ func main() {
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
 
-	grafanadb := ds.GrafanaDBSelect
-	grafanadb.DBFile = "/srv/grafana/grafana.db"
-	grafanadb.Enabled = true
-	grafanadb.Timeout = 5 * time.Second
-
 	clickhousedb := ds.QanDBSelect
 
 	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
-
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
