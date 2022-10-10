@@ -61,7 +61,7 @@ type FileConfig struct {
 type DSConfigQAN struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
-	DSN     string        `yaml:"dsn"`
+	DSN     string        `yaml:"-"`
 }
 
 // DataSourceVictoriaMetrics telemetry config.
@@ -210,7 +210,7 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 		config = []byte(defaultConfig)
 	}
 	if err := yaml.Unmarshal(config, &fileCfg); err != nil {
-		return nil, errors.Wrap(err, "cannot unmashal default config")
+		return nil, errors.Wrap(err, "cannot unmarshal default config")
 	}
 	fileConfigs = append(fileConfigs, fileCfg)
 
