@@ -197,23 +197,10 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	if err != nil {
 		return nil, err
 	}
-
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		var agent *models.Agent
-		node, agent, err = authenticate(agentMD, tx.Querier)
+		node, err = authenticate(agentMD, tx.Querier)
 		if err != nil {
-			return err
-		}
-
-		// port with default value or not changed - skipping
-		if agentMD.MetricsPort == 0 || (agent.ListenPort != nil && *agent.ListenPort == agentMD.MetricsPort) {
-			return nil
-		}
-
-		// registering new pmmAgent port in database for scrape config.
-		params := models.ChangeCommonAgentParams{Port: &agentMD.MetricsPort}
-		if _, err = models.ChangeAgent(tx.Querier, agentMD.ID, &params); err != nil {
 			return err
 		}
 		return nil
@@ -246,60 +233,67 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	agentInfo := &pmmAgentInfo{
+	agent := &pmmAgentInfo{
 		channel:         channel.New(stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
 		kick:            make(chan struct{}),
 	}
-	r.agents[agentMD.ID] = agentInfo
-	return agentInfo, nil
+	r.agents[agentMD.ID] = agent
+	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, *models.Agent, error) {
+// authenticate checks pmm-agent and adds its port to db for scrape config.
+func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
-		return nil, nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
+		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
 
 	// Get agent ID
 	agent, err := models.FindAgentByID(q, md.ID)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			return nil, nil, status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
+			return nil, status.Errorf(codes.PermissionDenied, "No Agent with ID %q.", md.ID)
 		}
-		return nil, nil, errors.Wrap(err, "failed to find agent")
+		return nil, errors.Wrap(err, "failed to find agent")
 	}
 
 	if agent.AgentType != models.PMMAgentType {
-		return nil, nil, status.Errorf(codes.PermissionDenied, "No pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.PermissionDenied, "No pmm-agent with ID %q.", md.ID)
 	}
 
 	runsOnNodeID := pointer.GetString(agent.RunsOnNodeID)
 	if runsOnNodeID == "" {
-		return nil, nil, status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
 	}
 
 	// Get agent version
 	agentVersion, err := version.Parse(md.Version)
 	if err != nil {
-		return nil, nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
 	if err := addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	agent.Version = &md.Version
+
+	// skipping port with default or unchanged value
+	if md.MetricsPort != 0 && ((agent.ListenPort == nil) || *agent.ListenPort != md.MetricsPort) {
+		agent.ListenPort = &md.MetricsPort
+	}
+
 	if err := q.Update(agent); err != nil {
-		return nil, nil, errors.Wrap(err, "failed to update agent")
+		return nil, errors.Wrap(err, "failed to update agent")
 	}
 
 	node, err := models.FindNodeByID(q, runsOnNodeID)
 	if err != nil {
-		return nil, nil, status.Errorf(codes.InvalidArgument, "Can't retrieve node ID for pmm-agent with ID %q.", md.ID)
+		return nil, status.Errorf(codes.InvalidArgument, "Can't retrieve node ID for pmm-agent with ID %q.", md.ID)
 	}
 
-	return node, agent, nil
+	return node, nil
 }
 
 // unregister removes pmm-agent with given ID from the registry.
