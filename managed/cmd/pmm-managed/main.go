@@ -647,6 +647,9 @@ func main() {
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -682,6 +685,10 @@ func main() {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
+
+	clickhousedb := ds.QanDBSelect
+
+	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
