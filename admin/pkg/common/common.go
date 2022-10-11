@@ -26,8 +26,8 @@ func LookupCommand(cmd string) (string, error) {
 	path, err := exec.LookPath(cmd)
 	if err != nil {
 		var execError *exec.Error
-		if ok := errors.As(err, execError); ok {
-			if ok := errors.As(execError, exec.ErrNotFound); ok {
+		if ok := errors.As(err, &execError); ok {
+			if ok := errors.As(execError, &exec.ErrNotFound); ok {
 				return "", nil
 			}
 		}
