@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client holds the "pmm client" command
-package client
+package common
 
-import "github.com/percona/pmm/admin/commands"
+// DistributionType represents type of distribution of the pmm-agent.
+type DistributionType int
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all client commands.
-type BaseCommand struct {
-	Install InstallCommand `cmd:"" help:"Install PMM client"`
-	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM client"`
-}
+const (
+	// Docker represents Docker installation of PMM Agent or Server.
+	Docker DistributionType = iota
+	// PackageManager represents installation of PMM Agent or Server via a package manager.
+	PackageManager
+	// Tarball represents installation of PMM Agent or Server via a tarball.
+	Tarball
+)
 
-// BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
-	commands.SetupClientsEnabled = false
-	return nil
+// DetectDistributionType detects distribution type of pmm-agent.
+func DetectDistributionType() DistributionType {
+	return PackageManager
 }
