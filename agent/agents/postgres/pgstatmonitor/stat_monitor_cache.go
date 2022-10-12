@@ -169,11 +169,12 @@ func (ssc *statMonitorCache) getStatMonitorExtended(ctx context.Context, q *refo
 				c.Fingerprint = c.Query
 			} else {
 				var isTruncated bool
-				c.Fingerprint, isTruncated = truncate.Query(fingerprint)
+				defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
+				c.Fingerprint, isTruncated = truncate.Query(fingerprint, defaultMaxQueryLength)
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
-				c.Example, isTruncated = truncate.Query(example)
+				c.Example, isTruncated = truncate.Query(example, defaultMaxQueryLength)
 				if isTruncated {
 					c.IsQueryTruncated = isTruncated
 				}
