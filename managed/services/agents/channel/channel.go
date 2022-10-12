@@ -181,8 +181,10 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	default:
 	}
 
-	// do not use default compact representation for large/complex messages
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		// do not use default compact representation for large/complex messages
 		if size := proto.Size(msg); size < 100 {
 			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
 		} else {
@@ -214,8 +216,10 @@ func (c *Channel) runReceiver() {
 		}
 		atomic.AddUint32(&c.mRecv, 1)
 
-		// do not use default compact representation for large/complex messages
+		// Check log level before calling formatting function.
+		// Do not waste resources in case debug level is not enabled.
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			// do not use default compact representation for large/complex messages
 			if size := proto.Size(msg); size < 100 {
 				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
 			} else {
