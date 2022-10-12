@@ -60,6 +60,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify        bool              `help:"Skip TLS certificates validation"`
@@ -101,6 +102,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 			Password:             cmd.Password,
 			CustomLabels:         customLabels,
 			SkipConnectionCheck:  cmd.SkipConnectionCheck,
+			MaxQueryLength:       cmd.MaxQueryLength,
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			TLS:                  cmd.TLS,
 			TLSSkipVerify:        cmd.TLSSkipVerify,
