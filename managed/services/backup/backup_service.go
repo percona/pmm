@@ -42,28 +42,28 @@ var (
 	ErrIncompatibleXtrabackup = errors.New("incompatible xtrabackup")
 	// ErrIncompatibleTargetMySQL is returned if target version of MySQL is not compatible for restoring selected artifact.
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
-	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters
+	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters.
 	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
 )
 
 // Service represents core logic for db backup.
 type Service struct {
-	db             *reform.DB
-	jobsService    jobsService
-	agentsRegistry agentsRegistry
-	v              versioner
+	db           *reform.DB
+	jobsService  jobsService
+	agentService *agents.AgentService
+	v            versioner
 
 	l *logrus.Entry
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, v versioner) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService *agents.AgentService, v versioner) *Service {
 	return &Service{
-		l:              logrus.WithField("component", "management/backup/backup"),
-		db:             db,
-		jobsService:    jobsService,
-		agentsRegistry: agentsRegistry,
-		v:              v,
+		l:            logrus.WithField("component", "management/backup/backup"),
+		db:           db,
+		jobsService:  jobsService,
+		agentService: agentService,
+		v:            v,
 	}
 }
 
@@ -401,7 +401,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		return errTX
 	}
 
-	return s.agentsRegistry.PBMSwitchPITR(
+	return s.agentService.PBMSwitchPITR(
 		pmmAgentID,
 		dsn,
 		agent.Files(),
