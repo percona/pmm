@@ -12,21 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
-package server
+// Package styles holds common styles for BubbleTea programs
+package styles
 
-import (
-	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/commands/pmm/server/docker"
-)
+import "github.com/charmbracelet/lipgloss"
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
-type BaseCommand struct {
-	Docker docker.BaseCommand `cmd:"" help:"Local docker deployment of PMM server"`
-}
-
-// BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
-	commands.SetupClientsEnabled = false
-	return nil
-}
+// ProgressTitleTextStyle styles progress bar's title.
+var ProgressTitleTextStyle = lipgloss.NewStyle().Margin(0, 0, 0, 4)

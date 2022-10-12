@@ -12,21 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
-package server
+// Package common holds common pmm command types.
+package common
 
-import (
-	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/admin/commands/pmm/server/docker"
-)
+// ShutdownResult represents result when we're shutting down for example due to ctrl+c.
+type ShutdownResult struct{}
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all server commands.
-type BaseCommand struct {
-	Docker docker.BaseCommand `cmd:"" help:"Local docker deployment of PMM server"`
-}
+// Result to satisfy commands.Result interface.
+func (s ShutdownResult) Result() {}
 
-// BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
-	commands.SetupClientsEnabled = false
-	return nil
+// String returns result message.
+func (s ShutdownResult) String() string {
+	return "Shutting down..."
 }
