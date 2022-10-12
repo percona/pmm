@@ -143,7 +143,7 @@ func (c *UpgradeCommand) getVersionSuffix(pm packageManager) string {
 	case yum:
 		return fmt.Sprintf("-%s", c.Version)
 	case apt:
-		return fmt.Sprintf("=%s", c.Version)
+		return fmt.Sprintf("=%s*", c.Version)
 	}
 
 	logrus.Panic("Invalid package manager provided")
