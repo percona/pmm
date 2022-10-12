@@ -40,7 +40,7 @@ func NewAgentService(r *Registry) *AgentService {
 }
 
 // Logs by Agent ID.
-func (a *AgentService) Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
+func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
 	agent, err := a.r.get(pmmAgentID)
 	if err != nil {
 		return nil, 0, err

@@ -26,14 +26,13 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
 	r     agentsRegistry
-	a     *agents.AgentService
+	a     agentService
 	state agentsStateUpdater
 	vmdb  prometheusService
 	db    *reform.DB
@@ -41,7 +40,7 @@ type AgentsService struct {
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, a *agents.AgentService) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, a agentService) *AgentsService {
 	return &AgentsService{
 		r:     r,
 		a:     a,

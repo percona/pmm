@@ -50,14 +50,14 @@ var (
 type Service struct {
 	db           *reform.DB
 	jobsService  jobsService
-	agentService *agents.AgentService
+	agentService agentService
 	v            versioner
 
 	l *logrus.Entry
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService *agents.AgentService, v versioner) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, v versioner) *Service {
 	return &Service{
 		l:            logrus.WithField("component", "management/backup/backup"),
 		db:           db,
