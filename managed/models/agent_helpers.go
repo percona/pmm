@@ -437,7 +437,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, fmt.Sprintf("(pmm_agent_id = %[1]s or agent_id = %[1]s)", q.Placeholder(1)))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
