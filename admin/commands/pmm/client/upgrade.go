@@ -113,6 +113,7 @@ func (c *UpgradeCommand) getUpgradeCommands() ([][]string, error) {
 
 	if cmd != "" {
 		return [][]string{
+			{"percona-release", "enable", "pmm2-client", "release"},
 			{"apt", "update"},
 			{"apt", "install", "--only-upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(apt))},
 		}, nil
