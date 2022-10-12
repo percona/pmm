@@ -211,7 +211,6 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	telemetryMetric, _ := s.makeMetric(ctx)
 
 	var totalTime time.Duration
-telemetryLoop:
 	for _, telemetry := range s.config.telemetry {
 		// locate DS
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
@@ -235,11 +234,6 @@ telemetryLoop:
 		}
 
 		for _, each := range metrics {
-			if err != nil {
-				s.l.Debugf("failed to make Metric %v", err)
-				continue telemetryLoop
-			}
-
 			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
 		}
 	}
