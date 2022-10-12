@@ -89,6 +89,25 @@ func (this *StartUpdateResponse) Validate() error {
 	return nil
 }
 
+func (this *AgentUpdateVersion) Validate() error {
+	return nil
+}
+
+func (this *StartAgentUpdateRequest) Validate() error {
+	for _, item := range this.AgentVersion {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AgentVersion", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *StartAgentUpdateResponse) Validate() error {
+	return nil
+}
+
 func (this *UpdateStatusRequest) Validate() error {
 	return nil
 }

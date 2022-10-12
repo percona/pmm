@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
@@ -313,6 +314,13 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			c.runner.Stop(p.ActionId)
 			responsePayload = &agentpb.StopActionResponse{}
 
+		case *agentpb.StartUpdateRequest:
+			var resp agentpb.StartUpdateResponse
+			if err := c.handleStartUpdateRequest(p); err != nil {
+				resp.Error = err.Error()
+			}
+			responsePayload = &resp
+
 		case *agentpb.CheckConnectionRequest:
 			responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
 
@@ -586,6 +594,22 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	return c.runner.StartJob(job)
 }
 
+func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
+	args := []string{"client", "upgrade"}
+	if p.Version != "" {
+		args = append(args, "--use-version", p.Version)
+	}
+	cmd := exec.Command("pmm", args...)
+	cmd.Stdout = logrus.New().WriterLevel(logrus.InfoLevel)
+	cmd.Stderr = logrus.New().WriterLevel(logrus.ErrorLevel)
+
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 	var (
 		logs     []string
@@ -781,7 +805,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100).
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
@@ -809,7 +833,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.supervisor.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -833,7 +857,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
@@ -862,7 +886,7 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	return args
 }
 
-// check interface
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )

@@ -32,6 +32,8 @@ type ServerClient interface {
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error)
+	// StartAgentUpdate starts update of PMM Agent.
+	StartAgentUpdate(ctx context.Context, in *StartAgentUpdateRequest, opts ...grpc.CallOption) (*StartAgentUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
@@ -82,6 +84,15 @@ func (c *serverClient) CheckUpdates(ctx context.Context, in *CheckUpdatesRequest
 func (c *serverClient) StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
 	out := new(StartUpdateResponse)
 	err := c.cc.Invoke(ctx, "/server.Server/StartUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverClient) StartAgentUpdate(ctx context.Context, in *StartAgentUpdateRequest, opts ...grpc.CallOption) (*StartAgentUpdateResponse, error) {
+	out := new(StartAgentUpdateResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/StartAgentUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -146,6 +157,8 @@ type ServerServer interface {
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
 	StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error)
+	// StartAgentUpdate starts update of PMM Agent.
+	StartAgentUpdate(context.Context, *StartAgentUpdateRequest) (*StartAgentUpdateResponse, error)
 	// UpdateStatus returns PMM Server update status.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
@@ -176,6 +189,10 @@ func (UnimplementedServerServer) CheckUpdates(context.Context, *CheckUpdatesRequ
 
 func (UnimplementedServerServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartUpdate not implemented")
+}
+
+func (UnimplementedServerServer) StartAgentUpdate(context.Context, *StartAgentUpdateRequest) (*StartAgentUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StartAgentUpdate not implemented")
 }
 
 func (UnimplementedServerServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
@@ -278,6 +295,24 @@ func _Server_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServerServer).StartUpdate(ctx, req.(*StartUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Server_StartAgentUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartAgentUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).StartAgentUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/StartAgentUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).StartAgentUpdate(ctx, req.(*StartAgentUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -394,6 +429,10 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StartUpdate",
 			Handler:    _Server_StartUpdate_Handler,
+		},
+		{
+			MethodName: "StartAgentUpdate",
+			Handler:    _Server_StartAgentUpdate_Handler,
 		},
 		{
 			MethodName: "UpdateStatus",

@@ -98,6 +98,10 @@ func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payloa
 	return &AgentMessage_StopAction{StopAction: m}
 }
 
+func (m *StartUpdateResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_StartUpdate{StartUpdate: m}
+}
+
 func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_CheckConnection{CheckConnection: m}
 }
@@ -174,6 +178,10 @@ func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 	return &ServerMessage_StopAction{StopAction: m}
 }
 
+func (m *StartUpdateRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_StartUpdate{StartUpdate: m}
+}
+
 func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_CheckConnection{CheckConnection: m}
 }
@@ -206,7 +214,7 @@ func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload
 	return &ServerMessage_AgentLogs{AgentLogs: m}
 }
 
-// in alphabetical order
+// in alphabetical order.
 func (*ActionResultRequest) sealed()       {}
 func (*ActionResultResponse) sealed()      {}
 func (*CheckConnectionRequest) sealed()    {}
@@ -229,6 +237,8 @@ func (*StartActionRequest) sealed()        {}
 func (*StartActionResponse) sealed()       {}
 func (*StartJobRequest) sealed()           {}
 func (*StartJobResponse) sealed()          {}
+func (*StartUpdateRequest) sealed()        {}
+func (*StartUpdateResponse) sealed()       {}
 func (*StateChangedRequest) sealed()       {}
 func (*StateChangedResponse) sealed()      {}
 func (*StopActionRequest) sealed()         {}
@@ -240,7 +250,7 @@ func (*GetVersionsResponse) sealed()       {}
 func (*PBMSwitchPITRRequest) sealed()      {}
 func (*PBMSwitchPITRResponse) sealed()     {}
 
-// check interfaces
+// check interfaces.
 var (
 	// A list of AgentMessage request payloads.
 	_ AgentRequestPayload = (*Ping)(nil)
@@ -253,6 +263,7 @@ var (
 	_ AgentResponsePayload = (*SetStateResponse)(nil)
 	_ AgentResponsePayload = (*StartActionResponse)(nil)
 	_ AgentResponsePayload = (*StopActionResponse)(nil)
+	_ AgentResponsePayload = (*StartUpdateResponse)(nil)
 	_ AgentResponsePayload = (*CheckConnectionResponse)(nil)
 	_ AgentResponsePayload = (*JobProgress)(nil)
 	_ AgentResponsePayload = (*JobResult)(nil)

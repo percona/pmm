@@ -488,6 +488,14 @@ func (this *ActionResultResponse) Validate() error {
 	return nil
 }
 
+func (this *StartUpdateRequest) Validate() error {
+	return nil
+}
+
+func (this *StartUpdateResponse) Validate() error {
+	return nil
+}
+
 func (this *PBMSwitchPITRRequest) Validate() error {
 	if this.TextFiles != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.TextFiles); err != nil {
@@ -966,6 +974,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_StartUpdate); ok {
+		if oneOfNester.StartUpdate != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartUpdate); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartUpdate", err)
+			}
+		}
+	}
 	return nil
 }
 
@@ -1084,6 +1099,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.AgentLogs != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AgentLogs); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("AgentLogs", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_StartUpdate); ok {
+		if oneOfNester.StartUpdate != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StartUpdate); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("StartUpdate", err)
 			}
 		}
 	}

@@ -338,6 +338,11 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 	}, nil
 }
 
+// StartAgentUpdate starts PMM Agent update.
+func (s *Server) StartAgentUpdate(ctx context.Context, req *serverpb.StartAgentUpdateRequest) (*serverpb.StartAgentUpdateResponse, error) {
+	return nil, nil
+}
+
 // UpdateStatus returns PMM Server update status.
 func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
 	token, err := s.readUpdateAuthToken()

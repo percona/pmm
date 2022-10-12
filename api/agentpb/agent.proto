@@ -379,6 +379,16 @@ message ActionResultRequest {
 // ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
+// StartUpdateRequest starts update of pmm-agent.
+message StartUpdateRequest {
+  string version = 1;
+}
+
+// StartUpdateResponse contains error, if any, in case update could not start.
+message StartUpdateResponse {
+  string error = 1;
+}
+
 // PBMSwitchPITRRequest is a ServerMessage asking pmm-agent to switch PITR pbm feature.
 message PBMSwitchPITRRequest {
   // DSN for the MongoDB service. May contain connection (dial) timeout.
@@ -404,7 +414,7 @@ message ParseDefaultsFileRequest {
   string config_path = 2;
 }
 
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
+// ParseDefaultsFileResponse is an AgentMessage containing a result of parsing defaults file.
 message ParseDefaultsFileResponse {
 
   // Error message if parse failed.
@@ -694,6 +704,7 @@ message AgentMessage {
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;
     AgentLogsResponse agent_logs = 21;
+    StartUpdateResponse start_update = 22;
   }
 }
 
@@ -726,6 +737,7 @@ message ServerMessage {
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     ParseDefaultsFileRequest parse_defaults_file = 18;
     AgentLogsRequest agent_logs = 19;
+    StartUpdateRequest start_update = 20;
   }
 }
 

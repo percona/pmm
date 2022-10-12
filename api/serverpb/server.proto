@@ -84,6 +84,20 @@ message StartUpdateResponse {
   uint32 log_offset = 2;
 }
 
+message AgentUpdateVersion {
+  string agent_id = 1;
+  string version = 2;
+}
+
+message StartAgentUpdateRequest {
+  repeated AgentUpdateVersion agent_version = 1;
+  bool update_all_agents = 2;
+}
+
+message StartAgentUpdateResponse {
+  string error = 1;
+}
+
 message UpdateStatusRequest {
   // Authentication token.
   string auth_token = 1;
@@ -330,6 +344,17 @@ service Server {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Start update"
       description: "Starts PMM Server update."
+    };
+  }
+  // StartAgentUpdate starts update of PMM Agent.
+  rpc StartAgentUpdate(StartAgentUpdateRequest) returns (StartAgentUpdateResponse) {
+    option (google.api.http) = {
+      post: "/v1/Updates/StartAgent"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start PMM Agent update"
+      description: "Starts PMM Agent update."
     };
   }
   // UpdateStatus returns PMM Server update status.
