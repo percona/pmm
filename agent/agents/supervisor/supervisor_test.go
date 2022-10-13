@@ -16,12 +16,12 @@ package supervisor
 
 import (
 	"context"
-	"github.com/AlekSi/pointer"
 	"os"
 	"path/filepath"
 	"sort"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
