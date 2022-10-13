@@ -312,6 +312,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:          labels,
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
+			MaxQueryLength:        agent.MaxQueryLength,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
 			ProcessExecPath:       processExecPath,
 			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
@@ -377,6 +378,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:        agent.Disabled,
 			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels:    labels,
+			MaxQueryLength:  agent.MaxQueryLength,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
 			ProcessExecPath: processExecPath,
@@ -392,6 +394,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			Disabled:              agent.Disabled,
 			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
 			CustomLabels:          labels,
+			MaxQueryLength:        agent.MaxQueryLength,
 			Tls:                   agent.TLS,
 			TlsSkipVerify:         agent.TLSSkipVerify,
 			QueryExamplesDisabled: agent.QueryExamplesDisabled,
@@ -466,9 +469,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 	}
 }
 
-func SpecifyLogLevel(variant inventorypb.LogLevel) string {
+// SpecifyLogLevel - convert proto enum to string
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""
+	}
+
+	// downgrade instead of return API error
+	if variant < minLogLevel {
+		return minLogLevel.String()
 	}
 
 	return variant.String()

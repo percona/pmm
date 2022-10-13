@@ -52,10 +52,12 @@ func NewChangeLocationParamsWithHTTPClient(client *http.Client) *ChangeLocationP
 	}
 }
 
-/* ChangeLocationParams contains all the parameters to send to the API endpoint
-   for the change location operation.
+/*
+ChangeLocationParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the change location operation.
+
+	Typically these are written to a http.Request.
 */
 type ChangeLocationParams struct {
 	// Body.

@@ -18,7 +18,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http/httptest"
 	"testing"
@@ -168,7 +168,7 @@ func TestGetZipFile(t *testing.T) {
 		rec := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/logs.zip", nil)
 		s.ZipLogs(rec, req)
-		existFile, err := ioutil.ReadAll(rec.Body)
+		existFile, err := io.ReadAll(rec.Body)
 		require.NoError(t, err)
 
 		bufExs := bytes.NewReader(existFile)
@@ -178,7 +178,7 @@ func TestGetZipFile(t *testing.T) {
 		for _, ex := range zipExs.File {
 			file, err := ex.Open()
 			require.NoError(t, err)
-			if contents, err := ioutil.ReadAll(file); err == nil {
+			if contents, err := io.ReadAll(file); err == nil {
 				if ex.Name == serverZipFile {
 					assert.Empty(t, contents)
 				} else {

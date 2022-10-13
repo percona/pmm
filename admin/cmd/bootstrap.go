@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+// Package cmd holds common logic used by commands
+package cmd
 
 import (
 	"context"
@@ -40,7 +41,49 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-func main() {
+// Bootstrap is used to initialize the application.
+func Bootstrap(opts any) {
+	var kongCtx *kong.Context
+	var parsedOpts any
+
+	switch o := opts.(type) {
+	case cli.PMMAdminCommands:
+		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
+		parsedOpts = &o
+	case cli.PMMCommands:
+		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm")...)
+		parsedOpts = &o
+	}
+
+	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
+	if !ok {
+		logrus.Panic("Cannot assert parsedOpts to GlobalFlagsGetter")
+	}
+
+	globalFlags := f.GetGlobalFlags()
+
+	configureLogger(globalFlags)
+	finishBootstrap(globalFlags)
+
+	err := kongCtx.Run(globalFlags)
+	processFinalError(err, bool(globalFlags.JSON))
+}
+
+func configureLogger(opts *flags.GlobalFlags) {
+	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
+	if opts.JSON {
+		logrus.SetFormatter(&logrus.JSONFormatter{}) //nolint:exhaustruct // with levels and timestamps always present
+	}
+	if opts.EnableDebug {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	if opts.EnableTrace {
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
+	}
+}
+
+func getDefaultKongOptions(appName string) []kong.Option {
 	// Detect defaults
 	nodeinfo := nodeinfo.Get()
 	nodeTypeDefault := "generic"
@@ -66,10 +109,8 @@ func main() {
 		management.MongodbQuerySourceNone,
 	}
 
-	// Configure CLI
-	var opts cli.Commands
-	kongCtx := kong.Parse(&opts,
-		kong.Name("pmm-admin"),
+	return []kong.Option{
+		kong.Name(appName),
 		kong.Description(fmt.Sprintf("Version %s", version.Version)),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
@@ -91,20 +132,11 @@ func main() {
 			"mongoDbQuerySourceDefault":    mongoDBQuerySources[0],
 			"externalDefaultServiceName":   management.DefaultServiceNameSuffix,
 			"externalDefaultGroupExporter": management.DefaultGroupExternalExporter,
-		})
+		},
+	}
+}
 
-	logrus.SetFormatter(&logger.TextFormatter{}) // with levels and timestamps for debug and trace
-	if opts.JSON {
-		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
-	}
-	if opts.EnableDebug {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	if opts.EnableTrace {
-		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
-	}
-
+func finishBootstrap(globalFlags *flags.GlobalFlags) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// handle termination signals
@@ -117,26 +149,27 @@ func main() {
 		cancel()
 	}()
 
-	if opts.PMMAgentListenPort == 0 && opts.PMMAgentSocket == "" {
-		opts.PMMAgentSocket, opts.PMMAgentListenPort = findSocketOrPort("", 0)
+	if globalFlags.PMMAgentListenPort == 0 && globalFlags.PMMAgentSocket == "" {
+		globalFlags.PMMAgentSocket, globalFlags.PMMAgentListenPort = findSocketOrPort("", 0)
 	}
 
 	agentlocal.SetTransport(
 		ctx,
-		opts.EnableDebug || opts.EnableTrace,
-		opts.PMMAgentListenPort,
-		opts.PMMAgentSocket)
+		globalFlags.EnableDebug || globalFlags.EnableTrace,
+		globalFlags.PMMAgentListenPort,
+		globalFlags.PMMAgentSocket)
 
 	// pmm-admin status command don't connect to PMM Server.
 	if commands.SetupClientsEnabled {
-		base.SetupClients(ctx, &opts.GlobalFlags)
+		base.SetupClients(ctx, globalFlags)
 	}
 
 	commands.CLICtx = ctx
+}
 
-	err := kongCtx.Run(&opts.GlobalFlags)
+func processFinalError(err error, isJSON bool) {
 	if err != nil {
-		if opts.JSON {
+		if isJSON {
 			b, jErr := json.Marshal(err.Error())
 			if jErr != nil {
 				logrus.Infof("Error: %#v.", err)

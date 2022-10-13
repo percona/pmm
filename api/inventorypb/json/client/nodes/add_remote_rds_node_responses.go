@@ -48,7 +48,8 @@ func NewAddRemoteRDSNodeOK() *AddRemoteRDSNodeOK {
 	return &AddRemoteRDSNodeOK{}
 }
 
-/* AddRemoteRDSNodeOK describes a response with status code 200, with default header values.
+/*
+AddRemoteRDSNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -82,7 +83,8 @@ func NewAddRemoteRDSNodeDefault(code int) *AddRemoteRDSNodeDefault {
 	}
 }
 
-/* AddRemoteRDSNodeDefault describes a response with status code -1, with default header values.
+/*
+AddRemoteRDSNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -116,7 +118,8 @@ func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*AddRemoteRDSNodeBody add remote RDS node body
+/*
+AddRemoteRDSNodeBody add remote RDS node body
 swagger:model AddRemoteRDSNodeBody
 */
 type AddRemoteRDSNodeBody struct {
@@ -167,7 +170,8 @@ func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeDefaultBody add remote RDS node default body
+/*
+AddRemoteRDSNodeDefaultBody add remote RDS node default body
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
@@ -270,7 +274,8 @@ func (o *AddRemoteRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeDefaultBodyDetailsItems0 add remote RDS node default body details items0
+/*
+AddRemoteRDSNodeDefaultBodyDetailsItems0 add remote RDS node default body details items0
 swagger:model AddRemoteRDSNodeDefaultBodyDetailsItems0
 */
 type AddRemoteRDSNodeDefaultBodyDetailsItems0 struct {
@@ -306,7 +311,8 @@ func (o *AddRemoteRDSNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*AddRemoteRDSNodeOKBody add remote RDS node OK body
+/*
+AddRemoteRDSNodeOKBody add remote RDS node OK body
 swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
@@ -394,7 +400,8 @@ func (o *AddRemoteRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*
+AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 */
 type AddRemoteRDSNodeOKBodyRemoteRDS struct {

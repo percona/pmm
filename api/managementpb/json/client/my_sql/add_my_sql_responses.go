@@ -50,7 +50,8 @@ func NewAddMySQLOK() *AddMySQLOK {
 	return &AddMySQLOK{}
 }
 
-/* AddMySQLOK describes a response with status code 200, with default header values.
+/*
+AddMySQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddMySQLDefault(code int) *AddMySQLDefault {
 	}
 }
 
-/* AddMySQLDefault describes a response with status code -1, with default header values.
+/*
+AddMySQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer
 	return nil
 }
 
-/*AddMySQLBody add my SQL body
+/*
+AddMySQLBody add my SQL body
 swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
@@ -174,6 +177,9 @@ type AddMySQLBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
@@ -409,7 +415,8 @@ func (o *AddMySQLBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLDefaultBody add my SQL default body
+/*
+AddMySQLDefaultBody add my SQL default body
 swagger:model AddMySQLDefaultBody
 */
 type AddMySQLDefaultBody struct {
@@ -512,7 +519,8 @@ func (o *AddMySQLDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
+/*
+AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
 swagger:model AddMySQLDefaultBodyDetailsItems0
 */
 type AddMySQLDefaultBodyDetailsItems0 struct {
@@ -548,7 +556,8 @@ func (o *AddMySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBody add my SQL OK body
+/*
+AddMySQLOKBody add my SQL OK body
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
@@ -774,7 +783,8 @@ func (o *AddMySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+/*
+AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
 swagger:model AddMySQLOKBodyMysqldExporter
 */
 type AddMySQLOKBodyMysqldExporter struct {
@@ -999,7 +1009,8 @@ func (o *AddMySQLOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddMySQLOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddMySQLOKBodyQANMysqlPerfschema
 */
 type AddMySQLOKBodyQANMysqlPerfschema struct {
@@ -1032,6 +1043,9 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
@@ -1210,7 +1224,8 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddMySQLOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddMySQLOKBodyQANMysqlSlowlog
 */
 type AddMySQLOKBodyQANMysqlSlowlog struct {
@@ -1243,6 +1258,9 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit)
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
@@ -1424,7 +1442,8 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLOKBodyService MySQLService represents a generic MySQL instance.
+/*
+AddMySQLOKBodyService MySQLService represents a generic MySQL instance.
 swagger:model AddMySQLOKBodyService
 */
 type AddMySQLOKBodyService struct {
@@ -1490,7 +1509,8 @@ func (o *AddMySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
