@@ -679,6 +679,8 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
+    JobResult job_result = 16;
+    JobProgress job_progress = 17;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -688,8 +690,6 @@ message AgentMessage {
     StartJobResponse start_job = 13;
     StopJobResponse stop_job = 14;
     JobStatusResponse job_status = 15;
-    JobResult job_result = 16;
-    JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;

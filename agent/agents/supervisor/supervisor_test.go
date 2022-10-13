@@ -50,6 +50,7 @@ func TestSupervisor(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	tempDir := t.TempDir()
 	s := NewSupervisor(ctx, &config.Paths{TempDir: tempDir}, &config.Ports{Min: 65000, Max: 65099}, &config.Server{Address: "localhost:443"}, pointer.ToUint(1))
+	s.Run(ctx)
 
 	t.Run("Start13", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
@@ -286,6 +287,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		}
 
 		s := NewSupervisor(ctx, paths, &config.Ports{}, &config.Server{}, pointer.ToUint(1)) //nolint:varnamelen
+		s.Run(ctx)
 
 		teardown := func() {
 			cancel()
