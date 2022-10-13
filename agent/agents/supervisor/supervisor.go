@@ -462,6 +462,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &perfschema.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
@@ -480,6 +481,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			DSN:                  dsn,
 			AgentID:              agentID,
 			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
