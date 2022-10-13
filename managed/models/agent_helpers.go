@@ -437,7 +437,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		conditions []string
 	)
 	if pmmAgentID != nil {
-		conditions = append(conditions, fmt.Sprintf("pmm_agent_id = %s", q.Placeholder(1)))
+		conditions = append(conditions, fmt.Sprintf("(pmm_agent_id = %[1]s or agent_id = %[1]s)", q.Placeholder(1)))
 		args = append(args, pointer.GetString(pmmAgentID))
 	}
 
@@ -706,6 +706,7 @@ type CreateAgentParams struct {
 	MongoDBOptions                 *MongoDBOptions
 	PostgreSQLOptions              *PostgreSQLOptions
 	TableCountTablestatsGroupLimit int32
+	MaxQueryLength                 int32
 	QueryExamplesDisabled          bool
 	MaxQueryLogSize                int64
 	AWSAccessKey                   string
@@ -853,6 +854,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:                 params.MongoDBOptions,
 		PostgreSQLOptions:              params.PostgreSQLOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
+		MaxQueryLength:                 params.MaxQueryLength,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
 		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
