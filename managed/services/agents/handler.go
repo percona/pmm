@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -33,6 +34,8 @@ import (
 	"github.com/percona/pmm/managed/services/agents/channel"
 	"github.com/percona/pmm/managed/utils/logger"
 )
+
+var pmmAgentMinVersionForOfflineMetrics = version.Must(version.NewVersion("2.31.99-0"))
 
 // Handler handles agent requests.
 type Handler struct {
@@ -216,13 +219,22 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 
 // SetAllAgentsStatusUnknown goes through all pmm-agents and sets status to UNKNOWN.
 func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
+	l := logger.Get(ctx)
 	agentType := models.PMMAgentType
 	agents, err := models.FindAgents(h.db.Querier, models.AgentFilters{AgentType: &agentType})
 	if err != nil {
 		return errors.Wrap(err, "failed to get pmm-agents")
 	}
 	for _, agent := range agents {
-		if !h.r.IsConnected(agent.AgentID) {
+		if agent.Version == nil { // Version is set when pmm-agent connects to PMM Server, so if version is nil then pmm-agent haven't connected yet.
+			continue
+		}
+		agentVersion, err := version.NewVersion(pointer.GetString(agent.Version))
+		if err != nil {
+			l.Warnf("can't parse agent version, skipping: %q", err)
+			continue
+		}
+		if !h.r.IsConnected(agent.AgentID) && agentVersion.LessThan(pmmAgentMinVersionForOfflineMetrics) {
 			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_UNKNOWN)
 			if err != nil {
 				return err
