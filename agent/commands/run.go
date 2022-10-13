@@ -83,7 +83,7 @@ func Run() {
 	}()
 
 	for {
-		configFilepath, err = config.Get(cfg, l)
+		_, err = config.Get(cfg, l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
@@ -95,10 +95,6 @@ func Run() {
 		connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
 
 		clientCtx, cancel := context.WithCancel(ctx)
-
-		// Actions runner is currently created inside client.New.
-		// It should be created separately.
-		// TODO https://jira.percona.com/browse/PMM-7206
 
 		_ = client.Run(clientCtx)
 		cancel()
@@ -124,9 +120,4 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
 	}
-}
-
-// run runs all pmm-agent components with given configuration until ctx is cancellled.
-// See documentation for NewXXX, Run, and Done
-func run(ctx context.Context, client *client.Client) {
 }
