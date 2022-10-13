@@ -2,7 +2,6 @@
 
 This section describes solutions to common problems and scenarios you might encounter while using PMM.
 
-
 ## Troubleshooting checklist
 
 The following questions might help you identify the origin of the problem while using Percona Monitoring and Management:
@@ -110,17 +109,8 @@ In such a scenario, use [API key](../../details/api.md#api-keys-and-authenticati
 ## Percona Alerting
 
 ### No Alert rule templates tab on the Alerting page
+
 Percona Alerting option isn't active.
-
-### Integrated Alerting issues
-
-#### No <i class="uil uil-bell"></i> Integrated Alerting icon
-
-You are not logged in as a privileged user. You need either Admin or Editor roles to work with Integrated Alerting.
-
-** <i class="uil uil-bell"></i> Integrated Alerting icon but no submenu**
-
-#### Integrated Alerting isn't activated.
 
 1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 2. Enable *Alerting*.
@@ -134,19 +124,6 @@ PMM is no longer sourcing templates from the ``ia`` folder, since we have deprec
 If you get an email or page from your system that the IP is not reachable from outside my organization, do the following:
 
 To configure your PMM Server’s Public Address, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
-
-
-#### Notification channels not working
-
-**I tried to set up a Slack/Email channel but nothing happened.**
-
-Before you can use a notification channel you must provide your connection details.
-
-1. Go to *PMM* → *PMM Settings* → *Communication*.
-2. Define your SMTP server or Slack incoming webhook URL.
-
-For PagerDuty you can configure it in the notification channel tab of Integrated Alerting by supplying your server/routing key.
-
 
 #### Alert Rule Templates are disabled
 
