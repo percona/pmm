@@ -17,6 +17,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"github.com/percona/pmm/agent/runner"
 	"net"
 	"testing"
 	"time"
@@ -157,7 +158,8 @@ func TestClient(t *testing.T) {
 			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-			client := New(cfg, &s, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			r := runner.New(cfg.RunnerCapacity)
+			client := New(cfg, &s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			err := client.Run(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -245,7 +247,8 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
 
-	client := New(cfg, s, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	r := runner.New(cfg.RunnerCapacity)
+	client := New(cfg, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	err := client.Run(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
