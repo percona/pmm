@@ -3800,7 +3800,7 @@
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -3813,7 +3813,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "database": {
                   "description": "Database name.",
@@ -3826,12 +3826,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 16
+                  "x-order": 17
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -3850,7 +3850,13 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 27
+                  "x-order": 28
+                },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 16
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -3861,7 +3867,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -3912,7 +3918,7 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "socket": {
                   "description": "Service Access socket.\nAddress (and port) or socket is required.",
@@ -3922,27 +3928,27 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
@@ -4077,7 +4083,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4096,7 +4102,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4106,7 +4118,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4126,17 +4138,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
@@ -4161,7 +4173,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4180,7 +4192,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4190,12 +4208,12 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4215,7 +4233,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5473,7 +5491,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5492,7 +5510,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 5
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5502,7 +5526,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5522,17 +5546,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",

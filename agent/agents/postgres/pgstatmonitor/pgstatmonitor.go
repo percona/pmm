@@ -49,12 +49,14 @@ type PGStatMonitorQAN struct {
 	l                    *logrus.Entry
 	changes              chan agents.Change
 	monitorCache         *statMonitorCache
+	maxQueryLength       int32
 	disableQueryExamples bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
 	DSN                  string
+	MaxQueryLength       int32
 	DisableQueryExamples bool
 	TextFiles            *agentpb.TextFiles
 	AgentID              string
@@ -116,7 +118,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
@@ -132,7 +134,7 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, l *logrus.Entry) (*PGStatMonitorQAN, error) {
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                    q,
 		dbCloser:             dbCloser,
@@ -140,6 +142,7 @@ func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, 
 		l:                    l,
 		changes:              make(chan agents.Change, 10),
 		monitorCache:         newStatMonitorCache(l),
+		maxQueryLength:       maxQueryLength,
 		disableQueryExamples: disableQueryExamples,
 	}, nil
 }
@@ -238,7 +241,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery); err == nil {
+	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -402,7 +405,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 }
 
 func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentpb.MetricsBucket, error) {
-	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery)
+	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
 	if err != nil {
 		return nil, err
 	}
