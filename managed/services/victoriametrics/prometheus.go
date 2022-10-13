@@ -186,8 +186,6 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 				node:  paramsNode,
 				agent: agent,
 			})
-			l.Warnf("creating scrape: %v", scfgs)
-
 		default:
 			l.Warnf("Skipping scrape config for %s.", agent)
 			continue
