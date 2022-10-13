@@ -16,9 +16,7 @@ package main
 
 import (
 	"encoding/json"
-	"net"
 	"os/exec"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -54,50 +52,4 @@ func TestVersionJson(t *testing.T) {
 	if err := json.Unmarshal(b, &jsonStruct); err != nil {
 		t.Errorf("pmm-admin --version --json produces incorrect output format")
 	}
-}
-
-//nolint:paralleltest
-func TestFindSocketOrPath(t *testing.T) {
-	const socketPath = "/tmp/pmm-agent-find-socket-test.sock"
-	const localPort = 18485
-
-	t.Run("finds socket", func(t *testing.T) {
-		l, err := net.Listen("unix", socketPath)
-		require.NoError(t, err)
-		defer l.Close() //nolint:errcheck
-
-		socket, port := findSocketOrPort(socketPath, 0)
-		require.Equal(t, socket, socketPath)
-		require.Equal(t, port, uint32(0))
-	})
-
-	t.Run("finds port", func(t *testing.T) {
-		l, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(localPort)))
-		require.NoError(t, err)
-		defer l.Close() //nolint:errcheck
-
-		socket, port := findSocketOrPort(socketPath, localPort)
-		require.Equal(t, socket, "")
-		require.Equal(t, port, uint32(localPort))
-	})
-
-	t.Run("finds socket even if port is available", func(t *testing.T) {
-		l, err := net.Listen("unix", socketPath)
-		require.NoError(t, err)
-		defer l.Close() //nolint:errcheck
-
-		lp, err := net.Listen("tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(localPort)))
-		require.NoError(t, err)
-		defer lp.Close() //nolint:errcheck
-
-		socket, port := findSocketOrPort(socketPath, localPort)
-		require.Equal(t, socket, socketPath)
-		require.Equal(t, port, uint32(0))
-	})
-
-	t.Run("defaults to socket", func(t *testing.T) {
-		socket, port := findSocketOrPort(socketPath, 0)
-		require.NotEqual(t, socket, "")
-		require.Equal(t, port, uint32(0))
-	})
 }
