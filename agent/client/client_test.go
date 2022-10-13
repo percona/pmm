@@ -17,7 +17,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/agent/runner"
 	"net"
 	"testing"
 	"time"
@@ -32,6 +31,7 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
+	"github.com/percona/pmm/agent/runner"
 	"github.com/percona/pmm/api/agentpb"
 )
 

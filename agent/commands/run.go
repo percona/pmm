@@ -58,8 +58,8 @@ func Run() {
 		cancel()
 	}()
 
-	cfg := &config.Config{}
-	configFilepath, err := config.Get(cfg, l)
+	var cfg config.Config
+	configFilepath, err := config.Get(&cfg, l)
 	if err != nil {
 		l.Fatalf("Failed to load configuration: %s.", err)
 	}
@@ -74,8 +74,8 @@ func Run() {
 	v := versioner.New(&versioner.RealExecFunctions{})
 	r := runner.New(cfg.RunnerCapacity)
 	go r.Run(ctx)
-	client := client.New(cfg, supervisor, r, connectionChecker, v, defaultsFileParser, connectionUptimeService, logStore)
-	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, logStore)
+	client := client.New(&cfg, supervisor, r, connectionChecker, v, defaultsFileParser, connectionUptimeService, logStore)
+	localServer := agentlocal.NewServer(&cfg, supervisor, client, configFilepath, logStore)
 
 	go func() {
 		localServer.Run(ctx)
@@ -83,11 +83,11 @@ func Run() {
 	}()
 
 	for {
-		_, err = config.Get(cfg, l)
+		_, err = config.Get(&cfg, l)
 		if err != nil {
 			l.Fatalf("Failed to load configuration: %s.", err)
 		}
-		config.ConfigureLogger(cfg)
+		config.ConfigureLogger(&cfg)
 		logStore.Resize(cfg.LogLinesCount)
 		l.Debugf("Loaded configuration: %+v", cfg)
 
