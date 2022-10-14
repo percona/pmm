@@ -43,7 +43,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.39
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20220627132007-e6e85c6e26dc
-	github.com/percona-platform/saas v0.0.0-20220929151424-96f12049b661
+	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
 	github.com/percona/percona-toolkit v3.2.1+incompatible
