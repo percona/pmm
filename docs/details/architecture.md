@@ -18,7 +18,7 @@ PMM Client runs on every database host or node you want to monitor. The client c
 
 ## Percona Platform
 
-[Percona Platform](../using/platform/) provides value-added services for PMM.
+[Percona Platform](../how-to/integrate-patform.md) provides value-added services for PMM.
 
 ## PMM context
 
@@ -43,8 +43,8 @@ PMM Server includes the following tools:
 
 - Query Analytics (QAN) enables you to analyze database query performance over periods of time. In addition to the client-side QAN agent, it includes the following:
 
-  - QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.
-  - QAN App is a web application for visualizing collected Query Analytics data which is part of the PMM Server's UI.
+    - QAN API is the back-end for storing and accessing query data collected by the QAN agent running on a PMM Client.
+    - QAN App is a web application for visualizing collected Query Analytics data which is part of the PMM Server's UI.
 
 - Metrics Monitor provides a historical view of metrics that are critical to a MySQL or MongoDB server instance. It includes the following:
 
