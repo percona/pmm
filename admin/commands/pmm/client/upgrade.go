@@ -30,8 +30,18 @@ import (
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
 type UpgradeCommand struct {
-	Version string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
+	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"`
+	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
 }
+
+type distributionType string
+
+const (
+	distributionAutodetect     distributionType = "autodetect"
+	distributionPackageManager distributionType = "package-manager"
+	distributionTar            distributionType = "tarball"
+	distributionDocker         distributionType = "docker"
+)
 
 type upgradeResult struct{}
 
@@ -45,7 +55,7 @@ func (res *upgradeResult) String() string {
 
 // RunCmdWithContext runs install command.
 func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) {
-	distributionType := common.DetectDistributionType()
+	distributionType := c.distributionType()
 
 	var err error
 	switch distributionType {
@@ -60,6 +70,22 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	return &upgradeResult{}, nil
+}
+
+func (c *UpgradeCommand) distributionType() common.DistributionType {
+	var distType common.DistributionType
+	switch distributionType(c.Distribution) {
+	case distributionAutodetect:
+		distType = common.DetectDistributionType()
+	case distributionPackageManager:
+		distType = common.PackageManager
+	case distributionTar:
+		distType = common.Tarball
+	case distributionDocker:
+		distType = common.Docker
+	}
+
+	return distType
 }
 
 func (c *UpgradeCommand) upgradeViaPackageManager(ctx context.Context) error {
@@ -88,30 +114,21 @@ func (c *UpgradeCommand) upgradeViaPackageManager(ctx context.Context) error {
 var ErrNoUpgradeCommandFound = fmt.Errorf("NoUpgradeCommandFound")
 
 func (c *UpgradeCommand) getUpgradeCommands() ([][]string, error) {
-	cmd, err := common.LookupCommand("dnf")
+	cmd, err := common.DetectPackageManager()
 	if err != nil {
 		return nil, err
 	}
 
-	if cmd != "" {
-		return [][]string{{"dnf", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(dnf))}}, nil
-	}
-
-	cmd, err = common.LookupCommand("yum")
-	if err != nil {
-		return nil, err
-	}
-
-	if cmd != "" {
-		return [][]string{{"yum", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(yum))}}, nil
-	}
-
-	cmd, err = common.LookupCommand("apt")
-	if err != nil {
-		return nil, err
-	}
-
-	if cmd != "" {
+	switch cmd {
+	case common.Dnf:
+		return [][]string{
+			{"dnf", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(dnf))},
+		}, nil
+	case common.Yum:
+		return [][]string{
+			{"yum", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(yum))},
+		}, nil
+	case common.Apt:
 		return [][]string{
 			{"percona-release", "enable", "pmm2-client", "release"},
 			{"apt", "update"},

@@ -14,6 +14,8 @@
 
 package common
 
+import "fmt"
+
 // DistributionType represents type of distribution of the pmm-agent.
 type DistributionType int
 
@@ -29,4 +31,53 @@ const (
 // DetectDistributionType detects distribution type of pmm-agent.
 func DetectDistributionType() DistributionType {
 	return PackageManager
+}
+
+// OSPackageManager represents a specific package manager used by the system.
+type OSPackageManager int
+
+const (
+	// UnknownPackageManager represents unknown package manager.
+	UnknownPackageManager OSPackageManager = iota
+	// Dnf represents "dnf" package manager.
+	Dnf
+	// Yum represents "yum" package manager.
+	Yum
+	// Apt represents "apt" package manager.
+	Apt
+)
+
+// ErrCouldNotDetectPackageManager is returned when package manager cannot be detected.
+var ErrCouldNotDetectPackageManager = fmt.Errorf("CouldNotDetectPackageManager")
+
+// DetectPackageManager detects the package manager available in the current system.
+func DetectPackageManager() (OSPackageManager, error) {
+	cmd, err := LookupCommand("dnf")
+	if err != nil {
+		return UnknownPackageManager, err
+	}
+
+	if cmd != "" {
+		return Dnf, nil
+	}
+
+	cmd, err = LookupCommand("yum")
+	if err != nil {
+		return UnknownPackageManager, err
+	}
+
+	if cmd != "" {
+		return Yum, nil
+	}
+
+	cmd, err = LookupCommand("apt")
+	if err != nil {
+		return UnknownPackageManager, err
+	}
+
+	if cmd != "" {
+		return Apt, nil
+	}
+
+	return UnknownPackageManager, fmt.Errorf("%w: Could not detect package manager", ErrCouldNotDetectPackageManager)
 }
