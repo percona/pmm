@@ -1759,6 +1759,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
