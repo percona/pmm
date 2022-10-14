@@ -249,7 +249,7 @@ func findSocketOrPort(socketPath string, localPort uint32) (string, uint32) {
 }
 
 func checkConnection(ctx context.Context, network, address string) error {
-	dialer := net.Dialer{}
+	dialer := net.Dialer{} //nolint:exhaustruct
 	conn, err := dialer.DialContext(ctx, network, address)
 	if err != nil {
 		return err
