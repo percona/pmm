@@ -677,8 +677,9 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	l.Info("Establishing two-way communication channel ...")
 	start := time.Now()
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
-		ID:      cfg.ID,
-		Version: version.Version,
+		ID:          cfg.ID,
+		Version:     version.Version,
+		MetricsPort: cfg.ListenPort,
 	})
 	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx)
 	if err != nil {
@@ -747,7 +748,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 		return
 	}
 	roundtrip := time.Since(start)
-	currentTime := resp.(*agentpb.Pong).CurrentTime // nolint:forcetypeassert
+	currentTime := resp.(*agentpb.Pong).CurrentTime //nolint:forcetypeassert
 	serverTime := currentTime.AsTime()
 	err = currentTime.CheckValid()
 	if err != nil {

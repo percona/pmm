@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
@@ -75,6 +76,7 @@ type PMMCommands struct {
 	flags.GlobalFlags
 
 	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
+	Client client.BaseCommand `cmd:"" help:"PMM client related commands"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {

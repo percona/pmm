@@ -50,7 +50,8 @@ func NewChangeMongoDBExporterOK() *ChangeMongoDBExporterOK {
 	return &ChangeMongoDBExporterOK{}
 }
 
-/* ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
+/*
+ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeMongoDBExporterDefault(code int) *ChangeMongoDBExporterDefault {
 	}
 }
 
-/* ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
+/*
+ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*ChangeMongoDBExporterBody change mongo DB exporter body
+/*
+ChangeMongoDBExporterBody change mongo DB exporter body
 swagger:model ChangeMongoDBExporterBody
 */
 type ChangeMongoDBExporterBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMongoDBExporterDefaultBody change mongo DB exporter default body
+/*
+ChangeMongoDBExporterDefaultBody change mongo DB exporter default body
 swagger:model ChangeMongoDBExporterDefaultBody
 */
 type ChangeMongoDBExporterDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMongoDBExporterDefaultBodyDetailsItems0 change mongo DB exporter default body details items0
+/*
+ChangeMongoDBExporterDefaultBodyDetailsItems0 change mongo DB exporter default body details items0
 swagger:model ChangeMongoDBExporterDefaultBodyDetailsItems0
 */
 type ChangeMongoDBExporterDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*ChangeMongoDBExporterOKBody change mongo DB exporter OK body
+/*
+ChangeMongoDBExporterOKBody change mongo DB exporter OK body
 swagger:model ChangeMongoDBExporterOKBody
 */
 type ChangeMongoDBExporterOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*
+ChangeMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model ChangeMongoDBExporterOKBodyMongodbExporter
 */
 type ChangeMongoDBExporterOKBodyMongodbExporter struct {
@@ -654,7 +661,8 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*ChangeMongoDBExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeMongoDBExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeMongoDBExporterParamsBodyCommon
 */
 type ChangeMongoDBExporterParamsBodyCommon struct {

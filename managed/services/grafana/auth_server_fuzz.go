@@ -22,7 +22,7 @@ package grafana
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -35,7 +35,7 @@ func (clientStub) getRole(context.Context, http.Header) (role, error) {
 }
 
 func Fuzz(data []byte) int {
-	logrus.SetOutput(ioutil.Discard)
+	logrus.SetOutput(io.Discard)
 
 	var c clientStub
 	s := NewAuthServer(c, nil)
