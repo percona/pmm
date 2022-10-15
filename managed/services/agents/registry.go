@@ -199,7 +199,6 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-// authenticate checks pmm-agent and adds its port to db for scrape config.
 func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
@@ -234,12 +233,6 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.
 	}
 
 	agent.Version = &md.Version
-
-	// skipping port with default or unchanged value
-	if md.MetricsPort != 0 && ((agent.ListenPort == nil) || *agent.ListenPort != md.MetricsPort) {
-		agent.ListenPort = &md.MetricsPort
-	}
-
 	if err := q.Update(agent); err != nil {
 		return nil, errors.Wrap(err, "failed to update agent")
 	}
