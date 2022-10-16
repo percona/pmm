@@ -16,6 +16,7 @@ package jobs
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"os/exec"
 	"time"
@@ -33,17 +34,19 @@ type MongoDBRestoreJob struct {
 	timeout        time.Duration
 	l              *logrus.Entry
 	name           string
+	pitrTimestamp  time.Time
 	dbURL          *url.URL
 	locationConfig BackupLocationConfig
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
-func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
+func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, pitrTimestamp time.Time, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:           name,
+		pitrTimestamp:  pitrTimestamp,
 		dbURL:          createDBURL(dbConfig),
 		locationConfig: locationConfig,
 	}
@@ -95,7 +98,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut.Snapshot); err != nil {
+	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut); err != nil {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
@@ -127,12 +130,19 @@ func (j *MongoDBRestoreJob) findSnapshotName(ctx context.Context) (string, error
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {
 	j.l.Info("Starting backup restore.")
-
 	var restoreOutput pbmRestore
-	err := execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+	var err error
+	startTime := time.Now()
+
+	if j.pitrTimestamp.Unix() == 0 {
+		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+	} else {
+		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+	}
 	if err != nil {
 		return nil, errors.Wrapf(err, "pbm restore error: %v", err)
 	}
 
+	restoreOutput.StartedAt = startTime
 	return &restoreOutput, nil
 }

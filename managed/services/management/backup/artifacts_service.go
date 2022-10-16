@@ -18,9 +18,12 @@ package backup
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -30,19 +33,21 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l          *logrus.Entry
-	db         *reform.DB
-	removalSVC removalService
+	l                *logrus.Entry
+	db               *reform.DB
+	removalSVC       removalService
+	pitrTimerangeSVC pitrTimerangeService
 
 	backupv1beta1.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
 	return &ArtifactsService{
-		l:          logrus.WithField("component", "management/backup/artifacts"),
-		db:         db,
-		removalSVC: removalSVC,
+		l:                logrus.WithField("component", "management/backup/artifacts"),
+		db:               db,
+		removalSVC:       removalSVC,
+		pitrTimerangeSVC: storage,
 	}
 }
 
@@ -109,6 +114,47 @@ func (s *ArtifactsService) DeleteArtifact(
 	}
 
 	return &backupv1beta1.DeleteArtifactResponse{}, nil
+}
+
+// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB)
+func (s *ArtifactsService) ListPitrTimeranges(
+	ctx context.Context,
+	req *backupv1beta1.ListPitrTimerangesRequest,
+) (*backupv1beta1.ListPitrTimerangesResponse, error) {
+	var artifact *models.Artifact
+	var err error
+
+	artifact, err = models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Artifact with ID %q not found.", req.ArtifactId)
+		}
+		return nil, err
+	}
+
+	if artifact.Mode != models.PITR {
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return nil, err
+	}
+
+	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*backupv1beta1.PitrTimerange, 0, len(timelines))
+	for _, tl := range timelines {
+		result = append(result, &backupv1beta1.PitrTimerange{
+			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
+			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
+		})
+	}
+	return &backupv1beta1.ListPitrTimerangesResponse{
+		Timeranges: result,
+	}, nil
 }
 
 func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {

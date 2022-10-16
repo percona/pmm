@@ -15,6 +15,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // RestoreBackupReader is a Reader for the RestoreBackup structure.
@@ -128,10 +129,35 @@ type RestoreBackupBody struct {
 
 	// Artifact id to restore.
 	ArtifactID string `json:"artifact_id,omitempty"`
+
+	// Timestamp of PITR to restore to
+	// Format: date-time
+	PitrTimestamp strfmt.DateTime `json:"pitr_timestamp,omitempty"`
 }
 
 // Validate validates this restore backup body
 func (o *RestoreBackupBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validatePitrTimestamp(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RestoreBackupBody) validatePitrTimestamp(formats strfmt.Registry) error {
+	if swag.IsZero(o.PitrTimestamp) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"pitr_timestamp", "body", "date-time", o.PitrTimestamp.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

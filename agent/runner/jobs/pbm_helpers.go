@@ -92,15 +92,18 @@ type pbmBackup struct {
 }
 
 type pbmRestore struct {
-	Snapshot string `json:"snapshot"`
+	StartedAt time.Time
+	Name      string `json:"name"`
+	Snapshot  string `json:"snapshot"`
+	PITR      string `json:"point-in-time"`
 }
 
 type pbmSnapshot struct {
-	Name       string `json:"name"`
-	Status     string `json:"status"`
-	Error      string `json:"error"`
-	CompleteTS int    `json:"completeTS"`
-	PbmVersion string `json:"pbmVersion"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	//Error      string `json:"error"`
+	CompleteTS int    `json:"completeTS"` // We don't use this field. Do we need it?
+	PbmVersion string `json:"pbmVersion"` // We don't use this field. Do we need it?
 }
 
 type pbmList struct {
@@ -116,6 +119,7 @@ type pbmListRestore struct {
 	Status   string `json:"status"`
 	Type     string `json:"type"`
 	Snapshot string `json:"snapshot"`
+	PITR     int64  `json:"point-in-time"`
 	Name     string `json:"name"`
 	Error    string `json:"error"`
 }
@@ -216,7 +220,7 @@ func pbmBackupFinished(name string) pbmStatusCondition {
 		}
 
 		if snapshotStarted && snapshot.Status == "error" {
-			return false, errors.New(snapshot.Error)
+			return false, errors.New("snapshot.Error")
 		}
 
 		return snapshot.Status == "done", nil
@@ -249,16 +253,36 @@ func waitForPBMState(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, 
 	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore) error {
 	l.Info("Waiting for pbm restore.")
+
+	var restoreInfoPITRTime time.Time
+	var err error
+	if restoreInfo.PITR != "" {
+		restoreInfoPITRTime, err = time.Parse("2006-01-02T15:04:05Z", restoreInfo.PITR+"Z")
+		if err != nil {
+			return err
+		}
+	}
 
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 	// @TODO Find from end (the newest one) until https://jira.percona.com/browse/PBM-723 is not done.
 	findRestore := func(list []pbmListRestore) *pbmListRestore {
 		for i := len(list) - 1; i >= 0; i-- {
-			if list[i].Snapshot == name {
-				return &list[i]
+			if restoreInfo.Name != "" {
+				if restoreInfo.Name == list[i].Name {
+					return &list[i]
+				}
+			} else {
+				// list[i].Name is a string which represents time the restore was started.
+				restoreStartedAt, err := time.Parse("2006-01-02T15:04:05Z", list[i].Name)
+				if err != nil {
+					continue
+				}
+				if !restoreInfoPITRTime.IsZero() && list[i].PITR == restoreInfoPITRTime.Unix() && !restoreInfo.StartedAt.Before(restoreStartedAt) {
+					return &list[i]
+				}
 			}
 		}
 		return nil

@@ -18,6 +18,7 @@ package agents
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -495,6 +496,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
+	pitrTimerange time.Time,
 ) error {
 	var err error
 	switch dataModel {
@@ -512,12 +514,13 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
-		Name:     name,
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
+		Name:          name,
+		User:          dbConfig.User,
+		Password:      dbConfig.Password,
+		Address:       dbConfig.Address,
+		Port:          int32(dbConfig.Port),
+		Socket:        dbConfig.Socket,
+		PitrTimestamp: timestamppb.New(pitrTimerange),
 	}
 
 	switch {

@@ -27,6 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
 // Service represents core logic for db backup.
@@ -217,10 +218,16 @@ type prepareRestoreJobParams struct {
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
+	PITRTimestamp time.Time
 }
 
 // RestoreBackup starts restore backup job.
-func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error) {
+func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
+	err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp)
+	if err != nil {
+		return "", err
+	}
+
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
 		return "", err
@@ -230,7 +237,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 	var jobID, restoreID string
 	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID)
+		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID, pitrTimestamp)
 		if err != nil {
 			return err
 		}
@@ -243,9 +250,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
-			ArtifactID: artifactID,
-			ServiceID:  serviceID,
-			Status:     models.InProgressRestoreStatus,
+			ArtifactID:    artifactID,
+			ServiceID:     serviceID,
+			PITRTimestamp: pitrTimestamp,
+			Status:        models.InProgressRestoreStatus,
 		})
 		if err != nil {
 			return err
@@ -356,6 +364,7 @@ func (s *Service) prepareRestoreJob(
 	q *reform.Querier,
 	serviceID string,
 	artifactID string,
+	pitrTimestamp time.Time,
 ) (*prepareRestoreJobParams, error) {
 	service, err := models.FindServiceByID(q, serviceID)
 	if err != nil {
@@ -400,6 +409,7 @@ func (s *Service) prepareRestoreJob(
 		ServiceType:   service.ServiceType,
 		DBConfig:      dbConfig,
 		DataModel:     artifact.DataModel,
+		PITRTimestamp: pitrTimestamp,
 	}, nil
 }
 
@@ -428,7 +438,8 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			params.ArtifactName,
 			params.DBConfig,
 			params.DataModel,
-			locationConfig); err != nil {
+			locationConfig,
+			params.PITRTimestamp); err != nil {
 			return err
 		}
 	case models.PostgreSQLServiceType,
@@ -504,4 +515,52 @@ func (s *Service) prepareBackupJob(
 	}
 
 	return res, dbConfig, nil
+}
+
+func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID string, pitrTimestamp time.Time) error {
+	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
+	if err != nil {
+		return err
+	}
+
+	if artifact.Mode != models.PITR && pitrTimestamp.Unix() == 0 {
+		return nil
+	}
+	if artifact.Mode != models.PITR && pitrTimestamp.Unix() != 0 {
+		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
+	}
+	if artifact.Mode == models.PITR && pitrTimestamp.Unix() == 0 {
+		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
+
+	minioClient := minio.New()
+	pitrTimerangeService := NewPITRTimerangeService(minioClient)
+	timeRanges, err := pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
+	if err != nil {
+		return err
+	}
+
+	for _, tR := range timeRanges {
+		if inTimeSpan(time.Unix(int64(tR.Start), 0), time.Unix(int64(tR.End), 0), pitrTimestamp) {
+			return nil
+		}
+	}
+
+	return errors.Wrapf(ErrValueOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+}
+
+// inTimeSpan checks whether given time is in the given range
+func inTimeSpan(start, end, check time.Time) bool {
+	if start.Before(end) {
+		return !check.Before(start) && !check.After(end)
+	}
+	if start.Equal(end) {
+		return check.Equal(start)
+	}
+	return !start.After(check) || !end.Before(check)
 }

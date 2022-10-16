@@ -494,6 +494,7 @@ message StartJobRequest {
     // Backup name.
     string name = 6;
     // Backup target location.
+
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }

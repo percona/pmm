@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
+	"github.com/percona/pmm/managed/services/minio"
 )
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
@@ -28,6 +29,7 @@ import (
 //go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -67,6 +69,7 @@ type jobsService interface {
 		dbConfig *models.DBConfig,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
+		pitrTimerange time.Time,
 	) error
 }
 
@@ -95,4 +98,13 @@ type compatibilityService interface {
 	// and they are compatible with the db version.
 	// Returns db version.
 	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
+}
+
+type pitrLocationClient interface {
+	// FileStat returns file info. It returns error if file is empty or not exists.
+	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
+
+	// List scans path with prefix and returns all files with given suffix.
+	// Both prefix and suffix can be omitted.
+	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
 }

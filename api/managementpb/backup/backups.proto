@@ -70,6 +70,8 @@ message RestoreBackupRequest {
       string_not_empty: true
     }
   ];
+  // Timestamp of PITR to restore to
+  google.protobuf.Timestamp pitr_timestamp = 3;
 }
 
 message RestoreBackupResponse {

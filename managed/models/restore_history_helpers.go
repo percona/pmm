@@ -102,9 +102,10 @@ func FindRestoreHistoryItemByID(q *reform.Querier, id string) (*RestoreHistoryIt
 
 // CreateRestoreHistoryItemParams are params for creating a new restore history item.
 type CreateRestoreHistoryItemParams struct {
-	ArtifactID string
-	ServiceID  string
-	Status     RestoreStatus
+	ArtifactID    string
+	ServiceID     string
+	PITRTimestamp time.Time
+	Status        RestoreStatus
 }
 
 // Validate validates params used for creating a restore history item.
@@ -136,10 +137,11 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 	}
 
 	row := &RestoreHistoryItem{
-		ID:         id,
-		ArtifactID: params.ArtifactID,
-		ServiceID:  params.ServiceID,
-		Status:     params.Status,
+		ID:            id,
+		ArtifactID:    params.ArtifactID,
+		ServiceID:     params.ServiceID,
+		PITRTimestamp: &params.PITRTimestamp,
+		Status:        params.Status,
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.Wrap(err, "failed to insert restore history item")

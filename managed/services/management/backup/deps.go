@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"time"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
@@ -27,6 +28,7 @@ import (
 //go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -36,7 +38,7 @@ type awsS3 interface {
 
 type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
-	RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error)
+	RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error)
 	SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error
 }
 
@@ -55,4 +57,10 @@ type scheduleService interface {
 
 type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+}
+
+// pitrTimerangeService provides methods that help us inspect PITR artifacts
+type pitrTimerangeService interface {
+	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
+	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]backup.Timeline, error)
 }
