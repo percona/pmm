@@ -101,7 +101,7 @@ type pbmRestore struct {
 type pbmSnapshot struct {
 	Name   string `json:"name"`
 	Status string `json:"status"`
-	//Error      string `json:"error"`
+	// Error      string `json:"error"`
 	CompleteTS int    `json:"completeTS"` // We don't use this field. Do we need it?
 	PbmVersion string `json:"pbmVersion"` // We don't use this field. Do we need it?
 }

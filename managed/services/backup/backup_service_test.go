@@ -18,6 +18,7 @@ package backup
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -188,7 +189,7 @@ func TestPerformBackup(t *testing.T) {
 		})
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedCompatibilityService)
 }
 
 func TestRestoreBackup(t *testing.T) {
@@ -201,7 +202,7 @@ func TestRestoreBackup(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedAgentsRegistry := &mockAgentsRegistry{}
+	mockedAgentsRegistry := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
 
@@ -257,7 +258,7 @@ func TestRestoreBackup(t *testing.T) {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
 				}
-				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
 				if tc.expectedError != nil {
 					assert.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
@@ -277,7 +278,7 @@ func TestRestoreBackup(t *testing.T) {
 
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("8.0.25", nil).Once()
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
@@ -301,7 +302,7 @@ func TestRestoreBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
@@ -313,7 +314,7 @@ func TestRestoreBackup(t *testing.T) {
 			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
 			require.ErrorIs(t, err, ErrIncompatibleService)
 			assert.Empty(t, restoreID)
 		})

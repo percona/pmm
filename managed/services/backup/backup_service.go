@@ -18,7 +18,6 @@ package backup
 
 import (
 	"context"
-	"github.com/percona/pmm/managed/services/agents"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -35,12 +34,12 @@ import (
 type Service struct {
 	db                   *reform.DB
 	jobsService          jobsService
-	agentService         agents.AgentService
+	agentService         agentService
 	compatibilityService compatibilityService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService agents.AgentService, cSvc compatibilityService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService) *Service {
 	return &Service{
 		db:                   db,
 		jobsService:          jobsService,
