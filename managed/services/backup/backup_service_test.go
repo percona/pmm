@@ -258,7 +258,7 @@ func TestRestoreBackup(t *testing.T) {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
 				}
-				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
+				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
 					assert.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
@@ -278,7 +278,7 @@ func TestRestoreBackup(t *testing.T) {
 
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("8.0.25", nil).Once()
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
@@ -302,7 +302,7 @@ func TestRestoreBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
@@ -314,7 +314,7 @@ func TestRestoreBackup(t *testing.T) {
 			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
 			})
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Time{})
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.ErrorIs(t, err, ErrIncompatibleService)
 			assert.Empty(t, restoreID)
 		})
