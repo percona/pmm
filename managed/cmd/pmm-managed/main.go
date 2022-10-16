@@ -197,6 +197,7 @@ type gRPCServerDeps struct {
 	supervisord          *supervisord.Service
 	config               *config.Config
 	componentsService    *managementdbaas.ComponentsService
+	agentService         *agents.AgentService
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -223,7 +224,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
-	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.connectionCheck)
+	agentsSvc := inventory.NewAgentsService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.connectionCheck, deps.agentService)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
@@ -649,6 +652,9 @@ func main() {
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -684,6 +690,10 @@ func main() {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
+
+	clickhousedb := ds.QanDBSelect
+
+	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
@@ -785,12 +795,13 @@ func main() {
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
+	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentsRegistry, compatibilityService)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -1002,6 +1013,7 @@ func main() {
 				config:               &cfg.Config,
 				defaultsFileParser:   defaultsFileParser,
 				componentsService:    componentsService,
+				agentService:         agentService,
 			})
 	}()
 

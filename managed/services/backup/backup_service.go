@@ -34,16 +34,16 @@ import (
 type Service struct {
 	db                   *reform.DB
 	jobsService          jobsService
-	agentsRegistry       agentsRegistry
+	agentService       agentsRegistry
 	compatibilityService compatibilityService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentsRegistry agentsRegistry, cSvc compatibilityService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentsRegistry, cSvc compatibilityService) *Service {
 	return &Service{
 		db:                   db,
 		jobsService:          jobsService,
-		agentsRegistry:       agentsRegistry,
+		agentService:       agentService,
 		compatibilityService: cSvc,
 	}
 }
@@ -352,7 +352,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		return errTX
 	}
 
-	return s.agentsRegistry.PBMSwitchPITR(
+	return s.agentService.PBMSwitchPITR(
 		pmmAgentID,
 		dsn,
 		agent.Files(),

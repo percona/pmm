@@ -77,12 +77,12 @@ func (s *Service) Load() error {
 			return errors.Wrapf(err, "error while reading config [%s]", configPath)
 		}
 		if err := yaml.Unmarshal(buf, &cfg); err != nil {
-			return errors.Wrapf(err, "cannot unmashal config [%s]", configPath)
+			return errors.Wrapf(err, "cannot unmarshal config [%s]", configPath)
 		}
 	} else {
 		s.l.Trace("config does not exist, fallback to embedded config")
 		if err := yaml.Unmarshal([]byte(defaultConfig), &cfg); err != nil {
-			return errors.Wrapf(err, "cannot unmashal config [%s]", configPath)
+			return errors.Wrapf(err, "cannot unmarshal config [%s]", configPath)
 		}
 	}
 
