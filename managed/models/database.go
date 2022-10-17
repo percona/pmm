@@ -742,6 +742,13 @@ var databaseSchema = [][]string{
 			'postgres_exporter'
 		);`,
 	},
+	68: {
+		`ALTER TABLE agents
+			ADD COLUMN max_query_length INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN max_query_length DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

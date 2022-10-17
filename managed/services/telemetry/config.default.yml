@@ -158,6 +158,14 @@ telemetry:
       - metric_name: "pmm_server_grafana_stat_active_users"
         value: 1
 
+  - id: GrafanaStatTotalOrgs
+    source: VM
+    query: grafana_stat_total_orgs
+    summary: "Total Grafana organisations"
+    data:
+      - metric_name: "pmm_server_grafana_stat_total_orgs"
+        value: 1
+
   - id: GrafanaStatTotalsAnnotations
     source: VM
     query: grafana_stat_totals_annotations
