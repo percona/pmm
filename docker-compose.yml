@@ -1,8 +1,15 @@
 ---
 version: '3.7'
 services:
+  ch:
+    image: clickhouse/clickhouse-server:22.6.9.11-alpine
+    platform: linux/amd64
+    ports:
+      - "9000:9000"
   pmm-managed-server:
-    image: perconalab/pmm-server:dev-container
+    depends_on:
+      - ch
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
     # build:
     #   context: .
     #   args:
@@ -24,10 +31,10 @@ services:
 #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
 #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
 #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-#      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=127.0.0.1:9000
-#      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
-#      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
-#      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=ch:9000
+      - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
+      - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
+      - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
 #      - PMM_DEBUG=1
 
     extra_hosts:
