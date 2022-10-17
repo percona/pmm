@@ -32,16 +32,18 @@ import (
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
 	r     agentsRegistry
+	a     agentService
 	state agentsStateUpdater
 	vmdb  prometheusService
 	db    *reform.DB
 	cc    connectionChecker
 }
 
-// NewAgentsService creates new AgentsService
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker) *AgentsService {
+// NewAgentsService creates new AgentsService.
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, a agentService) *AgentsService {
 	return &AgentsService{
 		r:     r,
+		a:     a,
 		state: state,
 		vmdb:  vmdb,
 		db:    db,
@@ -174,7 +176,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 		return nil, 0, err
 	}
 
-	return as.r.Logs(ctx, pmmAgentID, id, limit)
+	return as.a.Logs(ctx, pmmAgentID, id, limit)
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
@@ -680,6 +682,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 			Username:          req.Username,
 			Password:          req.Password,
 			CustomLabels:      req.CustomLabels,
+			MaxQueryLength:    req.MaxQueryLength,
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
@@ -738,6 +741,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 			ServiceID:             req.ServiceId,
 			Username:              req.Username,
 			Password:              req.Password,
+			MaxQueryLength:        req.MaxQueryLength,
 			QueryExamplesDisabled: req.DisableQueryExamples,
 			CustomLabels:          req.CustomLabels,
 			TLS:                   req.Tls,
