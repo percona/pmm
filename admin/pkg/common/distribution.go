@@ -135,6 +135,13 @@ func detectPackageManagerInstallation(ctx context.Context, pm OSPackageManager) 
 		cmd.Stderr = os.Stderr
 
 		if err := cmd.Run(); err != nil {
+			var exitErr *exec.ExitError
+			if ok := errors.As(err, &exitErr); ok {
+				if exitErr.ExitCode() == 1 {
+					// This means the package has not been found
+					return false, nil
+				}
+			}
 			return false, err
 		}
 	}
