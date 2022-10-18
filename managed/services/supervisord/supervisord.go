@@ -53,10 +53,11 @@ const (
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
 type Service struct {
-	configDir         string
-	supervisorctlPath string
-	l                 *logrus.Entry
-	pmmUpdateCheck    *PMMUpdateChecker
+	configDir          string
+	supervisorctlPath  string
+	gRPCMessageMaxSize uint32
+	l                  *logrus.Entry
+	pmmUpdateCheck     *PMMUpdateChecker
 
 	eventsM    sync.Mutex
 	subs       map[chan *event]sub
@@ -80,16 +81,17 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
-		configDir:         configDir,
-		supervisorctlPath: path,
-		l:                 logrus.WithField("component", "supervisord"),
-		pmmUpdateCheck:    pmmUpdateCheck,
-		subs:              make(map[chan *event]sub),
-		lastEvents:        make(map[string]eventType),
-		vmParams:          vmParams,
+		configDir:          configDir,
+		supervisorctlPath:  path,
+		gRPCMessageMaxSize: gRPCMessageMaxSize,
+		l:                  logrus.WithField("component", "supervisord"),
+		pmmUpdateCheck:     pmmUpdateCheck,
+		subs:               make(map[chan *event]sub),
+		lastEvents:         make(map[string]eventType),
+		vmParams:           vmParams,
 	}
 }
 
@@ -372,6 +374,9 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 	for {
 		line, err := reader.ReadString('\n')
 		if err == nil {
+			if newOffset > s.gRPCMessageMaxSize {
+				return lines, newOffset, errors.WithStack(err)
+			}
 			newOffset += uint32(len(line))
 			lines = append(lines, strings.TrimSuffix(line, "\n"))
 			continue
