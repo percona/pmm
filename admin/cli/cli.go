@@ -138,8 +138,10 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		printExitError(opts, res, err)
-		os.Exit(err.ExitCode())
+		if res != nil {
+			printExitError(opts, res, err)
+			os.Exit(err.ExitCode())
+		}
 	}
 
 	return err
