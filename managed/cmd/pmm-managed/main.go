@@ -189,6 +189,7 @@ type gRPCServerDeps struct {
 	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
+	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
 	minioService         *minio.Service
 	versionCache         *versioncache.Service
@@ -256,7 +257,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
+	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
@@ -797,7 +798,8 @@ func main() {
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	backupService := backup.NewService(db, jobsService, agentService, versioner)
+	compatibilityService := backup.NewCompatibilityService(db, versioner)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -1000,6 +1002,7 @@ func main() {
 				versionServiceClient: versionService,
 				schedulerService:     schedulerService,
 				backupService:        backupService,
+				compatibilityService: compatibilityService,
 				backupRemovalService: backupRemovalService,
 				minioService:         minioService,
 				versionCache:         versionCache,
