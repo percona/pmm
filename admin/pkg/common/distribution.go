@@ -160,8 +160,8 @@ func queryDpkg(ctx context.Context) (bool, error) {
 		"dpkg-query",
 		"--show",
 		"-f=${Package}\t${db:Status-Status}\n",
-		"pmm2-client",
-	)
+		"pmm2-client")
+
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		if errors.Is(err, &exec.ExitError{}) && bytes.Contains(out, []byte("no packages found matching")) {
