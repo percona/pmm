@@ -45,7 +45,7 @@ const (
 
 // DetectDistributionType detects distribution type of pmm-agent.
 func DetectDistributionType(ctx context.Context, tarballInstallPath string) (DistributionType, error) {
-	// Check tarball's default location
+	// Check tarball
 	isTarball, err := detectTarballDistribution(tarballInstallPath)
 	if err != nil {
 		return Unknown, err
@@ -66,8 +66,6 @@ func DetectDistributionType(ctx context.Context, tarballInstallPath string) (Dis
 		logrus.Debug("Found pmm2-client installed via a package manager")
 		return PackageManager, nil
 	}
-
-	// TODO: Check Docker
 
 	return Unknown, nil
 }
@@ -156,7 +154,8 @@ func detectPackageManagerInstallation(ctx context.Context, pm OSPackageManager) 
 }
 
 func queryDpkg(ctx context.Context) (bool, error) {
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		ctx,
 		"dpkg-query",
 		"--show",
 		"-f=${Package}\t${db:Status-Status}\n",
@@ -164,7 +163,8 @@ func queryDpkg(ctx context.Context) (bool, error) {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		if errors.Is(err, &exec.ExitError{}) && bytes.Contains(out, []byte("no packages found matching")) {
+		var exitErr *exec.ExitError
+		if errors.Is(err, exitErr) && bytes.Contains(out, []byte("no packages found matching")) {
 			return false, nil
 		}
 		return false, err
