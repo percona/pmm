@@ -3049,6 +3049,9 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -3254,6 +3257,9 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
