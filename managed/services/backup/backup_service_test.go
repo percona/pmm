@@ -202,9 +202,9 @@ func TestRestoreBackup(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedAgentsRegistry := &mockAgentService{}
+	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -260,6 +260,7 @@ func TestRestoreBackup(t *testing.T) {
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
+					if tc.expectedError != nil {
 					assert.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
 				} else {
@@ -320,5 +321,5 @@ func TestRestoreBackup(t *testing.T) {
 		})
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 }
