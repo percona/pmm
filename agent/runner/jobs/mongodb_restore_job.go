@@ -115,6 +115,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 func (j *MongoDBRestoreJob) findSnapshotName(ctx context.Context) (string, error) {
 	j.l.Info("Finding backup entity name.")
+	time.Sleep(2 * time.Second) // Without sleep the output of the 'list' command is unstable.
 
 	var list pbmList
 	if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {

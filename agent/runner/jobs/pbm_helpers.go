@@ -98,12 +98,16 @@ type pbmRestore struct {
 	PITR      string `json:"point-in-time"`
 }
 
+type pbmErrorObject struct {
+	EmptyString string // TODO Replace it with something meaningful whenever we have it in PBM response to 'pbm status --out=json'
+}
+
 type pbmSnapshot struct {
-	Name   string `json:"name"`
-	Status string `json:"status"`
-	// Error      string `json:"error"`
-	CompleteTS int    `json:"completeTS"` // We don't use this field. Do we need it?
-	PbmVersion string `json:"pbmVersion"` // We don't use this field. Do we need it?
+	Name       string         `json:"name"`
+	Status     string         `json:"status"`
+	Error      pbmErrorObject `json:"error"`
+	CompleteTS int            `json:"completeTS"` // We don't use this field. Do we need it?
+	PbmVersion string         `json:"pbmVersion"` // We don't use this field. Do we need it?
 }
 
 type pbmList struct {
@@ -220,7 +224,7 @@ func pbmBackupFinished(name string) pbmStatusCondition {
 		}
 
 		if snapshotStarted && snapshot.Status == "error" {
-			return false, errors.New("snapshot.Error")
+			return false, errors.New(snapshot.Error.EmptyString)
 		}
 
 		return snapshot.Status == "done", nil

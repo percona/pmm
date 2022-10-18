@@ -379,10 +379,6 @@ func (s *Service) prepareRestoreJob(
 		return nil, errors.Errorf("artifact %q status is not successful, status: %q", artifactID, artifact.Status)
 	}
 
-	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
-		return nil, errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
-	}
-
 	location, err := models.FindBackupLocationByID(q, artifact.LocationID)
 	if err != nil {
 		return nil, err
@@ -523,6 +519,13 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return err
 	}
 
+	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
+		return errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
+	}
+	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
+		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB yet")
+	}
+
 	if artifact.Mode != models.PITR && pitrTimestamp.Unix() == 0 {
 		return nil
 	}
@@ -531,6 +534,9 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	}
 	if artifact.Mode == models.PITR && pitrTimestamp.Unix() == 0 {
 		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+	}
+	if artifact.Mode == models.PITR && artifact.DataModel == models.PhysicalDataModel {
+		return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
 	}
 
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
