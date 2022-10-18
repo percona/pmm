@@ -64,7 +64,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	case common.PackageManager:
 		err = c.upgradeViaPackageManager(ctx)
 	default:
-		logrus.Panicf("Not supported distribution type %s", distributionType)
+		logrus.Panicf("Not supported distribution type %q", distributionType)
 	}
 
 	if err != nil {
