@@ -58,6 +58,7 @@ import (
 const (
 	shutdownTimeout = 1 * time.Second
 	serverZipFile   = "pmm-agent.log"
+	username        = "pmm"
 )
 
 // Server represents local pmm-agent API server.
@@ -305,7 +306,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/debug/metrics", metricsHandler)
+	mux.Handle("/debug/metrics", s.authMiddleware(metricsHandler))
 	mux.Handle("/debug/", http.DefaultServeMux)
 	mux.Handle("/debug", debugPageHandler)
 	mux.Handle("/", proxyMux)
@@ -409,4 +410,14 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("Cannot dump zip err: %s", err), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (s *Server) authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if user, pass, ok := r.BasicAuth(); !ok || user != username || pass != s.cfg.ID {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
