@@ -36,6 +36,11 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 
 	var rdsParams []*scrapeConfigParams
 	for _, agent := range agents {
+		if agent.AgentType == models.PMMAgentType {
+			// TODO https://jira.percona.com/browse/PMM-4087
+			continue
+		}
+
 		// sanity check
 		if (agent.NodeID != nil) && (agent.ServiceID != nil) {
 			l.Panicf("Both agent.NodeID and agent.ServiceID are present: %s", agent)
@@ -180,13 +185,6 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s 
 				service: paramsService,
 				agent:   agent,
 			})
-		case models.PMMAgentType:
-			scfgs, err = scrapeConfigForPmmAgent(s, &scrapeConfigParams{
-				host:  paramsHost,
-				node:  paramsNode,
-				agent: agent,
-			})
-			l.Warnf("creating scrape: %v", scfgs)
 
 		default:
 			l.Warnf("Skipping scrape config for %s.", agent)
