@@ -261,11 +261,12 @@ func TestRestoreBackup(t *testing.T) {
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
 					if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
-					assert.Empty(t, restoreID)
-				} else {
-					assert.NoError(t, err)
-					assert.NotEmpty(t, restoreID)
+						assert.ErrorIs(t, err, tc.expectedError)
+						assert.Empty(t, restoreID)
+					} else {
+						assert.NoError(t, err)
+						assert.NotEmpty(t, restoreID)
+					}
 				}
 			})
 		}
