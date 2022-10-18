@@ -238,12 +238,14 @@ func (b *Base) extractTarball(tarPath string) error {
 func (b *Base) installTarball(ctx context.Context, extractedPath string) error {
 	logrus.Infof("Installing to %s", b.InstallPath)
 
-	args := []string{}
+	args := make([]string, 0, 2)
+	args = append(args, path.Join(extractedPath, "install_tarball"))
 	if b.IsUpgrade {
 		args = append(args, "-u")
 	}
 
-	cmd := exec.CommandContext(ctx, path.Join(extractedPath, "install_tarball"), args...) //nolint:gosec
+	logrus.Infof("Running command %q", strings.Join(args, " "))
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...) //nolint:gosec
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
