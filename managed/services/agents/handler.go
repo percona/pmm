@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
-var pmmAgentMinVersionForOfflineMetrics = version.Must(version.NewVersion("2.31.99-0"))
+var pmmAgentMinVersionForOfflineMetrics = version.Must(version.NewVersion("2.32.0-0"))
 
 // Handler handles agent requests.
 type Handler struct {
