@@ -1843,28 +1843,33 @@
                         "format": "int64",
                         "x-order": 4
                       },
-                      "example_metrics": {
-                        "type": "string",
+                      "fingerprint": {
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 5
                       },
-                      "service_id": {
+                      "example_metrics": {
                         "type": "string",
                         "x-order": 6
                       },
-                      "service_type": {
+                      "service_id": {
                         "type": "string",
                         "x-order": 7
                       },
-                      "schema": {
+                      "service_type": {
                         "type": "string",
                         "x-order": 8
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 9
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 10
                       }
                     }
                   },

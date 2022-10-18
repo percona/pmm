@@ -531,6 +531,9 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// placeholders count
 	PlaceholdersCount int64 `json:"placeholders_count,omitempty"`
 
+	// fingerprint
+	Fingerprint int64 `json:"fingerprint,omitempty"`
+
 	// example metrics
 	ExampleMetrics string `json:"example_metrics,omitempty"`
 

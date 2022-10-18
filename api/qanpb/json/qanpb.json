@@ -1773,7 +1773,7 @@
                       },
                       "example_metrics": {
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
@@ -1788,6 +1788,11 @@
                         ],
                         "x-order": 2
                       },
+                      "fingerprint": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
+                      },
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64",
@@ -1800,22 +1805,22 @@
                       },
                       "schema": {
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "service_id": {
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "service_type": {
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 9
+                        "x-order": 10
                       }
                     }
                   },
