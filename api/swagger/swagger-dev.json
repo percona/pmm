@@ -1844,8 +1844,7 @@
                         "x-order": 4
                       },
                       "fingerprint": {
-                        "type": "integer",
-                        "format": "int64",
+                        "type": "string",
                         "x-order": 5
                       },
                       "example_metrics": {

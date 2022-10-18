@@ -1789,8 +1789,7 @@
                         "x-order": 2
                       },
                       "fingerprint": {
-                        "type": "integer",
-                        "format": "int64",
+                        "type": "string",
                         "x-order": 5
                       },
                       "is_truncated": {
