@@ -25,6 +25,7 @@ import (
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/client/tarball"
 	"github.com/percona/pmm/admin/pkg/common"
 )
 
@@ -32,6 +33,11 @@ import (
 type UpgradeCommand struct {
 	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"`
 	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
+
+	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm2" help:"Path where PMM Server shall be installed"`
+	User         string `group:"Tarball flags" help:"Set file ownership instead of the current user"`
+	Group        string `group:"Tarball flags" help:"Set group ownership instead of the current group"`
+	SkipChecksum bool   `group:"Tarball flags" help:"Skip checksum validation of the downloaded files"`
 }
 
 type distributionType string
@@ -63,6 +69,8 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	switch distributionType {
 	case common.PackageManager:
 		err = c.upgradeViaPackageManager(ctx)
+	case common.Tarball:
+		err = c.upgradeViaTarball(ctx)
 	default:
 		logrus.Panicf("Not supported distribution type %q", distributionType)
 	}
@@ -92,6 +100,22 @@ func (c *UpgradeCommand) distributionType(ctx context.Context) (common.Distribut
 	}
 
 	return distType, nil
+}
+
+func (c *UpgradeCommand) upgradeViaTarball(ctx context.Context) error {
+	t := tarball.Base{
+		InstallPath:  c.InstallPath,
+		User:         c.User,
+		Group:        c.Group,
+		Version:      c.Version,
+		SkipChecksum: c.SkipChecksum,
+		IsUpgrade:    true,
+	}
+	if err := t.Install(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *UpgradeCommand) upgradeViaPackageManager(ctx context.Context) error {
