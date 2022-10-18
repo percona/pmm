@@ -27,9 +27,10 @@ import (
 	"os/exec"
 	"path"
 	"strings"
-	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/pkg/client"
 )
 
 // Base represents base structure for interacting with tarball.
@@ -51,7 +52,7 @@ type Base struct {
 // Install installs pmm-client from tarball.
 func (b *Base) Install(ctx context.Context) error {
 	if b.Version == "" {
-		latestVersion, err := b.getLatestVersion(ctx)
+		latestVersion, err := client.GetLatestVersion(ctx)
 		if err != nil {
 			return err
 		}
@@ -91,40 +92,6 @@ func (b *Base) Install(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// ErrLatestVersionNotFound is returned when we cannot determine what the latest version is.
-var ErrLatestVersionNotFound = fmt.Errorf("LatestVersionNotFound")
-
-func (b *Base) getLatestVersion(ctx context.Context) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://github.com/percona/pmm/releases/latest", nil)
-	if err != nil {
-		return "", err
-	}
-
-	cl := &http.Client{ //nolint:exhaustruct
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-		Timeout: 10 * time.Second,
-	}
-	res, err := cl.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	defer res.Body.Close() //nolint:errcheck
-
-	url, err := res.Location()
-	if err != nil {
-		logrus.Debug(err)
-		return "", fmt.Errorf("%w: could not find latest version", ErrLatestVersionNotFound)
-	}
-
-	tag := path.Base(url.Path)
-	latest := strings.TrimPrefix(tag, "v")
-
-	return latest, nil
 }
 
 // ErrHTTPStatusNotOk is returned when HTTP call returns other than HTTP 200 response.
