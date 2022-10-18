@@ -1047,6 +1047,9 @@ scrape_configs:
             agent_id: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
             agent_type: pmm-agent
             instance: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
+      basic_auth:
+        username: pmm
+        password: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
       follow_redirects: false
     - job_name: pmm-agent_pmm-server_mr
       honor_timestamps: false
@@ -1060,6 +1063,9 @@ scrape_configs:
             agent_id: pmm-server
             agent_type: pmm-agent
             instance: pmm-server
+      basic_auth:
+        username: pmm
+        password: pmm-server
       follow_redirects: false
 `) + "\n"
 		serverConf, err := svc.marshalConfig(svc.loadBaseConfig())
@@ -1330,6 +1336,9 @@ scrape_configs:
             agent_id: pmm-server
             agent_type: pmm-agent
             instance: pmm-server
+      basic_auth:
+        username: pmm
+        password: pmm-server
       follow_redirects: false
 `) + "\n"
 		serverConf, err := svc.marshalConfig(svc.loadBaseConfig())
@@ -1437,6 +1446,9 @@ scrape_configs:
             agent_id: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
             agent_type: pmm-agent
             instance: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
+      basic_auth:
+        username: pmm
+        password: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
       follow_redirects: false
     - job_name: vmagent_agent_id_e9117eb5-e2df-41c4-a7e1-7fa6fb9eadc8_mr
       honor_timestamps: false
@@ -1452,7 +1464,7 @@ scrape_configs:
             node_id: /node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d
             node_name: 306ccd68606f
             node_type: container
-      follow_redirects: false  
+      follow_redirects: false 
 `) + "\n"
 		agentConf, err := svc.BuildScrapeConfigForVMAgent("/agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743")
 		check.NoError(err)
