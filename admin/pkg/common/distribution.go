@@ -14,23 +14,158 @@
 
 package common
 
-import "fmt"
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"fmt"
+	"io/fs"
+	"os"
+	"os/exec"
+	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+)
 
 // DistributionType represents type of distribution of the pmm-agent.
-type DistributionType int
+type DistributionType string
 
 const (
+	// Unknown represents unknown distribution type of PMM Agent or Server.
+	Unknown DistributionType = "unknown"
 	// Docker represents Docker installation of PMM Agent or Server.
-	Docker DistributionType = iota
+	Docker DistributionType = "docker"
 	// PackageManager represents installation of PMM Agent or Server via a package manager.
-	PackageManager
+	PackageManager DistributionType = "package-manager"
 	// Tarball represents installation of PMM Agent or Server via a tarball.
-	Tarball
+	Tarball DistributionType = "tarball"
 )
 
 // DetectDistributionType detects distribution type of pmm-agent.
-func DetectDistributionType() DistributionType {
-	return PackageManager
+func DetectDistributionType(ctx context.Context) (DistributionType, error) {
+	// Check tarball's default location
+	isTarball, err := detectTarballDistribution()
+	if err != nil {
+		return Unknown, err
+	}
+
+	if isTarball {
+		logrus.Debug("Found pmm2-client installed via tarball")
+		return Tarball, nil
+	}
+
+	// Check package manager
+	isPm, err := checkPackageManager(ctx)
+	if err != nil {
+		return Unknown, err
+	}
+
+	if isPm {
+		logrus.Debug("Found pmm2-client installed via a package manager")
+		return PackageManager, nil
+	}
+
+	// TODO: Check Docker
+
+	return Unknown, nil
+}
+
+func checkPackageManager(ctx context.Context) (bool, error) {
+	pm, err := DetectPackageManager()
+	if err != nil {
+		return false, err
+	}
+
+	if pm != UnknownPackageManager {
+		pmInstallation, err := detectPackageManagerInstallation(ctx, pm)
+		if err != nil {
+			return false, err
+		}
+
+		if pmInstallation {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func detectTarballDistribution() (bool, error) {
+	data, err := os.ReadFile("/usr/local/percona/pmm2/pmm-distribution")
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	trimmedData := strings.TrimSpace(string(data))
+	if trimmedData != string(Tarball) {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func detectPackageManagerInstallation(ctx context.Context, pm OSPackageManager) (bool, error) {
+	var cmds [][]string
+	switch pm {
+	case Dnf:
+		cmds = [][]string{
+			{"dnf", "list", "installed", "pmm2-client"},
+		}
+	case Yum:
+		cmds = [][]string{
+			{"yum", "list", "installed", "pmm2-client"},
+		}
+	case Apt:
+		return queryDpkg(ctx)
+	default:
+		return false, nil
+	}
+
+	for _, cmd := range cmds {
+		logrus.Infof("Running command %q", strings.Join(cmd, " "))
+
+		cmd := exec.CommandContext(ctx, cmd[0], cmd[1:]...) //nolint:gosec
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func queryDpkg(ctx context.Context) (bool, error) {
+	cmd := exec.Command(
+		"dpkg-query",
+		"--show",
+		"-f=${Package}\t${db:Status-Status}\n",
+		"pmm2-client",
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		if errors.Is(err, &exec.ExitError{}) && bytes.Contains(out, []byte("no packages found matching")) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	scanner := bufio.NewScanner(bytes.NewReader(out))
+	for scanner.Scan() {
+		data := strings.Split(scanner.Text(), "\t")
+		if data[1] == "installed" {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // OSPackageManager represents a specific package manager used by the system.

@@ -55,14 +55,16 @@ func (res *upgradeResult) String() string {
 
 // RunCmdWithContext runs install command.
 func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalFlags) (commands.Result, error) {
-	distributionType := c.distributionType()
+	distributionType, err := c.distributionType(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	var err error
 	switch distributionType {
 	case common.PackageManager:
 		err = c.upgradeViaPackageManager(ctx)
 	default:
-		logrus.Panicf("Not supported distribution type %d", distributionType)
+		logrus.Panicf("Not supported distribution type %s", distributionType)
 	}
 
 	if err != nil {
@@ -72,11 +74,15 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	return &upgradeResult{}, nil
 }
 
-func (c *UpgradeCommand) distributionType() common.DistributionType {
+func (c *UpgradeCommand) distributionType(ctx context.Context) (common.DistributionType, error) {
 	var distType common.DistributionType
+	var err error
 	switch distributionType(c.Distribution) {
 	case distributionAutodetect:
-		distType = common.DetectDistributionType()
+		distType, err = common.DetectDistributionType(ctx)
+		if err != nil {
+			return common.Unknown, err
+		}
 	case distributionPackageManager:
 		distType = common.PackageManager
 	case distributionTar:
@@ -85,7 +91,7 @@ func (c *UpgradeCommand) distributionType() common.DistributionType {
 		distType = common.Docker
 	}
 
-	return distType
+	return distType, nil
 }
 
 func (c *UpgradeCommand) upgradeViaPackageManager(ctx context.Context) error {
@@ -134,6 +140,8 @@ func (c *UpgradeCommand) getUpgradeCommands() ([][]string, error) {
 			{"apt", "update"},
 			{"apt", "install", "--only-upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(apt))},
 		}, nil
+	case common.UnknownPackageManager:
+		return nil, fmt.Errorf("%w: cannot detect package manager (yum/dnf/apt)", ErrNoUpgradeCommandFound)
 	}
 
 	return nil, fmt.Errorf("%w: cannot detect package manager (yum/dnf/apt)", ErrNoUpgradeCommandFound)
