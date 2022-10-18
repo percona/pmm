@@ -33,7 +33,7 @@ import (
 type Service struct {
 	db                   *reform.DB
 	jobsService          jobsService
-	agentService       agentService
+	agentService         agentService
 	compatibilityService compatibilityService
 }
 
@@ -42,7 +42,7 @@ func NewService(db *reform.DB, jobsService jobsService, agentService agentServic
 	return &Service{
 		db:                   db,
 		jobsService:          jobsService,
-		agentService: agentService,
+		agentService:         agentService,
 		compatibilityService: cSvc,
 	}
 }
