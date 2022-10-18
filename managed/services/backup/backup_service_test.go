@@ -73,9 +73,9 @@ func TestPerformBackup(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedAgentsRegistry := &mockAgentsRegistry{}
+	mockedAgentService := &mockAgentService{}
 	mockedVersioner := &mockVersioner{}
-	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedVersioner)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -177,7 +177,7 @@ func TestPerformBackup(t *testing.T) {
 			assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
 		})
 
-		mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentsRegistry)
+		mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentService)
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
@@ -253,9 +253,9 @@ func TestRestoreBackup(t *testing.T) {
 
 	t.Run("mysql", func(t *testing.T) {
 		mockedJobsService := &mockJobsService{}
-		mockedAgentsRegistry := &mockAgentsRegistry{}
+		mockedAgentService := &mockAgentService{}
 		mockedVersioner := &mockVersioner{}
-		backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedVersioner)
+		backupService := NewService(db, mockedJobsService, mockedAgentService, mockedVersioner)
 
 		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
@@ -395,7 +395,7 @@ func TestRestoreBackup(t *testing.T) {
 			assert.NotEmpty(t, restoreID)
 		})
 
-		mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentsRegistry)
+		mock.AssertExpectationsForObjects(t, mockedJobsService, mockedVersioner, mockedAgentService)
 	})
 
 	t.Run("mongo", func(t *testing.T) {
@@ -414,8 +414,8 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("incomplete backups won't restore", func(t *testing.T) {
 			mockedJobsService := &mockJobsService{}
-			mockedAgentsRegistry := &mockAgentsRegistry{}
-			backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, nil)
+			mockedAgentService := &mockAgentService{}
+			backupService := NewService(db, mockedJobsService, mockedAgentService, nil)
 			mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 				mock.Anything, artifact.Name, mock.Anything, artifact.DataModel).Return(nil).Once()
 
@@ -426,8 +426,8 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("physical restore is successful", func(t *testing.T) {
 			mockedJobsService := &mockJobsService{}
-			mockedAgentsRegistry := &mockAgentsRegistry{}
-			backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, nil)
+			mockedAgentService := &mockAgentService{}
+			backupService := NewService(db, mockedJobsService, mockedAgentService, nil)
 
 			mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 				mock.Anything, artifact.Name, mock.Anything, artifact.DataModel, mock.Anything).Return(nil).Once()
