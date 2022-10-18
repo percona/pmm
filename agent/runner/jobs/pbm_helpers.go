@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -36,10 +37,21 @@ const (
 
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
-	statusCheckInterval = 3 * time.Second
+	statusCheckInterval = 5 * time.Second
 )
 
 type pbmSeverity int
+
+type restoreInfo struct {
+	Name     string `json:"name"`
+	Backup   string `json:"backup"`
+	Type     string `json:"type"`
+	Status   string `json:"status"`
+	ReplSets []struct {
+		Name   string `json:"name"`
+		Status string `json:"status"`
+	} `json:"replsets"`
+}
 
 const (
 	pbmFatal pbmSeverity = iota
@@ -92,6 +104,7 @@ type pbmBackup struct {
 }
 
 type pbmRestore struct {
+	Name     string `json:"name"`
 	Snapshot string `json:"snapshot"`
 }
 
@@ -161,6 +174,7 @@ func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ..
 	cmd := exec.CommandContext(nCtx, pbmBin, args...) // #nosec G204
 
 	b, err := cmd.Output()
+	log.Println(string(b))
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
@@ -185,7 +199,7 @@ func retrieveLogs(ctx context.Context, dbURL *url.URL, event string) ([]pbmLogEn
 type pbmStatusCondition func(s pbmStatus) (bool, error)
 
 func pbmNoRunningOperations(s pbmStatus) (bool, error) {
-	return s.Running.Status == "", nil
+	return s.Running.Type == "", nil // for operations like storage resync, pbm might not report a status
 }
 
 func pbmBackupFinished(name string) pbmStatusCondition {
@@ -258,41 +272,35 @@ func waitForPBMState(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, 
 	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
-	l.Info("Waiting for pbm restore.")
-
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, backupType, name string, conf *PBMConfig) error {
+	l.Infof("waiting for pbm restore: %s", name)
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
-	// @TODO Find from end (the newest one) until https://jira.percona.com/browse/PBM-723 is not done.
-	findRestore := func(list []pbmListRestore) *pbmListRestore {
-		for i := len(list) - 1; i >= 0; i-- {
-			if list[i].Snapshot == name {
-				return &list[i]
-			}
-		}
-		return nil
-	}
 	checks := 0
+
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	var ri restoreInfo
 	for {
 		select {
 		case <-ticker.C:
 			checks++
-			var list []pbmListRestore
-			if err := execPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
-				return errors.Wrapf(err, "pbm status error")
+			if backupType == "physical" {
+				err = execPBMCommand(ctx, dbURL, &ri, "describe-restore", "--config="+confFile, name)
+			} else {
+				err = execPBMCommand(ctx, dbURL, &ri, "describe-restore", name)
 			}
-			entry := findRestore(list)
-			if entry == nil {
-				if checks > maxRestoreChecks {
-					return errors.Errorf("failed to start restore")
-				}
-				continue
+			if err != nil {
+				return errors.Wrap(err, "failed to get restore status")
 			}
-			if entry.Status == "error" {
-				return errors.New(entry.Error)
-			}
-			if entry.Status == "done" {
+			if ri.Status == "done" || ri.Status == "error" || ri.Status == "canceled" {
 				return nil
+			} else if checks > maxRestoreChecks {
+				return errors.Errorf("max restore checks attempt exceeded for restore: %")
 			}
 		case <-ctx.Done():
 			return ctx.Err()
