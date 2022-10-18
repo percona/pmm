@@ -76,9 +76,9 @@ func TestPerformBackup(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedAgentsRegistry := &mockAgentsRegistry{}
+	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -188,7 +188,7 @@ func TestPerformBackup(t *testing.T) {
 		})
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 }
 
 func TestRestoreBackup(t *testing.T) {
@@ -201,9 +201,9 @@ func TestRestoreBackup(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	mockedJobsService := &mockJobsService{}
-	mockedAgentsRegistry := &mockAgentsRegistry{}
+	mockedAgentService := &mockedAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -319,5 +319,5 @@ func TestRestoreBackup(t *testing.T) {
 		})
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentsRegistry, mockedCompatibilityService)
+	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 }
