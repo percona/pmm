@@ -34,7 +34,7 @@ type UpgradeCommand struct {
 	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"`
 	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
 
-	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm2" help:"Path where PMM Server shall be installed"`
+	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm2" help:"Path where PMM Client is installed"`
 	User         string `group:"Tarball flags" help:"Set file ownership instead of the current user"`
 	Group        string `group:"Tarball flags" help:"Set group ownership instead of the current group"`
 	SkipChecksum bool   `group:"Tarball flags" help:"Skip checksum validation of the downloaded files"`
@@ -87,7 +87,7 @@ func (c *UpgradeCommand) distributionType(ctx context.Context) (common.Distribut
 	var err error
 	switch distributionType(c.Distribution) {
 	case distributionAutodetect:
-		distType, err = common.DetectDistributionType(ctx)
+		distType, err = common.DetectDistributionType(ctx, c.InstallPath)
 		if err != nil {
 			return common.Unknown, err
 		}

@@ -22,6 +22,7 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -43,9 +44,9 @@ const (
 )
 
 // DetectDistributionType detects distribution type of pmm-agent.
-func DetectDistributionType(ctx context.Context) (DistributionType, error) {
+func DetectDistributionType(ctx context.Context, tarballInstallPath string) (DistributionType, error) {
 	// Check tarball's default location
-	isTarball, err := detectTarballDistribution()
+	isTarball, err := detectTarballDistribution(tarballInstallPath)
 	if err != nil {
 		return Unknown, err
 	}
@@ -91,8 +92,13 @@ func checkPackageManager(ctx context.Context) (bool, error) {
 	return false, nil
 }
 
-func detectTarballDistribution() (bool, error) {
-	data, err := os.ReadFile("/usr/local/percona/pmm2/pmm-distribution")
+func detectTarballDistribution(tarballInstallPath string) (bool, error) {
+	p := "/usr/local/percona/pmm2"
+	if tarballInstallPath != "" {
+		p = tarballInstallPath
+	}
+
+	data, err := os.ReadFile(path.Join(p, "pmm-distribution"))
 	if errors.Is(err, fs.ErrNotExist) {
 		return false, nil
 	}
