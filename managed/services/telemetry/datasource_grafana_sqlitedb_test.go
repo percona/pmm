@@ -35,6 +35,7 @@ func TestDatasource(t *testing.T) {
 	defer cancel()
 
 	config := &Config{
+		ID:      "test",
 		Source:  "GRAFANADB_SELECT",
 		Query:   "count(*) AS total from user",
 		Summary: "Simple query",
@@ -46,6 +47,7 @@ func TestDatasource(t *testing.T) {
 		},
 	}
 
+	t.Parallel()
 	t.Run("get metrics from db", func(t *testing.T) {
 		databaseFile, err := filepath.Abs("../../testdata/telemetry/grafana_sqlite.db")
 		assert.NoError(t, err)
@@ -57,9 +59,15 @@ func TestDatasource(t *testing.T) {
 		}
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
+		err = grafanaDB.PreFetch(ctx, *config)
+		assert.NoError(t, err)
+
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
 		assert.NoError(t, err)
 		assert.Equal(t, len(metrics), 1)
+
+		err = grafanaDB.PostFetch(ctx, *config)
+		assert.NoError(t, err)
 
 		serviceMetric := metrics[0][0]
 		assert.Equal(t, serviceMetric.Key, "total_users_in_database")
@@ -74,8 +82,12 @@ func TestDatasource(t *testing.T) {
 		}
 
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
-		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
+
+		err := grafanaDB.PreFetch(ctx, *config)
 		assert.Error(t, err, "no such file or directory")
+
+		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
+		assert.Error(t, err, "temporary grafana database is not initialized")
 		assert.Nil(t, metrics)
 	})
 }

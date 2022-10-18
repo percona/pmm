@@ -73,3 +73,11 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
+
+func (d *dsQanDBSelect) PreFetch(ctx context.Context, config Config) error {
+	return nil
+}
+
+func (d *dsQanDBSelect) PostFetch(ctx context.Context, config Config) error {
+	return nil
+}

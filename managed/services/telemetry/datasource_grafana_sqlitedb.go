@@ -29,11 +29,13 @@ import (
 )
 
 type dsGrafanaSelect struct {
-	log    *logrus.Entry
-	config DSGrafanaSqliteDB
+	log      *logrus.Entry
+	config   DSGrafanaSqliteDB
+	db       *sql.DB
+	tempFile string
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsGrafanaSelect)(nil)
 )
@@ -46,66 +48,76 @@ func (d *dsGrafanaSelect) Enabled() bool {
 // NewDataSourceGrafanaSqliteDB makes new data source for grafana sqlite database metrics.
 func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaSelect{
-		log:    l,
-		config: config,
+		log:      l,
+		config:   config,
+		db:       nil,
+		tempFile: "",
 	}
 }
 
-func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
-	// check if datasource is enabled
-	if !d.Enabled() {
-		d.log.Info("Telemetry for grafana database is disabled.")
-		return nil, nil
-	}
-
+func (d *dsGrafanaSelect) PreFetch(ctx context.Context, config Config) error {
 	// validate source file db
 	sourceFileStat, err := os.Stat(d.config.DBFile)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
-		return nil, errors.Wrapf(err, "%s is not a regular file", d.config.DBFile)
+		return errors.Wrapf(err, "%s is not a regular file", d.config.DBFile)
 	}
 
 	source, err := os.Open(d.config.DBFile)
 	if err != nil {
 		d.log.Error(err)
-		return nil, err
+		return err
 	}
 
 	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
 	if err != nil {
 		d.log.Error(err)
-		return nil, err
+		return err
 	}
 	defer func() {
 		if err := source.Close(); err != nil {
 			d.log.Errorf("Error closing file. %s", err)
-		}
-
-		if err := os.Remove(tempFile.Name()); err != nil {
-			d.log.Errorf("Error removing file. %s", err)
 		}
 	}()
 
 	nBytes, err := io.Copy(tempFile, source)
 	if err != nil || nBytes == 0 {
 		d.log.Error(err)
-		return nil, errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
+		return errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
 	}
 
 	db, err := sql.Open("sqlite3", tempFile.Name())
 	if err != nil {
 		d.log.Error(err)
-		return nil, err
+		return err
 	}
 
-	result, err := fetchMetricsFromDB(ctx, d.log, d.config.Timeout, db, config)
+	d.tempFile = tempFile.Name()
+	d.db = db
+
+	return nil
+}
+
+func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+	if d.db == nil {
+		return nil, errors.Errorf("temporary grafana database is not initialized: %s", d.config.DBFile)
+	}
+	return fetchMetricsFromDB(ctx, d.log, d.config.Timeout, d.db, config)
+}
+
+func (d *dsGrafanaSelect) PostFetch(ctx context.Context, config Config) error {
+	err := d.db.Close()
 	if err != nil {
-		d.log.Error(err)
-		return nil, err
+		return err
 	}
 
-	return result, nil
+	err = os.Remove(d.tempFile)
+	if err != nil {
+		d.log.Errorf("Error removing file. %s", err)
+	}
+
+	return nil
 }

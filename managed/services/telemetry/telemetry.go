@@ -208,17 +208,18 @@ func (s *Service) processSendCh(ctx context.Context) {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
+	dataSources := s.locateDataSources(s.config.telemetry)
 	telemetryMetric, _ := s.makeMetric(ctx)
-
 	var totalTime time.Duration
+
+	for _, dataSource := range dataSources {
+		dataSource.Enabled()
+	}
+
 	for _, telemetry := range s.config.telemetry {
 		// locate DS
-		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
-		if err != nil {
-			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
-			continue
-		}
-		if !ds.Enabled() {
+		ds := dataSources[telemetry.Source]
+		if ds == nil || !ds.Enabled() {
 			continue
 		}
 
@@ -237,9 +238,28 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
 		}
 	}
+
+	for _, dataSource := range dataSources {
+		dataSource.Enabled()
+	}
+
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
 	return telemetryMetric
+}
+
+func (s *Service) locateDataSources(telemetryConfig []Config) map[string]DataSource {
+	dataSources := make(map[string]DataSource)
+	for _, telemetry := range telemetryConfig {
+		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
+		if err != nil {
+			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
+			continue
+		}
+		dataSources[telemetry.Source] = ds
+	}
+
+	return dataSources
 }
 
 func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
