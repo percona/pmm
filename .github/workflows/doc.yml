@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3.0.2
 
       - name: API
         uses: readmeio/rdme@7.5.0

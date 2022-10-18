@@ -46,11 +46,11 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: percona-platform/checkout@v3
+        uses: actions/checkout@v3.0.2
 
       - name: Enable Go build cache
         if: matrix.use-cache
-        uses: percona-platform/cache@v2
+        uses: actions/cache@v2.1.2
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Enable Go modules cache
         if: matrix.use-cache
-        uses: percona-platform/cache@v2
+        uses: actions/cache@v2.1.2
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
