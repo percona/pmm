@@ -78,6 +78,8 @@ type Client struct {
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
+
+	updateLock sync.Mutex
 }
 
 // New creates new client.
@@ -594,7 +596,15 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 	return c.runner.StartJob(job)
 }
 
+// ErrUpdateInProgress is returned when an update is already in progress.
+var ErrUpdateInProgress = fmt.Errorf("UpdateInProgress")
+
 func (c *Client) handleStartUpdateRequest(p *agentpb.StartUpdateRequest) error {
+	if !c.updateLock.TryLock() {
+		return fmt.Errorf("%w: another update is already in progress", ErrUpdateInProgress)
+	}
+	defer c.updateLock.Unlock()
+
 	args := []string{"client", "upgrade"}
 	if p.Version != "" {
 		args = append(args, "--use-version", p.Version)
