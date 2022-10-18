@@ -300,7 +300,7 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.StartAction,
 			}
-			messageType = SetState
+			messageType = StartAction
 		case *agentpb.ServerMessage_StopAction:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
