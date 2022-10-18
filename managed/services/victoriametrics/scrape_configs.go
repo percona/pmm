@@ -602,11 +602,6 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 	port := int(*params.agent.ListenPort)
 	hostport := net.JoinHostPort(params.host, strconv.Itoa(port))
 
-	// server's pmm-agent id does not match common agent id naming pattern
-	if params.agent.AgentID == models.PMMServerAgentID {
-		params.agent.AgentID = "/" + params.agent.AgentID
-	}
-
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(params.agent, "mr"),
 		ScrapeInterval: config.Duration(s.MR),
@@ -620,6 +615,18 @@ func scrapeConfigForPmmAgent(s *models.MetricsResolutions, params *scrapeConfigP
 				},
 			},
 		},
+		HTTPClientConfig: config.HTTPClientConfig{
+			BasicAuth: &config.BasicAuth{
+				Username: "pmm",
+				Password: pointer.GetString(&params.agent.AgentID),
+			},
+		},
 	}
+
+	// server's pmm-agent id does not match common agent id naming pattern
+	if params.agent.AgentID == models.PMMServerAgentID {
+		cfg.JobName = fmt.Sprintf("%s_%s_%s", params.agent.AgentType, params.agent.AgentID, "mr")
+	}
+
 	return []*config.ScrapeConfig{cfg}, nil
 }
