@@ -286,19 +286,18 @@ func TestRestoreBackup(t *testing.T) {
 
 	t.Run("mongo", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
-
-		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-			Name:       "mongo-artifact-name",
-			Vendor:     string(models.MongoDBServiceType),
-			LocationID: locationRes.ID,
-			ServiceID:  *agent.ServiceID,
-			DataModel:  models.PhysicalDataModel,
-			Mode:       models.Snapshot,
-			Status:     models.PendingBackupStatus,
-		})
-		require.NoError(t, err)
-
 		t.Run("incomplete backups won't restore", func(t *testing.T) {
+			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+				Name:       "mongo-artifact-name",
+				Vendor:     string(models.MongoDBServiceType),
+				LocationID: locationRes.ID,
+				ServiceID:  *agent.ServiceID,
+				DataModel:  models.LogicalDataModel,
+				Mode:       models.Snapshot,
+				Status:     models.PendingBackupStatus,
+			})
+			require.NoError(t, err)
+
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("", nil).Once()
 
@@ -308,12 +307,17 @@ func TestRestoreBackup(t *testing.T) {
 		})
 
 		t.Run("physical backups is not supported", func(t *testing.T) {
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("", nil).Once()
-
-			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+				Name:       "mongo-artifact-name-2",
+				Vendor:     string(models.MongoDBServiceType),
+				LocationID: locationRes.ID,
+				ServiceID:  *agent.ServiceID,
+				DataModel:  models.PhysicalDataModel,
+				Mode:       models.Snapshot,
+				Status:     models.SuccessBackupStatus,
 			})
+			require.NoError(t, err)
+
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.ErrorIs(t, err, ErrIncompatibleService)
 			assert.Empty(t, restoreID)
