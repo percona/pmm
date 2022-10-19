@@ -62,7 +62,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	if req.ServiceParamsSource != "" {
 		result, err := s.spsl.GetParameters(ctx, req.PmmAgentId, req.ServiceParamsSource, models.MySQLServiceType)
 		if err != nil {
-			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Service Params Source file error: %s.", err))
 		}
 
 		s.applyParameters(req, result)

@@ -130,7 +130,7 @@ func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Pay
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
-// AgentMessageResponsePayload AgentMessage_ParseCredentialsSource payload
+// AgentMessageResponsePayload AgentMessage_ParseServiceParamsSource payload
 func (m *ParseServiceParamsSourceResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_ParseServiceParamsSource{ParseServiceParamsSource: m}
 }
@@ -199,7 +199,7 @@ func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Pay
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
-// ServerMessageRequestPayload ParseCredentialsSource payload.
+// ServerMessageRequestPayload ParseServiceParamsSource payload.
 func (m *ParseServiceParamsSourceRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_ParseServiceParamsSource{ParseServiceParamsSource: m}
 }
