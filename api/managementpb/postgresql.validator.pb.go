@@ -17,9 +17,8 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-
 var (
+	_ = proto.Marshal
 	_ = fmt.Errorf
 	_ = math.Inf
 )
