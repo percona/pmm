@@ -44,16 +44,9 @@ const (
 
 type pbmSeverity int
 
-type restoreInfo struct {
-	Name     string                 `json:"name"`
-	Backup   string                 `json:"backup"`
-	Type     string                 `json:"type"`
-	Status   string                 `json:"status"`
-	Error    map[string]interface{} `json:"error"`
-	ReplSets []struct {
-		Name   string `json:"name"`
-		Status string `json:"status"`
-	} `json:"replsets"`
+type describeInfo struct {
+	Status string `json:"status"`
+	Error  string `json:"error"`
 }
 
 const (
@@ -112,12 +105,11 @@ type pbmRestore struct {
 }
 
 type pbmSnapshot struct {
-	Name       string          `json:"name"`
-	Status     string          `json:"status"`
-	Error      json.RawMessage `json:"error"` // Temporary fix https://jira.percona.com/browse/PBM-988
-	RestoreTo  int64           `json:"restoreTo"`
-	PbmVersion string          `json:"pbmVersion"`
-	Type       string          `json:"type"`
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	RestoreTo  int64  `json:"restoreTo"`
+	PbmVersion string `json:"pbmVersion"`
+	Type       string `json:"type"`
 }
 
 type pbmList struct {
@@ -190,58 +182,8 @@ func retrieveLogs(ctx context.Context, dbURL *url.URL, event string) ([]pbmLogEn
 	return logs, nil
 }
 
-type pbmStatusCondition func(s pbmStatus) (bool, error)
-
-func pbmNoRunningOperations(s pbmStatus) (bool, error) {
-	return s.Running.Type == "", nil // for operations like storage resync, pbm might not report a status
-}
-
-func pbmBackupFinished(name string) pbmStatusCondition {
-	started := false
-	snapshotStarted := false
-	checks := 0
-	return func(s pbmStatus) (bool, error) {
-		checks++
-		if s.Running.Type == "backup" && s.Running.Name == name && s.Running.Status != "" {
-			started = true
-		}
-		if !started && checks > maxBackupChecks {
-			return false, errors.New("failed to start backup")
-		}
-		var snapshot *pbmSnapshot
-		for i, snap := range s.Backups.Snapshot {
-			if snap.Name == name {
-				snapshot = &s.Backups.Snapshot[i]
-				break
-			}
-		}
-		if snapshot == nil {
-			return false, nil
-		}
-
-		switch snapshot.Status {
-		case "starting", "running", "dumpDone":
-			snapshotStarted = true
-			return false, nil
-		case "canceled":
-			return false, errors.New("backup was canceled")
-		}
-
-		if snapshotStarted && snapshot.Status == "error" {
-			var errMsg string
-			// Try to unmarshal error message to string variable https://jira.percona.com/browse/PBM-988
-			if err := json.Unmarshal(snapshot.Error, &errMsg); err != nil {
-				return false, errors.New("unknown pbm error")
-			}
-			return false, errors.New(errMsg)
-		}
-
-		return snapshot.Status == "done", nil
-	}
-}
-
-func waitForPBMState(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, cond pbmStatusCondition) error {
-	l.Info("Waiting for pbm state condition.")
+func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) error {
+	l.Info("Waiting for no running pbm operations.")
 
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
@@ -253,11 +195,7 @@ func waitForPBMState(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, 
 			if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
 				return errors.Wrapf(err, "pbm status error")
 			}
-			done, err := cond(status)
-			if err != nil {
-				return errors.Wrapf(err, "condition failed")
-			}
-			if done {
+			if status.Running.Type == "" {
 				return nil
 			}
 		case <-ctx.Done():
@@ -266,58 +204,80 @@ func waitForPBMState(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, 
 	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, backupType, name string, conf *PBMConfig) error {
-	l.Infof("waiting for pbm restore: %s", name)
+func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
+	l.Infof("waiting for pbm backup: %s", name)
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
-	checks := 0
 
-	confFile, err := writePBMConfigFile(conf)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer os.Remove(confFile) //nolint:errcheck
+	snapshotStarted := false
 
-	var ri restoreInfo
 	for {
 		select {
 		case <-ticker.C:
-			checks++
+			var info describeInfo
+			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
+			if err != nil {
+				return errors.Wrap(err, "failed to get backup status")
+			}
+
+			switch info.Status {
+			case "starting", "running", "dumpDone":
+				snapshotStarted = true
+				return nil
+			case "done":
+				return nil
+			case "canceled":
+				return errors.New("backup was canceled")
+			case "error":
+				if snapshotStarted {
+					return errors.New(info.Error)
+				}
+			}
+
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+}
+
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, backupType, name, confFile string) error {
+	l.Infof("waiting for pbm restore: %s", name)
+	ticker := time.NewTicker(statusCheckInterval)
+	defer ticker.Stop()
+
+	var err error
+	for {
+		select {
+		case <-ticker.C:
+			var info describeInfo
 			if backupType == "physical" {
-				err = execPBMCommand(ctx, dbURL, &ri, "describe-restore", "--config="+confFile, name)
+				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", "--config="+confFile, name)
 			} else {
-				err = execPBMCommand(ctx, dbURL, &ri, "describe-restore", name)
+				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
 			}
 			if err != nil {
 				return errors.Wrap(err, "failed to get restore status")
 			}
 
-			switch ri.Status {
-			case "done", "canceled":
+			switch info.Status {
+			case "done":
 				return nil
+			case "canceled":
+				return errors.New("restore was canceled")
 			case "error":
-				return errors.New(fmt.Sprintf("%+v", ri.Error))
+				return errors.New(info.Error)
 			}
 
-			if checks > maxRestoreChecks {
-				return errors.Errorf("max restore checks attempt exceeded for restore: %s", name)
-			}
 		case <-ctx.Done():
 			return ctx.Err()
 		}
 	}
 }
 
-func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, conf *PBMConfig) error {
+func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, confFile string) error {
 	l.Info("Configuring S3 location.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
-
-	confFile, err := writePBMConfigFile(conf)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer os.Remove(confFile) //nolint:errcheck
 
 	output, err := exec.CommandContext( //nolint:gosec
 		nCtx,

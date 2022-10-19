@@ -17,6 +17,7 @@ package jobs
 import (
 	"context"
 	"net/url"
+	"os"
 	"os/exec"
 	"time"
 
@@ -74,12 +75,19 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
+
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMState(rCtx, j.l, j.dbURL, pbmNoRunningOperations); err != nil {
+	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait pbm configuration completion")
 	}
@@ -95,7 +103,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, snapshot.Type, restoreOut.Name, conf); err != nil {
+	if err := waitForPBMRestore(ctx, j.l, j.dbURL, snapshot.Type, restoreOut.Name, confFile); err != nil {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
