@@ -706,6 +706,7 @@ type CreateAgentParams struct {
 	MongoDBOptions                 *MongoDBOptions
 	PostgreSQLOptions              *PostgreSQLOptions
 	TableCountTablestatsGroupLimit int32
+	MaxQueryLength                 int32
 	QueryExamplesDisabled          bool
 	MaxQueryLogSize                int64
 	AWSAccessKey                   string
@@ -853,6 +854,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		MongoDBOptions:                 params.MongoDBOptions,
 		PostgreSQLOptions:              params.PostgreSQLOptions,
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
+		MaxQueryLength:                 params.MaxQueryLength,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
 		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),

@@ -62,6 +62,8 @@ message AddPostgreSQLRequest {
   bool qan_postgresql_pgstatements_agent = 13;
   // If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
   bool qan_postgresql_pgstatmonitor_agent = 19;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 29;
   // Disable query examples.
   bool disable_query_examples = 20;
   // Custom user-assigned labels for Service.
@@ -89,7 +91,7 @@ message AddPostgreSQLRequest {
   // Exporter log level
   inventory.LogLevel log_level = 28;
   // Credentials provider
-  string credentials_source = 29;
+  string credentials_source = 30;
 }
 
 message AddPostgreSQLResponse {

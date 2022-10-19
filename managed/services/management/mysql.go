@@ -161,6 +161,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
 				MySQLOptions:          models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:        req.MaxQueryLength,
 				QueryExamplesDisabled: req.DisableQueryExamples,
 				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
@@ -184,6 +185,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
 				MySQLOptions:          models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:        req.MaxQueryLength,
 				QueryExamplesDisabled: req.DisableQueryExamples,
 				MaxQueryLogSize:       maxSlowlogFileSize,
 				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),

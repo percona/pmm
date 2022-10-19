@@ -17,7 +17,7 @@ package ia
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -699,7 +699,7 @@ func createAlertRuleParams(templateName, sourceRuleID, channelID string, filter 
 func createTemplate(t *testing.T) string {
 	t.Helper()
 
-	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
+	b, err := os.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
 	templateName := uuid.New().String()

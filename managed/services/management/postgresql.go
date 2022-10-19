@@ -133,6 +133,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				ServiceID:         service.ServiceID,
 				Username:          req.Username,
 				Password:          req.Password,
+				MaxQueryLength:    req.MaxQueryLength,
 				TLS:               req.Tls,
 				TLSSkipVerify:     req.TlsSkipVerify,
 				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
@@ -155,6 +156,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				ServiceID:             service.ServiceID,
 				Username:              req.Username,
 				Password:              req.Password,
+				MaxQueryLength:        req.MaxQueryLength,
 				QueryExamplesDisabled: req.DisableQueryExamples,
 				TLS:                   req.Tls,
 				TLSSkipVerify:         req.TlsSkipVerify,
@@ -182,7 +184,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 }
 
 // applyCredentialsSource apply strategy: passed username/password/...etc in request have higher priority than
-// credentials from credentialsSource file
+// credentials from credentialsSource file.
 func (s *PostgreSQLService) applyCredentialsSource(req *managementpb.AddPostgreSQLRequest, result *models.CredentialsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username

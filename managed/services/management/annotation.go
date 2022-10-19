@@ -41,6 +41,7 @@ func NewAnnotationService(db *reform.DB, grafanaClient grafanaClient) *Annotatio
 }
 
 // AddAnnotation create annotation in grafana.
+//
 //nolint:unparam
 func (as *AnnotationService) AddAnnotation(
 	ctx context.Context,

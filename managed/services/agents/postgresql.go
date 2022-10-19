@@ -29,8 +29,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
-var postgresExporterWebConfigVersion = version.MustParse("2.30.99")
+var (
+	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
+	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+)
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -105,8 +107,9 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type: inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:  agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		Type:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		Dsn:            agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		MaxQueryLength: agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -122,6 +125,7 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		Type:                 inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, service.DatabaseName, nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
+		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

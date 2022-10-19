@@ -187,11 +187,15 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	default:
 	}
 
-	// do not use default compact representation for large/complex messages
-	if size := proto.Size(msg); size < 100 {
-		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
-	} else {
-		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
+	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		// do not use default compact representation for large/complex messages
+		if size := proto.Size(msg); size < 100 {
+			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+		} else {
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+		}
 	}
 
 	err := c.s.Send(msg)
@@ -218,11 +222,15 @@ func (c *Channel) runReceiver() {
 		}
 		c.mRecv.Inc()
 
-		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
-		} else {
-			c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+		// Check log level before calling formatting function.
+		// Do not waste resources in case debug level is not enabled.
+		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+			// do not use default compact representation for large/complex messages
+			if size := proto.Size(msg); size < 100 {
+				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+			} else {
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+			}
 		}
 
 		switch p := msg.Payload.(type) {

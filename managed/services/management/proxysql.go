@@ -134,7 +134,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 }
 
 // applyCredentialsSource apply strategy: passed username/password/...etc in request have higher priority than
-// credentials from credentialsSource file
+// credentials from credentialsSource file.
 func (s *ProxySQLService) applyCredentialsSource(req *managementpb.AddProxySQLRequest, result *models.CredentialsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username

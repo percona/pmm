@@ -68,6 +68,38 @@ telemetry:
       - metric_name: "mysql_rocksdb_count"
         value: 1
 
+  - id: MySQLInnodbBufferPoolSize
+    source: VM
+    query: mysql_global_variables_innodb_buffer_pool_size
+    summary: "InnoDB buffer pool size"
+    data:
+      - metric_name: "mysql_global_variables_innodb_buffer_pool_size"
+        value: 1
+
+  - id: MySQLAvgThreadsRunning
+    source: VM
+    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
+    summary: "Average number of running threads for last day"
+    data:
+      - metric_name: "mysql_global_status_threads_running"
+        value: 1
+
+  - id: MySQLAvgQueriesRunning
+    source: VM
+    query: avg by (service_name) (rate(mysql_global_status_commands_total{command=~"select|delete|update|insert"}[1d]))
+    summary: "Average number of running queries"
+    data:
+      - metric_name: "mysql_global_status_queries_running"
+        value: 1
+
+  - id: MySQLInnodbSpaceUsed
+    source: VM
+    query: sum(count(mysql_info_schema_table_version{engine="InnoDB"}) by (schema,table) * sum (mysql_info_schema_table_size{component=~"data_length|index_length"}) by (schema,table))
+    summary: "Data usage of MySQL"
+    data:
+      - metric_name: "mysql_innodb_space_used"
+        value: 1
+
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
@@ -124,6 +156,14 @@ telemetry:
     summary: "Active monthly users"
     data:
       - metric_name: "pmm_server_grafana_stat_active_users"
+        value: 1
+
+  - id: GrafanaStatTotalOrgs
+    source: VM
+    query: grafana_stat_total_orgs
+    summary: "Total Grafana organisations"
+    data:
+      - metric_name: "pmm_server_grafana_stat_total_orgs"
         value: 1
 
   - id: GrafanaStatTotalsAnnotations

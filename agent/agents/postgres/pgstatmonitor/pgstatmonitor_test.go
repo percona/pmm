@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -44,7 +45,7 @@ func setup(t *testing.T, db *reform.DB, disableQueryExamples bool) *PGStatMonito
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
-	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, logrus.WithField("test", t.Name()))
+	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableQueryExamples, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return pgStatMonitorQAN
@@ -187,10 +188,14 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	case pgStatMonitorVersion09:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG12:
+	case pgStatMonitorVersion10PG12,
+		pgStatMonitorVersion11PG12,
+		pgStatMonitorVersion20PG12:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
-	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14:
+	case pgStatMonitorVersion10PG13, pgStatMonitorVersion10PG14,
+		pgStatMonitorVersion11PG13, pgStatMonitorVersion11PG14,
+		pgStatMonitorVersion20PG13, pgStatMonitorVersion20PG14:
 		selectCMDType = commandTypeSelect
 		insertCMDType = commandTypeInsert
 		mPlansCallsCnt = 1

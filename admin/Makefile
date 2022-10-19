@@ -24,14 +24,20 @@ LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
+gen:                            ## Generate files.
+	go generate ./...
+
 release:                        ## Build pmm-admin release binary.
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm ./cmd/pmm/
 
-install:                        ## Install pmm-admin binary.
-	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin
+install:                        ## Install pmm & pmm-admin binary.
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
+	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm ./cmd/pmm/
 
-install-race:                   ## Install pmm-admin binary with race detector.
-	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin
+install-race:                   ## Install pmm & pmm-admin binary with race detector.
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
+	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm ./cmd/pmm/
 
 TEST_FLAGS ?= -timeout=20s
 
