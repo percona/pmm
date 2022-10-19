@@ -96,11 +96,12 @@ type pbmRestore struct {
 }
 
 type pbmSnapshot struct {
-	Name       string `json:"name"`
-	Status     string `json:"status"`
-	Error      string `json:"error"`
-	CompleteTS int    `json:"completeTS"`
-	PbmVersion string `json:"pbmVersion"`
+	Name       string          `json:"name"`
+	Status     string          `json:"status"`
+	Error      json.RawMessage `json:"error"` // Temporary fix https://jira.percona.com/browse/PBM-988
+	RestoreTo  int64           `json:"restoreTo"`
+	PbmVersion string          `json:"pbmVersion"`
+	Type       string          `json:"type"`
 }
 
 type pbmList struct {
@@ -135,6 +136,7 @@ type pbmStatus struct {
 		Nodes []struct {
 			Host  string `json:"host"`
 			Agent string `json:"agent"`
+			Role  string `json:"role"`
 			Ok    bool   `json:"ok"`
 		} `json:"nodes"`
 	} `json:"cluster"`
@@ -213,10 +215,17 @@ func pbmBackupFinished(name string) pbmStatusCondition {
 		case "starting", "running", "dumpDone":
 			snapshotStarted = true
 			return false, nil
+		case "canceled":
+			return false, errors.New("backup was canceled")
 		}
 
 		if snapshotStarted && snapshot.Status == "error" {
-			return false, errors.New(snapshot.Error)
+			var errMsg string
+			// Try to unmarshal error message to string variable https://jira.percona.com/browse/PBM-988
+			if err := json.Unmarshal(snapshot.Error, &errMsg); err != nil {
+				return false, errors.New("unknown pbm error")
+			}
+			return false, errors.New(errMsg)
 		}
 
 		return snapshot.Status == "done", nil
