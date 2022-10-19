@@ -8,6 +8,7 @@ package dbaasv1beta1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -92,18 +93,20 @@ type PXCClustersServer interface {
 }
 
 // UnimplementedPXCClustersServer must be embedded to have forward compatible implementations.
-type UnimplementedPXCClustersServer struct {
-}
+type UnimplementedPXCClustersServer struct{}
 
 func (UnimplementedPXCClustersServer) GetPXCClusterCredentials(context.Context, *GetPXCClusterCredentialsRequest) (*GetPXCClusterCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCClusterCredentials not implemented")
 }
+
 func (UnimplementedPXCClustersServer) CreatePXCCluster(context.Context, *CreatePXCClusterRequest) (*CreatePXCClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePXCCluster not implemented")
 }
+
 func (UnimplementedPXCClustersServer) UpdatePXCCluster(context.Context, *UpdatePXCClusterRequest) (*UpdatePXCClusterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePXCCluster not implemented")
 }
+
 func (UnimplementedPXCClustersServer) GetPXCClusterResources(context.Context, *GetPXCClusterResourcesRequest) (*GetPXCClusterResourcesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPXCClusterResources not implemented")
 }

@@ -60,12 +60,12 @@ type AddRemoteRDSNodeOK struct {
 func (o *AddRemoteRDSNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] addRemoteRdsNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *AddRemoteRDSNodeOK) GetPayload() *AddRemoteRDSNodeOKBody {
 	return o.Payload
 }
 
 func (o *AddRemoteRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteRDSNodeOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddRemoteRDSNodeDefault) Code() int {
 func (o *AddRemoteRDSNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddRemoteRDSNodeDefault) GetPayload() *AddRemoteRDSNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteRDSNodeDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ AddRemoteRDSNodeBody add remote RDS node body
 swagger:model AddRemoteRDSNodeBody
 */
 type AddRemoteRDSNodeBody struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -176,7 +175,6 @@ AddRemoteRDSNodeDefaultBody add remote RDS node default body
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -242,9 +240,7 @@ func (o *AddRemoteRDSNodeDefaultBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *AddRemoteRDSNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -255,7 +251,6 @@ func (o *AddRemoteRDSNodeDefaultBody) contextValidateDetails(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -284,7 +279,6 @@ AddRemoteRDSNodeDefaultBodyDetailsItems0 add remote RDS node default body detail
 swagger:model AddRemoteRDSNodeDefaultBodyDetailsItems0
 */
 type AddRemoteRDSNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -322,7 +316,6 @@ AddRemoteRDSNodeOKBody add remote RDS node OK body
 swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
-
 	// remote rds
 	RemoteRDS *AddRemoteRDSNodeOKBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
@@ -375,7 +368,6 @@ func (o *AddRemoteRDSNodeOKBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddRemoteRDSNodeOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteRDS != nil {
 		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -413,7 +405,6 @@ AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents
 swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 */
 type AddRemoteRDSNodeOKBodyRemoteRDS struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

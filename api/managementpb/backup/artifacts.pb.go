@@ -7,12 +7,13 @@
 package backupv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -521,19 +522,22 @@ func file_managementpb_backup_artifacts_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_artifacts_proto_rawDescData
 }
 
-var file_managementpb_backup_artifacts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_backup_artifacts_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_managementpb_backup_artifacts_proto_goTypes = []interface{}{
-	(BackupStatus)(0),              // 0: backup.v1beta1.BackupStatus
-	(*Artifact)(nil),               // 1: backup.v1beta1.Artifact
-	(*ListArtifactsRequest)(nil),   // 2: backup.v1beta1.ListArtifactsRequest
-	(*ListArtifactsResponse)(nil),  // 3: backup.v1beta1.ListArtifactsResponse
-	(*DeleteArtifactRequest)(nil),  // 4: backup.v1beta1.DeleteArtifactRequest
-	(*DeleteArtifactResponse)(nil), // 5: backup.v1beta1.DeleteArtifactResponse
-	(DataModel)(0),                 // 6: backup.v1beta1.DataModel
-	(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
-	(BackupMode)(0),                // 8: backup.v1beta1.BackupMode
-}
+var (
+	file_managementpb_backup_artifacts_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_backup_artifacts_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
+	file_managementpb_backup_artifacts_proto_goTypes   = []interface{}{
+		(BackupStatus)(0),              // 0: backup.v1beta1.BackupStatus
+		(*Artifact)(nil),               // 1: backup.v1beta1.Artifact
+		(*ListArtifactsRequest)(nil),   // 2: backup.v1beta1.ListArtifactsRequest
+		(*ListArtifactsResponse)(nil),  // 3: backup.v1beta1.ListArtifactsResponse
+		(*DeleteArtifactRequest)(nil),  // 4: backup.v1beta1.DeleteArtifactRequest
+		(*DeleteArtifactResponse)(nil), // 5: backup.v1beta1.DeleteArtifactResponse
+		(DataModel)(0),                 // 6: backup.v1beta1.DataModel
+		(*timestamppb.Timestamp)(nil),  // 7: google.protobuf.Timestamp
+		(BackupMode)(0),                // 8: backup.v1beta1.BackupMode
+	}
+)
+
 var file_managementpb_backup_artifacts_proto_depIdxs = []int32{
 	6, // 0: backup.v1beta1.Artifact.data_model:type_name -> backup.v1beta1.DataModel
 	0, // 1: backup.v1beta1.Artifact.status:type_name -> backup.v1beta1.BackupStatus

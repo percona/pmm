@@ -6,45 +6,55 @@ package inventorypb
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *MySQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *MongoDBService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *PostgreSQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *ProxySQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *HAProxyService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *ExternalService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *ListServicesRequest) Validate() error {
 	return nil
 }
+
 func (this *ListServicesResponse) Validate() error {
 	for _, item := range this.Mysql {
 		if item != nil {
@@ -90,12 +100,14 @@ func (this *ListServicesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetServiceRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
 	return nil
 }
+
 func (this *GetServiceResponse) Validate() error {
 	if oneOfNester, ok := this.GetService().(*GetServiceResponse_Mysql); ok {
 		if oneOfNester.Mysql != nil {
@@ -141,6 +153,7 @@ func (this *GetServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddMySQLServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -151,6 +164,7 @@ func (this *AddMySQLServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddMySQLServiceResponse) Validate() error {
 	if this.Mysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mysql); err != nil {
@@ -159,6 +173,7 @@ func (this *AddMySQLServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddMongoDBServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -169,6 +184,7 @@ func (this *AddMongoDBServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddMongoDBServiceResponse) Validate() error {
 	if this.Mongodb != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mongodb); err != nil {
@@ -177,6 +193,7 @@ func (this *AddMongoDBServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddPostgreSQLServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -187,6 +204,7 @@ func (this *AddPostgreSQLServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddPostgreSQLServiceResponse) Validate() error {
 	if this.Postgresql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Postgresql); err != nil {
@@ -195,6 +213,7 @@ func (this *AddPostgreSQLServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddProxySQLServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -205,6 +224,7 @@ func (this *AddProxySQLServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddProxySQLServiceResponse) Validate() error {
 	if this.Proxysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
@@ -213,6 +233,7 @@ func (this *AddProxySQLServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddHAProxyServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -223,6 +244,7 @@ func (this *AddHAProxyServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddHAProxyServiceResponse) Validate() error {
 	if this.Haproxy != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Haproxy); err != nil {
@@ -231,6 +253,7 @@ func (this *AddHAProxyServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *AddExternalServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -241,6 +264,7 @@ func (this *AddExternalServiceRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *AddExternalServiceResponse) Validate() error {
 	if this.External != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.External); err != nil {
@@ -249,12 +273,14 @@ func (this *AddExternalServiceResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *RemoveServiceRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
 	return nil
 }
+
 func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }

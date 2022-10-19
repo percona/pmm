@@ -60,12 +60,12 @@ type RestoreBackupOK struct {
 func (o *RestoreBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] restoreBackupOk  %+v", 200, o.Payload)
 }
+
 func (o *RestoreBackupOK) GetPayload() *RestoreBackupOKBody {
 	return o.Payload
 }
 
 func (o *RestoreBackupOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RestoreBackupOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *RestoreBackupDefault) Code() int {
 func (o *RestoreBackupDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RestoreBackupDefault) GetPayload() *RestoreBackupDefaultBody {
 	return o.Payload
 }
 
 func (o *RestoreBackupDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RestoreBackupDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ RestoreBackupBody restore backup body
 swagger:model RestoreBackupBody
 */
 type RestoreBackupBody struct {
-
 	// Service identifier where backup should be restored.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -164,7 +163,6 @@ RestoreBackupDefaultBody restore backup default body
 swagger:model RestoreBackupDefaultBody
 */
 type RestoreBackupDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,9 +228,7 @@ func (o *RestoreBackupDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -243,7 +239,6 @@ func (o *RestoreBackupDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -272,7 +267,6 @@ RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
 swagger:model RestoreBackupDefaultBodyDetailsItems0
 */
 type RestoreBackupDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,7 +304,6 @@ RestoreBackupOKBody restore backup OK body
 swagger:model RestoreBackupOKBody
 */
 type RestoreBackupOKBody struct {
-
 	// Unique restore identifier.
 	RestoreID string `json:"restore_id,omitempty"`
 }

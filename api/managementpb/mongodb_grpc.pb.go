@@ -8,6 +8,7 @@ package managementpb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -59,8 +60,7 @@ type MongoDBServer interface {
 }
 
 // UnimplementedMongoDBServer must be embedded to have forward compatible implementations.
-type UnimplementedMongoDBServer struct {
-}
+type UnimplementedMongoDBServer struct{}
 
 func (UnimplementedMongoDBServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")

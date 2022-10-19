@@ -60,12 +60,12 @@ type GetContactInformationOK struct {
 func (o *GetContactInformationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] getContactInformationOk  %+v", 200, o.Payload)
 }
+
 func (o *GetContactInformationOK) GetPayload() *GetContactInformationOKBody {
 	return o.Payload
 }
 
 func (o *GetContactInformationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetContactInformationOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetContactInformationDefault) Code() int {
 func (o *GetContactInformationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/GetContactInformation][%d] GetContactInformation default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetContactInformationDefault) GetPayload() *GetContactInformationDefaultBody {
 	return o.Payload
 }
 
 func (o *GetContactInformationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetContactInformationDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ GetContactInformationDefaultBody get contact information default body
 swagger:model GetContactInformationDefaultBody
 */
 type GetContactInformationDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -189,9 +188,7 @@ func (o *GetContactInformationDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *GetContactInformationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -202,7 +199,6 @@ func (o *GetContactInformationDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -231,7 +227,6 @@ GetContactInformationDefaultBodyDetailsItems0 get contact information default bo
 swagger:model GetContactInformationDefaultBodyDetailsItems0
 */
 type GetContactInformationDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -269,7 +264,6 @@ GetContactInformationOKBody get contact information OK body
 swagger:model GetContactInformationOKBody
 */
 type GetContactInformationOKBody struct {
-
 	// URL to open a new support ticket.
 	NewTicketURL string `json:"new_ticket_url,omitempty"`
 
@@ -325,7 +319,6 @@ func (o *GetContactInformationOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *GetContactInformationOKBody) contextValidateCustomerSuccess(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.CustomerSuccess != nil {
 		if err := o.CustomerSuccess.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -363,7 +356,6 @@ GetContactInformationOKBodyCustomerSuccess CustomerSuccess contains the contanct
 swagger:model GetContactInformationOKBodyCustomerSuccess
 */
 type GetContactInformationOKBodyCustomerSuccess struct {
-
 	// name
 	Name string `json:"name,omitempty"`
 

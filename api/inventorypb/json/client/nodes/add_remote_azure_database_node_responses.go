@@ -60,12 +60,12 @@ type AddRemoteAzureDatabaseNodeOK struct {
 func (o *AddRemoteAzureDatabaseNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] addRemoteAzureDatabaseNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *AddRemoteAzureDatabaseNodeOK) GetPayload() *AddRemoteAzureDatabaseNodeOKBody {
 	return o.Payload
 }
 
 func (o *AddRemoteAzureDatabaseNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteAzureDatabaseNodeOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddRemoteAzureDatabaseNodeDefault) Code() int {
 func (o *AddRemoteAzureDatabaseNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAzureDatabase][%d] AddRemoteAzureDatabaseNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddRemoteAzureDatabaseNodeDefault) GetPayload() *AddRemoteAzureDatabaseNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *AddRemoteAzureDatabaseNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddRemoteAzureDatabaseNodeDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ AddRemoteAzureDatabaseNodeBody add remote azure database node body
 swagger:model AddRemoteAzureDatabaseNodeBody
 */
 type AddRemoteAzureDatabaseNodeBody struct {
-
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -176,7 +175,6 @@ AddRemoteAzureDatabaseNodeDefaultBody add remote azure database node default bod
 swagger:model AddRemoteAzureDatabaseNodeDefaultBody
 */
 type AddRemoteAzureDatabaseNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -242,9 +240,7 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) ContextValidate(ctx context.Cont
 }
 
 func (o *AddRemoteAzureDatabaseNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -255,7 +251,6 @@ func (o *AddRemoteAzureDatabaseNodeDefaultBody) contextValidateDetails(ctx conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -284,7 +279,6 @@ AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 add remote azure database nod
 swagger:model AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0
 */
 type AddRemoteAzureDatabaseNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -322,7 +316,6 @@ AddRemoteAzureDatabaseNodeOKBody add remote azure database node OK body
 swagger:model AddRemoteAzureDatabaseNodeOKBody
 */
 type AddRemoteAzureDatabaseNodeOKBody struct {
-
 	// remote azure database
 	RemoteAzureDatabase *AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase `json:"remote_azure_database,omitempty"`
 }
@@ -375,7 +368,6 @@ func (o *AddRemoteAzureDatabaseNodeOKBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *AddRemoteAzureDatabaseNodeOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RemoteAzureDatabase != nil {
 		if err := o.RemoteAzureDatabase.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -413,7 +405,6 @@ AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase RemoteAzureDatabaseNode repr
 swagger:model AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase
 */
 type AddRemoteAzureDatabaseNodeOKBodyRemoteAzureDatabase struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

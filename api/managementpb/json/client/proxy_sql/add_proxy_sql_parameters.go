@@ -60,7 +60,6 @@ AddProxySQLParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AddProxySQLParams struct {
-
 	// Body.
 	Body AddProxySQLBody
 
@@ -130,7 +129,6 @@ func (o *AddProxySQLParams) SetBody(body AddProxySQLBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddProxySQLParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

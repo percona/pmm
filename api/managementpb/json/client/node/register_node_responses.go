@@ -62,12 +62,12 @@ type RegisterNodeOK struct {
 func (o *RegisterNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] registerNodeOk  %+v", 200, o.Payload)
 }
+
 func (o *RegisterNodeOK) GetPayload() *RegisterNodeOKBody {
 	return o.Payload
 }
 
 func (o *RegisterNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RegisterNodeOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *RegisterNodeDefault) Code() int {
 func (o *RegisterNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] RegisterNode default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RegisterNodeDefault) GetPayload() *RegisterNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *RegisterNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RegisterNodeDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ RegisterNodeBody register node body
 swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
@@ -320,7 +319,6 @@ RegisterNodeDefaultBody register node default body
 swagger:model RegisterNodeDefaultBody
 */
 type RegisterNodeDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -386,9 +384,7 @@ func (o *RegisterNodeDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *RegisterNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -399,7 +395,6 @@ func (o *RegisterNodeDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -428,7 +423,6 @@ RegisterNodeDefaultBodyDetailsItems0 register node default body details items0
 swagger:model RegisterNodeDefaultBodyDetailsItems0
 */
 type RegisterNodeDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -466,7 +460,6 @@ RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
-
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 
@@ -579,7 +572,6 @@ func (o *RegisterNodeOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.ContainerNode != nil {
 		if err := o.ContainerNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -595,7 +587,6 @@ func (o *RegisterNodeOKBody) contextValidateContainerNode(ctx context.Context, f
 }
 
 func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.GenericNode != nil {
 		if err := o.GenericNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -611,7 +602,6 @@ func (o *RegisterNodeOKBody) contextValidateGenericNode(ctx context.Context, for
 }
 
 func (o *RegisterNodeOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -649,7 +639,6 @@ RegisterNodeOKBodyContainerNode ContainerNode represents a Docker container.
 swagger:model RegisterNodeOKBodyContainerNode
 */
 type RegisterNodeOKBodyContainerNode struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -714,7 +703,6 @@ RegisterNodeOKBodyGenericNode GenericNode represents a bare metal server or virt
 swagger:model RegisterNodeOKBodyGenericNode
 */
 type RegisterNodeOKBodyGenericNode struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -776,7 +764,6 @@ RegisterNodeOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model RegisterNodeOKBodyPMMAgent
 */
 type RegisterNodeOKBodyPMMAgent struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

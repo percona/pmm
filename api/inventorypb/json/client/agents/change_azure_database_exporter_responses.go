@@ -62,12 +62,12 @@ type ChangeAzureDatabaseExporterOK struct {
 func (o *ChangeAzureDatabaseExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] changeAzureDatabaseExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeAzureDatabaseExporterOK) GetPayload() *ChangeAzureDatabaseExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeAzureDatabaseExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeAzureDatabaseExporterOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ChangeAzureDatabaseExporterDefault) Code() int {
 func (o *ChangeAzureDatabaseExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeAzureDatabaseExporter][%d] ChangeAzureDatabaseExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeAzureDatabaseExporterDefault) GetPayload() *ChangeAzureDatabaseExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeAzureDatabaseExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeAzureDatabaseExporterDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ChangeAzureDatabaseExporterBody change azure database exporter body
 swagger:model ChangeAzureDatabaseExporterBody
 */
 type ChangeAzureDatabaseExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -181,7 +180,6 @@ func (o *ChangeAzureDatabaseExporterBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *ChangeAzureDatabaseExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -219,7 +217,6 @@ ChangeAzureDatabaseExporterDefaultBody change azure database exporter default bo
 swagger:model ChangeAzureDatabaseExporterDefaultBody
 */
 type ChangeAzureDatabaseExporterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -285,9 +282,7 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) ContextValidate(ctx context.Con
 }
 
 func (o *ChangeAzureDatabaseExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -298,7 +293,6 @@ func (o *ChangeAzureDatabaseExporterDefaultBody) contextValidateDetails(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -327,7 +321,6 @@ ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 change azure database export
 swagger:model ChangeAzureDatabaseExporterDefaultBodyDetailsItems0
 */
 type ChangeAzureDatabaseExporterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -365,7 +358,6 @@ ChangeAzureDatabaseExporterOKBody change azure database exporter OK body
 swagger:model ChangeAzureDatabaseExporterOKBody
 */
 type ChangeAzureDatabaseExporterOKBody struct {
-
 	// azure database exporter
 	AzureDatabaseExporter *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 }
@@ -418,7 +410,6 @@ func (o *ChangeAzureDatabaseExporterOKBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangeAzureDatabaseExporterOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +447,6 @@ ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter run
 swagger:model ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter
 */
 type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -660,7 +650,6 @@ ChangeAzureDatabaseExporterParamsBodyCommon ChangeCommonAgentParams contains par
 swagger:model ChangeAzureDatabaseExporterParamsBodyCommon
 */
 type ChangeAzureDatabaseExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

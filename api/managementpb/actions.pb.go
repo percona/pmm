@@ -7,13 +7,14 @@
 package managementpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -2485,41 +2486,44 @@ func file_managementpb_actions_proto_rawDescGZIP() []byte {
 	return file_managementpb_actions_proto_rawDescData
 }
 
-var file_managementpb_actions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
-var file_managementpb_actions_proto_goTypes = []interface{}{
-	(ActionType)(0),                                        // 0: management.ActionType
-	(*GetActionRequest)(nil),                               // 1: management.GetActionRequest
-	(*GetActionResponse)(nil),                              // 2: management.GetActionResponse
-	(*StartMySQLExplainActionRequest)(nil),                 // 3: management.StartMySQLExplainActionRequest
-	(*StartMySQLExplainActionResponse)(nil),                // 4: management.StartMySQLExplainActionResponse
-	(*StartMySQLExplainJSONActionRequest)(nil),             // 5: management.StartMySQLExplainJSONActionRequest
-	(*StartMySQLExplainJSONActionResponse)(nil),            // 6: management.StartMySQLExplainJSONActionResponse
-	(*StartMySQLExplainTraditionalJSONActionRequest)(nil),  // 7: management.StartMySQLExplainTraditionalJSONActionRequest
-	(*StartMySQLExplainTraditionalJSONActionResponse)(nil), // 8: management.StartMySQLExplainTraditionalJSONActionResponse
-	(*StartMySQLShowCreateTableActionRequest)(nil),         // 9: management.StartMySQLShowCreateTableActionRequest
-	(*StartMySQLShowCreateTableActionResponse)(nil),        // 10: management.StartMySQLShowCreateTableActionResponse
-	(*StartMySQLShowTableStatusActionRequest)(nil),         // 11: management.StartMySQLShowTableStatusActionRequest
-	(*StartMySQLShowTableStatusActionResponse)(nil),        // 12: management.StartMySQLShowTableStatusActionResponse
-	(*StartMySQLShowIndexActionRequest)(nil),               // 13: management.StartMySQLShowIndexActionRequest
-	(*StartMySQLShowIndexActionResponse)(nil),              // 14: management.StartMySQLShowIndexActionResponse
-	(*StartPostgreSQLShowCreateTableActionRequest)(nil),    // 15: management.StartPostgreSQLShowCreateTableActionRequest
-	(*StartPostgreSQLShowCreateTableActionResponse)(nil),   // 16: management.StartPostgreSQLShowCreateTableActionResponse
-	(*StartPostgreSQLShowIndexActionRequest)(nil),          // 17: management.StartPostgreSQLShowIndexActionRequest
-	(*StartPostgreSQLShowIndexActionResponse)(nil),         // 18: management.StartPostgreSQLShowIndexActionResponse
-	(*StartMongoDBExplainActionRequest)(nil),               // 19: management.StartMongoDBExplainActionRequest
-	(*StartMongoDBExplainActionResponse)(nil),              // 20: management.StartMongoDBExplainActionResponse
-	(*StartPTSummaryActionRequest)(nil),                    // 21: management.StartPTSummaryActionRequest
-	(*StartPTSummaryActionResponse)(nil),                   // 22: management.StartPTSummaryActionResponse
-	(*StartPTPgSummaryActionRequest)(nil),                  // 23: management.StartPTPgSummaryActionRequest
-	(*StartPTPgSummaryActionResponse)(nil),                 // 24: management.StartPTPgSummaryActionResponse
-	(*StartPTMongoDBSummaryActionRequest)(nil),             // 25: management.StartPTMongoDBSummaryActionRequest
-	(*StartPTMongoDBSummaryActionResponse)(nil),            // 26: management.StartPTMongoDBSummaryActionResponse
-	(*StartPTMySQLSummaryActionRequest)(nil),               // 27: management.StartPTMySQLSummaryActionRequest
-	(*StartPTMySQLSummaryActionResponse)(nil),              // 28: management.StartPTMySQLSummaryActionResponse
-	(*CancelActionRequest)(nil),                            // 29: management.CancelActionRequest
-	(*CancelActionResponse)(nil),                           // 30: management.CancelActionResponse
-}
+var (
+	file_managementpb_actions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_actions_proto_msgTypes  = make([]protoimpl.MessageInfo, 30)
+	file_managementpb_actions_proto_goTypes   = []interface{}{
+		(ActionType)(0),                                        // 0: management.ActionType
+		(*GetActionRequest)(nil),                               // 1: management.GetActionRequest
+		(*GetActionResponse)(nil),                              // 2: management.GetActionResponse
+		(*StartMySQLExplainActionRequest)(nil),                 // 3: management.StartMySQLExplainActionRequest
+		(*StartMySQLExplainActionResponse)(nil),                // 4: management.StartMySQLExplainActionResponse
+		(*StartMySQLExplainJSONActionRequest)(nil),             // 5: management.StartMySQLExplainJSONActionRequest
+		(*StartMySQLExplainJSONActionResponse)(nil),            // 6: management.StartMySQLExplainJSONActionResponse
+		(*StartMySQLExplainTraditionalJSONActionRequest)(nil),  // 7: management.StartMySQLExplainTraditionalJSONActionRequest
+		(*StartMySQLExplainTraditionalJSONActionResponse)(nil), // 8: management.StartMySQLExplainTraditionalJSONActionResponse
+		(*StartMySQLShowCreateTableActionRequest)(nil),         // 9: management.StartMySQLShowCreateTableActionRequest
+		(*StartMySQLShowCreateTableActionResponse)(nil),        // 10: management.StartMySQLShowCreateTableActionResponse
+		(*StartMySQLShowTableStatusActionRequest)(nil),         // 11: management.StartMySQLShowTableStatusActionRequest
+		(*StartMySQLShowTableStatusActionResponse)(nil),        // 12: management.StartMySQLShowTableStatusActionResponse
+		(*StartMySQLShowIndexActionRequest)(nil),               // 13: management.StartMySQLShowIndexActionRequest
+		(*StartMySQLShowIndexActionResponse)(nil),              // 14: management.StartMySQLShowIndexActionResponse
+		(*StartPostgreSQLShowCreateTableActionRequest)(nil),    // 15: management.StartPostgreSQLShowCreateTableActionRequest
+		(*StartPostgreSQLShowCreateTableActionResponse)(nil),   // 16: management.StartPostgreSQLShowCreateTableActionResponse
+		(*StartPostgreSQLShowIndexActionRequest)(nil),          // 17: management.StartPostgreSQLShowIndexActionRequest
+		(*StartPostgreSQLShowIndexActionResponse)(nil),         // 18: management.StartPostgreSQLShowIndexActionResponse
+		(*StartMongoDBExplainActionRequest)(nil),               // 19: management.StartMongoDBExplainActionRequest
+		(*StartMongoDBExplainActionResponse)(nil),              // 20: management.StartMongoDBExplainActionResponse
+		(*StartPTSummaryActionRequest)(nil),                    // 21: management.StartPTSummaryActionRequest
+		(*StartPTSummaryActionResponse)(nil),                   // 22: management.StartPTSummaryActionResponse
+		(*StartPTPgSummaryActionRequest)(nil),                  // 23: management.StartPTPgSummaryActionRequest
+		(*StartPTPgSummaryActionResponse)(nil),                 // 24: management.StartPTPgSummaryActionResponse
+		(*StartPTMongoDBSummaryActionRequest)(nil),             // 25: management.StartPTMongoDBSummaryActionRequest
+		(*StartPTMongoDBSummaryActionResponse)(nil),            // 26: management.StartPTMongoDBSummaryActionResponse
+		(*StartPTMySQLSummaryActionRequest)(nil),               // 27: management.StartPTMySQLSummaryActionRequest
+		(*StartPTMySQLSummaryActionResponse)(nil),              // 28: management.StartPTMySQLSummaryActionResponse
+		(*CancelActionRequest)(nil),                            // 29: management.CancelActionRequest
+		(*CancelActionResponse)(nil),                           // 30: management.CancelActionResponse
+	}
+)
+
 var file_managementpb_actions_proto_depIdxs = []int32{
 	1,  // 0: management.Actions.GetAction:input_type -> management.GetActionRequest
 	3,  // 1: management.Actions.StartMySQLExplainAction:input_type -> management.StartMySQLExplainActionRequest

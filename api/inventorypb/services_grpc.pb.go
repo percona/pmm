@@ -8,6 +8,7 @@ package inventorypb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -157,33 +158,40 @@ type ServicesServer interface {
 }
 
 // UnimplementedServicesServer must be embedded to have forward compatible implementations.
-type UnimplementedServicesServer struct {
-}
+type UnimplementedServicesServer struct{}
 
 func (UnimplementedServicesServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
+
 func (UnimplementedServicesServer) GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
 }
+
 func (UnimplementedServicesServer) AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLService not implemented")
 }
+
 func (UnimplementedServicesServer) AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBService not implemented")
 }
+
 func (UnimplementedServicesServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQLService not implemented")
 }
+
 func (UnimplementedServicesServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLService not implemented")
 }
+
 func (UnimplementedServicesServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxyService not implemented")
 }
+
 func (UnimplementedServicesServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternalService not implemented")
 }
+
 func (UnimplementedServicesServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }

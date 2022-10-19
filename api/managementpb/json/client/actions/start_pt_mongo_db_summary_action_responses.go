@@ -60,12 +60,12 @@ type StartPTMongoDBSummaryActionOK struct {
 func (o *StartPTMongoDBSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] startPtMongoDbSummaryActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartPTMongoDBSummaryActionOK) GetPayload() *StartPTMongoDBSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTMongoDBSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTMongoDBSummaryActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartPTMongoDBSummaryActionDefault) Code() int {
 func (o *StartPTMongoDBSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMongoDBSummary][%d] StartPTMongoDBSummaryAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartPTMongoDBSummaryActionDefault) GetPayload() *StartPTMongoDBSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTMongoDBSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartPTMongoDBSummaryActionDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ StartPTMongoDBSummaryActionBody Message to prepare pt-mongodb-summary data
 swagger:model StartPTMongoDBSummaryActionBody
 */
 type StartPTMongoDBSummaryActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -164,7 +163,6 @@ StartPTMongoDBSummaryActionDefaultBody start PT mongo DB summary action default 
 swagger:model StartPTMongoDBSummaryActionDefaultBody
 */
 type StartPTMongoDBSummaryActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,9 +228,7 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) ContextValidate(ctx context.Con
 }
 
 func (o *StartPTMongoDBSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -243,7 +239,6 @@ func (o *StartPTMongoDBSummaryActionDefaultBody) contextValidateDetails(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -272,7 +267,6 @@ StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 start PT mongo DB summary ac
 swagger:model StartPTMongoDBSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMongoDBSummaryActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,7 +304,6 @@ StartPTMongoDBSummaryActionOKBody Message to retrieve the prepared pt-mongodb-su
 swagger:model StartPTMongoDBSummaryActionOKBody
 */
 type StartPTMongoDBSummaryActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

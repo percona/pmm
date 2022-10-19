@@ -7,15 +7,17 @@
 package agentpb
 
 import (
-	inventorypb "github.com/percona/pmm/api/inventorypb"
-	backup "github.com/percona/pmm/api/managementpb/backup"
+	reflect "reflect"
+	sync "sync"
+
 	status "google.golang.org/genproto/googleapis/rpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
+	backup "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -7326,107 +7328,110 @@ func file_agentpb_agent_proto_rawDescGZIP() []byte {
 	return file_agentpb_agent_proto_rawDescData
 }
 
-var file_agentpb_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agentpb_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 88)
-var file_agentpb_agent_proto_goTypes = []interface{}{
-	(MysqlExplainOutputFormat)(0),                 // 0: agent.MysqlExplainOutputFormat
-	(*TextFiles)(nil),                             // 1: agent.TextFiles
-	(*Ping)(nil),                                  // 2: agent.Ping
-	(*Pong)(nil),                                  // 3: agent.Pong
-	(*QANCollectRequest)(nil),                     // 4: agent.QANCollectRequest
-	(*QANCollectResponse)(nil),                    // 5: agent.QANCollectResponse
-	(*StateChangedRequest)(nil),                   // 6: agent.StateChangedRequest
-	(*StateChangedResponse)(nil),                  // 7: agent.StateChangedResponse
-	(*SetStateRequest)(nil),                       // 8: agent.SetStateRequest
-	(*SetStateResponse)(nil),                      // 9: agent.SetStateResponse
-	(*QueryActionValue)(nil),                      // 10: agent.QueryActionValue
-	(*QueryActionSlice)(nil),                      // 11: agent.QueryActionSlice
-	(*QueryActionMap)(nil),                        // 12: agent.QueryActionMap
-	(*QueryActionBinary)(nil),                     // 13: agent.QueryActionBinary
-	(*QueryActionResult)(nil),                     // 14: agent.QueryActionResult
-	(*StartActionRequest)(nil),                    // 15: agent.StartActionRequest
-	(*StartActionResponse)(nil),                   // 16: agent.StartActionResponse
-	(*StopActionRequest)(nil),                     // 17: agent.StopActionRequest
-	(*StopActionResponse)(nil),                    // 18: agent.StopActionResponse
-	(*ActionResultRequest)(nil),                   // 19: agent.ActionResultRequest
-	(*ActionResultResponse)(nil),                  // 20: agent.ActionResultResponse
-	(*PBMSwitchPITRRequest)(nil),                  // 21: agent.PBMSwitchPITRRequest
-	(*PBMSwitchPITRResponse)(nil),                 // 22: agent.PBMSwitchPITRResponse
-	(*ParseServiceParamsSourceRequest)(nil),       // 23: agent.ParseServiceParamsSourceRequest
-	(*ParseServiceParamsSourceResponse)(nil),      // 24: agent.ParseServiceParamsSourceResponse
-	(*AgentLogsRequest)(nil),                      // 25: agent.AgentLogsRequest
-	(*AgentLogsResponse)(nil),                     // 26: agent.AgentLogsResponse
-	(*CheckConnectionRequest)(nil),                // 27: agent.CheckConnectionRequest
-	(*CheckConnectionResponse)(nil),               // 28: agent.CheckConnectionResponse
-	(*JobStatusRequest)(nil),                      // 29: agent.JobStatusRequest
-	(*JobStatusResponse)(nil),                     // 30: agent.JobStatusResponse
-	(*S3LocationConfig)(nil),                      // 31: agent.S3LocationConfig
-	(*PMMClientLocationConfig)(nil),               // 32: agent.PMMClientLocationConfig
-	(*StartJobRequest)(nil),                       // 33: agent.StartJobRequest
-	(*StartJobResponse)(nil),                      // 34: agent.StartJobResponse
-	(*StopJobRequest)(nil),                        // 35: agent.StopJobRequest
-	(*StopJobResponse)(nil),                       // 36: agent.StopJobResponse
-	(*JobResult)(nil),                             // 37: agent.JobResult
-	(*JobProgress)(nil),                           // 38: agent.JobProgress
-	(*GetVersionsRequest)(nil),                    // 39: agent.GetVersionsRequest
-	(*GetVersionsResponse)(nil),                   // 40: agent.GetVersionsResponse
-	(*AgentMessage)(nil),                          // 41: agent.AgentMessage
-	(*ServerMessage)(nil),                         // 42: agent.ServerMessage
-	nil,                                           // 43: agent.TextFiles.FilesEntry
-	(*SetStateRequest_AgentProcess)(nil),          // 44: agent.SetStateRequest.AgentProcess
-	nil,                                           // 45: agent.SetStateRequest.AgentProcessesEntry
-	(*SetStateRequest_BuiltinAgent)(nil),          // 46: agent.SetStateRequest.BuiltinAgent
-	nil,                                           // 47: agent.SetStateRequest.BuiltinAgentsEntry
-	nil,                                           // 48: agent.SetStateRequest.AgentProcess.TextFilesEntry
-	nil,                                           // 49: agent.QueryActionMap.MapEntry
-	(*StartActionRequest_MySQLExplainParams)(nil), // 50: agent.StartActionRequest.MySQLExplainParams
-	(*StartActionRequest_MySQLShowCreateTableParams)(nil),          // 51: agent.StartActionRequest.MySQLShowCreateTableParams
-	(*StartActionRequest_MySQLShowTableStatusParams)(nil),          // 52: agent.StartActionRequest.MySQLShowTableStatusParams
-	(*StartActionRequest_MySQLShowIndexParams)(nil),                // 53: agent.StartActionRequest.MySQLShowIndexParams
-	(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),     // 54: agent.StartActionRequest.PostgreSQLShowCreateTableParams
-	(*StartActionRequest_PostgreSQLShowIndexParams)(nil),           // 55: agent.StartActionRequest.PostgreSQLShowIndexParams
-	(*StartActionRequest_MongoDBExplainParams)(nil),                // 56: agent.StartActionRequest.MongoDBExplainParams
-	(*StartActionRequest_PTSummaryParams)(nil),                     // 57: agent.StartActionRequest.PTSummaryParams
-	(*StartActionRequest_PTPgSummaryParams)(nil),                   // 58: agent.StartActionRequest.PTPgSummaryParams
-	(*StartActionRequest_PTMongoDBSummaryParams)(nil),              // 59: agent.StartActionRequest.PTMongoDBSummaryParams
-	(*StartActionRequest_PTMySQLSummaryParams)(nil),                // 60: agent.StartActionRequest.PTMySQLSummaryParams
-	(*StartActionRequest_MySQLQueryShowParams)(nil),                // 61: agent.StartActionRequest.MySQLQueryShowParams
-	(*StartActionRequest_MySQLQuerySelectParams)(nil),              // 62: agent.StartActionRequest.MySQLQuerySelectParams
-	(*StartActionRequest_PostgreSQLQueryShowParams)(nil),           // 63: agent.StartActionRequest.PostgreSQLQueryShowParams
-	(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),         // 64: agent.StartActionRequest.PostgreSQLQuerySelectParams
-	(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),      // 65: agent.StartActionRequest.MongoDBQueryGetParameterParams
-	(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),         // 66: agent.StartActionRequest.MongoDBQueryBuildInfoParams
-	(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil),    // 67: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
-	(*StartActionRequest_MongoDBQueryReplSetGetStatusParams)(nil),  // 68: agent.StartActionRequest.MongoDBQueryReplSetGetStatusParams
-	(*StartActionRequest_MongoDBQueryGetDiagnosticDataParams)(nil), // 69: agent.StartActionRequest.MongoDBQueryGetDiagnosticDataParams
-	(*CheckConnectionResponse_Stats)(nil),                          // 70: agent.CheckConnectionResponse.Stats
-	(*StartJobRequest_MySQLBackup)(nil),                            // 71: agent.StartJobRequest.MySQLBackup
-	(*StartJobRequest_MySQLRestoreBackup)(nil),                     // 72: agent.StartJobRequest.MySQLRestoreBackup
-	(*StartJobRequest_MongoDBBackup)(nil),                          // 73: agent.StartJobRequest.MongoDBBackup
-	(*StartJobRequest_MongoDBRestoreBackup)(nil),                   // 74: agent.StartJobRequest.MongoDBRestoreBackup
-	(*JobResult_Error)(nil),                                        // 75: agent.JobResult.Error
-	(*JobResult_MongoDBBackup)(nil),                                // 76: agent.JobResult.MongoDBBackup
-	(*JobResult_MySQLBackup)(nil),                                  // 77: agent.JobResult.MySQLBackup
-	(*JobResult_MySQLRestoreBackup)(nil),                           // 78: agent.JobResult.MySQLRestoreBackup
-	(*JobResult_MongoDBRestoreBackup)(nil),                         // 79: agent.JobResult.MongoDBRestoreBackup
-	(*JobProgress_MySQLBackup)(nil),                                // 80: agent.JobProgress.MySQLBackup
-	(*JobProgress_MySQLRestoreBackup)(nil),                         // 81: agent.JobProgress.MySQLRestoreBackup
-	(*JobProgress_Logs)(nil),                                       // 82: agent.JobProgress.Logs
-	(*GetVersionsRequest_MySQLd)(nil),                              // 83: agent.GetVersionsRequest.MySQLd
-	(*GetVersionsRequest_Xtrabackup)(nil),                          // 84: agent.GetVersionsRequest.Xtrabackup
-	(*GetVersionsRequest_Xbcloud)(nil),                             // 85: agent.GetVersionsRequest.Xbcloud
-	(*GetVersionsRequest_Qpress)(nil),                              // 86: agent.GetVersionsRequest.Qpress
-	(*GetVersionsRequest_Software)(nil),                            // 87: agent.GetVersionsRequest.Software
-	(*GetVersionsResponse_Version)(nil),                            // 88: agent.GetVersionsResponse.Version
-	(*timestamppb.Timestamp)(nil),                                  // 89: google.protobuf.Timestamp
-	(*MetricsBucket)(nil),                                          // 90: agent.MetricsBucket
-	(inventorypb.AgentStatus)(0),                                   // 91: inventory.AgentStatus
-	(*durationpb.Duration)(nil),                                    // 92: google.protobuf.Duration
-	(inventorypb.ServiceType)(0),                                   // 93: inventory.ServiceType
-	(*status.Status)(nil),                                          // 94: google.rpc.Status
-	(inventorypb.AgentType)(0),                                     // 95: inventory.AgentType
-	(backup.DataModel)(0),                                          // 96: backup.v1beta1.DataModel
-}
+var (
+	file_agentpb_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_agentpb_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 88)
+	file_agentpb_agent_proto_goTypes   = []interface{}{
+		(MysqlExplainOutputFormat)(0),                 // 0: agent.MysqlExplainOutputFormat
+		(*TextFiles)(nil),                             // 1: agent.TextFiles
+		(*Ping)(nil),                                  // 2: agent.Ping
+		(*Pong)(nil),                                  // 3: agent.Pong
+		(*QANCollectRequest)(nil),                     // 4: agent.QANCollectRequest
+		(*QANCollectResponse)(nil),                    // 5: agent.QANCollectResponse
+		(*StateChangedRequest)(nil),                   // 6: agent.StateChangedRequest
+		(*StateChangedResponse)(nil),                  // 7: agent.StateChangedResponse
+		(*SetStateRequest)(nil),                       // 8: agent.SetStateRequest
+		(*SetStateResponse)(nil),                      // 9: agent.SetStateResponse
+		(*QueryActionValue)(nil),                      // 10: agent.QueryActionValue
+		(*QueryActionSlice)(nil),                      // 11: agent.QueryActionSlice
+		(*QueryActionMap)(nil),                        // 12: agent.QueryActionMap
+		(*QueryActionBinary)(nil),                     // 13: agent.QueryActionBinary
+		(*QueryActionResult)(nil),                     // 14: agent.QueryActionResult
+		(*StartActionRequest)(nil),                    // 15: agent.StartActionRequest
+		(*StartActionResponse)(nil),                   // 16: agent.StartActionResponse
+		(*StopActionRequest)(nil),                     // 17: agent.StopActionRequest
+		(*StopActionResponse)(nil),                    // 18: agent.StopActionResponse
+		(*ActionResultRequest)(nil),                   // 19: agent.ActionResultRequest
+		(*ActionResultResponse)(nil),                  // 20: agent.ActionResultResponse
+		(*PBMSwitchPITRRequest)(nil),                  // 21: agent.PBMSwitchPITRRequest
+		(*PBMSwitchPITRResponse)(nil),                 // 22: agent.PBMSwitchPITRResponse
+		(*ParseServiceParamsSourceRequest)(nil),       // 23: agent.ParseServiceParamsSourceRequest
+		(*ParseServiceParamsSourceResponse)(nil),      // 24: agent.ParseServiceParamsSourceResponse
+		(*AgentLogsRequest)(nil),                      // 25: agent.AgentLogsRequest
+		(*AgentLogsResponse)(nil),                     // 26: agent.AgentLogsResponse
+		(*CheckConnectionRequest)(nil),                // 27: agent.CheckConnectionRequest
+		(*CheckConnectionResponse)(nil),               // 28: agent.CheckConnectionResponse
+		(*JobStatusRequest)(nil),                      // 29: agent.JobStatusRequest
+		(*JobStatusResponse)(nil),                     // 30: agent.JobStatusResponse
+		(*S3LocationConfig)(nil),                      // 31: agent.S3LocationConfig
+		(*PMMClientLocationConfig)(nil),               // 32: agent.PMMClientLocationConfig
+		(*StartJobRequest)(nil),                       // 33: agent.StartJobRequest
+		(*StartJobResponse)(nil),                      // 34: agent.StartJobResponse
+		(*StopJobRequest)(nil),                        // 35: agent.StopJobRequest
+		(*StopJobResponse)(nil),                       // 36: agent.StopJobResponse
+		(*JobResult)(nil),                             // 37: agent.JobResult
+		(*JobProgress)(nil),                           // 38: agent.JobProgress
+		(*GetVersionsRequest)(nil),                    // 39: agent.GetVersionsRequest
+		(*GetVersionsResponse)(nil),                   // 40: agent.GetVersionsResponse
+		(*AgentMessage)(nil),                          // 41: agent.AgentMessage
+		(*ServerMessage)(nil),                         // 42: agent.ServerMessage
+		nil,                                           // 43: agent.TextFiles.FilesEntry
+		(*SetStateRequest_AgentProcess)(nil),          // 44: agent.SetStateRequest.AgentProcess
+		nil,                                           // 45: agent.SetStateRequest.AgentProcessesEntry
+		(*SetStateRequest_BuiltinAgent)(nil),          // 46: agent.SetStateRequest.BuiltinAgent
+		nil,                                           // 47: agent.SetStateRequest.BuiltinAgentsEntry
+		nil,                                           // 48: agent.SetStateRequest.AgentProcess.TextFilesEntry
+		nil,                                           // 49: agent.QueryActionMap.MapEntry
+		(*StartActionRequest_MySQLExplainParams)(nil), // 50: agent.StartActionRequest.MySQLExplainParams
+		(*StartActionRequest_MySQLShowCreateTableParams)(nil),          // 51: agent.StartActionRequest.MySQLShowCreateTableParams
+		(*StartActionRequest_MySQLShowTableStatusParams)(nil),          // 52: agent.StartActionRequest.MySQLShowTableStatusParams
+		(*StartActionRequest_MySQLShowIndexParams)(nil),                // 53: agent.StartActionRequest.MySQLShowIndexParams
+		(*StartActionRequest_PostgreSQLShowCreateTableParams)(nil),     // 54: agent.StartActionRequest.PostgreSQLShowCreateTableParams
+		(*StartActionRequest_PostgreSQLShowIndexParams)(nil),           // 55: agent.StartActionRequest.PostgreSQLShowIndexParams
+		(*StartActionRequest_MongoDBExplainParams)(nil),                // 56: agent.StartActionRequest.MongoDBExplainParams
+		(*StartActionRequest_PTSummaryParams)(nil),                     // 57: agent.StartActionRequest.PTSummaryParams
+		(*StartActionRequest_PTPgSummaryParams)(nil),                   // 58: agent.StartActionRequest.PTPgSummaryParams
+		(*StartActionRequest_PTMongoDBSummaryParams)(nil),              // 59: agent.StartActionRequest.PTMongoDBSummaryParams
+		(*StartActionRequest_PTMySQLSummaryParams)(nil),                // 60: agent.StartActionRequest.PTMySQLSummaryParams
+		(*StartActionRequest_MySQLQueryShowParams)(nil),                // 61: agent.StartActionRequest.MySQLQueryShowParams
+		(*StartActionRequest_MySQLQuerySelectParams)(nil),              // 62: agent.StartActionRequest.MySQLQuerySelectParams
+		(*StartActionRequest_PostgreSQLQueryShowParams)(nil),           // 63: agent.StartActionRequest.PostgreSQLQueryShowParams
+		(*StartActionRequest_PostgreSQLQuerySelectParams)(nil),         // 64: agent.StartActionRequest.PostgreSQLQuerySelectParams
+		(*StartActionRequest_MongoDBQueryGetParameterParams)(nil),      // 65: agent.StartActionRequest.MongoDBQueryGetParameterParams
+		(*StartActionRequest_MongoDBQueryBuildInfoParams)(nil),         // 66: agent.StartActionRequest.MongoDBQueryBuildInfoParams
+		(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams)(nil),    // 67: agent.StartActionRequest.MongoDBQueryGetCmdLineOptsParams
+		(*StartActionRequest_MongoDBQueryReplSetGetStatusParams)(nil),  // 68: agent.StartActionRequest.MongoDBQueryReplSetGetStatusParams
+		(*StartActionRequest_MongoDBQueryGetDiagnosticDataParams)(nil), // 69: agent.StartActionRequest.MongoDBQueryGetDiagnosticDataParams
+		(*CheckConnectionResponse_Stats)(nil),                          // 70: agent.CheckConnectionResponse.Stats
+		(*StartJobRequest_MySQLBackup)(nil),                            // 71: agent.StartJobRequest.MySQLBackup
+		(*StartJobRequest_MySQLRestoreBackup)(nil),                     // 72: agent.StartJobRequest.MySQLRestoreBackup
+		(*StartJobRequest_MongoDBBackup)(nil),                          // 73: agent.StartJobRequest.MongoDBBackup
+		(*StartJobRequest_MongoDBRestoreBackup)(nil),                   // 74: agent.StartJobRequest.MongoDBRestoreBackup
+		(*JobResult_Error)(nil),                                        // 75: agent.JobResult.Error
+		(*JobResult_MongoDBBackup)(nil),                                // 76: agent.JobResult.MongoDBBackup
+		(*JobResult_MySQLBackup)(nil),                                  // 77: agent.JobResult.MySQLBackup
+		(*JobResult_MySQLRestoreBackup)(nil),                           // 78: agent.JobResult.MySQLRestoreBackup
+		(*JobResult_MongoDBRestoreBackup)(nil),                         // 79: agent.JobResult.MongoDBRestoreBackup
+		(*JobProgress_MySQLBackup)(nil),                                // 80: agent.JobProgress.MySQLBackup
+		(*JobProgress_MySQLRestoreBackup)(nil),                         // 81: agent.JobProgress.MySQLRestoreBackup
+		(*JobProgress_Logs)(nil),                                       // 82: agent.JobProgress.Logs
+		(*GetVersionsRequest_MySQLd)(nil),                              // 83: agent.GetVersionsRequest.MySQLd
+		(*GetVersionsRequest_Xtrabackup)(nil),                          // 84: agent.GetVersionsRequest.Xtrabackup
+		(*GetVersionsRequest_Xbcloud)(nil),                             // 85: agent.GetVersionsRequest.Xbcloud
+		(*GetVersionsRequest_Qpress)(nil),                              // 86: agent.GetVersionsRequest.Qpress
+		(*GetVersionsRequest_Software)(nil),                            // 87: agent.GetVersionsRequest.Software
+		(*GetVersionsResponse_Version)(nil),                            // 88: agent.GetVersionsResponse.Version
+		(*timestamppb.Timestamp)(nil),                                  // 89: google.protobuf.Timestamp
+		(*MetricsBucket)(nil),                                          // 90: agent.MetricsBucket
+		(inventorypb.AgentStatus)(0),                                   // 91: inventory.AgentStatus
+		(*durationpb.Duration)(nil),                                    // 92: google.protobuf.Duration
+		(inventorypb.ServiceType)(0),                                   // 93: inventory.ServiceType
+		(*status.Status)(nil),                                          // 94: google.rpc.Status
+		(inventorypb.AgentType)(0),                                     // 95: inventory.AgentType
+		(backup.DataModel)(0),                                          // 96: backup.v1beta1.DataModel
+	}
+)
+
 var file_agentpb_agent_proto_depIdxs = []int32{
 	43,  // 0: agent.TextFiles.files:type_name -> agent.TextFiles.FilesEntry
 	89,  // 1: agent.Pong.current_time:type_name -> google.protobuf.Timestamp

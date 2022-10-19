@@ -8,6 +8,7 @@ package managementpb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -134,27 +135,32 @@ type SecurityChecksServer interface {
 }
 
 // UnimplementedSecurityChecksServer must be embedded to have forward compatible implementations.
-type UnimplementedSecurityChecksServer struct {
-}
+type UnimplementedSecurityChecksServer struct{}
 
 func (UnimplementedSecurityChecksServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListFailedServices not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFailedChecks not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ToggleCheckAlert not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecurityCheckResults not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartSecurityChecks not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) ListSecurityChecks(context.Context, *ListSecurityChecksRequest) (*ListSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSecurityChecks not implemented")
 }
+
 func (UnimplementedSecurityChecksServer) ChangeSecurityChecks(context.Context, *ChangeSecurityChecksRequest) (*ChangeSecurityChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSecurityChecks not implemented")
 }

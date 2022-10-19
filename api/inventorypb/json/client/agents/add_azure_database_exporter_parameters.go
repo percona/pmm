@@ -60,7 +60,6 @@ AddAzureDatabaseExporterParams contains all the parameters to send to the API en
 	Typically these are written to a http.Request.
 */
 type AddAzureDatabaseExporterParams struct {
-
 	// Body.
 	Body AddAzureDatabaseExporterBody
 
@@ -130,7 +129,6 @@ func (o *AddAzureDatabaseExporterParams) SetBody(body AddAzureDatabaseExporterBo
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddAzureDatabaseExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

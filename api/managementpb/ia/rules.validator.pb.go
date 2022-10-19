@@ -6,30 +6,36 @@ package iav1beta1
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
-	_ "github.com/percona/pmm/api/managementpb/alerting"
-	_ "github.com/percona/pmm/api/managementpb"
 	_ "github.com/mwitkow/go-proto-validators"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/durationpb"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
+
+	_ "github.com/percona/pmm/api/managementpb"
+	_ "github.com/percona/pmm/api/managementpb/alerting"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *Filter) Validate() error {
 	return nil
 }
+
 func (this *ParamValue) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
 	return nil
 }
+
 func (this *Rule) Validate() error {
 	for _, item := range this.ParamsDefinitions {
 		if item != nil {
@@ -79,6 +85,7 @@ func (this *Rule) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertRulesRequest) Validate() error {
 	if this.PageParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
@@ -87,6 +94,7 @@ func (this *ListAlertRulesRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ListAlertRulesResponse) Validate() error {
 	for _, item := range this.Rules {
 		if item != nil {
@@ -102,6 +110,7 @@ func (this *ListAlertRulesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreateAlertRuleRequest) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
@@ -125,9 +134,11 @@ func (this *CreateAlertRuleRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *CreateAlertRuleResponse) Validate() error {
 	return nil
 }
+
 func (this *UpdateAlertRuleRequest) Validate() error {
 	if this.RuleId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
@@ -154,24 +165,29 @@ func (this *UpdateAlertRuleRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *UpdateAlertRuleResponse) Validate() error {
 	return nil
 }
+
 func (this *ToggleAlertRuleRequest) Validate() error {
 	if this.RuleId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
 	}
 	return nil
 }
+
 func (this *ToggleAlertRuleResponse) Validate() error {
 	return nil
 }
+
 func (this *DeleteAlertRuleRequest) Validate() error {
 	if this.RuleId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RuleId", fmt.Errorf(`value '%v' must not be an empty string`, this.RuleId))
 	}
 	return nil
 }
+
 func (this *DeleteAlertRuleResponse) Validate() error {
 	return nil
 }

@@ -60,7 +60,6 @@ GetPSMDBClusterResourcesParams contains all the parameters to send to the API en
 	Typically these are written to a http.Request.
 */
 type GetPSMDBClusterResourcesParams struct {
-
 	// Body.
 	Body GetPSMDBClusterResourcesBody
 
@@ -130,7 +129,6 @@ func (o *GetPSMDBClusterResourcesParams) SetBody(body GetPSMDBClusterResourcesBo
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetPSMDBClusterResourcesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

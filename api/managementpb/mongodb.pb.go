@@ -7,14 +7,16 @@
 package managementpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 const (
@@ -590,18 +592,21 @@ func file_managementpb_mongodb_proto_rawDescGZIP() []byte {
 	return file_managementpb_mongodb_proto_rawDescData
 }
 
-var file_managementpb_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_managementpb_mongodb_proto_goTypes = []interface{}{
-	(*AddMongoDBRequest)(nil),                   // 0: management.AddMongoDBRequest
-	(*AddMongoDBResponse)(nil),                  // 1: management.AddMongoDBResponse
-	nil,                                         // 2: management.AddMongoDBRequest.CustomLabelsEntry
-	(*AddNodeParams)(nil),                       // 3: management.AddNodeParams
-	(MetricsMode)(0),                            // 4: management.MetricsMode
-	(inventorypb.LogLevel)(0),                   // 5: inventory.LogLevel
-	(*inventorypb.MongoDBService)(nil),          // 6: inventory.MongoDBService
-	(*inventorypb.MongoDBExporter)(nil),         // 7: inventory.MongoDBExporter
-	(*inventorypb.QANMongoDBProfilerAgent)(nil), // 8: inventory.QANMongoDBProfilerAgent
-}
+var (
+	file_managementpb_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_managementpb_mongodb_proto_goTypes  = []interface{}{
+		(*AddMongoDBRequest)(nil),                   // 0: management.AddMongoDBRequest
+		(*AddMongoDBResponse)(nil),                  // 1: management.AddMongoDBResponse
+		nil,                                         // 2: management.AddMongoDBRequest.CustomLabelsEntry
+		(*AddNodeParams)(nil),                       // 3: management.AddNodeParams
+		(MetricsMode)(0),                            // 4: management.MetricsMode
+		(inventorypb.LogLevel)(0),                   // 5: inventory.LogLevel
+		(*inventorypb.MongoDBService)(nil),          // 6: inventory.MongoDBService
+		(*inventorypb.MongoDBExporter)(nil),         // 7: inventory.MongoDBExporter
+		(*inventorypb.QANMongoDBProfilerAgent)(nil), // 8: inventory.QANMongoDBProfilerAgent
+	}
+)
+
 var file_managementpb_mongodb_proto_depIdxs = []int32{
 	3, // 0: management.AddMongoDBRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddMongoDBRequest.custom_labels:type_name -> management.AddMongoDBRequest.CustomLabelsEntry

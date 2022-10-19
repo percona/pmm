@@ -60,7 +60,6 @@ AddHAProxyServiceParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AddHAProxyServiceParams struct {
-
 	// Body.
 	Body AddHAProxyServiceBody
 
@@ -130,7 +129,6 @@ func (o *AddHAProxyServiceParams) SetBody(body AddHAProxyServiceBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddHAProxyServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

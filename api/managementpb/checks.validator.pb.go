@@ -6,37 +6,46 @@ package managementpb
 import (
 	fmt "fmt"
 	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
+var (
+	_ = proto.Marshal
+	_ = fmt.Errorf
+	_ = math.Inf
+)
 
 func (this *SecurityCheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *CheckResultSummary) Validate() error {
 	return nil
 }
+
 func (this *CheckResult) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+
 func (this *SecurityCheck) Validate() error {
 	return nil
 }
+
 func (this *ChangeSecurityCheckParams) Validate() error {
 	return nil
 }
+
 func (this *GetSecurityCheckResultsRequest) Validate() error {
 	return nil
 }
+
 func (this *GetSecurityCheckResultsResponse) Validate() error {
 	for _, item := range this.Results {
 		if item != nil {
@@ -47,15 +56,19 @@ func (this *GetSecurityCheckResultsResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *StartSecurityChecksRequest) Validate() error {
 	return nil
 }
+
 func (this *StartSecurityChecksResponse) Validate() error {
 	return nil
 }
+
 func (this *ListSecurityChecksRequest) Validate() error {
 	return nil
 }
+
 func (this *ListSecurityChecksResponse) Validate() error {
 	for _, item := range this.Checks {
 		if item != nil {
@@ -66,6 +79,7 @@ func (this *ListSecurityChecksResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeSecurityChecksRequest) Validate() error {
 	for _, item := range this.Params {
 		if item != nil {
@@ -76,12 +90,15 @@ func (this *ChangeSecurityChecksRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *ChangeSecurityChecksResponse) Validate() error {
 	return nil
 }
+
 func (this *ListFailedServicesRequest) Validate() error {
 	return nil
 }
+
 func (this *ListFailedServicesResponse) Validate() error {
 	for _, item := range this.Result {
 		if item != nil {
@@ -92,6 +109,7 @@ func (this *ListFailedServicesResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetFailedChecksRequest) Validate() error {
 	if this.PageParams != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PageParams); err != nil {
@@ -100,6 +118,7 @@ func (this *GetFailedChecksRequest) Validate() error {
 	}
 	return nil
 }
+
 func (this *GetFailedChecksResponse) Validate() error {
 	for _, item := range this.Results {
 		if item != nil {
@@ -115,9 +134,11 @@ func (this *GetFailedChecksResponse) Validate() error {
 	}
 	return nil
 }
+
 func (this *ToggleCheckAlertRequest) Validate() error {
 	return nil
 }
+
 func (this *ToggleCheckAlertResponse) Validate() error {
 	return nil
 }

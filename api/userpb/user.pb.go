@@ -7,6 +7,9 @@
 package userpb
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -14,8 +17,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -239,12 +240,15 @@ func file_userpb_user_proto_rawDescGZIP() []byte {
 	return file_userpb_user_proto_rawDescData
 }
 
-var file_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_userpb_user_proto_goTypes = []interface{}{
-	(*UserDetailsRequest)(nil),  // 0: user.UserDetailsRequest
-	(*UserDetailsResponse)(nil), // 1: user.UserDetailsResponse
-	(*UserUpdateRequest)(nil),   // 2: user.UserUpdateRequest
-}
+var (
+	file_userpb_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_userpb_user_proto_goTypes  = []interface{}{
+		(*UserDetailsRequest)(nil),  // 0: user.UserDetailsRequest
+		(*UserDetailsResponse)(nil), // 1: user.UserDetailsResponse
+		(*UserUpdateRequest)(nil),   // 2: user.UserUpdateRequest
+	}
+)
+
 var file_userpb_user_proto_depIdxs = []int32{
 	0, // 0: user.User.GetUser:input_type -> user.UserDetailsRequest
 	2, // 1: user.User.UpdateUser:input_type -> user.UserUpdateRequest

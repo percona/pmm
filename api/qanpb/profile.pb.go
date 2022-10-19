@@ -7,12 +7,13 @@
 package qanv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -650,18 +651,21 @@ func file_qanpb_profile_proto_rawDescGZIP() []byte {
 	return file_qanpb_profile_proto_rawDescData
 }
 
-var file_qanpb_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_qanpb_profile_proto_goTypes = []interface{}{
-	(*ReportRequest)(nil),         // 0: qan.v1beta1.ReportRequest
-	(*ReportMapFieldEntry)(nil),   // 1: qan.v1beta1.ReportMapFieldEntry
-	(*ReportReply)(nil),           // 2: qan.v1beta1.ReportReply
-	(*Row)(nil),                   // 3: qan.v1beta1.Row
-	(*Metric)(nil),                // 4: qan.v1beta1.Metric
-	(*Stat)(nil),                  // 5: qan.v1beta1.Stat
-	nil,                           // 6: qan.v1beta1.Row.MetricsEntry
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(*Point)(nil),                 // 8: qan.v1beta1.Point
-}
+var (
+	file_qanpb_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+	file_qanpb_profile_proto_goTypes  = []interface{}{
+		(*ReportRequest)(nil),         // 0: qan.v1beta1.ReportRequest
+		(*ReportMapFieldEntry)(nil),   // 1: qan.v1beta1.ReportMapFieldEntry
+		(*ReportReply)(nil),           // 2: qan.v1beta1.ReportReply
+		(*Row)(nil),                   // 3: qan.v1beta1.Row
+		(*Metric)(nil),                // 4: qan.v1beta1.Metric
+		(*Stat)(nil),                  // 5: qan.v1beta1.Stat
+		nil,                           // 6: qan.v1beta1.Row.MetricsEntry
+		(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+		(*Point)(nil),                 // 8: qan.v1beta1.Point
+	}
+)
+
 var file_qanpb_profile_proto_depIdxs = []int32{
 	7, // 0: qan.v1beta1.ReportRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	7, // 1: qan.v1beta1.ReportRequest.period_start_to:type_name -> google.protobuf.Timestamp

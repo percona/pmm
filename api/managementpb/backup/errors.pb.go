@@ -7,10 +7,11 @@
 package backupv1beta1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -178,12 +179,15 @@ func file_managementpb_backup_errors_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_errors_proto_rawDescData
 }
 
-var file_managementpb_backup_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_backup_errors_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_managementpb_backup_errors_proto_goTypes = []interface{}{
-	(ErrorCode)(0), // 0: backup.v1beta1.ErrorCode
-	(*Error)(nil),  // 1: backup.v1beta1.Error
-}
+var (
+	file_managementpb_backup_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_backup_errors_proto_msgTypes  = make([]protoimpl.MessageInfo, 1)
+	file_managementpb_backup_errors_proto_goTypes   = []interface{}{
+		(ErrorCode)(0), // 0: backup.v1beta1.ErrorCode
+		(*Error)(nil),  // 1: backup.v1beta1.Error
+	}
+)
+
 var file_managementpb_backup_errors_proto_depIdxs = []int32{
 	0, // 0: backup.v1beta1.Error.code:type_name -> backup.v1beta1.ErrorCode
 	1, // [1:1] is the sub-list for method output_type

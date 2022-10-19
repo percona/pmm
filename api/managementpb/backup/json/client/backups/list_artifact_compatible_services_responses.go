@@ -60,12 +60,12 @@ type ListArtifactCompatibleServicesOK struct {
 func (o *ListArtifactCompatibleServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListArtifactCompatibleServicesOK) GetPayload() *ListArtifactCompatibleServicesOKBody {
 	return o.Payload
 }
 
 func (o *ListArtifactCompatibleServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListArtifactCompatibleServicesOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListArtifactCompatibleServicesDefault) GetPayload() *ListArtifactCompatibleServicesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListArtifactCompatibleServicesDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ ListArtifactCompatibleServicesBody list artifact compatible services body
 swagger:model ListArtifactCompatibleServicesBody
 */
 type ListArtifactCompatibleServicesBody struct {
-
 	// Artifact id used to determine restore compatibility.
 	ArtifactID string `json:"artifact_id,omitempty"`
 }
@@ -161,7 +160,6 @@ ListArtifactCompatibleServicesDefaultBody list artifact compatible services defa
 swagger:model ListArtifactCompatibleServicesDefaultBody
 */
 type ListArtifactCompatibleServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +225,7 @@ func (o *ListArtifactCompatibleServicesDefaultBody) ContextValidate(ctx context.
 }
 
 func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +236,6 @@ func (o *ListArtifactCompatibleServicesDefaultBody) contextValidateDetails(ctx c
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -269,7 +264,6 @@ ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible 
 swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
 */
 type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -307,7 +301,6 @@ ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
 swagger:model ListArtifactCompatibleServicesOKBody
 */
 type ListArtifactCompatibleServicesOKBody struct {
-
 	// mysql
 	Mysql []*ListArtifactCompatibleServicesOKBodyMysqlItems0 `json:"mysql"`
 
@@ -404,9 +397,7 @@ func (o *ListArtifactCompatibleServicesOKBody) ContextValidate(ctx context.Conte
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mysql); i++ {
-
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -417,16 +408,13 @@ func (o *ListArtifactCompatibleServicesOKBody) contextValidateMysql(ctx context.
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mongodb); i++ {
-
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -437,7 +425,6 @@ func (o *ListArtifactCompatibleServicesOKBody) contextValidateMongodb(ctx contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -466,7 +453,6 @@ ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a ge
 swagger:model ListArtifactCompatibleServicesOKBodyMongodbItems0
 */
 type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -534,7 +520,6 @@ ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generi
 swagger:model ListArtifactCompatibleServicesOKBodyMysqlItems0
 */
 type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

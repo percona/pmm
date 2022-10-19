@@ -7,12 +7,13 @@
 package dbaasv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1434,39 +1435,42 @@ func file_managementpb_dbaas_components_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_components_proto_rawDescData
 }
 
-var file_managementpb_dbaas_components_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
-var file_managementpb_dbaas_components_proto_goTypes = []interface{}{
-	(*Component)(nil),                        // 0: dbaas.v1beta1.Component
-	(*Matrix)(nil),                           // 1: dbaas.v1beta1.Matrix
-	(*OperatorVersion)(nil),                  // 2: dbaas.v1beta1.OperatorVersion
-	(*GetPSMDBComponentsRequest)(nil),        // 3: dbaas.v1beta1.GetPSMDBComponentsRequest
-	(*GetPSMDBComponentsResponse)(nil),       // 4: dbaas.v1beta1.GetPSMDBComponentsResponse
-	(*GetPXCComponentsRequest)(nil),          // 5: dbaas.v1beta1.GetPXCComponentsRequest
-	(*GetPXCComponentsResponse)(nil),         // 6: dbaas.v1beta1.GetPXCComponentsResponse
-	(*ChangeComponent)(nil),                  // 7: dbaas.v1beta1.ChangeComponent
-	(*ChangePSMDBComponentsRequest)(nil),     // 8: dbaas.v1beta1.ChangePSMDBComponentsRequest
-	(*ChangePSMDBComponentsResponse)(nil),    // 9: dbaas.v1beta1.ChangePSMDBComponentsResponse
-	(*ChangePXCComponentsRequest)(nil),       // 10: dbaas.v1beta1.ChangePXCComponentsRequest
-	(*ChangePXCComponentsResponse)(nil),      // 11: dbaas.v1beta1.ChangePXCComponentsResponse
-	(*InstallOperatorRequest)(nil),           // 12: dbaas.v1beta1.InstallOperatorRequest
-	(*InstallOperatorResponse)(nil),          // 13: dbaas.v1beta1.InstallOperatorResponse
-	(*CheckForOperatorUpdateRequest)(nil),    // 14: dbaas.v1beta1.CheckForOperatorUpdateRequest
-	(*ComponentUpdateInformation)(nil),       // 15: dbaas.v1beta1.ComponentUpdateInformation
-	(*ComponentsUpdateInformation)(nil),      // 16: dbaas.v1beta1.ComponentsUpdateInformation
-	(*CheckForOperatorUpdateResponse)(nil),   // 17: dbaas.v1beta1.CheckForOperatorUpdateResponse
-	nil,                                      // 18: dbaas.v1beta1.Matrix.MongodEntry
-	nil,                                      // 19: dbaas.v1beta1.Matrix.PxcEntry
-	nil,                                      // 20: dbaas.v1beta1.Matrix.PmmEntry
-	nil,                                      // 21: dbaas.v1beta1.Matrix.ProxysqlEntry
-	nil,                                      // 22: dbaas.v1beta1.Matrix.HaproxyEntry
-	nil,                                      // 23: dbaas.v1beta1.Matrix.BackupEntry
-	nil,                                      // 24: dbaas.v1beta1.Matrix.OperatorEntry
-	nil,                                      // 25: dbaas.v1beta1.Matrix.LogCollectorEntry
-	(*ChangeComponent_ComponentVersion)(nil), // 26: dbaas.v1beta1.ChangeComponent.ComponentVersion
-	nil,                                      // 27: dbaas.v1beta1.ComponentsUpdateInformation.ComponentToUpdateInformationEntry
-	nil,                                      // 28: dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry
-	(OperatorsStatus)(0),                     // 29: dbaas.v1beta1.OperatorsStatus
-}
+var (
+	file_managementpb_dbaas_components_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+	file_managementpb_dbaas_components_proto_goTypes  = []interface{}{
+		(*Component)(nil),                        // 0: dbaas.v1beta1.Component
+		(*Matrix)(nil),                           // 1: dbaas.v1beta1.Matrix
+		(*OperatorVersion)(nil),                  // 2: dbaas.v1beta1.OperatorVersion
+		(*GetPSMDBComponentsRequest)(nil),        // 3: dbaas.v1beta1.GetPSMDBComponentsRequest
+		(*GetPSMDBComponentsResponse)(nil),       // 4: dbaas.v1beta1.GetPSMDBComponentsResponse
+		(*GetPXCComponentsRequest)(nil),          // 5: dbaas.v1beta1.GetPXCComponentsRequest
+		(*GetPXCComponentsResponse)(nil),         // 6: dbaas.v1beta1.GetPXCComponentsResponse
+		(*ChangeComponent)(nil),                  // 7: dbaas.v1beta1.ChangeComponent
+		(*ChangePSMDBComponentsRequest)(nil),     // 8: dbaas.v1beta1.ChangePSMDBComponentsRequest
+		(*ChangePSMDBComponentsResponse)(nil),    // 9: dbaas.v1beta1.ChangePSMDBComponentsResponse
+		(*ChangePXCComponentsRequest)(nil),       // 10: dbaas.v1beta1.ChangePXCComponentsRequest
+		(*ChangePXCComponentsResponse)(nil),      // 11: dbaas.v1beta1.ChangePXCComponentsResponse
+		(*InstallOperatorRequest)(nil),           // 12: dbaas.v1beta1.InstallOperatorRequest
+		(*InstallOperatorResponse)(nil),          // 13: dbaas.v1beta1.InstallOperatorResponse
+		(*CheckForOperatorUpdateRequest)(nil),    // 14: dbaas.v1beta1.CheckForOperatorUpdateRequest
+		(*ComponentUpdateInformation)(nil),       // 15: dbaas.v1beta1.ComponentUpdateInformation
+		(*ComponentsUpdateInformation)(nil),      // 16: dbaas.v1beta1.ComponentsUpdateInformation
+		(*CheckForOperatorUpdateResponse)(nil),   // 17: dbaas.v1beta1.CheckForOperatorUpdateResponse
+		nil,                                      // 18: dbaas.v1beta1.Matrix.MongodEntry
+		nil,                                      // 19: dbaas.v1beta1.Matrix.PxcEntry
+		nil,                                      // 20: dbaas.v1beta1.Matrix.PmmEntry
+		nil,                                      // 21: dbaas.v1beta1.Matrix.ProxysqlEntry
+		nil,                                      // 22: dbaas.v1beta1.Matrix.HaproxyEntry
+		nil,                                      // 23: dbaas.v1beta1.Matrix.BackupEntry
+		nil,                                      // 24: dbaas.v1beta1.Matrix.OperatorEntry
+		nil,                                      // 25: dbaas.v1beta1.Matrix.LogCollectorEntry
+		(*ChangeComponent_ComponentVersion)(nil), // 26: dbaas.v1beta1.ChangeComponent.ComponentVersion
+		nil,                                      // 27: dbaas.v1beta1.ComponentsUpdateInformation.ComponentToUpdateInformationEntry
+		nil,                                      // 28: dbaas.v1beta1.CheckForOperatorUpdateResponse.ClusterToComponentsEntry
+		(OperatorsStatus)(0),                     // 29: dbaas.v1beta1.OperatorsStatus
+	}
+)
+
 var file_managementpb_dbaas_components_proto_depIdxs = []int32{
 	18, // 0: dbaas.v1beta1.Matrix.mongod:type_name -> dbaas.v1beta1.Matrix.MongodEntry
 	19, // 1: dbaas.v1beta1.Matrix.pxc:type_name -> dbaas.v1beta1.Matrix.PxcEntry

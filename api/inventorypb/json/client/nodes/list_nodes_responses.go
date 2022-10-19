@@ -62,12 +62,12 @@ type ListNodesOK struct {
 func (o *ListNodesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 	return o.Payload
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListNodesDefault) Code() int {
 func (o *ListNodesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ListNodesBody list nodes body
 swagger:model ListNodesBody
 */
 type ListNodesBody struct {
-
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
@@ -227,7 +226,6 @@ ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -293,9 +291,7 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -306,7 +302,6 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -335,7 +330,6 @@ ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -373,7 +367,6 @@ ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
-
 	// generic
 	Generic []*ListNodesOKBodyGenericItems0 `json:"generic"`
 
@@ -581,9 +574,7 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Generic); i++ {
-
 		if o.Generic[i] != nil {
 			if err := o.Generic[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -594,16 +585,13 @@ func (o *ListNodesOKBody) contextValidateGeneric(ctx context.Context, formats st
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Container); i++ {
-
 		if o.Container[i] != nil {
 			if err := o.Container[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -614,16 +602,13 @@ func (o *ListNodesOKBody) contextValidateContainer(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Remote); i++ {
-
 		if o.Remote[i] != nil {
 			if err := o.Remote[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -634,16 +619,13 @@ func (o *ListNodesOKBody) contextValidateRemote(ctx context.Context, formats str
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RemoteRDS); i++ {
-
 		if o.RemoteRDS[i] != nil {
 			if err := o.RemoteRDS[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -654,16 +636,13 @@ func (o *ListNodesOKBody) contextValidateRemoteRDS(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.RemoteAzureDatabase); i++ {
-
 		if o.RemoteAzureDatabase[i] != nil {
 			if err := o.RemoteAzureDatabase[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -674,7 +653,6 @@ func (o *ListNodesOKBody) contextValidateRemoteAzureDatabase(ctx context.Context
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -703,7 +681,6 @@ ListNodesOKBodyContainerItems0 ContainerNode represents a Docker container.
 swagger:model ListNodesOKBodyContainerItems0
 */
 type ListNodesOKBodyContainerItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -768,7 +745,6 @@ ListNodesOKBodyGenericItems0 GenericNode represents a bare metal server or virtu
 swagger:model ListNodesOKBodyGenericItems0
 */
 type ListNodesOKBodyGenericItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -830,7 +806,6 @@ ListNodesOKBodyRemoteAzureDatabaseItems0 RemoteAzureDatabaseNode represents remo
 swagger:model ListNodesOKBodyRemoteAzureDatabaseItems0
 */
 type ListNodesOKBodyRemoteAzureDatabaseItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -886,7 +861,6 @@ ListNodesOKBodyRemoteItems0 RemoteNode represents generic remote Node. It's a no
 swagger:model ListNodesOKBodyRemoteItems0
 */
 type ListNodesOKBodyRemoteItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -942,7 +916,6 @@ ListNodesOKBodyRemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents 
 swagger:model ListNodesOKBodyRemoteRDSItems0
 */
 type ListNodesOKBodyRemoteRDSItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 

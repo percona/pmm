@@ -60,12 +60,12 @@ type StartMySQLExplainTraditionalJSONActionOK struct {
 func (o *StartMySQLExplainTraditionalJSONActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] startMySqlExplainTraditionalJsonActionOk  %+v", 200, o.Payload)
 }
+
 func (o *StartMySQLExplainTraditionalJSONActionOK) GetPayload() *StartMySQLExplainTraditionalJSONActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMySQLExplainTraditionalJSONActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLExplainTraditionalJSONActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartMySQLExplainTraditionalJSONActionDefault) Code() int {
 func (o *StartMySQLExplainTraditionalJSONActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLExplainTraditionalJSON][%d] StartMySQLExplainTraditionalJSONAction default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *StartMySQLExplainTraditionalJSONActionDefault) GetPayload() *StartMySQLExplainTraditionalJSONActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMySQLExplainTraditionalJSONActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(StartMySQLExplainTraditionalJSONActionDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ StartMySQLExplainTraditionalJSONActionBody start my SQL explain traditional JSON
 swagger:model StartMySQLExplainTraditionalJSONActionBody
 */
 type StartMySQLExplainTraditionalJSONActionBody struct {
-
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -170,7 +169,6 @@ StartMySQLExplainTraditionalJSONActionDefaultBody start my SQL explain tradition
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBody
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -236,9 +234,7 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) ContextValidate(ctx 
 }
 
 func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -249,7 +245,6 @@ func (o *StartMySQLExplainTraditionalJSONActionDefaultBody) contextValidateDetai
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -278,7 +273,6 @@ StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 start my SQL expl
 swagger:model StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0
 */
 type StartMySQLExplainTraditionalJSONActionDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -316,7 +310,6 @@ StartMySQLExplainTraditionalJSONActionOKBody start my SQL explain traditional JS
 swagger:model StartMySQLExplainTraditionalJSONActionOKBody
 */
 type StartMySQLExplainTraditionalJSONActionOKBody struct {
-
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

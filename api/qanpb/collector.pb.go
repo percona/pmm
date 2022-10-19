@@ -7,11 +7,13 @@
 package qanv1beta1
 
 import (
-	inventorypb "github.com/percona/pmm/api/inventorypb"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 const (
@@ -2691,18 +2693,21 @@ func file_qanpb_collector_proto_rawDescGZIP() []byte {
 	return file_qanpb_collector_proto_rawDescData
 }
 
-var file_qanpb_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_qanpb_collector_proto_goTypes = []interface{}{
-	(*CollectRequest)(nil),     // 0: qan.v1beta1.CollectRequest
-	(*MetricsBucket)(nil),      // 1: qan.v1beta1.MetricsBucket
-	(*CollectResponse)(nil),    // 2: qan.v1beta1.CollectResponse
-	nil,                        // 3: qan.v1beta1.MetricsBucket.LabelsEntry
-	nil,                        // 4: qan.v1beta1.MetricsBucket.WarningsEntry
-	nil,                        // 5: qan.v1beta1.MetricsBucket.ErrorsEntry
-	(inventorypb.AgentType)(0), // 6: inventory.AgentType
-	(ExampleFormat)(0),         // 7: qan.v1beta1.ExampleFormat
-	(ExampleType)(0),           // 8: qan.v1beta1.ExampleType
-}
+var (
+	file_qanpb_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_qanpb_collector_proto_goTypes  = []interface{}{
+		(*CollectRequest)(nil),     // 0: qan.v1beta1.CollectRequest
+		(*MetricsBucket)(nil),      // 1: qan.v1beta1.MetricsBucket
+		(*CollectResponse)(nil),    // 2: qan.v1beta1.CollectResponse
+		nil,                        // 3: qan.v1beta1.MetricsBucket.LabelsEntry
+		nil,                        // 4: qan.v1beta1.MetricsBucket.WarningsEntry
+		nil,                        // 5: qan.v1beta1.MetricsBucket.ErrorsEntry
+		(inventorypb.AgentType)(0), // 6: inventory.AgentType
+		(ExampleFormat)(0),         // 7: qan.v1beta1.ExampleFormat
+		(ExampleType)(0),           // 8: qan.v1beta1.ExampleType
+	}
+)
+
 var file_qanpb_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1beta1.CollectRequest.metrics_bucket:type_name -> qan.v1beta1.MetricsBucket
 	6, // 1: qan.v1beta1.MetricsBucket.agent_type:type_name -> inventory.AgentType
