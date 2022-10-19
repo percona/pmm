@@ -19,6 +19,7 @@ import (
 	"context"
 	"io"
 	"net/url"
+	"os"
 	"os/exec"
 	"sync/atomic"
 	"time"
@@ -34,8 +35,9 @@ import (
 const (
 	pbmBin = "pbm"
 
-	logsCheckInterval = 3 * time.Second
-	waitForLogs       = 2 * logsCheckInterval
+	logsCheckInterval    = 3 * time.Second
+	waitForLogs          = 2 * logsCheckInterval
+	backupStartThreshold = 5 * time.Second
 )
 
 // MongoDBBackupJob implements Job from MongoDB backup.
@@ -106,12 +108,19 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
+
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMState(rCtx, j.l, j.dbURL, pbmNoRunningOperations); err != nil {
+	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -131,7 +140,13 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMState(ctx, j.l, j.dbURL, pbmBackupFinished(pbmBackupOut.Name)); err != nil {
+	// Let pbm actually start backup
+	select {
+	case <-ctx.Done():
+	case <-time.After(backupStartThreshold):
+	}
+
+	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
 		j.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
