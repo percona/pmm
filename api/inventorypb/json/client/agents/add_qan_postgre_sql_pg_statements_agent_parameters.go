@@ -52,10 +52,12 @@ func NewAddQANPostgreSQLPgStatementsAgentParamsWithHTTPClient(client *http.Clien
 	}
 }
 
-/* AddQANPostgreSQLPgStatementsAgentParams contains all the parameters to send to the API endpoint
-   for the add QAN postgre SQL pg statements agent operation.
+/*
+AddQANPostgreSQLPgStatementsAgentParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add QAN postgre SQL pg statements agent operation.
+
+	Typically these are written to a http.Request.
 */
 type AddQANPostgreSQLPgStatementsAgentParams struct {
 	// Body.

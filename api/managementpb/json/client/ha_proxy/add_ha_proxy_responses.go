@@ -50,7 +50,8 @@ func NewAddHAProxyOK() *AddHAProxyOK {
 	return &AddHAProxyOK{}
 }
 
-/* AddHAProxyOK describes a response with status code 200, with default header values.
+/*
+AddHAProxyOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddHAProxyDefault(code int) *AddHAProxyDefault {
 	}
 }
 
-/* AddHAProxyDefault describes a response with status code -1, with default header values.
+/*
+AddHAProxyDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddHAProxyDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*AddHAProxyBody add HA proxy body
+/*
+AddHAProxyBody add HA proxy body
 swagger:model AddHAProxyBody
 */
 type AddHAProxyBody struct {
@@ -308,7 +311,8 @@ func (o *AddHAProxyBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyDefaultBody add HA proxy default body
+/*
+AddHAProxyDefaultBody add HA proxy default body
 swagger:model AddHAProxyDefaultBody
 */
 type AddHAProxyDefaultBody struct {
@@ -411,7 +415,8 @@ func (o *AddHAProxyDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyDefaultBodyDetailsItems0 add HA proxy default body details items0
+/*
+AddHAProxyDefaultBodyDetailsItems0 add HA proxy default body details items0
 swagger:model AddHAProxyDefaultBodyDetailsItems0
 */
 type AddHAProxyDefaultBodyDetailsItems0 struct {
@@ -447,7 +452,8 @@ func (o *AddHAProxyDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyOKBody add HA proxy OK body
+/*
+AddHAProxyOKBody add HA proxy OK body
 swagger:model AddHAProxyOKBody
 */
 type AddHAProxyOKBody struct {
@@ -580,7 +586,8 @@ func (o *AddHAProxyOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+/*
+AddHAProxyOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
 swagger:model AddHAProxyOKBodyExternalExporter
 */
 type AddHAProxyOKBodyExternalExporter struct {
@@ -646,7 +653,8 @@ func (o *AddHAProxyOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyOKBodyService HAProxyService represents a generic HAProxy service instance.
+/*
+AddHAProxyOKBodyService HAProxyService represents a generic HAProxy service instance.
 swagger:model AddHAProxyOKBodyService
 */
 type AddHAProxyOKBodyService struct {
@@ -700,7 +708,8 @@ func (o *AddHAProxyOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddHAProxyParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddHAProxyParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddHAProxyParamsBodyAddNode
 */
 type AddHAProxyParamsBodyAddNode struct {

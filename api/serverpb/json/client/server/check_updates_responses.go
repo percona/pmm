@@ -49,7 +49,8 @@ func NewCheckUpdatesOK() *CheckUpdatesOK {
 	return &CheckUpdatesOK{}
 }
 
-/* CheckUpdatesOK describes a response with status code 200, with default header values.
+/*
+CheckUpdatesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -83,7 +84,8 @@ func NewCheckUpdatesDefault(code int) *CheckUpdatesDefault {
 	}
 }
 
-/* CheckUpdatesDefault describes a response with status code -1, with default header values.
+/*
+CheckUpdatesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -117,7 +119,8 @@ func (o *CheckUpdatesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*CheckUpdatesBody check updates body
+/*
+CheckUpdatesBody check updates body
 swagger:model CheckUpdatesBody
 */
 type CheckUpdatesBody struct {
@@ -156,7 +159,8 @@ func (o *CheckUpdatesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesDefaultBody check updates default body
+/*
+CheckUpdatesDefaultBody check updates default body
 swagger:model CheckUpdatesDefaultBody
 */
 type CheckUpdatesDefaultBody struct {
@@ -259,7 +263,8 @@ func (o *CheckUpdatesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*
+CheckUpdatesDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -402,7 +407,8 @@ func (o *CheckUpdatesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBody check updates OK body
+/*
+CheckUpdatesOKBody check updates OK body
 swagger:model CheckUpdatesOKBody
 */
 type CheckUpdatesOKBody struct {
@@ -561,7 +567,8 @@ func (o *CheckUpdatesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Server as a whole.
+/*
+CheckUpdatesOKBodyInstalled VersionInfo describes component version, or PMM Server as a whole.
 swagger:model CheckUpdatesOKBodyInstalled
 */
 type CheckUpdatesOKBodyInstalled struct {
@@ -625,7 +632,8 @@ func (o *CheckUpdatesOKBodyInstalled) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
+/*
+CheckUpdatesOKBodyLatest VersionInfo describes component version, or PMM Server as a whole.
 swagger:model CheckUpdatesOKBodyLatest
 */
 type CheckUpdatesOKBodyLatest struct {

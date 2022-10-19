@@ -40,7 +40,7 @@ type ClientService interface {
 }
 
 /*
-  CreatePSMDBCluster creates PSMDB cluster creates a new PSMDB cluster
+CreatePSMDBCluster creates PSMDB cluster creates a new PSMDB cluster
 */
 func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams, opts ...ClientOption) (*CreatePSMDBClusterOK, error) {
 	// TODO: Validate the params before sending
@@ -77,7 +77,7 @@ func (a *Client) CreatePSMDBCluster(params *CreatePSMDBClusterParams, opts ...Cl
 }
 
 /*
-  GetPSMDBClusterCredentials gets PSMDB cluster credentials returns a PSMDB cluster credentials by cluster name
+GetPSMDBClusterCredentials gets PSMDB cluster credentials returns a PSMDB cluster credentials by cluster name
 */
 func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsParams, opts ...ClientOption) (*GetPSMDBClusterCredentialsOK, error) {
 	// TODO: Validate the params before sending
@@ -114,7 +114,7 @@ func (a *Client) GetPSMDBClusterCredentials(params *GetPSMDBClusterCredentialsPa
 }
 
 /*
-  GetPSMDBClusterResources gets PSMDB cluster resources returns expected resources to be consumed by the cluster
+GetPSMDBClusterResources gets PSMDB cluster resources returns expected resources to be consumed by the cluster
 */
 func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams, opts ...ClientOption) (*GetPSMDBClusterResourcesOK, error) {
 	// TODO: Validate the params before sending
@@ -151,7 +151,7 @@ func (a *Client) GetPSMDBClusterResources(params *GetPSMDBClusterResourcesParams
 }
 
 /*
-  UpdatePSMDBCluster updates PSMDB cluster updates existing PSMDB cluster
+UpdatePSMDBCluster updates PSMDB cluster updates existing PSMDB cluster
 */
 func (a *Client) UpdatePSMDBCluster(params *UpdatePSMDBClusterParams, opts ...ClientOption) (*UpdatePSMDBClusterOK, error) {
 	// TODO: Validate the params before sending

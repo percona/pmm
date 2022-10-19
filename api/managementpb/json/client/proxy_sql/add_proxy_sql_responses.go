@@ -50,7 +50,8 @@ func NewAddProxySQLOK() *AddProxySQLOK {
 	return &AddProxySQLOK{}
 }
 
-/* AddProxySQLOK describes a response with status code 200, with default header values.
+/*
+AddProxySQLOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddProxySQLDefault(code int) *AddProxySQLDefault {
 	}
 }
 
-/* AddProxySQLDefault describes a response with status code -1, with default header values.
+/*
+AddProxySQLDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddProxySQLDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*AddProxySQLBody add proxy SQL body
+/*
+AddProxySQLBody add proxy SQL body
 swagger:model AddProxySQLBody
 */
 type AddProxySQLBody struct {
@@ -384,7 +387,8 @@ func (o *AddProxySQLBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLDefaultBody add proxy SQL default body
+/*
+AddProxySQLDefaultBody add proxy SQL default body
 swagger:model AddProxySQLDefaultBody
 */
 type AddProxySQLDefaultBody struct {
@@ -487,7 +491,8 @@ func (o *AddProxySQLDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLDefaultBodyDetailsItems0 add proxy SQL default body details items0
+/*
+AddProxySQLDefaultBodyDetailsItems0 add proxy SQL default body details items0
 swagger:model AddProxySQLDefaultBodyDetailsItems0
 */
 type AddProxySQLDefaultBodyDetailsItems0 struct {
@@ -523,7 +528,8 @@ func (o *AddProxySQLDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLOKBody add proxy SQL OK body
+/*
+AddProxySQLOKBody add proxy SQL OK body
 swagger:model AddProxySQLOKBody
 */
 type AddProxySQLOKBody struct {
@@ -656,7 +662,8 @@ func (o *AddProxySQLOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+/*
+AddProxySQLOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
 swagger:model AddProxySQLOKBodyProxysqlExporter
 */
 type AddProxySQLOKBodyProxysqlExporter struct {
@@ -864,7 +871,8 @@ func (o *AddProxySQLOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLOKBodyService ProxySQLService represents a generic ProxySQL instance.
+/*
+AddProxySQLOKBodyService ProxySQLService represents a generic ProxySQL instance.
 swagger:model AddProxySQLOKBodyService
 */
 type AddProxySQLOKBodyService struct {
@@ -930,7 +938,8 @@ func (o *AddProxySQLOKBodyService) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddProxySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+/*
+AddProxySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
 swagger:model AddProxySQLParamsBodyAddNode
 */
 type AddProxySQLParamsBodyAddNode struct {
