@@ -35,16 +35,16 @@ type ProxySQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 }
 
 // NewProxySQLService creates new ProxySQL Management Service.
-func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *ProxySQLService {
+func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, spsl serviceParamsSourceLoader) *ProxySQLService {
 	return &ProxySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -52,13 +52,13 @@ func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCh
 func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQLRequest) (*managementpb.AddProxySQLResponse, error) {
 	res := &managementpb.AddProxySQLResponse{}
 
-	if req.CredentialsSource != "" {
-		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.ProxySQLServiceType)
+	if req.ServiceParamsSource != "" {
+		result, err := s.spsl.GetParameters(ctx, req.PmmAgentId, req.ServiceParamsSource, models.ProxySQLServiceType)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 		}
 
-		s.applyCredentialsSource(req, result)
+		s.applyParameters(req, result)
 	}
 
 	if req.Username == "" {
@@ -133,9 +133,9 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 	return res, nil
 }
 
-// applyCredentialsSource apply strategy: passed username/password/...etc in request have higher priority than
-// credentials from credentialsSource file.
-func (s *ProxySQLService) applyCredentialsSource(req *managementpb.AddProxySQLRequest, result *models.CredentialsSourceParsingResult) {
+// applyParameters apply strategy: passed username/password/...etc in request have higher priority than
+// credentials from service parameters source file.
+func (s *ProxySQLService) applyParameters(req *managementpb.AddProxySQLRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}

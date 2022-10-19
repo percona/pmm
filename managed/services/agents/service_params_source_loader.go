@@ -27,8 +27,8 @@ import (
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
-// CredentialsSourceLoader requests from agent to parse credentials-source passed in request.
-type CredentialsSourceLoader struct {
+// ServiceParamsSourceLoader requests from agent to parse service parameters file passed in request.
+type ServiceParamsSourceLoader struct {
 	r *Registry
 }
 
@@ -41,15 +41,15 @@ var serviceTypes = map[models.ServiceType]inventorypb.ServiceType{
 	models.ExternalServiceType:   inventorypb.ServiceType_EXTERNAL_SERVICE,
 }
 
-// NewCredentialsSourceLoader creates new CredentialsSourceLoader request.
-func NewCredentialsSourceLoader(r *Registry) *CredentialsSourceLoader {
-	return &CredentialsSourceLoader{
+// NewServiceParamsSourceLoader creates new ServiceParamsSourceLoader request.
+func NewServiceParamsSourceLoader(r *Registry) *ServiceParamsSourceLoader {
+	return &ServiceParamsSourceLoader{
 		r: r,
 	}
 }
 
-// GetCredentials sends request (with file path) to pmm-agent to parse credentials-source file.
-func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.CredentialsSourceParsingResult, error) {
+// GetParameters sends request (with file path) to pmm-agent to parse given source file.
+func (p *ServiceParamsSourceLoader) GetParameters(ctx context.Context, pmmAgentID, filePath string, serviceType models.ServiceType) (*models.ServiceParamsSourceParsingResult, error) {
 	l := logger.Get(ctx)
 
 	pmmAgent, err := p.r.get(pmmAgentID)
@@ -65,7 +65,7 @@ func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID
 
 	request, err := createRequest(filePath, serviceType)
 	if err != nil {
-		l.Debugf("can't create ParseCredentialsSourceRequest %s", err)
+		l.Debugf("can't create ParseServiceParamsSourceRequest %s", err)
 		return nil, err
 	}
 
@@ -74,16 +74,16 @@ func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID
 		return nil, err
 	}
 
-	l.Infof("ParseCredentialsSource response from agent: %+v.", resp)
-	parserResponse, ok := resp.(*agentpb.ParseCredentialsSourceResponse)
+	l.Infof("ParseServiceParamsSource response from agent: %+v.", resp)
+	parserResponse, ok := resp.(*agentpb.ParseServiceParamsSourceResponse)
 	if !ok {
-		return nil, errors.New("wrong response from agent (not ParseCredentialsSourceResponse model)")
+		return nil, errors.New("wrong response from agent (not ParseServiceParamsSourceResponse model)")
 	}
 	if parserResponse.Error != "" {
 		return nil, errors.New(parserResponse.Error)
 	}
 
-	return &models.CredentialsSourceParsingResult{
+	return &models.ServiceParamsSourceParsingResult{
 		Username:      parserResponse.Username,
 		Password:      parserResponse.Password,
 		AgentPassword: parserResponse.AgentPassword,
@@ -93,13 +93,13 @@ func (p *CredentialsSourceLoader) GetCredentials(ctx context.Context, pmmAgentID
 	}, nil
 }
 
-func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseCredentialsSourceRequest, error) {
+func createRequest(configPath string, serviceType models.ServiceType) (*agentpb.ParseServiceParamsSourceRequest, error) {
 	inventorypbServiceType, ok := serviceTypes[serviceType]
 	if !ok {
 		return nil, errors.Errorf("unhandled service type %s", serviceType)
 	}
 
-	return &agentpb.ParseCredentialsSourceRequest{
+	return &agentpb.ParseServiceParamsSourceRequest{
 		ServiceType: inventorypbServiceType,
 		FilePath:    configPath,
 	}, nil

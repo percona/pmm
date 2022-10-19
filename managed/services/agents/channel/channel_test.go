@@ -356,7 +356,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	<-stop
 }
 
-func TestChannelForCredentialsSourceParser(t *testing.T) {
+func TestChannelForServiceParamsSourceParser(t *testing.T) {
 	const count = 50
 	require.True(t, count > agentRequestsCap)
 
@@ -364,9 +364,9 @@ func TestChannelForCredentialsSourceParser(t *testing.T) {
 		testValue := "test"
 		testPort := uint32(123123)
 		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(&agentpb.ParseCredentialsSourceRequest{})
+			resp, err := ch.SendAndWaitResponse(&agentpb.ParseServiceParamsSourceRequest{})
 			assert.NotNil(t, resp)
-			parserResponse := resp.(*agentpb.ParseCredentialsSourceResponse)
+			parserResponse := resp.(*agentpb.ParseServiceParamsSourceResponse)
 			assert.Equal(t, parserResponse.Username, testValue)
 			assert.Equal(t, parserResponse.Password, testValue)
 			assert.Equal(t, parserResponse.Socket, testValue)
@@ -385,11 +385,11 @@ func TestChannelForCredentialsSourceParser(t *testing.T) {
 		msg, err := stream.Recv()
 		assert.NoError(t, err)
 		assert.Equal(t, i, msg.Id)
-		assert.NotNil(t, msg.GetParseCredentialsSource())
+		assert.NotNil(t, msg.GetParseServiceParamsSource())
 
 		err = stream.Send(&agentpb.AgentMessage{
 			Id: i,
-			Payload: (&agentpb.ParseCredentialsSourceResponse{
+			Payload: (&agentpb.ParseServiceParamsSourceResponse{
 				Username: "test",
 				Password: "test",
 				Port:     123123,

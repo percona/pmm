@@ -15,8 +15,8 @@
 
 package models
 
-// CredentialsSourceParsingResult contains result of parsing defaults file.
-type CredentialsSourceParsingResult struct {
+// ServiceParamsSourceParsingResult contains result of parsing service parameters file.
+type ServiceParamsSourceParsingResult struct {
 	Username      string
 	Password      string
 	AgentPassword string

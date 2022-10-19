@@ -37,16 +37,16 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, spsl serviceParamsSourceLoader) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -54,13 +54,13 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
 	res := &managementpb.AddMongoDBResponse{}
 
-	if req.CredentialsSource != "" {
-		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.MongoDBServiceType)
+	if req.ServiceParamsSource != "" {
+		result, err := s.spsl.GetParameters(ctx, req.PmmAgentId, req.ServiceParamsSource, models.MongoDBServiceType)
 		if err != nil {
-			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Service Params Source file error: %s.", err))
 		}
 
-		s.applyCredentialsSource(req, result)
+		s.applyParameters(req, result)
 	}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -157,7 +157,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	return res, nil
 }
 
-func (s *MongoDBService) applyCredentialsSource(req *managementpb.AddMongoDBRequest, result *models.CredentialsSourceParsingResult) {
+func (s *MongoDBService) applyParameters(req *managementpb.AddMongoDBRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}

@@ -41,17 +41,17 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, csl credentialsSourceLoader) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache, spsl serviceParamsSourceLoader) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
 		vc:    vc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -59,13 +59,13 @@ func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCheck
 func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
 	res := &managementpb.AddMySQLResponse{}
 
-	if req.CredentialsSource != "" {
-		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.MySQLServiceType)
+	if req.ServiceParamsSource != "" {
+		result, err := s.spsl.GetParameters(ctx, req.PmmAgentId, req.ServiceParamsSource, models.MySQLServiceType)
 		if err != nil {
 			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
 		}
 
-		s.applyCredentialsSource(req, result)
+		s.applyParameters(req, result)
 	}
 
 	if req.Username == "" {
@@ -212,7 +212,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	return res, nil
 }
 
-func (s *MySQLService) applyCredentialsSource(req *managementpb.AddMySQLRequest, result *models.CredentialsSourceParsingResult) {
+func (s *MySQLService) applyParameters(req *managementpb.AddMySQLRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}

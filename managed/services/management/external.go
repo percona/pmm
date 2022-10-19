@@ -37,19 +37,19 @@ type ExternalService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 
 	managementpb.UnimplementedExternalServer
 }
 
 // NewExternalService creates new External Management Service.
-func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *ExternalService {
+func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, spsl serviceParamsSourceLoader) *ExternalService {
 	return &ExternalService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -72,17 +72,17 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if req.AddNode != nil && runsOnNodeId == "" {
 			runsOnNodeId = nodeID
 		}
-		if req.CredentialsSource != "" {
+		if req.ServiceParamsSource != "" {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents:  %s.", err))
 			}
-			result, err := e.csl.GetCredentials(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			result, err := e.spsl.GetParameters(ctx, agentIDs[0].AgentID, req.ServiceParamsSource, models.PostgreSQLServiceType)
 			if err != nil {
-				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Service Params Source file error: %s.", err))
 			}
 
-			e.applyCredentialsSource(req, result)
+			e.applyParameters(req, result)
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
@@ -160,7 +160,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 	return res, nil
 }
 
-func (e *ExternalService) applyCredentialsSource(req *managementpb.AddExternalRequest, result *models.CredentialsSourceParsingResult) {
+func (e *ExternalService) applyParameters(req *managementpb.AddExternalRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}

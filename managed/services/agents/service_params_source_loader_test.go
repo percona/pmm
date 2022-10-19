@@ -28,7 +28,7 @@ func TestCreateRequest(t *testing.T) {
 	response, err := createRequest("/path/to/file", models.MySQLServiceType)
 
 	require.NoError(t, err)
-	require.NotNil(t, response, "ParseCredentialsSourceRequest is nil")
+	require.NotNil(t, response, "ParseServiceParamsSourceRequest is nil")
 }
 
 func TestCreateRequestNotSupported(t *testing.T) {
@@ -36,5 +36,5 @@ func TestCreateRequestNotSupported(t *testing.T) {
 	response, err := createRequest("/path/to/file", "unsupported")
 
 	require.Error(t, err)
-	require.Nil(t, response, "ParseCredentialsSourceRequest is not nil")
+	require.Nil(t, response, "ParseServiceParamsSourceRequest is not nil")
 }

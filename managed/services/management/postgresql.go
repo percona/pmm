@@ -35,16 +35,16 @@ type PostgreSQLService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *PostgreSQLService {
+func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, spsl serviceParamsSourceLoader) *PostgreSQLService {
 	return &PostgreSQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -52,13 +52,13 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
 	res := &managementpb.AddPostgreSQLResponse{}
 
-	if req.CredentialsSource != "" {
-		result, err := s.csl.GetCredentials(ctx, req.PmmAgentId, req.CredentialsSource, models.PostgreSQLServiceType)
+	if req.ServiceParamsSource != "" {
+		result, err := s.spsl.GetParameters(ctx, req.PmmAgentId, req.ServiceParamsSource, models.PostgreSQLServiceType)
 		if err != nil {
-			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+			return nil, status.Error(codes.FailedPrecondition, fmt.Sprintf("Service Params Source file error: %s.", err))
 		}
 
-		s.applyCredentialsSource(req, result)
+		s.applyParameters(req, result)
 	}
 
 	if req.Username == "" {
@@ -183,9 +183,9 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 	return res, nil
 }
 
-// applyCredentialsSource apply strategy: passed username/password/...etc in request have higher priority than
-// credentials from credentialsSource file.
-func (s *PostgreSQLService) applyCredentialsSource(req *managementpb.AddPostgreSQLRequest, result *models.CredentialsSourceParsingResult) {
+// applyParameters apply strategy: passed username/password/...etc in request have higher priority than
+// credentials from service parameters source file.
+func (s *PostgreSQLService) applyParameters(req *managementpb.AddPostgreSQLRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}

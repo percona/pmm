@@ -35,19 +35,19 @@ type HAProxyService struct {
 	vmdb  prometheusService
 	state agentsStateUpdater
 	cc    connectionChecker
-	csl   credentialsSourceLoader
+	spsl  serviceParamsSourceLoader
 
 	managementpb.UnimplementedHAProxyServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.
-func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, csl credentialsSourceLoader) *HAProxyService {
+func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateUpdater, cc connectionChecker, spsl serviceParamsSourceLoader) *HAProxyService {
 	return &HAProxyService{
 		db:    db,
 		vmdb:  vmdb,
 		state: state,
 		cc:    cc,
-		csl:   csl,
+		spsl:  spsl,
 	}
 }
 
@@ -63,17 +63,17 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 			return err
 		}
 
-		if req.CredentialsSource != "" {
+		if req.ServiceParamsSource != "" {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
 			if err != nil {
 				return status.Error(codes.FailedPrecondition, fmt.Sprintf("cannot find agents: %s.", err))
 			}
-			result, err := e.csl.GetCredentials(ctx, agentIDs[0].AgentID, req.CredentialsSource, models.PostgreSQLServiceType)
+			result, err := e.spsl.GetParameters(ctx, agentIDs[0].AgentID, req.ServiceParamsSource, models.PostgreSQLServiceType)
 			if err != nil {
-				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Credentials Source file error: %s.", err))
+				return status.Error(codes.FailedPrecondition, fmt.Sprintf("Service Params Source file error: %s.", err))
 			}
 
-			e.applyCredentialsSource(req, result)
+			e.applyParameters(req, result)
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.HAProxyServiceType, &models.AddDBMSServiceParams{
@@ -150,7 +150,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 	return res, nil
 }
 
-func (e HAProxyService) applyCredentialsSource(req *managementpb.AddHAProxyRequest, result *models.CredentialsSourceParsingResult) {
+func (e HAProxyService) applyParameters(req *managementpb.AddHAProxyRequest, result *models.ServiceParamsSourceParsingResult) {
 	if req.Username == "" && result.Username != "" {
 		req.Username = result.Username
 	}
