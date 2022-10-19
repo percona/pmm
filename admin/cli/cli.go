@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/admin/commands/pmm/client"
 	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
@@ -75,6 +76,7 @@ type PMMCommands struct {
 	flags.GlobalFlags
 
 	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
+	Client client.BaseCommand `cmd:"" help:"PMM client related commands"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
@@ -136,8 +138,10 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		printExitError(opts, res, err)
-		os.Exit(err.ExitCode())
+		if res != nil {
+			printExitError(opts, res, err)
+			os.Exit(err.ExitCode())
+		}
 	}
 
 	return err

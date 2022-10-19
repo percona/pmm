@@ -67,6 +67,8 @@ message SetStateRequest {
   message BuiltinAgent {
     inventory.AgentType type = 1;
     string dsn = 2;
+    // Limit query length in QAN (default: server-defined; -1: no limit).
+    int32 max_query_length = 8;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
@@ -472,6 +474,11 @@ message S3LocationConfig {
   string bucket_region = 5;
 }
 
+// LocalStorageConfig represents path for storing backup artifacts locally.
+message PMMClientLocationConfig {
+  string path = 1;
+}
+
 // StartJobRequest is a ServerMessage asking pmm-agent to start job.
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
@@ -525,6 +532,7 @@ message StartJobRequest {
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      PMMClientLocationConfig pmm_client_config = 11;
     }
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
@@ -546,6 +554,7 @@ message StartJobRequest {
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
+      PMMClientLocationConfig pmm_client_config = 11;
     }
   }
   string job_id = 1;

@@ -43,21 +43,28 @@ func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
-	if pmmAgent.Version == nil {
-		return errors.Errorf("pmm agent %q has no version info", pmmAgentID)
+	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
+}
+
+// isAgentSupported contains logic for PMMAgentSupported.
+func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+	if agentModel == nil {
+		return errors.New("nil agent")
 	}
-	pmmAgentVersion, err := version.NewVersion(*pmmAgent.Version)
+	if agentModel.Version == nil {
+		return errors.Errorf("pmm agent %q has no version info", agentModel.AgentID)
+	}
+	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {
-		return errors.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err)
+		return errors.Errorf("failed to parse PMM agent version %q: %s", *agentModel.Version, err)
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
 		return errors.WithStack(&UnsupportedAgentError{
-			AgentID:       pmmAgentID,
+			AgentID:       agentModel.AgentID,
 			Functionality: functionalityPrefix,
-			AgentVersion:  *pmmAgent.Version,
+			AgentVersion:  *agentModel.Version,
 		})
 	}
-
 	return nil
 }

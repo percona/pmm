@@ -18,10 +18,8 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"net"
 	"net/url"
 	"os/exec"
-	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -42,15 +40,15 @@ const (
 
 // MongoDBBackupJob implements Job from MongoDB backup.
 type MongoDBBackupJob struct {
-	id         string
-	timeout    time.Duration
-	l          logrus.FieldLogger
-	name       string
-	dbURL      *url.URL
-	location   BackupLocationConfig
-	pitr       bool
-	logChunkID uint32
-	dataModel  backupv1beta1.DataModel
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	dbURL          *url.URL
+	locationConfig BackupLocationConfig
+	pitr           bool
+	logChunkID     uint32
+	dataModel      backupv1beta1.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -70,14 +68,14 @@ func NewMongoDBBackupJob(
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 	return &MongoDBBackupJob{
-		id:        id,
-		timeout:   timeout,
-		l:         logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
-		name:      name,
-		dbURL:     createDBURL(dbConfig),
-		location:  locationConfig,
-		pitr:      pitr,
-		dataModel: dataModel,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
+		name:           name,
+		dbURL:          createDBURL(dbConfig),
+		locationConfig: locationConfig,
+		pitr:           pitr,
+		dataModel:      dataModel,
 	}, nil
 }
 
@@ -104,30 +102,10 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf := &PBMConfig{
-		PITR: PITR{
-			Enabled: j.pitr,
-		},
+	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	if err != nil {
+		return errors.WithStack(err)
 	}
-	switch {
-	case j.location.S3Config != nil:
-		conf.Storage = Storage{
-			Type: "s3",
-			S3: S3{
-				EndpointURL: j.location.S3Config.Endpoint,
-				Region:      j.location.S3Config.BucketRegion,
-				Bucket:      j.location.S3Config.BucketName,
-				Prefix:      j.name,
-				Credentials: Credentials{
-					AccessKeyID:     j.location.S3Config.AccessKey,
-					SecretAccessKey: j.location.S3Config.SecretKey,
-				},
-			},
-		}
-	default:
-		return errors.New("unknown location config")
-	}
-
 	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
@@ -170,31 +148,6 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	case <-time.After(waitForLogs):
 	}
 	return nil
-}
-
-func createDBURL(dbConfig DBConnConfig) *url.URL {
-	var host string
-	switch {
-	case dbConfig.Address != "":
-		if dbConfig.Port > 0 {
-			host = net.JoinHostPort(dbConfig.Address, strconv.Itoa(dbConfig.Port))
-		} else {
-			host = dbConfig.Address
-		}
-	case dbConfig.Socket != "":
-		host = dbConfig.Socket
-	}
-
-	var user *url.Userinfo
-	if dbConfig.User != "" {
-		user = url.UserPassword(dbConfig.User, dbConfig.Password)
-	}
-
-	return &url.URL{
-		Scheme: "mongodb",
-		User:   user,
-		Host:   host,
-	}
 }
 
 func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) {
