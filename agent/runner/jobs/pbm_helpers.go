@@ -128,15 +128,6 @@ type pbmList struct {
 	} `json:"pitr"`
 }
 
-type pbmListRestore struct {
-	Start    int    `json:"start"`
-	Status   string `json:"status"`
-	Type     string `json:"type"`
-	Snapshot string `json:"snapshot"`
-	Name     string `json:"name"`
-	Error    string `json:"error"`
-}
-
 type pbmStatus struct {
 	Backups struct {
 		Type       string        `json:"type"`
@@ -309,7 +300,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 			}
 
 			if checks > maxRestoreChecks {
-				return errors.Errorf("max restore checks attempt exceeded for restore: %")
+				return errors.Errorf("max restore checks attempt exceeded for restore: %s", name)
 			}
 		case <-ctx.Done():
 			return ctx.Err()
