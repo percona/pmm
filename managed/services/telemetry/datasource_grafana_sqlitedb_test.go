@@ -31,8 +31,10 @@ func TestDatasource(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*100)
+	t.Cleanup(func() {
+		cancel()
+	})
 
 	config := &Config{
 		ID:      "test",
