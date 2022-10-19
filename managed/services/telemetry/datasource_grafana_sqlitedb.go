@@ -22,7 +22,8 @@ import (
 	"io"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3" //nolint:golint
+	// Driver for for grafana sqlite database.
+	_ "github.com/mattn/go-sqlite3"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -55,7 +56,7 @@ func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) Dat
 	}
 }
 
-func (d *dsGrafanaSelect) PreFetch(ctx context.Context, config Config) error {
+func (d *dsGrafanaSelect) PreFetch(ctx context.Context) error {
 	// validate source file db
 	sourceFileStat, err := os.Stat(d.config.DBFile)
 	if err != nil {
@@ -108,7 +109,7 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]
 	return fetchMetricsFromDB(ctx, d.log, d.config.Timeout, d.db, config)
 }
 
-func (d *dsGrafanaSelect) PostFetch(ctx context.Context, config Config) error {
+func (d *dsGrafanaSelect) PostFetch(ctx context.Context) error {
 	err := d.db.Close()
 	if err != nil {
 		return err

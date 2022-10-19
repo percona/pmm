@@ -98,10 +98,10 @@ func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([][]*p
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsPmmDBSelect) PreFetch(ctx context.Context, config Config) error {
+func (d *dsPmmDBSelect) PreFetch(ctx context.Context) error {
 	return nil
 }
 
-func (d *dsPmmDBSelect) PostFetch(ctx context.Context, config Config) error {
+func (d *dsPmmDBSelect) PostFetch(ctx context.Context) error {
 	return nil
 }

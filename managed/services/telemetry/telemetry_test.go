@@ -182,9 +182,9 @@ func getServiceConfig() ServiceConfig {
 		},
 		DataSources: struct {
 			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`     //nolint:tagliatelle
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`     //nolint:tagliatelle
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"` //nolint:tagliatelle
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,

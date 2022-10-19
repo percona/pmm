@@ -213,7 +213,11 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	var totalTime time.Duration
 
 	for _, dataSource := range dataSources {
-		dataSource.Enabled()
+		err := dataSource.PreFetch(ctx)
+		if err != nil {
+			s.l.Debug("PreFetch failed", err)
+			continue
+		}
 	}
 
 	for _, telemetry := range s.config.telemetry {
@@ -240,7 +244,11 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	}
 
 	for _, dataSource := range dataSources {
-		dataSource.Enabled()
+		err := dataSource.PostFetch(ctx)
+		if err != nil {
+			s.l.Debug("PostFetch failed", err)
+			continue
+		}
 	}
 
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)

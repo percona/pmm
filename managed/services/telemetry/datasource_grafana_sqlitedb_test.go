@@ -47,8 +47,8 @@ func TestDatasource(t *testing.T) {
 		},
 	}
 
-	t.Parallel()
 	t.Run("get metrics from db", func(t *testing.T) {
+		t.Parallel()
 		databaseFile, err := filepath.Abs("../../testdata/telemetry/grafana_sqlite.db")
 		assert.NoError(t, err)
 
@@ -59,14 +59,14 @@ func TestDatasource(t *testing.T) {
 		}
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
-		err = grafanaDB.PreFetch(ctx, *config)
+		err = grafanaDB.PreFetch(ctx)
 		assert.NoError(t, err)
 
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
 		assert.NoError(t, err)
 		assert.Equal(t, len(metrics), 1)
 
-		err = grafanaDB.PostFetch(ctx, *config)
+		err = grafanaDB.PostFetch(ctx)
 		assert.NoError(t, err)
 
 		serviceMetric := metrics[0][0]
@@ -75,6 +75,7 @@ func TestDatasource(t *testing.T) {
 	})
 
 	t.Run("file not found", func(t *testing.T) {
+		t.Parallel()
 		conf := &DSGrafanaSqliteDB{
 			Enabled: true,
 			Timeout: time.Second * 10,
@@ -83,7 +84,7 @@ func TestDatasource(t *testing.T) {
 
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
-		err := grafanaDB.PreFetch(ctx, *config)
+		err := grafanaDB.PreFetch(ctx)
 		assert.Error(t, err, "no such file or directory")
 
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)

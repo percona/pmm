@@ -101,10 +101,10 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	return [][]*pmmv1.ServerMetric_Metric{metrics}, nil
 }
 
-func (d *dataSourceVictoriaMetrics) PreFetch(ctx context.Context, config Config) error {
+func (d *dataSourceVictoriaMetrics) PreFetch(ctx context.Context) error {
 	return nil
 }
 
-func (d *dataSourceVictoriaMetrics) PostFetch(ctx context.Context, config Config) error {
+func (d *dataSourceVictoriaMetrics) PostFetch(ctx context.Context) error {
 	return nil
 }
