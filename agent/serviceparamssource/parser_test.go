@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package credentialssource
+package serviceparamssource
 
 import (
 	"path/filepath"
@@ -27,33 +27,33 @@ import (
 
 func TestDefaultsFileParser(t *testing.T) {
 	t.Parallel()
-	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/.my.cnf")
+	cnfFilePath, err := filepath.Abs("../utils/tests/testdata/serviceparamssource/.my.cnf")
 	assert.NoError(t, err)
-	jsonFilePath, err := filepath.Abs("../utils/tests/testdata/credentialssource/credentials.json")
+	jsonFilePath, err := filepath.Abs("../utils/tests/testdata/serviceparamssource/parameters.json")
 	assert.NoError(t, err)
 
 	testCases := []struct {
 		name        string
-		req         *agentpb.ParseCredentialsSourceRequest
+		req         *agentpb.ParseServiceParamsSourceRequest
 		expectedErr string
 	}{
 		{
 			name: "Test json parser",
-			req: &agentpb.ParseCredentialsSourceRequest{
+			req: &agentpb.ParseServiceParamsSourceRequest{
 				ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
 				FilePath:    jsonFilePath,
 			},
 		},
 		{
 			name: "Valid MySQL file",
-			req: &agentpb.ParseCredentialsSourceRequest{
+			req: &agentpb.ParseServiceParamsSourceRequest{
 				ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
 				FilePath:    cnfFilePath,
 			},
 		},
 		{
 			name: "File not found",
-			req: &agentpb.ParseCredentialsSourceRequest{
+			req: &agentpb.ParseServiceParamsSourceRequest{
 				ServiceType: inventorypb.ServiceType_MYSQL_SERVICE,
 				FilePath:    "path/to/invalid/file.cnf",
 			},
@@ -61,7 +61,7 @@ func TestDefaultsFileParser(t *testing.T) {
 		},
 		{
 			name: "Unrecognized file type (haproxy not implemented yet)",
-			req: &agentpb.ParseCredentialsSourceRequest{
+			req: &agentpb.ParseServiceParamsSourceRequest{
 				ServiceType: inventorypb.ServiceType_HAPROXY_SERVICE,
 				FilePath:    cnfFilePath,
 			},
@@ -74,7 +74,7 @@ func TestDefaultsFileParser(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 			c := New()
-			resp := c.ParseCredentialsSource(testCase.req)
+			resp := c.ParseServiceParamsSource(testCase.req)
 			require.NotNil(t, resp)
 			if testCase.expectedErr == "" {
 				assert.Empty(t, resp.Error)
@@ -90,7 +90,7 @@ func TestValidateResults(t *testing.T) {
 	t.Parallel()
 	t.Run("validation error", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&credentialsSource{
+		err := validateResults(&serviceParamsSource{
 			"",
 			"",
 			"",
@@ -104,7 +104,7 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - user and password", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&credentialsSource{
+		err := validateResults(&serviceParamsSource{
 			"root",
 			"root123",
 			"",
@@ -118,7 +118,7 @@ func TestValidateResults(t *testing.T) {
 
 	t.Run("validation ok - only port", func(t *testing.T) {
 		t.Parallel()
-		err := validateResults(&credentialsSource{
+		err := validateResults(&serviceParamsSource{
 			"",
 			"",
 			"",

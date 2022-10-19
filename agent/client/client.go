@@ -56,11 +56,11 @@ const (
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                     *config.Config
-	supervisor              supervisor
-	connectionChecker       connectionChecker
-	softwareVersioner       softwareVersioner
-	credentialsSourceParser credentialsSourceParser
+	cfg                       *config.Config
+	supervisor                supervisor
+	connectionChecker         connectionChecker
+	softwareVersioner         softwareVersioner
+	serviceParamsSourceParser serviceParamsSourceParser
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -82,20 +82,20 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, csp credentialsSourceParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
+func New(cfg *config.Config, supervisor supervisor, connectionChecker connectionChecker, sv softwareVersioner, spsp serviceParamsSourceParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
 	return &Client{
-		cfg:                     cfg,
-		supervisor:              supervisor,
-		connectionChecker:       connectionChecker,
-		softwareVersioner:       sv,
-		l:                       logrus.WithField("component", "client"),
-		backoff:                 backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:                    make(chan struct{}),
-		dialTimeout:             dialTimeout,
-		runner:                  runner.New(cfg.RunnerCapacity),
-		credentialsSourceParser: csp,
-		cus:                     cus,
-		logStore:                logStore,
+		cfg:                       cfg,
+		supervisor:                supervisor,
+		connectionChecker:         connectionChecker,
+		softwareVersioner:         sv,
+		l:                         logrus.WithField("component", "client"),
+		backoff:                   backoff.New(backoffMinDelay, backoffMaxDelay),
+		done:                      make(chan struct{}),
+		dialTimeout:               dialTimeout,
+		runner:                    runner.New(cfg.RunnerCapacity),
+		serviceParamsSourceParser: spsp,
+		cus:                       cus,
+		logStore:                  logStore,
 	}
 }
 
@@ -339,8 +339,8 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				resp.Error = err.Error()
 			}
 			responsePayload = &resp
-		case *agentpb.ParseCredentialsSourceRequest:
-			responsePayload = c.credentialsSourceParser.ParseCredentialsSource(p)
+		case *agentpb.ParseServiceParamsSourceRequest:
+			responsePayload = c.serviceParamsSourceParser.ParseServiceParamsSource(p)
 		case *agentpb.AgentLogsRequest:
 			logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 			responsePayload = &agentpb.AgentLogsResponse{

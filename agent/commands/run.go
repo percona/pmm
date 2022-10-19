@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/connectionuptime"
-	"github.com/percona/pmm/agent/credentialssource"
+	parser "github.com/percona/pmm/agent/serviceparamssource"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
@@ -112,9 +112,9 @@ func run(ctx context.Context, cfg *config.Config, configFilepath string, cs *con
 
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, cfg.LogLinesCount)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
-	credentialsSourceParser := credentialssource.New()
+	serviceParamsSourceParser := parser.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
-	client := client.New(cfg, supervisor, connectionChecker, v, credentialsSourceParser, cs, logStore)
+	client := client.New(cfg, supervisor, connectionChecker, v, serviceParamsSourceParser, cs, logStore)
 	localServer := agentlocal.NewServer(cfg, supervisor, client, configFilepath, logStore)
 
 	go func() {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package credentialssource provides managing of defaults file.
-package credentialssource
+// Package serviceparamssource provides managing of service parameters source file.
+package serviceparamssource
 
 import (
 	"encoding/json"
@@ -29,7 +29,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-// Parser is a struct which is responsible for parsing credentialsJSON source/defaults file.
+// Parser is a struct which is responsible for parsing service parameters file json source/mysql defaults file.
 type Parser struct{}
 
 // New creates new Parser.
@@ -37,7 +37,7 @@ func New() *Parser {
 	return &Parser{}
 }
 
-type credentialsSource struct {
+type serviceParamsSource struct {
 	username      string
 	password      string
 	host          string
@@ -46,19 +46,19 @@ type credentialsSource struct {
 	socket        string
 }
 
-// credentialsJSON provides access to an external provider so that
+// serviceParamsSourceJSON provides access to an external provider so that
 // the username, password, or agent password can be managed
 // externally, e.g. HashiCorp Vault, Ansible Vault, etc.
-type credentialsJSON struct {
+type serviceParamsSourceJSON struct {
 	AgentPassword string `json:"agentpassword"`
 	Password      string `json:"password"`
 	Username      string `json:"username"`
 }
 
-// ParseCredentialsSource parses given file in request. It returns the database specs.
-func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceRequest) *agentpb.ParseCredentialsSourceResponse {
-	var res agentpb.ParseCredentialsSourceResponse
-	parsedData, err := parseCredentialsSourceFile(req.FilePath, req.ServiceType)
+// ParseServiceParamsSource parses given file in request. It returns the database specs.
+func (d *Parser) ParseServiceParamsSource(req *agentpb.ParseServiceParamsSourceRequest) *agentpb.ParseServiceParamsSourceResponse {
+	var res agentpb.ParseServiceParamsSourceResponse
+	parsedData, err := parseServiceParamsSourceFile(req.FilePath, req.ServiceType)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
@@ -80,9 +80,9 @@ func (d *Parser) ParseCredentialsSource(req *agentpb.ParseCredentialsSourceReque
 	return &res
 }
 
-func parseCredentialsSourceFile(filePath string, serviceType inventorypb.ServiceType) (*credentialsSource, error) {
+func parseServiceParamsSourceFile(filePath string, serviceType inventorypb.ServiceType) (*serviceParamsSource, error) {
 	if filePath == "" {
-		return nil, errors.New("configPath for parseCredentialsSourceFile is empty")
+		return nil, errors.New("configPath for parseServiceParamsSourceFile is empty")
 	}
 
 	filePath, err := expandPath(filePath)
@@ -95,9 +95,9 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 		return nil, errors.Errorf("file doesn't exist: %s", filePath)
 	}
 
-	credentialsJSONFile, err := parseJSONFile(filePath)
+	parametersJSONFile, err := parseJSONFile(filePath)
 	if err == nil {
-		return credentialsJSONFile, nil
+		return parametersJSONFile, nil
 	}
 
 	if serviceType == inventorypb.ServiceType_MYSQL_SERVICE {
@@ -107,28 +107,28 @@ func parseCredentialsSourceFile(filePath string, serviceType inventorypb.Service
 	return nil, errors.Wrapf(err, "unrecognized file type %s", filePath)
 }
 
-func parseJSONFile(filePath string) (*credentialsSource, error) {
+func parseJSONFile(filePath string) (*serviceParamsSource, error) {
 	// Read the file
 	content, err := readFile(filePath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot read file %s", filePath)
 	}
 
-	var creds credentialsJSON
-	if err := json.Unmarshal([]byte(content), &creds); err != nil {
+	var parameters serviceParamsSourceJSON
+	if err := json.Unmarshal([]byte(content), &parameters); err != nil {
 		return nil, errors.Wrapf(err, "cannot umarshal file %s", filePath)
 	}
 
-	parsedData := &credentialsSource{
-		username:      creds.Username,
-		password:      creds.Password,
-		agentPassword: creds.AgentPassword,
+	parsedData := &serviceParamsSource{
+		username:      parameters.Username,
+		password:      parameters.Password,
+		agentPassword: parameters.AgentPassword,
 	}
 
 	return parsedData, nil
 }
 
-func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
+func parseMySQLDefaultsFile(configPath string) (*serviceParamsSource, error) {
 	cfg, err := ini.Load(configPath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "fail to read config file: %s", configPath)
@@ -137,7 +137,7 @@ func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 	cfgSection := cfg.Section("client")
 	port, _ := cfgSection.Key("port").Uint()
 
-	parsedData := &credentialsSource{
+	parsedData := &serviceParamsSource{
 		username: cfgSection.Key("user").String(),
 		password: cfgSection.Key("password").String(),
 		host:     cfgSection.Key("host").String(),
@@ -148,7 +148,7 @@ func parseMySQLDefaultsFile(configPath string) (*credentialsSource, error) {
 	return parsedData, nil
 }
 
-func validateResults(data *credentialsSource) error {
+func validateResults(data *serviceParamsSource) error {
 	if data.username == "" && data.password == "" && data.host == "" && data.port == 0 && data.socket == "" && data.agentPassword == "" {
 		return errors.New("no data found in file")
 	}
