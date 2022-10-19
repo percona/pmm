@@ -196,6 +196,7 @@ type gRPCServerDeps struct {
 	supervisord          *supervisord.Service
 	config               *config.Config
 	componentsService    *managementdbaas.ComponentsService
+	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
 }
 
@@ -262,7 +263,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
+	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -807,6 +810,8 @@ func main() {
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 
+	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -821,7 +826,7 @@ func main() {
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
 		RulesService:         rulesService,
-		DbaasClient:          dbaasClient,
+		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
 	}
 
@@ -897,26 +902,6 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	if settings.DBaaS.Enabled {
-		err = supervisord.RestartSupervisedService("dbaas-controller")
-		if err != nil {
-			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
-		} else {
-			l.Debug("DBaaS is enabled - creating a DBaaS client.")
-			ctx, cancel := context.WithTimeout(ctx, time.Second*20)
-			err := dbaasClient.Connect(ctx)
-			cancel()
-			if err != nil {
-				l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
-			}
-			defer func() {
-				err := dbaasClient.Disconnect()
-				if err != nil {
-					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
-				}
-			}()
-		}
-	}
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
 	l.Info("Starting services...")
@@ -1010,6 +995,7 @@ func main() {
 				config:               &cfg.Config,
 				defaultsFileParser:   defaultsFileParser,
 				componentsService:    componentsService,
+				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
 			})
 	}()
@@ -1034,6 +1020,24 @@ func main() {
 		defer wg.Done()
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 	}()
+	if settings.DBaaS.Enabled {
+		err = supervisord.RestartSupervisedService("dbaas-controller")
+		if err != nil {
+			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
+		} else {
+			l.Debug("DBaaS is enabled - creating a DBaaS client.")
+			err := dbaasInitializer.Enable(ctx)
+			if err != nil {
+				l.Fatalf("Failed initializing dbaas-controller %s: %v", *dbaasControllerAPIAddrF, err)
+			}
+			defer func() {
+				err := dbaasInitializer.Disable(context.Background())
+				if err != nil {
+					l.Fatalf("Failed disabling dbaas-controller API: %v", err)
+				}
+			}()
+		}
+	}
 
 	wg.Wait()
 }
