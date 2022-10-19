@@ -901,7 +901,26 @@ func main() {
 	if err != nil {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
-
+	if settings.DBaaS.Enabled {
+		err = supervisord.RestartSupervisedService("dbaas-controller")
+		if err != nil {
+			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
+		} else {
+			l.Debug("DBaaS is enabled - creating a DBaaS client.")
+			ctx, cancel := context.WithTimeout(ctx, time.Second*20)
+			err := dbaasClient.Connect(ctx)
+			cancel()
+			if err != nil {
+				l.Fatalf("Failed to connect to dbaas-controller API on %s: %v", *dbaasControllerAPIAddrF, err)
+			}
+			defer func() {
+				err := dbaasClient.Disconnect()
+				if err != nil {
+					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
+				}
+			}()
+		}
+	}
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
 	l.Info("Starting services...")
