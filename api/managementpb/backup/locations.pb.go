@@ -7,13 +7,12 @@
 package backupv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -1075,26 +1074,23 @@ func file_managementpb_backup_locations_proto_rawDescGZIP() []byte {
 	return file_managementpb_backup_locations_proto_rawDescData
 }
 
-var (
-	file_managementpb_backup_locations_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
-	file_managementpb_backup_locations_proto_goTypes  = []interface{}{
-		(*PMMServerLocationConfig)(nil),    // 0: backup.v1beta1.PMMServerLocationConfig
-		(*PMMClientLocationConfig)(nil),    // 1: backup.v1beta1.PMMClientLocationConfig
-		(*S3LocationConfig)(nil),           // 2: backup.v1beta1.S3LocationConfig
-		(*Location)(nil),                   // 3: backup.v1beta1.Location
-		(*ListLocationsRequest)(nil),       // 4: backup.v1beta1.ListLocationsRequest
-		(*ListLocationsResponse)(nil),      // 5: backup.v1beta1.ListLocationsResponse
-		(*AddLocationRequest)(nil),         // 6: backup.v1beta1.AddLocationRequest
-		(*AddLocationResponse)(nil),        // 7: backup.v1beta1.AddLocationResponse
-		(*ChangeLocationRequest)(nil),      // 8: backup.v1beta1.ChangeLocationRequest
-		(*ChangeLocationResponse)(nil),     // 9: backup.v1beta1.ChangeLocationResponse
-		(*RemoveLocationRequest)(nil),      // 10: backup.v1beta1.RemoveLocationRequest
-		(*RemoveLocationResponse)(nil),     // 11: backup.v1beta1.RemoveLocationResponse
-		(*TestLocationConfigRequest)(nil),  // 12: backup.v1beta1.TestLocationConfigRequest
-		(*TestLocationConfigResponse)(nil), // 13: backup.v1beta1.TestLocationConfigResponse
-	}
-)
-
+var file_managementpb_backup_locations_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_managementpb_backup_locations_proto_goTypes = []interface{}{
+	(*PMMServerLocationConfig)(nil),    // 0: backup.v1beta1.PMMServerLocationConfig
+	(*PMMClientLocationConfig)(nil),    // 1: backup.v1beta1.PMMClientLocationConfig
+	(*S3LocationConfig)(nil),           // 2: backup.v1beta1.S3LocationConfig
+	(*Location)(nil),                   // 3: backup.v1beta1.Location
+	(*ListLocationsRequest)(nil),       // 4: backup.v1beta1.ListLocationsRequest
+	(*ListLocationsResponse)(nil),      // 5: backup.v1beta1.ListLocationsResponse
+	(*AddLocationRequest)(nil),         // 6: backup.v1beta1.AddLocationRequest
+	(*AddLocationResponse)(nil),        // 7: backup.v1beta1.AddLocationResponse
+	(*ChangeLocationRequest)(nil),      // 8: backup.v1beta1.ChangeLocationRequest
+	(*ChangeLocationResponse)(nil),     // 9: backup.v1beta1.ChangeLocationResponse
+	(*RemoveLocationRequest)(nil),      // 10: backup.v1beta1.RemoveLocationRequest
+	(*RemoveLocationResponse)(nil),     // 11: backup.v1beta1.RemoveLocationResponse
+	(*TestLocationConfigRequest)(nil),  // 12: backup.v1beta1.TestLocationConfigRequest
+	(*TestLocationConfigResponse)(nil), // 13: backup.v1beta1.TestLocationConfigResponse
+}
 var file_managementpb_backup_locations_proto_depIdxs = []int32{
 	1,  // 0: backup.v1beta1.Location.pmm_client_config:type_name -> backup.v1beta1.PMMClientLocationConfig
 	0,  // 1: backup.v1beta1.Location.pmm_server_config:type_name -> backup.v1beta1.PMMServerLocationConfig

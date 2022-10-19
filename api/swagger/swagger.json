@@ -15307,9 +15307,9 @@
                   "type": "boolean",
                   "x-order": 17
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 18
                 }
               }
@@ -15645,9 +15645,9 @@
                   "type": "boolean",
                   "x-order": 15
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 16
                 }
               }
@@ -16064,9 +16064,9 @@
                   ],
                   "x-order": 29
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 30
                 }
               }
@@ -16638,9 +16638,9 @@
                   ],
                   "x-order": 29
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 30
                 }
               }
@@ -17669,9 +17669,9 @@
                   ],
                   "x-order": 28
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 29
                 }
               }
@@ -18282,9 +18282,9 @@
                   ],
                   "x-order": 20
                 },
-                "credentials_source": {
+                "service_params_source": {
                   "type": "string",
-                  "title": "Credentials provider",
+                  "title": "Service parameters",
                   "x-order": 21
                 }
               }

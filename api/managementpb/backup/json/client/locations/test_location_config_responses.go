@@ -60,12 +60,12 @@ type TestLocationConfigOK struct {
 func (o *TestLocationConfigOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] testLocationConfigOk  %+v", 200, o.Payload)
 }
-
 func (o *TestLocationConfigOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *TestLocationConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *TestLocationConfigDefault) Code() int {
 func (o *TestLocationConfigDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/TestConfig][%d] TestLocationConfig default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *TestLocationConfigDefault) GetPayload() *TestLocationConfigDefaultBody {
 	return o.Payload
 }
 
 func (o *TestLocationConfigDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TestLocationConfigDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ TestLocationConfigBody test location config body
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
+
 	// pmm client config
 	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
 
@@ -233,6 +234,7 @@ func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *TestLocationConfigBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -248,6 +250,7 @@ func (o *TestLocationConfigBody) contextValidatePMMClientConfig(ctx context.Cont
 }
 
 func (o *TestLocationConfigBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -263,6 +266,7 @@ func (o *TestLocationConfigBody) contextValidatePMMServerConfig(ctx context.Cont
 }
 
 func (o *TestLocationConfigBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -300,6 +304,7 @@ TestLocationConfigDefaultBody test location config default body
 swagger:model TestLocationConfigDefaultBody
 */
 type TestLocationConfigDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -365,7 +370,9 @@ func (o *TestLocationConfigDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -376,6 +383,7 @@ func (o *TestLocationConfigDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -404,6 +412,7 @@ TestLocationConfigDefaultBodyDetailsItems0 test location config default body det
 swagger:model TestLocationConfigDefaultBodyDetailsItems0
 */
 type TestLocationConfigDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -441,6 +450,7 @@ TestLocationConfigParamsBodyPMMClientConfig PMMClientLocationConfig represents f
 swagger:model TestLocationConfigParamsBodyPMMClientConfig
 */
 type TestLocationConfigParamsBodyPMMClientConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -478,6 +488,7 @@ TestLocationConfigParamsBodyPMMServerConfig PMMServerLocationConfig represents f
 swagger:model TestLocationConfigParamsBodyPMMServerConfig
 */
 type TestLocationConfigParamsBodyPMMServerConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -515,6 +526,7 @@ TestLocationConfigParamsBodyS3Config S3LocationConfig represents S3 bucket confi
 swagger:model TestLocationConfigParamsBodyS3Config
 */
 type TestLocationConfigParamsBodyS3Config struct {
+
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

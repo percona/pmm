@@ -1528,11 +1528,6 @@
                   "type": "string",
                   "x-order": 12
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 18
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -1607,6 +1602,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 4
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 18
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -1876,11 +1876,6 @@
                   "type": "string",
                   "x-order": 11
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 16
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -1945,6 +1940,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 4
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 16
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -2230,11 +2230,6 @@
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
                   "x-order": 27
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 30
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -2326,6 +2321,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 30
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -2789,11 +2789,6 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 30
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -2902,6 +2897,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 30
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -3827,11 +3827,6 @@
                   "type": "string",
                   "x-order": 10
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 29
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -3939,6 +3934,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 29
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -4481,11 +4481,6 @@
                   "type": "string",
                   "x-order": 9
                 },
-                "credentials_source": {
-                  "type": "string",
-                  "title": "Credentials provider",
-                  "x-order": 21
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
                   "type": "object",
@@ -4567,6 +4562,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string",
                   "x-order": 3
+                },
+                "service_params_source": {
+                  "type": "string",
+                  "title": "Service parameters",
+                  "x-order": 21
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",

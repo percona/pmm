@@ -60,6 +60,7 @@ GetActionParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetActionParams struct {
+
 	// Body.
 	Body GetActionBody
 
@@ -129,6 +130,7 @@ func (o *GetActionParams) SetBody(body GetActionBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetActionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

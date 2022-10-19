@@ -60,12 +60,12 @@ type AddLocationOK struct {
 func (o *AddLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] addLocationOk  %+v", 200, o.Payload)
 }
-
 func (o *AddLocationOK) GetPayload() *AddLocationOKBody {
 	return o.Payload
 }
 
 func (o *AddLocationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddLocationOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *AddLocationDefault) Code() int {
 func (o *AddLocationDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] AddLocation default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddLocationDefault) GetPayload() *AddLocationDefaultBody {
 	return o.Payload
 }
 
 func (o *AddLocationDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddLocationDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ AddLocationBody add location body
 swagger:model AddLocationBody
 */
 type AddLocationBody struct {
+
 	// Location name
 	Name string `json:"name,omitempty"`
 
@@ -241,6 +242,7 @@ func (o *AddLocationBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *AddLocationBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -256,6 +258,7 @@ func (o *AddLocationBody) contextValidatePMMClientConfig(ctx context.Context, fo
 }
 
 func (o *AddLocationBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -271,6 +274,7 @@ func (o *AddLocationBody) contextValidatePMMServerConfig(ctx context.Context, fo
 }
 
 func (o *AddLocationBody) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -308,6 +312,7 @@ AddLocationDefaultBody add location default body
 swagger:model AddLocationDefaultBody
 */
 type AddLocationDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -373,7 +378,9 @@ func (o *AddLocationDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -384,6 +391,7 @@ func (o *AddLocationDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -412,6 +420,7 @@ AddLocationDefaultBodyDetailsItems0 add location default body details items0
 swagger:model AddLocationDefaultBodyDetailsItems0
 */
 type AddLocationDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -449,6 +458,7 @@ AddLocationOKBody add location OK body
 swagger:model AddLocationOKBody
 */
 type AddLocationOKBody struct {
+
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 }
@@ -486,6 +496,7 @@ AddLocationParamsBodyPMMClientConfig PMMClientLocationConfig represents file sys
 swagger:model AddLocationParamsBodyPMMClientConfig
 */
 type AddLocationParamsBodyPMMClientConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -523,6 +534,7 @@ AddLocationParamsBodyPMMServerConfig PMMServerLocationConfig represents file sys
 swagger:model AddLocationParamsBodyPMMServerConfig
 */
 type AddLocationParamsBodyPMMServerConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -560,6 +572,7 @@ AddLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuratio
 swagger:model AddLocationParamsBodyS3Config
 */
 type AddLocationParamsBodyS3Config struct {
+
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

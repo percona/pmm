@@ -6,20 +6,17 @@ package qanv1beta1
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *MetricsRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
@@ -41,7 +38,6 @@ func (this *MetricsRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *MetricsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
@@ -55,15 +51,12 @@ func (this *MetricsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *MetricValues) Validate() error {
 	return nil
 }
-
 func (this *Labels) Validate() error {
 	return nil
 }
-
 func (this *QueryExampleRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
@@ -84,7 +77,6 @@ func (this *QueryExampleRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *QueryExampleReply) Validate() error {
 	for _, item := range this.QueryExamples {
 		if item != nil {
@@ -95,11 +87,9 @@ func (this *QueryExampleReply) Validate() error {
 	}
 	return nil
 }
-
 func (this *QueryExample) Validate() error {
 	return nil
 }
-
 func (this *ObjectDetailsLabelsRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
@@ -113,24 +103,19 @@ func (this *ObjectDetailsLabelsRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *ObjectDetailsLabelsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ListLabelValues) Validate() error {
 	return nil
 }
-
 func (this *QueryPlanRequest) Validate() error {
 	return nil
 }
-
 func (this *QueryPlanReply) Validate() error {
 	return nil
 }
-
 func (this *HistogramRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
@@ -151,7 +136,6 @@ func (this *HistogramRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *HistogramReply) Validate() error {
 	for _, item := range this.HistogramItems {
 		if item != nil {
@@ -162,11 +146,9 @@ func (this *HistogramReply) Validate() error {
 	}
 	return nil
 }
-
 func (this *HistogramItem) Validate() error {
 	return nil
 }
-
 func (this *QueryExistsRequest) Validate() error {
 	return nil
 }

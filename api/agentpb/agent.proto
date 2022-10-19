@@ -395,8 +395,8 @@ message PBMSwitchPITRResponse {
   // Error message.
   string error = 1;
 }
-// ParseCredentialsSourceRequest is an ServerMessage asking pmm-agent to parse credentials source file.
-message ParseCredentialsSourceRequest {
+// ParseServiceParamsSourceRequest is an ServerMessage asking pmm-agent to parse service parameters file.
+message ParseServiceParamsSourceRequest {
   // Service type.
   inventory.ServiceType service_type = 1;
 
@@ -404,8 +404,8 @@ message ParseCredentialsSourceRequest {
   string file_path = 2;
 }
 
-// ParseCredentialsSourceResponse is an AgentMessage containing a result of parsing credentials source file.
-message ParseCredentialsSourceResponse {
+// ParseServiceParamsSourceResponse is an AgentMessage containing a result of parsing service parameters file.
+message ParseServiceParamsSourceResponse {
 
   // Error message if parse failed.
   string error = 1;
@@ -700,7 +700,7 @@ message AgentMessage {
     JobProgress job_progress = 17;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
-    ParseCredentialsSourceResponse parse_credentials_source = 20;
+    ParseServiceParamsSourceResponse parse_service_params_source = 20;
     AgentLogsResponse agent_logs = 21;
   }
 }
@@ -732,7 +732,7 @@ message ServerMessage {
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
-    ParseCredentialsSourceRequest parse_credentials_source = 18;
+    ParseServiceParamsSourceRequest parse_service_params_source = 18;
     AgentLogsRequest agent_logs = 19;
   }
 }

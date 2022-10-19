@@ -60,12 +60,12 @@ type StartMySQLShowIndexActionOK struct {
 func (o *StartMySQLShowIndexActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] startMySqlShowIndexActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLShowIndexActionOK) GetPayload() *StartMySQLShowIndexActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowIndexActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMySQLShowIndexActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartMySQLShowIndexActionDefault) Code() int {
 func (o *StartMySQLShowIndexActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowIndex][%d] StartMySQLShowIndexAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLShowIndexActionDefault) GetPayload() *StartMySQLShowIndexActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowIndexActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMySQLShowIndexActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartMySQLShowIndexActionBody start my SQL show index action body
 swagger:model StartMySQLShowIndexActionBody
 */
 type StartMySQLShowIndexActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -169,6 +170,7 @@ StartMySQLShowIndexActionDefaultBody start my SQL show index action default body
 swagger:model StartMySQLShowIndexActionDefaultBody
 */
 type StartMySQLShowIndexActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -234,7 +236,9 @@ func (o *StartMySQLShowIndexActionDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *StartMySQLShowIndexActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -245,6 +249,7 @@ func (o *StartMySQLShowIndexActionDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -273,6 +278,7 @@ StartMySQLShowIndexActionDefaultBodyDetailsItems0 start my SQL show index action
 swagger:model StartMySQLShowIndexActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowIndexActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,6 +316,7 @@ StartMySQLShowIndexActionOKBody start my SQL show index action OK body
 swagger:model StartMySQLShowIndexActionOKBody
 */
 type StartMySQLShowIndexActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

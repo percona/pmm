@@ -60,12 +60,12 @@ type TestEmailAlertingSettingsOK struct {
 func (o *TestEmailAlertingSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] testEmailAlertingSettingsOk  %+v", 200, o.Payload)
 }
-
 func (o *TestEmailAlertingSettingsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *TestEmailAlertingSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *TestEmailAlertingSettingsDefault) Code() int {
 func (o *TestEmailAlertingSettingsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] TestEmailAlertingSettings default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *TestEmailAlertingSettingsDefault) GetPayload() *TestEmailAlertingSettingsDefaultBody {
 	return o.Payload
 }
 
 func (o *TestEmailAlertingSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TestEmailAlertingSettingsDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ TestEmailAlertingSettingsBody test email alerting settings body
 swagger:model TestEmailAlertingSettingsBody
 */
 type TestEmailAlertingSettingsBody struct {
+
 	// Target email address to send the email to.
 	EmailTo string `json:"email_to,omitempty"`
 
@@ -176,6 +177,7 @@ func (o *TestEmailAlertingSettingsBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *TestEmailAlertingSettingsBody) contextValidateEmailAlertingSettings(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.EmailAlertingSettings != nil {
 		if err := o.EmailAlertingSettings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -213,6 +215,7 @@ TestEmailAlertingSettingsDefaultBody test email alerting settings default body
 swagger:model TestEmailAlertingSettingsDefaultBody
 */
 type TestEmailAlertingSettingsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -278,7 +281,9 @@ func (o *TestEmailAlertingSettingsDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *TestEmailAlertingSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -289,6 +294,7 @@ func (o *TestEmailAlertingSettingsDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -398,6 +404,7 @@ TestEmailAlertingSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary se
 swagger:model TestEmailAlertingSettingsDefaultBodyDetailsItems0
 */
 type TestEmailAlertingSettingsDefaultBodyDetailsItems0 struct {
+
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -461,6 +468,7 @@ TestEmailAlertingSettingsParamsBodyEmailAlertingSettings EmailAlertingSettings r
 swagger:model TestEmailAlertingSettingsParamsBodyEmailAlertingSettings
 */
 type TestEmailAlertingSettingsParamsBodyEmailAlertingSettings struct {
+
 	// SMTP From header field.
 	From string `json:"from,omitempty"`
 

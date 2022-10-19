@@ -60,6 +60,7 @@ ChangeQANMySQLPerfSchemaAgentParams contains all the parameters to send to the A
 	Typically these are written to a http.Request.
 */
 type ChangeQANMySQLPerfSchemaAgentParams struct {
+
 	// Body.
 	Body ChangeQANMySQLPerfSchemaAgentBody
 
@@ -129,6 +130,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentParams) SetBody(body ChangeQANMySQLPerfSch
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeQANMySQLPerfSchemaAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

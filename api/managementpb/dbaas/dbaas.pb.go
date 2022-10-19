@@ -7,11 +7,10 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -390,18 +389,15 @@ func file_managementpb_dbaas_dbaas_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_dbaas_proto_rawDescData
 }
 
-var (
-	file_managementpb_dbaas_dbaas_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_managementpb_dbaas_dbaas_proto_msgTypes  = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_dbaas_dbaas_proto_goTypes   = []interface{}{
-		(DBClusterType)(0),       // 0: dbaas.v1beta1.DBClusterType
-		(OperatorsStatus)(0),     // 1: dbaas.v1beta1.OperatorsStatus
-		(*RunningOperation)(nil), // 2: dbaas.v1beta1.RunningOperation
-		(*ComputeResources)(nil), // 3: dbaas.v1beta1.ComputeResources
-		(*Resources)(nil),        // 4: dbaas.v1beta1.Resources
-	}
-)
-
+var file_managementpb_dbaas_dbaas_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_managementpb_dbaas_dbaas_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_managementpb_dbaas_dbaas_proto_goTypes = []interface{}{
+	(DBClusterType)(0),       // 0: dbaas.v1beta1.DBClusterType
+	(OperatorsStatus)(0),     // 1: dbaas.v1beta1.OperatorsStatus
+	(*RunningOperation)(nil), // 2: dbaas.v1beta1.RunningOperation
+	(*ComputeResources)(nil), // 3: dbaas.v1beta1.ComputeResources
+	(*Resources)(nil),        // 4: dbaas.v1beta1.Resources
+}
 var file_managementpb_dbaas_dbaas_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

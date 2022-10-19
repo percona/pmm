@@ -7,13 +7,12 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -982,27 +981,24 @@ func file_managementpb_dbaas_psmdb_clusters_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_psmdb_clusters_proto_rawDescData
 }
 
-var (
-	file_managementpb_dbaas_psmdb_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-	file_managementpb_dbaas_psmdb_clusters_proto_goTypes  = []interface{}{
-		(*PSMDBClusterParams)(nil),                                            // 0: dbaas.v1beta1.PSMDBClusterParams
-		(*GetPSMDBClusterCredentialsRequest)(nil),                             // 1: dbaas.v1beta1.GetPSMDBClusterCredentialsRequest
-		(*GetPSMDBClusterCredentialsResponse)(nil),                            // 2: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse
-		(*CreatePSMDBClusterRequest)(nil),                                     // 3: dbaas.v1beta1.CreatePSMDBClusterRequest
-		(*CreatePSMDBClusterResponse)(nil),                                    // 4: dbaas.v1beta1.CreatePSMDBClusterResponse
-		(*UpdatePSMDBClusterRequest)(nil),                                     // 5: dbaas.v1beta1.UpdatePSMDBClusterRequest
-		(*UpdatePSMDBClusterResponse)(nil),                                    // 6: dbaas.v1beta1.UpdatePSMDBClusterResponse
-		(*GetPSMDBClusterResourcesRequest)(nil),                               // 7: dbaas.v1beta1.GetPSMDBClusterResourcesRequest
-		(*GetPSMDBClusterResourcesResponse)(nil),                              // 8: dbaas.v1beta1.GetPSMDBClusterResourcesResponse
-		(*PSMDBClusterParams_ReplicaSet)(nil),                                 // 9: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
-		(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials)(nil),           // 10: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
-		(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams)(nil),            // 11: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
-		(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet)(nil), // 12: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
-		(*Resources)(nil),                                                     // 13: dbaas.v1beta1.Resources
-		(*ComputeResources)(nil),                                              // 14: dbaas.v1beta1.ComputeResources
-	}
-)
-
+var file_managementpb_dbaas_psmdb_clusters_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_managementpb_dbaas_psmdb_clusters_proto_goTypes = []interface{}{
+	(*PSMDBClusterParams)(nil),                                            // 0: dbaas.v1beta1.PSMDBClusterParams
+	(*GetPSMDBClusterCredentialsRequest)(nil),                             // 1: dbaas.v1beta1.GetPSMDBClusterCredentialsRequest
+	(*GetPSMDBClusterCredentialsResponse)(nil),                            // 2: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse
+	(*CreatePSMDBClusterRequest)(nil),                                     // 3: dbaas.v1beta1.CreatePSMDBClusterRequest
+	(*CreatePSMDBClusterResponse)(nil),                                    // 4: dbaas.v1beta1.CreatePSMDBClusterResponse
+	(*UpdatePSMDBClusterRequest)(nil),                                     // 5: dbaas.v1beta1.UpdatePSMDBClusterRequest
+	(*UpdatePSMDBClusterResponse)(nil),                                    // 6: dbaas.v1beta1.UpdatePSMDBClusterResponse
+	(*GetPSMDBClusterResourcesRequest)(nil),                               // 7: dbaas.v1beta1.GetPSMDBClusterResourcesRequest
+	(*GetPSMDBClusterResourcesResponse)(nil),                              // 8: dbaas.v1beta1.GetPSMDBClusterResourcesResponse
+	(*PSMDBClusterParams_ReplicaSet)(nil),                                 // 9: dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
+	(*GetPSMDBClusterCredentialsResponse_PSMDBCredentials)(nil),           // 10: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials
+	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams)(nil),            // 11: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams
+	(*UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet)(nil), // 12: dbaas.v1beta1.UpdatePSMDBClusterRequest.UpdatePSMDBClusterParams.ReplicaSet
+	(*Resources)(nil),                                                     // 13: dbaas.v1beta1.Resources
+	(*ComputeResources)(nil),                                              // 14: dbaas.v1beta1.ComputeResources
+}
 var file_managementpb_dbaas_psmdb_clusters_proto_depIdxs = []int32{
 	9,  // 0: dbaas.v1beta1.PSMDBClusterParams.replicaset:type_name -> dbaas.v1beta1.PSMDBClusterParams.ReplicaSet
 	10, // 1: dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.connection_credentials:type_name -> dbaas.v1beta1.GetPSMDBClusterCredentialsResponse.PSMDBCredentials

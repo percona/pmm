@@ -8,7 +8,6 @@ package qanv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -54,7 +53,8 @@ type FiltersServer interface {
 }
 
 // UnimplementedFiltersServer must be embedded to have forward compatible implementations.
-type UnimplementedFiltersServer struct{}
+type UnimplementedFiltersServer struct {
+}
 
 func (UnimplementedFiltersServer) Get(context.Context, *FiltersRequest) (*FiltersReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")

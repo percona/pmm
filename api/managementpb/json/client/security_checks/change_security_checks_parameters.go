@@ -60,6 +60,7 @@ ChangeSecurityChecksParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type ChangeSecurityChecksParams struct {
+
 	// Body.
 	Body ChangeSecurityChecksBody
 
@@ -129,6 +130,7 @@ func (o *ChangeSecurityChecksParams) SetBody(body ChangeSecurityChecksBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeSecurityChecksParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

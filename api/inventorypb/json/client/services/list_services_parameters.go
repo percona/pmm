@@ -60,6 +60,7 @@ ListServicesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListServicesParams struct {
+
 	// Body.
 	Body ListServicesBody
 
@@ -129,6 +130,7 @@ func (o *ListServicesParams) SetBody(body ListServicesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

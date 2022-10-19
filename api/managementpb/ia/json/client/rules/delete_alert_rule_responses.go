@@ -60,12 +60,12 @@ type DeleteAlertRuleOK struct {
 func (o *DeleteAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Delete][%d] deleteAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *DeleteAlertRuleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *DeleteAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *DeleteAlertRuleDefault) Code() int {
 func (o *DeleteAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Delete][%d] DeleteAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *DeleteAlertRuleDefault) GetPayload() *DeleteAlertRuleDefaultBody {
 	return o.Payload
 }
 
 func (o *DeleteAlertRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(DeleteAlertRuleDefaultBody)
 
 	// response payload
@@ -121,6 +121,7 @@ DeleteAlertRuleBody delete alert rule body
 swagger:model DeleteAlertRuleBody
 */
 type DeleteAlertRuleBody struct {
+
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 }
@@ -158,6 +159,7 @@ DeleteAlertRuleDefaultBody delete alert rule default body
 swagger:model DeleteAlertRuleDefaultBody
 */
 type DeleteAlertRuleDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -223,7 +225,9 @@ func (o *DeleteAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *DeleteAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -234,6 +238,7 @@ func (o *DeleteAlertRuleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -262,6 +267,7 @@ DeleteAlertRuleDefaultBodyDetailsItems0 delete alert rule default body details i
 swagger:model DeleteAlertRuleDefaultBodyDetailsItems0
 */
 type DeleteAlertRuleDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

@@ -62,12 +62,12 @@ type CreateAlertRuleOK struct {
 func (o *CreateAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] createAlertRuleOk  %+v", 200, o.Payload)
 }
-
 func (o *CreateAlertRuleOK) GetPayload() *CreateAlertRuleOKBody {
 	return o.Payload
 }
 
 func (o *CreateAlertRuleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CreateAlertRuleOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *CreateAlertRuleDefault) Code() int {
 func (o *CreateAlertRuleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Create][%d] CreateAlertRule default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *CreateAlertRuleDefault) GetPayload() *CreateAlertRuleDefaultBody {
 	return o.Payload
 }
 
 func (o *CreateAlertRuleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(CreateAlertRuleDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ CreateAlertRuleBody create alert rule body
 swagger:model CreateAlertRuleBody
 */
 type CreateAlertRuleBody struct {
+
 	// Template name. Can't be specified simultaneously with source_rule_id.
 	TemplateName string `json:"template_name,omitempty"`
 
@@ -313,7 +314,9 @@ func (o *CreateAlertRuleBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *CreateAlertRuleBody) contextValidateParams(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Params); i++ {
+
 		if o.Params[i] != nil {
 			if err := o.Params[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -324,13 +327,16 @@ func (o *CreateAlertRuleBody) contextValidateParams(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *CreateAlertRuleBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Filters); i++ {
+
 		if o.Filters[i] != nil {
 			if err := o.Filters[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -341,6 +347,7 @@ func (o *CreateAlertRuleBody) contextValidateFilters(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -369,6 +376,7 @@ CreateAlertRuleDefaultBody create alert rule default body
 swagger:model CreateAlertRuleDefaultBody
 */
 type CreateAlertRuleDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -434,7 +442,9 @@ func (o *CreateAlertRuleDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *CreateAlertRuleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -445,6 +455,7 @@ func (o *CreateAlertRuleDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -473,6 +484,7 @@ CreateAlertRuleDefaultBodyDetailsItems0 create alert rule default body details i
 swagger:model CreateAlertRuleDefaultBodyDetailsItems0
 */
 type CreateAlertRuleDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -510,6 +522,7 @@ CreateAlertRuleOKBody create alert rule OK body
 swagger:model CreateAlertRuleOKBody
 */
 type CreateAlertRuleOKBody struct {
+
 	// Rule ID.
 	RuleID string `json:"rule_id,omitempty"`
 }
@@ -547,6 +560,7 @@ CreateAlertRuleParamsBodyFiltersItems0 Filter repsents a single filter condition
 swagger:model CreateAlertRuleParamsBodyFiltersItems0
 */
 type CreateAlertRuleParamsBodyFiltersItems0 struct {
+
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
@@ -648,6 +662,7 @@ CreateAlertRuleParamsBodyParamsItems0 ParamValue represents a single rule parame
 swagger:model CreateAlertRuleParamsBodyParamsItems0
 */
 type CreateAlertRuleParamsBodyParamsItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

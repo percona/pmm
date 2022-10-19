@@ -43,16 +43,16 @@ func (res *addPostgreSQLResult) String() string {
 
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
 type AddPostgreSQLCommand struct {
-	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
-	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
-	Socket            string `help:"Path to socket"`
-	Username          string `help:"PostgreSQL username"`
-	Password          string `help:"PostgreSQL password"`
-	Database          string `help:"PostgreSQL database"`
-	AgentPassword     string `help:"Custom password for /metrics endpoint"`
-	CredentialsSource string `help:"Credentials provider"`
-	NodeID            string `help:"Node ID (default is autodetected)"`
-	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	ServiceName         string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
+	Address             string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Socket              string `help:"Path to socket"`
+	Username            string `help:"PostgreSQL username"`
+	Password            string `help:"PostgreSQL password"`
+	Database            string `help:"PostgreSQL database"`
+	AgentPassword       string `help:"Custom password for /metrics endpoint"`
+	ServiceParamsSource string `help:"Path to file with service parameters"`
+	NodeID              string `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
 	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
 	Environment          string            `help:"Environment name"`
@@ -86,10 +86,12 @@ func (cmd *AddPostgreSQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:5432"
 }
 
+// GetDefaultUsername Default username for postgres connections.
 func (cmd *AddPostgreSQLCommand) GetDefaultUsername() string {
 	return "postgres"
 }
 
+// GetSocket Default socket value for postgres connections.
 func (cmd *AddPostgreSQLCommand) GetSocket() string {
 	return cmd.Socket
 }
@@ -110,7 +112,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	if cmd.CredentialsSource == "" && cmd.Username == "" {
+	if cmd.ServiceParamsSource == "" && cmd.Username == "" {
 		cmd.Username = cmd.GetDefaultUsername()
 	}
 
@@ -162,7 +164,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			AgentPassword:       cmd.AgentPassword,
 			Socket:              socket,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			CredentialsSource:   cmd.CredentialsSource,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,

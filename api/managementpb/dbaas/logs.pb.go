@@ -7,13 +7,12 @@
 package dbaasv1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -259,15 +258,12 @@ func file_managementpb_dbaas_logs_proto_rawDescGZIP() []byte {
 	return file_managementpb_dbaas_logs_proto_rawDescData
 }
 
-var (
-	file_managementpb_dbaas_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_dbaas_logs_proto_goTypes  = []interface{}{
-		(*Logs)(nil),            // 0: dbaas.v1beta1.Logs
-		(*GetLogsRequest)(nil),  // 1: dbaas.v1beta1.GetLogsRequest
-		(*GetLogsResponse)(nil), // 2: dbaas.v1beta1.GetLogsResponse
-	}
-)
-
+var file_managementpb_dbaas_logs_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_managementpb_dbaas_logs_proto_goTypes = []interface{}{
+	(*Logs)(nil),            // 0: dbaas.v1beta1.Logs
+	(*GetLogsRequest)(nil),  // 1: dbaas.v1beta1.GetLogsRequest
+	(*GetLogsResponse)(nil), // 2: dbaas.v1beta1.GetLogsResponse
+}
 var file_managementpb_dbaas_logs_proto_depIdxs = []int32{
 	0, // 0: dbaas.v1beta1.GetLogsResponse.logs:type_name -> dbaas.v1beta1.Logs
 	1, // 1: dbaas.v1beta1.LogsAPI.GetLogs:input_type -> dbaas.v1beta1.GetLogsRequest

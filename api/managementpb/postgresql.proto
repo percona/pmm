@@ -90,8 +90,8 @@ message AddPostgreSQLRequest {
   string agent_password = 26;
   // Exporter log level
   inventory.LogLevel log_level = 28;
-  // Credentials provider
-  string credentials_source = 30;
+  // Service parameters
+  string service_params_source = 30;
 }
 
 message AddPostgreSQLResponse {

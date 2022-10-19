@@ -60,12 +60,12 @@ type ListLocationsOK struct {
 func (o *ListLocationsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] listLocationsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListLocationsOK) GetPayload() *ListLocationsOKBody {
 	return o.Payload
 }
 
 func (o *ListLocationsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListLocationsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListLocationsDefault) Code() int {
 func (o *ListLocationsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/List][%d] ListLocations default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListLocationsDefault) GetPayload() *ListLocationsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListLocationsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListLocationsDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ ListLocationsDefaultBody list locations default body
 swagger:model ListLocationsDefaultBody
 */
 type ListLocationsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -188,7 +189,9 @@ func (o *ListLocationsDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListLocationsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -199,6 +202,7 @@ func (o *ListLocationsDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -227,6 +231,7 @@ ListLocationsDefaultBodyDetailsItems0 list locations default body details items0
 swagger:model ListLocationsDefaultBodyDetailsItems0
 */
 type ListLocationsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -264,6 +269,7 @@ ListLocationsOKBody list locations OK body
 swagger:model ListLocationsOKBody
 */
 type ListLocationsOKBody struct {
+
 	// locations
 	Locations []*ListLocationsOKBodyLocationsItems0 `json:"locations"`
 }
@@ -323,7 +329,9 @@ func (o *ListLocationsOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *ListLocationsOKBody) contextValidateLocations(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Locations); i++ {
+
 		if o.Locations[i] != nil {
 			if err := o.Locations[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -334,6 +342,7 @@ func (o *ListLocationsOKBody) contextValidateLocations(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -362,6 +371,7 @@ ListLocationsOKBodyLocationsItems0 Location represents single Backup Location.
 swagger:model ListLocationsOKBodyLocationsItems0
 */
 type ListLocationsOKBodyLocationsItems0 struct {
+
 	// Machine-readable ID.
 	LocationID string `json:"location_id,omitempty"`
 
@@ -483,6 +493,7 @@ func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context
 }
 
 func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMClientConfig != nil {
 		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -498,6 +509,7 @@ func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMClientConfig(ctx 
 }
 
 func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMServerConfig != nil {
 		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -513,6 +525,7 @@ func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMServerConfig(ctx 
 }
 
 func (o *ListLocationsOKBodyLocationsItems0) contextValidateS3Config(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.S3Config != nil {
 		if err := o.S3Config.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -550,6 +563,7 @@ ListLocationsOKBodyLocationsItems0PMMClientConfig PMMClientLocationConfig repres
 swagger:model ListLocationsOKBodyLocationsItems0PMMClientConfig
 */
 type ListLocationsOKBodyLocationsItems0PMMClientConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -587,6 +601,7 @@ ListLocationsOKBodyLocationsItems0PMMServerConfig PMMServerLocationConfig repres
 swagger:model ListLocationsOKBodyLocationsItems0PMMServerConfig
 */
 type ListLocationsOKBodyLocationsItems0PMMServerConfig struct {
+
 	// path
 	Path string `json:"path,omitempty"`
 }
@@ -624,6 +639,7 @@ ListLocationsOKBodyLocationsItems0S3Config S3LocationConfig represents S3 bucket
 swagger:model ListLocationsOKBodyLocationsItems0S3Config
 */
 type ListLocationsOKBodyLocationsItems0S3Config struct {
+
 	// endpoint
 	Endpoint string `json:"endpoint,omitempty"`
 

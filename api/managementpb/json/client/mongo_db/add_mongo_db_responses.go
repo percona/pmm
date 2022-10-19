@@ -62,12 +62,12 @@ type AddMongoDBOK struct {
 func (o *AddMongoDBOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMongoDBOK) GetPayload() *AddMongoDBOKBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMongoDBOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddMongoDBDefault) Code() int {
 func (o *AddMongoDBDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMongoDBDefault) GetPayload() *AddMongoDBDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMongoDBDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddMongoDBBody add mongo DB body
 swagger:model AddMongoDBBody
 */
 type AddMongoDBBody struct {
+
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -223,8 +224,8 @@ type AddMongoDBBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Credentials provider
-	CredentialsSource string `json:"credentials_source,omitempty"`
+	// Service parameters
+	ServiceParamsSource string `json:"service_params_source,omitempty"`
 
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
@@ -385,6 +386,7 @@ func (o *AddMongoDBBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddMongoDBBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -422,6 +424,7 @@ AddMongoDBDefaultBody add mongo DB default body
 swagger:model AddMongoDBDefaultBody
 */
 type AddMongoDBDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -487,7 +490,9 @@ func (o *AddMongoDBDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddMongoDBDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -498,6 +503,7 @@ func (o *AddMongoDBDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -526,6 +532,7 @@ AddMongoDBDefaultBodyDetailsItems0 add mongo DB default body details items0
 swagger:model AddMongoDBDefaultBodyDetailsItems0
 */
 type AddMongoDBDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -563,6 +570,7 @@ AddMongoDBOKBody add mongo DB OK body
 swagger:model AddMongoDBOKBody
 */
 type AddMongoDBOKBody struct {
+
 	// mongodb exporter
 	MongodbExporter *AddMongoDBOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
@@ -675,6 +683,7 @@ func (o *AddMongoDBOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddMongoDBOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -690,6 +699,7 @@ func (o *AddMongoDBOKBody) contextValidateMongodbExporter(ctx context.Context, f
 }
 
 func (o *AddMongoDBOKBody) contextValidateQANMongodbProfiler(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -705,6 +715,7 @@ func (o *AddMongoDBOKBody) contextValidateQANMongodbProfiler(ctx context.Context
 }
 
 func (o *AddMongoDBOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -742,6 +753,7 @@ AddMongoDBOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Nod
 swagger:model AddMongoDBOKBodyMongodbExporter
 */
 type AddMongoDBOKBodyMongodbExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -961,6 +973,7 @@ AddMongoDBOKBodyQANMongodbProfiler QANMongoDBProfilerAgent runs within pmm-agent
 swagger:model AddMongoDBOKBodyQANMongodbProfiler
 */
 type AddMongoDBOKBodyQANMongodbProfiler struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1161,6 +1174,7 @@ AddMongoDBOKBodyService MongoDBService represents a generic MongoDB instance.
 swagger:model AddMongoDBOKBodyService
 */
 type AddMongoDBOKBodyService struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1228,6 +1242,7 @@ AddMongoDBParamsBodyAddNode AddNodeParams is a params to add new node to invento
 swagger:model AddMongoDBParamsBodyAddNode
 */
 type AddMongoDBParamsBodyAddNode struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`

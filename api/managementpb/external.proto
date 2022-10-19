@@ -71,8 +71,8 @@ message AddExternalRequest {
   MetricsMode metrics_mode = 17;
   // Skip connection check.
   bool skip_connection_check = 21;
-  // Credentials provider
-  string credentials_source = 22;
+  // Service parameters
+  string service_params_source = 22;
 }
 
 message AddExternalResponse {

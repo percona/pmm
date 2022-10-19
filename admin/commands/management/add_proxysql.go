@@ -51,7 +51,7 @@ type AddProxySQLCommand struct {
 	Username            string            `help:"ProxySQL username"`
 	Password            string            `help:"ProxySQL password"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
-	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
+	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Environment         string            `help:"Environment name"`
 	Cluster             string            `help:"Cluster name"`
 	ReplicationSet      string            `help:"Replication set name"`
@@ -82,10 +82,12 @@ func (cmd *AddProxySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// GetDefaultUsername Default username for proxy connections.
 func (cmd *AddProxySQLCommand) GetDefaultUsername() string {
 	return "admin"
 }
 
+// GetDefaultPassword Default password for proxy connections.
 func (cmd *AddProxySQLCommand) GetDefaultPassword() string {
 	return "admin"
 }
@@ -106,7 +108,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	if cmd.CredentialsSource == "" {
+	if cmd.ServiceParamsSource == "" {
 		if cmd.Username == "" {
 			cmd.Username = cmd.GetDefaultUsername()
 		}
@@ -123,19 +125,19 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 
 	params := &proxysql.AddProxySQLParams{
 		Body: proxysql.AddProxySQLBody{
-			NodeID:            cmd.NodeID,
-			ServiceName:       serviceName,
-			Address:           host,
-			Port:              int64(port),
-			Socket:            socket,
-			PMMAgentID:        cmd.PMMAgentID,
-			Environment:       cmd.Environment,
-			Cluster:           cmd.Cluster,
-			ReplicationSet:    cmd.ReplicationSet,
-			Username:          cmd.Username,
-			Password:          cmd.Password,
-			AgentPassword:     cmd.AgentPassword,
-			CredentialsSource: cmd.CredentialsSource,
+			NodeID:              cmd.NodeID,
+			ServiceName:         serviceName,
+			Address:             host,
+			Port:                int64(port),
+			Socket:              socket,
+			PMMAgentID:          cmd.PMMAgentID,
+			Environment:         cmd.Environment,
+			Cluster:             cmd.Cluster,
+			ReplicationSet:      cmd.ReplicationSet,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			AgentPassword:       cmd.AgentPassword,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,

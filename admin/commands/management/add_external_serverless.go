@@ -53,7 +53,7 @@ type AddExternalServerlessCommand struct {
 	Scheme              string            `placeholder:"https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	Username            string            `help:"External username"`
 	Password            string            `help:"External password"`
-	CredentialsSource   string            `help:"Credentials provider"`
+	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Address             string            `placeholder:"1.2.3.4:9000" help:"External exporter address and port"`
 	Host                string            `placeholder:"1.2.3.4" help:"External exporters hostname or IP address"`
 	ListenPort          uint16            `placeholder:"9999" help:"Listen port of external exporter for scraping metrics"`
@@ -133,7 +133,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModePULL),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			CredentialsSource:   cmd.CredentialsSource,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 		},
 		Context: commands.Ctx,
 	}

@@ -62,12 +62,12 @@ type ChangeQANMongoDBProfilerAgentOK struct {
 func (o *ChangeQANMongoDBProfilerAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] changeQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *ChangeQANMongoDBProfilerAgentOK) GetPayload() *ChangeQANMongoDBProfilerAgentOKBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeQANMongoDBProfilerAgentOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ChangeQANMongoDBProfilerAgentDefault) Code() int {
 func (o *ChangeQANMongoDBProfilerAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeQANMongoDBProfilerAgent][%d] ChangeQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ChangeQANMongoDBProfilerAgentDefault) GetPayload() *ChangeQANMongoDBProfilerAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeQANMongoDBProfilerAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ChangeQANMongoDBProfilerAgentDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ ChangeQANMongoDBProfilerAgentBody change QAN mongo DB profiler agent body
 swagger:model ChangeQANMongoDBProfilerAgentBody
 */
 type ChangeQANMongoDBProfilerAgentBody struct {
+
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -180,6 +181,7 @@ func (o *ChangeQANMongoDBProfilerAgentBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ChangeQANMongoDBProfilerAgentBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -217,6 +219,7 @@ ChangeQANMongoDBProfilerAgentDefaultBody change QAN mongo DB profiler agent defa
 swagger:model ChangeQANMongoDBProfilerAgentDefaultBody
 */
 type ChangeQANMongoDBProfilerAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -282,7 +285,9 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) ContextValidate(ctx context.C
 }
 
 func (o *ChangeQANMongoDBProfilerAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -293,6 +298,7 @@ func (o *ChangeQANMongoDBProfilerAgentDefaultBody) contextValidateDetails(ctx co
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -321,6 +327,7 @@ ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 change QAN mongo DB profil
 swagger:model ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMongoDBProfilerAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -358,6 +365,7 @@ ChangeQANMongoDBProfilerAgentOKBody change QAN mongo DB profiler agent OK body
 swagger:model ChangeQANMongoDBProfilerAgentOKBody
 */
 type ChangeQANMongoDBProfilerAgentOKBody struct {
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 }
@@ -410,6 +418,7 @@ func (o *ChangeQANMongoDBProfilerAgentOKBody) ContextValidate(ctx context.Contex
 }
 
 func (o *ChangeQANMongoDBProfilerAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbProfilerAgent != nil {
 		if err := o.QANMongodbProfilerAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -447,6 +456,7 @@ ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAge
 swagger:model ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
 */
 type ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -647,6 +657,7 @@ ChangeQANMongoDBProfilerAgentParamsBodyCommon ChangeCommonAgentParams contains p
 swagger:model ChangeQANMongoDBProfilerAgentParamsBodyCommon
 */
 type ChangeQANMongoDBProfilerAgentParamsBodyCommon struct {
+
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 

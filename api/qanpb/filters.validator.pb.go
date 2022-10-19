@@ -6,19 +6,16 @@ package qanv1beta1
 import (
 	fmt "fmt"
 	math "math"
-
 	proto "github.com/golang/protobuf/proto"
-	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 func (this *FiltersRequest) Validate() error {
 	if this.PeriodStartFrom != nil {
@@ -40,12 +37,10 @@ func (this *FiltersRequest) Validate() error {
 	}
 	return nil
 }
-
 func (this *FiltersReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-
 func (this *ListLabels) Validate() error {
 	for _, item := range this.Name {
 		if item != nil {
@@ -56,7 +51,6 @@ func (this *ListLabels) Validate() error {
 	}
 	return nil
 }
-
 func (this *Values) Validate() error {
 	return nil
 }

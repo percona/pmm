@@ -62,12 +62,12 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
-
 func (o *AddQANMySQLPerfSchemaAgentOK) GetPayload() *AddQANMySQLPerfSchemaAgentOKBody {
 	return o.Payload
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddQANMySQLPerfSchemaAgentOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
 func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddQANMySQLPerfSchemaAgentDefault) GetPayload() *AddQANMySQLPerfSchemaAgentDefaultBody {
 	return o.Payload
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddQANMySQLPerfSchemaAgentDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
 swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -265,6 +266,7 @@ AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default b
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
 */
 type AddQANMySQLPerfSchemaAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -330,7 +332,9 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) ContextValidate(ctx context.Cont
 }
 
 func (o *AddQANMySQLPerfSchemaAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -341,6 +345,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) contextValidateDetails(ctx conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -369,6 +374,7 @@ AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema ag
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -406,6 +412,7 @@ AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
 swagger:model AddQANMySQLPerfSchemaAgentOKBody
 */
 type AddQANMySQLPerfSchemaAgentOKBody struct {
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 }
@@ -458,6 +465,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -495,6 +503,7 @@ AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent 
 swagger:model AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 */
 type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

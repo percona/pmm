@@ -60,12 +60,12 @@ type GetLogsOK struct {
 func (o *GetLogsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/GetLogs][%d] getLogsOk  %+v", 200, o.Payload)
 }
-
 func (o *GetLogsOK) GetPayload() *GetLogsOKBody {
 	return o.Payload
 }
 
 func (o *GetLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetLogsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetLogsDefault) Code() int {
 func (o *GetLogsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/GetLogs][%d] GetLogs default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetLogsDefault) GetPayload() *GetLogsDefaultBody {
 	return o.Payload
 }
 
 func (o *GetLogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetLogsDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ GetLogsBody get logs body
 swagger:model GetLogsBody
 */
 type GetLogsBody struct {
+
 	// Kubernetes cluster name.
 	KubernetesClusterName string `json:"kubernetes_cluster_name,omitempty"`
 
@@ -163,6 +164,7 @@ GetLogsDefaultBody get logs default body
 swagger:model GetLogsDefaultBody
 */
 type GetLogsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *GetLogsDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetLogsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *GetLogsDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ GetLogsDefaultBodyDetailsItems0 get logs default body details items0
 swagger:model GetLogsDefaultBodyDetailsItems0
 */
 type GetLogsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ GetLogsOKBody get logs OK body
 swagger:model GetLogsOKBody
 */
 type GetLogsOKBody struct {
+
 	// Log represents list of logs. Each entry contains either container's logs or,
 	// when container field is empty, pod's events.
 	Logs []*GetLogsOKBodyLogsItems0 `json:"logs"`
@@ -364,7 +371,9 @@ func (o *GetLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Logs); i++ {
+
 		if o.Logs[i] != nil {
 			if err := o.Logs[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -375,6 +384,7 @@ func (o *GetLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -404,6 +414,7 @@ GetLogsOKBodyLogsItems0 Logs contain logs for certain pod's container. If contai
 swagger:model GetLogsOKBodyLogsItems0
 */
 type GetLogsOKBodyLogsItems0 struct {
+
 	// Pod name.
 	Pod string `json:"pod,omitempty"`
 

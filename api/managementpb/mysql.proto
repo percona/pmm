@@ -96,8 +96,8 @@ message AddMySQLRequest {
   string agent_password = 28;
   // Exporter log level
   inventory.LogLevel log_level = 29;
-  // Credentials provider
-  string credentials_source = 31;
+  // Service parameters
+  string service_params_source = 31;
 }
 
 message AddMySQLResponse {

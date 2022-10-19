@@ -60,6 +60,7 @@ GetKubernetesClusterParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type GetKubernetesClusterParams struct {
+
 	// Body.
 	Body GetKubernetesClusterBody
 
@@ -129,6 +130,7 @@ func (o *GetKubernetesClusterParams) SetBody(body GetKubernetesClusterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetKubernetesClusterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

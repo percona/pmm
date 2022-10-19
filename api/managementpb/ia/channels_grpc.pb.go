@@ -8,7 +8,6 @@ package iav1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -93,20 +92,18 @@ type ChannelsServer interface {
 }
 
 // UnimplementedChannelsServer must be embedded to have forward compatible implementations.
-type UnimplementedChannelsServer struct{}
+type UnimplementedChannelsServer struct {
+}
 
 func (UnimplementedChannelsServer) ListChannels(context.Context, *ListChannelsRequest) (*ListChannelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListChannels not implemented")
 }
-
 func (UnimplementedChannelsServer) AddChannel(context.Context, *AddChannelRequest) (*AddChannelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddChannel not implemented")
 }
-
 func (UnimplementedChannelsServer) ChangeChannel(context.Context, *ChangeChannelRequest) (*ChangeChannelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeChannel not implemented")
 }
-
 func (UnimplementedChannelsServer) RemoveChannel(context.Context, *RemoveChannelRequest) (*RemoveChannelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveChannel not implemented")
 }

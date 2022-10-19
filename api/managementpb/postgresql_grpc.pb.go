@@ -8,7 +8,6 @@ package managementpb
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -58,7 +57,8 @@ type PostgreSQLServer interface {
 }
 
 // UnimplementedPostgreSQLServer must be embedded to have forward compatible implementations.
-type UnimplementedPostgreSQLServer struct{}
+type UnimplementedPostgreSQLServer struct {
+}
 
 func (UnimplementedPostgreSQLServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")

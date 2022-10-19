@@ -50,15 +50,15 @@ func (res *addMongoDBResult) String() string {
 
 // AddMongoDBCommand is used by Kong for CLI flags and commands.
 type AddMongoDBCommand struct {
-	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
-	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
-	Socket            string `help:"Path to socket"`
-	NodeID            string `help:"Node ID (default is autodetected)"`
-	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username          string `help:"MongoDB username"`
-	Password          string `help:"MongoDB password"`
-	AgentPassword     string `help:"Custom password for /metrics endpoint"`
-	CredentialsSource string `help:"Credentials provider"`
+	ServiceName         string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
+	Address             string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
+	Socket              string `help:"Path to socket"`
+	NodeID              string `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username            string `help:"MongoDB username"`
+	Password            string `help:"MongoDB password"`
+	AgentPassword       string `help:"Custom password for /metrics endpoint"`
+	ServiceParamsSource string `help:"Path to file with service parameters"`
 	// TODO add "auto"
 	QuerySource                   string            `default:"${mongoDbQuerySourceDefault}" enum:"${mongoDbQuerySourcesEnum}" help:"Source of queries, one of: ${mongoDbQuerySourcesEnum} (default: ${mongoDbQuerySourceDefault})"`
 	Environment                   string            `help:"Environment name"`
@@ -131,19 +131,19 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
-			NodeID:            cmd.NodeID,
-			ServiceName:       serviceName,
-			Address:           host,
-			Port:              int64(port),
-			Socket:            socket,
-			PMMAgentID:        cmd.PMMAgentID,
-			Environment:       cmd.Environment,
-			Cluster:           cmd.Cluster,
-			ReplicationSet:    cmd.ReplicationSet,
-			Username:          cmd.Username,
-			Password:          cmd.Password,
-			AgentPassword:     cmd.AgentPassword,
-			CredentialsSource: cmd.CredentialsSource,
+			NodeID:              cmd.NodeID,
+			ServiceName:         serviceName,
+			Address:             host,
+			Port:                int64(port),
+			Socket:              socket,
+			PMMAgentID:          cmd.PMMAgentID,
+			Environment:         cmd.Environment,
+			Cluster:             cmd.Cluster,
+			ReplicationSet:      cmd.ReplicationSet,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			AgentPassword:       cmd.AgentPassword,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 
 			QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
 

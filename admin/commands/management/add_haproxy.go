@@ -48,7 +48,7 @@ type AddHAProxyCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
 	Username            string            `help:"HAProxy username"`
 	Password            string            `help:"HAProxy password"`
-	CredentialsSource   string            `help:"Credentials provider"`
+	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
 	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
@@ -98,7 +98,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 			CustomLabels:        customLabels,
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			CredentialsSource:   cmd.CredentialsSource,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 		},
 		Context: commands.Ctx,
 	}

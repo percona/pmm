@@ -8,7 +8,6 @@ package qanv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -54,7 +53,8 @@ type CollectorServer interface {
 }
 
 // UnimplementedCollectorServer must be embedded to have forward compatible implementations.
-type UnimplementedCollectorServer struct{}
+type UnimplementedCollectorServer struct {
+}
 
 func (UnimplementedCollectorServer) Collect(context.Context, *CollectRequest) (*CollectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")

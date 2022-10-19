@@ -131,8 +131,8 @@ func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Pay
 }
 
 // AgentMessageResponsePayload AgentMessage_ParseCredentialsSource payload
-func (m *ParseCredentialsSourceResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
-	return &AgentMessage_ParseCredentialsSource{ParseCredentialsSource: m}
+func (m *ParseServiceParamsSourceResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_ParseServiceParamsSource{ParseServiceParamsSource: m}
 }
 
 func (m *AgentLogsResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
@@ -200,8 +200,8 @@ func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Pay
 }
 
 // ServerMessageRequestPayload ParseCredentialsSource payload.
-func (m *ParseCredentialsSourceRequest) ServerMessageRequestPayload() isServerMessage_Payload {
-	return &ServerMessage_ParseCredentialsSource{ParseCredentialsSource: m}
+func (m *ParseServiceParamsSourceRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_ParseServiceParamsSource{ParseServiceParamsSource: m}
 }
 
 func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload {
@@ -209,38 +209,38 @@ func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload
 }
 
 // in alphabetical order
-func (*ActionResultRequest) sealed()            {}
-func (*ActionResultResponse) sealed()           {}
-func (*CheckConnectionRequest) sealed()         {}
-func (*CheckConnectionResponse) sealed()        {}
-func (*JobProgress) sealed()                    {}
-func (*JobResult) sealed()                      {}
-func (*JobStatusRequest) sealed()               {}
-func (*JobStatusResponse) sealed()              {}
-func (*ParseCredentialsSourceRequest) sealed()  {}
-func (*ParseCredentialsSourceResponse) sealed() {}
-func (*AgentLogsRequest) sealed()               {}
-func (*AgentLogsResponse) sealed()              {}
-func (*Ping) sealed()                           {}
-func (*Pong) sealed()                           {}
-func (*QANCollectRequest) sealed()              {}
-func (*QANCollectResponse) sealed()             {}
-func (*SetStateRequest) sealed()                {}
-func (*SetStateResponse) sealed()               {}
-func (*StartActionRequest) sealed()             {}
-func (*StartActionResponse) sealed()            {}
-func (*StartJobRequest) sealed()                {}
-func (*StartJobResponse) sealed()               {}
-func (*StateChangedRequest) sealed()            {}
-func (*StateChangedResponse) sealed()           {}
-func (*StopActionRequest) sealed()              {}
-func (*StopActionResponse) sealed()             {}
-func (*StopJobRequest) sealed()                 {}
-func (*StopJobResponse) sealed()                {}
-func (*GetVersionsRequest) sealed()             {}
-func (*GetVersionsResponse) sealed()            {}
-func (*PBMSwitchPITRRequest) sealed()           {}
-func (*PBMSwitchPITRResponse) sealed()          {}
+func (*ActionResultRequest) sealed()              {}
+func (*ActionResultResponse) sealed()             {}
+func (*CheckConnectionRequest) sealed()           {}
+func (*CheckConnectionResponse) sealed()          {}
+func (*JobProgress) sealed()                      {}
+func (*JobResult) sealed()                        {}
+func (*JobStatusRequest) sealed()                 {}
+func (*JobStatusResponse) sealed()                {}
+func (*ParseServiceParamsSourceRequest) sealed()  {}
+func (*ParseServiceParamsSourceResponse) sealed() {}
+func (*AgentLogsRequest) sealed()                 {}
+func (*AgentLogsResponse) sealed()                {}
+func (*Ping) sealed()                             {}
+func (*Pong) sealed()                             {}
+func (*QANCollectRequest) sealed()                {}
+func (*QANCollectResponse) sealed()               {}
+func (*SetStateRequest) sealed()                  {}
+func (*SetStateResponse) sealed()                 {}
+func (*StartActionRequest) sealed()               {}
+func (*StartActionResponse) sealed()              {}
+func (*StartJobRequest) sealed()                  {}
+func (*StartJobResponse) sealed()                 {}
+func (*StateChangedRequest) sealed()              {}
+func (*StateChangedResponse) sealed()             {}
+func (*StopActionRequest) sealed()                {}
+func (*StopActionResponse) sealed()               {}
+func (*StopJobRequest) sealed()                   {}
+func (*StopJobResponse) sealed()                  {}
+func (*GetVersionsRequest) sealed()               {}
+func (*GetVersionsResponse) sealed()              {}
+func (*PBMSwitchPITRRequest) sealed()             {}
+func (*PBMSwitchPITRResponse) sealed()            {}
 
 // check interfaces
 var (
@@ -262,7 +262,7 @@ var (
 	_ AgentResponsePayload = (*StopJobResponse)(nil)
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
-	_ AgentResponsePayload = (*ParseCredentialsSourceResponse)(nil)
+	_ AgentResponsePayload = (*ParseServiceParamsSourceResponse)(nil)
 	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
 
 	// A list of ServerMessage response payloads.
@@ -282,7 +282,7 @@ var (
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
-	_ ServerRequestPayload = (*ParseCredentialsSourceRequest)(nil)
+	_ ServerRequestPayload = (*ParseServiceParamsSourceRequest)(nil)
 	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
 )
 

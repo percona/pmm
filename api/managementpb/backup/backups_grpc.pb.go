@@ -8,7 +8,6 @@ package backupv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -145,36 +144,30 @@ type BackupsServer interface {
 }
 
 // UnimplementedBackupsServer must be embedded to have forward compatible implementations.
-type UnimplementedBackupsServer struct{}
+type UnimplementedBackupsServer struct {
+}
 
 func (UnimplementedBackupsServer) StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartBackup not implemented")
 }
-
 func (UnimplementedBackupsServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifactCompatibleServices not implemented")
 }
-
 func (UnimplementedBackupsServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
 }
-
 func (UnimplementedBackupsServer) ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ScheduleBackup not implemented")
 }
-
 func (UnimplementedBackupsServer) ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledBackups not implemented")
 }
-
 func (UnimplementedBackupsServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeScheduledBackup not implemented")
 }
-
 func (UnimplementedBackupsServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveScheduledBackup not implemented")
 }
-
 func (UnimplementedBackupsServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }

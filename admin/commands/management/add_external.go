@@ -57,7 +57,7 @@ type AddExternalCommand struct {
 	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
 	Username            string            `help:"External username"`
 	Password            string            `help:"External password"`
-	CredentialsSource   string            `help:"Credentials provider"`
+	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
 	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
@@ -115,7 +115,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 			MetricsMode:         pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			CredentialsSource:   cmd.CredentialsSource,
+			ServiceParamsSource: cmd.ServiceParamsSource,
 		},
 		Context: commands.Ctx,
 	}

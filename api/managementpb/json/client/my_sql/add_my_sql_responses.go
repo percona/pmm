@@ -62,12 +62,12 @@ type AddMySQLOK struct {
 func (o *AddMySQLOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMySqlOk  %+v", 200, o.Payload)
 }
-
 func (o *AddMySQLOK) GetPayload() *AddMySQLOKBody {
 	return o.Payload
 }
 
 func (o *AddMySQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddMySQLDefault) Code() int {
 func (o *AddMySQLDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMySQL default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *AddMySQLDefault) GetPayload() *AddMySQLDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMySQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddMySQLDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ AddMySQLBody add my SQL body
 swagger:model AddMySQLBody
 */
 type AddMySQLBody struct {
+
 	// Node identifier on which a service is been running.
 	// Exactly one of these parameters should be present: node_id, node_name, add_node.
 	NodeID string `json:"node_id,omitempty"`
@@ -224,8 +225,8 @@ type AddMySQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Credentials provider
-	CredentialsSource string `json:"credentials_source,omitempty"`
+	// Service parameters
+	ServiceParamsSource string `json:"service_params_source,omitempty"`
 
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
@@ -386,6 +387,7 @@ func (o *AddMySQLBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *AddMySQLBody) contextValidateAddNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AddNode != nil {
 		if err := o.AddNode.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -423,6 +425,7 @@ AddMySQLDefaultBody add my SQL default body
 swagger:model AddMySQLDefaultBody
 */
 type AddMySQLDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -488,7 +491,9 @@ func (o *AddMySQLDefaultBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *AddMySQLDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -499,6 +504,7 @@ func (o *AddMySQLDefaultBody) contextValidateDetails(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -527,6 +533,7 @@ AddMySQLDefaultBodyDetailsItems0 add my SQL default body details items0
 swagger:model AddMySQLDefaultBodyDetailsItems0
 */
 type AddMySQLDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -564,6 +571,7 @@ AddMySQLOKBody add my SQL OK body
 swagger:model AddMySQLOKBody
 */
 type AddMySQLOKBody struct {
+
 	// Actual table count at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
@@ -709,6 +717,7 @@ func (o *AddMySQLOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddMySQLOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -724,6 +733,7 @@ func (o *AddMySQLOKBody) contextValidateMysqldExporter(ctx context.Context, form
 }
 
 func (o *AddMySQLOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -739,6 +749,7 @@ func (o *AddMySQLOKBody) contextValidateQANMysqlPerfschema(ctx context.Context, 
 }
 
 func (o *AddMySQLOKBody) contextValidateQANMysqlSlowlog(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -754,6 +765,7 @@ func (o *AddMySQLOKBody) contextValidateQANMysqlSlowlog(ctx context.Context, for
 }
 
 func (o *AddMySQLOKBody) contextValidateService(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Service != nil {
 		if err := o.Service.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -791,6 +803,7 @@ AddMySQLOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node an
 swagger:model AddMySQLOKBodyMysqldExporter
 */
 type AddMySQLOKBodyMysqldExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1017,6 +1030,7 @@ AddMySQLOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent a
 swagger:model AddMySQLOKBodyQANMysqlPerfschema
 */
 type AddMySQLOKBodyQANMysqlPerfschema struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1232,6 +1246,7 @@ AddMySQLOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sen
 swagger:model AddMySQLOKBodyQANMysqlSlowlog
 */
 type AddMySQLOKBodyQANMysqlSlowlog struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1450,6 +1465,7 @@ AddMySQLOKBodyService MySQLService represents a generic MySQL instance.
 swagger:model AddMySQLOKBodyService
 */
 type AddMySQLOKBodyService struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1517,6 +1533,7 @@ AddMySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory
 swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
