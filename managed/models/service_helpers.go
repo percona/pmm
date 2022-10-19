@@ -28,6 +28,9 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// ErrInvalidServiceType is returned when unsupported service type is provided.
+var ErrInvalidServiceType = errors.New("provided service type not defined")
+
 func checkServiceUniqueID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Service ID")
@@ -123,7 +126,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	return services, nil
 }
 
-// FindServiceByID finds Service by ID.
+// FindServiceByID searches Service by ID.
 func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")
@@ -351,4 +354,19 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	return errors.Wrap(q.Delete(s), "failed to delete Service")
+}
+
+// ValidateServiceType checks argument value is in the list of supported types.
+func ValidateServiceType(serviceType ServiceType) error {
+	switch serviceType {
+	case MySQLServiceType,
+		MongoDBServiceType,
+		PostgreSQLServiceType,
+		ProxySQLServiceType,
+		HAProxyServiceType,
+		ExternalServiceType:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
+	}
 }

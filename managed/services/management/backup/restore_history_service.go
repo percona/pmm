@@ -62,7 +62,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 	var items []*models.RestoreHistoryItem
 	var services map[string]*models.Service
 	var artifacts map[string]*models.Artifact
-	var locations map[string]*models.BackupLocation
+	var locationModels map[string]*models.BackupLocation
 
 	err := s.db.InTransaction(func(tx *reform.TX) error {
 		q := tx.Querier
@@ -88,7 +88,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 		for _, a := range artifacts {
 			locationIDs = append(locationIDs, a.LocationID)
 		}
-		locations, err = models.FindBackupLocationsByIDs(q, locationIDs)
+		locationModels, err = models.FindBackupLocationsByIDs(q, locationIDs)
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (s *RestoreHistoryService) ListRestoreHistory(
 
 	artifactsResponse := make([]*backupv1beta1.RestoreHistoryItem, 0, len(artifacts))
 	for _, i := range items {
-		convertedArtifact, err := convertRestoreHistoryItem(i, services, artifacts, locations)
+		convertedArtifact, err := convertRestoreHistoryItem(i, services, artifacts, locationModels)
 		if err != nil {
 			return nil, err
 		}
