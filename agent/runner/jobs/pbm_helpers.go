@@ -39,7 +39,7 @@ const (
 
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
-	statusCheckInterval = 10 * time.Second
+	statusCheckInterval = 5 * time.Second
 )
 
 type pbmSeverity int
