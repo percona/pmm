@@ -18,7 +18,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 	"os/exec"
@@ -31,12 +30,6 @@ import (
 )
 
 const (
-	// How many times check if backup operation was started
-	maxBackupChecks = 10
-
-	// how many times to check if a restore operation has completed.
-	maxRestoreChecks = 25
-
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 5 * time.Second
@@ -160,7 +153,6 @@ func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ..
 	cmd := exec.CommandContext(nCtx, pbmBin, args...) // #nosec G204
 
 	b, err := cmd.Output()
-	log.Println(string(b))
 	if err != nil {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
@@ -209,8 +201,6 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
-	snapshotStarted := false
-
 	for {
 		select {
 		case <-ticker.C:
@@ -221,17 +211,12 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 			}
 
 			switch info.Status {
-			case "starting", "running", "dumpDone":
-				snapshotStarted = true
-				return nil
 			case "done":
 				return nil
 			case "canceled":
 				return errors.New("backup was canceled")
 			case "error":
-				if snapshotStarted {
-					return errors.New(info.Error)
-				}
+				return errors.New(info.Error)
 			}
 
 		case <-ctx.Done():
