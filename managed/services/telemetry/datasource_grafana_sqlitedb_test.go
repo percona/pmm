@@ -27,6 +27,7 @@ import (
 )
 
 func TestDatasource(t *testing.T) {
+	t.Parallel()
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)
 	logEntry := logrus.NewEntry(logger)
