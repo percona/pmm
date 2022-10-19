@@ -29,20 +29,6 @@ import (
 // ErrNotFound returned when entity is not found.
 var ErrNotFound = errors.New("not found")
 
-// ErrInvalidArgument returned when some passed argument is invalid.
-type ErrInvalidArgument struct {
-	Details string
-}
-
-func (e *ErrInvalidArgument) Error() string {
-	return "invalid argument: " + e.Details
-}
-
-// NewInvalidArgumentError creates ErrInvalidArgument with given formatting.
-func NewInvalidArgumentError(format string, a ...interface{}) *ErrInvalidArgument {
-	return &ErrInvalidArgument{Details: fmt.Sprintf(format, a...)}
-}
-
 // ArtifactFilters represents filters for artifacts list.
 type ArtifactFilters struct {
 	// Return only artifacts that provide insights for that Service.

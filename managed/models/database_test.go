@@ -414,8 +414,10 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.Equal(t, "id", agent.AgentID)
 		require.Equal(t, []string{"db.col1", "db.col2", "db.col3"}, agent.MongoDBOptions.StatsCollections)
 	})
+
+	// TODO https://jira.percona.com/browse/PMM-10872
 	t.Run("stats_collections field migration: string array to string array", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(68))
+		sqlDB := testdb.Open(t, models.SkipFixtures, pointer.ToInt(58))
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		defer sqlDB.Close() //nolint:errcheck
 
@@ -429,24 +431,20 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 
 		// Insert dummy agent in DB
-		pmmAgent, err := models.CreatePMMAgent(db.Querier, "node_id", make(map[string]string))
-		require.NoError(t, err)
-
-		createdAgent, err := models.CreateAgent(db.Querier, models.NodeExporterType,
-			&models.CreateAgentParams{
-				PMMAgentID: pmmAgent.AgentID,
-				NodeID:     "node_id",
-				MongoDBOptions: &models.MongoDBOptions{StatsCollections: []string{
-					"db.col1", "db.col2", "db.col3",
-				}},
-			})
+		_, err = sqlDB.ExecContext(context.Background(),
+			`INSERT INTO
+			agents(mongo_db_tls_options, agent_id, agent_type, runs_on_node_id, created_at, updated_at, disabled, status, tls, tls_skip_verify, query_examples_disabled, max_query_log_size, table_count_tablestats_group_limit, rds_basic_metrics_disabled, rds_enhanced_metrics_disabled, push_metrics)
+			VALUES
+			('{"stats_collections": ["db.col1", "db.col2", "db.col3"]}', 'id', 'pmm-agent', 'node_id' , '03/03/2014 02:03:04', '03/03/2014 02:03:04', false, 'alive', false, false, false, 0, 0, false, false, false)`,
+		)
 		require.NoError(t, err)
 
 		// Apply migration
-		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(58))
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, pointer.ToInt(68))
 
-		agent, err := models.FindAgentByID(db.Querier, createdAgent.AgentID)
+		agent, err := models.FindAgentByID(db.Querier, "id")
 		require.NoError(t, err)
+		require.Equal(t, "id", agent.AgentID)
 		require.Equal(t, []string{"db.col1", "db.col2", "db.col3"}, agent.MongoDBOptions.StatsCollections)
 	})
 }
