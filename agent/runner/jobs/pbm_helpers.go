@@ -31,22 +31,25 @@ import (
 )
 
 const (
-	// How many times check if backup/restore operation was started
-	maxBackupChecks  = 10
-	maxRestoreChecks = 10
+	// How many times check if backup operation was started
+	maxBackupChecks = 10
+
+	// how many times to check if a restore operation has completed.
+	maxRestoreChecks = 25
 
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
-	statusCheckInterval = 5 * time.Second
+	statusCheckInterval = 10 * time.Second
 )
 
 type pbmSeverity int
 
 type restoreInfo struct {
-	Name     string `json:"name"`
-	Backup   string `json:"backup"`
-	Type     string `json:"type"`
-	Status   string `json:"status"`
+	Name     string                 `json:"name"`
+	Backup   string                 `json:"backup"`
+	Type     string                 `json:"type"`
+	Status   string                 `json:"status"`
+	Error    map[string]interface{} `json:"error"`
 	ReplSets []struct {
 		Name   string `json:"name"`
 		Status string `json:"status"`
@@ -297,9 +300,15 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 			if err != nil {
 				return errors.Wrap(err, "failed to get restore status")
 			}
-			if ri.Status == "done" || ri.Status == "error" || ri.Status == "canceled" {
+
+			switch ri.Status {
+			case "done", "canceled":
 				return nil
-			} else if checks > maxRestoreChecks {
+			case "error":
+				return errors.New(fmt.Sprintf("%+v", ri.Error))
+			}
+
+			if checks > maxRestoreChecks {
 				return errors.Errorf("max restore checks attempt exceeded for restore: %")
 			}
 		case <-ctx.Done():
