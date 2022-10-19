@@ -6,7 +6,7 @@ templates:
     expr: |-
       100 / ((node_memory_MemTotal_bytes)
       / on(node_name) group_left(service_name) (mongodb_ss_mem_resident * 1024 * 1024))
-      > [[ .threshold ]]
+      > bool [[ .threshold ]]
     params:
       - name: threshold
         summary: A percentage from configured maximum

@@ -52,25 +52,6 @@ func TestAddLocation(t *testing.T) {
 		assert.NotEmpty(t, resp.Payload.LocationID)
 	})
 
-	t.Run("normal pmm server config", func(t *testing.T) {
-		t.Parallel()
-
-		resp, err := client.AddLocation(&locations.AddLocationParams{
-			Body: locations.AddLocationBody{
-				Name:        gofakeit.Name(),
-				Description: gofakeit.Question(),
-				PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
-					Path: "/tmp",
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		defer deleteLocation(t, client, resp.Payload.LocationID)
-
-		assert.NotEmpty(t, resp.Payload.LocationID)
-	})
-
 	t.Run("normal s3 config", func(t *testing.T) {
 		t.Parallel()
 		accessKey, secretKey, bucketName := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), os.Getenv("AWS_BUCKET_NAME")
@@ -259,13 +240,6 @@ func TestChangeLocation(t *testing.T) {
 					assert.Equal(t, req.Description, loc.Description)
 				}
 
-				if req.PMMServerConfig != nil {
-					require.NotNil(t, loc.PMMServerConfig)
-					assert.Equal(t, req.PMMServerConfig.Path, loc.PMMServerConfig.Path)
-				} else {
-					assert.Nil(t, loc.PMMServerConfig)
-				}
-
 				if req.PMMClientConfig != nil {
 					require.NotNil(t, loc.PMMClientConfig)
 					assert.Equal(t, req.PMMClientConfig.Path, loc.PMMClientConfig.Path)
@@ -296,7 +270,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}
@@ -310,7 +284,7 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp.Payload.LocationID,
 			Name:       gofakeit.Name(),
-			PMMServerConfig: &locations.ChangeLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.ChangeLocationParamsBodyPMMClientConfig{
 				Path: "/tmp/nested",
 			},
 		}
@@ -332,7 +306,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}
@@ -366,17 +340,21 @@ func TestChangeLocation(t *testing.T) {
 		require.NotNil(t, location)
 
 		assert.Equal(t, location.Name, updateBody.Name)
-		require.NotNil(t, location.PMMServerConfig)
-		assert.Equal(t, addReqBody.PMMServerConfig.Path, location.PMMServerConfig.Path)
+		require.NotNil(t, location.PMMClientConfig)
+		assert.Equal(t, addReqBody.PMMClientConfig.Path, location.PMMClientConfig.Path)
 	})
 
 	t.Run("change config type", func(t *testing.T) {
 		t.Parallel()
+		accessKey, secretKey, bucketName := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), os.Getenv("AWS_BUCKET_NAME")
+		if accessKey == "" || secretKey == "" || bucketName == "" {
+			t.Skip("Skipping change config type - missing S3 credentials")
+		}
 
 		addReqBody := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}
@@ -390,8 +368,11 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp.Payload.LocationID,
 			Name:       gofakeit.Name(),
-			PMMClientConfig: &locations.ChangeLocationParamsBodyPMMClientConfig{
-				Path: "/root",
+			S3Config: &locations.ChangeLocationParamsBodyS3Config{
+				Endpoint:   "https://s3.us-west-2.amazonaws.com",
+				AccessKey:  accessKey,
+				SecretKey:  secretKey,
+				BucketName: bucketName,
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
@@ -412,7 +393,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody1 := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}
@@ -426,7 +407,7 @@ func TestChangeLocation(t *testing.T) {
 		addReqBody2 := locations.AddLocationBody{
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Question(),
-			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}
@@ -440,7 +421,7 @@ func TestChangeLocation(t *testing.T) {
 		updateBody := locations.ChangeLocationBody{
 			LocationID: resp2.Payload.LocationID,
 			Name:       addReqBody1.Name,
-			PMMServerConfig: &locations.ChangeLocationParamsBodyPMMServerConfig{
+			PMMClientConfig: &locations.ChangeLocationParamsBodyPMMClientConfig{
 				Path: "/tmp",
 			},
 		}

@@ -166,7 +166,9 @@ type kubectlUserExec struct {
 }
 
 type kubectlUser struct {
-	Exec kubectlUserExec `yaml:"exec,omitempty"`
+	ClientCertificateData string          `yaml:"client-certificate-data,omitempty"`
+	ClientKeyData         string          `yaml:"client-key-data,omitempty"`
+	Exec                  kubectlUserExec `yaml:"exec,omitempty"`
 }
 
 type kubectlUserWithName struct {

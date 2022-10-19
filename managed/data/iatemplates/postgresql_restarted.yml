@@ -5,7 +5,7 @@ templates:
     summary: PostgreSQL restarted
     expr: |-
       pg_postmaster_uptime_seconds
-      < [[ .threshold ]]
+      < bool [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart

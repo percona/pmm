@@ -776,8 +776,6 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	if err = transformMaps(template.Annotations, annotations, paramsValues.AsStringMap()); err != nil {
 		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
 	}
-	annotations["rule"] = req.Name
-	annotations["summary"] = template.Summary
 
 	labels := make(map[string]string)
 	// Copy labels form template

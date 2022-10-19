@@ -3,7 +3,7 @@ templates:
   - name: pmm_mysql_down
     version: 1
     summary: MySQL down
-    expr: sum by (service_name, node_name) (mysql_up) == 0
+    expr: sum by (service_name, node_name) (mysql_up) == bool 0
     for: 1m
     severity: critical
     annotations:
