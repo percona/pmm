@@ -407,6 +407,9 @@ type AddPMMAgentOKBodyPMMAgent struct {
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 }
 
 // Validate validates this add PMM agent OK body PMM agent

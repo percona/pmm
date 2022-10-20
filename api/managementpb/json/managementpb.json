@@ -3657,6 +3657,12 @@
                       },
                       "x-order": 2
                     },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 5
+                    },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
