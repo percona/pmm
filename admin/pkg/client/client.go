@@ -16,14 +16,36 @@
 package client
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"fmt"
+	"io/fs"
 	"net/http"
+	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/pkg/common"
+)
+
+// DistributionType represents type of distribution of the pmm-agent.
+type DistributionType string
+
+const (
+	// Unknown represents unknown distribution type of PMM Agent or Server.
+	Unknown DistributionType = "unknown"
+	// Docker represents Docker installation of PMM Agent or Server.
+	Docker DistributionType = "docker"
+	// PackageManager represents installation of PMM Agent or Server via a package manager.
+	PackageManager DistributionType = "package-manager"
+	// Tarball represents installation of PMM Agent or Server via a tarball.
+	Tarball DistributionType = "tarball"
 )
 
 // ErrLatestVersionNotFound is returned when we cannot determine what the latest version is.
@@ -59,4 +81,142 @@ func GetLatestVersion(ctx context.Context) (string, error) {
 	latest := strings.TrimPrefix(tag, "v")
 
 	return latest, nil
+}
+
+// DetectDistributionType detects distribution type of pmm-agent.
+func DetectDistributionType(ctx context.Context, tarballInstallPath string) (DistributionType, error) {
+	// Check tarball
+	isTarball, err := detectTarballDistribution(tarballInstallPath)
+	if err != nil {
+		return Unknown, err
+	}
+
+	if isTarball {
+		logrus.Debug("Found pmm2-client installed via tarball")
+		return Tarball, nil
+	}
+
+	// Check package manager
+	isPm, err := checkPackageManager(ctx)
+	if err != nil {
+		return Unknown, err
+	}
+
+	if isPm {
+		logrus.Debug("Found pmm2-client installed via a package manager")
+		return PackageManager, nil
+	}
+
+	return Unknown, nil
+}
+
+func checkPackageManager(ctx context.Context) (bool, error) {
+	pm, err := common.DetectPackageManager()
+	if err != nil {
+		return false, err
+	}
+
+	if pm != common.UnknownPackageManager {
+		pmInstallation, err := detectPackageManagerInstallation(ctx, pm)
+		if err != nil {
+			return false, err
+		}
+
+		if pmInstallation {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func detectTarballDistribution(tarballInstallPath string) (bool, error) {
+	p := "/usr/local/percona/pmm2"
+	if tarballInstallPath != "" {
+		p = tarballInstallPath
+	}
+
+	data, err := os.ReadFile(path.Join(p, "pmm-distribution"))
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
+
+	if err != nil {
+		return false, err
+	}
+
+	trimmedData := strings.TrimSpace(string(data))
+	if trimmedData != string(Tarball) {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func detectPackageManagerInstallation(ctx context.Context, pm common.PackageManager) (bool, error) {
+	var cmds [][]string
+	switch pm {
+	case common.Dnf:
+		cmds = [][]string{
+			{"dnf", "list", "installed", "pmm2-client"},
+		}
+	case common.Yum:
+		cmds = [][]string{
+			{"yum", "list", "installed", "pmm2-client"},
+		}
+	case common.Apt:
+		return queryDpkg(ctx)
+	default:
+		return false, nil
+	}
+
+	for _, cmd := range cmds {
+		logrus.Infof("Running command %q", strings.Join(cmd, " "))
+
+		cmd := exec.CommandContext(ctx, cmd[0], cmd[1:]...) //nolint:gosec
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			var exitErr *exec.ExitError
+			if ok := errors.As(err, &exitErr); ok {
+				if exitErr.ExitCode() == 1 {
+					// This means the package has not been found
+					return false, nil
+				}
+			}
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func queryDpkg(ctx context.Context) (bool, error) {
+	cmd := exec.CommandContext(
+		ctx,
+		"dpkg-query",
+		"--show",
+		"-f=${Package}\t${db:Status-Status}\n",
+		"pmm2-client")
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.Is(err, exitErr) && bytes.Contains(out, []byte("no packages found matching")) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	scanner := bufio.NewScanner(bytes.NewReader(out))
+	for scanner.Scan() {
+		data := strings.Split(scanner.Text(), "\t")
+		if data[1] == "installed" {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

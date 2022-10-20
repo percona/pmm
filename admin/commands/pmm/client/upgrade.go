@@ -25,6 +25,7 @@ import (
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
+	"github.com/percona/pmm/admin/pkg/client"
 	"github.com/percona/pmm/admin/pkg/client/tarball"
 	"github.com/percona/pmm/admin/pkg/common"
 )
@@ -77,9 +78,9 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	}
 
 	switch distributionType {
-	case common.PackageManager:
+	case client.PackageManager:
 		err = c.upgradeViaPackageManager(ctx)
-	case common.Tarball:
+	case client.Tarball:
 		err = c.upgradeViaTarball(ctx)
 	default:
 		logrus.Panicf("Not supported distribution type %q", distributionType)
@@ -92,21 +93,21 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	return &upgradeResult{}, nil
 }
 
-func (c *UpgradeCommand) distributionType(ctx context.Context) (common.DistributionType, error) {
-	var distType common.DistributionType
+func (c *UpgradeCommand) distributionType(ctx context.Context) (client.DistributionType, error) {
+	var distType client.DistributionType
 	var err error
 	switch distributionType(c.Distribution) {
 	case distributionAutodetect:
-		distType, err = common.DetectDistributionType(ctx, c.InstallPath)
+		distType, err = client.DetectDistributionType(ctx, c.InstallPath)
 		if err != nil {
-			return common.Unknown, err
+			return client.Unknown, err
 		}
 	case distributionPackageManager:
-		distType = common.PackageManager
+		distType = client.PackageManager
 	case distributionTar:
-		distType = common.Tarball
+		distType = client.Tarball
 	case distributionDocker:
-		distType = common.Docker
+		distType = client.Docker
 	}
 
 	return distType, nil
