@@ -97,6 +97,11 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			if params.DataModel != models.PhysicalDataModel {
 				return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
 			}
+
+			if locationModel.Type != models.S3BackupLocationType {
+				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is s3")
+			}
+
 			if params.Mode != models.Snapshot {
 				return errors.New("the only supported backup mode for mySQL is snapshot")
 			}
