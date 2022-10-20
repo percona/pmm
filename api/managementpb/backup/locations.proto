@@ -59,7 +59,7 @@ message Location {
   string description = 3;
   oneof config {
     PMMClientLocationConfig pmm_client_config = 4;
-    PMMServerLocationConfig pmm_server_config = 5;
+    PMMServerLocationConfig pmm_server_config = 5 [deprecated = true];
     S3LocationConfig s3_config = 6;
   }
 }
@@ -81,7 +81,7 @@ message AddLocationRequest {
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 3;
   // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 4;
+  PMMServerLocationConfig pmm_server_config = 4 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
   S3LocationConfig s3_config = 5;
 }
@@ -104,7 +104,7 @@ message ChangeLocationRequest {
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 4;
   // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 5;
+  PMMServerLocationConfig pmm_server_config = 5 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
   S3LocationConfig s3_config = 6;
 }
@@ -124,7 +124,7 @@ message TestLocationConfigRequest {
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 1;
   // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 2;
+  PMMServerLocationConfig pmm_server_config = 2 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
   S3LocationConfig s3_config = 3;
 }

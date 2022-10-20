@@ -521,6 +521,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MysqlBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MySQLBackup_S3Config:
+			locationConfig.Type = jobs.S3BackupLocationType
 			locationConfig.S3Config = &jobs.S3LocationConfig{
 				Endpoint:     cfg.S3Config.Endpoint,
 				AccessKey:    cfg.S3Config.AccessKey,
@@ -532,19 +533,20 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
 		}
 
-		cfg := jobs.DBConnConfig{
+		dbConnCfg := jobs.DBConnConfig{
 			User:     j.MysqlBackup.User,
 			Password: j.MysqlBackup.Password,
 			Address:  j.MysqlBackup.Address,
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
 		}
-		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, cfg, locationConfig)
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig)
 
 	case *agentpb.StartJobRequest_MysqlRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MysqlRestoreBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MySQLRestoreBackup_S3Config:
+			locationConfig.Type = jobs.S3BackupLocationType
 			locationConfig.S3Config = &jobs.S3LocationConfig{
 				Endpoint:     cfg.S3Config.Endpoint,
 				AccessKey:    cfg.S3Config.AccessKey,
@@ -563,6 +565,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		var err error
 		switch cfg := j.MongodbBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBBackup_S3Config:
+			locationConfig.Type = jobs.S3BackupLocationType
 			locationConfig.S3Config = &jobs.S3LocationConfig{
 				Endpoint:     cfg.S3Config.Endpoint,
 				AccessKey:    cfg.S3Config.AccessKey,
@@ -570,18 +573,23 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
+		case *agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig:
+			locationConfig.Type = jobs.PMMClientBackupLocationType
+			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
+				Path: cfg.PmmClientConfig.Path,
+			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
-		cfg := jobs.DBConnConfig{
+		dbConnCfg := jobs.DBConnConfig{
 			User:     j.MongodbBackup.User,
 			Password: j.MongodbBackup.Password,
 			Address:  j.MongodbBackup.Address,
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, cfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
 		if err != nil {
 			return err
 		}
@@ -589,6 +597,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config:
+			locationConfig.Type = jobs.S3BackupLocationType
 			locationConfig.S3Config = &jobs.S3LocationConfig{
 				Endpoint:     cfg.S3Config.Endpoint,
 				AccessKey:    cfg.S3Config.AccessKey,
@@ -596,19 +605,23 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-
+		case *agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig:
+			locationConfig.Type = jobs.PMMClientBackupLocationType
+			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
+				Path: cfg.PmmClientConfig.Path,
+			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
-		cfg := jobs.DBConnConfig{
+		dbConnCfg := jobs.DBConnConfig{
 			User:     j.MongodbRestoreBackup.User,
 			Password: j.MongodbRestoreBackup.Password,
 			Address:  j.MongodbRestoreBackup.Address,
 			Port:     int(j.MongodbRestoreBackup.Port),
 			Socket:   j.MongodbRestoreBackup.Socket,
 		}
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, cfg, locationConfig)
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, dbConnCfg, locationConfig)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
@@ -707,9 +720,8 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	l.Info("Establishing two-way communication channel ...")
 	start := time.Now()
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
-		ID:          cfg.ID,
-		Version:     version.Version,
-		MetricsPort: cfg.ListenPort,
+		ID:      cfg.ID,
+		Version: version.Version,
 	})
 	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx)
 	if err != nil {
