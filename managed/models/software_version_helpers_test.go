@@ -153,6 +153,7 @@ func TestSoftwareVersions(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, ssv2)
 
+		// TODO Add tests for non-empty FindServicesSoftwareVersionsFilter
 		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
@@ -179,6 +180,67 @@ func TestSoftwareVersions(t *testing.T) {
 		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 0)
+	})
+
+	t.Run("update", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareService(q)
+
+		createParams := models.CreateServiceSoftwareVersionsParams{
+			ServiceID:   serviceID1,
+			ServiceType: models.MySQLServiceType,
+			SoftwareVersions: []models.SoftwareVersion{
+				{
+					Name:    models.MysqldSoftwareName,
+					Version: "8.0.0",
+				},
+				{
+					Name:    models.XtrabackupSoftwareName,
+					Version: "8.0.0",
+				},
+				{
+					Name:    models.XbcloudSoftwareName,
+					Version: "8.0.0",
+				},
+			},
+		}
+
+		nextCheck := time.Now().UTC().Truncate(time.Second)
+		updateParams := models.UpdateServiceSoftwareVersionsParams{
+			SoftwareVersions: []models.SoftwareVersion{
+				{
+					Name:    models.MysqldSoftwareName,
+					Version: "5.0.0",
+				},
+				{
+					Name:    models.XtrabackupSoftwareName,
+					Version: "5.0.0",
+				},
+			},
+			NextCheckAt: &nextCheck,
+		}
+
+		ssv1, err := models.CreateServiceSoftwareVersions(q, createParams)
+		require.NoError(t, err)
+		require.NotNil(t, ssv1)
+		ssv2, err := models.UpdateServiceSoftwareVersions(q, serviceID1, updateParams)
+		require.NoError(t, err)
+		require.NotNil(t, ssv2)
+
+		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
+		require.NoError(t, err)
+		require.Len(t, actual, 1)
+
+		assert.Equal(t, serviceID1, actual[0].ServiceID)
+		assert.Equal(t, models.MySQLServiceType, actual[0].ServiceType)
+		assert.Equal(t, nextCheck, actual[0].NextCheckAt)
+		assert.ElementsMatch(t, updateParams.SoftwareVersions, actual[0].SoftwareVersions)
 	})
 }
 
@@ -257,6 +319,56 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.NotNil(t, c)
+		})
+	}
+}
+
+func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		params   models.UpdateServiceSoftwareVersionsParams
+		errorMsg string
+	}{
+		{
+			name: "invalid software name",
+			params: models.UpdateServiceSoftwareVersionsParams{
+				SoftwareVersions: []models.SoftwareVersion{{Name: "invalid", Version: "8.0.0"}},
+				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+			},
+			errorMsg: "invalid argument: invalid software name \"invalid\"",
+		},
+		{
+			name: "empty software version",
+			params: models.UpdateServiceSoftwareVersionsParams{
+				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName}},
+				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+			},
+			errorMsg: "invalid argument: empty version for software name \"mysqld\"",
+		},
+		{
+			name: "next check time can be nil",
+			params: models.UpdateServiceSoftwareVersionsParams{
+				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName, Version: "8.0.0"}},
+				NextCheckAt:      nil,
+			},
+			errorMsg: "",
+		},
+		{
+			name: "all parameters are filled up",
+			params: models.UpdateServiceSoftwareVersionsParams{
+				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName, Version: "8.0.0"}},
+				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+			},
+			errorMsg: "",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := test.params.Validate()
+			if test.errorMsg != "" {
+				assert.EqualError(t, err, test.errorMsg)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
