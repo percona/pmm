@@ -19,11 +19,11 @@ jobs:
       - name: Convert mkdocs
         shell: bash
         run: |
-          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! caution alert alert-warning "\(.*\)"/\> \:warning\: **\1**/g'
-          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! caution alert alert-warning/\> \:warning\:/g'
-          grep -rl '!!! alert alert-info' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! alert alert-info/\>/g'
-          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
-          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs  sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
+          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! caution alert alert-warning "\(.*\)"/\> \:warning\: **\1**/g'
+          grep -rl '!!! caution' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! caution alert alert-warning/\> \:warning\:/g'
+          grep -rl '!!! alert alert-info' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! alert alert-info/\>/g'
+          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
+          grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:

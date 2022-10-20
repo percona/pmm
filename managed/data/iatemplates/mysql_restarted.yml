@@ -5,7 +5,7 @@ templates:
     summary: MySQL restarted
     expr: |-
       mysql_global_status_uptime
-      < [[ .threshold ]]
+      < bool [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart

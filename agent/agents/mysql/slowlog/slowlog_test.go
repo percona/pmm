@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -57,7 +58,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
@@ -86,7 +87,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
 
 	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
