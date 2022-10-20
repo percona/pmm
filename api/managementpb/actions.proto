@@ -66,7 +66,11 @@ message StartMySQLExplainActionRequest {
   // Array of placeholder values 
   string placeholders = 5;
   // Query ID, required.
-  string query_id = 6;
+  string query_id = 6 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainActionResponse {
@@ -85,14 +89,22 @@ message StartMySQLExplainJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // SQL query. Required.
+  // Deprecated: should not be used, should be removed.
   string query = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Database name. Required if it can't be deduced from the query.
+  // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
+  // Array of placeholder values 
+  string placeholders = 5;
+  // Query ID, required.
+  string query_id = 6 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -111,14 +123,22 @@ message StartMySQLExplainTraditionalJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // SQL query. Required.
+  // Deprecated: should not be used, should be removed.
   string query = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Database name. Required if it can't be deduced from the query.
+  // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
+  // Array of placeholder values 
+  string placeholders = 5;
+  // Query ID, required.
+  string query_id = 6 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {

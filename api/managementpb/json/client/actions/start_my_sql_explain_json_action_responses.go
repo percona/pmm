@@ -129,11 +129,17 @@ type StartMySQLExplainJSONActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// SQL query. Required.
+	// Deprecated: should not be used, should be removed.
 	Query string `json:"query,omitempty"`
 
-	// Database name. Required if it can't be deduced from the query.
+	// Database name. Required if it can't be deduced from the query ID.
 	Database string `json:"database,omitempty"`
+
+	// Array of placeholder values
+	Placeholders string `json:"placeholders,omitempty"`
+
+	// Query ID, required.
+	QueryID string `json:"query_id,omitempty"`
 }
 
 // Validate validates this start my SQL explain JSON action body
