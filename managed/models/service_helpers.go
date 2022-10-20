@@ -23,6 +23,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -124,6 +125,33 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	}
 
 	return services, nil
+}
+
+// FindActiveServiceTypes returns all active Service Types.
+func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
+	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
+	rows, err := q.Query(query)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	defer func() {
+		if rowsErr := rows.Close(); rowsErr != nil {
+			logrus.Debug(rowsErr)
+		}
+	}()
+
+	var res []ServiceType
+	for rows.Next() {
+		var serviceType ServiceType
+		if err = rows.Scan(&serviceType); err != nil {
+			return nil, err
+		}
+
+		res = append(res, serviceType)
+	}
+
+	return res, nil
 }
 
 // FindServiceByID searches Service by ID.
