@@ -824,7 +824,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 func (c *Client) registerConnectionStatus(connected bool) {
 	switch {
 	case !c.connectionEstablishedTime.IsZero() && connected:
-		c.connectionTimeGauge.Set(time.Now().Sub(c.connectionEstablishedTime).Seconds())
+		c.connectionTimeGauge.Set(time.Since(c.connectionEstablishedTime).Seconds())
 	case !connected:
 		c.connectionEstablishedTime = time.Time{}
 		c.connectionTimeGauge.Set(0)
