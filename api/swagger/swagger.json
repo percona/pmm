@@ -14062,14 +14062,24 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Deprecated: should not be used, should be removed.",
                   "type": "string",
                   "x-order": 2
                 },
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
                   "x-order": 3
+                },
+                "placeholders": {
+                  "type": "string",
+                  "title": "Array of placeholder values",
+                  "x-order": 4
+                },
+                "query_id": {
+                  "description": "Query ID, required.",
+                  "type": "string",
+                  "x-order": 5
                 }
               }
             }
