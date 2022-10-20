@@ -37,7 +37,6 @@ datasources:
   QANDB_SELECT:
     enabled: true
     timeout: 2s
-    dsn: tcp://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2
   PMMDB_SELECT:
     enabled: true
     timeout: 2s
@@ -80,7 +79,6 @@ reporting:
 			QanDBSelect: &DSConfigQAN{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				DSN:     "tcp://127.0.0.1:9000?database=pmm&block_size=10000&pool_size=2",
 			},
 			PmmDBSelect: &DSConfigPMMDB{
 				Enabled:                true,

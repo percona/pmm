@@ -53,10 +53,10 @@ func TestKubernetesServer(t *testing.T) {
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
 		}
-
+		versionService := NewVersionServiceClient("https://check-dev.percona.com/versions/v1")
 		synchronizer := &mockDbClusterSynchronizer{}
 		synchronizer.On("SyncDBClusters", mock.Anything, mock.Anything).Return(nil)
-		ks = NewKubernetesServer(db, dbaasClient, grafanaClient, NewVersionServiceClient("https://check-dev.percona.com/versions/v1"), synchronizer)
+		ks = NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, synchronizer)
 		return
 	}
 	t.Run("Basic", func(t *testing.T) {

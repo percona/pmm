@@ -166,37 +166,39 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 }
 
 type gRPCServerDeps struct {
-	db                     *reform.DB
-	vmdb                   *victoriametrics.Service
-	platformClient         *platformClient.Client
-	server                 *server.Server
-	agentsRegistry         *agents.Registry
-	handler                *agents.Handler
-	actions                *agents.ActionsService
-	agentsStateUpdater     *agents.StateUpdater
-	connectionCheck        *agents.ConnectionChecker
-	defaultsFileParser     *agents.DefaultsFileParser
-	grafanaClient          *grafana.Client
-	checksService          *checks.Service
-	dbaasClient            *dbaas.Client
-	alertmanager           *alertmanager.Service
-	vmalert                *vmalert.Service
-	settings               *models.Settings
-	alertsService          *ia.AlertsService
-	templatesService       *alerting.Service
-	rulesService           *ia.RulesService
-	jobsService            *agents.JobsService
-	versionServiceClient   *managementdbaas.VersionServiceClient
-	schedulerService       *scheduler.Service
-	backupService          *backup.Service
-	backupRemovalService   *backup.RemovalService
-	minioService           *minio.Service
-	versionCache           *versioncache.Service
-	supervisord            *supervisord.Service
-	config                 *config.Config
-	componentsService      *managementdbaas.ComponentsService
+	db                   *reform.DB
+	vmdb                 *victoriametrics.Service
+	platformClient       *platformClient.Client
+	server               *server.Server
+	agentsRegistry       *agents.Registry
+	handler              *agents.Handler
+	actions              *agents.ActionsService
+	agentsStateUpdater   *agents.StateUpdater
+	connectionCheck      *agents.ConnectionChecker
+	defaultsFileParser   *agents.DefaultsFileParser
+	grafanaClient        *grafana.Client
+	checksService        *checks.Service
+	dbaasClient          *dbaas.Client
+	alertmanager         *alertmanager.Service
+	vmalert              *vmalert.Service
+	settings             *models.Settings
+	alertsService        *ia.AlertsService
+	templatesService     *alerting.Service
+	rulesService         *ia.RulesService
+	jobsService          *agents.JobsService
+	versionServiceClient *managementdbaas.VersionServiceClient
+	schedulerService     *scheduler.Service
+	backupService        *backup.Service
+	compatibilityService *backup.CompatibilityService
+	backupRemovalService *backup.RemovalService
+	minioService         *minio.Service
+	versionCache         *versioncache.Service
+	supervisord          *supervisord.Service
+	config               *config.Config
+	componentsService    *managementdbaas.ComponentsService
+	dbaasInitializer     *managementdbaas.Initializer
+	agentService         *agents.AgentService
 	dbClustersSynchronizer *managementdbaas.DBClustersSynchronizer
-	dbaasInitializer       *managementdbaas.Initializer
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -223,7 +225,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
-	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.connectionCheck)
+	agentsSvc := inventory.NewAgentsService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.connectionCheck, deps.agentService)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
@@ -255,12 +259,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.schedulerService))
+	backupv1beta1.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
 	backupv1beta1.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioService))
 	backupv1beta1.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService))
 	backupv1beta1.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient, deps.dbClustersSynchronizer))
+	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient, deps.dbClustersSynchronizer)
+	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.versionServiceClient, deps.dbClustersSynchronizer))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
 	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.dbaasClient, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -649,6 +655,9 @@ func main() {
 	debugF := kingpin.Flag("debug", "Enable debug logging").Envar("PMM_DEBUG").Bool()
 	traceF := kingpin.Flag("trace", "[DEPRECATED] Enable trace logging (implies debug)").Envar("PMM_TRACE").Bool()
 
+	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE").String()
+	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PERCONA_TEST_PMM_CLICKHOUSE_ADDR").String()
+
 	kingpin.Parse()
 
 	logger.SetupGlobalLogger()
@@ -684,6 +693,10 @@ func main() {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 	pmmdb.DSN.Params = q.Encode()
+
+	clickhousedb := ds.QanDBSelect
+
+	clickhousedb.DSN = "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	sqlDB, err := models.OpenDB(*postgresAddrF, *postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
@@ -784,11 +797,13 @@ func main() {
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
+	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
-	backupService := backup.NewService(db, jobsService, agentsRegistry, versioner)
+	compatibilityService := backup.NewCompatibilityService(db, versioner)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -797,6 +812,8 @@ func main() {
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService)
 	dbClustersSynchronizer := managementdbaas.NewDBClustersSynchronizer(db, dbaasClient)
 	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient, dbClustersSynchronizer)
+
+	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -888,24 +905,6 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	if settings.DBaaS.Enabled {
-		err = supervisord.RestartSupervisedService("dbaas-controller")
-		if err != nil {
-			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
-		} else {
-			l.Debug("DBaaS is enabled - creating a DBaaS client.")
-			err := dbaasInitializer.Enable(ctx)
-			if err != nil {
-				l.Fatalf("Failed to enable DBaaS: %v", err)
-			}
-			defer func() {
-				err := dbaasInitializer.Disable(context.Background())
-				if err != nil {
-					l.Fatalf("Failed to disconnect from dbaas-controller API: %v", err)
-				}
-			}()
-		}
-	}
 	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
 
 	l.Info("Starting services...")
@@ -969,37 +968,39 @@ func main() {
 		defer wg.Done()
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				db:                     db,
-				vmdb:                   vmdb,
-				platformClient:         platformClient,
-				server:                 server,
-				agentsRegistry:         agentsRegistry,
-				handler:                agentsHandler,
-				actions:                actionsService,
-				agentsStateUpdater:     agentsStateUpdater,
-				connectionCheck:        connectionCheck,
-				grafanaClient:          grafanaClient,
-				checksService:          checksService,
-				dbaasClient:            dbaasClient,
-				alertmanager:           alertManager,
-				vmalert:                vmalert,
-				settings:               settings,
-				alertsService:          alertsService,
-				templatesService:       templatesService,
-				rulesService:           rulesService,
-				jobsService:            jobsService,
-				versionServiceClient:   versionService,
-				schedulerService:       schedulerService,
-				backupService:          backupService,
-				backupRemovalService:   backupRemovalService,
-				minioService:           minioService,
-				versionCache:           versionCache,
-				supervisord:            supervisord,
-				config:                 &cfg.Config,
-				defaultsFileParser:     defaultsFileParser,
-				componentsService:      componentsService,
+				db:                   db,
+				vmdb:                 vmdb,
+				platformClient:       platformClient,
+				server:               server,
+				agentsRegistry:       agentsRegistry,
+				handler:              agentsHandler,
+				actions:              actionsService,
+				agentsStateUpdater:   agentsStateUpdater,
+				connectionCheck:      connectionCheck,
+				grafanaClient:        grafanaClient,
+				checksService:        checksService,
+				dbaasClient:          dbaasClient,
+				alertmanager:         alertManager,
+				vmalert:              vmalert,
+				settings:             settings,
+				alertsService:        alertsService,
+				templatesService:     templatesService,
+				rulesService:         rulesService,
+				jobsService:          jobsService,
+				versionServiceClient: versionService,
+				schedulerService:     schedulerService,
+				backupService:        backupService,
+				compatibilityService: compatibilityService,
+				backupRemovalService: backupRemovalService,
+				minioService:         minioService,
+				versionCache:         versionCache,
+				supervisord:          supervisord,
+				config:               &cfg.Config,
+				defaultsFileParser:   defaultsFileParser,
+				componentsService:    componentsService,
+				dbaasInitializer:     dbaasInitializer,
+				agentService:         agentService,
 				dbClustersSynchronizer: dbClustersSynchronizer,
-				dbaasInitializer:       dbaasInitializer,
 			})
 	}()
 
@@ -1023,6 +1024,24 @@ func main() {
 		defer wg.Done()
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 	}()
+	if settings.DBaaS.Enabled {
+		err = supervisord.RestartSupervisedService("dbaas-controller")
+		if err != nil {
+			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
+		} else {
+			l.Debug("DBaaS is enabled - creating a DBaaS client.")
+			err := dbaasInitializer.Enable(ctx)
+			if err != nil {
+				l.Fatalf("Failed initializing dbaas-controller %s: %v", *dbaasControllerAPIAddrF, err)
+			}
+			defer func() {
+				err := dbaasInitializer.Disable(context.Background())
+				if err != nil {
+					l.Fatalf("Failed disabling dbaas-controller API: %v", err)
+				}
+			}()
+		}
+	}
 
 	wg.Wait()
 }

@@ -46,21 +46,21 @@ var mysqlServiceRegex = regexp.MustCompile(`mysql(d)?\.service`) // this is used
 
 // MySQLRestoreJob implements Job for MySQL backup restore.
 type MySQLRestoreJob struct {
-	id       string
-	timeout  time.Duration
-	l        logrus.FieldLogger
-	name     string
-	location BackupLocationConfig
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	locationConfig BackupLocationConfig
 }
 
 // NewMySQLRestoreJob constructs new Job for MySQL backup restore.
 func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig) *MySQLRestoreJob {
 	return &MySQLRestoreJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_restore"}),
-		name:     name,
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_restore"}),
+		name:           name,
+		locationConfig: locationConfig,
 	}
 }
 
@@ -81,7 +81,7 @@ func (j *MySQLRestoreJob) Timeout() time.Duration {
 
 // Run executes backup restore steps.
 func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) (rerr error) {
-	if j.location.S3Config == nil {
+	if j.locationConfig.S3Config == nil {
 		return errors.New("S3 config is not set")
 	}
 
@@ -211,7 +211,7 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	xbcloudCmd, xbstreamCmd, err := prepareRestoreCommands(
 		pipeCtx,
 		j.name,
-		&j.location,
+		&j.locationConfig,
 		targetDirectory,
 		&stderr,
 		&stdout)

@@ -63,14 +63,14 @@ type kubernetesServer struct {
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, grafanaClient grafanaClient, versionService versionService, dbClusterSynchronizer dbClusterSynchronizer) dbaasv1beta1.KubernetesServer {
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, grafanaClient grafanaClient, , dbClusterSynchronizer dbClusterSynchronizer) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
 	return &kubernetesServer{
 		l:                     l,
 		db:                    db,
 		dbaasClient:           dbaasClient,
-		grafanaClient:         grafanaClient,
 		versionService:        versionService,
+		grafanaClient:         grafanaClient,
 		dbClusterSynchronizer: dbClusterSynchronizer,
 	}
 }
@@ -283,7 +283,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		k.l.Errorf("Replacing `aws` with `aim-authenticator` failed: %s", err)
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
-
 	clusterInfo, err := k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -296,7 +295,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-
 	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -306,7 +304,6 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
-
 	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
 		_, err = k.dbaasClient.InstallPXCOperator(ctx, &dbaascontrollerv1beta1.InstallPXCOperatorRequest{
 			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{

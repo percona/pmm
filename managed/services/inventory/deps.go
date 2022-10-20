@@ -24,6 +24,7 @@ import (
 )
 
 //go:generate $PMM_RELEASE_PATH/mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate $PMM_RELEASE_PATH/mockery -name=agentService -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate $PMM_RELEASE_PATH/mockery -name=connectionChecker -case=snake -inpkg -testonly
@@ -34,6 +35,11 @@ import (
 type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
+}
+
+// agentService is a subset of methods of agents.AgentService used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type agentService interface {
 	Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error)
 }
 

@@ -29,24 +29,23 @@ import (
 
 // MongoDBRestoreJob implements Job for MongoDB restore.
 type MongoDBRestoreJob struct {
-	id        string
-	timeout   time.Duration
-	l         *logrus.Entry
-	name      string
-	timestamp *time.Time
-	dbURL     *url.URL
-	location  BackupLocationConfig
+	id             string
+	timeout        time.Duration
+	l              *logrus.Entry
+	name           string
+	dbURL          *url.URL
+	locationConfig BackupLocationConfig
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
 func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
-		name:     name,
-		dbURL:    createDBURL(dbConfig),
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
+		name:           name,
+		dbURL:          createDBURL(dbConfig),
+		locationConfig: locationConfig,
 	}
 }
 
@@ -71,30 +70,10 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf := &PBMConfig{
-		PITR: PITR{
-			Enabled: false,
-		},
+	conf, err := createPBMConfig(&j.locationConfig, j.name, false)
+	if err != nil {
+		return errors.WithStack(err)
 	}
-	switch {
-	case j.location.S3Config != nil:
-		conf.Storage = Storage{
-			Type: "s3",
-			S3: S3{
-				EndpointURL: j.location.S3Config.Endpoint,
-				Region:      j.location.S3Config.BucketRegion,
-				Bucket:      j.location.S3Config.BucketName,
-				Prefix:      j.name,
-				Credentials: Credentials{
-					AccessKeyID:     j.location.S3Config.AccessKey,
-					SecretAccessKey: j.location.S3Config.SecretKey,
-				},
-			},
-		}
-	default:
-		return errors.New("unknown location config")
-	}
-
 	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}

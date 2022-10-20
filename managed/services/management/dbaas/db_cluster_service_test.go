@@ -96,7 +96,7 @@ func TestDBClusterService(t *testing.T) {
 	versionService := NewVersionServiceClient(versionServiceURL)
 
 	synchronizer := &mockDbClusterSynchronizer{}
-	ks := NewKubernetesServer(db, dbaasClient, grafanaClient, versionService, synchronizer)
+	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient, synchronizer)
 	dbaasClient.On("CheckKubernetesClusterConnection", ctx, dbKubeconfigTest).Return(&controllerv1beta1.CheckKubernetesClusterConnectionResponse{
 		Operators: &controllerv1beta1.Operators{
 			PxcOperatorVersion:   "",

@@ -80,6 +80,8 @@ type dbaasClient interface {
 	StartMonitoring(ctx context.Context, in *controllerv1beta1.StartMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StartMonitoringResponse, error)
 	// StopMonitoring removes victoria metrics operator from the cluster.
 	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
+	// GetKubeConfig gets inluster config and converts it to kubeConfig
+	GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error)
 }
 
 type versionService interface {

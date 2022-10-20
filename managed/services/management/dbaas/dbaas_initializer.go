@@ -20,16 +20,22 @@ import (
 	"sync"
 	"time"
 
+	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+
+	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/models"
 )
 
-// Initializer handles enabling/disabling DBaaS logic.
+// Initializer initializes dbaas feature
 type Initializer struct {
 	db *reform.DB
 	l  *logrus.Entry
 
-	client                 dbaasClient
+	dbaasClient      dbaasClient
+	kubernetesServer dbaasv1beta1.KubernetesServer
 	dbClustersSynchronizer *DBClustersSynchronizer
 
 	enabled bool
@@ -37,15 +43,36 @@ type Initializer struct {
 	m       sync.Mutex
 }
 
-// NewInitializer returns new object of Initializer type.
-func NewInitializer(db *reform.DB, client dbaasClient, dbClustersSynchronizer *DBClustersSynchronizer) *Initializer {
+const defaultClusterName = "default-pmm-cluster"
+
+var errClusterExists = errors.New("cluster already exists")
+
+// NewInitializer returns initialized Initializer structure
+func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
-		db:                     db,
-		l:                      l,
-		client:                 client,
+		db:          db,
+		l:           l,
+		dbaasClient: client,
 		dbClustersSynchronizer: dbClustersSynchronizer,
 	}
+}
+
+func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer) {
+	in.kubernetesServer = k
+}
+
+// Update updates current dbaas settings
+func (in *Initializer) Update(ctx context.Context) error {
+	settings, err := models.GetSettings(in.db)
+	if err != nil {
+		in.l.Errorf("Failed to get settings: %+v.", err)
+		return err
+	}
+	if settings.DBaaS.Enabled {
+		return in.Enable(ctx)
+	}
+	return in.Disable(ctx)
 }
 
 // Enable enables DBaaS feature and runs everything needed.
@@ -56,18 +83,59 @@ func (in *Initializer) Enable(ctx context.Context) error {
 		return nil
 	}
 	timeoutCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-	err := in.client.Connect(timeoutCtx)
-	cancel()
+	defer cancel()
+	err := in.dbaasClient.Connect(timeoutCtx)
 	if err != nil {
 		return err
 	}
 	ctx, in.cancel = context.WithCancel(ctx)
 	go in.dbClustersSynchronizer.Run(ctx)
 	in.enabled = true
+	return in.registerInCluster(ctx)
+}
+
+// registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
+func (in *Initializer) registerInCluster(ctx context.Context) error {
+	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
+	if err == nil {
+		// If err is not equal to nil, dont' register cluster and fail silently
+		err := in.db.InTransaction(func(t *reform.TX) error {
+			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
+			if err != nil {
+				in.l.Errorf("failed finding cluster: %v", err)
+				return nil
+			}
+			if cluster != nil {
+				return errClusterExists
+			}
+			return nil
+		})
+		if err != nil {
+			if errors.Is(err, errClusterExists) {
+				return nil
+			}
+			return err
+		}
+		if len(kubeConfig.Kubeconfig) != 0 {
+			req := &dbaasv1beta1.RegisterKubernetesClusterRequest{
+				KubernetesClusterName: defaultClusterName,
+				KubeAuth: &dbaasv1beta1.KubeAuth{
+					Kubeconfig: kubeConfig.Kubeconfig,
+				},
+			}
+			_, err = in.kubernetesServer.RegisterKubernetesCluster(ctx, req)
+			if err != nil {
+				return err
+			}
+			in.l.Info("Cluster is successfully initialized")
+		}
+	} else {
+		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
+	}
 	return nil
 }
 
-// Disable disables DBaaS feature and stops everything needed.
+// Disable disconnects from dbaas-controller and disabled dbaas feature
 func (in *Initializer) Disable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
@@ -77,7 +145,7 @@ func (in *Initializer) Disable(ctx context.Context) error {
 	if in.cancel != nil {
 		in.cancel()
 	}
-	err := in.client.Disconnect()
+	err := in.dbaasClient.Disconnect()
 	if err != nil {
 		return err
 	}

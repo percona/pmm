@@ -5,7 +5,7 @@ templates:
     summary: MongoDB restarted
     expr: |-
       mongodb_instance_uptime_seconds
-      < [[ .threshold ]]
+      < bool [[ .threshold ]]
     params:
       - name: threshold
         summary: Seconds from the last restart
