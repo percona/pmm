@@ -97,3 +97,27 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) 
 
 	return serviceName, socket, host, uint16(portI), nil
 }
+
+// Determine if parameters were passed.
+var (
+	usernameParameterSpecified = false
+	passwordParameterSpecified = false
+)
+
+// Types for username and password
+type (
+	username string
+	password string
+)
+
+// AfterApply Change usernameParameterSpecified flag if argument was passed
+func (u username) AfterApply() error {
+	usernameParameterSpecified = true
+	return nil
+}
+
+// AfterApply Change passwordParameterSpecified flag if argument was passed
+func (p password) AfterApply() error {
+	passwordParameterSpecified = true
+	return nil
+}

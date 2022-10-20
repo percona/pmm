@@ -66,25 +66,6 @@ type AddProxySQLCommand struct {
 	AddLogLevelFatalFlags
 }
 
-// Determines if parameters were passed
-var (
-	usernameSpecified = false
-	passwordSpecified = false
-)
-
-type username string
-type password string
-
-func (u username) AfterApply() error {
-	usernameSpecified = true
-	return nil
-}
-
-func (p password) AfterApply() error {
-	passwordSpecified = true
-	return nil
-}
-
 func (cmd *AddProxySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
@@ -128,11 +109,11 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.ServiceParamsSource == "" {
-		if !usernameSpecified {
+		if !usernameParameterSpecified {
 			cmd.Username = username(cmd.GetDefaultUsername())
 		}
 
-		if !passwordSpecified {
+		if !passwordParameterSpecified {
 			cmd.Password = password(cmd.GetDefaultPassword())
 		}
 	}

@@ -43,16 +43,16 @@ func (res *addPostgreSQLResult) String() string {
 
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
 type AddPostgreSQLCommand struct {
-	ServiceName         string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
-	Address             string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
-	Socket              string `help:"Path to socket"`
-	Username            string `help:"PostgreSQL username"`
-	Password            string `help:"PostgreSQL password"`
-	Database            string `help:"PostgreSQL database"`
-	AgentPassword       string `help:"Custom password for /metrics endpoint"`
-	ServiceParamsSource string `help:"Path to file with service parameters"`
-	NodeID              string `help:"Node ID (default is autodetected)"`
-	PMMAgentID          string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	ServiceName         string   `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
+	Address             string   `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
+	Socket              string   `help:"Path to socket"`
+	Username            username `help:"PostgreSQL username"`
+	Password            string   `help:"PostgreSQL password"`
+	Database            string   `help:"PostgreSQL database"`
+	AgentPassword       string   `help:"Custom password for /metrics endpoint"`
+	ServiceParamsSource string   `help:"Path to file with service parameters"`
+	NodeID              string   `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string   `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
 	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
 	Environment          string            `help:"Environment name"`
@@ -112,8 +112,8 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	if cmd.ServiceParamsSource == "" && cmd.Username == "" {
-		cmd.Username = cmd.GetDefaultUsername()
+	if cmd.ServiceParamsSource == "" && !usernameParameterSpecified {
+		cmd.Username = username(cmd.GetDefaultUsername())
 	}
 
 	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
@@ -158,7 +158,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 			Address:             host,
 			Port:                int64(port),
-			Username:            cmd.Username,
+			Username:            string(cmd.Username),
 			Password:            cmd.Password,
 			Database:            cmd.Database,
 			AgentPassword:       cmd.AgentPassword,
