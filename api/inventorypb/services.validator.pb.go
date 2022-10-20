@@ -101,6 +101,14 @@ func (this *ListServicesResponse) Validate() error {
 	return nil
 }
 
+func (this *ListActiveServiceTypesRequest) Validate() error {
+	return nil
+}
+
+func (this *ListActiveServiceTypesResponse) Validate() error {
+	return nil
+}
+
 func (this *GetServiceRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
