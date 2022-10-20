@@ -90,7 +90,6 @@ func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connection
 		softwareVersioner:  sv,
 		l:                  logrus.WithField("component", "client"),
 		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:               make(chan struct{}),
 		dialTimeout:        dialTimeout,
 		runner:             r,
 		defaultsFileParser: dfp,
@@ -192,22 +191,22 @@ func (c *Client) Run(ctx context.Context) error {
 	oneDone := make(chan struct{}, 4)
 	go func() {
 		c.processActionResults(ctx)
-		c.l.Infof("processActionResults is finished")
+		c.l.Debug("processActionResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
 		c.processJobsResults(ctx)
-		c.l.Infof("processJobsResults is finished")
+		c.l.Debug("processJobsResults is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
 		c.processSupervisorRequests(ctx)
-		c.l.Infof("processSupervisorRequests is finished")
+		c.l.Debug("processSupervisorRequests is finished")
 		oneDone <- struct{}{}
 	}()
 	go func() {
 		c.processChannelRequests(ctx)
-		c.l.Infof("processChannelRequests is finished")
+		c.l.Debug("processChannelRequests is finished")
 		oneDone <- struct{}{}
 	}()
 

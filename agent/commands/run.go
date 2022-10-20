@@ -21,6 +21,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -68,16 +69,27 @@ func Run() {
 	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)
 	connectionUptimeService.RunCleanupGoroutine(ctx)
 	supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports, &cfg.Server, &cfg.LogLinesCount)
-	supervisor.Run(ctx)
 	connectionChecker := connectionchecker.New(&cfg.Paths)
 	defaultsFileParser := defaultsfile.New()
 	v := versioner.New(&versioner.RealExecFunctions{})
 	r := runner.New(cfg.RunnerCapacity)
-	go r.Run(ctx)
 	client := client.New(&cfg, supervisor, r, connectionChecker, v, defaultsFileParser, connectionUptimeService, logStore)
 	localServer := agentlocal.NewServer(&cfg, supervisor, client, configFilepath, logStore)
 
+	var wg sync.WaitGroup
+	wg.Add(3)
 	go func() {
+		defer wg.Done()
+		supervisor.Run(ctx)
+		cancel()
+	}()
+	go func() {
+		defer wg.Done()
+		r.Run(ctx)
+		cancel()
+	}()
+	go func() {
+		defer wg.Done()
 		localServer.Run(ctx)
 		cancel()
 	}()
@@ -94,17 +106,18 @@ func Run() {
 		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 		connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
 
-		clientCtx, cancel := context.WithCancel(ctx)
+		clientCtx, cancelClientCtx := context.WithCancel(ctx)
 
 		_ = client.Run(clientCtx)
-		cancel()
+		cancelClientCtx()
 
 		<-client.Done()
 
 		if ctx.Err() != nil {
-			return
+			break
 		}
 	}
+	wg.Wait()
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {

@@ -112,10 +112,8 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 
 // Run waits for context and stop all agents when it's done
 func (s *Supervisor) Run(ctx context.Context) {
-	go func() {
-		<-ctx.Done()
-		s.stopAll()
-	}()
+	<-ctx.Done()
+	s.stopAll()
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
