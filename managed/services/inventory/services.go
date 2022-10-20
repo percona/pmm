@@ -35,7 +35,7 @@ type ServicesService struct {
 	vc    versionCache
 }
 
-// NewServicesService creates new ServicesService
+// NewServicesService creates new ServicesService.
 func NewServicesService(
 	db *reform.DB,
 	r agentsRegistry,
@@ -71,6 +71,40 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 		res[i], e = services.ToAPIService(s)
 		if e != nil {
 			return nil, e
+		}
+	}
+	return res, nil
+}
+
+// ListActiveServiceTypes lists all active Service Types
+//
+//nolint:unparam
+func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]inventorypb.ServiceType, error) {
+	var types []models.ServiceType
+	e := ss.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		types, err = models.FindActiveServiceTypes(tx.Querier)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	res := make([]inventorypb.ServiceType, 0, len(types))
+	for _, t := range types {
+		switch t {
+		case models.MySQLServiceType:
+			res = append(res, inventorypb.ServiceType_MYSQL_SERVICE) //nolint:nosnakecase
+		case models.MongoDBServiceType:
+			res = append(res, inventorypb.ServiceType_MONGODB_SERVICE) //nolint:nosnakecase
+		case models.PostgreSQLServiceType:
+			res = append(res, inventorypb.ServiceType_POSTGRESQL_SERVICE) //nolint:nosnakecase
+		case models.ProxySQLServiceType:
+			res = append(res, inventorypb.ServiceType_PROXYSQL_SERVICE) //nolint:nosnakecase
+		case models.HAProxyServiceType:
+			res = append(res, inventorypb.ServiceType_HAPROXY_SERVICE) //nolint:nosnakecase
+		case models.ExternalServiceType:
+			res = append(res, inventorypb.ServiceType_EXTERNAL_SERVICE) //nolint:nosnakecase
 		}
 	}
 	return res, nil

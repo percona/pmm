@@ -11,7 +11,7 @@ require (
 	github.com/bufbuild/buf v1.8.0
 	github.com/daixiang0/gci v0.8.0
 	github.com/go-delve/delve v1.9.1
-	github.com/go-openapi/runtime v0.24.1
+	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
