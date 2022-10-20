@@ -36,6 +36,8 @@ type ObjectDetailsClient interface {
 	GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error)
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
+	// QueryByQueryID get query for given query ID.
+	QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 }
 
 type objectDetailsClient struct {
@@ -100,6 +102,15 @@ func (c *objectDetailsClient) QueryExists(ctx context.Context, in *QueryExistsRe
 	return out, nil
 }
 
+func (c *objectDetailsClient) QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
+	out := new(wrapperspb.BoolValue)
+	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/QueryByQueryID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -116,6 +127,8 @@ type ObjectDetailsServer interface {
 	GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error)
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
+	// QueryByQueryID get query for given query ID.
+	QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.BoolValue, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -144,6 +157,10 @@ func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *Histogram
 
 func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
+}
+
+func (UnimplementedObjectDetailsServer) QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.BoolValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryByQueryID not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -266,6 +283,24 @@ func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ObjectDetails_QueryByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryByQueryIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ObjectDetailsServer).QueryByQueryID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/qan.v1beta1.ObjectDetails/QueryByQueryID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ObjectDetailsServer).QueryByQueryID(ctx, req.(*QueryByQueryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -296,6 +331,10 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryExists",
 			Handler:    _ObjectDetails_QueryExists_Handler,
+		},
+		{
+			MethodName: "QueryByQueryID",
+			Handler:    _ObjectDetails_QueryByQueryID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

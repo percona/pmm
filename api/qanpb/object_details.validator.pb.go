@@ -170,3 +170,7 @@ func (this *HistogramItem) Validate() error {
 func (this *QueryExistsRequest) Validate() error {
 	return nil
 }
+
+func (this *QueryByQueryIDRequest) Validate() error {
+	return nil
+}

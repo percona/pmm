@@ -53,6 +53,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // QueryByQueryID get query for given query ID.
+  rpc QueryByQueryID(QueryByQueryIDRequest) returns (google.protobuf.BoolValue) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/QueryByQueryID"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -183,7 +190,11 @@ message HistogramItem {
 // QueryExistsRequest check if provided query exists or not.
 message QueryExistsRequest {
   string serviceid = 1;
-  // Deprecated: should not be used, should be removed.
   string query = 2;
-  string query_id = 3;
+}
+
+// QueryByQueryIDRequest get query for given query ID.
+message QueryByQueryIDRequest {
+  string serviceid = 1;
+  string query_id = 2;
 }

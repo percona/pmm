@@ -124,11 +124,8 @@ type QueryExistsBody struct {
 	// serviceid
 	Serviceid string `json:"serviceid,omitempty"`
 
-	// Deprecated: should not be used, should be removed.
+	// query
 	Query string `json:"query,omitempty"`
-
-	// query id
-	QueryID string `json:"query_id,omitempty"`
 }
 
 // Validate validates this query exists body

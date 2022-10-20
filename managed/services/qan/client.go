@@ -125,6 +125,25 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	return nil
 }
 
+// QueryByQueryID get query for given query ID.
+// This avoid recieving custom queries.
+func (c *Client) QueryByQueryID(ctx context.Context, serviceID, queryID string) error {
+	qanReq := &qanpb.QueryByQueryIDRequest{
+		Serviceid: serviceID,
+		QueryId:   queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	resp, err := c.odc.QueryByQueryID(ctx, qanReq)
+	if err != nil {
+		return err
+	}
+	if !resp.Value {
+		return fmt.Errorf("given query is not valid")
+	}
+
+	return nil
+}
+
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
 	start := time.Now()
