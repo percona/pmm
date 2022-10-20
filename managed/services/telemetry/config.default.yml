@@ -108,6 +108,62 @@ telemetry:
       - metric_name: "mongodb_version"
         label: "mongodb"
 
+  - id: MongoDBExporterMetricsGeneralStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="general"}
+    summary: "Runtime for general collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_general"
+        value : 1
+
+  - id: MongoDBExporterMetricsDiagnosticDataStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="diagnostic_data"}
+    summary: "Runtime for diagnostic data collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
+        value : 1
+
+  - id: MongoDBExporterMetricsCollectionStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="collstats"}
+    summary: "Runtime for collection statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_collstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsDBStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="dbstats"}
+    summary: "Runtime for database statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_dbstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsIndexStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="indexstats"}
+    summary: "Runtime for index statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_indexstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsTopStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="top"}
+    summary: "Runtime for top metrics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_top"
+        value : 1
+
+  - id: MongoDBExporterMetricsReplicationStatus
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="replset_status"}
+    summary: "Runtime for replication status collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_replset_status"
+        value : 1
+
   - id: PMMPostgresDBVersion
     source: VM
     query: pg_static{service_name="pmm-server-postgresql", service_type="postgresql"}
