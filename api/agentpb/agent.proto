@@ -153,6 +153,7 @@ message StartActionRequest {
   message MySQLExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
+    // Deprecated: should not be used, should be removed.
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.

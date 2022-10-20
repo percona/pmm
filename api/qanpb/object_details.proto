@@ -183,5 +183,7 @@ message HistogramItem {
 // QueryExistsRequest check if provided query exists or not.
 message QueryExistsRequest {
   string serviceid = 1;
+  // Deprecated: should not be used, should be removed.
   string query = 2;
+  string query_id = 3;
 }

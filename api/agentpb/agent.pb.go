@@ -3728,7 +3728,8 @@ type StartActionRequest_MySQLExplainParams struct {
 	unknownFields protoimpl.UnknownFields
 
 	// DSN for the service. May contain connection (dial) timeout.
-	Dsn          string                   `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
+	// Deprecated: should not be used, should be removed.
 	Query        string                   `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	OutputFormat MysqlExplainOutputFormat `protobuf:"varint,3,opt,name=output_format,json=outputFormat,proto3,enum=agent.MysqlExplainOutputFormat" json:"output_format,omitempty"`
 	// Contains files and their contents which can be used in DSN.

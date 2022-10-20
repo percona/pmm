@@ -2010,8 +2010,13 @@
                   "x-order": 0
                 },
                 "query": {
+                  "description": "Deprecated: should not be used, should be removed.",
                   "type": "string",
                   "x-order": 1
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }
