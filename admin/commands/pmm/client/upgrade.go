@@ -49,6 +49,16 @@ const (
 	distributionDocker         distributionType = "docker"
 )
 
+const versionLatest = "latest"
+
+type packageManager int
+
+const (
+	dnf packageManager = iota
+	yum
+	apt
+)
+
 type upgradeResult struct{}
 
 // Result is a command run result.
@@ -170,16 +180,6 @@ func (c *UpgradeCommand) getUpgradeCommands() ([][]string, error) {
 
 	return nil, fmt.Errorf("%w: cannot detect package manager (yum/dnf/apt)", ErrNoUpgradeCommandFound)
 }
-
-const versionLatest = "latest"
-
-type packageManager int
-
-const (
-	dnf packageManager = iota
-	yum
-	apt
-)
 
 func (c *UpgradeCommand) getVersionSuffix(pm packageManager) string {
 	if c.Version == "" || c.Version == versionLatest {
