@@ -104,6 +104,7 @@ func TestPerformBackup(t *testing.T) {
 			},
 		},
 	})
+	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
