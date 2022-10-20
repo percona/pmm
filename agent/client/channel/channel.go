@@ -31,6 +31,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+// MessageType represent message type labels in grafana.
 type MessageType string
 
 const (
@@ -41,25 +42,25 @@ const (
 
 	labelMessageType = "message_type"
 
-	ActionResult      MessageType = "action_result"
-	AgentLogs         MessageType = "agent_logs"
-	CheckConnection   MessageType = "check_connection"
-	GetVersions       MessageType = "get_versions"
-	JobProgress       MessageType = "job_progress"
-	JobResult         MessageType = "job_result"
-	JobStatus         MessageType = "job_status"
-	ParseDefaultsFile MessageType = "parse_defaults_file"
-	PbmSwitchPitr     MessageType = "pbm_switch_pitr"
-	Ping              MessageType = "ping"
-	Pong              MessageType = "pong"
-	QanCollect        MessageType = "qan_collect"
-	SetState          MessageType = "set_state"
-	StartAction       MessageType = "start_action"
-	StartJob          MessageType = "start_job"
-	StateChanged      MessageType = "state_changed"
-	StopAction        MessageType = "stop_action"
-	StopJob           MessageType = "stop_job"
-	Unknown           MessageType = "unknown"
+	ActionResult      MessageType = "action_result"       // stands for action result response message.
+	AgentLogs         MessageType = "agent_logs"          // stands for agent logs request message.
+	CheckConnection   MessageType = "check_connection"    // stands for check connection request message.
+	GetVersions       MessageType = "get_versions"        // stands for get versions request message.
+	JobProgress       MessageType = "job_progress"        // stands for job progress response message.
+	JobResult         MessageType = "job_result"          // stands for job result response message.
+	JobStatus         MessageType = "job_status"          // stands for job status request message.
+	ParseDefaultsFile MessageType = "parse_defaults_file" // stands for parse_defaults_file request message.
+	PbmSwitchPitr     MessageType = "pbm_switch_pitr"     // stands for pbm_switch_pitr request message.
+	Ping              MessageType = "ping"                // stands for ping request message.
+	Pong              MessageType = "pong"                // stands for pong response message.
+	QanCollect        MessageType = "qan_collect"         // stands for qan_collect response message.
+	SetState          MessageType = "set_state"           // stands for set_state request message.
+	StartAction       MessageType = "start_action"        // stands for start_action request message.
+	StartJob          MessageType = "start_job"           // stands for start_job request message.
+	StateChanged      MessageType = "state_changed"       // stands for state_changed response message.
+	StopAction        MessageType = "stop_action"         // stands for stop_action request message.
+	StopJob           MessageType = "stop_job"            // stands for stop_job request message.
+	Unknown           MessageType = "unknown"             // stands for unknown message type.
 )
 
 // ServerRequest represents a request from server.
