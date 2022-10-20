@@ -36,7 +36,7 @@ import (
 
 // TODO move tests to other files and remove this one.
 func TestDevContainer(t *testing.T) {
-	var gRPCMessageMaxSize uint32 = 100 * 1024 * 1024
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	gaReleaseDate := time.Date(2019, 9, 18, 0, 0, 0, 0, time.UTC)
 
 	t.Run("Installed", func(t *testing.T) {

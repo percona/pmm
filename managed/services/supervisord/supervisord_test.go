@@ -32,7 +32,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	t.Parallel()
-	var gRPCMessageMaxSize uint32 = 100 * 1024 * 1024
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
@@ -63,7 +63,7 @@ func TestConfig(t *testing.T) {
 
 func TestDBaaSController(t *testing.T) {
 	t.Parallel()
-	var gRPCMessageMaxSize uint32 = 100 * 1024 * 1024
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 
 	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
