@@ -48,8 +48,8 @@ type AddProxySQLCommand struct {
 	Socket              string            `help:"Path to ProxySQL socket"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username            string            `help:"ProxySQL username"`
-	Password            string            `help:"ProxySQL password"`
+	Username            username          `help:"ProxySQL username"`
+	Password            password          `help:"ProxySQL password"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
 	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Environment         string            `help:"Environment name"`
@@ -64,6 +64,25 @@ type AddProxySQLCommand struct {
 
 	AddCommonFlags
 	AddLogLevelFatalFlags
+}
+
+// Determines if parameters were passed
+var (
+	usernameSpecified = false
+	passwordSpecified = false
+)
+
+type username string
+type password string
+
+func (u username) AfterApply() error {
+	usernameSpecified = true
+	return nil
+}
+
+func (p password) AfterApply() error {
+	passwordSpecified = true
+	return nil
 }
 
 func (cmd *AddProxySQLCommand) GetServiceName() string {
@@ -109,12 +128,12 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.ServiceParamsSource == "" {
-		if cmd.Username == "" {
-			cmd.Username = cmd.GetDefaultUsername()
+		if !usernameSpecified {
+			cmd.Username = username(cmd.GetDefaultUsername())
 		}
 
-		if cmd.Password == "" {
-			cmd.Password = cmd.GetDefaultPassword()
+		if !passwordSpecified {
+			cmd.Password = password(cmd.GetDefaultPassword())
 		}
 	}
 
@@ -134,8 +153,8 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 			Environment:         cmd.Environment,
 			Cluster:             cmd.Cluster,
 			ReplicationSet:      cmd.ReplicationSet,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
+			Username:            string(cmd.Username),
+			Password:            string(cmd.Password),
 			AgentPassword:       cmd.AgentPassword,
 			ServiceParamsSource: cmd.ServiceParamsSource,
 
