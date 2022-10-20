@@ -34,8 +34,8 @@ type Initializer struct {
 	db *reform.DB
 	l  *logrus.Entry
 
-	dbaasClient      dbaasClient
-	kubernetesServer dbaasv1beta1.KubernetesServer
+	dbaasClient            dbaasClient
+	kubernetesServer       dbaasv1beta1.KubernetesServer
 	dbClustersSynchronizer *DBClustersSynchronizer
 
 	enabled bool
@@ -48,12 +48,12 @@ const defaultClusterName = "default-pmm-cluster"
 var errClusterExists = errors.New("cluster already exists")
 
 // NewInitializer returns initialized Initializer structure
-func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
+func NewInitializer(db *reform.DB, client dbaasClient, dbClustersSynchronizer *DBClustersSynchronizer) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
-		db:          db,
-		l:           l,
-		dbaasClient: client,
+		db:                     db,
+		l:                      l,
+		dbaasClient:            client,
 		dbClustersSynchronizer: dbClustersSynchronizer,
 	}
 }

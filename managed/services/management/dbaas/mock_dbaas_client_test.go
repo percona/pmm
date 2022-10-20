@@ -246,6 +246,29 @@ func (_m *mockDbaasClient) GetLogs(ctx context.Context, in *controllerv1beta1.Ge
 	return r0, r1
 }
 
+// GetPSMDBCluster provides a mock function with given fields: ctx, kubeconfig, name
+func (_m *mockDbaasClient) GetPSMDBCluster(ctx context.Context, kubeconfig string, name string) (*controllerv1beta1.GetPSMDBClusterResponse, error) {
+	ret := _m.Called(ctx, kubeconfig, name)
+
+	var r0 *controllerv1beta1.GetPSMDBClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *controllerv1beta1.GetPSMDBClusterResponse); ok {
+		r0 = rf(ctx, kubeconfig, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.GetPSMDBClusterResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, kubeconfig, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetPSMDBClusterCredentials provides a mock function with given fields: ctx, in, opts
 func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -269,6 +292,29 @@ func (_m *mockDbaasClient) GetPSMDBClusterCredentials(ctx context.Context, in *c
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, *controllerv1beta1.GetPSMDBClusterCredentialsRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPXCCluster provides a mock function with given fields: ctx, kubeconfig, name
+func (_m *mockDbaasClient) GetPXCCluster(ctx context.Context, kubeconfig string, name string) (*controllerv1beta1.GetPXCClusterResponse, error) {
+	ret := _m.Called(ctx, kubeconfig, name)
+
+	var r0 *controllerv1beta1.GetPXCClusterResponse
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) *controllerv1beta1.GetPXCClusterResponse); ok {
+		r0 = rf(ctx, kubeconfig, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*controllerv1beta1.GetPXCClusterResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, kubeconfig, name)
 	} else {
 		r1 = ret.Error(1)
 	}
