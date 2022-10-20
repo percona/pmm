@@ -36,8 +36,13 @@ release:                        ## Build pmm-managed release binaries.
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 	$(PMM_RELEASE_PATH)/pmm-managed --version
 
+ARCH=$(shell uname -m)
 release-dev:
-	go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	@if [ $(ARCH) = "aarch64" ]; then\
+	    go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	else \
+	    go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	fi
 
 PMM_TEST_FLAGS ?= -timeout=90s
 PMM_TEST_RUN_UPDATE ?= 0
