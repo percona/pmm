@@ -305,18 +305,6 @@ func TestRestoreBackup(t *testing.T) {
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
-
-		t.Run("physical backups is not supported", func(t *testing.T) {
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("", nil).Once()
-
-			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
-			require.ErrorIs(t, err, ErrIncompatibleService)
-			assert.Empty(t, restoreID)
-		})
 	})
 
 	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentService, mockedCompatibilityService)
