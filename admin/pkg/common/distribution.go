@@ -14,9 +14,7 @@
 
 package common
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // PackageManager represents a specific package manager used by the system.
 type PackageManager int
