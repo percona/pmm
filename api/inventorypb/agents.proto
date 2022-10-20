@@ -47,7 +47,7 @@ message PMMAgent {
   // Path to exec process.
   string process_exec_path = 5;
   // Listen port for scraping metrics.
-  uint32 listen_port = 7;
+  uint32 listen_port = 6;
 }
 
 // VMAgent runs on Generic or Container Node alongside pmm-agent.
