@@ -7316,7 +7316,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_UNSUPPORTED_AGENT"
                         ],
                         "x-order": 8
                       },

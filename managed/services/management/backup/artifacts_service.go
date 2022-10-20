@@ -138,6 +138,8 @@ func convertBackupStatus(status models.BackupStatus) (backupv1beta1.BackupStatus
 		return backupv1beta1.BackupStatus_BACKUP_STATUS_DELETING, nil
 	case models.FailedToDeleteBackupStatus:
 		return backupv1beta1.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
+	case models.UnsupportedPMMAgentStatus:
+		return backupv1beta1.BackupStatus_BACKUP_STATUS_UNSUPPORTED_AGENT, nil
 	default:
 		return 0, errors.Errorf("invalid status '%s'", status)
 	}

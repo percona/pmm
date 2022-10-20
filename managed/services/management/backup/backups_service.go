@@ -70,34 +70,35 @@ func NewBackupsService(
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
+func convertBackupError(backupErr error) error {
+	if backupErr == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.UnsupportedAgentError
+	if errors.As(backupErr, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
 	}
 
 	var code backupv1beta1.ErrorCode
 	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+	case errors.Is(backupErr, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, backupErr.Error())
+	case errors.Is(backupErr, backup.ErrXtrabackupNotInstalled):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+	case errors.Is(backupErr, backup.ErrInvalidXtrabackup):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+	case errors.Is(backupErr, backup.ErrIncompatibleXtrabackup):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
 	default:
-		return restoreError
+		return backupErr
 	}
 
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
+	st, err := status.New(codes.FailedPrecondition, backupErr.Error()).WithDetails(&backupv1beta1.Error{
 		Code: code,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, backupErr)
 	}
 
 	return st.Err()
@@ -151,6 +152,11 @@ func convertRestoreBackupError(restoreError error) error {
 		return nil
 	}
 
+	var unsupportedAgentErr *agents.UnsupportedAgentError
+	if errors.As(restoreError, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	}
+
 	var code backupv1beta1.ErrorCode
 	switch {
 	case errors.Is(restoreError, backup.ErrIncompatibleService):
@@ -163,10 +169,6 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
 	default:
 		return restoreError
 	}

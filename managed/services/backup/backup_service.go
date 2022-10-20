@@ -22,11 +22,13 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 // Service represents core logic for db backup.
@@ -35,6 +37,8 @@ type Service struct {
 	jobsService          jobsService
 	agentService         agentService
 	compatibilityService compatibilityService
+
+	l *logrus.Entry
 }
 
 // NewService creates new backups logic service.
@@ -44,6 +48,7 @@ func NewService(db *reform.DB, jobsService jobsService, agentService agentServic
 		jobsService:          jobsService,
 		agentService:         agentService,
 		compatibilityService: cSvc,
+		l:                    logrus.WithField("component", "management/backup/backup"),
 	}
 }
 
@@ -186,11 +191,11 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		var target *agents.UnsupportedAgentError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+				Status: models.BackupStatusPointer(models.UnsupportedPMMAgentStatus),
 			})
 
 			if dbErr != nil {
-				s.l.WithError(err).Error("update backup artifact status")
+				s.l.WithError(err).Error("failed to update backup artifact status")
 			}
 			return artifact.ID, status.Error(codes.FailedPrecondition, target.Error())
 		}
