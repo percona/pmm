@@ -47,7 +47,7 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
 func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-	err := s.qanClient.QueryExists(ctx, serviceID, queryID)
+	query, err := s.qanClient.QueryByQueryID(ctx, serviceID, queryID)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				QueryId:      queryID,
+				Query:        query,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

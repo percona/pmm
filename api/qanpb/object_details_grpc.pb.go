@@ -37,7 +37,7 @@ type ObjectDetailsClient interface {
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	// QueryByQueryID get query for given query ID.
-	QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
+	QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
 type objectDetailsClient struct {
@@ -102,8 +102,8 @@ func (c *objectDetailsClient) QueryExists(ctx context.Context, in *QueryExistsRe
 	return out, nil
 }
 
-func (c *objectDetailsClient) QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
-	out := new(wrapperspb.BoolValue)
+func (c *objectDetailsClient) QueryByQueryID(ctx context.Context, in *QueryByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, "/qan.v1beta1.ObjectDetails/QueryByQueryID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ type ObjectDetailsServer interface {
 	// QueryExists check if query exists in clickhouse.
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
 	// QueryByQueryID get query for given query ID.
-	QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.BoolValue, error)
+	QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -159,7 +159,7 @@ func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExist
 	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.BoolValue, error) {
+func (UnimplementedObjectDetailsServer) QueryByQueryID(context.Context, *QueryByQueryIDRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryByQueryID not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}

@@ -54,14 +54,14 @@ QueryByQueryIDOK describes a response with status code 200, with default header 
 A successful response.
 */
 type QueryByQueryIDOK struct {
-	Payload bool
+	Payload string
 }
 
 func (o *QueryByQueryIDOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/QueryByQueryID][%d] queryByQueryIdOk  %+v", 200, o.Payload)
 }
 
-func (o *QueryByQueryIDOK) GetPayload() bool {
+func (o *QueryByQueryIDOK) GetPayload() string {
 	return o.Payload
 }
 

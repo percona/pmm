@@ -2021,7 +2021,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "boolean"
+              "type": "string"
             }
           },
           "default": {

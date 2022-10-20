@@ -54,7 +54,7 @@ service ObjectDetails {
     };
   }
   // QueryByQueryID get query for given query ID.
-  rpc QueryByQueryID(QueryByQueryIDRequest) returns (google.protobuf.BoolValue) {
+  rpc QueryByQueryID(QueryByQueryIDRequest) returns (google.protobuf.StringValue) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/QueryByQueryID"
       body: "*"
