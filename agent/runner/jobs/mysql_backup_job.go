@@ -37,32 +37,23 @@ const (
 
 // MySQLBackupJob implements Job for MySQL backup.
 type MySQLBackupJob struct {
-	id       string
-	timeout  time.Duration
-	l        logrus.FieldLogger
-	name     string
-	connConf DBConnConfig
-	location BackupLocationConfig
-}
-
-// DBConnConfig contains required properties for connection to DB.
-type DBConnConfig struct {
-	User     string
-	Password string
-	Address  string
-	Port     int
-	Socket   string
+	id             string
+	timeout        time.Duration
+	l              logrus.FieldLogger
+	name           string
+	connConf       DBConnConfig
+	locationConfig BackupLocationConfig
 }
 
 // NewMySQLBackupJob constructs new Job for MySQL backup.
 func NewMySQLBackupJob(id string, timeout time.Duration, name string, connConf DBConnConfig, locationConfig BackupLocationConfig) *MySQLBackupJob {
 	return &MySQLBackupJob{
-		id:       id,
-		timeout:  timeout,
-		l:        logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_backup", "name": name}),
-		name:     name,
-		connConf: connConf,
-		location: locationConfig,
+		id:             id,
+		timeout:        timeout,
+		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_backup", "name": name}),
+		name:           name,
+		connConf:       connConf,
+		locationConfig: locationConfig,
 	}
 }
 
@@ -111,7 +102,7 @@ func (j *MySQLBackupJob) binariesInstalled() error {
 		return errors.Wrapf(err, "lookpath: %s", qpressBin)
 	}
 
-	if j.location.S3Config != nil {
+	if j.locationConfig.Type == S3BackupLocationType {
 		if _, err := exec.LookPath(xbcloudBin); err != nil {
 			return errors.Wrapf(err, "lookpath: %s", xbcloudBin)
 		}
@@ -160,16 +151,16 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 
 	var xbcloudCmd *exec.Cmd
 	switch {
-	case j.location.S3Config != nil:
+	case j.locationConfig.Type == S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
 		xbcloudCmd = exec.CommandContext(pipeCtx, xbcloudBin,
 			"put",
 			"--storage=s3",
-			"--s3-endpoint="+j.location.S3Config.Endpoint,
-			"--s3-access-key="+j.location.S3Config.AccessKey,
-			"--s3-secret-key="+j.location.S3Config.SecretKey,
-			"--s3-bucket="+j.location.S3Config.BucketName,
-			"--s3-region="+j.location.S3Config.BucketRegion,
+			"--s3-endpoint="+j.locationConfig.S3Config.Endpoint,
+			"--s3-access-key="+j.locationConfig.S3Config.AccessKey,
+			"--s3-secret-key="+j.locationConfig.S3Config.SecretKey,
+			"--s3-bucket="+j.locationConfig.S3Config.BucketName,
+			"--s3-region="+j.locationConfig.S3Config.BucketRegion,
 			"--parallel=10",
 			j.name) // #nosec G204
 	default:

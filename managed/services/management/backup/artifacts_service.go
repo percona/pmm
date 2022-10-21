@@ -146,14 +146,14 @@ func convertBackupStatus(status models.BackupStatus) (backupv1beta1.BackupStatus
 func convertArtifact(
 	a *models.Artifact,
 	services map[string]*models.Service,
-	locations map[string]*models.BackupLocation,
+	locationModels map[string]*models.BackupLocation,
 ) (*backupv1beta1.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
 	if err := createdAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
 	}
 
-	l, ok := locations[a.LocationID]
+	l, ok := locationModels[a.LocationID]
 	if !ok {
 		return nil, errors.Errorf(
 			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID)

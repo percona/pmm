@@ -38,10 +38,11 @@ var DefaultInterval = time.Duration(time.Minute)
 const reportChanBuffer = 1000
 
 // New returns configured *Aggregator
-func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator {
+func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
 	aggregator := &Aggregator{
-		agentID: agentID,
-		logger:  logger,
+		agentID:        agentID,
+		logger:         logger,
+		maxQueryLength: maxQueryLength,
 	}
 
 	// create duration from interval
@@ -59,8 +60,9 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry) *Aggregator 
 
 // Aggregator aggregates system.profile document
 type Aggregator struct {
-	agentID string
-	logger  *logrus.Entry
+	agentID        string
+	maxQueryLength int32
+	logger         *logrus.Entry
 
 	// provides
 	reportChan chan *report.Report
@@ -252,9 +254,8 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 			collection = s[1]
 		}
 
-		defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
-		fingerprint, _ := truncate.Query(v.Fingerprint, defaultMaxQueryLength)
-		query, truncated := truncate.Query(v.Query, defaultMaxQueryLength)
+		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength)
+		query, truncated := truncate.Query(v.Query, a.maxQueryLength)
 		bucket := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:             v.ID,
