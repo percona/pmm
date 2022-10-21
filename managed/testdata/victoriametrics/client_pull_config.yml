@@ -1,0 +1,103 @@
+global: {}
+scrape_configs:
+    - job_name: node_exporter_agent_id_b637c3dc-ef3b-46ff-88e3-4771af5403f3_hr
+      honor_timestamps: false
+      params:
+        collect[]:
+            - buddyinfo
+            - cpu
+            - diskstats
+            - filefd
+            - filesystem
+            - loadavg
+            - meminfo
+            - meminfo_numa
+            - netdev
+            - netstat
+            - processes
+            - standard.go
+            - standard.process
+            - stat
+            - textfile.hr
+            - time
+            - vmstat
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            agent_type: node_exporter
+            instance: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            node_id: /node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d
+            node_name: 306ccd68606f
+            node_type: container
+      basic_auth:
+        username: pmm
+        password: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+      follow_redirects: false
+    - job_name: node_exporter_agent_id_b637c3dc-ef3b-46ff-88e3-4771af5403f3_mr
+      honor_timestamps: false
+      params:
+        collect[]:
+            - hwmon
+            - textfile.mr
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            agent_type: node_exporter
+            instance: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            node_id: /node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d
+            node_name: 306ccd68606f
+            node_type: container
+      basic_auth:
+        username: pmm
+        password: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+      follow_redirects: false
+    - job_name: node_exporter_agent_id_b637c3dc-ef3b-46ff-88e3-4771af5403f3_lr
+      honor_timestamps: false
+      params:
+        collect[]:
+            - bonding
+            - entropy
+            - textfile.lr
+            - uname
+      scrape_interval: 1m
+      scrape_timeout: 54s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:42000
+          labels:
+            agent_id: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            agent_type: node_exporter
+            instance: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+            node_id: /node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d
+            node_name: 306ccd68606f
+            node_type: container
+      basic_auth:
+        username: pmm
+        password: /agent_id/b637c3dc-ef3b-46ff-88e3-4771af5403f3
+      follow_redirects: false
+    - job_name: vmagent_agent_id_e9117eb5-e2df-41c4-a7e1-7fa6fb9eadc8_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      static_configs:
+        - targets:
+            - 127.0.0.1:42001
+          labels:
+            agent_id: /agent_id/e9117eb5-e2df-41c4-a7e1-7fa6fb9eadc8
+            agent_type: vmagent
+            instance: /agent_id/e9117eb5-e2df-41c4-a7e1-7fa6fb9eadc8
+            node_id: /node_id/bdac8d61-9bd0-45dc-a42d-27cf3bdb5e6d
+            node_name: 306ccd68606f
+            node_type: container
+      follow_redirects: false

@@ -1,0 +1,104 @@
+# Managed by pmm-managed. DO NOT EDIT.
+---
+global:
+    scrape_interval: 1m
+    scrape_timeout: 54s
+scrape_configs:
+    - job_name: victoriametrics
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /prometheus/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9090
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: vmalert
+      honor_timestamps: false
+      scrape_interval: 5s
+      scrape_timeout: 4500ms
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:8880
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: alertmanager
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /alertmanager/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9093
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: grafana
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:3000
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: pmm-managed
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7773
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: qan-api2
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:9933
+          labels:
+            instance: pmm-server
+      follow_redirects: false
+    - job_name: pmm-agent_agent_id_8dddcd70-9ee5-4513-8120-164d1ffec743_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 172.17.0.2:7777
+          labels:
+            agent_id: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
+            agent_type: pmm-agent
+            instance: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
+      basic_auth:
+        username: pmm
+        password: /agent_id/8dddcd70-9ee5-4513-8120-164d1ffec743
+      follow_redirects: false
+    - job_name: pmm-agent_pmm-server_mr
+      honor_timestamps: false
+      scrape_interval: 10s
+      scrape_timeout: 9s
+      metrics_path: /debug/metrics
+      static_configs:
+        - targets:
+            - 127.0.0.1:7777
+          labels:
+            agent_id: pmm-server
+            agent_type: pmm-agent
+            instance: pmm-server
+      basic_auth:
+        username: pmm
+        password: pmm-server
+      follow_redirects: false
