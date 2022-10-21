@@ -26,9 +26,10 @@ import (
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -79,9 +80,9 @@ type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
 }
 
-// agentsRegistry is a subset of methods of agents.Registry used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle
-type agentsRegistry interface {
+// agentService is a subset of methods of agents.AgentService used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type agentService interface {
 	PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error
 }
 
@@ -97,4 +98,11 @@ type pitrLocationClient interface {
 	// List scans path with prefix and returns all files with given suffix.
 	// Both prefix and suffix can be omitted.
 	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
+}
+
+type compatibilityService interface {
+	// CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
+	// and they are compatible with the db version.
+	// Returns db version.
+	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
 }

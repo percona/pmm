@@ -461,6 +461,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &perfschema.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
@@ -469,8 +470,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
-			DSN:     dsn,
-			AgentID: agentID,
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
 		agent, err = mongodb.New(params, l)
 
@@ -479,6 +481,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			DSN:                  dsn,
 			AgentID:              agentID,
 			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
@@ -488,9 +491,10 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:       dsn,
-			AgentID:   agentID,
-			TextFiles: builtinAgent.GetTextFiles(),
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+			TextFiles:      builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
@@ -498,6 +502,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatmonitor.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
