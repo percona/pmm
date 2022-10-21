@@ -73,7 +73,8 @@ type Supervisor struct {
 
 	logLinesCount uint
 
-	agentStatuses prometheus.GaugeVec
+	agentStatuses          prometheus.GaugeVec
+	agentStatusChangeCount prometheus.CounterVec
 }
 
 // agentProcessInfo describes Agent process.
@@ -122,6 +123,12 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 			Subsystem: prometheusSubsystem,
 			Name:      "agent_statuses",
 			Help:      "An integer between 0 and 6 that represent agent status. [invalid, starting, running, waiting, stopping, done, unknown]",
+		}, []string{labelAgentID}),
+		agentStatusChangeCount: *prometheus.NewCounterVec(prometheus.CounterOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_status_changes_count",
+			Help:      "A total number of agent status changes.",
 		}, []string{labelAgentID}),
 	}
 
@@ -231,6 +238,8 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
 	s.agentStatuses.WithLabelValues(agentID).Set(float64(status))
+	s.agentStatusChangeCount.WithLabelValues(agentID).Inc()
+
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
@@ -680,6 +689,7 @@ func (s *Supervisor) stopAll() {
 // Describe implements prometheus.Collector.
 func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 	s.agentStatuses.Describe(ch)
+	s.agentStatusChangeCount.Describe(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
@@ -691,6 +701,7 @@ func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 // Collect implement prometheus.Collector.
 func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	s.agentStatuses.Collect(ch)
+	s.agentStatusChangeCount.Collect(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
