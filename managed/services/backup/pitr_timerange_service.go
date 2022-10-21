@@ -130,7 +130,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 
 	for _, f := range pitrFiles {
 		if f.IsDeleteMarker {
-			ss.l.Warningf("skip pitr chunk %s/%s because of %v", prefix, f.Name, err)
+			ss.l.Warningf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
 			continue
 		}
 		chunk := pitrMetaFromFileName(prefix, f.Name)
