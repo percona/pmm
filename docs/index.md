@@ -174,8 +174,6 @@ A minimal PMM set-up comprises one [server](details/architecture.md#pmm-server) 
       </svg>
     </p>
 
-<img src="https://tracking.g2crowd.com/attribution_tracking/conversions/1007137.gif?e=" />
-
 
 [percona_services]: https://www.percona.com/services
 [community]: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management

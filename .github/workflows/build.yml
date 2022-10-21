@@ -39,26 +39,9 @@ jobs:
           git config user.password "${ROBOT_TOKEN}"
           echo "GIT_USER=percona-platform-robot:${ROBOT_TOKEN}" >> $GITHUB_ENV
 
-      # Builds theme-less static web site in 'publish' branch for percona.com
-      - name: Build a theme-less site (2.x)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          PATH=$PATH:_resources/bin mike deploy -F mkdocs-percona.yml 2.x -b publish -p
-          mike retitle -F mkdocs-percona.yml 2.x "PMM 2.x (LATEST)" -b publish -p
-
       # Builds Material-themed static web site in 'preview' branch
       - name: Build a themed site (2.x)
         run: |
           PATH=$PATH:_resources/bin mike deploy 2.x -b preview
           mike set-default 2.x -b preview
           mike retitle 2.x "PMM 2.x (LATEST)" -b preview
-
-      - name: Install NodeJS
-        uses: percona-platform/setup-node@v2
-        with:
-          node-version: "14"
-
-      - name: Spelling
-        run: |
-          # Ignore errors, just inspect results
-          npx markdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md" || true

@@ -7,10 +7,15 @@ plugins:
   section-index: {}
   bootstrap-tables: {}
 
-theme:
-  name: material
-  custom_dir: _resources/theme
-
 extra_css:
+  - https://unicons.iconscout.com/release/v3.0.3/css/line.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
+  - css/percona.css
+  - css/lightgallery.min.css
   - css/version-select.css
-  - css/toctree.css
+
+extra: # Used in main.html template and can't be externalized
+  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
+  version:
+    provider: mike
