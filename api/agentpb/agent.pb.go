@@ -5165,7 +5165,9 @@ type StartJobRequest_MySQLBackup struct {
 	// Database unix socket. Can't be specified with address/port.
 	Socket string `protobuf:"bytes,5,opt,name=socket,proto3" json:"socket,omitempty"`
 	// Backup name.
-	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"` // Backup target location.
+	Name string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	// Backup target location.
+	//
 	// Types that are assignable to LocationConfig:
 	//
 	//	*StartJobRequest_MySQLBackup_S3Config
