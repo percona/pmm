@@ -47,6 +47,13 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+const (
+	prometheusNamespace = "pmm_agent"
+	prometheusSubsystem = "supervisor"
+
+	labelAgentID = "agent_id"
+)
+
 // Supervisor manages all Agents, both processes and built-in.
 type Supervisor struct {
 	ctx           context.Context
@@ -65,6 +72,8 @@ type Supervisor struct {
 	lastStatuses map[string]inventorypb.AgentStatus
 
 	logLinesCount uint
+
+	agentStatuses prometheus.GaugeVec
 }
 
 // agentProcessInfo describes Agent process.
@@ -107,6 +116,13 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 		lastStatuses:   make(map[string]inventorypb.AgentStatus),
 
 		logLinesCount: logLinesCount,
+
+		agentStatuses: *prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_statuses",
+			Help:      "An integer between 0 and 6 that represent agent status. [invalid, starting, running, waiting, stopping, done, unknown]",
+		}, []string{labelAgentID}),
 	}
 
 	go func() {
@@ -214,6 +230,7 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 }
 
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
+	s.agentStatuses.WithLabelValues(agentID).Set(float64(status))
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
@@ -662,6 +679,7 @@ func (s *Supervisor) stopAll() {
 
 // Describe implements prometheus.Collector.
 func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
+	s.agentStatuses.Describe(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
@@ -672,6 +690,7 @@ func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implement prometheus.Collector.
 func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
+	s.agentStatuses.Collect(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
