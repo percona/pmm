@@ -430,11 +430,11 @@ func TestPITRMergeTimelines(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got := mergeTimelines(test.tl...)
 			if len(test.expect) != len(got) {
-				t.Fatalf("wrong timelines, exepct <%d> %v, got <%d> %v", len(test.expect), printttl(test.expect...), len(got), printttl(got...))
+				t.Fatalf("wrong timelines, exepct <%d> %v, got <%d> %v", len(test.expect), printTTL(test.expect...), len(got), printTTL(got...))
 			}
 			for i, gl := range got {
 				if test.expect[i] != gl {
-					t.Errorf("wrong timeline %d, exepct %v, got %v", i, printttl(test.expect[i]), printttl(gl))
+					t.Errorf("wrong timeline %d, exepct %v, got %v", i, printTTL(test.expect[i]), printTTL(gl))
 				}
 			}
 		})
@@ -485,7 +485,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 	}
 }
 
-func printttl(tlns ...Timeline) string {
+func printTTL(tlns ...Timeline) string {
 	ret := make([]string, 0, len(tlns))
 	for _, t := range tlns {
 		ret = append(ret, fmt.Sprintf("[%v - %v]", t.Start, t.End))
