@@ -94,11 +94,12 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID      string `yaml:"id"`
-	Source  string `yaml:"source"`
-	Query   string `yaml:"query"`
-	Summary string `yaml:"summary"`
-	Data    []ConfigData
+	ID         string `yaml:"id"`
+	Source     string `yaml:"source"`
+	Query      string `yaml:"query"`
+	Summary    string `yaml:"summary"`
+	Data       []ConfigData
+	JsonFormat *JsonFormat `yaml:"json_format"`
 }
 
 // ConfigData telemetry config.
@@ -107,6 +108,17 @@ type ConfigData struct {
 	Label      string `yaml:"label"`
 	Value      string `yaml:"value"`
 	Column     string `yaml:"column"`
+}
+
+type Param struct {
+	Key    string `yaml:"key"`
+	Column string `yaml:"column"`
+}
+
+type JsonFormat struct {
+	Name       string  `yaml:"name"`
+	MetricName string  `yaml:"metric_name"`
+	Params     []Param `yaml:"params"`
 }
 
 func (c *Config) mapByColumn() map[string][]ConfigData {

@@ -19,9 +19,9 @@ package telemetry
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -98,32 +98,101 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	cfgColumns := config.mapByColumn()
 
 	var metrics [][]*pmmv1.ServerMetric_Metric
-	for rows.Next() {
-		if err := rows.Scan(values...); err != nil {
-			l.Error(err)
-			continue
+
+	if config.JsonFormat != nil {
+		parser := TelemetryDBTelemetryParserJson{
+			l: l,
 		}
 
-		var metric []*pmmv1.ServerMetric_Metric
-		for idx, column := range columns {
-			value := pointer.GetString(strs[idx])
-			if value == "" {
+		filteredKeyValues := make(map[string]string)
+		for _, param := range config.JsonFormat.Params {
+			filteredKeyValues[param.Column] = param.Key
+		}
+
+		res, err := parser.parse(rows, config.JsonFormat.MetricName, filteredKeyValues)
+		if err != nil {
+			l.Error("error: ", err)
+			return metrics, err
+		}
+		metrics = append(metrics, res)
+	} else {
+		for rows.Next() {
+			if err := rows.Scan(values...); err != nil {
+				l.Error(err)
 				continue
 			}
 
-			if cols, ok := cfgColumns[column]; ok {
-				for _, col := range cols {
-					metric = append(metric, &pmmv1.ServerMetric_Metric{
-						Key:   col.MetricName,
-						Value: value,
-					})
+			var metric []*pmmv1.ServerMetric_Metric
+			for idx, column := range columns {
+				var value string
+
+				// skip empty values
+				if strs[idx] == nil || *strs[idx] == "" {
+					continue
+				}
+
+				value = *strs[idx]
+				if cols, ok := cfgColumns[column]; ok {
+					for _, col := range cols {
+						metric = append(metric, &pmmv1.ServerMetric_Metric{
+							Key:   col.MetricName,
+							Value: value,
+						})
+					}
 				}
 			}
-		}
-		if len(metric) != 0 {
-			metrics = append(metrics, metric)
+			if len(metric) != 0 {
+				metrics = append(metrics, metric)
+			}
 		}
 	}
 
 	return metrics, nil
+}
+
+type TelemetryDBTelemetryParserJson struct {
+	l *logrus.Entry
+}
+
+func (t *TelemetryDBTelemetryParserJson) parse(rows *sql.Rows, metricName string, filteredKeyValues map[string]string) ([]*pmmv1.ServerMetric_Metric, error) {
+	var metric []*pmmv1.ServerMetric_Metric
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	strs := make([]*string, len(columns))
+	values := make([]interface{}, len(columns))
+	for i := range values {
+		values[i] = &strs[i]
+	}
+
+	for rows.Next() {
+		res := make(map[string]any)
+		if err := rows.Scan(values...); err != nil {
+			t.l.Error(err)
+			continue
+		}
+
+		for idx, col := range columns {
+			key, ok := filteredKeyValues[col]
+			if !ok {
+				continue
+			}
+			res[key] = *strs[idx]
+		}
+
+		marshal, err := json.Marshal(res)
+		if err != nil {
+			return nil, err
+		}
+
+		metric = append(metric, &pmmv1.ServerMetric_Metric{
+			Key:   metricName,
+			Value: string(marshal),
+		})
+	}
+
+	return metric, nil
 }

@@ -49,6 +49,20 @@ telemetry:
       - metric_name: "pmm_server_updates_disabled"
         column: "updates_disabled"
 
+  - id: PMMAgentRandomInfo
+    source: PMMDB_SELECT
+    query: agent_type, status from agents
+    summary: "PMMAgentRandomInfo"
+    json_format:
+      metric_name: pmm_agents_random_info
+      params:
+        - key: agent_type
+          column: agent_type
+        - key: status
+          column: status
+#         label: value #for VM
+#         value: 1    #for VM
+
   # Services Information
   - id: MySQLVersion
     source: VM
