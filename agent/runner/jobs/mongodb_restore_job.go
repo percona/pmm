@@ -16,6 +16,7 @@ package jobs
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -28,23 +29,30 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const (
+	listCheckInterval = 1 * time.Second
+	maxListChecks     = 100
+)
+
 // MongoDBRestoreJob implements Job for MongoDB restore.
 type MongoDBRestoreJob struct {
 	id             string
 	timeout        time.Duration
 	l              *logrus.Entry
 	name           string
+	pitrTimestamp  time.Time
 	dbURL          *url.URL
 	locationConfig BackupLocationConfig
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
-func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
+func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, pitrTimestamp time.Time, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:           name,
+		pitrTimestamp:  pitrTimestamp,
 		dbURL:          createDBURL(dbConfig),
 		locationConfig: locationConfig,
 	}
@@ -103,7 +111,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, snapshot.Type, restoreOut.Name, confFile); err != nil {
+	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile); err != nil {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
@@ -122,25 +130,49 @@ func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context) (*pbmSnapshot, err
 	j.l.Info("Finding backup entity name.")
 
 	var list pbmList
-	if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
-		return nil, err
-	}
+	ticker := time.NewTicker(listCheckInterval)
+	defer ticker.Stop()
 
-	if len(list.Snapshots) == 0 {
-		return nil, errors.New("failed to find backup entity")
-	}
+	checks := 0
+	for {
+		select {
+		case <-ticker.C:
+			checks++
+			if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
+				return nil, err
+			}
 
-	return &list.Snapshots[len(list.Snapshots)-1], nil
+			if len(list.Snapshots) == 0 {
+				j.l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
+				if checks > maxListChecks {
+					return nil, errors.New("failed to find backup entity")
+				}
+				continue
+			}
+
+			return &list.Snapshots[len(list.Snapshots)-1], nil
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {
 	j.l.Infof("starting backup restore for: %s.", backupName)
 
 	var restoreOutput pbmRestore
-	err := execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+	var err error
+	startTime := time.Now()
+
+	if j.pitrTimestamp.Unix() == 0 {
+		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+	} else {
+		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+	}
 	if err != nil {
 		return nil, errors.Wrapf(err, "pbm restore error: %v", err)
 	}
 
+	restoreOutput.StartedAt = startTime
 	return &restoreOutput, nil
 }

@@ -70,39 +70,6 @@ func NewBackupsService(
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
-		return nil
-	}
-
-	var code backupv1beta1.ErrorCode
-	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
-	default:
-		return restoreError
-	}
-
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
-		Code: code,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
-	}
-
-	return st.Err()
-}
-
 // StartBackup starts on-demand backup.
 func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.StartBackupRequest) (*backupv1beta1.StartBackupResponse, error) {
 	if req.Retries > maxRetriesAttempts {
@@ -146,47 +113,12 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backupv1beta1.Sta
 	}, nil
 }
 
-func convertRestoreBackupError(restoreError error) error {
-	if restoreError == nil {
-		return nil
-	}
-
-	var code backupv1beta1.ErrorCode
-	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
-		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
-	default:
-		return restoreError
-	}
-
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
-		Code: code,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
-	}
-
-	return st.Err()
-}
-
 // RestoreBackup starts restore backup job.
 func (s *BackupsService) RestoreBackup(
 	ctx context.Context,
 	req *backupv1beta1.RestoreBackupRequest,
 ) (*backupv1beta1.RestoreBackupResponse, error) {
-	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId)
+	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
 	if err != nil {
 		return nil, convertRestoreBackupError(err)
 	}
@@ -664,6 +596,79 @@ func convertModelToBackupModel(dataModel backupv1beta1.DataModel) (models.DataMo
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
 	}
+}
+
+func convertBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backupv1beta1.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
+}
+
+func convertRestoreBackupError(restoreError error) error {
+	if restoreError == nil {
+		return nil
+	}
+
+	var code backupv1beta1.ErrorCode
+	switch {
+	case errors.Is(restoreError, backup.ErrIncompatibleService):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
+	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
+		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
+		return status.Error(codes.OutOfRange, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(restoreError, models.ErrNotFound):
+		return status.Error(codes.NotFound, restoreError.Error())
+
+	default:
+		return restoreError
+	}
+
+	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backupv1beta1.Error{
+		Code: code,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	}
+
+	return st.Err()
 }
 
 // Check interfaces.

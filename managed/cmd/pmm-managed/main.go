@@ -804,7 +804,7 @@ func main() {
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentService, compatibilityService)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)

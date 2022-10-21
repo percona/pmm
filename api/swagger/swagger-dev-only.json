@@ -8134,6 +8134,12 @@
                   "description": "Artifact id to restore.",
                   "type": "string",
                   "x-order": 1
+                },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
                 }
               }
             }

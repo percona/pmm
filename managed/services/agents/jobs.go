@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -495,6 +496,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
+	pitrTimestamp time.Time,
 ) error {
 	var err error
 	switch dataModel {
@@ -512,12 +514,13 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
-		Name:     name,
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
+		Name:          name,
+		User:          dbConfig.User,
+		Password:      dbConfig.Password,
+		Address:       dbConfig.Address,
+		Port:          int32(dbConfig.Port),
+		Socket:        dbConfig.Socket,
+		PitrTimestamp: timestamppb.New(pitrTimestamp),
 	}
 
 	switch {

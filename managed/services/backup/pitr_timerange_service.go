@@ -154,7 +154,7 @@ func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifact
 		return nil, nil
 	}
 
-	t, err := getTimelines(oplogs), nil
+	t, err := gettimelines(oplogs), nil
 	if err != nil {
 		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
 	}
@@ -167,7 +167,7 @@ func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifact
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
 // it returns nil if the file wasn't parse successfully (e.g. wrong format)
-// current format is 20200715155939-0.20200715160029-1.oplog.snappy
+// current fromat is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! should be agreed with pbm/pitr.chunkPath()
@@ -226,7 +226,7 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	return &ts
 }
 
-func getTimelines(slices []*oplogChunk) []Timeline {
+func gettimelines(slices []*oplogChunk) []Timeline {
 	var tl Timeline
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp

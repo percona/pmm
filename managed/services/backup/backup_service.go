@@ -35,15 +35,17 @@ type Service struct {
 	jobsService          jobsService
 	agentService         agentService
 	compatibilityService compatibilityService
+	pitrTimerangeService pitrTimerangeService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pitrSvc pitrTimerangeService) *Service {
 	return &Service{
 		db:                   db,
 		jobsService:          jobsService,
 		agentService:         agentService,
 		compatibilityService: cSvc,
+		pitrTimerangeService: pitrSvc,
 	}
 }
 
@@ -222,10 +224,15 @@ type prepareRestoreJobParams struct {
 	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
+	PITRTimestamp time.Time
 }
 
 // RestoreBackup starts restore backup job.
-func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error) {
+func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
+	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
+		return "", err
+	}
+
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, serviceID)
 	if err != nil {
 		return "", err
@@ -235,7 +242,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 	var jobID, restoreID string
 	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID)
+		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID, pitrTimestamp)
 		if err != nil {
 			return err
 		}
@@ -248,9 +255,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		}
 
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
-			ArtifactID: artifactID,
-			ServiceID:  serviceID,
-			Status:     models.InProgressRestoreStatus,
+			ArtifactID:    artifactID,
+			ServiceID:     serviceID,
+			PITRTimestamp: &pitrTimestamp,
+			Status:        models.InProgressRestoreStatus,
 		})
 		if err != nil {
 			return err
@@ -361,6 +369,7 @@ func (s *Service) prepareRestoreJob(
 	q *reform.Querier,
 	serviceID string,
 	artifactID string,
+	pitrTimestamp time.Time,
 ) (*prepareRestoreJobParams, error) {
 	service, err := models.FindServiceByID(q, serviceID)
 	if err != nil {
@@ -401,6 +410,7 @@ func (s *Service) prepareRestoreJob(
 		ServiceType:   service.ServiceType,
 		DBConfig:      dbConfig,
 		DataModel:     artifact.DataModel,
+		PITRTimestamp: pitrTimestamp,
 	}, nil
 }
 
@@ -429,7 +439,8 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 			params.ArtifactName,
 			params.DBConfig,
 			params.DataModel,
-			locationConfig); err != nil {
+			locationConfig,
+			params.PITRTimestamp); err != nil {
 			return err
 		}
 	case models.PostgreSQLServiceType,
@@ -505,4 +516,75 @@ func (s *Service) prepareBackupJob(
 	}
 
 	return res, dbConfig, nil
+}
+
+// checkArtifactModePreconditions checks that artifact params and requested restore mode satisfy each other.
+func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID string, pitrTimestamp time.Time) error {
+	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
+	if err != nil {
+		return err
+	}
+
+	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
+		return err
+	}
+
+	// Continue checks only if user requested PITR restore.
+	if pitrTimestamp.Unix() == 0 {
+		return nil
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
+
+	timeRanges, err := s.pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
+	if err != nil {
+		return err
+	}
+
+	for _, tRange := range timeRanges {
+		if inTimeSpan(time.Unix(int64(tRange.Start), 0), time.Unix(int64(tRange.End), 0), pitrTimestamp) {
+			return nil
+		}
+	}
+
+	return errors.Wrapf(ErrTimestampOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+}
+
+// checkArtifactMode crosschecks artifact params and requested restore mode.
+func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
+	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
+		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB")
+	}
+
+	if artifact.Mode != models.PITR {
+		if pitrTimestamp.Unix() == 0 {
+			return nil
+		}
+		if pitrTimestamp.Unix() != 0 {
+			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
+		}
+	} else {
+		if pitrTimestamp.Unix() == 0 {
+			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+		}
+		if artifact.DataModel == models.PhysicalDataModel {
+			return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
+		}
+	}
+
+	return nil
+}
+
+// inTimeSpan checks whether given time is in the given range
+func inTimeSpan(start, end, check time.Time) bool {
+	if start.Before(end) {
+		return !check.Before(start) && !check.After(end)
+	}
+	if start.Equal(end) {
+		return check.Equal(start)
+	}
+	return !start.After(check) || !end.Before(check)
 }

@@ -202,7 +202,7 @@ func TestRestoreBackupErrors(t *testing.T) {
 	} {
 		t.Run(tc.testName, func(t *testing.T) {
 			backupError := fmt.Errorf("error: %w", tc.backupError)
-			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1").
+			backupService.On("RestoreBackup", mock.Anything, "serviceID1", "artifactID1", mock.Anything).
 				Return("", backupError).Once()
 			ctx := context.Background()
 			resp, err := backupSvc.RestoreBackup(ctx, &backupv1beta1.RestoreBackupRequest{

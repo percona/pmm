@@ -17,6 +17,7 @@ package backup
 
 import (
 	"context"
+	"time"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
@@ -37,7 +38,7 @@ type awsS3 interface {
 
 type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
-	RestoreBackup(ctx context.Context, serviceID, artifactID string) (string, error)
+	RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error)
 	SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error
 }
 

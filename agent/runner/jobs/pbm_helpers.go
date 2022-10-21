@@ -34,6 +34,7 @@ const (
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 5 * time.Second
+	maxRestoreChecks    = 10
 )
 
 type pbmSeverity int
@@ -94,8 +95,10 @@ type pbmBackup struct {
 }
 
 type pbmRestore struct {
-	Name     string `json:"name"`
-	Snapshot string `json:"snapshot"`
+	StartedAt time.Time
+	Name      string `json:"name"`
+	Snapshot  string `json:"snapshot"`
+	PITR      string `json:"point-in-time"`
 }
 
 type pbmSnapshot struct {
@@ -112,6 +115,16 @@ type pbmList struct {
 		On     bool        `json:"on"`
 		Ranges interface{} `json:"ranges"`
 	} `json:"pitr"`
+}
+
+type pbmListRestore struct {
+	Start    int    `json:"start"`
+	Status   string `json:"status"`
+	Type     string `json:"type"`
+	Snapshot string `json:"snapshot"`
+	PITR     int64  `json:"point-in-time"`
+	Name     string `json:"name"`
+	Error    string `json:"error"`
 }
 
 type pbmStatus struct {
@@ -218,7 +231,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
 			if err != nil {
 				// for the first couple of seconds after backup process starts describe-backup command may return this error
-				if strings.HasSuffix(err.Error(), "no such file") && retryCount > 0 {
+				if (strings.HasSuffix(err.Error(), "no such file") || strings.HasSuffix(err.Error(), "file is empty")) && retryCount > 0 {
 					retryCount--
 					continue
 				}
@@ -241,12 +254,71 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, backupType, name, confFile string) error {
-	l.Infof("waiting for pbm restore: %s", name)
+func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRestore) (string, error) {
+	restoreInfoPITRTime, err := time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
+	if err != nil {
+		return "", err
+	}
+
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
+	findRestore := func(list []pbmListRestore) *pbmListRestore {
+		for i := len(list) - 1; i >= 0; i-- {
+			// list[i].Name is a string which represents time the restore was started.
+			restoreStartedAt, err := time.Parse("2006-01-02T15:04:05Z", list[i].Name)
+			if err != nil {
+				continue
+			}
+			// Because of https://jira.percona.com/browse/PBM-723 to find our restore record in the list of all records we're checking:
+			// 1. We received PITR field as a response on starting process
+			// 2. There is a record with the same PITR field in the list of restoring records
+			// 3. Start time of this record is not before the time we asked for restoring.
+			if !restoreInfoPITRTime.IsZero() && list[i].PITR == restoreInfoPITRTime.Unix() && !restoreInfo.StartedAt.Before(restoreStartedAt) {
+				return &list[i]
+			}
+		}
+		return nil
+	}
+	checks := 0
+	for {
+		select {
+		case <-ticker.C:
+			checks++
+			var list []pbmListRestore
+			if err := execPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
+				return "", errors.Wrapf(err, "pbm status error")
+			}
+			entry := findRestore(list)
+			if entry == nil {
+				if checks > maxRestoreChecks {
+					return "", errors.Errorf("failed to start restore")
+				}
+				continue
+			} else {
+				return entry.Name, nil
+			}
+		case <-ctx.Done():
+			return "", ctx.Err()
+		}
+	}
+}
+
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore, backupType, confFile string) error {
+	l.Infof("waiting for pbm restore")
+	var name string
 	var err error
+
+	// @TODO Do like this until https://jira.percona.com/browse/PBM-723 is not done.
+	if restoreInfo.PITR != "" { // TODO add more checks of PBM responses.
+		name, err = findPITRRestoreName(ctx, dbURL, restoreInfo)
+	} else {
+		name = restoreInfo.Name
+	}
+
+	ticker := time.NewTicker(statusCheckInterval)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:

@@ -753,6 +753,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE backup_locations
 			DROP COLUMN pmm_server_config`,
 	},
+	70: {
+		`ALTER TABLE restore_history
+			ADD COLUMN pitr_timestamp TIMESTAMP`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
