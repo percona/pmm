@@ -97,6 +97,11 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			if params.DataModel != models.PhysicalDataModel {
 				return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
 			}
+
+			if locationModel.Type != models.S3BackupLocationType {
+				return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is s3")
+			}
+
 			if params.Mode != models.Snapshot {
 				return errors.New("the only supported backup mode for mySQL is snapshot")
 			}
@@ -368,10 +373,6 @@ func (s *Service) prepareRestoreJob(
 	}
 	if artifact.Status != models.SuccessBackupStatus {
 		return nil, errors.Errorf("artifact %q status is not successful, status: %q", artifactID, artifact.Status)
-	}
-
-	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
-		return nil, errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
 	}
 
 	location, err := models.FindBackupLocationByID(q, artifact.LocationID)

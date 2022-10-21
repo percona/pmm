@@ -17,6 +17,7 @@ package jobs
 import (
 	"context"
 	"net/url"
+	"os"
 	"os/exec"
 	"time"
 
@@ -74,28 +75,35 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if err := pbmConfigure(ctx, j.l, j.dbURL, conf); err != nil {
+
+	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMState(rCtx, j.l, j.dbURL, pbmNoRunningOperations); err != nil {
+	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait pbm configuration completion")
 	}
 	cancel()
 
-	backupName, err := j.findSnapshotName(ctx)
+	snapshot, err := j.findSnapshot(ctx)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	restoreOut, err := j.startRestore(ctx, backupName)
+	restoreOut, err := j.startRestore(ctx, snapshot.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut.Snapshot); err != nil {
+	if err := waitForPBMRestore(ctx, j.l, j.dbURL, snapshot.Type, restoreOut.Name, confFile); err != nil {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
@@ -110,23 +118,23 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	return nil
 }
 
-func (j *MongoDBRestoreJob) findSnapshotName(ctx context.Context) (string, error) {
+func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context) (*pbmSnapshot, error) {
 	j.l.Info("Finding backup entity name.")
 
 	var list pbmList
 	if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if len(list.Snapshots) == 0 {
-		return "", errors.New("failed to find backup entity")
+		return nil, errors.New("failed to find backup entity")
 	}
 
-	return list.Snapshots[len(list.Snapshots)-1].Name, nil
+	return &list.Snapshots[len(list.Snapshots)-1], nil
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {
-	j.l.Info("Starting backup restore.")
+	j.l.Infof("starting backup restore for: %s.", backupName)
 
 	var restoreOutput pbmRestore
 	err := execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)

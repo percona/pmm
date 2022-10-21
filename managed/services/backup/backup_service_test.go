@@ -80,9 +80,9 @@ func TestPerformBackup(t *testing.T) {
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
-	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
-		Name:        "Test location",
-		Description: "Test description",
+	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+		Name:        "Test s3 location",
+		Description: "Test s3 description",
 		BackupLocationConfig: models.BackupLocationConfig{
 			S3Config: &models.S3LocationConfig{
 				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
@@ -90,6 +90,17 @@ func TestPerformBackup(t *testing.T) {
 				SecretKey:    "secret_key",
 				BucketName:   "example_bucket",
 				BucketRegion: "us-east-2",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	localLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+		Name:        "Test local location",
+		Description: "Test local description",
+		BackupLocationConfig: models.BackupLocationConfig{
+			PMMClientConfig: &models.PMMClientLocationConfig{
+				Path: "/opt/data/",
 			},
 		},
 	})
@@ -103,17 +114,37 @@ func TestPerformBackup(t *testing.T) {
 		for _, tc := range []struct {
 			name          string
 			dbVersion     string
+			locationID    string
+			dataModel     models.DataModel
 			expectedError error
 		}{
 			{
 				name:          "successful",
 				dbVersion:     "8.0.25",
+				locationID:    s3Location.ID,
+				dataModel:     models.PhysicalDataModel,
 				expectedError: nil,
 			},
 			{
 				name:          "fail",
 				dbVersion:     "",
+				locationID:    s3Location.ID,
+				dataModel:     models.PhysicalDataModel,
 				expectedError: ErrXtrabackupNotInstalled,
+			},
+			{
+				name:          "unsupported data model",
+				dbVersion:     "8.0.25",
+				locationID:    s3Location.ID,
+				dataModel:     models.LogicalDataModel,
+				expectedError: ErrIncompatibleDataModel,
+			},
+			{
+				name:          "unsupported location type",
+				dbVersion:     "8.0.25",
+				locationID:    localLocation.ID,
+				dataModel:     models.PhysicalDataModel,
+				expectedError: ErrIncompatibleLocationType,
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
@@ -121,7 +152,7 @@ func TestPerformBackup(t *testing.T) {
 					Return(tc.dbVersion, tc.expectedError).Once()
 				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 					ServiceID:  pointer.GetString(agent.ServiceID),
-					LocationID: locationRes.ID,
+					LocationID: s3Location.ID,
 					Name:       "test_backup",
 					DataModel:  models.PhysicalDataModel,
 					Mode:       models.Snapshot,
@@ -136,7 +167,7 @@ func TestPerformBackup(t *testing.T) {
 				assert.NoError(t, err)
 				artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 				require.NoError(t, err)
-				assert.Equal(t, locationRes.ID, artifact.LocationID)
+				assert.Equal(t, s3Location.ID, artifact.LocationID)
 				assert.Equal(t, *agent.ServiceID, artifact.ServiceID)
 				assert.EqualValues(t, models.MySQLServiceType, artifact.Vendor)
 			})
@@ -151,7 +182,7 @@ func TestPerformBackup(t *testing.T) {
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: locationRes.ID,
+				LocationID: s3Location.ID,
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.PITR,
@@ -164,7 +195,7 @@ func TestPerformBackup(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, "").Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 				ServiceID:  "",
-				LocationID: locationRes.ID,
+				LocationID: s3Location.ID,
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.PITR,
@@ -178,7 +209,7 @@ func TestPerformBackup(t *testing.T) {
 				Return("", nil).Once()
 			artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
 				ServiceID:  pointer.GetString(agent.ServiceID),
-				LocationID: locationRes.ID,
+				LocationID: s3Location.ID,
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.Incremental,
@@ -303,18 +334,6 @@ func TestRestoreBackup(t *testing.T) {
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
-			assert.Empty(t, restoreID)
-		})
-
-		t.Run("physical backups is not supported", func(t *testing.T) {
-			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
-				Return("", nil).Once()
-
-			_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID)
-			require.ErrorIs(t, err, ErrIncompatibleService)
 			assert.Empty(t, restoreID)
 		})
 	})
