@@ -103,11 +103,9 @@ type pbmErrorObject struct {
 }
 
 type pbmSnapshot struct {
-	Name       string         `json:"name"`
-	Status     string         `json:"status"`
-	Error      pbmErrorObject `json:"error"`
-	CompleteTS int            `json:"completeTS"` // We don't use this field. Do we need it?
-	PbmVersion string         `json:"pbmVersion"` // We don't use this field. Do we need it?
+	Name   string         `json:"name"`
+	Status string         `json:"status"`
+	Error  pbmErrorObject `json:"error"`
 }
 
 type pbmList struct {
