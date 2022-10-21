@@ -2207,17 +2207,17 @@
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -2228,7 +2228,7 @@
                   "type": "integer",
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for Service.",
@@ -2244,12 +2244,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "enable_all_collectors": {
                   "type": "boolean",
                   "title": "Enable all collectors",
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2268,7 +2268,13 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 29
+                  "x-order": 30
+                },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 21
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -2279,7 +2285,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -2325,7 +2331,7 @@
                 "service_params_source": {
                   "type": "string",
                   "title": "Service parameters",
-                  "x-order": 30
+                  "x-order": 31
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
@@ -2343,7 +2349,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
@@ -2522,7 +2528,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -2541,7 +2547,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -2551,7 +2563,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -2571,7 +2583,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
