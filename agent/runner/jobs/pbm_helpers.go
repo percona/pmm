@@ -33,6 +33,7 @@ const (
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 5 * time.Second
+	maxRestoreChecks    = 10
 )
 
 type pbmSeverity int
@@ -208,18 +209,8 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	}
 }
 
-func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore) error {
-	l.Info("waiting for pbm backup")
-
-	var restoreInfoPITRTime time.Time
-	var err error
-	if restoreInfo.PITR != "" {
-		restoreInfoPITRTime, err = time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
-		if err != nil {
-			return err
-		}
-	}
-
+func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, name string) error {
+	l.Infof("waiting for pbm backup: %s", name)
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
@@ -245,42 +236,73 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 			return ctx.Err()
 		}
 	}
+}
 
+func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRestore) (string, error) {
+	restoreInfoPITRTime, err := time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
+	if err != nil {
+		return "", err
+	}
 
-	// @TODO Find from end (the newest one) until https://jira.percona.com/browse/PBM-723 is not done.
+	ticker := time.NewTicker(statusCheckInterval)
+	defer ticker.Stop()
+
 	findRestore := func(list []pbmListRestore) *pbmListRestore {
 		for i := len(list) - 1; i >= 0; i-- {
-			if restoreInfo.Name != "" {
-				if restoreInfo.Name == list[i].Name {
-					return &list[i]
-				}
-			} else {
-				// list[i].Name is a string which represents time the restore was started.
-				restoreStartedAt, err := time.Parse("2006-01-02T15:04:05Z", list[i].Name)
-				if err != nil {
-					continue
-				}
-				// Because of https://jira.percona.com/browse/PBM-723 to find our restore record in the list of all records we're checking:
-				// 1. We received PITR field as a response on starting process
-				// 2. There is a record with the same PITR field in the list of restoring records
-				// 3. Start time of this record is not before the time we asked for restoring.
-				if !restoreInfoPITRTime.IsZero() && list[i].PITR == restoreInfoPITRTime.Unix() && !restoreInfo.StartedAt.Before(restoreStartedAt) {
-					return &list[i]
-				}
+			// list[i].Name is a string which represents time the restore was started.
+			restoreStartedAt, err := time.Parse("2006-01-02T15:04:05Z", list[i].Name)
+			if err != nil {
+				continue
+			}
+			// Because of https://jira.percona.com/browse/PBM-723 to find our restore record in the list of all records we're checking:
+			// 1. We received PITR field as a response on starting process
+			// 2. There is a record with the same PITR field in the list of restoring records
+			// 3. Start time of this record is not before the time we asked for restoring.
+			if !restoreInfoPITRTime.IsZero() && list[i].PITR == restoreInfoPITRTime.Unix() && !restoreInfo.StartedAt.Before(restoreStartedAt) {
+				return &list[i]
 			}
 		}
 		return nil
 	}
-
-
+	checks := 0
+	for {
+		select {
+		case <-ticker.C:
+			checks++
+			var list []pbmListRestore
+			if err := execPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
+				return "", errors.Wrapf(err, "pbm status error")
+			}
+			entry := findRestore(list)
+			if entry == nil {
+				if checks > maxRestoreChecks {
+					return "", errors.Errorf("failed to start restore")
+				}
+				continue
+			} else {
+				return entry.Name, nil
+			}
+		case <-ctx.Done():
+			return "", ctx.Err()
+		}
+	}
 }
 
-func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, backupType, name, confFile string) error {
-	l.Infof("waiting for pbm restore: %s", name)
+func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, restoreInfo *pbmRestore, backupType, confFile string) error {
+	l.Infof("waiting for pbm restore")
+	var name string
+	var err error
+
+	// @TODO Do like this until https://jira.percona.com/browse/PBM-723 is not done.
+	if restoreInfo.PITR != "" { // TODO add more checks of PBM responses.
+		name, err = findPITRRestoreName(ctx, dbURL, restoreInfo)
+	} else {
+		name = restoreInfo.Name
+	}
+
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
-	var err error
 	for {
 		select {
 		case <-ticker.C:

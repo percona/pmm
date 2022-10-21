@@ -111,7 +111,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrap(err, "failed to start backup restore")
 	}
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, snapshot.Type, restoreOut.Name, confFile); err != nil {
+	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile); err != nil {
 		return errors.Wrap(err, "failed to wait backup restore completion")
 	}
 
