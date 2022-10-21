@@ -261,6 +261,7 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent)
 		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
+		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
