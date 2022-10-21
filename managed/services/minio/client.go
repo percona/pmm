@@ -43,8 +43,12 @@ func New() *Client {
 
 // FileInfo contains information about a single file in the bucket.
 type FileInfo struct {
-	Name string // with path
+	// Name is the absolute object name (with path included)
+	Name string
+	// Size is the size of the object
 	Size int64
+	// IsDeleteMarker specifies if the object is marked for deletion
+	IsDeleteMarker bool
 }
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
@@ -153,8 +157,9 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 
 		if strings.HasSuffix(f, suffix) {
 			files = append(files, FileInfo{
-				Name: f,
-				Size: object.Size,
+				Name:           f,
+				Size:           object.Size,
+				IsDeleteMarker: object.IsDeleteMarker,
 			})
 		}
 	}
@@ -181,6 +186,7 @@ func (c *Client) FileStat(ctx context.Context, endpoint, accessKey, secretKey, b
 
 	file.Name = name
 	file.Size = stat.Size
+	file.IsDeleteMarker = stat.IsDeleteMarker
 
 	if file.Size == 0 {
 		return file, errors.New("file is empty")
