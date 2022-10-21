@@ -22,6 +22,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -44,24 +45,24 @@ type describeInfo struct {
 }
 
 const (
-	pbmFatal pbmSeverity = iota
-	pbmError
-	pbmWarning
-	pbmInfo
-	pbmDebug
+	pbmFatalSeverity pbmSeverity = iota
+	pbmErrorSeverity
+	pbmWarningSeverity
+	pbmInfoSeverity
+	pbmDebugSeverity
 )
 
 func (s pbmSeverity) String() string {
 	switch s {
-	case pbmFatal:
+	case pbmFatalSeverity:
 		return "F"
-	case pbmError:
+	case pbmErrorSeverity:
 		return "E"
-	case pbmWarning:
+	case pbmWarningSeverity:
 		return "W"
-	case pbmInfo:
+	case pbmInfoSeverity:
 		return "I"
-	case pbmDebug:
+	case pbmDebugSeverity:
 		return "D"
 	default:
 		return ""
@@ -158,6 +159,10 @@ type pbmStatus struct {
 	} `json:"running"`
 }
 
+type pbmError struct {
+	Error string `json:"Error"`
+}
+
 func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
@@ -167,9 +172,12 @@ func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ..
 
 	b, err := cmd.Output()
 	if err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			return errors.New(string(exitErr.Stderr))
+		// try to parse pbm error message
+		if len(b) != 0 {
+			var pbmErr pbmError
+			if e := json.Unmarshal(b, &pbmErr); e == nil {
+				return errors.New(pbmErr.Error)
+			}
 		}
 		return err
 	}
@@ -214,12 +222,20 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
+	retryCount := 10
+
 	for {
 		select {
 		case <-ticker.C:
 			var info describeInfo
 			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
 			if err != nil {
+				// for the first couple of seconds after backup process starts describe-backup command may return this error
+				if strings.HasSuffix(err.Error(), "no such file") && retryCount > 0 {
+					retryCount--
+					continue
+				}
+
 				return errors.Wrap(err, "failed to get backup status")
 			}
 

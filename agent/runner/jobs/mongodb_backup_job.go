@@ -140,12 +140,6 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	// Let pbm actually start backup
-	select {
-	case <-ctx.Done():
-	case <-time.After(backupStartThreshold):
-	}
-
 	if err := waitForPBMBackup(ctx, j.l, j.dbURL, pbmBackupOut.Name); err != nil {
 		j.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
