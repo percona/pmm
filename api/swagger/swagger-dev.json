@@ -5764,28 +5764,34 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "log_level": {
                   "type": "string",
@@ -5799,7 +5805,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
                 }
               }
             }
@@ -5850,13 +5856,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -5871,12 +5883,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -5890,7 +5902,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -8702,13 +8714,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -8723,12 +8741,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -8742,7 +8760,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -10745,13 +10763,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -10766,12 +10790,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -10785,7 +10809,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 9
@@ -12332,13 +12356,19 @@
                         "type": "boolean",
                         "x-order": 6
                       },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -12353,12 +12383,12 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "log_level": {
                         "type": "string",
@@ -12372,7 +12402,7 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },
@@ -22172,6 +22202,12 @@
                   "type": "string",
                   "x-order": 20
                 },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 21
+                },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
                   "type": "string",
@@ -22181,7 +22217,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "disable_collectors": {
                   "description": "List of collector names to disable in this exporter.",
@@ -22189,22 +22225,22 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "stats_collections": {
                   "description": "List of collections to get stats from. Can use * .",
@@ -22212,18 +22248,18 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "collections_limit": {
                   "type": "integer",
                   "format": "int32",
                   "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "enable_all_collectors": {
                   "type": "boolean",
                   "title": "Enable all collectors",
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "log_level": {
                   "type": "string",
@@ -22237,7 +22273,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 29
+                  "x-order": 30
                 }
               }
             }
@@ -22471,13 +22507,19 @@
                       "type": "boolean",
                       "x-order": 6
                     },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -22492,12 +22534,12 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "log_level": {
                       "type": "string",
@@ -22511,7 +22553,7 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
                     }
                   },
                   "x-order": 2

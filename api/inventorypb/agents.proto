@@ -355,6 +355,8 @@ message QANMongoDBProfilerAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 13;
   // True if query examples are disabled.
   // bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 
@@ -1113,6 +1115,8 @@ message AddQANMongoDBProfilerAgentRequest {
   string tls_certificate_key_file_password = 10;
   // Certificate Authority certificate chain.
   string tls_ca = 11;
+  // Limit query length in QAN (default: server-defined; -1: no limit).
+  int32 max_query_length = 15;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
   // Skip connection check.

@@ -1830,12 +1830,12 @@
                 "authentication_database": {
                   "description": "Authentication database.",
                   "type": "string",
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "authentication_mechanism": {
                   "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
                   "type": "string",
-                  "x-order": 11
+                  "x-order": 12
                 },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
@@ -1843,7 +1843,7 @@
                   "additionalProperties": {
                     "type": "string"
                   },
-                  "x-order": 9
+                  "x-order": 10
                 },
                 "log_level": {
                   "type": "string",
@@ -1857,7 +1857,13 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 13
+                  "x-order": 14
+                },
+                "max_query_length": {
+                  "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
                 },
                 "password": {
                   "description": "MongoDB password for getting profile data.",
@@ -1877,7 +1883,7 @@
                 "skip_connection_check": {
                   "description": "Skip connection check.",
                   "type": "boolean",
-                  "x-order": 10
+                  "x-order": 11
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
@@ -1934,7 +1940,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -1953,7 +1959,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -1963,7 +1975,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -1983,7 +1995,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4786,7 +4798,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4805,7 +4817,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4815,7 +4833,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4835,7 +4853,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -6716,7 +6734,7 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -6735,7 +6753,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 10
+                      "x-order": 11
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -6745,7 +6769,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -6765,7 +6789,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -8300,7 +8324,7 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "disabled": {
                         "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -8319,7 +8343,13 @@
                           "info",
                           "debug"
                         ],
-                        "x-order": 10
+                        "x-order": 11
+                      },
+                      "max_query_length": {
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
                       },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
@@ -8329,7 +8359,7 @@
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "service_id": {
                         "description": "Service identifier.",
@@ -8349,7 +8379,7 @@
                           "DONE",
                           "UNKNOWN"
                         ],
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "tls": {
                         "description": "Use TLS for database connections.",
