@@ -42,7 +42,7 @@ func NewCompatibilityService(db *reform.DB, v versioner) *CompatibilityService {
 	}
 }
 
-// checkSoftwareCompatibilityForService contains compatibility checking logic.
+// checkCompatibility contains compatibility checking logic.
 func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, agentModel *models.Agent) (string, error) {
 	// Only MySQL compatibility checking implemented for now.
 	if serviceModel.ServiceType != models.MySQLServiceType {

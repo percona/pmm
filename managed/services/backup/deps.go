@@ -30,6 +30,7 @@ import (
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -107,4 +108,10 @@ type pitrLocationClient interface {
 	// List scans path with prefix and returns all files with given suffix.
 	// Both prefix and suffix can be omitted.
 	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
+}
+
+// pitrTimerangeService provides methods that help us inspect PITR artifacts
+type pitrTimerangeService interface {
+	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
+	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error)
 }

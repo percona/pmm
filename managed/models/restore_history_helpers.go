@@ -104,7 +104,7 @@ func FindRestoreHistoryItemByID(q *reform.Querier, id string) (*RestoreHistoryIt
 type CreateRestoreHistoryItemParams struct {
 	ArtifactID    string
 	ServiceID     string
-	PITRTimestamp time.Time
+	PITRTimestamp *time.Time
 	Status        RestoreStatus
 }
 
@@ -140,7 +140,7 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 		ID:            id,
 		ArtifactID:    params.ArtifactID,
 		ServiceID:     params.ServiceID,
-		PITRTimestamp: &params.PITRTimestamp,
+		PITRTimestamp: params.PITRTimestamp,
 		Status:        params.Status,
 	}
 	if err := q.Insert(row); err != nil {

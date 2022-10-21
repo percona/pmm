@@ -28,6 +28,11 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
+const (
+	listCheckInterval = 1 * time.Second
+	maxListChecks     = 100
+)
+
 // MongoDBRestoreJob implements Job for MongoDB restore.
 type MongoDBRestoreJob struct {
 	id             string
@@ -115,18 +120,33 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 func (j *MongoDBRestoreJob) findSnapshotName(ctx context.Context) (string, error) {
 	j.l.Info("Finding backup entity name.")
-	time.Sleep(2 * time.Second) // Without sleep the output of the 'list' command is unstable.
 
 	var list pbmList
-	if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
-		return "", err
-	}
+	ticker := time.NewTicker(listCheckInterval)
+	defer ticker.Stop()
 
-	if len(list.Snapshots) == 0 {
-		return "", errors.New("failed to find backup entity")
-	}
+	checks := 0
+	for {
+		select {
+		case <-ticker.C:
+			checks++
+			if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
+				return "", err
+			}
 
-	return list.Snapshots[len(list.Snapshots)-1].Name, nil
+			if len(list.Snapshots) == 0 {
+				j.l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
+				if checks > maxListChecks {
+					return "", errors.New("failed to find backup entity")
+				}
+				continue
+			}
+
+			return list.Snapshots[len(list.Snapshots)-1].Name, nil
+		case <-ctx.Done():
+			return "", ctx.Err()
+		}
+	}
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {

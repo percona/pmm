@@ -79,7 +79,7 @@ func TestPerformBackup(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -204,7 +204,8 @@ func TestRestoreBackup(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
+	//mockedPitrTimerangeService := &mockPitrTimerangeService{}
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -254,6 +255,7 @@ func TestRestoreBackup(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 					Return(tc.dbVersion, tc.expectedError).Once()
+
 				if tc.expectedError == nil {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
 						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
@@ -278,6 +280,7 @@ func TestRestoreBackup(t *testing.T) {
 
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
 				Return("8.0.25", nil).Once()
+
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
@@ -305,24 +308,279 @@ func TestRestoreBackup(t *testing.T) {
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})
-
-		t.Run("physical backups is not supported", func(t *testing.T) {
-			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       "mongo-artifact-name-2",
-				Vendor:     string(models.MongoDBServiceType),
-				LocationID: locationRes.ID,
-				ServiceID:  *agent.ServiceID,
-				DataModel:  models.PhysicalDataModel,
-				Mode:       models.Snapshot,
-				Status:     models.SuccessBackupStatus,
-			})
-			require.NoError(t, err)
-
-			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
-			require.ErrorIs(t, err, ErrIncompatibleService)
-			assert.Empty(t, restoreID)
-		})
 	})
 
 	mock.AssertExpectationsForObjects(t, mockedJobsService, mockedAgentService, mockedCompatibilityService)
+}
+
+func TestCheckArtifactModePreconditions(t *testing.T) {
+	ctx := context.Background()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	mockedPitrTimerangeService := &mockPitrTimerangeService{}
+	backupService := NewService(db, nil, nil, nil, mockedPitrTimerangeService)
+
+	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+		Name:        "Test location",
+		Description: "Test description",
+		BackupLocationConfig: models.BackupLocationConfig{
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	t.Run("mysql", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+
+		for _, tc := range []struct {
+			name           string
+			pitrValue      time.Time
+			artifactParams models.CreateArtifactParams
+			err            error
+		}{
+			{
+				name:      "success",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mysql-artifact-name-1",
+					Vendor:     string(models.MySQLServiceType),
+					DBVersion:  "8.0.25",
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.Snapshot,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: nil,
+			},
+			{
+				name:      "PITR not supported for MySQL",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mysql-artifact-name-2",
+					Vendor:     string(models.MySQLServiceType),
+					DBVersion:  "8.0.25",
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.PITR,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrIncompatibleService,
+			},
+			{
+				name:      "snapshot artifact is not compatible with non-empty pitr date",
+				pitrValue: time.Unix(1, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mysql-artifact-name-3",
+					Vendor:     string(models.MySQLServiceType),
+					DBVersion:  "8.0.25",
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.Snapshot,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrIncompatibleArtifactMode,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)
+				require.NoError(t, err)
+
+				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)
+				if tc.err == nil {
+					require.NoError(t, err)
+				} else {
+					assert.ErrorIs(t, err, tc.err)
+				}
+				return
+			})
+		}
+	})
+
+	t.Run("mongo", func(t *testing.T) {
+		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
+
+		rangeStart1 := uint32(1)
+		rangeEnd1 := rangeStart1 + (60 * 60 * 3) // plus 3 hours
+
+		rangeStart2 := uint32(time.Now().Unix())
+		rangeEnd2 := rangeStart2 + (60 * 60 * 3) // plus 3 hours
+
+		timelineList := []Timeline{
+			{Start: rangeStart1, End: rangeEnd1},
+			{Start: rangeStart2, End: rangeEnd2},
+		}
+
+		for _, tc := range []struct {
+			name           string
+			pitrValue      time.Time
+			prepareMock    bool
+			artifactParams models.CreateArtifactParams
+			err            error
+		}{
+			{
+				name:      "success logical restore",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-1",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.LogicalDataModel,
+					Mode:       models.Snapshot,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: nil,
+			},
+			{
+				name:      "physical restore not implemented for mongodb",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-2",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.PhysicalDataModel,
+					Mode:       models.Snapshot,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrIncompatibleService,
+			},
+			{
+				name:      "snapshot artifact is not compatible with non-empty pitr date",
+				pitrValue: time.Unix(1, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-3",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.LogicalDataModel,
+					Mode:       models.Snapshot,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrIncompatibleArtifactMode,
+			},
+			{
+				name:      "timestamp not provided for pitr artifact",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-4",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.LogicalDataModel,
+					Mode:       models.PITR,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrIncompatibleArtifactMode,
+			},
+			{
+				name:        "pitr timestamp out of range",
+				pitrValue:   time.Unix(int64(rangeStart2)-1, 0),
+				prepareMock: true,
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-5",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.LogicalDataModel,
+					Mode:       models.PITR,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: ErrValueOutOfRange,
+			},
+			{
+				name:        "success pitr timestamp inside the range",
+				pitrValue:   time.Unix(int64(rangeStart2)+1, 0),
+				prepareMock: true,
+				artifactParams: models.CreateArtifactParams{
+					Name:       "mongo-artifact-name-6",
+					Vendor:     string(models.MongoDBServiceType),
+					LocationID: locationRes.ID,
+					ServiceID:  *agent.ServiceID,
+					DataModel:  models.LogicalDataModel,
+					Mode:       models.PITR,
+					Status:     models.SuccessBackupStatus,
+				},
+				err: nil,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)
+				require.NoError(t, err)
+
+				if tc.prepareMock {
+					mockedPitrTimerangeService.On("ListPITRTimeranges", ctx, artifact.Name, locationRes).Return(timelineList, nil).Once()
+				}
+
+				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)
+				if tc.err == nil {
+					require.NoError(t, err)
+				} else {
+					assert.ErrorIs(t, err, tc.err)
+				}
+				return
+			})
+		}
+	})
+
+	mock.AssertExpectationsForObjects(t, mockedPitrTimerangeService)
+}
+
+func TestInTimeSpan(t *testing.T) {
+	now := time.Now()
+	for _, tc := range []struct {
+		name    string
+		start   time.Time
+		end     time.Time
+		value   time.Time
+		inRange bool
+	}{
+		{
+			name:    "success start lt end",
+			start:   now.Add(-1 * time.Hour),
+			end:     now.Add(1 * time.Hour),
+			value:   now,
+			inRange: true,
+		},
+		{
+			name:    "success start eq end",
+			start:   now,
+			end:     now,
+			value:   now,
+			inRange: true,
+		},
+		{
+			name:    "fail start gt end",
+			start:   now.Add(1 * time.Hour),
+			end:     now.Add(-1 * time.Hour),
+			value:   now,
+			inRange: false,
+		},
+		{
+			name:    "out of range",
+			start:   now.Add(-1 * time.Hour),
+			end:     now.Add(1 * time.Hour),
+			value:   now.Add(1 * time.Hour).Add(1 * time.Second),
+			inRange: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res := inTimeSpan(tc.start, tc.end, tc.value)
+			assert.Equal(t, tc.inRange, res)
+		})
+	}
 }

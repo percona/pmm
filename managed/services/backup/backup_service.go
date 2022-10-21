@@ -27,7 +27,6 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/minio"
 )
 
 // Service represents core logic for db backup.
@@ -36,15 +35,17 @@ type Service struct {
 	jobsService          jobsService
 	agentService         agentService
 	compatibilityService compatibilityService
+	pitrTimerangeService pitrTimerangeService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pitrSvc pitrTimerangeService) *Service {
 	return &Service{
 		db:                   db,
 		jobsService:          jobsService,
 		agentService:         agentService,
 		compatibilityService: cSvc,
+		pitrTimerangeService: pitrSvc,
 	}
 }
 
@@ -252,7 +253,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		restore, err := models.CreateRestoreHistoryItem(tx.Querier, models.CreateRestoreHistoryItemParams{
 			ArtifactID:    artifactID,
 			ServiceID:     serviceID,
-			PITRTimestamp: pitrTimestamp,
+			PITRTimestamp: &pitrTimestamp,
 			Status:        models.InProgressRestoreStatus,
 		})
 		if err != nil {
@@ -513,12 +514,43 @@ func (s *Service) prepareBackupJob(
 	return res, dbConfig, nil
 }
 
+// checkArtifactModePreconditions checks that artifact params and requested restore mode satisfy each other.
 func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID string, pitrTimestamp time.Time) error {
 	artifact, err := models.FindArtifactByID(s.db.Querier, artifactID)
 	if err != nil {
 		return err
 	}
 
+	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
+		return err
+	}
+
+	// Continue checks only if user requested PITR restore.
+	if pitrTimestamp.Unix() == 0 {
+		return nil
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return err
+	}
+
+	timeRanges, err := s.pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
+	if err != nil {
+		return err
+	}
+
+	for _, tRange := range timeRanges {
+		if inTimeSpan(time.Unix(int64(tRange.Start), 0), time.Unix(int64(tRange.End), 0), pitrTimestamp) {
+			return nil
+		}
+	}
+
+	return errors.Wrapf(ErrValueOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+}
+
+// checkArtifactMode crosschecks artifact params and requested restore mode.
+func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
 	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
 		return errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
 	}
@@ -538,26 +570,7 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	if artifact.Mode == models.PITR && artifact.DataModel == models.PhysicalDataModel {
 		return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
 	}
-
-	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
-	if err != nil {
-		return err
-	}
-
-	minioClient := minio.New()
-	pitrTimerangeService := NewPITRTimerangeService(minioClient)
-	timeRanges, err := pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
-	if err != nil {
-		return err
-	}
-
-	for _, tR := range timeRanges {
-		if inTimeSpan(time.Unix(int64(tR.Start), 0), time.Unix(int64(tR.End), 0), pitrTimestamp) {
-			return nil
-		}
-	}
-
-	return errors.Wrapf(ErrValueOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+	return nil
 }
 
 // inTimeSpan checks whether given time is in the given range
