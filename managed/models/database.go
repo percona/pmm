@@ -749,6 +749,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 			ALTER COLUMN max_query_length DROP DEFAULT`,
 	},
+	69: {
+		`ALTER TABLE backup_locations
+			DROP COLUMN pmm_server_config`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

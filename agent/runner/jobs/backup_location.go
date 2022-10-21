@@ -14,6 +14,15 @@
 
 package jobs
 
+// BackupLocationType represents BackupLocation type as stored in database.
+type BackupLocationType string
+
+// BackupLocation types. Same as in managed/models/location_model.go.
+const (
+	S3BackupLocationType        BackupLocationType = "s3"
+	PMMClientBackupLocationType BackupLocationType = "pmm-client"
+)
+
 // S3LocationConfig contains required properties for accessing S3 Bucket.
 type S3LocationConfig struct {
 	Endpoint     string
@@ -23,7 +32,14 @@ type S3LocationConfig struct {
 	BucketRegion string
 }
 
+// PMMClientBackupLocationConfig contains config for local storage
+type PMMClientBackupLocationConfig struct {
+	Path string
+}
+
 // BackupLocationConfig groups all backup locations configs.
 type BackupLocationConfig struct {
-	S3Config *S3LocationConfig
+	Type               BackupLocationType
+	S3Config           *S3LocationConfig
+	LocalStorageConfig *PMMClientBackupLocationConfig
 }
