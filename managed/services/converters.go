@@ -346,6 +346,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels:    labels,
 			Tls:             agent.TLS,
 			TlsSkipVerify:   agent.TLSSkipVerify,
+			MaxQueryLength:  agent.MaxQueryLength,
 			ProcessExecPath: processExecPath,
 			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
