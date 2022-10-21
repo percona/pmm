@@ -231,7 +231,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
 			if err != nil {
 				// for the first couple of seconds after backup process starts describe-backup command may return this error
-				if strings.HasSuffix(err.Error(), "no such file") && retryCount > 0 {
+				if (strings.HasSuffix(err.Error(), "no such file") || strings.HasSuffix(err.Error(), "file is empty")) && retryCount > 0 {
 					retryCount--
 					continue
 				}
