@@ -233,6 +233,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 				AgentType: types.AgentTypePMMAgent,
 				AgentID:   a.AgentID,
 				Status:    strings.ToUpper(status),
+				Port:      a.ListenPort,
 			})
 		}
 	}
