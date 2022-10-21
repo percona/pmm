@@ -70,7 +70,7 @@ type jobsService interface {
 		dbConfig *models.DBConfig,
 		dataModel models.DataModel,
 		locationConfig *models.BackupLocationConfig,
-		pitrTimerange time.Time,
+		pitrTimestamp time.Time,
 	) error
 }
 

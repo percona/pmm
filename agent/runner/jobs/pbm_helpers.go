@@ -263,7 +263,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	var restoreInfoPITRTime time.Time
 	var err error
 	if restoreInfo.PITR != "" {
-		restoreInfoPITRTime, err = time.Parse("2006-01-02T15:04:05Z", restoreInfo.PITR+"Z")
+		restoreInfoPITRTime, err = time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
 		if err != nil {
 			return err
 		}
@@ -284,6 +284,10 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 				if err != nil {
 					continue
 				}
+				// Because of https://jira.percona.com/browse/PBM-723 to find our restore record in the list of all records we're checking:
+				// 1. We received PITR field as a response on starting process
+				// 2. There is a record with the same PITR field in the list of restoring records
+				// 3. Start time of this record is not before the time we asked for restoring.
 				if !restoreInfoPITRTime.IsZero() && list[i].PITR == restoreInfoPITRTime.Unix() && !restoreInfo.StartedAt.Before(restoreStartedAt) {
 					return &list[i]
 				}

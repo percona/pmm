@@ -404,7 +404,6 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				} else {
 					assert.ErrorIs(t, err, tc.err)
 				}
-				return
 			})
 		}
 	})
@@ -445,7 +444,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				err: nil,
 			},
 			{
-				name:      "physical restore not implemented for mongodb",
+				name:      "physical restore is supported",
 				pitrValue: time.Unix(0, 0),
 				artifactParams: models.CreateArtifactParams{
 					Name:       "mongo-artifact-name-2",
@@ -456,7 +455,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 					Mode:       models.Snapshot,
 					Status:     models.SuccessBackupStatus,
 				},
-				err: ErrIncompatibleService,
+				err: nil,
 			},
 			{
 				name:      "snapshot artifact is not compatible with non-empty pitr date",
@@ -499,7 +498,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 					Mode:       models.PITR,
 					Status:     models.SuccessBackupStatus,
 				},
-				err: ErrValueOutOfRange,
+				err: ErrTimestampOutOfRange,
 			},
 			{
 				name:        "success pitr timestamp inside the range",
@@ -531,7 +530,6 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				} else {
 					assert.ErrorIs(t, err, tc.err)
 				}
-				return
 			})
 		}
 	})

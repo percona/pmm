@@ -224,8 +224,7 @@ type prepareRestoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
-	err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp)
-	if err != nil {
+	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
 		return "", err
 	}
 
@@ -546,30 +545,31 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		}
 	}
 
-	return errors.Wrapf(ErrValueOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+	return errors.Wrapf(ErrTimestampOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
 }
 
 // checkArtifactMode crosschecks artifact params and requested restore mode.
 func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
-	if artifact.Vendor == string(models.MongoDBServiceType) && artifact.DataModel == models.PhysicalDataModel {
-		return errors.Wrapf(ErrIncompatibleService, "restore of physical backups is not supported for MongoDB yet")
-	}
 	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
 		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB yet")
 	}
 
-	if artifact.Mode != models.PITR && pitrTimestamp.Unix() == 0 {
-		return nil
+	if artifact.Mode != models.PITR {
+		if pitrTimestamp.Unix() == 0 {
+			return nil
+		}
+		if pitrTimestamp.Unix() != 0 {
+			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
+		}
+	} else {
+		if pitrTimestamp.Unix() == 0 {
+			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+		}
+		if artifact.DataModel == models.PhysicalDataModel {
+			return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
+		}
 	}
-	if artifact.Mode != models.PITR && pitrTimestamp.Unix() != 0 {
-		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
-	}
-	if artifact.Mode == models.PITR && pitrTimestamp.Unix() == 0 {
-		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
-	}
-	if artifact.Mode == models.PITR && artifact.DataModel == models.PhysicalDataModel {
-		return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
-	}
+
 	return nil
 }
 

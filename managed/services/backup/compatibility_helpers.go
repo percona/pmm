@@ -45,12 +45,12 @@ var (
 	ErrIncompatibleTargetMySQL = errors.New("incompatible version of target mysql")
 	// ErrComparisonImpossible is returned when comparison of versions is impossible for some reasons.
 	ErrComparisonImpossible = errors.New("cannot compare software versions")
-	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters
+	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters.
 	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
-	// ErrIncompatibleArtifactMode is returned if artifact backup mode is incompatible with other parameters
+	// ErrIncompatibleArtifactMode is returned if artifact backup mode is incompatible with other parameters.
 	ErrIncompatibleArtifactMode = errors.New("artifact backup mode is not compatible with other parameters")
-	// ErrValueOutOfRange is returned if value is out of allowed range
-	ErrValueOutOfRange = errors.New("value out of range")
+	// ErrTimestampOutOfRange is returned if timestamp value is out of allowed range.
+	ErrTimestampOutOfRange = errors.New("timestamp value is out of range")
 
 	mysqlAndXtrabackupCompatibleVersions []compatibility
 	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,

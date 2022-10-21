@@ -648,7 +648,7 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
-	case errors.Is(restoreError, backup.ErrValueOutOfRange):
+	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
 		return status.Error(codes.OutOfRange, restoreError.Error())
 	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
 		return status.Error(codes.FailedPrecondition, restoreError.Error())

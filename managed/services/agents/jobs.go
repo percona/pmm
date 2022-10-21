@@ -496,7 +496,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
-	pitrTimerange time.Time,
+	pitrTimestamp time.Time,
 ) error {
 	var err error
 	switch dataModel {
@@ -520,7 +520,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		Address:       dbConfig.Address,
 		Port:          int32(dbConfig.Port),
 		Socket:        dbConfig.Socket,
-		PitrTimestamp: timestamppb.New(pitrTimerange),
+		PitrTimestamp: timestamppb.New(pitrTimestamp),
 	}
 
 	switch {
