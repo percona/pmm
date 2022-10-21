@@ -551,7 +551,7 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 // checkArtifactMode crosschecks artifact params and requested restore mode.
 func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
 	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
-		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB yet")
+		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB")
 	}
 
 	if artifact.Mode != models.PITR {
