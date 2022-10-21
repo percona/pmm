@@ -27,6 +27,8 @@ type ArtifactsClient interface {
 	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
 }
 
 type artifactsClient struct {
@@ -55,6 +57,15 @@ func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifact
 	return out, nil
 }
 
+func (c *artifactsClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
+	out := new(ListPitrTimerangesResponse)
+	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListPitrTimeranges", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArtifactsServer is the server API for Artifacts service.
 // All implementations must embed UnimplementedArtifactsServer
 // for forward compatibility
@@ -63,6 +74,8 @@ type ArtifactsServer interface {
 	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
+	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
 	mustEmbedUnimplementedArtifactsServer()
 }
 
@@ -75,6 +88,10 @@ func (UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifact
 
 func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
+}
+
+func (UnimplementedArtifactsServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }
 func (UnimplementedArtifactsServer) mustEmbedUnimplementedArtifactsServer() {}
 
@@ -125,6 +142,24 @@ func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPitrTimerangesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/backup.v1beta1.Artifacts/ListPitrTimeranges",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Artifacts_ServiceDesc is the grpc.ServiceDesc for Artifacts service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +174,10 @@ var Artifacts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteArtifact",
 			Handler:    _Artifacts_DeleteArtifact_Handler,
+		},
+		{
+			MethodName: "ListPitrTimeranges",
+			Handler:    _Artifacts_ListPitrTimeranges_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
