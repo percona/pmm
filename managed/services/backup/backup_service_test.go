@@ -204,7 +204,6 @@ func TestRestoreBackup(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	//mockedPitrTimerangeService := &mockPitrTimerangeService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
