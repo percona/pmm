@@ -28,6 +28,7 @@ import (
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
@@ -93,7 +94,15 @@ type versioner interface {
 	GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error)
 }
 
-// We use it instead of real type for testing and to avoid dependency cycle
+type pitrLocationClient interface {
+	// FileStat returns file info. It returns error if file is empty or not exists.
+	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
+
+	// List scans path with prefix and returns all files with given suffix.
+	// Both prefix and suffix can be omitted.
+	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
+}
+
 type compatibilityService interface {
 	// CheckSoftwareCompatibilityForService checks if all the necessary backup tools are installed,
 	// and they are compatible with the db version.

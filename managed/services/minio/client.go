@@ -43,8 +43,12 @@ func New() *Client {
 
 // FileInfo contains information about a single file in the bucket.
 type FileInfo struct {
-	Name string // with path
+	// Name is the absolute object name (with path included)
+	Name string
+	// Size is the size of the object
 	Size int64
+	// IsDeleteMarker specifies if the object is marked for deletion
+	IsDeleteMarker bool
 }
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
@@ -118,7 +122,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	return nil
 }
 
-// List provides an abstraction over the minio API to list all objects in the bucket
+// List is a wrapper over the minio API to list all objects in the bucket.
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.
 func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]FileInfo, error) {
@@ -140,21 +144,20 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 		if object.Err != nil {
 			return nil, errors.WithStack(object.Err)
 		}
-		f := object.Key
-		f = strings.TrimPrefix(f, options.Prefix)
-		if len(f) == 0 {
+		filename := object.Key
+		filename = strings.TrimPrefix(filename, options.Prefix)
+		if len(filename) == 0 {
 			continue
 		}
-		if f[0] == '/' {
-			f = f[1:]
+		if filename[0] == '/' {
+			filename = filename[1:]
 		}
 
-		c.l.Infof(f)
-
-		if strings.HasSuffix(f, suffix) {
+		if strings.HasSuffix(filename, suffix) {
 			files = append(files, FileInfo{
-				Name: f,
-				Size: object.Size,
+				Name:           filename,
+				Size:           object.Size,
+				IsDeleteMarker: object.IsDeleteMarker,
 			})
 		}
 	}
@@ -181,6 +184,7 @@ func (c *Client) FileStat(ctx context.Context, endpoint, accessKey, secretKey, b
 
 	file.Name = name
 	file.Size = stat.Size
+	file.IsDeleteMarker = stat.IsDeleteMarker
 
 	if file.Size == 0 {
 		return file, errors.New("file is empty")

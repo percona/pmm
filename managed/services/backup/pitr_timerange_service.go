@@ -129,9 +129,8 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	}
 
 	for _, f := range pitrFiles {
-		_, err := ss.locationClient.FileStat(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, path.Join(prefix, f.Name))
-		if err != nil {
-			ss.l.Warningf("skip pitr chunk %s/%s because of %v", prefix, f.Name, err)
+		if f.IsDeleteMarker {
+			ss.l.Debugf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
 			continue
 		}
 		chunk := pitrMetaFromFileName(prefix, f.Name)

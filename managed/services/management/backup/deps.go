@@ -61,6 +61,6 @@ type removalService interface {
 
 // pitrTimerangeService provides methods that help us inspect PITR artifacts
 type pitrTimerangeService interface {
-	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
+	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location
 	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]backup.Timeline, error)
 }

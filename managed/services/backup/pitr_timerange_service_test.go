@@ -155,17 +155,17 @@ func TestListPITRTimelines(t *testing.T) {
 		assert.Nil(t, timelines)
 	})
 
-	t.Run("skips artifacts with file stat errors", func(t *testing.T) {
+	t.Run("skips artifacts with deletion markers", func(t *testing.T) {
 		mockedStorage := &mockPitrLocationClient{}
 		listedFiles := []minio.FileInfo{
 			{
-				Name: "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-				Size: 1024,
+				Name:           "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+				Size:           1024,
+				IsDeleteMarker: true,
 			},
 		}
 
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil)
-		mockedStorage.On("FileStat", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(minio.FileInfo{}, errors.New("file stat error"))
 
 		ss := NewPITRTimerangeService(mockedStorage)
 		timelines, err := ss.getPITROplogs(ctx, location, "")
@@ -430,11 +430,11 @@ func TestPITRMergeTimelines(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			got := mergeTimelines(test.tl...)
 			if len(test.expect) != len(got) {
-				t.Fatalf("wrong timelines, exepct <%d> %v, got <%d> %v", len(test.expect), printttl(test.expect...), len(got), printttl(got...))
+				t.Fatalf("wrong timelines, exepct <%d> %v, got <%d> %v", len(test.expect), printTTL(test.expect...), len(got), printTTL(got...))
 			}
 			for i, gl := range got {
 				if test.expect[i] != gl {
-					t.Errorf("wrong timeline %d, exepct %v, got %v", i, printttl(test.expect[i]), printttl(gl))
+					t.Errorf("wrong timeline %d, exepct %v, got %v", i, printTTL(test.expect[i]), printTTL(gl))
 				}
 			}
 		})
@@ -485,7 +485,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 	}
 }
 
-func printttl(tlns ...Timeline) string {
+func printTTL(tlns ...Timeline) string {
 	ret := make([]string, 0, len(tlns))
 	for _, t := range tlns {
 		ret = append(ret, fmt.Sprintf("[%v - %v]", t.Start, t.End))

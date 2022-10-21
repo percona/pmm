@@ -43,7 +43,6 @@ func TestListPitrTimelines(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	mockedRemovalSvc := &mockRemovalService{}
 	mockedPitrStorageSvc := &mockPitrTimerangeService{}
 
 	timelines := []backup.Timeline{
@@ -55,7 +54,7 @@ func TestListPitrTimelines(t *testing.T) {
 	}
 
 	mockedPitrStorageSvc.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	artifactsService := NewArtifactsService(db, mockedRemovalSvc, mockedPitrStorageSvc)
+	artifactsService := NewArtifactsService(db, nil, mockedPitrStorageSvc)
 	var locationID string
 
 	params := models.CreateBackupLocationParams{

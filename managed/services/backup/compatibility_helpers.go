@@ -47,6 +47,8 @@ var (
 	ErrComparisonImpossible = errors.New("cannot compare software versions")
 	// ErrIncompatibleDataModel is returned if the specified data model (logical or physical) is not compatible with other parameters.
 	ErrIncompatibleDataModel = errors.New("the specified backup model is not compatible with other parameters")
+	// ErrIncompatibleLocationType is returned if the specified location type (local or s3) is not compatible with other parameters.
+	ErrIncompatibleLocationType = errors.New("the specified location type is not compatible with other parameters")
 	// ErrIncompatibleArtifactMode is returned if artifact backup mode is incompatible with other parameters.
 	ErrIncompatibleArtifactMode = errors.New("artifact backup mode is not compatible with other parameters")
 	// ErrTimestampOutOfRange is returned if timestamp value is out of allowed range.
