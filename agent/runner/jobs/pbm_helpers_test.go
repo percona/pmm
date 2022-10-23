@@ -15,7 +15,9 @@
 package jobs
 
 import (
+	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -120,6 +122,76 @@ func TestCreatePBMConfig(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, test.output, res)
+		})
+	}
+}
+
+func TestFindPITRRestore(t *testing.T) {
+	// Tested func searches from the end, so we place records to be skipped at the end.
+	testList := []pbmListRestore{
+		{
+			Name: "2022-10-11T14:53:19.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-error-11T14:53:20.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000001Z",
+			Type: "snapshot",
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000010Z",
+			Type: "pitr",
+			PITR: 1000000001,
+		},
+	}
+
+	for _, tc := range []struct {
+		name                string
+		restoreInfoPITRTime int64
+		startedAtString     string
+		expected            *pbmListRestore
+	}{
+		{
+			name:                "case1",
+			restoreInfoPITRTime: 1000000000,
+			startedAtString:     "2022-10-11T14:53:20.000000000Z",
+			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000001Z", Type: "pitr", PITR: 1000000000},
+		},
+		{
+			name:                "case2",
+			restoreInfoPITRTime: 1000000001,
+			startedAtString:     "2022-10-11T14:53:20.000000002Z",
+			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000010Z", Type: "pitr", PITR: 1000000000},
+		},
+		{
+			name:                "case3",
+			restoreInfoPITRTime: 1000000001,
+			startedAtString:     "2022-10-11T14:53:20.000000000Z",
+			expected:            nil,
+		},
+		{
+			name:                "case4",
+			restoreInfoPITRTime: 1000000000,
+			startedAtString:     "2022-10-11T14:53:20.000000020Z",
+			expected:            nil,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			startedAt, err := time.Parse("2006-01-02T15:04:05.000000000Z", tc.startedAtString)
+			require.NoError(t, err)
+
+			res := findPITRRestore(testList, tc.restoreInfoPITRTime, startedAt)
+			assert.Equal(t, tc.expected, res)
 		})
 	}
 }
