@@ -278,7 +278,7 @@ func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt
 func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRestore) (string, error) {
 	restoreInfoPITRTime, err := time.Parse("2006-01-02T15:04:05", restoreInfo.PITR)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	ticker := time.NewTicker(statusCheckInterval)
