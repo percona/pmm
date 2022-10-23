@@ -171,11 +171,11 @@ func TestFindPITRRestore(t *testing.T) {
 			name:                "case2",
 			restoreInfoPITRTime: 1000000001,
 			startedAtString:     "2022-10-11T14:53:20.000000002Z",
-			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000010Z", Type: "pitr", PITR: 1000000000},
+			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000010Z", Type: "pitr", PITR: 1000000001},
 		},
 		{
 			name:                "case3",
-			restoreInfoPITRTime: 1000000001,
+			restoreInfoPITRTime: 1000000002,
 			startedAtString:     "2022-10-11T14:53:20.000000000Z",
 			expected:            nil,
 		},
