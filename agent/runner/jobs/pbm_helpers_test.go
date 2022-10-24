@@ -31,7 +31,7 @@ func TestCreatePBMConfig(t *testing.T) {
 		BucketRegion: "test_region",
 	}
 
-	pmmClientStorageConfig := PMMClientBackupLocationConfig{
+	filesystemStorageConfig := FilesystemBackupLocationConfig{
 		Path: "/test/path",
 	}
 
@@ -71,9 +71,9 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "invalid location type",
 			inputLocation: BackupLocationConfig{
-				Type:               BackupLocationType("invalid type"),
-				S3Config:           &s3Config,
-				LocalStorageConfig: nil,
+				Type:                    BackupLocationType("invalid type"),
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: nil,
 			},
 			inputPitr: true,
 			output:    nil,
@@ -82,20 +82,20 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "s3 config type",
 			inputLocation: BackupLocationConfig{
-				Type:               S3BackupLocationType,
-				S3Config:           &s3Config,
-				LocalStorageConfig: nil,
+				Type:                    S3BackupLocationType,
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: nil,
 			},
 			inputPitr: true,
 			output:    &expectedOutput1,
 			errString: "",
 		},
 		{
-			name: "pmm client config type",
+			name: "filesystem config type",
 			inputLocation: BackupLocationConfig{
-				Type:               PMMClientBackupLocationType,
-				S3Config:           nil,
-				LocalStorageConfig: &pmmClientStorageConfig,
+				Type:                    FilesystemBackupLocationType,
+				S3Config:                nil,
+				FilesystemStorageConfig: &filesystemStorageConfig,
 			},
 			inputPitr: false,
 			output:    &expectedOutput2,
@@ -104,9 +104,9 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "ignores filled up config instead relying on config type",
 			inputLocation: BackupLocationConfig{
-				Type:               PMMClientBackupLocationType,
-				S3Config:           &s3Config,
-				LocalStorageConfig: &pmmClientStorageConfig,
+				Type:                    FilesystemBackupLocationType,
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: &filesystemStorageConfig,
 			},
 			inputPitr: false,
 			output:    &expectedOutput2,

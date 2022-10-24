@@ -455,11 +455,11 @@ func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr b
 				},
 			},
 		}
-	case PMMClientBackupLocationType:
+	case FilesystemBackupLocationType:
 		conf.Storage = Storage{
 			Type: "filesystem",
 			FileSystem: FileSystem{
-				Path: path.Join(locationConfig.LocalStorageConfig.Path, prefix),
+				Path: path.Join(locationConfig.FilesystemStorageConfig.Path, prefix),
 			},
 		}
 	default:

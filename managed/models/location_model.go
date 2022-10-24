@@ -37,12 +37,12 @@ const (
 //
 //reform:backup_locations
 type BackupLocation struct {
-	ID              string                    `reform:"id,pk"`
-	Name            string                    `reform:"name"`
-	Description     string                    `reform:"description"`
-	Type            BackupLocationType        `reform:"type"`
-	S3Config        *S3LocationConfig         `reform:"s3_config"`
-	PMMClientConfig *FilesystemLocationConfig `reform:"pmm_client_config"`
+	ID               string                    `reform:"id,pk"`
+	Name             string                    `reform:"name"`
+	Description      string                    `reform:"description"`
+	Type             BackupLocationType        `reform:"type"`
+	S3Config         *S3LocationConfig         `reform:"s3_config"`
+	FilesystemConfig *FilesystemLocationConfig `reform:"filesystem_config"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
@@ -84,7 +84,7 @@ func (c S3LocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *S3LocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PMMClientLocationConfig contains require properties for accessing file system on pmm-client-node.
+// FilesystemLocationConfig contains require properties for accessing file system on pmm-client-node.
 type FilesystemLocationConfig struct {
 	Path string `json:"path"`
 }

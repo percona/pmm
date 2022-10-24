@@ -246,7 +246,7 @@ func convertLocation(locationModel *models.BackupLocation) (*backupv1beta1.Locat
 	}
 	switch locationModel.Type {
 	case models.FilesystemBackupLocationType:
-		config := locationModel.PMMClientConfig
+		config := locationModel.FilesystemConfig
 		loc.Config = &backupv1beta1.Location_FilesystemConfig{
 			FilesystemConfig: &backupv1beta1.FilesystemLocationConfig{
 				Path: config.Path,

@@ -36,10 +36,10 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMongoLogicalBackupAndRestore    = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMySQLBackupAndRestore           = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore   = version.Must(version.NewVersion("2.31.0-0"))
-	pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
+	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
 )
 
 const (
@@ -132,7 +132,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	if locationModel != nil {
 		locationConfig = &models.BackupLocationConfig{
-			FilesystemConfig: locationModel.PMMClientConfig,
+			FilesystemConfig: locationModel.FilesystemConfig,
 			S3Config:         locationModel.S3Config,
 		}
 	}
@@ -406,7 +406,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig{
@@ -531,7 +531,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig{

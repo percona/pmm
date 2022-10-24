@@ -65,7 +65,7 @@ func TestBackupLocations(t *testing.T) {
 		assert.Equal(t, models.FilesystemBackupLocationType, location.Type)
 		assert.Equal(t, params.Name, location.Name)
 		assert.Equal(t, params.Description, location.Description)
-		assert.Equal(t, params.FilesystemConfig.Path, location.PMMClientConfig.Path)
+		assert.Equal(t, params.FilesystemConfig.Path, location.FilesystemConfig.Path)
 		assert.NotEmpty(t, location.ID)
 	})
 
@@ -232,7 +232,7 @@ func TestBackupLocations(t *testing.T) {
 		// empty description in request, we expect no change
 		assert.Equal(t, createParams.Description, updatedLoc.Description)
 		assert.Equal(t, models.S3BackupLocationType, updatedLoc.Type)
-		assert.Nil(t, updatedLoc.PMMClientConfig)
+		assert.Nil(t, updatedLoc.FilesystemConfig)
 		assert.Equal(t, changeParams.S3Config, updatedLoc.S3Config)
 
 		findLoc, err := models.FindBackupLocationByID(q, location.ID)

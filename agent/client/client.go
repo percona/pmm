@@ -544,8 +544,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		case *agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
@@ -576,8 +576,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		case *agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:

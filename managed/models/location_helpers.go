@@ -235,10 +235,10 @@ func (c BackupLocationConfig) FillLocationModel(locationModel *BackupLocation) {
 	case c.S3Config != nil:
 		locationModel.Type = S3BackupLocationType
 		locationModel.S3Config = c.S3Config
-		locationModel.PMMClientConfig = nil
+		locationModel.FilesystemConfig = nil
 	case c.FilesystemConfig != nil:
 		locationModel.Type = FilesystemBackupLocationType
-		locationModel.PMMClientConfig = c.FilesystemConfig
+		locationModel.FilesystemConfig = c.FilesystemConfig
 		locationModel.S3Config = nil
 	}
 }

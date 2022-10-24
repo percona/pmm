@@ -33,7 +33,7 @@ func (v *backupLocationTableType) Columns() []string {
 		"description",
 		"type",
 		"s3_config",
-		"pmm_client_config",
+		"filesystem_config",
 		"created_at",
 		"updated_at",
 	}
@@ -65,7 +65,7 @@ var BackupLocationTable = &backupLocationTableType{
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Type", Type: "BackupLocationType", Column: "type"},
 			{Name: "S3Config", Type: "*S3LocationConfig", Column: "s3_config"},
-			{Name: "PMMClientConfig", Type: "*FilesystemLocationConfig", Column: "pmm_client_config"},
+			{Name: "FilesystemConfig", Type: "*FilesystemLocationConfig", Column: "filesystem_config"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -82,7 +82,7 @@ func (s BackupLocation) String() string {
 	res[2] = "Description: " + reform.Inspect(s.Description, true)
 	res[3] = "Type: " + reform.Inspect(s.Type, true)
 	res[4] = "S3Config: " + reform.Inspect(s.S3Config, true)
-	res[5] = "PMMClientConfig: " + reform.Inspect(s.PMMClientConfig, true)
+	res[5] = "FilesystemConfig: " + reform.Inspect(s.FilesystemConfig, true)
 	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
@@ -97,7 +97,7 @@ func (s *BackupLocation) Values() []interface{} {
 		s.Description,
 		s.Type,
 		s.S3Config,
-		s.PMMClientConfig,
+		s.FilesystemConfig,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -112,7 +112,7 @@ func (s *BackupLocation) Pointers() []interface{} {
 		&s.Description,
 		&s.Type,
 		&s.S3Config,
-		&s.PMMClientConfig,
+		&s.FilesystemConfig,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}
