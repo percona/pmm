@@ -83,7 +83,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, _ *flags.GlobalF
 	case client.Tarball:
 		err = c.upgradeViaTarball(ctx)
 	default:
-		logrus.Panicf("Not supported distribution type %q", distributionType)
+		logrus.Panicf("Unsupported distribution type %q", distributionType)
 	}
 
 	if err != nil {
