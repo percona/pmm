@@ -75,6 +75,7 @@ type Supervisor struct {
 
 	agentStatuses          prometheus.GaugeVec
 	agentStatusChangeCount prometheus.CounterVec
+	agentQANBucketLength   prometheus.GaugeVec
 }
 
 // agentProcessInfo describes Agent process.
@@ -129,6 +130,12 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 			Subsystem: prometheusSubsystem,
 			Name:      "agent_status_changes_count",
 			Help:      "A total number of agent status changes.",
+		}, []string{labelAgentID}),
+		agentQANBucketLength: *prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "agent_qan_bucket_length",
+			Help:      "QAN bucket length sent to pmm-managed.",
 		}, []string{labelAgentID}),
 	}
 
@@ -558,6 +565,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
+				s.agentQANBucketLength.WithLabelValues(agentID).Set(float64(len(change.MetricsBucket)))
 				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
 				s.qanRequests <- &agentpb.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
@@ -690,6 +698,7 @@ func (s *Supervisor) stopAll() {
 func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 	s.agentStatuses.Describe(ch)
 	s.agentStatusChangeCount.Describe(ch)
+	s.agentQANBucketLength.Describe(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
@@ -702,6 +711,7 @@ func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
 func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	s.agentStatuses.Collect(ch)
 	s.agentStatusChangeCount.Collect(ch)
+	s.agentQANBucketLength.Collect(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
