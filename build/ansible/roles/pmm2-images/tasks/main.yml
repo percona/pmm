@@ -114,23 +114,6 @@
         # line below is sed'ed by build-server-docker script
         enablerepo: "pmm2-server"
 
-    # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
-    # VictoriaMetrics tries to atomically rename directories in this folder on startup.
-    # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents is recreated.
-    # This is not an issue if the folder is in a volume or mounted from the host OS.
-    - name: Recreate /srv/victoriametrics folder
-      file:
-        state: "{{ item }}"
-        path: /srv/victoriametrics
-        owner: pmm
-        group: pmm
-        mode: '0775'
-      with_items:
-        - absent
-        - directory
-
     - name: PMM                        | Enable repo for pmm2-client
       command: percona-release enable {{ pmm_client_repos }}
 
