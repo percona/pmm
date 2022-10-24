@@ -21,6 +21,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"time"
 
 	"github.com/pkg/errors"
@@ -30,8 +31,9 @@ import (
 
 const (
 	// How many times check if backup/restore operation was started
-	maxBackupChecks     = 10
-	maxRestoreChecks    = 10
+	maxBackupChecks  = 10
+	maxRestoreChecks = 10
+
 	cmdTimeout          = time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 3 * time.Second
@@ -331,4 +333,80 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	}
 
 	return tmp.Name(), tmp.Close()
+}
+
+// Serialization helpers
+
+// Storage represents target storage parameters.
+type Storage struct {
+	Type       string     `yaml:"type"`
+	S3         S3         `yaml:"s3"`
+	FileSystem FileSystem `yaml:"filesystem"`
+}
+
+// S3 represents S3 storage parameters.
+type S3 struct {
+	Region      string      `yaml:"region"`
+	Bucket      string      `yaml:"bucket"`
+	Prefix      string      `yaml:"prefix"`
+	EndpointURL string      `yaml:"endpointUrl"`
+	Credentials Credentials `yaml:"credentials"`
+}
+
+// FileSystem  represents local storage parameters.
+type FileSystem struct {
+	Path string `yaml:"path"`
+}
+
+// Credentials contains S3 credentials.
+type Credentials struct {
+	AccessKeyID     string `yaml:"access-key-id"`
+	SecretAccessKey string `yaml:"secret-access-key"`
+}
+
+// PITR contains Point-in-Time recovery reature related parameters.
+type PITR struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// PBMConfig represents pbm configuration file.
+type PBMConfig struct {
+	Storage Storage `yaml:"storage"`
+	PITR    PITR    `yaml:"pitr"`
+}
+
+// createPBMConfig returns object that is ready to be serialized into YAML.
+func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
+	conf := &PBMConfig{
+		PITR: PITR{
+			Enabled: pitr,
+		},
+	}
+
+	switch locationConfig.Type {
+	case S3BackupLocationType:
+		conf.Storage = Storage{
+			Type: "s3",
+			S3: S3{
+				EndpointURL: locationConfig.S3Config.Endpoint,
+				Region:      locationConfig.S3Config.BucketRegion,
+				Bucket:      locationConfig.S3Config.BucketName,
+				Prefix:      prefix,
+				Credentials: Credentials{
+					AccessKeyID:     locationConfig.S3Config.AccessKey,
+					SecretAccessKey: locationConfig.S3Config.SecretKey,
+				},
+			},
+		}
+	case PMMClientBackupLocationType:
+		conf.Storage = Storage{
+			Type: "filesystem",
+			FileSystem: FileSystem{
+				Path: path.Join(locationConfig.LocalStorageConfig.Path, prefix),
+			},
+		}
+	default:
+		return nil, errors.New("unknown location config")
+	}
+	return conf, nil
 }

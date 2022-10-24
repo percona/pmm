@@ -2422,6 +2422,9 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -2630,6 +2633,9 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
@@ -2843,6 +2849,9 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Limit query length in QAN (default: server-defined; -1: no limit)
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
+
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
@@ -3042,6 +3051,9 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
@@ -3248,6 +3260,9 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

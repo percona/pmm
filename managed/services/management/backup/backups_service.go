@@ -33,16 +33,18 @@ import (
 	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
 // BackupsService represents backups API.
 type BackupsService struct {
-	db              *reform.DB
-	backupService   backupService
-	scheduleService scheduleService
-	l               *logrus.Entry
+	db                   *reform.DB
+	backupService        backupService
+	compatibilityService compatibilityService
+	scheduleService      scheduleService
+	l                    *logrus.Entry
 
 	backupv1beta1.UnimplementedBackupsServer
 }
@@ -56,13 +58,15 @@ const (
 func NewBackupsService(
 	db *reform.DB,
 	backupService backupService,
+	cSvc compatibilityService,
 	scheduleService scheduleService,
 ) *BackupsService {
 	return &BackupsService{
-		l:               logrus.WithField("component", "management/backup/backups"),
-		db:              db,
-		backupService:   backupService,
-		scheduleService: scheduleService,
+		l:                    logrus.WithField("component", "management/backup/backups"),
+		db:                   db,
+		backupService:        backupService,
+		compatibilityService: cSvc,
+		scheduleService:      scheduleService,
 	}
 }
 
@@ -81,6 +85,10 @@ func convertBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
+
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
 	default:
 		return restoreError
 	}
@@ -155,6 +163,10 @@ func convertRestoreBackupError(restoreError error) error {
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
 	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
 		code = backupv1beta1.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+
+	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
+
 	default:
 		return restoreError
 	}
@@ -522,8 +534,12 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 	ctx context.Context,
 	req *backupv1beta1.ListArtifactCompatibleServicesRequest,
 ) (*backupv1beta1.ListArtifactCompatibleServicesResponse, error) {
-	compatibleServices, err := s.backupService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
-	if err != nil {
+	compatibleServices, err := s.compatibilityService.FindArtifactCompatibleServices(ctx, req.ArtifactId)
+	switch {
+	case err == nil:
+	case errors.Is(err, models.ErrNotFound):
+		return nil, status.Error(codes.NotFound, err.Error())
+	default:
 		return nil, err
 	}
 
@@ -554,7 +570,7 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 
 func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	services map[string]*models.Service,
-	locations map[string]*models.BackupLocation,
+	locationModels map[string]*models.BackupLocation,
 ) (*backupv1beta1.ScheduledBackup, error) {
 	scheduledBackup := &backupv1beta1.ScheduledBackup{
 		ScheduledBackupId: task.ID,
@@ -606,7 +622,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 
 	scheduledBackup.ServiceName = services[scheduledBackup.ServiceId].ServiceName
 	scheduledBackup.Vendor = string(services[scheduledBackup.ServiceId].ServiceType)
-	scheduledBackup.LocationName = locations[scheduledBackup.LocationId].Name
+	scheduledBackup.LocationName = locationModels[scheduledBackup.LocationId].Name
 
 	return scheduledBackup, nil
 }
