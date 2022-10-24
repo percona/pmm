@@ -256,7 +256,7 @@ func TestRestoreBackup(t *testing.T) {
 		Name:        "Test local location",
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
-			PMMClientConfig: &models.PMMClientLocationConfig{
+			FilesystemConfig: &models.FilesystemLocationConfig{
 				Path: "/opt/data/",
 			},
 		},
