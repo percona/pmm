@@ -564,6 +564,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 			TLS:            req.Tls,
 			TLSSkipVerify:  req.TlsSkipVerify,
 			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+			MaxQueryLength: req.MaxQueryLength,
 			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
