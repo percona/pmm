@@ -469,8 +469,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
-			DSN:     dsn,
-			AgentID: agentID,
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
 		agent, err = mongodb.New(params, l)
 
