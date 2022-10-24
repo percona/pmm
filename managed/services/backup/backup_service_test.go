@@ -237,7 +237,7 @@ func TestRestoreBackup(t *testing.T) {
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
 
-	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
 		BackupLocationConfig: models.BackupLocationConfig{
@@ -252,13 +252,24 @@ func TestRestoreBackup(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	localLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+		Name:        "Test local location",
+		Description: "Test local description",
+		BackupLocationConfig: models.BackupLocationConfig{
+			PMMClientConfig: &models.PMMClientLocationConfig{
+				Path: "/opt/data/",
+			},
+		},
+	})
+	require.NoError(t, err)
+
 	t.Run("mysql", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mysql-artifact-name",
 			Vendor:     string(models.MySQLServiceType),
 			DBVersion:  "8.0.25",
-			LocationID: locationRes.ID,
+			LocationID: s3Location.ID,
 			ServiceID:  *agent.ServiceID,
 			DataModel:  models.PhysicalDataModel,
 			Mode:       models.Snapshot,
@@ -321,9 +332,9 @@ func TestRestoreBackup(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 		t.Run("incomplete backups won't restore", func(t *testing.T) {
 			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
-				Name:       "mongo-artifact-name",
+				Name:       "mongo-artifact-name-s3",
 				Vendor:     string(models.MongoDBServiceType),
-				LocationID: locationRes.ID,
+				LocationID: s3Location.ID,
 				ServiceID:  *agent.ServiceID,
 				DataModel:  models.LogicalDataModel,
 				Mode:       models.Snapshot,
@@ -335,6 +346,23 @@ func TestRestoreBackup(t *testing.T) {
 				Return("", nil).Once()
 
 			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
+			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
+			assert.Empty(t, restoreID)
+		})
+
+		t.Run("PITR not supported for local storages", func(t *testing.T) {
+			artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+				Name:       "mongo-artifact-name-local",
+				Vendor:     string(models.MongoDBServiceType),
+				LocationID: localLocation.ID,
+				ServiceID:  *agent.ServiceID,
+				DataModel:  models.LogicalDataModel,
+				Mode:       models.Snapshot,
+				Status:     models.PendingBackupStatus,
+			})
+			require.NoError(t, err)
+
+			restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Now())
 			require.Errorf(t, err, "artifact %q status is not successful, status: \"pending\"", artifact.ID)
 			assert.Empty(t, restoreID)
 		})

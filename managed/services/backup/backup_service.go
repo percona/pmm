@@ -539,6 +539,10 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return err
 	}
 
+	if location.Type != models.S3BackupLocationType {
+		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
+	}
+
 	timeRanges, err := s.pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
 	if err != nil {
 		return err
