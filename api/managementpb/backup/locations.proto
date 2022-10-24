@@ -7,15 +7,6 @@ option go_package = "api/managementpb/backup;backupv1beta1";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
-// PMMServerLocationConfig represents file system config inside pmm-server.
-message PMMServerLocationConfig {
-  string path = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-}
-
 // PMMClientLocationConfig represents file system config inside pmm-client.
 message PMMClientLocationConfig {
   string path = 1 [
@@ -59,8 +50,7 @@ message Location {
   string description = 3;
   oneof config {
     PMMClientLocationConfig pmm_client_config = 4;
-    PMMServerLocationConfig pmm_server_config = 5 [deprecated = true];
-    S3LocationConfig s3_config = 6;
+    S3LocationConfig s3_config = 5;
   }
 }
 
@@ -80,10 +70,8 @@ message AddLocationRequest {
   string description = 2;
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 3;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 4 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 5;
+  S3LocationConfig s3_config = 4;
 }
 
 message AddLocationResponse {
@@ -103,10 +91,8 @@ message ChangeLocationRequest {
   string description = 3;
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 4;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 5 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 6;
+  S3LocationConfig s3_config = 5;
 }
 
 message ChangeLocationResponse {}
@@ -123,10 +109,8 @@ message RemoveLocationResponse {}
 message TestLocationConfigRequest {
   // PMM-client file system configuration. Exactly one config should be set.
   PMMClientLocationConfig pmm_client_config = 1;
-  // PMM-server file system configuration. Exactly one config should be set.
-  PMMServerLocationConfig pmm_server_config = 2 [deprecated = true];
   // S3 Bucket configuration. Exactly one config should be set.
-  S3LocationConfig s3_config = 3;
+  S3LocationConfig s3_config = 2;
 }
 
 message TestLocationConfigResponse {}

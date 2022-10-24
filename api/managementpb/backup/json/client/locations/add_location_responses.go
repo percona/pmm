@@ -132,9 +132,6 @@ type AddLocationBody struct {
 	// pmm client config
 	PMMClientConfig *AddLocationParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
 
-	// pmm server config
-	PMMServerConfig *AddLocationParamsBodyPMMServerConfig `json:"pmm_server_config,omitempty"`
-
 	// s3 config
 	S3Config *AddLocationParamsBodyS3Config `json:"s3_config,omitempty"`
 }
@@ -144,10 +141,6 @@ func (o *AddLocationBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePMMClientConfig(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePMMServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -172,25 +165,6 @@ func (o *AddLocationBody) validatePMMClientConfig(formats strfmt.Registry) error
 				return ve.ValidateName("body" + "." + "pmm_client_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "pmm_client_config")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *AddLocationBody) validatePMMServerConfig(formats strfmt.Registry) error {
-	if swag.IsZero(o.PMMServerConfig) { // not required
-		return nil
-	}
-
-	if o.PMMServerConfig != nil {
-		if err := o.PMMServerConfig.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_server_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "pmm_server_config")
 			}
 			return err
 		}
@@ -226,10 +200,6 @@ func (o *AddLocationBody) ContextValidate(ctx context.Context, formats strfmt.Re
 		res = append(res, err)
 	}
 
-	if err := o.contextValidatePMMServerConfig(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.contextValidateS3Config(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -247,21 +217,6 @@ func (o *AddLocationBody) contextValidatePMMClientConfig(ctx context.Context, fo
 				return ve.ValidateName("body" + "." + "pmm_client_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("body" + "." + "pmm_client_config")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *AddLocationBody) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
-	if o.PMMServerConfig != nil {
-		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_server_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "pmm_server_config")
 			}
 			return err
 		}
@@ -511,43 +466,6 @@ func (o *AddLocationParamsBodyPMMClientConfig) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddLocationParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) error {
 	var res AddLocationParamsBodyPMMClientConfig
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-AddLocationParamsBodyPMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
-swagger:model AddLocationParamsBodyPMMServerConfig
-*/
-type AddLocationParamsBodyPMMServerConfig struct {
-	// path
-	Path string `json:"path,omitempty"`
-}
-
-// Validate validates this add location params body PMM server config
-func (o *AddLocationParamsBodyPMMServerConfig) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this add location params body PMM server config based on context it is used
-func (o *AddLocationParamsBodyPMMServerConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddLocationParamsBodyPMMServerConfig) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddLocationParamsBodyPMMServerConfig) UnmarshalBinary(b []byte) error {
-	var res AddLocationParamsBodyPMMServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

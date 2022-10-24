@@ -374,9 +374,6 @@ type ListLocationsOKBodyLocationsItems0 struct {
 	// pmm client config
 	PMMClientConfig *ListLocationsOKBodyLocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
 
-	// pmm server config
-	PMMServerConfig *ListLocationsOKBodyLocationsItems0PMMServerConfig `json:"pmm_server_config,omitempty"`
-
 	// s3 config
 	S3Config *ListLocationsOKBodyLocationsItems0S3Config `json:"s3_config,omitempty"`
 }
@@ -386,10 +383,6 @@ func (o *ListLocationsOKBodyLocationsItems0) Validate(formats strfmt.Registry) e
 	var res []error
 
 	if err := o.validatePMMClientConfig(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePMMServerConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -414,25 +407,6 @@ func (o *ListLocationsOKBodyLocationsItems0) validatePMMClientConfig(formats str
 				return ve.ValidateName("pmm_client_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pmm_client_config")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListLocationsOKBodyLocationsItems0) validatePMMServerConfig(formats strfmt.Registry) error {
-	if swag.IsZero(o.PMMServerConfig) { // not required
-		return nil
-	}
-
-	if o.PMMServerConfig != nil {
-		if err := o.PMMServerConfig.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_server_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pmm_server_config")
 			}
 			return err
 		}
@@ -468,10 +442,6 @@ func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context
 		res = append(res, err)
 	}
 
-	if err := o.contextValidatePMMServerConfig(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.contextValidateS3Config(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -489,21 +459,6 @@ func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMClientConfig(ctx 
 				return ve.ValidateName("pmm_client_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("pmm_client_config")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMServerConfig(ctx context.Context, formats strfmt.Registry) error {
-	if o.PMMServerConfig != nil {
-		if err := o.PMMServerConfig.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_server_config")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pmm_server_config")
 			}
 			return err
 		}
@@ -575,43 +530,6 @@ func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) MarshalBinary() ([]b
 // UnmarshalBinary interface implementation
 func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
 	var res ListLocationsOKBodyLocationsItems0PMMClientConfig
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListLocationsOKBodyLocationsItems0PMMServerConfig PMMServerLocationConfig represents file system config inside pmm-server.
-swagger:model ListLocationsOKBodyLocationsItems0PMMServerConfig
-*/
-type ListLocationsOKBodyLocationsItems0PMMServerConfig struct {
-	// path
-	Path string `json:"path,omitempty"`
-}
-
-// Validate validates this list locations OK body locations items0 PMM server config
-func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list locations OK body locations items0 PMM server config based on context it is used
-func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListLocationsOKBodyLocationsItems0PMMServerConfig) UnmarshalBinary(b []byte) error {
-	var res ListLocationsOKBodyLocationsItems0PMMServerConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -1336,17 +1336,6 @@
                   },
                   "x-order": 2
                 },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 3
-                },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
@@ -1368,7 +1357,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -1462,17 +1451,6 @@
                   },
                   "x-order": 3
                 },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 4
-                },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
@@ -1494,7 +1472,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1596,17 +1574,6 @@
                         },
                         "x-order": 3
                       },
-                      "pmm_server_config": {
-                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 4
-                      },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
                         "type": "object",
@@ -1628,7 +1595,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 5
+                        "x-order": 4
                       }
                     }
                   },
@@ -1767,17 +1734,6 @@
                   },
                   "x-order": 0
                 },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
-                },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
                   "type": "object",
@@ -1799,7 +1755,7 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }

@@ -20,13 +20,6 @@ var (
 	_ = math.Inf
 )
 
-func (this *PMMServerLocationConfig) Validate() error {
-	if this.Path == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Path", fmt.Errorf(`value '%v' must not be an empty string`, this.Path))
-	}
-	return nil
-}
-
 func (this *PMMClientLocationConfig) Validate() error {
 	if this.Path == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Path", fmt.Errorf(`value '%v' must not be an empty string`, this.Path))
@@ -55,13 +48,6 @@ func (this *Location) Validate() error {
 		if oneOfNester.PmmClientConfig != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmClientConfig); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
-			}
-		}
-	}
-	if oneOfNester, ok := this.GetConfig().(*Location_PmmServerConfig); ok {
-		if oneOfNester.PmmServerConfig != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmServerConfig); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PmmServerConfig", err)
 			}
 		}
 	}
@@ -99,11 +85,6 @@ func (this *AddLocationRequest) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
 		}
 	}
-	if this.PmmServerConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmServerConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmServerConfig", err)
-		}
-	}
 	if this.S3Config != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.S3Config); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
@@ -123,11 +104,6 @@ func (this *ChangeLocationRequest) Validate() error {
 	if this.PmmClientConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
-		}
-	}
-	if this.PmmServerConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmServerConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmServerConfig", err)
 		}
 	}
 	if this.S3Config != nil {
@@ -154,11 +130,6 @@ func (this *TestLocationConfigRequest) Validate() error {
 	if this.PmmClientConfig != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
-		}
-	}
-	if this.PmmServerConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmServerConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmServerConfig", err)
 		}
 	}
 	if this.S3Config != nil {
