@@ -26,4 +26,4 @@ For Non-Percona created software (upstream provided/packaged) from the time the 
 
 - Low/Medium: 2nd release from current version
 - High: Next release
-- Critical: Hotfix or no later than Next release
+- Critical: Hotfix or no later than next release (our regular release cadence is once every month)
