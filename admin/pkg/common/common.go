@@ -12,19 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client holds the "pmm client" command
-package client
+// Package common holds common methods used in admin
+package common
 
-import "github.com/percona/pmm/admin/commands"
+import (
+	"os/exec"
 
-// BaseCommand is used by Kong for CLI flags and commands and holds all client commands.
-type BaseCommand struct {
-	Install InstallCommand `cmd:"" help:"Install PMM client"`
-	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM client"`
-}
+	"github.com/pkg/errors"
+)
 
-// BeforeApply is run before the command is applied.
-func (cmd *BaseCommand) BeforeApply() error {
-	commands.SetupClientsEnabled = false
-	return nil
+// LookupCommand tries to find command and returns its path if found.
+func LookupCommand(cmd string) (string, error) {
+	path, err := exec.LookPath(cmd)
+	if err != nil {
+		var execError *exec.Error
+		if ok := errors.As(err, &execError); ok {
+			if ok := errors.As(execError, &exec.ErrNotFound); ok {
+				return "", nil
+			}
+		}
+		return "", err
+	}
+
+	return path, nil
 }
