@@ -20,7 +20,7 @@ type BackupLocationType string
 // BackupLocation types. Same as in managed/models/location_model.go.
 const (
 	S3BackupLocationType         BackupLocationType = "s3"
-	FilesystemBackupLocationType BackupLocationType = "pmm-client"
+	FilesystemBackupLocationType BackupLocationType = "filesystem"
 )
 
 // S3LocationConfig contains required properties for accessing S3 Bucket.

@@ -30,7 +30,7 @@ type BackupLocationType string
 // BackupLocation types. Same as in agent/runner/jobs/backup_location.go
 const (
 	S3BackupLocationType         BackupLocationType = "s3"
-	FilesystemBackupLocationType BackupLocationType = "pmm-client"
+	FilesystemBackupLocationType BackupLocationType = "filesystem"
 )
 
 // BackupLocation represents destination for backup.
