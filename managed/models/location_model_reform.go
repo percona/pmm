@@ -65,7 +65,7 @@ var BackupLocationTable = &backupLocationTableType{
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Type", Type: "BackupLocationType", Column: "type"},
 			{Name: "S3Config", Type: "*S3LocationConfig", Column: "s3_config"},
-			{Name: "PMMClientConfig", Type: "*PMMClientLocationConfig", Column: "pmm_client_config"},
+			{Name: "PMMClientConfig", Type: "*FilesystemLocationConfig", Column: "pmm_client_config"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},

@@ -92,9 +92,9 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		params.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		params.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 
@@ -148,9 +148,9 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		params.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		params.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 	if err := params.Validate(models.BackupLocationValidationParams{
@@ -199,9 +199,9 @@ func (s *LocationsService) TestLocationConfig(
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		locationConfig.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		locationConfig.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 
@@ -245,10 +245,10 @@ func convertLocation(locationModel *models.BackupLocation) (*backupv1beta1.Locat
 		Description: locationModel.Description,
 	}
 	switch locationModel.Type {
-	case models.PMMClientBackupLocationType:
+	case models.FilesystemBackupLocationType:
 		config := locationModel.PMMClientConfig
-		loc.Config = &backupv1beta1.Location_PmmClientConfig{
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+		loc.Config = &backupv1beta1.Location_FilesystemConfig{
+			FilesystemConfig: &backupv1beta1.FilesystemLocationConfig{
 				Path: config.Path,
 			},
 		}

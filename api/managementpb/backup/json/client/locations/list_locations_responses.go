@@ -371,8 +371,8 @@ type ListLocationsOKBodyLocationsItems0 struct {
 	// Short description
 	Description string `json:"description,omitempty"`
 
-	// pmm client config
-	PMMClientConfig *ListLocationsOKBodyLocationsItems0PMMClientConfig `json:"pmm_client_config,omitempty"`
+	// filesystem config
+	FilesystemConfig *ListLocationsOKBodyLocationsItems0FilesystemConfig `json:"filesystem_config,omitempty"`
 
 	// s3 config
 	S3Config *ListLocationsOKBodyLocationsItems0S3Config `json:"s3_config,omitempty"`
@@ -382,7 +382,7 @@ type ListLocationsOKBodyLocationsItems0 struct {
 func (o *ListLocationsOKBodyLocationsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validatePMMClientConfig(formats); err != nil {
+	if err := o.validateFilesystemConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -396,17 +396,17 @@ func (o *ListLocationsOKBodyLocationsItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-func (o *ListLocationsOKBodyLocationsItems0) validatePMMClientConfig(formats strfmt.Registry) error {
-	if swag.IsZero(o.PMMClientConfig) { // not required
+func (o *ListLocationsOKBodyLocationsItems0) validateFilesystemConfig(formats strfmt.Registry) error {
+	if swag.IsZero(o.FilesystemConfig) { // not required
 		return nil
 	}
 
-	if o.PMMClientConfig != nil {
-		if err := o.PMMClientConfig.Validate(formats); err != nil {
+	if o.FilesystemConfig != nil {
+		if err := o.FilesystemConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_client_config")
+				return ve.ValidateName("filesystem_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pmm_client_config")
+				return ce.ValidateName("filesystem_config")
 			}
 			return err
 		}
@@ -438,7 +438,7 @@ func (o *ListLocationsOKBodyLocationsItems0) validateS3Config(formats strfmt.Reg
 func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidatePMMClientConfig(ctx, formats); err != nil {
+	if err := o.contextValidateFilesystemConfig(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -452,13 +452,13 @@ func (o *ListLocationsOKBodyLocationsItems0) ContextValidate(ctx context.Context
 	return nil
 }
 
-func (o *ListLocationsOKBodyLocationsItems0) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
-	if o.PMMClientConfig != nil {
-		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
+func (o *ListLocationsOKBodyLocationsItems0) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
+	if o.FilesystemConfig != nil {
+		if err := o.FilesystemConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pmm_client_config")
+				return ve.ValidateName("filesystem_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pmm_client_config")
+				return ce.ValidateName("filesystem_config")
 			}
 			return err
 		}
@@ -501,26 +501,26 @@ func (o *ListLocationsOKBodyLocationsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListLocationsOKBodyLocationsItems0PMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
-swagger:model ListLocationsOKBodyLocationsItems0PMMClientConfig
+ListLocationsOKBodyLocationsItems0FilesystemConfig FilesystemLocationConfig represents file system location config.
+swagger:model ListLocationsOKBodyLocationsItems0FilesystemConfig
 */
-type ListLocationsOKBodyLocationsItems0PMMClientConfig struct {
+type ListLocationsOKBodyLocationsItems0FilesystemConfig struct {
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this list locations OK body locations items0 PMM client config
-func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this list locations OK body locations items0 filesystem config
+func (o *ListLocationsOKBodyLocationsItems0FilesystemConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list locations OK body locations items0 PMM client config based on context it is used
-func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this list locations OK body locations items0 filesystem config based on context it is used
+func (o *ListLocationsOKBodyLocationsItems0FilesystemConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) MarshalBinary() ([]byte, error) {
+func (o *ListLocationsOKBodyLocationsItems0FilesystemConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -528,8 +528,8 @@ func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) MarshalBinary() ([]b
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListLocationsOKBodyLocationsItems0PMMClientConfig) UnmarshalBinary(b []byte) error {
-	var res ListLocationsOKBodyLocationsItems0PMMClientConfig
+func (o *ListLocationsOKBodyLocationsItems0FilesystemConfig) UnmarshalBinary(b []byte) error {
+	var res ListLocationsOKBodyLocationsItems0FilesystemConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

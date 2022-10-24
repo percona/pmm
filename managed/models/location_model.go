@@ -29,20 +29,20 @@ type BackupLocationType string
 
 // BackupLocation types. Same as in agent/runner/jobs/backup_location.go
 const (
-	S3BackupLocationType        BackupLocationType = "s3"
-	PMMClientBackupLocationType BackupLocationType = "pmm-client"
+	S3BackupLocationType         BackupLocationType = "s3"
+	FilesystemBackupLocationType BackupLocationType = "pmm-client"
 )
 
 // BackupLocation represents destination for backup.
 //
 //reform:backup_locations
 type BackupLocation struct {
-	ID              string                   `reform:"id,pk"`
-	Name            string                   `reform:"name"`
-	Description     string                   `reform:"description"`
-	Type            BackupLocationType       `reform:"type"`
-	S3Config        *S3LocationConfig        `reform:"s3_config"`
-	PMMClientConfig *PMMClientLocationConfig `reform:"pmm_client_config"`
+	ID              string                    `reform:"id,pk"`
+	Name            string                    `reform:"name"`
+	Description     string                    `reform:"description"`
+	Type            BackupLocationType        `reform:"type"`
+	S3Config        *S3LocationConfig         `reform:"s3_config"`
+	PMMClientConfig *FilesystemLocationConfig `reform:"pmm_client_config"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
@@ -85,15 +85,15 @@ func (c S3LocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 func (c *S3LocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // PMMClientLocationConfig contains require properties for accessing file system on pmm-client-node.
-type PMMClientLocationConfig struct {
+type FilesystemLocationConfig struct {
 	Path string `json:"path"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PMMClientLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
+func (c FilesystemLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PMMClientLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *FilesystemLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // check interfaces.
 var (

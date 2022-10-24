@@ -543,10 +543,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig:
+		case *agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig:
 			locationConfig.Type = jobs.PMMClientBackupLocationType
 			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
@@ -575,10 +575,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig:
+		case *agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig:
 			locationConfig.Type = jobs.PMMClientBackupLocationType
 			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)

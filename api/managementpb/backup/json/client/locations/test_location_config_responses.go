@@ -121,8 +121,8 @@ TestLocationConfigBody test location config body
 swagger:model TestLocationConfigBody
 */
 type TestLocationConfigBody struct {
-	// pmm client config
-	PMMClientConfig *TestLocationConfigParamsBodyPMMClientConfig `json:"pmm_client_config,omitempty"`
+	// filesystem config
+	FilesystemConfig *TestLocationConfigParamsBodyFilesystemConfig `json:"filesystem_config,omitempty"`
 
 	// s3 config
 	S3Config *TestLocationConfigParamsBodyS3Config `json:"s3_config,omitempty"`
@@ -132,7 +132,7 @@ type TestLocationConfigBody struct {
 func (o *TestLocationConfigBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validatePMMClientConfig(formats); err != nil {
+	if err := o.validateFilesystemConfig(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -146,17 +146,17 @@ func (o *TestLocationConfigBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *TestLocationConfigBody) validatePMMClientConfig(formats strfmt.Registry) error {
-	if swag.IsZero(o.PMMClientConfig) { // not required
+func (o *TestLocationConfigBody) validateFilesystemConfig(formats strfmt.Registry) error {
+	if swag.IsZero(o.FilesystemConfig) { // not required
 		return nil
 	}
 
-	if o.PMMClientConfig != nil {
-		if err := o.PMMClientConfig.Validate(formats); err != nil {
+	if o.FilesystemConfig != nil {
+		if err := o.FilesystemConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_client_config")
+				return ve.ValidateName("body" + "." + "filesystem_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "pmm_client_config")
+				return ce.ValidateName("body" + "." + "filesystem_config")
 			}
 			return err
 		}
@@ -188,7 +188,7 @@ func (o *TestLocationConfigBody) validateS3Config(formats strfmt.Registry) error
 func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidatePMMClientConfig(ctx, formats); err != nil {
+	if err := o.contextValidateFilesystemConfig(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -202,13 +202,13 @@ func (o *TestLocationConfigBody) ContextValidate(ctx context.Context, formats st
 	return nil
 }
 
-func (o *TestLocationConfigBody) contextValidatePMMClientConfig(ctx context.Context, formats strfmt.Registry) error {
-	if o.PMMClientConfig != nil {
-		if err := o.PMMClientConfig.ContextValidate(ctx, formats); err != nil {
+func (o *TestLocationConfigBody) contextValidateFilesystemConfig(ctx context.Context, formats strfmt.Registry) error {
+	if o.FilesystemConfig != nil {
+		if err := o.FilesystemConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "pmm_client_config")
+				return ve.ValidateName("body" + "." + "filesystem_config")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "pmm_client_config")
+				return ce.ValidateName("body" + "." + "filesystem_config")
 			}
 			return err
 		}
@@ -392,26 +392,26 @@ func (o *TestLocationConfigDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 }
 
 /*
-TestLocationConfigParamsBodyPMMClientConfig PMMClientLocationConfig represents file system config inside pmm-client.
-swagger:model TestLocationConfigParamsBodyPMMClientConfig
+TestLocationConfigParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
+swagger:model TestLocationConfigParamsBodyFilesystemConfig
 */
-type TestLocationConfigParamsBodyPMMClientConfig struct {
+type TestLocationConfigParamsBodyFilesystemConfig struct {
 	// path
 	Path string `json:"path,omitempty"`
 }
 
-// Validate validates this test location config params body PMM client config
-func (o *TestLocationConfigParamsBodyPMMClientConfig) Validate(formats strfmt.Registry) error {
+// Validate validates this test location config params body filesystem config
+func (o *TestLocationConfigParamsBodyFilesystemConfig) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this test location config params body PMM client config based on context it is used
-func (o *TestLocationConfigParamsBodyPMMClientConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this test location config params body filesystem config based on context it is used
+func (o *TestLocationConfigParamsBodyFilesystemConfig) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *TestLocationConfigParamsBodyPMMClientConfig) MarshalBinary() ([]byte, error) {
+func (o *TestLocationConfigParamsBodyFilesystemConfig) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -419,8 +419,8 @@ func (o *TestLocationConfigParamsBodyPMMClientConfig) MarshalBinary() ([]byte, e
 }
 
 // UnmarshalBinary interface implementation
-func (o *TestLocationConfigParamsBodyPMMClientConfig) UnmarshalBinary(b []byte) error {
-	var res TestLocationConfigParamsBodyPMMClientConfig
+func (o *TestLocationConfigParamsBodyFilesystemConfig) UnmarshalBinary(b []byte) error {
+	var res TestLocationConfigParamsBodyFilesystemConfig
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

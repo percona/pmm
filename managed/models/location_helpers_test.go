@@ -54,7 +54,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -62,10 +62,10 @@ func TestBackupLocations(t *testing.T) {
 
 		location, err := models.CreateBackupLocation(q, params)
 		require.NoError(t, err)
-		assert.Equal(t, models.PMMClientBackupLocationType, location.Type)
+		assert.Equal(t, models.FilesystemBackupLocationType, location.Type)
 		assert.Equal(t, params.Name, location.Name)
 		assert.Equal(t, params.Description, location.Description)
-		assert.Equal(t, params.PMMClientConfig.Path, location.PMMClientConfig.Path)
+		assert.Equal(t, params.FilesystemConfig.Path, location.PMMClientConfig.Path)
 		assert.NotEmpty(t, location.ID)
 	})
 
@@ -118,7 +118,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 				S3Config: &models.S3LocationConfig{
@@ -148,7 +148,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -203,7 +203,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -254,7 +254,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -283,7 +283,7 @@ func TestBackupLocations(t *testing.T) {
 			Name:        "some name",
 			Description: "some desc",
 			BackupLocationConfig: models.BackupLocationConfig{
-				PMMClientConfig: &models.PMMClientLocationConfig{
+				FilesystemConfig: &models.FilesystemLocationConfig{
 					Path: "/tmp",
 				},
 			},
@@ -364,7 +364,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-1",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
 						Path: "/tmp",
 					},
 				},
@@ -376,7 +376,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 			params: models.CreateBackupLocationParams{
 				Name: "client-2",
 				BackupLocationConfig: models.BackupLocationConfig{
-					PMMClientConfig: &models.PMMClientLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
 						Path: "",
 					},
 				},

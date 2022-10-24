@@ -20,7 +20,7 @@ var (
 	_ = math.Inf
 )
 
-func (this *PMMClientLocationConfig) Validate() error {
+func (this *FilesystemLocationConfig) Validate() error {
 	if this.Path == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Path", fmt.Errorf(`value '%v' must not be an empty string`, this.Path))
 	}
@@ -44,10 +44,10 @@ func (this *S3LocationConfig) Validate() error {
 }
 
 func (this *Location) Validate() error {
-	if oneOfNester, ok := this.GetConfig().(*Location_PmmClientConfig); ok {
-		if oneOfNester.PmmClientConfig != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PmmClientConfig); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
+	if oneOfNester, ok := this.GetConfig().(*Location_FilesystemConfig); ok {
+		if oneOfNester.FilesystemConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.FilesystemConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
 			}
 		}
 	}
@@ -80,9 +80,9 @@ func (this *AddLocationRequest) Validate() error {
 	if this.Name == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
 	}
-	if this.PmmClientConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
+	if this.FilesystemConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FilesystemConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
 		}
 	}
 	if this.S3Config != nil {
@@ -101,9 +101,9 @@ func (this *ChangeLocationRequest) Validate() error {
 	if this.LocationId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("LocationId", fmt.Errorf(`value '%v' must not be an empty string`, this.LocationId))
 	}
-	if this.PmmClientConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
+	if this.FilesystemConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FilesystemConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
 		}
 	}
 	if this.S3Config != nil {
@@ -127,9 +127,9 @@ func (this *RemoveLocationResponse) Validate() error {
 }
 
 func (this *TestLocationConfigRequest) Validate() error {
-	if this.PmmClientConfig != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmClientConfig); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmClientConfig", err)
+	if this.FilesystemConfig != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.FilesystemConfig); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
 		}
 	}
 	if this.S3Config != nil {
