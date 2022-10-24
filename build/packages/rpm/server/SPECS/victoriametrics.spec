@@ -18,7 +18,7 @@ Summary:        VictoriaMetrics monitoring solution and time series database
 License:        Apache-2.0
 URL:            https://%{provider}
 Source0:        https://%{provider}/archive/%{commit}.tar.gz
-
+Requires:       percona-victoriametrics-gateway
 
 %description
 %{summary}
