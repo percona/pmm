@@ -13,8 +13,8 @@ pmm_version=${pmm_version} ${bin_dir}/build-client-rpm
 mkdir -p ${rpms_dir}/
 cp ${root_dir}/results/rpm/*.rpm ${rpms_dir}/
 
-# pipeline steps
-${bin_dir}/build-server-pipeline
+# install all rpms
+${bin_dir}/build-server-rpm-all
 
 # 3rd-party
 ${bin_dir}/build-server-rpm grafana-db-migrator
