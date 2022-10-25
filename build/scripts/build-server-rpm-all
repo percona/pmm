@@ -12,7 +12,6 @@ ${bin_dir}/build-server-rpm dbaas-tools
 ${bin_dir}/build-server-rpm pmm-dump
 
 # 3rd-party
-${bin_dir}/build-server-rpm victoriametrics-gateway
 ${bin_dir}/build-server-rpm victoriametrics
 ${bin_dir}/build-server-rpm alertmanager
 ${bin_dir}/build-server-rpm grafana
