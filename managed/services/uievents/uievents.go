@@ -104,7 +104,11 @@ func (s *Service) processDashboardStat(metrics []*pmmv1.ServerMetric_Metric) []*
 	}
 
 	if len(s.dashboardUsage) > 0 {
-		dashboardStat := &Stat{}
+		dashboardStat := &Stat{
+			SlowDashboardsP95_1s: []string{},
+			SlowDashboardsP95_5s: []string{},
+			SlowDashboardsP95_10s: []string{},
+		}
 
 		// TopDashboards
 		keys := make([]string, 0, len(s.dashboardUsage))
@@ -159,7 +163,11 @@ func (s *Service) processComponentsStat(metrics []*pmmv1.ServerMetric_Metric) []
 	}
 
 	if len(s.componentsUsage) > 0 {
-		componentsStat := &Stat{}
+		componentsStat := &Stat{
+			SlowComponentsP95_1s:  []string{},
+			SlowComponentsP95_5s:  []string{},
+			SlowComponentsP95_10s: []string{},
+		}
 
 		// SlowComponentP95
 		keys := make([]string, 0, len(s.componentsUsage))
