@@ -592,7 +592,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Socket:   j.MongodbRestoreBackup.Socket,
 		}
 
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig)
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}

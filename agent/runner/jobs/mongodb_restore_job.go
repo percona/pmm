@@ -36,25 +36,35 @@ const (
 
 // MongoDBRestoreJob implements Job for MongoDB restore.
 type MongoDBRestoreJob struct {
-	id             string
-	timeout        time.Duration
-	l              *logrus.Entry
-	name           string
-	pitrTimestamp  time.Time
-	dbURL          *url.URL
-	locationConfig BackupLocationConfig
+	id              string
+	timeout         time.Duration
+	l               *logrus.Entry
+	name            string
+	pitrTimestamp   time.Time
+	dbURL           *url.URL
+	locationConfig  BackupLocationConfig
+	agentsRestarter agentsRestarter
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
-func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, pitrTimestamp time.Time, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
+func NewMongoDBRestoreJob(
+	id string,
+	timeout time.Duration,
+	name string,
+	pitrTimestamp time.Time,
+	dbConfig DBConnConfig,
+	locationConfig BackupLocationConfig,
+	restarter agentsRestarter,
+) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
-		id:             id,
-		timeout:        timeout,
-		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
-		name:           name,
-		pitrTimestamp:  pitrTimestamp,
-		dbURL:          createDBURL(dbConfig),
-		locationConfig: locationConfig,
+		id:              id,
+		timeout:         timeout,
+		l:               logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
+		name:            name,
+		pitrTimestamp:   pitrTimestamp,
+		dbURL:           createDBURL(dbConfig),
+		locationConfig:  locationConfig,
+		agentsRestarter: restarter,
 	}
 }
 
@@ -106,6 +116,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
+	defer j.agentsRestarter.RestartAgents()
 	restoreOut, err := j.startRestore(ctx, snapshot.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to start backup restore")
