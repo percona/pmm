@@ -78,7 +78,7 @@ type Client struct {
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
 
-	connectionTimeGauge       prometheus.Gauge
+	connectionUptime          prometheus.Gauge
 	connectionEstablishedTime time.Time
 }
 
@@ -99,7 +99,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		defaultsFileParser: dfp,
 		cus:                cus,
 		logStore:           logStore,
-		connectionTimeGauge: prometheus.NewGauge(prometheus.GaugeOpts{
+		connectionUptime: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: `pmm_agent`,
 			Name:      `connection_uptime`,
 			Help:      `Connection uptime between pmm-agent and server in seconds`,
@@ -817,20 +817,20 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
-	c.connectionTimeGauge.Collect(ch)
+	c.connectionUptime.Collect(ch)
 	c.supervisor.Collect(ch)
 }
 
 func (c *Client) registerConnectionStatus(connected bool) {
 	switch {
 	case !c.connectionEstablishedTime.IsZero() && connected:
-		c.connectionTimeGauge.Set(time.Since(c.connectionEstablishedTime).Seconds())
+		c.connectionUptime.Set(time.Since(c.connectionEstablishedTime).Seconds())
 	case !connected:
 		c.connectionEstablishedTime = time.Time{}
-		c.connectionTimeGauge.Set(0)
+		c.connectionUptime.Set(0)
 	case connected:
 		c.connectionEstablishedTime = time.Now()
-		c.connectionTimeGauge.Set(0)
+		c.connectionUptime.Set(0)
 	}
 }
 
