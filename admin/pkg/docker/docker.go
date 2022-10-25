@@ -29,8 +29,9 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/admin/pkg/common"
 )
 
 // Base contains methods to interact with Docker.
@@ -59,15 +60,13 @@ func NewDockerClient() (*client.Client, error) {
 
 // IsDockerInstalled checks if Docker is installed locally.
 func (b *Base) IsDockerInstalled() (bool, error) {
-	path, err := exec.LookPath("docker")
+	path, err := common.LookupCommand("docker")
 	if err != nil {
-		var execError *exec.Error
-		if ok := errors.As(err, &execError); ok {
-			if ok := errors.As(execError, &exec.ErrNotFound); ok {
-				return false, nil
-			}
-		}
 		return false, err
+	}
+
+	if path == "" {
+		return false, nil
 	}
 
 	logrus.Debugf("Found docker in %s", path)

@@ -38,11 +38,11 @@ release:                        ## Build pmm-managed release binaries.
 
 ARCH=$(shell uname -m)
 release-dev:
-	@if [ $(ARCH) = "aarch64" ]; then\
-	    go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+	if [ $(ARCH) = "aarch64" ]; then \
+		go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
 	else \
-	    go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
-	fi
+		go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
+    fi
 
 PMM_TEST_FLAGS ?= -timeout=90s
 PMM_TEST_RUN_UPDATE ?= 0
