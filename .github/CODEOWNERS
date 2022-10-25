@@ -1,11 +1,11 @@
 *                           @BupycHuk @percona/pmm-review-be
 /build/                     @atymchuk 
-/admin/                     @michal-kralik
-/agent/agents/postgres/     @JiriCtvrtka
-/agent/runner/              @artemgavrilov
-/api/                       @BupycHuk
-/docs/api/                  @atymchuk
-/managed/services/checks/   @idoqo
-/managed/                   @BupycHuk @artemgavrilov
-/api-tests/                 @BupycHuk @artemgavrilov
-go.mod                      @BupycHuk @artemgavrilov
+/admin/                     @michal-kralik @percona/pmm-review-be
+/agent/agents/postgres/     @JiriCtvrtka @percona/pmm-review-be
+/agent/runner/              @artemgavrilov @percona/pmm-review-be
+/api/                       @BupycHuk @percona/pmm-review-be
+/docs/api/                  @atymchuk 
+/managed/services/checks/   @idoqo @percona/pmm-review-be
+/managed/                   @BupycHuk @artemgavrilov @percona/pmm-review-be
+/api-tests/                 @BupycHuk @artemgavrilov @percona/pmm-review-be
+go.mod                      @BupycHuk @artemgavrilov @percona/pmm-review-be

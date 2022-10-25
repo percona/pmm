@@ -9,12 +9,12 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.3.1-0.20220629082240-f461a46e74e5
 	github.com/bufbuild/buf v1.8.0
-	github.com/daixiang0/gci v0.8.0
+	github.com/daixiang0/gci v0.8.1
 	github.com/go-delve/delve v1.9.1
-	github.com/go-openapi/runtime v0.24.1
+	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.12.0
 	github.com/jstemmer/go-junit-report v1.0.0
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
@@ -86,7 +86,7 @@ require (
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-dap v0.6.0 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-github/v39 v39.2.0 // indirect
@@ -178,19 +178,19 @@ require (
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220722155223-a9213eeb770e // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/vuln v0.0.0-20220901221904-62b0186a1058 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc // indirect
-	google.golang.org/grpc v1.48.0 // indirect
+	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a // indirect
+	google.golang.org/grpc v1.50.1 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

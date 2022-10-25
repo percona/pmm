@@ -17,7 +17,7 @@ require (
 	github.com/alecthomas/kong v0.6.1
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
-	github.com/aws/aws-sdk-go v1.44.115
+	github.com/aws/aws-sdk-go v1.44.121
 	github.com/brianvoe/gofakeit/v6 v6.19.0
 	github.com/charmbracelet/bubbles v0.14.0
 	github.com/charmbracelet/bubbletea v0.22.1
@@ -25,9 +25,9 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v20.10.20+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/go-co-op/gocron v1.17.0
+	github.com/go-co-op/gocron v1.17.1
 	github.com/go-openapi/errors v0.20.3
-	github.com/go-openapi/runtime v0.24.1
+	github.com/go-openapi/runtime v0.24.2
 	github.com/go-openapi/strfmt v0.21.3
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.0
@@ -40,7 +40,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
 	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.7
-	github.com/minio/minio-go/v7 v7.0.40
+	github.com/minio/minio-go/v7 v7.0.42
 	github.com/mwitkow/go-proto-validators v0.3.2
 	github.com/percona-platform/dbaas-api v0.0.0-20221019084503-3649d46509df
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
@@ -58,7 +58,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/objx v0.5.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	go.mongodb.org/mongo-driver v1.10.3
 	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
