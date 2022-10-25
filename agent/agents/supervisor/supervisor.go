@@ -213,6 +213,32 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 	s.setBuiltinAgents(state.BuiltinAgents)
 }
 
+// RestartAgents restarts all existing agents.
+func (s *Supervisor) RestartAgents() {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	for id, agent := range s.agentProcesses {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+			// TODO report that error to server
+		}
+	}
+
+	for id, agent := range s.builtinAgents {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startBuiltin(id, agent.requestedState); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+			// TODO report that error to server
+		}
+	}
+}
+
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
 	s.arw.Lock()
 	defer s.arw.Unlock()

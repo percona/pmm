@@ -43,10 +43,19 @@ type MongoDBRestoreJob struct {
 	pitrTimestamp  time.Time
 	dbURL          *url.URL
 	locationConfig BackupLocationConfig
+	restarter      restarter
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
-func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, pitrTimestamp time.Time, dbConfig DBConnConfig, locationConfig BackupLocationConfig) *MongoDBRestoreJob {
+func NewMongoDBRestoreJob(
+	id string,
+	timeout time.Duration,
+	name string,
+	pitrTimestamp time.Time,
+	dbConfig DBConnConfig,
+	locationConfig BackupLocationConfig,
+	restarter restarter,
+) *MongoDBRestoreJob {
 	return &MongoDBRestoreJob{
 		id:             id,
 		timeout:        timeout,
@@ -55,6 +64,7 @@ func NewMongoDBRestoreJob(id string, timeout time.Duration, name string, pitrTim
 		pitrTimestamp:  pitrTimestamp,
 		dbURL:          createDBURL(dbConfig),
 		locationConfig: locationConfig,
+		restarter:      restarter,
 	}
 }
 
@@ -106,6 +116,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
+	defer j.restarter.RestartAgents()
 	restoreOut, err := j.startRestore(ctx, snapshot.Name)
 	if err != nil {
 		return errors.Wrap(err, "failed to start backup restore")
