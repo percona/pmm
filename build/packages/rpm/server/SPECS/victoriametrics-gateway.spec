@@ -1,12 +1,5 @@
 %undefine _missing_build_ids_terminate_build
 
-%define copying() \
-%if 0%{?fedora} >= 21 || 0%{?rhel} >= 7 \
-%license %{*} \
-%else \
-%doc %{*} \
-%endif
-
 %global repo            VictoriaMetrics
 %global provider        github.com/VictoriaMetrics/%{repo}
 %global commit          v1.82.1
@@ -37,5 +30,5 @@ install -D -p -m 0755 ./vmgateway-prod %{buildroot}%{_sbindir}/vmgateway
 
 
 %changelog
-* Mon Oct 24 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1
+* Mon Oct 24 2022 Michal Kralik <michal.kralik@percona.com> - 1.82.1-1
 - VictoraMetrics Gateway v1.82.1
