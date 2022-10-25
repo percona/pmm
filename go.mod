@@ -143,7 +143,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-require github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
+require github.com/HdrHistogram/hdrhistogram-go v1.1.2
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
