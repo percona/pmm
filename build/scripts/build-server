@@ -13,11 +13,20 @@ pmm_version=${pmm_version} ${bin_dir}/build-client-rpm
 mkdir -p ${rpms_dir}/
 cp ${root_dir}/results/rpm/*.rpm ${rpms_dir}/
 
-
-# pipeline steps
-${bin_dir}/build-server-pipeline
+# 1st-party
+${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
+${bin_dir}/build-server-rpm pmm-managed pmm
+${bin_dir}/build-server-rpm percona-qan-api2 qan-api2
+${bin_dir}/build-server-rpm pmm-update
+${bin_dir}/build-server-rpm dbaas-controller
+${bin_dir}/build-server-rpm dbaas-tools
+${bin_dir}/build-server-rpm pmm-dump
 
 # 3rd-party
+${bin_dir}/build-server-rpm victoriametrics-gateway
+${bin_dir}/build-server-rpm victoriametrics
+${bin_dir}/build-server-rpm alertmanager
+${bin_dir}/build-server-rpm grafana
 ${bin_dir}/build-server-rpm grafana-db-migrator
 
 # build pmm-server
