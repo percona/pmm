@@ -161,8 +161,7 @@ func TestRestoreHistory(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, params.ArtifactID, i.ArtifactID)
 		assert.Equal(t, params.ServiceID, i.ServiceID)
-		// TODO looks like timezone of PITRTimestamp is changed after updating model in DB.
-		// assert.Equal(t, params.PITRTimestamp, i.PITRTimestamp)
+		assert.WithinDuration(t, *params.PITRTimestamp, *i.PITRTimestamp, 0)
 		assert.Equal(t, models.ErrorRestoreStatus, i.Status)
 		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
 	})
