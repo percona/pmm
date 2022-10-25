@@ -48,8 +48,8 @@ type AddProxySQLCommand struct {
 	Socket              string            `help:"Path to ProxySQL socket"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	PMMAgentID          string            `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username            username          `help:"ProxySQL username"`
-	Password            password          `help:"ProxySQL password"`
+	Username            *string           `help:"ProxySQL username"`
+	Password            *string           `help:"ProxySQL password"`
 	AgentPassword       string            `help:"Custom password for /metrics endpoint"`
 	ServiceParamsSource string            `help:"Path to file with service parameters"`
 	Environment         string            `help:"Environment name"`
@@ -109,12 +109,12 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.ServiceParamsSource == "" {
-		if !usernameParameterSpecified {
-			cmd.Username = username(cmd.GetDefaultUsername())
+		if cmd.Username == nil {
+			cmd.Username = pointer.ToString(cmd.GetDefaultUsername())
 		}
 
-		if !passwordParameterSpecified {
-			cmd.Password = password(cmd.GetDefaultPassword())
+		if cmd.Password == nil {
+			cmd.Password = pointer.ToString(cmd.GetDefaultPassword())
 		}
 	}
 
@@ -134,8 +134,8 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 			Environment:         cmd.Environment,
 			Cluster:             cmd.Cluster,
 			ReplicationSet:      cmd.ReplicationSet,
-			Username:            string(cmd.Username),
-			Password:            string(cmd.Password),
+			Username:            pointer.GetString(cmd.Username),
+			Password:            pointer.GetString(cmd.Password),
 			AgentPassword:       cmd.AgentPassword,
 			ServiceParamsSource: cmd.ServiceParamsSource,
 

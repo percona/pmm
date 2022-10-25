@@ -97,29 +97,3 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) 
 
 	return serviceName, socket, host, uint16(portI), nil
 }
-
-// TODO: replace with pointers https://github.com/alecthomas/kong#pointers after bump of Kong's version.
-// Current v0.6.1 doesn't support pointer fields: https://github.com/alecthomas/kong/pull/296
-// Determine if parameters were passed.
-var (
-	usernameParameterSpecified = false
-	passwordParameterSpecified = false
-)
-
-// Types for username and password
-type (
-	username string
-	password string
-)
-
-// AfterApply Change usernameParameterSpecified flag if argument was passed
-func (u username) AfterApply() error {
-	usernameParameterSpecified = true
-	return nil
-}
-
-// AfterApply Change passwordParameterSpecified flag if argument was passed
-func (p password) AfterApply() error {
-	passwordParameterSpecified = true
-	return nil
-}

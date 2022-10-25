@@ -89,15 +89,15 @@ func (res *addMySQLResult) TablestatStatus() string {
 
 // AddMySQLCommand is used by Kong for CLI flags and commands.
 type AddMySQLCommand struct {
-	ServiceName         string   `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
-	Address             string   `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
-	Socket              string   `help:"Path to MySQL socket"`
-	NodeID              string   `help:"Node ID (default is autodetected)"`
-	PMMAgentID          string   `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
-	Username            username `help:"MySQL username"`
-	Password            string   `help:"MySQL password"`
-	AgentPassword       string   `help:"Custom password for /metrics endpoint"`
-	ServiceParamsSource string   `help:"Path to file with service parameters"`
+	ServiceName         string  `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
+	Address             string  `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
+	Socket              string  `help:"Path to MySQL socket"`
+	NodeID              string  `help:"Node ID (default is autodetected)"`
+	PMMAgentID          string  `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
+	Username            *string `help:"MySQL username"`
+	Password            string  `help:"MySQL password"`
+	AgentPassword       string  `help:"Custom password for /metrics endpoint"`
+	ServiceParamsSource string  `help:"Path to file with service parameters"`
 	// TODO add "auto", make it default
 	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
@@ -186,8 +186,8 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	if cmd.ServiceParamsSource == "" && !usernameParameterSpecified {
-		cmd.Username = username(cmd.GetDefaultUsername())
+	if cmd.ServiceParamsSource == "" && cmd.Username == nil {
+		cmd.Username = pointer.ToString(cmd.GetDefaultUsername())
 	}
 
 	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
@@ -215,7 +215,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			Environment:         cmd.Environment,
 			Cluster:             cmd.Cluster,
 			ReplicationSet:      cmd.ReplicationSet,
-			Username:            string(cmd.Username),
+			Username:            pointer.GetString(cmd.Username),
 			Password:            cmd.Password,
 			AgentPassword:       cmd.AgentPassword,
 			CustomLabels:        customLabels,
