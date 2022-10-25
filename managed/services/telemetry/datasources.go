@@ -99,17 +99,17 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 
 	var metrics [][]*pmmv1.ServerMetric_Metric
 
-	if config.JsonFormat != nil {
+	if config.DataJson != nil {
 		parser := TelemetryDBTelemetryParserJson{
 			l: l,
 		}
 
 		filteredKeyValues := make(map[string]string)
-		for _, param := range config.JsonFormat.Params {
+		for _, param := range config.DataJson.Params {
 			filteredKeyValues[param.Column] = param.Key
 		}
 
-		res, err := parser.parse(rows, config.JsonFormat.MetricName, filteredKeyValues)
+		res, err := parser.parse(rows, config.DataJson.MetricName, filteredKeyValues)
 		if err != nil {
 			l.Error("error: ", err)
 			return metrics, err
@@ -168,6 +168,9 @@ func (t *TelemetryDBTelemetryParserJson) parse(rows *sql.Rows, metricName string
 		values[i] = &strs[i]
 	}
 
+	type payloadType []map[string]any
+	resultObj := make(map[string]payloadType)
+
 	for rows.Next() {
 		res := make(map[string]any)
 		if err := rows.Scan(values...); err != nil {
@@ -183,16 +186,16 @@ func (t *TelemetryDBTelemetryParserJson) parse(rows *sql.Rows, metricName string
 			res[key] = *strs[idx]
 		}
 
-		marshal, err := json.Marshal(res)
-		if err != nil {
-			return nil, err
-		}
-
-		metric = append(metric, &pmmv1.ServerMetric_Metric{
-			Key:   metricName,
-			Value: string(marshal),
-		})
+		resultObj[metricName] = append(resultObj[metricName], res)
+	}
+	marshal, err := json.Marshal(resultObj)
+	if err != nil {
+		return nil, err
 	}
 
+	metric = append(metric, &pmmv1.ServerMetric_Metric{
+		Key:   metricName,
+		Value: string(marshal),
+	})
 	return metric, nil
 }

@@ -94,12 +94,12 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID         string `yaml:"id"`
-	Source     string `yaml:"source"`
-	Query      string `yaml:"query"`
-	Summary    string `yaml:"summary"`
-	Data       []ConfigData
-	JsonFormat *JsonFormat `yaml:"json_format"`
+	ID       string `yaml:"id"`
+	Source   string `yaml:"source"`
+	Query    string `yaml:"query"`
+	Summary  string `yaml:"summary"`
+	Data     []ConfigData
+	DataJson *DataJson `yaml:"data_json"`
 }
 
 // ConfigData telemetry config.
@@ -115,7 +115,7 @@ type Param struct {
 	Column string `yaml:"column"`
 }
 
-type JsonFormat struct {
+type DataJson struct {
 	Name       string  `yaml:"name"`
 	MetricName string  `yaml:"metric_name"`
 	Params     []Param `yaml:"params"`
