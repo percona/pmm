@@ -224,7 +224,6 @@ func (s *Supervisor) RestartAgents() {
 
 		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
-			// TODO report that error to server
 		}
 	}
 
@@ -234,7 +233,6 @@ func (s *Supervisor) RestartAgents() {
 
 		if err := s.startBuiltin(id, agent.requestedState); err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
-			// TODO report that error to server
 		}
 	}
 }

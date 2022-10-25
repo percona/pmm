@@ -14,6 +14,6 @@
 
 package jobs
 
-type restarter interface {
+type agentsRestarter interface {
 	RestartAgents()
 }
