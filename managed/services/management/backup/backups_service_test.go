@@ -171,8 +171,10 @@ func TestStartBackup(t *testing.T) {
 }
 
 func TestRestoreBackupErrors(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	backupService := &mockBackupService{}
-	backupSvc := NewBackupsService(nil, backupService, nil, nil)
+	backupSvc := NewBackupsService(db, backupService, nil, nil)
 
 	for _, tc := range []struct {
 		testName    string
