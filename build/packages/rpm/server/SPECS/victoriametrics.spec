@@ -50,7 +50,7 @@ install -D -p -m 0755 ./bin/vmalert-pure %{buildroot}%{_sbindir}/vmalert
 
 
 %changelog
-* Wed Oct 26 2022 Michal Kralik <michal.kralik@percona.com> - 1.77.2-2
+* Wed Oct 26 2022 Michal Kralik <michal.kralik@percona.com> - 1.77.2-1
 - add VictoriaMetrics Gateway dependency
 
 * Thu May 11 2022 Michael Okoko <michael.okoko@percona.com> - 1.77.1
