@@ -656,6 +656,8 @@ func convertRestoreBackupError(restoreError error) error {
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, models.ErrNotFound):
 		return status.Error(codes.NotFound, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
 
 	default:
 		return restoreError

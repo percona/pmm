@@ -238,6 +238,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", err
 	}
 
+	if err = s.checkNoRunningBackupTasks(serviceID); err != nil {
+		return "", err
+	}
+
 	var params *prepareRestoreJobParams
 	var jobID, restoreID string
 	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -591,4 +595,21 @@ func inTimeSpan(start, end, check time.Time) bool {
 		return check.Equal(start)
 	}
 	return !start.After(check) || !end.Before(check)
+}
+
+func (s *Service) checkNoRunningBackupTasks(serviceID string) error {
+	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
+		ServiceID: serviceID,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, task := range tasks {
+		if !task.Disabled {
+			return errors.Wrap(ErrAnotherOperationInProgress, "all scheduled tasks should be disabled before running restore")
+		}
+	}
+
+	return nil
 }
