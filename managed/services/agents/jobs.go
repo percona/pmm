@@ -36,10 +36,10 @@ var (
 	// ErrRetriesExhausted is returned when remaining retries are 0.
 	ErrRetriesExhausted = errors.New("retries exhausted")
 
-	pmmAgentMinVersionForMongoLogicalBackupAndRestore    = version.Must(version.NewVersion("2.19"))
-	pmmAgentMinVersionForMySQLBackupAndRestore           = version.Must(version.NewVersion("2.23"))
-	pmmAgentMinVersionForMongoPhysicalBackupAndRestore   = version.Must(version.NewVersion("2.31.0-0"))
-	pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoLogicalBackupAndRestore  = version.Must(version.NewVersion("2.19"))
+	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
+	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
+	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
 )
 
 const (
@@ -132,8 +132,8 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 
 	if locationModel != nil {
 		locationConfig = &models.BackupLocationConfig{
-			PMMClientConfig: locationModel.PMMClientConfig,
-			S3Config:        locationModel.S3Config,
+			FilesystemConfig: locationModel.FilesystemConfig,
+			S3Config:         locationModel.S3Config,
 		}
 	}
 
@@ -403,14 +403,14 @@ func (s *JobsService) StartMongoDBBackupJob(
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
-	case locationConfig.PMMClientConfig != nil:
+	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb backup to client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
-		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig{
-			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig{
+			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
 	default:
 		return errors.Errorf("unsupported location config")
@@ -528,14 +528,14 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_S3Config{
 			S3Config: convertS3ConfigModel(locationConfig.S3Config),
 		}
-	case locationConfig.PMMClientConfig != nil:
+	case locationConfig.FilesystemConfig != nil:
 		if err := PMMAgentSupported(s.r.db.Querier, pmmAgentID,
 			"mongodb restore from client local storage",
-			pmmAgentMinVersionForMongoDBUsePMMClientLocalStorage); err != nil {
+			pmmAgentMinVersionForMongoDBUseFilesystemStorage); err != nil {
 			return err
 		}
-		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig{
-			PmmClientConfig: &agentpb.PMMClientLocationConfig{Path: locationConfig.PMMClientConfig.Path},
+		mongoDBReq.LocationConfig = &agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig{
+			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: locationConfig.FilesystemConfig.Path},
 		}
 	default:
 		return errors.Errorf("unsupported location config")

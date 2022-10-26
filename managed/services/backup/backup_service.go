@@ -175,8 +175,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	}
 
 	locationConfig := &models.BackupLocationConfig{
-		PMMClientConfig: locationModel.PMMClientConfig,
-		S3Config:        locationModel.S3Config,
+		FilesystemConfig: locationModel.FilesystemConfig,
+		S3Config:         locationModel.S3Config,
 	}
 
 	switch svc.ServiceType {
@@ -425,8 +425,8 @@ func (s *Service) prepareRestoreJob(
 
 func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestoreJobParams) error {
 	locationConfig := &models.BackupLocationConfig{
-		PMMClientConfig: params.LocationModel.PMMClientConfig,
-		S3Config:        params.LocationModel.S3Config,
+		FilesystemConfig: params.LocationModel.FilesystemConfig,
+		S3Config:         params.LocationModel.S3Config,
 	}
 
 	switch params.ServiceType {
