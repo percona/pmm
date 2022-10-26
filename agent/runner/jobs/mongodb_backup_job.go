@@ -29,7 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/api/agentpb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 const (
@@ -49,7 +49,7 @@ type MongoDBBackupJob struct {
 	locationConfig BackupLocationConfig
 	pitr           bool
 	logChunkID     uint32
-	dataModel      backupv1beta1.DataModel
+	dataModel      backuppb.DataModel
 }
 
 // NewMongoDBBackupJob creates new Job for MongoDB backup.
@@ -60,12 +60,12 @@ func NewMongoDBBackupJob(
 	dbConfig DBConnConfig,
 	locationConfig BackupLocationConfig,
 	pitr bool,
-	dataModel backupv1beta1.DataModel,
+	dataModel backuppb.DataModel,
 ) (*MongoDBBackupJob, error) {
-	if dataModel != backupv1beta1.DataModel_PHYSICAL && dataModel != backupv1beta1.DataModel_LOGICAL {
+	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
-	if dataModel != backupv1beta1.DataModel_LOGICAL && pitr {
+	if dataModel != backuppb.DataModel_LOGICAL && pitr {
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 	return &MongoDBBackupJob{
@@ -164,11 +164,11 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 
 	pbmArgs := []string{"backup"}
 	switch j.dataModel {
-	case backupv1beta1.DataModel_PHYSICAL:
+	case backuppb.DataModel_PHYSICAL:
 		pbmArgs = append(pbmArgs, "--type=physical")
-	case backupv1beta1.DataModel_LOGICAL:
+	case backuppb.DataModel_LOGICAL:
 		pbmArgs = append(pbmArgs, "--type=logical")
-	case backupv1beta1.DataModel_DATA_MODEL_INVALID:
+	case backuppb.DataModel_DATA_MODEL_INVALID:
 	default:
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}

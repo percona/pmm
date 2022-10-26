@@ -31,7 +31,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -87,7 +87,7 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := artifactsService.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		require.NoError(t, err)
@@ -97,7 +97,7 @@ func TestListPitrTimelines(t *testing.T) {
 
 	t.Run("fails for invalid artifact ID", func(t *testing.T) {
 		unknownID := "artifact_id/" + uuid.New().String()
-		response, err := artifactsService.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: unknownID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Artifact with ID %q not found.", unknownID)), err)
@@ -117,7 +117,7 @@ func TestListPitrTimelines(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotEmpty(t, artifact.ID)
 
-		response, err := artifactsService.ListPitrTimeranges(ctx, &backupv1beta1.ListPitrTimerangesRequest{
+		response, err := artifactsService.ListPitrTimeranges(ctx, &backuppb.ListPitrTimerangesRequest{
 			ArtifactId: artifact.ID,
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
