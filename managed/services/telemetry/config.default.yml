@@ -8,6 +8,22 @@ telemetry:
       - metric_name: "pmm_server_ia_enabled"
         column: "ia_enabled"
 
+  - id: PMMServerAlertsFire
+    source: VM
+    query: max_over_time(grafana_alerting_alerts{state="alerting"}[24h])
+    summary: "Max Number of Alerts Firing over last 24h"
+    data:
+      - metric_name: "pmm_server_alerts_firing_max_24h"
+        value: 1
+
+  - id: PMMServerAlertsNumber
+    source: VM
+    query: grafana_alerting_schedule_alert_rules
+    summary: "Number of Alerts configured"
+    data:
+      - metric_name: "pmm_server_alerts_number"
+        value: 1
+
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
