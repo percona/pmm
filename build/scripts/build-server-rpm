@@ -98,7 +98,7 @@ build() {
             set -o xtrace
             echo \"spec_name: ${spec_name}\"
             echo \"repo_name: ${repo_name}\"
-            echo \"rpm_verison: ${rpm_version}\"
+            echo \"rpm_version: ${rpm_version}\"
 
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 

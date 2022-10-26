@@ -14,8 +14,11 @@ ${bin_dir}/build-server-rpm dbaas-tools
 ${bin_dir}/build-server-rpm pmm-dump
 
 # 3rd-party
-${bin_dir}/build-server-rpm victoriametrics-gateway
 ${bin_dir}/build-server-rpm victoriametrics
+# The victoriametrics-gateway package needs to come after victoriametrics package
+# because of the way cleanup works in build-server-rpm.
+# Otherwise victoriametrics deletes the gateway package on cleanup.
+${bin_dir}/build-server-rpm victoriametrics-gateway
 ${bin_dir}/build-server-rpm alertmanager
 ${bin_dir}/build-server-rpm grafana
 
