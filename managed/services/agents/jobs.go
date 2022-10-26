@@ -28,7 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -597,12 +597,12 @@ func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationCo
 	}
 }
 
-func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backupv1beta1.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backupv1beta1.DataModel_LOGICAL, nil
+		return backuppb.DataModel_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}
