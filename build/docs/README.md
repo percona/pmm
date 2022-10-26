@@ -1,4 +1,3 @@
-## Welcome to PMM build place
+## Welcome to PMM build
 
-Hey! We store here information about PMM build system and so on.
-
+This directory is home to a number of PMM build-relates scrips, configs and specs.
