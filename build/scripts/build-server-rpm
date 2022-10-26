@@ -118,7 +118,7 @@ build() {
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
             rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' \
                      --define 'dist .el7' \
-                     --define "debug_package %{nil}" \
+                     --define 'debug_package %{nil}' \
                      -ba SOURCES/${spec_name}.spec
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
