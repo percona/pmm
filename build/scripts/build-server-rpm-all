@@ -2,6 +2,8 @@
 set -o errexit
 set -o xtrace
 
+. $(dirname $0)/vars
+
 # 1st-party
 ${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
 ${bin_dir}/build-server-rpm pmm-managed pmm
