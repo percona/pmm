@@ -121,6 +121,10 @@ func (s *BackupsService) RestoreBackup(
 ) (*backupv1beta1.RestoreBackupResponse, error) {
 	// Disable all related scheduled backups before restoring
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, t := range tasks {
 		if _, err := s.ChangeScheduledBackup(ctx, &backupv1beta1.ChangeScheduledBackupRequest{
 			ScheduledBackupId: t.ID,
