@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -175,15 +176,33 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 	var err error
 	startTime := time.Now()
 
-	if j.pitrTimestamp.Unix() == 0 {
-		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
-	} else {
-		err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
-	}
-	if err != nil {
-		return nil, errors.Wrapf(err, "pbm restore error: %v", err)
-	}
+	ticker := time.NewTicker(statusCheckInterval)
+	defer ticker.Stop()
+	retryCount := 500
 
-	restoreOutput.StartedAt = startTime
-	return &restoreOutput, nil
+	for {
+		select {
+		case <-ticker.C:
+
+			if j.pitrTimestamp.Unix() == 0 {
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+			} else {
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+			}
+
+			if err != nil {
+				if strings.HasSuffix(err.Error(), "another operation in progress") && retryCount > 0 {
+					retryCount--
+					continue
+				}
+				return nil, errors.Wrapf(err, "pbm restore error: %v", err)
+			}
+
+			restoreOutput.StartedAt = startTime
+			return &restoreOutput, nil
+
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 }

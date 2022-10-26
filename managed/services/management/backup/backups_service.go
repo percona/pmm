@@ -27,6 +27,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -118,6 +119,17 @@ func (s *BackupsService) RestoreBackup(
 	ctx context.Context,
 	req *backupv1beta1.RestoreBackupRequest,
 ) (*backupv1beta1.RestoreBackupResponse, error) {
+	// Disable all related scheduled backups before restoring
+	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{ServiceID: req.ServiceId})
+	for _, t := range tasks {
+		if _, err := s.ChangeScheduledBackup(ctx, &backupv1beta1.ChangeScheduledBackupRequest{
+			ScheduledBackupId: t.ID,
+			Enabled:           &wrapperspb.BoolValue{Value: false},
+		}); err != nil {
+			return nil, err
+		}
+	}
+
 	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
 	if err != nil {
 		return nil, convertRestoreBackupError(err)
@@ -656,6 +668,8 @@ func convertRestoreBackupError(restoreError error) error {
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	case errors.Is(restoreError, models.ErrNotFound):
 		return status.Error(codes.NotFound, restoreError.Error())
+	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
+		return status.Error(codes.FailedPrecondition, restoreError.Error())
 
 	default:
 		return restoreError

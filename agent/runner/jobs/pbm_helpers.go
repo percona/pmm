@@ -31,10 +31,10 @@ import (
 )
 
 const (
-	cmdTimeout          = time.Minute
+	cmdTimeout          = 60 * time.Minute
 	resyncTimeout       = 5 * time.Minute
 	statusCheckInterval = 5 * time.Second
-	maxRestoreChecks    = 10
+	maxRestoreChecks    = 100
 )
 
 type pbmSeverity int
@@ -222,7 +222,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 	ticker := time.NewTicker(statusCheckInterval)
 	defer ticker.Stop()
 
-	retryCount := 50
+	retryCount := 500
 
 	for {
 		select {
@@ -231,7 +231,8 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
 			if err != nil {
 				// for the first couple of seconds after backup process starts describe-backup command may return this error
-				if (strings.HasSuffix(err.Error(), "no such file") || strings.HasSuffix(err.Error(), "file is empty")) && retryCount > 0 {
+				if (strings.HasSuffix(err.Error(), "no such file") ||
+					strings.HasSuffix(err.Error(), "file is empty")) && retryCount > 0 {
 					retryCount--
 					continue
 				}

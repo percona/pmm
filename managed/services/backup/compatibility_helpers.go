@@ -53,6 +53,8 @@ var (
 	ErrIncompatibleArtifactMode = errors.New("artifact backup mode is not compatible with other parameters")
 	// ErrTimestampOutOfRange is returned if timestamp value is out of allowed range.
 	ErrTimestampOutOfRange = errors.New("timestamp value is out of range")
+	// ErrAnotherOperationInProgress is returned if there are other operations in progress that prevent running the requested one.
+	ErrAnotherOperationInProgress = errors.New("another operation in progress")
 
 	mysqlAndXtrabackupCompatibleVersions []compatibility
 	// Starting from MySQL 8.0.22 if the Percona XtraBackup version is lower than the database version,

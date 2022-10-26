@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -31,6 +32,7 @@ import (
 
 // Service represents core logic for db backup.
 type Service struct {
+	l                    *logrus.Entry
 	db                   *reform.DB
 	jobsService          jobsService
 	agentService         agentService
@@ -41,6 +43,7 @@ type Service struct {
 // NewService creates new backups logic service.
 func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pitrSvc pitrTimerangeService) *Service {
 	return &Service{
+		l:                    logrus.WithField("component", "management/backup/backup"),
 		db:                   db,
 		jobsService:          jobsService,
 		agentService:         agentService,
@@ -190,6 +193,12 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
+		if _, e := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
+			Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+		}); e != nil {
+			s.l.WithError(e).Warnf("failed to mark artifact %s as failed", artifact.ID)
+		}
+
 		return "", err
 	}
 
@@ -240,7 +249,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 
 	var params *prepareRestoreJobParams
 	var jobID, restoreID string
-	if err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	if errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		params, err = s.prepareRestoreJob(tx.Querier, serviceID, artifactID, pitrTimestamp)
 		if err != nil {
@@ -309,8 +318,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		jobID = job.ID
 
 		return err
-	}); err != nil {
-		return "", err
+	}); errTx != nil {
+		return "", errTx
 	}
 
 	if err := s.startRestoreJob(jobID, serviceID, params); err != nil {
