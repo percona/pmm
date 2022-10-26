@@ -53,7 +53,7 @@ var (
 	ErrIncompatibleArtifactMode = errors.New("artifact backup mode is not compatible with other parameters")
 	// ErrTimestampOutOfRange is returned if timestamp value is out of allowed range.
 	ErrTimestampOutOfRange = errors.New("timestamp value is out of range")
-	// ErrAnotherOperationInProgress is returned if there are another operations in progress which don't allow running requested one.
+	// ErrAnotherOperationInProgress is returned if there are other operations in progress that prevent running the requested one.
 	ErrAnotherOperationInProgress = errors.New("another operation in progress")
 
 	mysqlAndXtrabackupCompatibleVersions []compatibility
