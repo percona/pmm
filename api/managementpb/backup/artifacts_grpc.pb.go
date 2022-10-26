@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/backup/artifacts.proto
 
-package backupv1beta1
+package backupv1
 
 import (
 	context "context"
@@ -41,7 +41,7 @@ func NewArtifactsClient(cc grpc.ClientConnInterface) ArtifactsClient {
 
 func (c *artifactsClient) ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
 	out := new(ListArtifactsResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListArtifacts", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Artifacts/ListArtifacts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *artifactsClient) ListArtifacts(ctx context.Context, in *ListArtifactsRe
 
 func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
 	out := new(DeleteArtifactResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/DeleteArtifact", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Artifacts/DeleteArtifact", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifact
 
 func (c *artifactsClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
 	out := new(ListPitrTimerangesResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Artifacts/ListPitrTimeranges", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Artifacts/ListPitrTimeranges", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func _Artifacts_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Artifacts/ListArtifacts",
+		FullMethod: "/backup.v1.Artifacts/ListArtifacts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArtifactsServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
@@ -134,7 +134,7 @@ func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Artifacts/DeleteArtifact",
+		FullMethod: "/backup.v1.Artifacts/DeleteArtifact",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArtifactsServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
@@ -152,7 +152,7 @@ func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Artifacts/ListPitrTimeranges",
+		FullMethod: "/backup.v1.Artifacts/ListPitrTimeranges",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
@@ -164,7 +164,7 @@ func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Artifacts_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1beta1.Artifacts",
+	ServiceName: "backup.v1.Artifacts",
 	HandlerType: (*ArtifactsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
