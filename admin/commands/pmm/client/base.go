@@ -20,6 +20,7 @@ import "github.com/percona/pmm/admin/commands"
 // BaseCommand is used by Kong for CLI flags and commands and holds all client commands.
 type BaseCommand struct {
 	Install InstallCommand `cmd:"" help:"Install PMM client"`
+	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM client"`
 }
 
 // BeforeApply is run before the command is applied.

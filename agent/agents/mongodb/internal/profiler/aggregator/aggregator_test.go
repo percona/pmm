@@ -28,6 +28,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -36,7 +37,7 @@ func TestAggregator(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage
 	t.Run("Add", func(t *testing.T) {
 		t.Run("error if aggregator is not running", func(t *testing.T) {
-			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"))
+			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetDefaultMaxQueryLength())
 			err := a.Add(nil, proto.SystemProfile{})
 			assert.EqualError(t, err, "aggregator is not running")
 		})
@@ -45,7 +46,7 @@ func TestAggregator(t *testing.T) {
 	t.Run("createResult", func(t *testing.T) {
 		agentID := "test-agent"
 		startPeriod := time.Now()
-		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"))
+		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetDefaultMaxQueryLength())
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()
@@ -98,7 +99,7 @@ func TestAggregator(t *testing.T) {
 	t.Run("createResultInvalidUTF8", func(t *testing.T) {
 		agentID := "test-agent"
 		startPeriod := time.Now()
-		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"))
+		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetDefaultMaxQueryLength())
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()
