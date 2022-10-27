@@ -113,10 +113,11 @@ type ConfigData struct {
 type Param struct {
 	Key    string `yaml:"key"`
 	Column string `yaml:"column"`
+	Label  string `yaml:"label"`
+	Value  string `yaml:"value"`
 }
 
 type DataJson struct {
-	Name       string  `yaml:"name"`
 	MetricName string  `yaml:"metric_name"`
 	Params     []Param `yaml:"params"`
 }

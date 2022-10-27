@@ -18,6 +18,7 @@ package telemetry
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
@@ -70,14 +71,30 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	localCtx, cancel := context.WithTimeout(ctx, d.config.Timeout)
 	defer cancel()
 
-	result, _, err := d.vm.Query(localCtx, config.Query, time.Now())
+	r, _, err := d.vm.Query(localCtx, config.Query, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
-	var metrics []*pmmv1.ServerMetric_Metric
+	resulVector := r.(model.Vector)
 
-	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
+	var metrics []*pmmv1.ServerMetric_Metric
+	if config.DataJson != nil {
+		metrics, err = parseVMResultQueryToJsonString(config, resulVector)
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		metrics = parseVMQueryResultToKeyValueMetrics(config, resulVector)
+	}
+
+	return [][]*pmmv1.ServerMetric_Metric{metrics}, nil
+}
+
+func parseVMQueryResultToKeyValueMetrics(config Config, result model.Vector) []*pmmv1.ServerMetric_Metric {
+	var metrics []*pmmv1.ServerMetric_Metric
+	for _, v := range result { //nolint:forcetypeassert
 		for _, configItem := range config.Data {
 			if configItem.Label != "" {
 				value, ok := v.Metric[model.LabelName(configItem.Label)]
@@ -97,6 +114,41 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 			}
 		}
 	}
+	return metrics
+}
 
-	return [][]*pmmv1.ServerMetric_Metric{metrics}, nil
+func parseVMResultQueryToJsonString(config Config, result interface{}) ([]*pmmv1.ServerMetric_Metric, error) {
+	type payloadType []map[string]any
+	resultObj := make(map[string]payloadType)
+
+	metricName := config.DataJson.MetricName
+
+	var metrics []*pmmv1.ServerMetric_Metric
+	for _, v := range result.(model.Vector) {
+		res := make(map[string]any)
+
+		for _, param := range config.DataJson.Params {
+			if param.Label != "" {
+				labelValue, ok := v.Metric[model.LabelName(param.Label)]
+				if ok {
+					res[param.Key] = labelValue
+				}
+			} else if param.Value != "" {
+				res[param.Key] = v.Value.String()
+			}
+		}
+		resultObj[metricName] = append(resultObj[metricName], res)
+	}
+
+	jsonResponse, err := json.Marshal(resultObj)
+	if err != nil {
+		return nil, err
+	}
+
+	metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+		Key:   config.DataJson.MetricName,
+		Value: string(jsonResponse),
+	})
+
+	return metrics, nil
 }
