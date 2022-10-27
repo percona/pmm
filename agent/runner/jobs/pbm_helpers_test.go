@@ -15,6 +15,7 @@
 package jobs
 
 import (
+	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
 
@@ -190,7 +191,7 @@ func TestFindPITRRestore(t *testing.T) {
 			startedAt, err := time.Parse("2006-01-02T15:04:05.000000000Z", tc.startedAtString)
 			require.NoError(t, err)
 
-			res := findPITRRestore(testList, tc.restoreInfoPITRTime, startedAt)
+			res := findPITRRestore(logrus.WithFields(logrus.Fields{"type": "mongodb_backup"}), testList, tc.restoreInfoPITRTime, startedAt)
 			assert.Equal(t, tc.expected, res)
 		})
 	}
