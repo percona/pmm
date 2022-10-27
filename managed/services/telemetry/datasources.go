@@ -95,59 +95,62 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	for i := range values {
 		values[i] = &strs[i]
 	}
-	cfgColumns := config.mapByColumn()
-
-	var metrics [][]*pmmv1.ServerMetric_Metric
 
 	if config.DataJson != nil {
-		filteredKeyValues := make(map[string]string)
-		for _, param := range config.DataJson.Params {
-			filteredKeyValues[param.Column] = param.Key
-		}
-
-		res, err := parseRowsToMetrics(rows, config.DataJson.MetricName, filteredKeyValues, l)
+		metric, err := parseRowsToJSOMMetrics(rows, config, l)
 		if err != nil {
 			l.Error("error: ", err)
-			return metrics, err
+			return nil, err
 		}
-		metrics = append(metrics, res)
+		return [][]*pmmv1.ServerMetric_Metric{metric}, nil
 	} else {
-		for rows.Next() {
-			if err := rows.Scan(values...); err != nil {
-				l.Error(err)
+		cfgColumns := config.mapByColumn()
+		return parseRowsToSimpleMetrics(rows, values, l, columns, strs, cfgColumns), nil
+	}
+}
+
+func parseRowsToSimpleMetrics(rows *sql.Rows, values []interface{}, l *logrus.Entry, columns []string, strs []*string, cfgColumns map[string][]ConfigData) [][]*pmmv1.ServerMetric_Metric {
+	var metrics [][]*pmmv1.ServerMetric_Metric
+
+	for rows.Next() {
+		if err := rows.Scan(values...); err != nil {
+			l.Error(err)
+			continue
+		}
+
+		var metric []*pmmv1.ServerMetric_Metric
+		for idx, column := range columns {
+			var value string
+
+			// skip empty values
+			if strs[idx] == nil || *strs[idx] == "" {
 				continue
 			}
 
-			var metric []*pmmv1.ServerMetric_Metric
-			for idx, column := range columns {
-				var value string
-
-				// skip empty values
-				if strs[idx] == nil || *strs[idx] == "" {
-					continue
+			value = *strs[idx]
+			if cols, ok := cfgColumns[column]; ok {
+				for _, col := range cols {
+					metric = append(metric, &pmmv1.ServerMetric_Metric{
+						Key:   col.MetricName,
+						Value: value,
+					})
 				}
-
-				value = *strs[idx]
-				if cols, ok := cfgColumns[column]; ok {
-					for _, col := range cols {
-						metric = append(metric, &pmmv1.ServerMetric_Metric{
-							Key:   col.MetricName,
-							Value: value,
-						})
-					}
-				}
-			}
-			if len(metric) != 0 {
-				metrics = append(metrics, metric)
 			}
 		}
-	}
+		if len(metric) != 0 {
+			metrics = append(metrics, metric)
+		}
 
-	return metrics, nil
+	}
+	return metrics
 }
 
-func parseRowsToMetrics(rows *sql.Rows, metricName string, filteredKeyValues map[string]string, l *logrus.Entry) ([]*pmmv1.ServerMetric_Metric, error) {
+func parseRowsToJSOMMetrics(rows *sql.Rows, config Config, l *logrus.Entry) ([]*pmmv1.ServerMetric_Metric, error) {
 	var metric []*pmmv1.ServerMetric_Metric
+	jsonColumnToKeyMap := make(map[string]string)
+	for _, param := range config.DataJson.Params {
+		jsonColumnToKeyMap[param.Column] = param.Key
+	}
 
 	columns, err := rows.Columns()
 	if err != nil {
@@ -171,14 +174,14 @@ func parseRowsToMetrics(rows *sql.Rows, metricName string, filteredKeyValues map
 		}
 
 		for idx, col := range columns {
-			key, ok := filteredKeyValues[col]
+			key, ok := jsonColumnToKeyMap[col]
 			if !ok {
 				continue
 			}
 			res[key] = *strs[idx]
 		}
 
-		resultObj[metricName] = append(resultObj[metricName], res)
+		resultObj[config.DataJson.MetricName] = append(resultObj[config.DataJson.MetricName], res)
 	}
 	marshal, err := json.Marshal(resultObj)
 	if err != nil {
@@ -186,7 +189,7 @@ func parseRowsToMetrics(rows *sql.Rows, metricName string, filteredKeyValues map
 	}
 
 	metric = append(metric, &pmmv1.ServerMetric_Metric{
-		Key:   metricName,
+		Key:   config.DataJson.MetricName,
 		Value: string(marshal),
 	})
 	return metric, nil
