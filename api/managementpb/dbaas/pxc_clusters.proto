@@ -31,6 +31,9 @@ message PXCClusterParams {
     ComputeResources compute_resources = 1;
     // Disk size in bytes.
     int64 disk_size = 2;
+    // PXC configuration options
+    string configuration = 4;
+
   }
   // ProxySQL container parameters.
   // TODO Do not use inner messages in all public APIs (for consistency).

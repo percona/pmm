@@ -808,6 +808,9 @@ type GetPXCClusterResourcesParamsBodyParamsPXC struct {
 	// Disk size in bytes.
 	DiskSize string `json:"disk_size,omitempty"`
 
+	// PXC configuration options
+	Configuration string `json:"configuration,omitempty"`
+
 	// compute resources
 	ComputeResources *GetPXCClusterResourcesParamsBodyParamsPXCComputeResources `json:"compute_resources,omitempty"`
 }

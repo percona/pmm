@@ -24,6 +24,9 @@ message PSMDBClusterParams {
   ReplicaSet replicaset = 2;
   // Docker image used for PSMDB.
   string image = 3;
+  // PSMDB Configuration
+  string configuration = 4;
+
 }
 
 message GetPSMDBClusterCredentialsRequest {
