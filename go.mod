@@ -10,6 +10,8 @@ replace github.com/pganalyze/pg_query_go v1.0.3 => github.com/Percona-Lab/pg_que
 
 replace golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa => github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08
 
+replace github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 => github.com/YaroslavPodorvanov/go-grpc-prometheus v0.0.0-20221027213255-c49bcedf24bb
+
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.3.0

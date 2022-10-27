@@ -88,6 +88,9 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	// set logger
 	l := logrus.WithField("request", logger.MakeRequestID())
 	ctx = logger.SetEntry(ctx, l)
+	// @TODO PMM-10948 set source from HTTP header referer
+	source := grpc_prometheus.External
+	ctx = grpc_prometheus.SetSourceToCtx(ctx, source)
 
 	var res interface{}
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
