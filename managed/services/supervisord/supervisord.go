@@ -374,10 +374,10 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 	for {
 		line, err := reader.ReadString('\n')
 		if err == nil {
-			if newOffset > s.gRPCMessageMaxSize {
-				return lines, newOffset, errors.WithStack(err)
-			}
 			newOffset += uint32(len(line))
+                        if newOffset > s.gRPCMessageMaxSize {
+				return lines, newOffset - len(line), nil
+			}
 			lines = append(lines, strings.TrimSuffix(line, "\n"))
 			continue
 		}
