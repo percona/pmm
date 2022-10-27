@@ -212,10 +212,10 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 			}
 
 			want := tt.want()
-			assert.Equal(t, len(want), len(got[0]))
+			assert.Equal(t, len(want), len(got))
 			for i, metricResult := range want {
-				assert.Equal(t, metricResult.key, got[0][i].Key)
-				assert.Equal(t, metricResult.value, got[0][i].Value)
+				assert.Equal(t, metricResult.key, got[i][0].Key)
+				assert.Equal(t, metricResult.value, got[i][0].Value)
 			}
 		})
 	}
