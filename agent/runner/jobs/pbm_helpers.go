@@ -257,7 +257,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 
 func findPITRRestore(l logrus.FieldLogger, list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
 	for i := len(list) - 1; i >= 0; i-- {
-		if list[i].Type != "pitr" {
+		if list[i].Type == "snapshot" && list[i].Snapshot != "" {
 			l.Debugf("Skipping element because of non-pitr type: %#v", list[i])
 			continue
 		}
