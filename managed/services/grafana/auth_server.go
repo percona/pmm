@@ -108,6 +108,9 @@ const authenticationErrorCode = 401
 // cacheInvalidationPeriod is and period when cache for grafana response should be invalidated.
 const cacheInvalidationPeriod = 3 * time.Second
 
+// Base64 encoded jwt token providing full access via vmgateway with long expiration.
+const jwtFullAccess = "eyJ0eXAiOiJKV1QiLCJhbGciOiJQUzI1NiIsImtpZCI6IjI1OTMzN2RiLTc0MTItNDVkYS1hZDg2LWI2M2M5Nzc5NjU4OCJ9.eyJpYXQiOjE2NjE3NjM3MzUsIm5iZiI6MTY2MTc2MzczNSwiZXhwIjo0ODE1MzYzNzQwLCJqdGkiOiJ2eTU5VzRFMXJQVjk0OGVyazNCOTYiLCJ2bV9hY2Nlc3MiOnsidGVuYW5kX2lkIjp7fX19.yckDKjbFrnnBNlxN5Cjlk8fSbgKc2KzToJVbfQw_rOqSgdl_lNe7TDEtQ7NG2BITJW9rxbN4vdAYY-7gQ2loEz5Ev9YIl1QnzM553Eyw6HcES0JGjU2b9Pn7LXDlAigORoeX_3BryG7LXMUv7Cz2zfjrfaYuStBX1Jcv13BayGDeVpUAJ4s1IPlDwMpHvxqvGH4OjsxugdVIyfumhEvNpAx6kdy8SUABSsmh5Hb2yuIhyW0LKiSMgoCxegjShUFwiark7WkUb7APrO4yYRUV6DYnaYvP8HmV1ItD-wvl_2NDHe9xnUJXx0zMrszl36V5H15_5IDJdAccCAO7CaZr7g" //nolint:lll
+
 // clientError contains authentication error response details.
 type authError struct {
 	code    codes.Code // error code for API client; not mapped to HTTP status code
@@ -214,6 +217,9 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			l.Warnf("%s", err)
 		}
 	}
+
+	// Adds a header indicating full access to all metrics when used with vmgateway.
+	rw.Header().Set("X-Percona-Token", "Bearer "+jwtFullAccess)
 }
 
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.

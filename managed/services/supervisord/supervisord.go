@@ -73,7 +73,7 @@ type sub struct {
 	eventTypes []eventType
 }
 
-// values from supervisord configuration
+// values from supervisord configuration.
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
@@ -670,6 +670,34 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/vmalert.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "vmgateway"}}
+[program:vmgateway]
+priority = 7
+command =
+    /usr/sbin/vmgateway
+      -eula
+      -enable.auth
+      -envflag.enable
+      -envflag.prefix=VMG_
+      -http.disableResponseCompression
+      -write.url=http://127.0.0.1:9090/prometheus
+      -read.url=http://127.0.0.1:9090/prometheus
+      -http.pathPrefix=/prometheus
+      -httpListenAddr=127.0.0.1:8431
+      -auth.httpHeader=X-Percona-Token
+user = pmm
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 300
+stdout_logfile = /srv/logs/vmgateway.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
