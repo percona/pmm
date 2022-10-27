@@ -100,16 +100,12 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	var metrics [][]*pmmv1.ServerMetric_Metric
 
 	if config.DataJson != nil {
-		parser := TelemetryDBTelemetryParserJson{
-			l: l,
-		}
-
 		filteredKeyValues := make(map[string]string)
 		for _, param := range config.DataJson.Params {
 			filteredKeyValues[param.Column] = param.Key
 		}
 
-		res, err := parser.parse(rows, config.DataJson.MetricName, filteredKeyValues)
+		res, err := parseRowsToMetrics(rows, config.DataJson.MetricName, filteredKeyValues, l)
 		if err != nil {
 			l.Error("error: ", err)
 			return metrics, err
@@ -150,11 +146,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	return metrics, nil
 }
 
-type TelemetryDBTelemetryParserJson struct {
-	l *logrus.Entry
-}
-
-func (t *TelemetryDBTelemetryParserJson) parse(rows *sql.Rows, metricName string, filteredKeyValues map[string]string) ([]*pmmv1.ServerMetric_Metric, error) {
+func parseRowsToMetrics(rows *sql.Rows, metricName string, filteredKeyValues map[string]string, l *logrus.Entry) ([]*pmmv1.ServerMetric_Metric, error) {
 	var metric []*pmmv1.ServerMetric_Metric
 
 	columns, err := rows.Columns()
@@ -174,7 +166,7 @@ func (t *TelemetryDBTelemetryParserJson) parse(rows *sql.Rows, metricName string
 	for rows.Next() {
 		res := make(map[string]any)
 		if err := rows.Scan(values...); err != nil {
-			t.l.Error(err)
+			l.Error(err)
 			continue
 		}
 
