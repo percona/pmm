@@ -188,7 +188,7 @@ func TestFindPITRRestore(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			startedAt, err := time.Parse("2006-01-02T15:04:05.000000000Z", tc.startedAtString)
+			startedAt, err := time.Parse("2006-01-02T15:04:05.999999999Z", tc.startedAtString)
 			require.NoError(t, err)
 
 			res := findPITRRestore(logrus.WithFields(logrus.Fields{"type": "mongodb_backup"}), testList, tc.restoreInfoPITRTime, startedAt)
