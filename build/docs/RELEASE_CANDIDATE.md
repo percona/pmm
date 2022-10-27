@@ -25,4 +25,4 @@ If you want to upgrade the RC, you have to run [release candidate job](https://p
 
 ![Release candidate recreate process](img/rc-recreate.png)
 
-If you want recreate the RC and RC branches, you can use the parameter `REMOVE_RELEASE_BRANCH` in [release candidate job](https://pmm.cd.percona.com/blue/organizations/jenkins/pmm2-release-candidate). Be careful, branches will be recreated from PMM-2.0 branch.
+If you want recreate the RC and its branches, you must set the parameter `REMOVE_RELEASE_BRANCH` to `yes` in [release candidate job](https://pmm.cd.percona.com/blue/organizations/jenkins/pmm2-release-candidate). Be careful, branches will be recreated from PMM-2.0 branch.
