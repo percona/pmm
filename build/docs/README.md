@@ -1,4 +1,5 @@
-## Welcome to PMM build place
+## Welcome to PMM build
 
-Hey! We store here information about PMM build system and so on.
+This directory is home to a number of PMM build-related scrips, configs and specs.
 
+### How to create a [Release Candidate](./RELEASE_CANDIDATE.md)
