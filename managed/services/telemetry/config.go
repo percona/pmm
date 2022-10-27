@@ -110,6 +110,7 @@ type ConfigData struct {
 	Column     string `yaml:"column"`
 }
 
+// Param config for one field in the JSON object
 type Param struct {
 	Key    string `yaml:"key"`
 	Column string `yaml:"column"`
@@ -117,6 +118,7 @@ type Param struct {
 	Value  string `yaml:"value"`
 }
 
+// DataJson specify config for output metric value in JSON format
 type DataJson struct {
 	MetricName string  `yaml:"metric_name"`
 	Params     []Param `yaml:"params"`
