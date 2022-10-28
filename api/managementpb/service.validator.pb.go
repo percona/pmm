@@ -38,3 +38,20 @@ func (this *RemoveServiceRequest) Validate() error {
 func (this *RemoveServiceResponse) Validate() error {
 	return nil
 }
+
+func (this *AddCustomLabelsRequest) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+
+func (this *AddCustomLabelsResponse) Validate() error {
+	return nil
+}
+
+func (this *RemoveCustomLabelsRequest) Validate() error {
+	return nil
+}
+
+func (this *RemoveCustomLabelsResponse) Validate() error {
+	return nil
+}

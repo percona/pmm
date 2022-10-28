@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -42,6 +43,8 @@ type ServiceService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	vmdb  prometheusService
+
+	managementpb.UnimplementedServiceServer
 }
 
 // NewServiceService creates ServiceService instance.
@@ -142,6 +145,94 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		s.vmdb.RequestConfigurationUpdate()
 	}
 	return &managementpb.RemoveServiceResponse{}, nil
+}
+
+// AddCustomLabels adds custom labels to a service.
+func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.AddCustomLabelsRequest) (*managementpb.AddCustomLabelsResponse, error) {
+	if req.ServiceId == "" {
+		return nil, status.Error(codes.InvalidArgument, "service_id is required")
+	}
+
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			labels = make(map[string]string)
+		}
+
+		for k, v := range req.CustomLabels {
+			labels[k] = v
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.AddCustomLabelsResponse{}, nil
+}
+
+// RemoveCustomLabels adds custom labels to a service.
+func (s *ServiceService) RemoveCustomLabels(ctx context.Context, req *managementpb.RemoveCustomLabelsRequest) (*managementpb.RemoveCustomLabelsResponse, error) {
+	if req.ServiceId == "" {
+		return nil, status.Error(codes.InvalidArgument, "service_id is required")
+	}
+
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			return nil
+		}
+
+		for _, k := range req.CustomLabelKeys {
+			delete(labels, k)
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		logrus.Info(string(service.CustomLabels))
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.RemoveCustomLabelsResponse{}, nil
 }
 
 func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
