@@ -257,6 +257,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 
 func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
 	for i := len(list) - 1; i >= 0; i-- {
+		// TODO when PITR restore invoked with wrong timestamp pbm marks this restore operation as "snapshot" type.
 		if list[i].Type == "snapshot" && list[i].Snapshot != "" {
 			continue
 		}
