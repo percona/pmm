@@ -572,20 +572,15 @@ func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error
 		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB")
 	}
 
-	if artifact.Mode != models.PITR {
-		if pitrTimestamp.Unix() == 0 {
-			return nil
-		}
-		if pitrTimestamp.Unix() != 0 {
-			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
-		}
-	} else {
+	if artifact.Mode == models.PITR {
 		if pitrTimestamp.Unix() == 0 {
 			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
 		}
 		if artifact.DataModel == models.PhysicalDataModel {
 			return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
 		}
+	} else if pitrTimestamp.Unix() != 0 {
+		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
 	}
 
 	return nil
