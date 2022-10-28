@@ -261,7 +261,7 @@ func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt
 			continue
 		}
 		// list[i].Name is a string which represents time the restore was started.
-		restoreStartedAt, err := time.Parse("2006-01-02T15:04:05.999999999Z", list[i].Name)
+		restoreStartedAt, err := time.Parse(time.RFC3339Nano, list[i].Name)
 		if err != nil {
 			continue
 		}
