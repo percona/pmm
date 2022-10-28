@@ -257,11 +257,12 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 
 func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
 	for i := len(list) - 1; i >= 0; i-- {
-		if list[i].Type != "pitr" {
+		// TODO when PITR restore invoked with wrong timestamp pbm marks this restore operation as "snapshot" type.
+		if list[i].Type == "snapshot" && list[i].Snapshot != "" {
 			continue
 		}
 		// list[i].Name is a string which represents time the restore was started.
-		restoreStartedAt, err := time.Parse("2006-01-02T15:04:05.000000000Z", list[i].Name)
+		restoreStartedAt, err := time.Parse(time.RFC3339Nano, list[i].Name)
 		if err != nil {
 			continue
 		}
