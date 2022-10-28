@@ -256,4 +256,128 @@ func TestServiceService(t *testing.T) {
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeID)), err)
 		})
 	})
+
+	t.Run("AddCustomLabels", func(t *testing.T) {
+		t.Run("No Service ID", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			response, err := s.AddCustomLabels(ctx, &managementpb.AddCustomLabelsRequest{})
+			assert.Nil(t, response)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "service_id is required"), err)
+		})
+
+		t.Run("Add a label", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+			})
+			require.NoError(t, err)
+
+			response, err := s.AddCustomLabels(ctx, &managementpb.AddCustomLabelsRequest{
+				ServiceId: service.ServiceID,
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+				},
+			})
+			assert.NotNil(t, response)
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 2)
+			assert.Equal(t, labels["newKey"], "newValue")
+			assert.Equal(t, labels["newKey2"], "newValue2")
+		})
+
+		t.Run("Replace a label", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+				},
+			})
+			require.NoError(t, err)
+
+			_, err = s.AddCustomLabels(ctx, &managementpb.AddCustomLabelsRequest{
+				ServiceId: service.ServiceID,
+				CustomLabels: map[string]string{
+					"newKey2": "newValue-replaced",
+				},
+			})
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 2)
+			assert.Equal(t, labels["newKey"], "newValue")
+			assert.Equal(t, labels["newKey2"], "newValue-replaced")
+		})
+	})
+
+	t.Run("RemoveCustomLabels", func(t *testing.T) {
+		t.Run("No Service ID", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			response, err := s.RemoveCustomLabels(ctx, &managementpb.RemoveCustomLabelsRequest{})
+			assert.Nil(t, response)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "service_id is required"), err)
+		})
+
+		t.Run("Remove a label", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			defer teardown(t)
+
+			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mysql",
+				NodeID:      models.PMMServerNodeID,
+				Address:     pointer.ToString("127.0.0.1"),
+				Port:        pointer.ToUint16(3306),
+				CustomLabels: map[string]string{
+					"newKey":  "newValue",
+					"newKey2": "newValue2",
+					"newKey3": "newValue3",
+				},
+			})
+			require.NoError(t, err)
+
+			response, err := s.RemoveCustomLabels(ctx, &managementpb.RemoveCustomLabelsRequest{
+				ServiceId:       service.ServiceID,
+				CustomLabelKeys: []string{"newKey", "newKey2", "non-existent"},
+			})
+			assert.NotNil(t, response)
+			assert.NoError(t, err)
+
+			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
+			assert.NoError(t, err)
+			assert.NotNil(t, service)
+
+			labels, err := service.GetCustomLabels()
+			assert.NoError(t, err)
+			assert.Equal(t, len(labels), 1)
+			assert.Equal(t, labels["newKey3"], "newValue3")
+		})
+	})
 }
