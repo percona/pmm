@@ -18,9 +18,9 @@ package agents
 
 import (
 	"context"
-	"github.com/AlekSi/pointer"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
