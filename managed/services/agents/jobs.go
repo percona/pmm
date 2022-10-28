@@ -515,11 +515,12 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 
 	if pitrTimestamp.Unix() != 0 {
-		err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
-			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore)
-	}
-	if err != nil {
-		return err
+		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
+		// then invoke PMMAgentSupported
+		if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
+			return err
+		}
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
