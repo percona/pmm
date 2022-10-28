@@ -18,6 +18,7 @@ package agents
 
 import (
 	"context"
+	"github.com/AlekSi/pointer"
 	"time"
 
 	"github.com/hashicorp/go-version"
@@ -181,9 +182,12 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MySQLBackupJob, job.Type)
 			}
 
-			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
+			artifact, err := models.UpdateArtifact(
+				t.Querier,
+				job.Data.MySQLBackup.ArtifactID,
+				models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+				})
 			if err != nil {
 				return err
 			}
@@ -196,9 +200,12 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBBackupJob, job.Type)
 			}
 
-			artifact, err := models.UpdateArtifact(t.Querier, job.Data.MongoDBBackup.ArtifactID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.SuccessBackupStatus),
-			})
+			artifact, err := models.UpdateArtifact(
+				t.Querier,
+				job.Data.MongoDBBackup.ArtifactID,
+				models.UpdateArtifactParams{
+					Status: models.BackupStatusPointer(models.SuccessBackupStatus),
+				})
 			if err != nil {
 				return err
 			}
@@ -215,7 +222,8 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				t.Querier,
 				job.Data.MySQLRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
+					Status:     models.SuccessRestoreStatus,
+					FinishedAt: pointer.ToTime(models.Now()),
 				})
 			if err != nil {
 				return err
@@ -230,7 +238,8 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				t.Querier,
 				job.Data.MongoDBRestoreBackup.RestoreID,
 				models.ChangeRestoreHistoryItemParams{
-					Status: models.SuccessRestoreStatus,
+					Status:     models.SuccessRestoreStatus,
+					FinishedAt: pointer.ToTime(models.Now()),
 				})
 			if err != nil {
 				return err
@@ -269,14 +278,16 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 			s.db.Querier,
 			job.Data.MySQLRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
+				Status:     models.ErrorRestoreStatus,
+				FinishedAt: pointer.ToTime(models.Now()),
 			})
 	case models.MongoDBRestoreBackupJob:
 		_, err = models.ChangeRestoreHistoryItem(
 			s.db.Querier,
 			job.Data.MongoDBRestoreBackup.RestoreID,
 			models.ChangeRestoreHistoryItemParams{
-				Status: models.ErrorRestoreStatus,
+				Status:     models.ErrorRestoreStatus,
+				FinishedAt: pointer.ToTime(models.Now()),
 			})
 	default:
 		return errors.Errorf("unknown job type %s", job.Type)
