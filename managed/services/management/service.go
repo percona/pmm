@@ -153,7 +153,7 @@ func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.
 		return nil, status.Error(codes.InvalidArgument, "service_id is required")
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
 			return err
@@ -196,7 +196,7 @@ func (s *ServiceService) RemoveCustomLabels(ctx context.Context, req *management
 		return nil, status.Error(codes.InvalidArgument, "service_id is required")
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
 			return err
