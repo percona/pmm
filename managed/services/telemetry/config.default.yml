@@ -11,7 +11,7 @@ telemetry:
   - id: PMMServerAlertsFire
     source: VM
     query: max_over_time(grafana_alerting_alerts{state="alerting"}[24h])
-    summary: "Max Number of Alerts Firing over last 24h"
+    summary: "Maximum number of active concurrent alerts in the last 24 hours"
     data:
       - metric_name: "pmm_server_alerts_firing_max_24h"
         value: 1
