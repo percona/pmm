@@ -37,7 +37,7 @@ require (
 	github.com/grafana/grafana-api-golang-client v0.12.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.12.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.36
@@ -66,7 +66,7 @@ require (
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.1.12
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
@@ -171,8 +171,8 @@ require (
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
