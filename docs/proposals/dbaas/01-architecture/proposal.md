@@ -41,9 +41,19 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Non-goals
 
+// To be defined
+
 ## Proposal
 
+The main idea is to move from the dbaas-controller that manages operators’ installation/updating its version database creation/management inside Kubernetes to a dbaas-operator and [OLM](https://olm.operatorframework.io/). The high-level architecture is described below.
+
 ![Proposed architecture](./proposed_arch_full.jpg)
+
+In that case, the dbaas-operator provides Kubernetes native implementation of the creating/managing database clusters and acts like `unified operator to create any database cluster`. OLM installs and updates a version of the operators (psmdb, pxc, dbaas, victoria metrics).
+
+### Working with the operators 
+
+### Working with the databases 
 
 ## User Stories (Optional)
 
@@ -192,5 +202,7 @@ const (
 )
 
 ```
+
 ## Test Plan
 
+During moving from dbaas-controller to dbaas-operator we'll keep the same user experience for the end user
