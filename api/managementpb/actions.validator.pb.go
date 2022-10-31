@@ -36,12 +36,6 @@ func (this *StartMySQLExplainActionRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
-	if this.Query == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
-	}
-	if this.QueryId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("QueryId", fmt.Errorf(`value '%v' must not be an empty string`, this.QueryId))
-	}
 	return nil
 }
 
@@ -53,12 +47,6 @@ func (this *StartMySQLExplainJSONActionRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
-	if this.Query == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
-	}
-	if this.QueryId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("QueryId", fmt.Errorf(`value '%v' must not be an empty string`, this.QueryId))
-	}
 	return nil
 }
 
@@ -69,12 +57,6 @@ func (this *StartMySQLExplainJSONActionResponse) Validate() error {
 func (this *StartMySQLExplainTraditionalJSONActionRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
-	}
-	if this.Query == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
-	}
-	if this.QueryId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("QueryId", fmt.Errorf(`value '%v' must not be an empty string`, this.QueryId))
 	}
 	return nil
 }

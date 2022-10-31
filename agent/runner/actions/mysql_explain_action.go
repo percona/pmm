@@ -31,10 +31,12 @@ import (
 )
 
 type mysqlExplainAction struct {
-	id      string
-	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLExplainParams
-	query   string
+	id           string
+	timeout      time.Duration
+	params       *agentpb.StartActionRequest_MySQLExplainParams
+	query        string
+	queryID      string
+	placeholders []string
 }
 
 type explainResponse struct {
@@ -50,10 +52,12 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
 	return &mysqlExplainAction{
-		id:      id,
-		timeout: timeout,
-		params:  params,
-		query:   params.Query,
+		id:           id,
+		timeout:      timeout,
+		params:       params,
+		query:        params.Query,
+		queryID:      params.QueryId,
+		placeholders: params.Placeholders,
 	}
 }
 

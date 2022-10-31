@@ -299,7 +299,7 @@
                   "x-order": 2
                 },
                 "query_id": {
-                  "description": "Query ID, required.",
+                  "description": "Query ID of query. Query ID or query is required.",
                   "type": "string",
                   "x-order": 5
                 },
@@ -402,7 +402,7 @@
                   "x-order": 2
                 },
                 "query_id": {
-                  "description": "Query ID, required.",
+                  "description": "Query ID of query. Query ID or query is required.",
                   "type": "string",
                   "x-order": 5
                 },
@@ -505,7 +505,7 @@
                   "x-order": 2
                 },
                 "query_id": {
-                  "description": "Query ID, required.",
+                  "description": "Query ID of query. Query ID or query is required.",
                   "type": "string",
                   "x-order": 5
                 },

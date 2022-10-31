@@ -138,7 +138,7 @@ type StartMySQLExplainTraditionalJSONActionBody struct {
 	// Array of placeholder values
 	Placeholders string `json:"placeholders,omitempty"`
 
-	// Query ID, required.
+	// Query ID of query. Query ID or query is required.
 	QueryID string `json:"query_id,omitempty"`
 }
 
