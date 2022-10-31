@@ -109,12 +109,26 @@ type pbmSnapshot struct {
 	Type       string `json:"type"`
 }
 
-type pbmList struct {
+type PBMList struct {
 	Snapshots []pbmSnapshot `json:"snapshots"`
 	Pitr      struct {
-		On     bool        `json:"on"`
-		Ranges interface{} `json:"ranges"`
+		On     bool            `json:"on"`
+		Ranges []PitrTimerange `json:"ranges"`
 	} `json:"pitr"`
+}
+
+// PitrTimerange contains a PITR timeline and its metadata (e.g error status).
+type PitrTimerange struct {
+	Err            error        `json:"error,omitempty"`
+	Range          PitrTimeline `json:"range"`
+	NoBaseSnapshot bool         `json:"noBaseSnapshot,omitempty"`
+}
+
+// PitrTimeline is a single timeline for a PITR backup.
+type PitrTimeline struct {
+	Start uint32 `json:"start"`
+	End   uint32 `json:"end"`
+	Size  int64  `json:"-"`
 }
 
 type pbmListRestore struct {
@@ -127,14 +141,16 @@ type pbmListRestore struct {
 	Error    string `json:"error"`
 }
 
-type pbmStatus struct {
+// PbmStatus is the output of `pbm status`.
+type PbmStatus struct {
 	Backups struct {
 		Type       string        `json:"type"`
 		Path       string        `json:"path"`
 		Region     string        `json:"region"`
 		Snapshot   []pbmSnapshot `json:"snapshot"`
 		PitrChunks struct {
-			Size int `json:"size"`
+			PitrChunks []PitrTimerange `json:"pitrChunks"`
+			Size       int             `json:"size"`
 		} `json:"pitrChunks"`
 	} `json:"backups"`
 	Cluster []struct {
@@ -163,7 +179,8 @@ type pbmError struct {
 	Error string `json:"Error"`
 }
 
-func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
+// ExecPBMCommand executes a pbm command and copies the output into `to`.
+func ExecPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
@@ -188,14 +205,15 @@ func execPBMCommand(ctx context.Context, dbURL *url.URL, to interface{}, args ..
 func retrieveLogs(ctx context.Context, dbURL *url.URL, event string) ([]pbmLogEntry, error) {
 	var logs []pbmLogEntry
 
-	if err := execPBMCommand(ctx, dbURL, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
+	if err := ExecPBMCommand(ctx, dbURL, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
 		return nil, err
 	}
 
 	return logs, nil
 }
 
-func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) error {
+// WaitForPBMNoRunningOperations waits until there are no running operations on PBM.
+func WaitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL) error {
 	l.Info("Waiting for no running pbm operations.")
 
 	ticker := time.NewTicker(statusCheckInterval)
@@ -204,8 +222,8 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, db
 	for {
 		select {
 		case <-ticker.C:
-			var status pbmStatus
-			if err := execPBMCommand(ctx, dbURL, &status, "status"); err != nil {
+			var status PbmStatus
+			if err := ExecPBMCommand(ctx, dbURL, &status, "status"); err != nil {
 				return errors.Wrapf(err, "pbm status error")
 			}
 			if status.Running.Type == "" {
@@ -228,7 +246,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL,
 		select {
 		case <-ticker.C:
 			var info describeInfo
-			err := execPBMCommand(ctx, dbURL, &info, "describe-backup", name)
+			err := ExecPBMCommand(ctx, dbURL, &info, "describe-backup", name)
 			if err != nil {
 				// for the first couple of seconds after backup process starts describe-backup command may return this error
 				if (strings.HasSuffix(err.Error(), "no such file") ||
@@ -292,7 +310,7 @@ func findPITRRestoreName(ctx context.Context, dbURL *url.URL, restoreInfo *pbmRe
 		case <-ticker.C:
 			checks++
 			var list []pbmListRestore
-			if err := execPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
+			if err := ExecPBMCommand(ctx, dbURL, &list, "list", "--restore"); err != nil {
 				return "", errors.Wrapf(err, "pbm status error")
 			}
 			entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
@@ -333,9 +351,9 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 		case <-ticker.C:
 			var info describeInfo
 			if backupType == "physical" {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", "--config="+confFile, name)
+				err = ExecPBMCommand(ctx, dbURL, &info, "describe-restore", "--config="+confFile, name)
 			} else {
-				err = execPBMCommand(ctx, dbURL, &info, "describe-restore", name)
+				err = ExecPBMCommand(ctx, dbURL, &info, "describe-restore", name)
 			}
 			if err != nil {
 				return errors.Wrap(err, "failed to get restore status")
@@ -356,7 +374,8 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL
 	}
 }
 
-func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, confFile string) error {
+// PBMConfigure configures PBM to use the specified config file.
+func PBMConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, confFile string) error {
 	l.Info("Configuring S3 location.")
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
@@ -374,7 +393,8 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, dbURL *url.URL, con
 	return nil
 }
 
-func writePBMConfigFile(conf *PBMConfig) (string, error) {
+// WritePBMConfigFile writes a PBM configuration to file.
+func WritePBMConfigFile(conf *PBMConfig) (string, error) {
 	tmp, err := os.CreateTemp("", "pbm-config-*.yml")
 	if err != nil {
 		return "", errors.Wrap(err, "failed to create pbm configuration file")
@@ -434,8 +454,8 @@ type PBMConfig struct {
 	PITR    PITR    `yaml:"pitr"`
 }
 
-// createPBMConfig returns object that is ready to be serialized into YAML.
-func createPBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
+// CreatePBMConfig returns a PBM config object that is ready to be serialized into YAML.
+func CreatePBMConfig(locationConfig *BackupLocationConfig, prefix string, pitr bool) (*PBMConfig, error) {
 	conf := &PBMConfig{
 		PITR: PITR{
 			Enabled: pitr,

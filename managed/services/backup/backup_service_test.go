@@ -24,9 +24,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -79,7 +81,7 @@ func TestPerformBackup(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test s3 location",
@@ -235,7 +237,7 @@ func TestRestoreBackup(t *testing.T) {
 	mockedJobsService := &mockJobsService{}
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
-	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
+	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService)
 
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -380,8 +382,8 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	mockedPitrTimerangeService := &mockPitrTimerangeService{}
-	backupService := NewService(db, nil, nil, nil, mockedPitrTimerangeService)
+	mockedAgentService := &mockAgentService{}
+	backupService := NewService(db, nil, mockedAgentService, nil)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -470,15 +472,15 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	t.Run("mongo", func(t *testing.T) {
 		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
 
-		rangeStart1 := uint32(1)
-		rangeEnd1 := rangeStart1 + (60 * 60 * 3) // plus 3 hours
+		rangeStart1 := timestamppb.New(time.Unix(1, 0))
+		rangeEnd1 := timestamppb.New(rangeStart1.AsTime().Add(time.Duration(60 * 60 * 3))) // plus 3 hours
 
-		rangeStart2 := uint32(time.Now().Unix())
-		rangeEnd2 := rangeStart2 + (60 * 60 * 3) // plus 3 hours
+		rangeStart2 := timestamppb.Now()
+		rangeEnd2 := timestamppb.New(rangeStart2.AsTime().Add(time.Duration(60 * 60 * 3))) // plus 3 hours
 
-		timelineList := []Timeline{
-			{Start: rangeStart1, End: rangeEnd1},
-			{Start: rangeStart2, End: rangeEnd2},
+		timelineList := []*agentpb.PBMPitrTimerange{
+			{StartTimestamp: rangeStart1, EndTimestamp: rangeEnd1},
+			{StartTimestamp: rangeStart2, EndTimestamp: rangeEnd2},
 		}
 
 		for _, tc := range []struct {
@@ -546,7 +548,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 			},
 			{
 				name:        "pitr timestamp out of range",
-				pitrValue:   time.Unix(int64(rangeStart2)-1, 0),
+				pitrValue:   time.Unix(int64(rangeStart2.AsTime().Unix())-1, 0),
 				prepareMock: true,
 				artifactParams: models.CreateArtifactParams{
 					Name:       "mongo-artifact-name-5",
@@ -561,7 +563,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 			},
 			{
 				name:        "success pitr timestamp inside the range",
-				pitrValue:   time.Unix(int64(rangeStart2)+1, 0),
+				pitrValue:   time.Unix(int64(rangeStart2.AsTime().Unix())+1, 0),
 				prepareMock: true,
 				artifactParams: models.CreateArtifactParams{
 					Name:       "mongo-artifact-name-6",
@@ -580,7 +582,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				require.NoError(t, err)
 
 				if tc.prepareMock {
-					mockedPitrTimerangeService.On("ListPITRTimeranges", ctx, artifact.Name, locationRes).Return(timelineList, nil).Once()
+					mockedAgentService.On("ListPITRTimeranges", ctx, artifact.Name, mock.Anything, locationRes, mock.Anything).Return(timelineList, nil).Once()
 				}
 
 				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)
@@ -593,7 +595,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 		}
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedPitrTimerangeService)
+	mock.AssertExpectationsForObjects(t, mockedAgentService)
 }
 
 func TestInTimeSpan(t *testing.T) {

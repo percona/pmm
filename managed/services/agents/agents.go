@@ -62,6 +62,56 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 	return agentLogsResponse.GetLogs(), agentLogsResponse.GetAgentConfigLogLinesCount(), nil
 }
 
+func (s *AgentService) ListPITRTimeranges(ctx context.Context, artifactName string, pmmAgentID string, location *models.BackupLocation, dbConfig *models.DBConfig) ([]*agentpb.PBMPitrTimerange, error) {
+	var s3Config *agentpb.PBMListPitrTimerangesRequest_S3Config
+	var fsConfig *agentpb.PBMListPitrTimerangesRequest_FilesystemConfig
+
+	req := &agentpb.PBMListPitrTimerangesRequest{
+		User:       dbConfig.User,
+		Password:   dbConfig.Password,
+		Address:    dbConfig.Address,
+		Port:       int32(dbConfig.Port),
+		Socket:     dbConfig.Socket,
+		BackupName: artifactName,
+	}
+	switch {
+	case location.S3Config != nil:
+		s3Config = &agentpb.PBMListPitrTimerangesRequest_S3Config{
+			S3Config: &agentpb.S3LocationConfig{
+				Endpoint:     location.S3Config.Endpoint,
+				AccessKey:    location.S3Config.AccessKey,
+				SecretKey:    location.S3Config.SecretKey,
+				BucketName:   location.S3Config.BucketName,
+				BucketRegion: location.S3Config.BucketRegion,
+			},
+		}
+		req.LocationConfig = s3Config
+	case location.FilesystemConfig != nil:
+		fsConfig = &agentpb.PBMListPitrTimerangesRequest_FilesystemConfig{
+			FilesystemConfig: &agentpb.FilesystemLocationConfig{Path: location.FilesystemConfig.Path},
+		}
+		req.LocationConfig = fsConfig
+	default:
+		return nil, errors.Errorf("unsupported location config")
+	}
+
+	agent, err := s.r.get(pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := agent.channel.SendAndWaitResponse(req)
+	if err != nil {
+		return nil, err
+	}
+
+	timerangesResponse, ok := resp.(*agentpb.PBMListPitrTimerangesResponse)
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("wrong response from agent (got %+v instead of a PBMListPitrTimerangesResponse model)", timerangesResponse))
+	}
+	return timerangesResponse.PitrTimeranges, nil
+}
+
 // PBMSwitchPITR switches Point-in-Time Recovery feature for pbm on the pmm-agent.
 func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
 	agent, err := a.r.get(pmmAgentID)

@@ -339,6 +339,13 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 				resp.Error = err.Error()
 			}
 			responsePayload = &resp
+		case *agentpb.PBMListPitrTimerangesRequest:
+			var resp *agentpb.PBMListPitrTimerangesResponse
+			var err error
+			if resp, err = c.handlePBMListPitrTimeranges(ctx, p); err != nil {
+				resp.Error = err.Error()
+			}
+			responsePayload = resp
 		case *agentpb.ParseDefaultsFileRequest:
 			responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 		case *agentpb.AgentLogsRequest:

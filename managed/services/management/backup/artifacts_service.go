@@ -18,7 +18,6 @@ package backup
 
 import (
 	"context"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -33,21 +32,21 @@ import (
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	removalSVC       removalService
-	pitrTimerangeSVC pitrTimerangeService
+	l            *logrus.Entry
+	db           *reform.DB
+	removalSVC   removalService
+	agentService agentService
 
 	backuppb.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, agentService agentService) *ArtifactsService {
 	return &ArtifactsService{
-		l:                logrus.WithField("component", "management/backup/artifacts"),
-		db:               db,
-		removalSVC:       removalSVC,
-		pitrTimerangeSVC: storage,
+		l:            logrus.WithField("component", "management/backup/artifacts"),
+		db:           db,
+		removalSVC:   removalSVC,
+		agentService: agentService,
 	}
 }
 
@@ -136,20 +135,46 @@ func (s *ArtifactsService) ListPitrTimeranges(
 		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
 	}
 
+	dbConfig, err := models.FindDBConfigForService(s.db.Querier, artifact.ServiceID)
+	if err != nil {
+		return nil, err
+	}
+
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
 	if err != nil {
 		return nil, err
 	}
 
-	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	var pmmAgentID string
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, artifact.ServiceID)
+		if err != nil {
+			return err
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", artifact.ServiceID)
+		}
+		pmmAgentID = pmmAgents[0].AgentID
+
+		_, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, artifact.ServiceID, pmmAgentID, "")
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if errTX != nil {
+		return nil, errTX
+	}
+
+	timelines, err := s.agentService.ListPITRTimeranges(ctx, artifact.Name, pmmAgentID, location, dbConfig)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]*backuppb.PitrTimerange, 0, len(timelines))
 	for _, tl := range timelines {
 		result = append(result, &backuppb.PitrTimerange{
-			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
-			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
+			StartTimestamp: tl.StartTimestamp,
+			EndTimestamp:   tl.EndTimestamp,
 		})
 	}
 	return &backuppb.ListPitrTimerangesResponse{

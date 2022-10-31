@@ -31,7 +31,8 @@ type DBConnConfig struct {
 	Socket   string
 }
 
-func createDBURL(dbConfig DBConnConfig) *url.URL {
+// CreateDBURL creates a database DSN from provided config.
+func CreateDBURL(dbConfig DBConnConfig) *url.URL {
 	var host string
 	switch {
 	case dbConfig.Address != "":

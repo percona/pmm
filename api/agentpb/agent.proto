@@ -390,6 +390,42 @@ message PBMSwitchPITRRequest {
   bool enabled = 3;
 }
 
+// PBMListPITRTimerangesRequest is a ServerMessage asking pmm-agent for PITR timeranges from PBM.
+message PBMListPitrTimerangesRequest {
+  // Database user;
+  string user = 1;
+  // Database password.
+  string password = 2;
+  // Database address. Can't be specified with socket.
+  string address = 3;
+  // Database port. Can't be specified with socket.
+  int32 port = 4;
+  // Database unix socket. Can't be specified with address/port.
+  string socket = 5;
+  // Backup name.
+  string backup_name = 6;
+
+  // Location of MongoDB PITR backup artifact.
+  oneof location_config {
+    S3LocationConfig s3_config = 7;
+    FilesystemLocationConfig filesystem_config = 8;
+  }
+}
+
+// PBMPitrTimerange is a PITR timerange that can be used for restore.
+message PBMPitrTimerange {
+  // start_timestamp is the time of the first event in the PITR chunk.
+  google.protobuf.Timestamp start_timestamp = 1;
+  // end_timestamp is the time of the last event in the PITR chunk.
+  google.protobuf.Timestamp end_timestamp = 2;
+}
+
+// PBMListPitrTimerangeResponse is an AgentMessage for PBMListPitrRequest success result.
+message PBMListPitrTimerangesResponse {
+  string error = 1;
+  repeated PBMPitrTimerange pitr_timeranges = 2;
+}
+
 // PBMSwitchPITRResponse is an AgentMessage for PBMSwitchPITRRequest success result.
 message PBMSwitchPITRResponse {
   // Error message.
@@ -701,6 +737,7 @@ message AgentMessage {
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     ParseDefaultsFileResponse parse_defaults_file = 20;
     AgentLogsResponse agent_logs = 21;
+    PBMListPitrTimerangesResponse pbm_list_pitr_timeranges = 22;
   }
 }
 
@@ -733,6 +770,7 @@ message ServerMessage {
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     ParseDefaultsFileRequest parse_defaults_file = 18;
     AgentLogsRequest agent_logs = 19;
+    PBMListPitrTimerangesRequest pbm_list_pitr_timeranges = 20;
   }
 }
 

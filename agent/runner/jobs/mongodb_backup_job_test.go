@@ -72,7 +72,7 @@ func TestCreateDBURL(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, test.url, createDBURL(test.dbConfig).String())
+			assert.Equal(t, test.url, CreateDBURL(test.dbConfig).String())
 		})
 	}
 }

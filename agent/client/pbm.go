@@ -16,13 +16,16 @@ package client
 
 import (
 	"context"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 )
@@ -56,4 +59,72 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentpb.PBMSwi
 	}
 
 	return nil
+}
+
+func (c *Client) handlePBMListPitrTimeranges(ctx context.Context, req *agentpb.PBMListPitrTimerangesRequest) (*agentpb.PBMListPitrTimerangesResponse, error) {
+	if _, err := exec.LookPath(pbmBin); err != nil {
+		return nil, errors.Wrapf(err, "lookpath: %s", pbmBin)
+	}
+
+	dbConnCfg := jobs.DBConnConfig{
+		User:     req.User,
+		Password: req.Password,
+		Address:  req.Address,
+		Port:     int(req.Port),
+		Socket:   req.Socket,
+	}
+	dbUrl := jobs.CreateDBURL(dbConnCfg)
+
+	locationConfig := &jobs.BackupLocationConfig{}
+	switch cfg := req.LocationConfig.(type) {
+	case *agentpb.PBMListPitrTimerangesRequest_S3Config:
+		locationConfig.Type = jobs.S3BackupLocationType
+		locationConfig.S3Config = &jobs.S3LocationConfig{
+			Endpoint:     cfg.S3Config.Endpoint,
+			AccessKey:    cfg.S3Config.AccessKey,
+			SecretKey:    cfg.S3Config.SecretKey,
+			BucketName:   cfg.S3Config.BucketName,
+			BucketRegion: cfg.S3Config.BucketRegion,
+		}
+	case *agentpb.PBMListPitrTimerangesRequest_FilesystemConfig:
+		locationConfig.Type = jobs.FilesystemBackupLocationType
+		locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
+			Path: cfg.FilesystemConfig.Path,
+		}
+	default:
+		return nil, errors.Errorf("unknown location config: %T", req.LocationConfig)
+	}
+
+	conf, err := jobs.CreatePBMConfig(locationConfig, req.BackupName, false)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	confFile, err := jobs.WritePBMConfigFile(conf)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer os.Remove(confFile) //nolint:errcheck
+
+	if err := jobs.PBMConfigure(ctx, c.l, dbUrl, confFile); err != nil {
+		return nil, errors.Wrap(err, "failed to configure pbm")
+	}
+
+	var status jobs.PbmStatus
+	if err := jobs.ExecPBMCommand(ctx, dbUrl, &status, "status"); err != nil {
+		return nil, err
+	}
+
+	timeranges := make([]*agentpb.PBMPitrTimerange, 0, len(status.Backups.PitrChunks.PitrChunks))
+	for _, tr := range status.Backups.PitrChunks.PitrChunks {
+		if !tr.NoBaseSnapshot && tr.Err == nil {
+			timeranges = append(timeranges, &agentpb.PBMPitrTimerange{
+				StartTimestamp: timestamppb.New(time.Unix(int64(tr.Range.Start), 0)),
+				EndTimestamp:   timestamppb.New(time.Unix(int64(tr.Range.End), 0)),
+			})
+		}
+	}
+	return &agentpb.PBMListPitrTimerangesResponse{
+		PitrTimeranges: timeranges,
+	}, nil
 }

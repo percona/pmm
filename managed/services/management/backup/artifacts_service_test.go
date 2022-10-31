@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -28,12 +29,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/api/agentpb"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -42,19 +44,19 @@ func TestListPitrTimelines(t *testing.T) {
 	ctx := context.Background()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-service-to-list-pitr-timeranges")
 
-	mockedPitrStorageSvc := &mockPitrTimerangeService{}
+	mockedAgentService := &mockAgentService{}
 
-	timelines := []backup.Timeline{
+	timeranges := []*agentpb.PBMPitrTimerange{
 		{
-			ReplicaSet: "rs0",
-			Start:      uint32(time.Now().Unix()),
-			End:        uint32(time.Now().Unix()),
+			StartTimestamp: timestamppb.New(time.Now()),
+			EndTimestamp:   timestamppb.New(time.Now()),
 		},
 	}
 
-	mockedPitrStorageSvc.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything).Return(timelines, nil)
-	artifactsService := NewArtifactsService(db, nil, mockedPitrStorageSvc)
+	mockedAgentService.On("ListPITRTimeranges", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(timeranges, nil).Once()
+	artifactsService := NewArtifactsService(db, nil, mockedAgentService)
 	var locationID string
 
 	params := models.CreateBackupLocationParams{
@@ -79,7 +81,7 @@ func TestListPitrTimelines(t *testing.T) {
 			Name:       "test_artifact",
 			Vendor:     "test_vendor",
 			LocationID: locationID,
-			ServiceID:  "test_service",
+			ServiceID:  pointer.GetString(agent.ServiceID),
 			Mode:       models.PITR,
 			DataModel:  models.LogicalDataModel,
 			Status:     models.PendingBackupStatus,
@@ -123,5 +125,5 @@ func TestListPitrTimelines(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Artifact is not a PITR artifact"), err)
 		assert.Nil(t, response)
 	})
-	mock.AssertExpectationsForObjects(t, mockedPitrStorageSvc)
+	mock.AssertExpectationsForObjects(t, mockedAgentService)
 }

@@ -37,18 +37,16 @@ type Service struct {
 	jobsService          jobsService
 	agentService         agentService
 	compatibilityService compatibilityService
-	pitrTimerangeService pitrTimerangeService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pitrSvc pitrTimerangeService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService) *Service {
 	return &Service{
 		l:                    logrus.WithField("component", "management/backup/backup"),
 		db:                   db,
 		jobsService:          jobsService,
 		agentService:         agentService,
 		compatibilityService: cSvc,
-		pitrTimerangeService: pitrSvc,
 	}
 }
 
@@ -552,13 +550,39 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
 	}
 
-	timeRanges, err := s.pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
+	dbConfig, err := models.FindDBConfigForService(s.db.Querier, artifact.ServiceID)
+	if err != nil {
+		return err
+	}
+
+	var pmmAgentID string
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		pmmAgents, err := models.FindPMMAgentsForService(tx.Querier, artifact.ServiceID)
+		if err != nil {
+			return err
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", artifact.ServiceID)
+		}
+		pmmAgentID = pmmAgents[0].AgentID
+
+		_, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, artifact.ServiceID, pmmAgentID, "")
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if errTX != nil {
+		return errTX
+	}
+
+	timeRanges, err := s.agentService.ListPITRTimeranges(ctx, artifact.Name, pmmAgentID, location, dbConfig)
 	if err != nil {
 		return err
 	}
 
 	for _, tRange := range timeRanges {
-		if inTimeSpan(time.Unix(int64(tRange.Start), 0), time.Unix(int64(tRange.End), 0), pitrTimestamp) {
+		if inTimeSpan(tRange.StartTimestamp.AsTime(), tRange.EndTimestamp.AsTime(), pitrTimestamp) {
 			return nil
 		}
 	}

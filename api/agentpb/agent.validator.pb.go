@@ -497,6 +497,49 @@ func (this *PBMSwitchPITRRequest) Validate() error {
 	return nil
 }
 
+func (this *PBMListPitrTimerangesRequest) Validate() error {
+	if oneOfNester, ok := this.GetLocationConfig().(*PBMListPitrTimerangesRequest_S3Config); ok {
+		if oneOfNester.S3Config != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.S3Config); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("S3Config", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetLocationConfig().(*PBMListPitrTimerangesRequest_FilesystemConfig); ok {
+		if oneOfNester.FilesystemConfig != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.FilesystemConfig); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("FilesystemConfig", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (this *PBMPitrTimerange) Validate() error {
+	if this.StartTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.StartTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("StartTimestamp", err)
+		}
+	}
+	if this.EndTimestamp != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.EndTimestamp); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("EndTimestamp", err)
+		}
+	}
+	return nil
+}
+
+func (this *PBMListPitrTimerangesResponse) Validate() error {
+	for _, item := range this.PitrTimeranges {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PitrTimeranges", err)
+			}
+		}
+	}
+	return nil
+}
+
 func (this *PBMSwitchPITRResponse) Validate() error {
 	return nil
 }
@@ -984,6 +1027,13 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_PbmListPitrTimeranges); ok {
+		if oneOfNester.PbmListPitrTimeranges != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmListPitrTimeranges); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmListPitrTimeranges", err)
+			}
+		}
+	}
 	return nil
 }
 
@@ -1102,6 +1152,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.AgentLogs != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AgentLogs); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("AgentLogs", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_PbmListPitrTimeranges); ok {
+		if oneOfNester.PbmListPitrTimeranges != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PbmListPitrTimeranges); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PbmListPitrTimeranges", err)
 			}
 		}
 	}

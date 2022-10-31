@@ -38,17 +38,3 @@ func (_m *mockAgentService) ListPITRTimeranges(ctx context.Context, artifactName
 
 	return r0, r1
 }
-
-// PBMSwitchPITR provides a mock function with given fields: pmmAgentID, dsn, files, tdp, enabled
-func (_m *mockAgentService) PBMSwitchPITR(pmmAgentID string, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
-	ret := _m.Called(pmmAgentID, dsn, files, tdp, enabled)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string, map[string]string, *models.DelimiterPair, bool) error); ok {
-		r0 = rf(pmmAgentID, dsn, files, tdp, enabled)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}

@@ -287,6 +287,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.ParseDefaultsFile)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
+		case *agentpb.AgentMessage_PbmListPitrTimeranges:
+			c.publish(msg.Id, msg.Status, p.PbmListPitrTimeranges)
 
 		case nil:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))

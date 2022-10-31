@@ -63,7 +63,7 @@ func NewMongoDBRestoreJob(
 		l:               logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:            name,
 		pitrTimestamp:   pitrTimestamp,
-		dbURL:           createDBURL(dbConfig),
+		dbURL:           CreateDBURL(dbConfig),
 		locationConfig:  locationConfig,
 		agentsRestarter: restarter,
 	}
@@ -90,23 +90,23 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, false)
+	conf, err := CreatePBMConfig(&j.locationConfig, j.name, false)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	confFile, err := writePBMConfigFile(conf)
+	confFile, err := WritePBMConfigFile(conf)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
-	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
+	if err := PBMConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
+	if err := WaitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait pbm configuration completion")
 	}
@@ -141,7 +141,7 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context) (*pbmSnapshot, error) {
 	j.l.Info("Finding backup entity name.")
 
-	var list pbmList
+	var list PBMList
 	ticker := time.NewTicker(listCheckInterval)
 	defer ticker.Stop()
 
@@ -150,7 +150,7 @@ func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context) (*pbmSnapshot, err
 		select {
 		case <-ticker.C:
 			checks++
-			if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
+			if err := ExecPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
 				return nil, err
 			}
 
@@ -185,9 +185,9 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 		case <-ticker.C:
 
 			if j.pitrTimestamp.Unix() == 0 {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+				err = ExecPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
 			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+				err = ExecPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
 			}
 
 			if err != nil {

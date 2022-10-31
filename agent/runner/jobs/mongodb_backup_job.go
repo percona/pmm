@@ -73,7 +73,7 @@ func NewMongoDBBackupJob(
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          createDBURL(dbConfig),
+		dbURL:          CreateDBURL(dbConfig),
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
@@ -103,23 +103,23 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, j.pitr)
+	conf, err := CreatePBMConfig(&j.locationConfig, j.name, j.pitr)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	confFile, err := writePBMConfigFile(conf)
+	confFile, err := WritePBMConfigFile(conf)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
-	if err := pbmConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
+	if err := PBMConfigure(ctx, j.l, j.dbURL, confFile); err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
+	if err := WaitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -173,7 +173,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
-	if err := execPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {
+	if err := ExecPBMCommand(ctx, j.dbURL, &result, pbmArgs...); err != nil {
 		return nil, err
 	}
 

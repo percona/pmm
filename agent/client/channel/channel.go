@@ -295,6 +295,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+		case *agentpb.ServerMessage_PbmListPitrTimeranges:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.PbmListPitrTimeranges,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:

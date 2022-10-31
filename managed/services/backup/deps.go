@@ -19,19 +19,16 @@ import (
 	"context"
 	"time"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
-	"github.com/percona/pmm/managed/services/minio"
 )
 
 //go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=s3 -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrLocationClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -87,6 +84,7 @@ type removalService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentService interface {
 	PBMSwitchPITR(pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error
+	ListPITRTimeranges(ctx context.Context, artifactName string, pmmAgentID string, location *models.BackupLocation, dbConfig *models.DBConfig) ([]*agentpb.PBMPitrTimerange, error)
 }
 
 // versioner contains method for retrieving versions of different software.
@@ -99,19 +97,4 @@ type compatibilityService interface {
 	// and they are compatible with the db version.
 	// Returns db version.
 	CheckSoftwareCompatibilityForService(ctx context.Context, serviceID string) (string, error)
-}
-
-type pitrLocationClient interface {
-	// FileStat returns file info. It returns error if file is empty or not exists.
-	FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (minio.FileInfo, error)
-
-	// List scans path with prefix and returns all files with given suffix.
-	// Both prefix and suffix can be omitted.
-	List(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix, suffix string) ([]minio.FileInfo, error)
-}
-
-// pitrTimerangeService provides methods that help us inspect PITR artifacts
-type pitrTimerangeService interface {
-	// ListPITRTimeranges list the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error)
 }

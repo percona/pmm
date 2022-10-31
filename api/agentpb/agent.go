@@ -130,6 +130,10 @@ func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Pay
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
+func (m *PBMListPitrTimerangesResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_PbmListPitrTimeranges{PbmListPitrTimeranges: m}
+}
+
 func (m *ParseDefaultsFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
@@ -198,6 +202,10 @@ func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Pay
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
+func (m *PBMListPitrTimerangesRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_PbmListPitrTimeranges{PbmListPitrTimeranges: m}
+}
+
 func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
 }
@@ -207,38 +215,40 @@ func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload
 }
 
 // in alphabetical order
-func (*ActionResultRequest) sealed()       {}
-func (*ActionResultResponse) sealed()      {}
-func (*CheckConnectionRequest) sealed()    {}
-func (*CheckConnectionResponse) sealed()   {}
-func (*JobProgress) sealed()               {}
-func (*JobResult) sealed()                 {}
-func (*JobStatusRequest) sealed()          {}
-func (*JobStatusResponse) sealed()         {}
-func (*ParseDefaultsFileRequest) sealed()  {}
-func (*ParseDefaultsFileResponse) sealed() {}
-func (*AgentLogsRequest) sealed()          {}
-func (*AgentLogsResponse) sealed()         {}
-func (*Ping) sealed()                      {}
-func (*Pong) sealed()                      {}
-func (*QANCollectRequest) sealed()         {}
-func (*QANCollectResponse) sealed()        {}
-func (*SetStateRequest) sealed()           {}
-func (*SetStateResponse) sealed()          {}
-func (*StartActionRequest) sealed()        {}
-func (*StartActionResponse) sealed()       {}
-func (*StartJobRequest) sealed()           {}
-func (*StartJobResponse) sealed()          {}
-func (*StateChangedRequest) sealed()       {}
-func (*StateChangedResponse) sealed()      {}
-func (*StopActionRequest) sealed()         {}
-func (*StopActionResponse) sealed()        {}
-func (*StopJobRequest) sealed()            {}
-func (*StopJobResponse) sealed()           {}
-func (*GetVersionsRequest) sealed()        {}
-func (*GetVersionsResponse) sealed()       {}
-func (*PBMSwitchPITRRequest) sealed()      {}
-func (*PBMSwitchPITRResponse) sealed()     {}
+func (*ActionResultRequest) sealed()           {}
+func (*ActionResultResponse) sealed()          {}
+func (*CheckConnectionRequest) sealed()        {}
+func (*CheckConnectionResponse) sealed()       {}
+func (*JobProgress) sealed()                   {}
+func (*JobResult) sealed()                     {}
+func (*JobStatusRequest) sealed()              {}
+func (*JobStatusResponse) sealed()             {}
+func (*ParseDefaultsFileRequest) sealed()      {}
+func (*ParseDefaultsFileResponse) sealed()     {}
+func (*AgentLogsRequest) sealed()              {}
+func (*AgentLogsResponse) sealed()             {}
+func (*Ping) sealed()                          {}
+func (*Pong) sealed()                          {}
+func (*QANCollectRequest) sealed()             {}
+func (*QANCollectResponse) sealed()            {}
+func (*SetStateRequest) sealed()               {}
+func (*SetStateResponse) sealed()              {}
+func (*StartActionRequest) sealed()            {}
+func (*StartActionResponse) sealed()           {}
+func (*StartJobRequest) sealed()               {}
+func (*StartJobResponse) sealed()              {}
+func (*StateChangedRequest) sealed()           {}
+func (*StateChangedResponse) sealed()          {}
+func (*StopActionRequest) sealed()             {}
+func (*StopActionResponse) sealed()            {}
+func (*StopJobRequest) sealed()                {}
+func (*StopJobResponse) sealed()               {}
+func (*GetVersionsRequest) sealed()            {}
+func (*GetVersionsResponse) sealed()           {}
+func (*PBMSwitchPITRRequest) sealed()          {}
+func (*PBMSwitchPITRResponse) sealed()         {}
+func (*PBMListPitrTimerangesRequest) sealed()  {}
+func (*PBMListPitrTimerangesResponse) sealed() {}
 
 // check interfaces
 var (
@@ -262,6 +272,7 @@ var (
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 	_ AgentResponsePayload = (*ParseDefaultsFileResponse)(nil)
 	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
+	_ AgentResponsePayload = (*PBMListPitrTimerangesResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -282,6 +293,7 @@ var (
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
+	_ ServerRequestPayload = (*PBMListPitrTimerangesRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

@@ -19,6 +19,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -28,7 +29,7 @@ import (
 //go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
 //go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -59,8 +60,8 @@ type removalService interface {
 	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
 }
 
-// pitrTimerangeService provides methods that help us inspect PITR artifacts
-type pitrTimerangeService interface {
-	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]backup.Timeline, error)
+// agentService is a subset of methods of agents.AgentService used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type agentService interface {
+	ListPITRTimeranges(ctx context.Context, artifactName string, pmmAgentID string, location *models.BackupLocation, dbConfig *models.DBConfig) ([]*agentpb.PBMPitrTimerange, error)
 }
