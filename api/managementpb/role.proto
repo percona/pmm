@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "api/managementpb;managementpb";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+
+message RoleData {
+  uint32 role_id = 1;
+  string title = 2;
+  string filter = 3;
+}
+
+message RoleID {
+  uint32 role_id = 1;
+}
+
+message EmptyResponse {}
+
+message AssignRoleRequest {
+  uint32 role_id = 1;
+  uint32 user_id = 2;
+}
+
+message ListRolesRequest {}
+
+message ListRolesResponse {
+  repeated RoleData roles = 1;
+}
+
+// Service service provides public methods for managing Services.
+service Role {
+  // CreateRole creates a new role.
+  rpc CreateRole(RoleData) returns (RoleID) {
+    option (google.api.http) = {
+      put: "/v1/management/Role"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create Role"
+      description: "Creates a new Role."
+    };
+  }
+
+  // UpdateRole creates a new role.
+  rpc UpdateRole(RoleData) returns (EmptyResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Role"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update Role"
+      description: "Updates an existing Role."
+    };
+  }
+
+  // DeleteRole creates a new role.
+  rpc DeleteRole(RoleID) returns (EmptyResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Role/Delete"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Role"
+      description: "Deletes a Role."
+    };
+  }
+
+  // GetRole retrieves a single role.
+  rpc GetRole(RoleID) returns (RoleData) {
+    option (google.api.http) = {
+      get: "/v1/management/Role"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Role"
+      description: "Retrieves a Role by ID."
+    };
+  }
+
+  // ListRoles retrieves a roles.
+  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
+    option (google.api.http) = {
+      get: "/v1/management/Role/List"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Roles"
+      description: "Lists Roles."
+    };
+  }
+
+  // AssignRole assigns a role to a user.
+  rpc AssignRole(AssignRoleRequest) returns (EmptyResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Role/Assign"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Assign Role"
+      description: "Assigns Role to a User."
+    };
+  }
+}

@@ -33,6 +33,24 @@ type UpdateUserParams struct {
 	Tour   bool
 }
 
+// GetOrCreateUser returns user and optionally creates it, if not in database yet.
+func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
+	userInfo, err := FindUser(q, userID)
+	if err == ErrNotFound {
+		// User entry missing; create entry
+		params := CreateUserParams{
+			UserID: userID,
+		}
+		userInfo, err = CreateUser(q, &params)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
+}
+
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
 	if params.UserID <= 0 {

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,36 +23,42 @@ import (
 
 //go:generate ../../bin/reform
 
-// UserDetails represents user related flags
+// Role represents Role as stored in database.
 //
-//reform:user_flags
-type UserDetails struct {
-	ID     int    `reform:"id,pk"`
-	Tour   bool   `reform:"tour_done"`
-	RoleID uint32 `reform:"role_id"`
-
+//reform:roles
+type Role struct {
+	ID    uint32 `reform:"id,pk"`
+	Title string `reform:"title"`
+	// Filter holds Prometheus filter to which can be applied to a query
+	Filter    string    `reform:"filter"`
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (t *UserDetails) BeforeInsert() error {
+func (s *Role) BeforeInsert() error {
 	now := Now()
-	t.CreatedAt = now
-	t.UpdatedAt = now
-
+	s.CreatedAt = now
+	s.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (t *UserDetails) BeforeUpdate() error {
-	t.UpdatedAt = Now()
+func (s *Role) BeforeUpdate() error {
+	s.UpdatedAt = Now()
+	return nil
+}
 
+// AfterFind implements reform.AfterFinder interface.
+func (s *Role) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
+	s.UpdatedAt = s.UpdatedAt.UTC()
 	return nil
 }
 
 // check interfaces.
 var (
-	_ reform.BeforeInserter = (*Template)(nil)
-	_ reform.BeforeUpdater  = (*Template)(nil)
+	_ reform.BeforeInserter = (*Role)(nil)
+	_ reform.BeforeUpdater  = (*Role)(nil)
+	_ reform.AfterFinder    = (*Role)(nil)
 )

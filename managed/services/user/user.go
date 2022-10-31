@@ -28,7 +28,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Service is responsible for user related APIs
+// Service is responsible for user related APIs.
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -41,7 +41,7 @@ type grafanaClient interface {
 	GetUserID(ctx context.Context) (int, error)
 }
 
-// NewUserService return a user service
+// NewUserService return a user service.
 func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	l := logrus.WithField("component", "user")
 
@@ -54,7 +54,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	return &s
 }
 
-// GetUser creates a new user
+// GetUser creates a new user.
 func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
@@ -63,18 +63,8 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 
 	userInfo := &models.UserDetails{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		userInfo, err = models.FindUser(tx.Querier, userID)
-		if err == models.ErrNotFound {
-			// User entry missing; create entry
-			params := &models.CreateUserParams{
-				UserID: userID,
-			}
-			userInfo, err = models.CreateUser(tx.Querier, params)
-			return err
-		}
-
-		return nil
+		userInfo, err = models.GetOrCreateUser(tx.Querier, userID)
+		return err
 	})
 
 	if e != nil {
@@ -88,7 +78,7 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 	return resp, nil
 }
 
-// UpdateUser updates data for given user
+// UpdateUser updates data for given user.
 func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
 	if !req.ProductTourCompleted {
 		return nil, status.Errorf(codes.InvalidArgument, "Tour flag cannot be unset")
