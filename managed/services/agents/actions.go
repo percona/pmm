@@ -17,11 +17,8 @@ package agents
 
 import (
 	"context"
-	"fmt"
 	"time"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -53,20 +50,16 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 	var q string
 	switch {
 	case queryID != "":
-		fmt.Println("queryid")
 		res, err := s.qanClient.QueryByQueryID(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
 		q = res
-	case query != "":
-		fmt.Println("query")
+	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
-	default:
-		return status.Errorf(codes.FailedPrecondition, "query or query_id is required")
 	}
 
 	agent, err := s.r.get(pmmAgentID)

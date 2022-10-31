@@ -31,12 +31,10 @@ import (
 )
 
 type mysqlExplainAction struct {
-	id           string
-	timeout      time.Duration
-	params       *agentpb.StartActionRequest_MySQLExplainParams
-	query        string
-	queryID      string
-	placeholders []string
+	id      string
+	timeout time.Duration
+	params  *agentpb.StartActionRequest_MySQLExplainParams
+	query   string
 }
 
 type explainResponse struct {
