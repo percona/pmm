@@ -53,6 +53,12 @@ In that case, the dbaas-operator provides Kubernetes native implementation of th
 
 ### Working with the operators 
 
+OLM stores ClusterServiceVersion information and catalog source metadata in the catalog. The catalog source represents a store of metadata that OLM can query to discover and install operators and their dependencies. It can contain operators that are either community-driven or owned by Percona. See the diagram below.
+
+![DBaaS Catalog architecture](./dbaas_catalog.jpg)
+
+// TODO: Describe working with versions and integrating it to the PMM/DBaaS as well as comparing with the current implementation
+
 ### Working with the databases 
 
 ## User Stories (Optional)
