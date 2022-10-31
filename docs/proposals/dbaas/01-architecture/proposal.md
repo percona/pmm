@@ -89,6 +89,108 @@ As a DBA(?), I should be able to view cluster resources available before creatin
 
 ## Notes/Constraints/Caveats (Optional)
 ## Risks and Mitigations
+
 ## Design Details
+
+```go
+
+package dbaas
+
+type (
+	// EngineType stands for the supported database engines. Right now it's only pxc
+	// and psmdb. However, it can be ps, pg and any other source
+	EngineType string
+	// LoadBalancerType contains supported loadbalancers. It can be proxysql or haproxy
+	// for PXC clusters and mongos for PSMDB clusters.
+	//
+	// Once PG support will be added, it can be pg-bouncer or something else.
+	LoadBalancerType string
+	// Database struct contains an unified API to create any database cluster
+	// via PMM/DBaaS
+	Database struct {
+		// Database type stands for supported databases by the PMM API
+		// Now it's pxc or psmdb types but we can extend it
+		Database EngineType `json:"database_type"`
+		// DatabaseVersion sets from version service and uses the recommended version
+		// by default
+		DatabaseVersion string `json:"databaseVersion"`
+		// DatabaseConfig contains a config settings for the specified database
+		DatabaseConfig string `json:"databaseConfig"`
+		// ClusterSize is amount of nodes that required for the cluster.
+		// A database starts in cluster mode if clusterSize >= 3.
+		// There's a possibility to setup a single node cluster but it's unsafe operation
+		// and does not support upgrades from 1 to 3 nodes.
+		// However, for clusterSize >= 3 dbaas-operator can scale it up to 5-7-N nodes
+		// and scale down to 3.
+		ClusterSize int32 `json:"clusterSize"`
+		// LoadBalancer contains a load balancer settings. For PXC it's haproxy
+		// or proxysql. For PSMDB it's mongos.
+		LoadBalancer struct {
+			Type      LoadBalancerType            `json:"type,omitempty"`
+			Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+		} `json:"loadBalancer"`
+		Monitoring struct {
+			// Agent contains an image path for the agent used for monitoring
+			// It'll be a percona/pmm-client:2 by default
+			Agent string `json:"agent,omitempty"`
+			// PMM contains settings to setup integration with the PMM server.
+			// It contains public address, login and password for the authentication
+			// and resources to specify request/limit resources.
+			PMM struct {
+				PublicAddress string                      `json:"publicAddress,omitempty"`
+				Login         string                      `json:"login,omitempty"`
+				Password      string                      `json:"login,omitempty"`
+				Resources     corev1.ResourceRequirements `json:"resources,omitempty"`
+			} `json:"pmm,omitempty"`
+			// Prometheus contains a configuration options to use prometheus
+			// as a monitoring solution in case of using dbaas-operator
+			// without PMM installation.
+			// But it still requires a manual installation of operators via OLM or
+			// by managing
+			Prometheus struct {
+				Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+			} `json:"prometheus,omitempty"`
+		} `json:"monitoring"`
+		DBInstanceSpec struct {
+			CPU      string `json:"cpu,omitempty"`
+			Memory   string `json:"cpu,omitempty"`
+			DiskSize string `json:"diskSize,omitempty"`
+		} `json:"dbInstance"`
+		Backup struct {
+			// TDB
+		} `json:"backup,omitempty"`
+	}
+	// Provider is the interface that a developer should implement to add support of any other provider that required for DBaaS.
+	// Currently, PMM supports only K8s/EKS provider but bare-metal setup or using EC2 instances support can be adopted by implementing this inteface
+	Provider interface {
+		// ProvisionCluster provisions a specified cluster. In this case, it'll install
+		// all required operators that we need (pxc, psmdb, dbaas-operator and victoria metrics
+		// operator via OLM
+		ProvisionCluster() error
+		// CleanupCluster cleans up cluster and removes VM operator
+		// and, or, dbaas-operator, pxc operator and psmdb operator via --force tag.
+		// At the moment PMM should remove VM operator only and keep everything that related to databases
+		// untouched and the end user can decide what to clean
+		CleanupCluster() error
+		// CreateDatabase cluster creates a cluster by using Database struct
+		// and it'll make a request to dbaas-operator to create a database
+		CreateDatabase(Database) error
+		// EditDatabase edit's deployed database CR specs by using Database struct
+		EditDatabase(Database) error
+		// UpgradeDatabase upgrades database to a desired version
+		UpgradeDatabase(Database) error
+		// DestroyDatabase destroys a database from the cluster
+		DestroyDatabase(Database) error
+		// UpdateClusterDependencies upgrades cluster dependencies. For k8s it upgrades dbaas and database operators versions and CR configuration
+		UpdateClusterDependencies() error
+	}
+)
+
+const (
+	PXCEngine   EngineType = "pxc"
+	PSMDBEngine EngineType = "psmdb"
+)
+
+```
 ## Test Plan
 
