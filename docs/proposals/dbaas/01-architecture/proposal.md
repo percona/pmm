@@ -17,8 +17,9 @@ As a proof of concept, this architecture covers everything. However, it has the 
 
 1. Non-native Kubernetes API to work with clusters. DBaaS controller has only gRPC API and this creates additional friction for community users to work/extend with the controller. One needs to generate a gRPC client to communicate with the DBaaS controller. Thus implementing the integration testing framework becomes a complex task to solve because popular frameworks such as codecept.js or playwright do not have gRPC support.
 2. DBaaS controller has a set of CRUD endpoints for each database type (e.g. PXC and PSMDB). It adds additional room for bugs/inconsistencies and has the following issues
-  * There’s no simplified and generic API for any database cluster
-  * PMM needs to make two requests to get a list of created clusters (one for PSMDB and one for PXC clusters). In case of adding new database support, the DBaaS controller should have an additional set of CRUD endpoints and PMM should also call the list method for the new database type.
+    * There’s no simplified and generic API for any database cluster
+    * PMM needs to make two requests to get a list of created clusters (one for PSMDB and one for PXC clusters). In case of adding new database support, the DBaaS controller should have an additional set of CRUD endpoints and PMM should also call the list method for the new database type.
+  
 3. DBaaS controller has a lack of test coverage and integration testing because of the reasons above. Yet we can create an integration testing framework and increase coverage but in that case, it’ll cost a lot of time.
 4. Currently, the DBaaS controller has only basic features such as CRUD operators for the database cluster and a lack of backup/restore features/additional configuration. There’s no way to specify additional parameters (Database configuration options, load balancer rules, storage class, backup schedule)
 5. REST API for PMM does not follow REST guidelines.
