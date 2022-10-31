@@ -108,10 +108,8 @@ As a DBA(?), I should be able to view cluster resources available before creatin
 
 ## Design Details
 
+The database specification for the API or dbaas-operator
 ```go
-
-package dbaas
-
 type (
 	// EngineType stands for the supported database engines. Right now it's only pxc
 	// and psmdb. However, it can be ps, pg and any other source
@@ -176,7 +174,19 @@ type (
 			// TDB
 		} `json:"backup,omitempty"`
 	}
-	// Provider is the interface that a developer should implement to add support of any other provider that required for DBaaS.
+	
+)
+
+const (
+	PXCEngine   EngineType = "pxc"
+	PSMDBEngine EngineType = "psmdb"
+)
+
+```
+
+The provider interface
+```go
+// Provider is the interface that a developer should implement to add support of any other provider that required for DBaaS.
 	// Currently, PMM supports only K8s/EKS provider but bare-metal setup or using EC2 instances support can be adopted by implementing this inteface
 	Provider interface {
 		// ProvisionCluster provisions a specified cluster. In this case, it'll install
@@ -200,13 +210,6 @@ type (
 		// UpdateClusterDependencies upgrades cluster dependencies. For k8s it upgrades dbaas and database operators versions and CR configuration
 		UpdateClusterDependencies() error
 	}
-)
-
-const (
-	PXCEngine   EngineType = "pxc"
-	PSMDBEngine EngineType = "psmdb"
-)
-
 ```
 
 ## Test Plan
