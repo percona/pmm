@@ -103,8 +103,8 @@ As a DBA, I should be able to tune performance for a database cluster.
 
 As a DBA(?), I should be able to view cluster resources available before creating a database.
 
-## Notes/Constraints/Caveats (Optional)
-## Risks and Mitigations
+### Notes/Constraints/Caveats (Optional)
+### Risks and Mitigations
 
 ## Design Details
 
@@ -212,6 +212,21 @@ The provider interface
 	}
 ```
 
-## Test Plan
+### Test Plan
 
 During moving from dbaas-controller to dbaas-operator we'll keep the same user experience for the end user
+
+#### Prerequisite testing updates
+#### Unit tests
+#### Integration tests
+#### e2e tests
+### Graduation Criteria
+### Upgrade / Downgrade Strategy
+### Version Skew Strategy
+## Production Readiness Review Questionnaire
+### Feature Enablement and Rollback
+### Rollout, Upgrade and Rollback Planning
+### Monitoring Requirements
+### Dependencies
+### Scalability
+### Troubleshooting
