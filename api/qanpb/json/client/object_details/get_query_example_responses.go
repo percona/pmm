@@ -534,6 +534,9 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// fingerprint
 	Fingerprint string `json:"fingerprint,omitempty"`
 
+	// query id
+	QueryID string `json:"query_id,omitempty"`
+
 	// example metrics
 	ExampleMetrics string `json:"example_metrics,omitempty"`
 

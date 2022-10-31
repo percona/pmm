@@ -1799,28 +1799,32 @@
                         "type": "string",
                         "x-order": 5
                       },
-                      "example_metrics": {
+                      "query_id": {
                         "type": "string",
                         "x-order": 6
                       },
-                      "service_id": {
+                      "example_metrics": {
                         "type": "string",
                         "x-order": 7
                       },
-                      "service_type": {
+                      "service_id": {
                         "type": "string",
                         "x-order": 8
                       },
-                      "schema": {
+                      "service_type": {
                         "type": "string",
                         "x-order": 9
+                      },
+                      "schema": {
+                        "type": "string",
+                        "x-order": 10
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 10
+                        "x-order": 11
                       }
                     }
                   },

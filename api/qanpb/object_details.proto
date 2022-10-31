@@ -129,6 +129,7 @@ message QueryExample {
   uint32 is_truncated = 4;
   uint32 placeholders_count = 10;
   string fingerprint = 11;
+  string query_id = 12;
   string example_metrics = 5;
   string service_id = 6;
   string service_type = 7;
