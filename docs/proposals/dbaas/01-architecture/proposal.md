@@ -43,6 +43,8 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Proposal
 
+![Proposed architecture](./proposed_arch_full.jpg)
+
 ## User Stories (Optional)
 
 As an SRE person, I should be able to register the Kubernetes cluster using a service account without admin access to the cluster.
