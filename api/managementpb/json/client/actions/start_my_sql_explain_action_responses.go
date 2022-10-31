@@ -129,17 +129,18 @@ type StartMySQLExplainActionBody struct {
 	// Service ID for this Action. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Deprecated: should not be used, should be removed.
+	// Query ID or query is required.
+	// Value of query.
 	Query string `json:"query,omitempty"`
+
+	// Query ID of query.
+	QueryID string `json:"query_id,omitempty"`
+
+	// Array of placeholder values
+	Placeholders []string `json:"placeholders"`
 
 	// Database name. Required if it can't be deduced from the query ID.
 	Database string `json:"database,omitempty"`
-
-	// Array of placeholder values
-	Placeholders string `json:"placeholders,omitempty"`
-
-	// Query ID of query. Query ID or query is required.
-	QueryID string `json:"query_id,omitempty"`
 }
 
 // Validate validates this start my SQL explain action body

@@ -17,8 +17,11 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -46,10 +49,24 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 }
 
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, queryID string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
-	query, err := s.qanClient.QueryByQueryID(ctx, serviceID, queryID)
-	if err != nil {
-		return err
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	var q string
+	switch {
+	case queryID != "":
+		fmt.Println("queryid")
+		res, err := s.qanClient.QueryByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+		q = res
+	case query != "":
+		fmt.Println("query")
+		err := s.qanClient.QueryExists(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+	default:
+		return status.Errorf(codes.FailedPrecondition, "query or query_id is required")
 	}
 
 	agent, err := s.r.get(pmmAgentID)
@@ -62,7 +79,7 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				Query:        query,
+				Query:        q,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

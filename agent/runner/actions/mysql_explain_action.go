@@ -52,12 +52,10 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
 	return &mysqlExplainAction{
-		id:           id,
-		timeout:      timeout,
-		params:       params,
-		query:        params.Query,
-		queryID:      params.QueryId,
-		placeholders: params.Placeholders,
+		id:      id,
+		timeout: timeout,
+		params:  params,
+		query:   params.Query,
 	}
 }
 
@@ -80,6 +78,7 @@ func (a *mysqlExplainAction) Type() string {
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
+
 	query := a.query
 	isDMLQuery := isDMLQuery(query)
 	if isDMLQuery {

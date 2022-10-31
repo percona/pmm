@@ -281,11 +281,14 @@
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
                 },
                 "placeholders": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 4
                 },
                 "pmm_agent_id": {
@@ -294,14 +297,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "Deprecated: should not be used, should be removed.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
                 "query_id": {
-                  "description": "Query ID of query. Query ID or query is required.",
+                  "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",

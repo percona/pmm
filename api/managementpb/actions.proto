@@ -55,14 +55,15 @@ message StartMySQLExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Deprecated: should not be used, should be removed.
-  string query = 3 [deprecated = true];
+  // Query ID or query is required.
+  // Value of query.
+  string query = 3;
+  // Query ID of query. 
+  string query_id = 6;
+  // Array of placeholder values
+  repeated string placeholders = 5; 
   // Database name. Required if it can't be deduced from the query ID.
   string database = 4;
-  // Array of placeholder values 
-  string placeholders = 5;
-  // Query ID of query. Query ID or query is required.
-  string query_id = 6;
 }
 
 message StartMySQLExplainActionResponse {
