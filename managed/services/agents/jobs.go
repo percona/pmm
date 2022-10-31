@@ -41,6 +41,7 @@ var (
 	pmmAgentMinVersionForMySQLBackupAndRestore         = version.Must(version.NewVersion("2.23"))
 	pmmAgentMinVersionForMongoPhysicalBackupAndRestore = version.Must(version.NewVersion("2.31.0-0"))
 	pmmAgentMinVersionForMongoDBUseFilesystemStorage   = version.Must(version.NewVersion("2.32.0-0"))
+	pmmAgentMinVersionForMongoPITRRestore              = version.Must(version.NewVersion("2.32.0-0"))
 )
 
 const (
@@ -522,6 +523,15 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	}
 	if err != nil {
 		return err
+	}
+
+	if pitrTimestamp.Unix() != 0 {
+		// TODO refactor pmm agent version checking. First detect minimum required version needed for operations and
+		// then invoke PMMAgentSupported
+		if err = PMMAgentSupported(s.r.db.Querier, pmmAgentID,
+			"mongodb pitr restore", pmmAgentMinVersionForMongoPITRRestore); err != nil {
+			return err
+		}
 	}
 
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
