@@ -90,7 +90,7 @@ func Test_fetchMetricsFromDB(t *testing.T) {
 					}
 					strs = append(strs, fmt.Sprintf(`{"key":"%s","value":"%s"}`, agentType, status))
 				}
-				assert.True(t, len(strs) != 0) //make sure that JSON won't be empty
+				assert.True(t, len(strs) != 0) // make sure that JSON won't be empty
 
 				return []testMetricResult{{
 					key:   "pmm_agents_status_info",
@@ -135,7 +135,7 @@ func Test_fetchMetricsFromDB(t *testing.T) {
 						value: agentType,
 					})
 				}
-				assert.True(t, len(res) != 0) //make sure that expected metrics won't be empty
+				assert.True(t, len(res) != 0) // make sure that expected metrics won't be empty
 				return res
 			},
 			wantErr: assert.NoError,

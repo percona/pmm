@@ -213,7 +213,6 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
 			d, err := NewDataSourceVictoriaMetrics(tt.fields.config, logEntry)
 			if err != nil {
 				assert.Fail(t, "cannot initialize victoria metrics source.", err)
