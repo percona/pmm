@@ -53,11 +53,21 @@ In that case, the dbaas-operator provides Kubernetes native implementation of th
 
 ### Working with the operators 
 
-OLM stores ClusterServiceVersion information and catalog source metadata in the catalog. The catalog source represents a store of metadata that OLM can query to discover and install operators and their dependencies. It can contain operators that are either community-driven or owned by Percona. See the diagram below.
+An Operator catalog is a repository of metadata that Operator Lifecycle Manager (OLM) can query to discover and install Operators and their dependencies on a cluster. OLM always installs Operators from the latest version of a catalog. We can store Percona operators as well as Community operators inside Percona Catalog as shown below.
 
 ![DBaaS Catalog architecture](./dbaas_catalog.jpg)
 
-// TODO: Describe working with versions and integrating it to the PMM/DBaaS as well as comparing with the current implementation
+Catalog also gives us the benefits of using CatalogSource and ClusterServiceVersion. ClusterServiceVersion (CSV) can solve the issue by getting the current version of installed operators via OLM API. Currently, we rely on the API version of PerconaOperators by requesting api-versions via kubectl and using the latest API version as an operator’s version. However, there'll be no way to get information about the version after the 1.13 release of PSMDB and the 1.12 release of PXC operator. In that case, we can request an operator image and split the version information from the tag, but in the case of the overridden image tag, we can have discrepancies between versions. With OLM we’ll have a single source of truth for the installed operator version. [Read more](https://olm.operatorframework.io/docs/concepts/crds/clusterserviceversion/)
+
+Example for PXC operator (It's only 1.10 available on operatorhub, however it demonstrates the idea)
+
+```bash
+kubectl get csv -n my-percona-xtradb-cluster-operator
+NAME                                      DISPLAY                                   VERSION   REPLACES                                 PHASE
+percona-xtradb-cluster-operator.v1.10.0   Percona Distribution for MySQL Operator   1.10.0    percona-xtradb-cluster-operator.v1.9.0   Installing
+```
+
+In that case, PMM/DBaaS will have a consistent way to get operator version. In addition, OLM can manage a complex upgrades for operatos via [InstallPlan](https://olm.operatorframework.io/docs/concepts/crds/installplan/), [OperatorGroup](https://olm.operatorframework.io/docs/concepts/crds/operatorgroup/) or [UpgradeGraph](https://olm.operatorframework.io/docs/glossary/#update-graph)
 
 ### Working with the databases 
 
