@@ -35,31 +35,31 @@ import (
 
 //nolint:paralleltest
 func TestRoleService(t *testing.T) {
-	setup := func(t *testing.T) (context.Context, *RoleService, *reform.DB, func(t *testing.T)) {
+	ctx := logger.Set(context.Background(), t.Name())
+	uuid.SetRand(&tests.IDReader{})
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	defer func(t *testing.T) {
 		t.Helper()
 
-		ctx := logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
+		uuid.SetRand(nil)
 
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		require.NoError(t, sqlDB.Close())
+	}(t)
 
-		teardown := func(t *testing.T) {
-			t.Helper()
-
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-		}
-		r := NewRoleService(db)
-
-		return ctx, r, db, teardown
+	s := NewRoleService(db)
+	teardown := func(t *testing.T) {
+		_, err := db.Querier.DeleteFrom(models.RoleTable, "")
+		require.NoError(t, err)
+		_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
+		require.NoError(t, err)
 	}
 
 	//nolint:paralleltest
 	t.Run("Create role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			res, err := s.CreateRole(ctx, &managementpb.RoleData{
@@ -75,7 +75,6 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Update role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			roleID := createDummyRoles(ctx, t, s)
@@ -94,7 +93,6 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -111,7 +109,6 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Delete role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			roleID := createDummyRoles(ctx, t, s)
@@ -126,7 +123,6 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -139,7 +135,6 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Get role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			roleID := createDummyRoles(ctx, t, s)
@@ -150,7 +145,6 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -163,7 +157,6 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("List roles", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
@@ -177,7 +170,6 @@ func TestRoleService(t *testing.T) {
 	//nolint:paralleltest
 	t.Run("Assign role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
-			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
 			roleID := createDummyRoles(ctx, t, s)
@@ -200,7 +192,6 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall create new user", func(t *testing.T) {
-			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
 			roleID := createDummyRoles(ctx, t, s)
@@ -216,7 +207,6 @@ func TestRoleService(t *testing.T) {
 		})
 
 		t.Run("Shall return not found for role", func(t *testing.T) {
-			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
 			createDummyRoles(ctx, t, s)
