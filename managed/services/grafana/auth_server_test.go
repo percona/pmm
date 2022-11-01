@@ -24,11 +24,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/api/managementpb"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/management"
+	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -254,4 +262,90 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestAuthServerAddVMGatewayToken(t *testing.T) {
+	ctx := logger.Set(context.Background(), t.Name())
+	uuid.SetRand(&tests.IDReader{})
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	defer func(t *testing.T) {
+		t.Helper()
+
+		uuid.SetRand(nil)
+
+		require.NoError(t, sqlDB.Close())
+	}(t)
+
+	checker := &mockAwsInstanceChecker{}
+	checker.Test(t)
+	defer checker.AssertExpectations(t)
+
+	c := NewClient("127.0.0.1:3000")
+	s := NewAuthServer(c, checker, db)
+	r := management.NewRoleService(db)
+
+	role, err := r.CreateRole(ctx, &managementpb.RoleData{
+		RoleId: 0,
+		Title:  "Role A",
+		Filter: "filter A",
+	})
+	require.NoError(t, err)
+
+	_, err = r.CreateRole(ctx, &managementpb.RoleData{
+		RoleId: 0,
+		Title:  "Role B",
+		Filter: "filter B",
+	})
+	require.NoError(t, err)
+
+	for userID, roleID := range map[int]int{
+		1337: int(role.RoleId),
+		1:    int(role.RoleId),
+	} {
+		_, err := models.GetOrCreateUser(db.Querier, userID)
+		require.NoError(t, err)
+
+		r.AssignRole(ctx, &managementpb.AssignRoleRequest{
+			RoleId: uint32(roleID),
+			UserId: uint32(userID),
+		})
+	}
+
+	t.Run("shall properly evaluate adding token", func(t *testing.T) {
+		for uri, shallAdd := range map[string]bool{
+			"/":                        false,
+			"/dummy":                   false,
+			"/prometheus/api/":         false,
+			"/prometheus/api/v1/":      true,
+			"/prometheus/api/v1/query": true,
+		} {
+			uri := uri
+			shallAdd := shallAdd
+
+			for _, userID := range []int{0, 1337} {
+				userID := userID
+				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
+					t.Parallel()
+					rw := httptest.NewRecorder()
+					req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+					require.NoError(t, err)
+					if userID == 0 {
+						req.SetBasicAuth("admin", "admin")
+					}
+
+					err = s.maybeAddVMGatewayToken(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
+					require.NoError(t, err)
+
+					if shallAdd {
+						require.True(t, len(rw.Header().Get("X-Percona-Token")) > 0)
+					} else {
+						require.Equal(t, rw.Header().Get("X-Percona-Token"), "")
+					}
+				})
+			}
+		}
+	})
 }
