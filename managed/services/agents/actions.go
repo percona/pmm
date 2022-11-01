@@ -83,7 +83,20 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		if err != nil {
 			return err
 		}
-		q = res
+
+		parsed, placeholdersCount, err := mysqlParser(res)
+		if err != nil {
+			return err
+		}
+		if placeholdersCount != uint32(len(placeholders)) {
+			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+		}
+
+		for k, v := range placeholders {
+			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
+		}
+
+		q = parsed
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -97,24 +110,12 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		return err
 	}
 
-	parsed, placeholdersCount, err := mysqlParser(q)
-	if err != nil {
-		return err
-	}
-	if placeholdersCount != uint32(len(placeholders)) {
-		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
-	}
-
-	for k, v := range placeholders {
-		parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k), v, 1)
-	}
-
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				Query:        parsed,
+				Query:        q,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,
