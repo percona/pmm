@@ -337,13 +337,22 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 				b.Common.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
-			if !m.disableQueryExamples && esh.SQLText != nil {
-				example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
-				if truncated {
-					b.Common.IsTruncated = truncated
+			if esh.SQLText != nil {
+				switch m.disableQueryExamples {
+				case true:
+					query, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+					if truncated {
+						b.Common.IsTruncated = truncated
+					}
+					b.Common.Query = query
+				default:
+					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+					if truncated {
+						b.Common.IsTruncated = truncated
+					}
+					b.Common.Example = example
+					b.Common.ExampleType = agentpb.ExampleType_RANDOM
 				}
-				b.Common.Example = example
-				b.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 		}
 

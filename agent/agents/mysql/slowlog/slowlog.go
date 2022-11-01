@@ -416,13 +416,22 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		}
 
-		if v.Example != nil && !disableQueryExamples {
-			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
-			if truncated {
-				mb.Common.IsTruncated = truncated
+		if v.Example != nil {
+			switch disableQueryExamples {
+			case true:
+				query, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+				if truncated {
+					mb.Common.IsTruncated = truncated
+				}
+				mb.Common.Query = query
+			default:
+				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+				if truncated {
+					mb.Common.IsTruncated = truncated
+				}
+				mb.Common.Example = example
+				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
-			mb.Common.Example = example
-			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
