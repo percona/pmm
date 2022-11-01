@@ -23,24 +23,34 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// ErrIncompatibleAgentVersion is returned when the version of the running pmm-agent does not support a given functionality.
+var ErrIncompatibleAgentVersion = errors.New("incompatible agent version")
+
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
-	if pmmAgent.Version == nil {
-		return errors.Errorf("pmm agent %q has no version info", pmmAgentID)
+	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
+}
+
+// isAgentSupported contains logic for PMMAgentSupported.
+func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+	if agentModel == nil {
+		return errors.New("nil agent")
 	}
-	pmmAgentVersion, err := version.NewVersion(*pmmAgent.Version)
+	if agentModel.Version == nil {
+		return errors.Errorf("pmm agent %q has no version info", agentModel.AgentID)
+	}
+	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {
-		return errors.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err)
+		return errors.Errorf("failed to parse PMM agent version %q: %s", *agentModel.Version, err)
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.Errorf("%s is not supported on pmm-agent %q version %q", functionalityPrefix,
-			pmmAgentID, *pmmAgent.Version)
+		return errors.WithMessagef(ErrIncompatibleAgentVersion, "%s is not supported on pmm-agent %q version %q, min required version %q", functionalityPrefix,
+			agentModel.AgentID, *agentModel.Version, pmmMinVersion)
 	}
-
 	return nil
 }

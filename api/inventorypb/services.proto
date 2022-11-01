@@ -187,6 +187,12 @@ message ListServicesResponse {
   repeated ExternalService external = 6;
 }
 
+message ListActiveServiceTypesRequest {}
+
+message ListActiveServiceTypesResponse {
+  repeated ServiceType service_types = 1;
+}
+
 // Get
 
 message GetServiceRequest {
@@ -447,6 +453,17 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Services"
       description: "Returns a list of Services filtered by type."
+    };
+  }
+  // ListActiveServiceTypes returns a list of active Services.
+  rpc ListActiveServiceTypes(ListActiveServiceTypesRequest) returns (ListActiveServiceTypesResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/ListTypes"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Active Service Types"
+      description: "Returns a list of active Service types."
     };
   }
   // GetService returns a single Service by ID.

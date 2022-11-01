@@ -19,6 +19,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/agents"
 )
 
 type mysqlAndPXBVersions struct {
@@ -158,4 +161,145 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 
 	_, err = mysqlAndXtrabackupCompatible("8.0", "eight")
 	assert.Error(t, err)
+}
+
+func TestVendorToServiceType(t *testing.T) {
+	for _, test := range []struct {
+		name      string
+		input     string
+		output    models.ServiceType
+		errString string
+	}{
+		{
+			name:      "supported type",
+			input:     "mysql",
+			output:    models.MySQLServiceType,
+			errString: "",
+		},
+		{
+			name:      "unsupported type",
+			input:     "haproxy",
+			output:    "",
+			errString: "unimplemented service type",
+		},
+		{
+			name:      "unknown type",
+			input:     "some_service_type",
+			output:    "",
+			errString: "unknown service type",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			res, err := vendorToServiceType(test.input)
+
+			assert.Equal(t, test.output, res)
+			if test.errString != "" {
+				assert.Contains(t, err.Error(), test.errString)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestSoftwareVersionsToMap(t *testing.T) {
+	input := models.SoftwareVersions{
+		{Name: "mysqld", Version: "8.0.25"},
+		{Name: "xtrabackup", Version: "8.0.25"},
+		{Name: "qpress", Version: "1.1"},
+		{Name: "random_software", Version: "99"},
+	}
+	expected := map[models.SoftwareName]string{
+		models.SoftwareName("mysqld"):          "8.0.25",
+		models.SoftwareName("xtrabackup"):      "8.0.25",
+		models.SoftwareName("qpress"):          "1.1",
+		models.SoftwareName("random_software"): "99",
+	}
+
+	res := softwareVersionsToMap(models.SoftwareVersions{})
+	assert.Empty(t, res)
+
+	res = softwareVersionsToMap(input)
+	assert.Equal(t, expected, res)
+}
+
+func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
+	for _, test := range []struct {
+		name  string
+		input map[models.SoftwareName]string
+		err   error
+	}{
+		{
+			name: "successful",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.0.25",
+				models.SoftwareName("xtrabackup"): "8.0.25",
+				models.SoftwareName("xbcloud"):    "8.0.25",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: nil,
+		},
+		{
+			name: "no xtrabackup",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):  "8.0.25",
+				models.SoftwareName("xbcloud"): "8.0.25",
+				models.SoftwareName("qpress"):  "1.1",
+			},
+			err: ErrXtrabackupNotInstalled,
+		},
+		{
+			name: "no xbcloud",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.0.25",
+				models.SoftwareName("xtrabackup"): "8.0.25",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: ErrXtrabackupNotInstalled,
+		},
+		{
+			name: "no mysqld",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("xtrabackup"): "8.0.25",
+				models.SoftwareName("xbcloud"):    "8.0.25",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: ErrIncompatibleService,
+		},
+		{
+			name: "invalid xtrabackup",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.0.25",
+				models.SoftwareName("xtrabackup"): "8.0.26",
+				models.SoftwareName("xbcloud"):    "8.0.25",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: ErrInvalidXtrabackup,
+		},
+		{
+			name: "incompatible xtrabackup",
+			input: map[models.SoftwareName]string{
+				models.SoftwareName("mysqld"):     "8.0.25",
+				models.SoftwareName("xtrabackup"): "8.0.24",
+				models.SoftwareName("xbcloud"):    "8.0.24",
+				models.SoftwareName("qpress"):     "1.1",
+			},
+			err: ErrIncompatibleXtrabackup,
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			err := mySQLSoftwaresInstalledAndCompatible(test.input)
+			if test.err != nil {
+				assert.ErrorIs(t, err, test.err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestConvertSoftwareName(t *testing.T) {
+	res, err := convertSoftwareName(&agents.Mysqld{})
+	assert.NoError(t, err)
+	assert.Equal(t, models.MysqldSoftwareName, res)
 }
