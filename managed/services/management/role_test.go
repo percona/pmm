@@ -33,32 +33,37 @@ import (
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
+//nolint:paralleltest
 func TestRoleService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, r *RoleService, db *reform.DB, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (context.Context, *RoleService, *reform.DB, func(t *testing.T)) {
 		t.Helper()
 
-		ctx = logger.Set(context.Background(), t.Name())
+		ctx := logger.Set(context.Background(), t.Name())
 		uuid.SetRand(&tests.IDReader{})
 
 		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
+			t.Helper()
+
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())
 		}
-		r = NewRoleService(db)
+		r := NewRoleService(db)
 
-		return
+		return ctx, r, db, teardown
 	}
 
+	//nolint:paralleltest
 	t.Run("Create role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
 			res, err := s.CreateRole(ctx, &managementpb.RoleData{
+				RoleId: 0,
 				Title:  "Role A",
 				Filter: "filter",
 			})
@@ -67,15 +72,15 @@ func TestRoleService(t *testing.T) {
 		})
 	})
 
+	//nolint:paralleltest
 	t.Run("Update role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			roleID, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			roleID := createDummyRoles(ctx, t, s)
 
-			_, err = s.UpdateRole(ctx, &managementpb.RoleData{
+			_, err := s.UpdateRole(ctx, &managementpb.RoleData{
 				RoleId: roleID,
 				Title:  "Role B - updated",
 				Filter: "filter B - updated",
@@ -92,10 +97,9 @@ func TestRoleService(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			_, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			createDummyRoles(ctx, t, s)
 
-			_, err = s.UpdateRole(ctx, &managementpb.RoleData{
+			_, err := s.UpdateRole(ctx, &managementpb.RoleData{
 				RoleId: 0,
 				Title:  "",
 				Filter: "",
@@ -104,15 +108,15 @@ func TestRoleService(t *testing.T) {
 		})
 	})
 
+	//nolint:paralleltest
 	t.Run("Delete role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			roleID, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			roleID := createDummyRoles(ctx, t, s)
 
-			_, err = s.DeleteRole(ctx, &managementpb.RoleID{RoleId: roleID})
+			_, err := s.DeleteRole(ctx, &managementpb.RoleID{RoleId: roleID})
 			assert.NoError(t, err)
 
 			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
@@ -125,21 +129,20 @@ func TestRoleService(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			_, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			createDummyRoles(ctx, t, s)
 
-			_, err = s.DeleteRole(ctx, &managementpb.RoleID{RoleId: 0})
+			_, err := s.DeleteRole(ctx, &managementpb.RoleID{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
 
+	//nolint:paralleltest
 	t.Run("Get role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			roleID, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			roleID := createDummyRoles(ctx, t, s)
 
 			res, err := s.GetRole(ctx, &managementpb.RoleID{RoleId: roleID})
 			assert.NoError(t, err)
@@ -150,21 +153,20 @@ func TestRoleService(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			_, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			createDummyRoles(ctx, t, s)
 
-			_, err = s.GetRole(ctx, &managementpb.RoleID{RoleId: 0})
+			_, err := s.GetRole(ctx, &managementpb.RoleID{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
 
+	//nolint:paralleltest
 	t.Run("List roles", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, _, teardown := setup(t)
 			defer teardown(t)
 
-			_, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			createDummyRoles(ctx, t, s)
 
 			res, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
 			assert.NoError(t, err)
@@ -172,15 +174,15 @@ func TestRoleService(t *testing.T) {
 		})
 	})
 
+	//nolint:paralleltest
 	t.Run("Assign role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
-			roleID, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			roleID := createDummyRoles(ctx, t, s)
 
-			_, err = models.GetOrCreateUser(db.Querier, 1337)
+			_, err := models.GetOrCreateUser(db.Querier, 1337)
 			assert.NoError(t, err)
 
 			user, err := models.GetOrCreateUser(db.Querier, 1338)
@@ -201,10 +203,9 @@ func TestRoleService(t *testing.T) {
 			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
-			roleID, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			roleID := createDummyRoles(ctx, t, s)
 
-			_, err = s.AssignRole(ctx, &managementpb.AssignRoleRequest{
+			_, err := s.AssignRole(ctx, &managementpb.AssignRoleRequest{
 				RoleId: roleID,
 				UserId: 1337,
 			})
@@ -218,8 +219,7 @@ func TestRoleService(t *testing.T) {
 			ctx, s, db, teardown := setup(t)
 			defer teardown(t)
 
-			_, err := createDummyRoles(t, ctx, s)
-			assert.NoError(t, err)
+			createDummyRoles(ctx, t, s)
 
 			user, err := models.GetOrCreateUser(db.Querier, 1337)
 			assert.NoError(t, err)
@@ -233,18 +233,22 @@ func TestRoleService(t *testing.T) {
 	})
 }
 
-func createDummyRoles(t *testing.T, ctx context.Context, s *RoleService) (uint32, error) {
+func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) uint32 {
+	t.Helper()
+
 	_, err := s.CreateRole(ctx, &managementpb.RoleData{
+		RoleId: 0,
 		Title:  "Role A",
 		Filter: "filter A",
 	})
 	assert.NoError(t, err)
 
 	res, err := s.CreateRole(ctx, &managementpb.RoleData{
+		RoleId: 0,
 		Title:  "Role B",
 		Filter: "filter B",
 	})
 	assert.NoError(t, err)
 
-	return res.RoleId, nil
+	return res.RoleId
 }

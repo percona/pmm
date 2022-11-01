@@ -31,10 +31,6 @@ import (
 // ErrInvalidRoleData is returned when a row cannot be asserted to role.
 var ErrInvalidRoleData = fmt.Errorf("InvalidRoleData")
 
-type grafanaUser interface {
-	GetUserID(ctx context.Context) (int, error)
-}
-
 // RoleService represents service for working with roles.
 type RoleService struct {
 	db *reform.DB
@@ -42,21 +38,21 @@ type RoleService struct {
 	managementpb.UnimplementedRoleServer
 }
 
-// NewServiceService creates RoleService instance.
+// NewRoleService creates a RoleService instance.
 func NewRoleService(db *reform.DB) *RoleService {
+	//nolint:exhaustruct
 	return &RoleService{
 		db: db,
 	}
 }
 
 // CreateRole creates a new Role.
-func (r *RoleService) CreateRole(ctx context.Context, req *managementpb.RoleData) (*managementpb.RoleID, error) {
-	role := &models.Role{
-		Title:  req.Title,
-		Filter: req.Filter,
-	}
+func (r *RoleService) CreateRole(_ context.Context, req *managementpb.RoleData) (*managementpb.RoleID, error) {
+	var role models.Role
+	role.Title = req.Title
+	role.Filter = req.Filter
 
-	if err := r.db.Querier.Insert(role); err != nil {
+	if err := r.db.Querier.Insert(&role); err != nil {
 		return nil, err
 	}
 
@@ -66,13 +62,12 @@ func (r *RoleService) CreateRole(ctx context.Context, req *managementpb.RoleData
 }
 
 // UpdateRole updates a Role.
-func (r *RoleService) UpdateRole(ctx context.Context, req *managementpb.RoleData) (*managementpb.EmptyResponse, error) {
+//
+//nolint:unparam
+func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.RoleData) (*managementpb.EmptyResponse, error) {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
-		role := &models.Role{
-			ID: req.RoleId,
-		}
-
-		if err := tx.Reload(role); err != nil {
+		var role models.Role
+		if err := tx.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 			if ok := errors.As(err, &reform.ErrNoRows); ok {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
@@ -82,7 +77,7 @@ func (r *RoleService) UpdateRole(ctx context.Context, req *managementpb.RoleData
 		role.Title = req.Title
 		role.Filter = req.Filter
 
-		if err := tx.Update(role); err != nil {
+		if err := tx.Update(&role); err != nil {
 			return err
 		}
 
@@ -96,10 +91,13 @@ func (r *RoleService) UpdateRole(ctx context.Context, req *managementpb.RoleData
 }
 
 // DeleteRole deletes a Role.
-func (r *RoleService) DeleteRole(ctx context.Context, req *managementpb.RoleID) (*managementpb.EmptyResponse, error) {
-	role := &models.Role{ID: req.RoleId}
+//
+//nolint:unparam
+func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.RoleID) (*managementpb.EmptyResponse, error) {
+	var role models.Role
+	role.ID = req.RoleId
 
-	if err := r.db.Querier.Delete(role); err != nil {
+	if err := r.db.Querier.Delete(&role); err != nil {
 		if ok := errors.As(err, &reform.ErrNoRows); ok {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -111,11 +109,9 @@ func (r *RoleService) DeleteRole(ctx context.Context, req *managementpb.RoleID) 
 }
 
 // GetRole retrieves a Role.
-func (r *RoleService) GetRole(ctx context.Context, req *managementpb.RoleID) (*managementpb.RoleData, error) {
-	role := &models.Role{
-		ID: req.RoleId,
-	}
-	if err := r.db.Querier.Reload(role); err != nil {
+func (r *RoleService) GetRole(_ context.Context, req *managementpb.RoleID) (*managementpb.RoleData, error) {
+	var role models.Role
+	if err := r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if ok := errors.As(err, &reform.ErrNoRows); ok {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -123,11 +119,11 @@ func (r *RoleService) GetRole(ctx context.Context, req *managementpb.RoleID) (*m
 		return nil, err
 	}
 
-	return roleToResponse(role), nil
+	return roleToResponse(&role), nil
 }
 
 // ListRoles lists all Roles.
-func (r *RoleService) ListRoles(ctx context.Context, req *managementpb.ListRolesRequest) (*managementpb.ListRolesResponse, error) {
+func (r *RoleService) ListRoles(_ context.Context, _ *managementpb.ListRolesRequest) (*managementpb.ListRolesResponse, error) {
 	rows, err := r.db.Querier.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
@@ -158,12 +154,12 @@ func roleToResponse(role *models.Role) *managementpb.RoleData {
 }
 
 // AssignRole assigns a Role to a user.
-func (r *RoleService) AssignRole(ctx context.Context, req *managementpb.AssignRoleRequest) (*managementpb.EmptyResponse, error) {
+//
+//nolint:unparam
+func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRoleRequest) (*managementpb.EmptyResponse, error) {
 	var err error
-	role := &models.Role{
-		ID: req.RoleId,
-	}
-	if err = r.db.Querier.Reload(role); err != nil {
+	var role models.Role
+	if err = r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
 		if ok := errors.As(err, &reform.ErrNoRows); ok {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
@@ -171,7 +167,7 @@ func (r *RoleService) AssignRole(ctx context.Context, req *managementpb.AssignRo
 		return nil, err
 	}
 
-	user := &models.UserDetails{}
+	var user *models.UserDetails
 	err = r.db.InTransaction(func(tx *reform.TX) error {
 		user, err = models.GetOrCreateUser(tx.Querier, int(req.UserId))
 		if err != nil {

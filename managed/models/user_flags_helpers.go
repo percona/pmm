@@ -16,6 +16,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,12 +38,17 @@ type UpdateUserParams struct {
 // GetOrCreateUser returns user and optionally creates it, if not in database yet.
 func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
 	userInfo, err := FindUser(q, userID)
-	if err == ErrNotFound {
+	if errors.Is(err, ErrNotFound) {
 		// User entry missing; create entry
 		params := CreateUserParams{
 			UserID: userID,
 		}
 		userInfo, err = CreateUser(q, &params)
+
+		// Handling race-condition
+		if errors.Is(err, ErrUserAlreadyExists) {
+			userInfo, err = FindUser(q, userID)
+		}
 	}
 
 	if err != nil {
@@ -50,6 +57,9 @@ func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
 
 	return userInfo, nil
 }
+
+// ErrUserAlreadyExists is returned when a user already exists in db.
+var ErrUserAlreadyExists = fmt.Errorf("UserAlreadyExists")
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
@@ -62,7 +72,7 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	err := q.Reload(row)
 	switch err {
 	case nil:
-		return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
+		return nil, ErrUserAlreadyExists
 	case reform.ErrNoRows:
 		break
 	default:
