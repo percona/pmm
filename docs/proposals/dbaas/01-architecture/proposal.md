@@ -113,6 +113,7 @@ The second part of the proposal is implementing the generic and simplified API t
 3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. Dbaas-operator can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
 4. Installation and upgrading of dbaas-operator will be managed by OLM as proposed above.
 5. Dbaas-operator opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries agains exposed/non-exposed database clusters. 
+6. PMM/DBaaS will have native integration with dbaas-operator via `client-go` package that will improve the overall performance on large-scale clusters 
 
 The sequential diagram illustrates a creation of PXC cluster
 
@@ -140,6 +141,118 @@ sequenceDiagram
     Note right of PMM UI:  Pagination is available by default as well as caches
     
 ```    
+
+#### Communication speed benchmarks
+
+Currently [dbaas-controller](https://github.com/percona-platform/dbaas-controller) implements proxy api to k8s Percona operators thus `dbaas-controller` needs to call k8s and gets data from k8s operators. That could be expensive call to k8s as api returns full spec and in case of 100 or 1000 of server it could be quite large and time consuming response.
+
+Also if there is no good connection to the k8s cluster situation would be much worse.
+
+Here are some measurements made against PMM in different setups (local PMM -> Remote k8s, Remote PMM inside the same cluster, Direct API calls against K8S)
+
+**PMM inside the same k8s cluster**
+
+```
+TIME="%e\n" time curl -k -s -o file.out --request POST --url https://172.105.146.244/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46VyUrMS5bVCszMV5LemQ7Nw==' --header 'content-type: application
+/json' --data '
+{
+     "kubernetes_cluster_name": "default-pmm-cluster"
+}
+'
+7.42
+
+TIME="%e\n" time curl -k -s -o file.out --request POST --url https://172.105.146.244/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46VyUrMS5bVCszMV5LemQ7Nw==' --header 'content-type: application/json' --data '
+{
+     "kubernetes_cluster_name": "default-pmm-cluster"
+}
+'
+7.90
+```
+
+**PMM runs on local machine and communicates with remote k8s cluster**
+
+```
+TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
+{
+     "kubernetes_cluster_name": "lke75856"
+}
+'
+
+TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
+{
+     "kubernetes_cluster_name": "lke75856"
+}
+'
+30.66
+
+TIME="%e\n" time curl -k -s -o file1.out --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
+{
+     "kubernetes_cluster_name": "lke75856"
+}
+'
+26.60
+
+TIME="%e\n" time curl -k -s --request POST --url https://localhost:8443/v1/management/DBaaS/DBClusters/List --header 'accept: application/json' --header 'authorization: Basic YWRtaW46YWRtaW4=' --header 'content-type: application/json' --data '
+{
+     "kubernetes_cluster_name": "lke75856"
+}
+'
+<html>
+<head><title>504 Gateway Time-out</title></head>
+<body>
+<center><h1>504 Gateway Time-out</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+60.04
+```
+
+**Listing database clusters that were created with crossplane (uses operator pattern).**
+
+```
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims?limit=5 | jq '.items | length'
+0.47
+5
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims?limit=5 | jq '.items | length'
+0.32
+5
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
+1.46
+20
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
+0.56
+20
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
+0.57
+20
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/dbaas.percona.com/v1alpha1/dbclaims | jq '.items | length'
+0.53
+20
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
+0.54
+10
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
+1.09
+10
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
+2.03
+10
+
+TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTEM_DEFAULT" $KUBE_API/apis/pxc.percona.com/v1/perconaxtradbclusters | jq '.items | length'
+1.36
+10
+```
+
+So, requesting a list of database clusters from dbaas-operator (it uses the same framework as well as crossplane) will improve request time drastically. In addition, PMM/DBaaS can use [client-go caches](https://pkg.go.dev/k8s.io/client-go/tools/cache) as well as [Limit and Continue](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ListOptions) params of metav1.ListOptions struct.
+
 
 ### User Stories
 
@@ -183,8 +296,6 @@ As a DBA, I should be able to tune performance for a database cluster.
 
 As a DBA(?), I should be able to view cluster resources available before creating a database.
 
-### Notes/Constraints/Caveats (Optional)
-### Risks and Mitigations
 
 ## Design Details
 
@@ -211,9 +322,7 @@ GET /dbaas/versions - get supported versions of database clusters
 GET /dbaas/operator-versions - get operators' versions information from OLM and
 PUT /dbaas/operator-versions - upgrade operator via OLM
 ```
-
-
-The database specification for the API or dbaas-operator
+Go struct that represents the payload to create/list database clusters 
 ```go
 type (
 	// EngineType stands for the supported database engines. Right now it's only pxc
@@ -288,12 +397,12 @@ const (
 )
 
 ```
+Since, the main focus for the PMM/DBaaS is to support AWS EKS clusters. The main focus is supporting managed kubernetes clusters as a main provider. However, the requirements can be changed and PMM/DBaaS may support bare-metal or EC2 setups. That adds additional constraints on the architecture. Everything related to the current implementation of k8s provider is located under `managed/services/dbaas` folder. However, it would be great to have `managed/services/dbaas/provider.go` file with the following interface
 
-The provider interface
 ```go
 // Provider is the interface that a developer should implement to add support of any other provider that required for DBaaS.
 // Currently, PMM supports only K8s/EKS provider but bare-metal setup or using EC2 instances support can be adopted by implementing this inteface
-Provider interface {
+type Provider interface {
   // ProvisionCluster provisions a specified cluster. In this case, it'll install
   // all required operators that we need (pxc, psmdb, dbaas-operator and victoria metrics
   // operator via OLM
@@ -316,6 +425,12 @@ Provider interface {
   UpdateClusterDependencies() error
 }
 ```
+Every additional provider should implement this interface. Kubernetes related implementations
+
+1. `managed/services/dbaas/kubernetes` is a parent package that implements generic `Provider`
+2. `managed/services/dbaas/kubernetes/k8sclient` contains the implementation using `client-go` to communicate with k8s cluster
+3. `managed/services/dbaas/kubernetes/olmclient` contains the implementation for `OLM`
+4. `managed/services/management/dbaas/` contains the REST API implementation for PMM UI and uses `managed/services/dbaas` package.
 
 ### Test Plan
 
@@ -331,20 +446,20 @@ During moving from dbaas-controller to dbaas-operator we'll keep the same user e
 // TBD
 ### Graduation Criteria
 // TBD
-### Upgrade / Downgrade Strategy
-// TBD
-### Version Skew Strategy
-// TBD
+
 ## Production Readiness Review Questionnaire
 ### Feature Enablement and Rollback
 // TBD
 ### Rollout, Upgrade and Rollback Planning
 // TBD
-### Monitoring Requirements
-// TBD
 ### Dependencies
-// TBD
+
+There will be a new dependencies added to the PMM
+1. client-go
+2. olmclient
+3. dbaas-operator
+4. 
+
 ### Scalability
 // TBD
-### Troubleshooting
-// TBD
+
