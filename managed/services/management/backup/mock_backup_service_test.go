@@ -4,6 +4,7 @@ package backup
 
 import (
 	context "context"
+	time "time"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -36,20 +37,20 @@ func (_m *mockBackupService) PerformBackup(ctx context.Context, params backup.Pe
 	return r0, r1
 }
 
-// RestoreBackup provides a mock function with given fields: ctx, serviceID, artifactID
-func (_m *mockBackupService) RestoreBackup(ctx context.Context, serviceID string, artifactID string) (string, error) {
-	ret := _m.Called(ctx, serviceID, artifactID)
+// RestoreBackup provides a mock function with given fields: ctx, serviceID, artifactID, pitrTimestamp
+func (_m *mockBackupService) RestoreBackup(ctx context.Context, serviceID string, artifactID string, pitrTimestamp time.Time) (string, error) {
+	ret := _m.Called(ctx, serviceID, artifactID, pitrTimestamp)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
-		r0 = rf(ctx, serviceID, artifactID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, time.Time) string); ok {
+		r0 = rf(ctx, serviceID, artifactID, pitrTimestamp)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = rf(ctx, serviceID, artifactID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, time.Time) error); ok {
+		r1 = rf(ctx, serviceID, artifactID, pitrTimestamp)
 	} else {
 		r1 = ret.Error(1)
 	}
