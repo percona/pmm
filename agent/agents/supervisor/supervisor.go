@@ -244,12 +244,11 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 }
 
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
-	s.agentStatuses.WithLabelValues(agentID).Set(float64(status))
-	s.agentStatusChangeTotal.WithLabelValues(agentID).Inc()
-
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
+	s.agentStatuses.WithLabelValues(agentID).Set(float64(status))
+	s.agentStatusChangeTotal.WithLabelValues(agentID).Inc()
 	if status == inventorypb.AgentStatus_DONE {
 		delete(s.lastStatuses, agentID)
 		return
@@ -697,28 +696,30 @@ func (s *Supervisor) stopAll() {
 
 // Describe implements prometheus.Collector.
 func (s *Supervisor) Describe(ch chan<- *prometheus.Desc) {
-	s.agentStatuses.Describe(ch)
-	s.agentStatusChangeTotal.Describe(ch)
-	s.agentQANBucketLength.Describe(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
 	for _, agent := range s.builtinAgents {
 		agent.describe(ch)
 	}
+
+	s.agentStatuses.Describe(ch)
+	s.agentStatusChangeTotal.Describe(ch)
+	s.agentQANBucketLength.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
 func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
-	s.agentStatuses.Collect(ch)
-	s.agentStatusChangeTotal.Collect(ch)
-	s.agentQANBucketLength.Collect(ch)
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
 	for _, agent := range s.builtinAgents {
 		agent.collect(ch)
 	}
+
+	s.agentStatuses.Collect(ch)
+	s.agentStatusChangeTotal.Collect(ch)
+	s.agentQANBucketLength.Collect(ch)
 }
 
 // check interfaces
