@@ -51,7 +51,7 @@ The main idea is to move from the dbaas-controller that manages operators’ ins
 
 In that case, the dbaas-operator provides Kubernetes native implementation of the creating/managing database clusters and acts like `unified operator to create any database cluster`. OLM installs and updates a version of the operators (psmdb, pxc, dbaas, victoria metrics).
 
-### Working with the operators 
+### Working with the operators
 
 An Operator catalog is a repository of metadata that Operator Lifecycle Manager (OLM) can query to discover and install Operators and their dependencies on a cluster. OLM always installs Operators from the latest version of a catalog. We can store Percona operators as well as Community operators inside Percona Catalog as shown below.
 
@@ -67,9 +67,11 @@ NAME                                      DISPLAY                               
 percona-xtradb-cluster-operator.v1.10.0   Percona Distribution for MySQL Operator   1.10.0    percona-xtradb-cluster-operator.v1.9.0   Installing
 ```
 
-In that case, PMM/DBaaS will have a consistent way to get operator version. In addition, OLM can manage a complex upgrades for operatos via [InstallPlan](https://olm.operatorframework.io/docs/concepts/crds/installplan/), [OperatorGroup](https://olm.operatorframework.io/docs/concepts/crds/operatorgroup/) or [UpgradeGraph](https://olm.operatorframework.io/docs/glossary/#update-graph)
+In that case, PMM/DBaaS will have a consistent way to get operator version. In addition, OLM can manage a complex upgrades for operatos via [InstallPlan](https://olm.operatorframework.io/docs/concepts/crds/installplan/), [OperatorGroup](https://olm.operatorframework.io/docs/concepts/crds/operatorgroup/) or [UpgradeGraph](https://olm.operatorframework.io/docs/glossary/#update-graph).
 
-### Working with the databases 
+![OLM Architecture](./olm_arch.jpg)
+
+### Working with the databases
 
 ## User Stories (Optional)
 
@@ -184,7 +186,7 @@ type (
 			// TDB
 		} `json:"backup,omitempty"`
 	}
-	
+
 )
 
 const (
@@ -197,29 +199,29 @@ const (
 The provider interface
 ```go
 // Provider is the interface that a developer should implement to add support of any other provider that required for DBaaS.
-	// Currently, PMM supports only K8s/EKS provider but bare-metal setup or using EC2 instances support can be adopted by implementing this inteface
-	Provider interface {
-		// ProvisionCluster provisions a specified cluster. In this case, it'll install
-		// all required operators that we need (pxc, psmdb, dbaas-operator and victoria metrics
-		// operator via OLM
-		ProvisionCluster() error
-		// CleanupCluster cleans up cluster and removes VM operator
-		// and, or, dbaas-operator, pxc operator and psmdb operator via --force tag.
-		// At the moment PMM should remove VM operator only and keep everything that related to databases
-		// untouched and the end user can decide what to clean
-		CleanupCluster() error
-		// CreateDatabase cluster creates a cluster by using Database struct
-		// and it'll make a request to dbaas-operator to create a database
-		CreateDatabase(Database) error
-		// EditDatabase edit's deployed database CR specs by using Database struct
-		EditDatabase(Database) error
-		// UpgradeDatabase upgrades database to a desired version
-		UpgradeDatabase(Database) error
-		// DestroyDatabase destroys a database from the cluster
-		DestroyDatabase(Database) error
-		// UpdateClusterDependencies upgrades cluster dependencies. For k8s it upgrades dbaas and database operators versions and CR configuration
-		UpdateClusterDependencies() error
-	}
+// Currently, PMM supports only K8s/EKS provider but bare-metal setup or using EC2 instances support can be adopted by implementing this inteface
+Provider interface {
+  // ProvisionCluster provisions a specified cluster. In this case, it'll install
+  // all required operators that we need (pxc, psmdb, dbaas-operator and victoria metrics
+  // operator via OLM
+  ProvisionCluster() error
+  // CleanupCluster cleans up cluster and removes VM operator
+  // and, or, dbaas-operator, pxc operator and psmdb operator via --force tag.
+  // At the moment PMM should remove VM operator only and keep everything that related to databases
+  // untouched and the end user can decide what to clean
+  CleanupCluster() error
+  // CreateDatabase cluster creates a cluster by using Database struct
+  // and it'll make a request to dbaas-operator to create a database
+  CreateDatabase(Database) error
+  // EditDatabase edit's deployed database CR specs by using Database struct
+  EditDatabase(Database) error
+  // UpgradeDatabase upgrades database to a desired version
+  UpgradeDatabase(Database) error
+  // DestroyDatabase destroys a database from the cluster
+  DestroyDatabase(Database) error
+  // UpdateClusterDependencies upgrades cluster dependencies. For k8s it upgrades dbaas and database operators versions and CR configuration
+  UpdateClusterDependencies() error
+}
 ```
 
 ### Test Plan
@@ -227,16 +229,29 @@ The provider interface
 During moving from dbaas-controller to dbaas-operator we'll keep the same user experience for the end user
 
 #### Prerequisite testing updates
+// TBD
 #### Unit tests
+// TBD
 #### Integration tests
+// TBD
 #### e2e tests
+// TBD
 ### Graduation Criteria
+// TBD
 ### Upgrade / Downgrade Strategy
+// TBD
 ### Version Skew Strategy
+// TBD
 ## Production Readiness Review Questionnaire
 ### Feature Enablement and Rollback
+// TBD
 ### Rollout, Upgrade and Rollback Planning
+// TBD
 ### Monitoring Requirements
+// TBD
 ### Dependencies
+// TBD
 ### Scalability
+// TBD
 ### Troubleshooting
+// TBD
