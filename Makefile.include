@@ -57,13 +57,15 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/alerting, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/azure and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
 		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
-		api/managementpb/json/managementpb.json
+		api/managementpb/json/managementpb.json \
+        api/managementpb/backup/json/backup.json \
+        api/managementpb/alerting/json/alerting.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
