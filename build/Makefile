@@ -2,7 +2,7 @@ export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
 
-## PACKER
+## ----------------- PACKER ------------------
 fetch:
 	mkdir -p ${PACKER_CACHE_DIR}/${CENTOS_ISO} || :
 	test -f ${PACKER_CACHE_DIR}/id_rsa_vagrant \
@@ -36,6 +36,7 @@ pmm2-ami:
                   -var 'pmm2_server_repo=experimental' \
                   -only amazon-ebs -color=false \
 				  packer/pmm2.json
+
 pmm2-ami-rc:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
@@ -44,5 +45,4 @@ pmm2-ami-rc:
 				  -only amazon-ebs '-color=false' \
 				  packer/pmm2.json
 
-
-## //PACKER
+## ----------------- PACKER ------------------
