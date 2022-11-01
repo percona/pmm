@@ -41,7 +41,10 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Non-goals
 
-// To be defined
+1. Bloat size of PMM docker container
+2. Overcomplicate architecture
+3. Overcomplicate the overall development process
+
 
 ## Proposal
 
