@@ -17,9 +17,16 @@ package agents
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"vitess.io/vitess/go/vt/proto/query"
+	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
@@ -45,8 +52,30 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 	}
 }
 
+func mysqlParser(example string) (string, uint32, error) {
+	normalizedQuery, _, err := sqlparser.Parse2(example)
+	if err != nil {
+		return "", 0, errors.Wrap(err, "cannot parse query")
+	}
+
+	bv := make(map[string]*query.BindVariable)
+	err = sqlparser.Normalize(normalizedQuery, sqlparser.NewReservedVars("", sqlparser.GetBindvars(normalizedQuery)), bv)
+	if err != nil {
+		return "", 0, errors.Wrap(err, "cannot normalize query")
+	}
+
+	parsedQuery := sqlparser.NewParsedQuery(normalizedQuery)
+	bindVars := sqlparser.GetBindvars(normalizedQuery)
+
+	return parsedQuery.Query, uint32(len(bindVars)), nil
+}
+
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
-func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
+	if query == "" && queryID == "" {
+		return status.Error(codes.FailedPrecondition, "query or query_id is required")
+	}
+
 	var q string
 	switch {
 	case queryID != "":
@@ -56,10 +85,11 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		}
 		q = res
 	default:
-		err := s.qanClient.QueryExists(ctx, serviceID, queryID)
+		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
 			return err
 		}
+		q = query
 	}
 
 	agent, err := s.r.get(pmmAgentID)
@@ -67,12 +97,24 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 		return err
 	}
 
+	parsed, placeholdersCount, err := mysqlParser(q)
+	if err != nil {
+		return err
+	}
+	if placeholdersCount != uint32(len(placeholders)) {
+		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
+	}
+
+	for k, v := range placeholders {
+		parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k), v, 1)
+	}
+
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
-				Query:        q,
+				Query:        parsed,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

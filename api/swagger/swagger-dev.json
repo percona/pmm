@@ -16908,8 +16908,11 @@
                   "x-order": 3
                 },
                 "placeholders": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 4
                 },
                 "query_id": {
@@ -17011,8 +17014,11 @@
                   "x-order": 3
                 },
                 "placeholders": {
-                  "type": "string",
+                  "type": "array",
                   "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 4
                 },
                 "query_id": {
