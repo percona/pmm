@@ -102,8 +102,44 @@ sequenceDiagram
     ManageD->>OLM: approve an subscription upgrade request
     Note left of OLM: A new version of operator is available 
 ```    
+This process makes version service usage for supported versions of operators obsolete because it gets the latest version of available operator from the catalog. However, the catalog can be managed by our team and we'll push only supported versions of operators to the catalog. This also will improve integration testing for unreleased versions of operators.
 
 ### Working with the databases
+
+The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the dbaas-operator will have the following benefits 
+
+1. Kubernetes native way to work with database clusters via unified and general specifications.
+2. PMM/DBaaS does need to care about the state of a managed database.
+3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. Dbaas-operator can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
+4. Installation and upgrading of dbaas-operator will be managed by OLM as proposed above.
+5. Dbaas-operator opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries agains exposed/non-exposed database clusters. 
+
+The sequential diagram illustrates a creation of PXC cluster
+
+```mermaid
+sequenceDiagram
+    autonumber
+    PMM UI->>ManageD: Create a Database cluster
+    Note right of PMM UI: (DatabaseType: PXC)
+    ManageD->>K8S: Create a Database Kind
+    K8S->>DBaaS Operator: Create a Database Kind object
+    DBaaS Operator->>PXC Operator: Create a PXC cluster
+    Note right of DBaaS Operator: Binds objects to each other
+    Note right of DBaaS Operator:  (Database->PerconaXtraDBCluster)
+    break when PXC cluster is in ready state
+    	PXC Operator->>Statefulset: provisions PXC cluster
+    end
+    Note right of PXC Operator: PXC Cluster is created
+    PMM UI->>ManageD: Get me a list of database clusters 
+    ManageD->>K8S: Get list of Database clusters 
+    K8S->>DBaaS Operator: Get list Database clusters
+    DBaaS Operator->>K8S: returns array of Database objects
+    Note right of K8S: They can be with DatabaseType either PXC or PSMDB
+    K8S->>ManageD: Returns list of databases
+    ManageD->>PMM UI: Returns list of database clusters
+    Note right of PMM UI:  Pagination is available by default as well as caches
+    
+```    
 
 ### User Stories
 
