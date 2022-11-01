@@ -1,4 +1,4 @@
-# Kubernetes-native implementation for DBaaS
+# Kubernetes-native implementation for PMM/DBaaS
 
 ## Summary
 
