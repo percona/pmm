@@ -79,8 +79,8 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	resulVector := r.(model.Vector)
 
 	var metrics []*pmmv1.ServerMetric_Metric
-	if config.DataJson != nil {
-		metrics, err = parseVMResultQueryToJsonString(config, resulVector)
+	if config.DataJSON != nil {
+		metrics, err = parseVMResultQueryToJSONString(config, resulVector)
 
 		if err != nil {
 			return nil, err
@@ -94,7 +94,7 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 
 func parseVMQueryResultToKeyValueMetrics(config Config, result model.Vector) []*pmmv1.ServerMetric_Metric {
 	var metrics []*pmmv1.ServerMetric_Metric
-	for _, v := range result { //nolint:forcetypeassert
+	for _, v := range result {
 		for _, configItem := range config.Data {
 			if configItem.Label != "" {
 				value, ok := v.Metric[model.LabelName(configItem.Label)]
@@ -117,17 +117,17 @@ func parseVMQueryResultToKeyValueMetrics(config Config, result model.Vector) []*
 	return metrics
 }
 
-func parseVMResultQueryToJsonString(config Config, result interface{}) ([]*pmmv1.ServerMetric_Metric, error) {
+func parseVMResultQueryToJSONString(config Config, result interface{}) ([]*pmmv1.ServerMetric_Metric, error) {
 	type payloadType []map[string]any
 	resultObj := make(map[string]payloadType)
 
-	metricName := config.DataJson.MetricName
+	metricName := config.DataJSON.MetricName
 
 	var metrics []*pmmv1.ServerMetric_Metric
 	for _, v := range result.(model.Vector) {
 		res := make(map[string]any)
 
-		for _, param := range config.DataJson.Params {
+		for _, param := range config.DataJSON.Params {
 			if param.Label != "" {
 				labelValue, ok := v.Metric[model.LabelName(param.Label)]
 				if ok {
@@ -146,7 +146,7 @@ func parseVMResultQueryToJsonString(config Config, result interface{}) ([]*pmmv1
 	}
 
 	metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-		Key:   config.DataJson.MetricName,
+		Key:   config.DataJSON.MetricName,
 		Value: string(jsonResponse),
 	})
 

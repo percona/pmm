@@ -99,7 +99,7 @@ type Config struct {
 	Query    string `yaml:"query"`
 	Summary  string `yaml:"summary"`
 	Data     []ConfigData
-	DataJson *DataJson `yaml:"data_json"`
+	DataJSON *DataJSON `yaml:"data_json"`
 }
 
 // ConfigData telemetry config.
@@ -118,8 +118,8 @@ type Param struct {
 	Value  string `yaml:"value"`
 }
 
-// DataJson specify config for output metric value in JSON format
-type DataJson struct {
+// DataJSON specify config for output metric value in JSON format
+type DataJSON struct {
 	MetricName string  `yaml:"metric_name"`
 	Params     []Param `yaml:"params"`
 }

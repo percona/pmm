@@ -50,7 +50,6 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 		vm     v1.API
 	}
 	type args struct {
-		ctx    context.Context
 		config Config
 	}
 	tests := []struct {
@@ -81,7 +80,7 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 							Label:      "machine",
 						},
 					},
-					DataJson: nil,
+					DataJSON: nil,
 				},
 			},
 			want: func() []testMetricResult {
@@ -120,7 +119,7 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 							Label:      "machine",
 						},
 					},
-					DataJson: &DataJson{
+					DataJSON: &DataJSON{
 						MetricName: "pmm_node_uname_info",
 						Params: []Param{
 							{
@@ -171,7 +170,7 @@ func Test_dataSourceVictoriaMetrics_FetchMetrics(t *testing.T) {
 					Source:  "VM",
 					Query:   "alertmanager_alerts",
 					Summary: "alerts of alertmanager",
-					DataJson: &DataJson{
+					DataJSON: &DataJSON{
 						MetricName: "pmm_alertmanager_alerts",
 						Params: []Param{
 							{
@@ -248,7 +247,7 @@ func makeTestCallToVM(query string) (model.Vector, error) {
 	api := v1.NewAPI(client)
 	r, _, err := api.Query(context.Background(), query, time.Now())
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	resulVector := r.(model.Vector)

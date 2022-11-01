@@ -58,7 +58,7 @@ func Test_fetchMetricsFromDB(t *testing.T) {
 					ID:     "Metric ID",
 					Source: "PMMDB_SELECT",
 					Query:  "agent_type, status from agents",
-					DataJson: &DataJson{
+					DataJSON: &DataJSON{
 						MetricName: "pmm_agents_status_info",
 						Params: []Param{
 							{
