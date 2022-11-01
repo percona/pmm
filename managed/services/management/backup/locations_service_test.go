@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -45,9 +45,9 @@ func TestCreateBackupLocation(t *testing.T) {
 		mock.Anything).Return("us-east-2", nil)
 	svc := NewLocationsService(db, mockedS3)
 	t.Run("add server config", func(t *testing.T) {
-		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -57,9 +57,9 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("add client config", func(t *testing.T) {
-		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		})
@@ -69,9 +69,9 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("add awsS3", func(t *testing.T) {
-		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			S3Config: &backupv1beta1.S3LocationConfig{
+			S3Config: &backuppb.S3LocationConfig{
 				Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 				AccessKey:  "access_key",
 				SecretKey:  "secret_key",
@@ -84,12 +84,12 @@ func TestCreateBackupLocation(t *testing.T) {
 	})
 
 	t.Run("multiple configs", func(t *testing.T) {
-		_, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		_, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
-			S3Config: &backupv1beta1.S3LocationConfig{
+			S3Config: &backuppb.S3LocationConfig{
 				Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 				AccessKey:  "access_key",
 				SecretKey:  "secret_key",
@@ -110,17 +110,17 @@ func TestListBackupLocations(t *testing.T) {
 		mock.Anything).Return("us-east-2", nil)
 	svc := NewLocationsService(db, mockedS3)
 
-	req1 := &backupv1beta1.AddLocationRequest{
+	req1 := &backuppb.AddLocationRequest{
 		Name: gofakeit.Name(),
-		PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+		FilesystemConfig: &backuppb.FilesystemLocationConfig{
 			Path: "/tmp",
 		},
 	}
 	res1, err := svc.AddLocation(ctx, req1)
 	require.Nil(t, err)
-	req2 := &backupv1beta1.AddLocationRequest{
+	req2 := &backuppb.AddLocationRequest{
 		Name: gofakeit.Name(),
-		S3Config: &backupv1beta1.S3LocationConfig{
+		S3Config: &backuppb.S3LocationConfig{
 			Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 			AccessKey:  "access_key",
 			SecretKey:  "secret_key",
@@ -131,10 +131,10 @@ func TestListBackupLocations(t *testing.T) {
 	require.Nil(t, err)
 
 	t.Run("list", func(t *testing.T) {
-		res, err := svc.ListLocations(ctx, &backupv1beta1.ListLocationsRequest{})
+		res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
 		require.Nil(t, err)
 
-		checkLocation := func(id string, req *backupv1beta1.AddLocationRequest) func() bool {
+		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
 			return func() bool {
 				for _, loc := range res.Locations {
 					if loc.LocationId == id {
@@ -142,7 +142,7 @@ func TestListBackupLocations(t *testing.T) {
 							return false
 						}
 						if req.S3Config != nil {
-							cfg := loc.Config.(*backupv1beta1.Location_S3Config)
+							cfg := loc.Config.(*backuppb.Location_S3Config)
 							if req.S3Config.Endpoint != cfg.S3Config.Endpoint ||
 								req.S3Config.AccessKey != cfg.S3Config.AccessKey ||
 								req.S3Config.SecretKey != cfg.S3Config.SecretKey ||
@@ -151,9 +151,9 @@ func TestListBackupLocations(t *testing.T) {
 							}
 
 						}
-						if req.PmmClientConfig != nil {
-							cfg := loc.Config.(*backupv1beta1.Location_PmmClientConfig)
-							if req.PmmClientConfig.Path != cfg.PmmClientConfig.Path {
+						if req.FilesystemConfig != nil {
+							cfg := loc.Config.(*backuppb.Location_FilesystemConfig)
+							if req.FilesystemConfig.Path != cfg.FilesystemConfig.Path {
 								return false
 							}
 						}
@@ -181,20 +181,20 @@ func TestChangeBackupLocation(t *testing.T) {
 		mock.Anything).Return("us-east-2", nil)
 	svc := NewLocationsService(db, mockedS3)
 	t.Run("update existing config", func(t *testing.T) {
-		loc, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		loc, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		})
 		require.NoError(t, err)
 		require.NotEmpty(t, loc.LocationId)
 
-		updateReq := &backupv1beta1.ChangeLocationRequest{
+		updateReq := &backuppb.ChangeLocationRequest{
 			LocationId:  loc.LocationId,
 			Name:        gofakeit.Name(),
 			Description: gofakeit.Quote(),
-			S3Config: &backupv1beta1.S3LocationConfig{
+			S3Config: &backuppb.S3LocationConfig{
 				Endpoint:   "https://example.com",
 				AccessKey:  "access_key",
 				SecretKey:  "secret_key",
@@ -208,7 +208,7 @@ func TestChangeBackupLocation(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, updateReq.Name, updatedLocation.Name)
 		assert.Equal(t, updateReq.Description, updatedLocation.Description)
-		assert.Nil(t, updatedLocation.PMMClientConfig)
+		assert.Nil(t, updatedLocation.FilesystemConfig)
 		require.NotNil(t, updatedLocation.S3Config)
 		assert.Equal(t, updateReq.S3Config.Endpoint, updatedLocation.S3Config.Endpoint)
 		assert.Equal(t, updateReq.S3Config.AccessKey, updatedLocation.S3Config.AccessKey)
@@ -217,9 +217,9 @@ func TestChangeBackupLocation(t *testing.T) {
 	})
 
 	t.Run("update only name", func(t *testing.T) {
-		addReq := &backupv1beta1.AddLocationRequest{
+		addReq := &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		}
@@ -227,7 +227,7 @@ func TestChangeBackupLocation(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, loc.LocationId)
 
-		updateReq := &backupv1beta1.ChangeLocationRequest{
+		updateReq := &backuppb.ChangeLocationRequest{
 			LocationId: loc.LocationId,
 			Name:       gofakeit.Name(),
 		}
@@ -237,32 +237,32 @@ func TestChangeBackupLocation(t *testing.T) {
 		updatedLocation, err := models.FindBackupLocationByID(db.Querier, loc.LocationId)
 		require.NoError(t, err)
 		assert.Equal(t, updateReq.Name, updatedLocation.Name)
-		require.NotNil(t, updatedLocation.PMMClientConfig)
-		assert.Equal(t, addReq.PmmClientConfig.Path, updatedLocation.PMMClientConfig.Path)
+		require.NotNil(t, updatedLocation.FilesystemConfig)
+		assert.Equal(t, addReq.FilesystemConfig.Path, updatedLocation.FilesystemConfig.Path)
 	})
 
 	t.Run("update to existing name", func(t *testing.T) {
 		name := gofakeit.Name()
-		_, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		_, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: name,
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		})
 		require.NoError(t, err)
 
-		loc2, err := svc.AddLocation(ctx, &backupv1beta1.AddLocationRequest{
+		loc2, err := svc.AddLocation(ctx, &backuppb.AddLocationRequest{
 			Name: gofakeit.Name(),
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		})
 		require.NoError(t, err)
 
-		updateReq := &backupv1beta1.ChangeLocationRequest{
+		updateReq := &backuppb.ChangeLocationRequest{
 			LocationId: loc2.LocationId,
 			Name:       name,
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: "/tmp",
 			},
 		}
@@ -278,9 +278,9 @@ func TestRemoveBackupLocation(t *testing.T) {
 
 	mockedS3 := &mockAwsS3{}
 	svc := NewLocationsService(db, mockedS3)
-	req := &backupv1beta1.AddLocationRequest{
+	req := &backuppb.AddLocationRequest{
 		Name: gofakeit.Name(),
-		PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+		FilesystemConfig: &backuppb.FilesystemLocationConfig{
 			Path: "/tmp",
 		},
 	}
@@ -293,7 +293,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	res3, err := svc.AddLocation(ctx, req)
 	require.NoError(t, err)
 
-	foundLocation := func(id string, locations []*backupv1beta1.Location) bool {
+	foundLocation := func(id string, locations []*backuppb.Location) bool {
 		for _, loc := range locations {
 			if loc.LocationId == id {
 				return true
@@ -302,17 +302,17 @@ func TestRemoveBackupLocation(t *testing.T) {
 		return false
 	}
 
-	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: res1.LocationId,
 	})
 	assert.NoError(t, err)
 
-	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: res3.LocationId,
 	})
 	assert.NoError(t, err)
 
-	res, err := svc.ListLocations(ctx, &backupv1beta1.ListLocationsRequest{})
+	res, err := svc.ListLocations(ctx, &backuppb.ListLocationsRequest{})
 	require.NoError(t, err)
 
 	assert.False(t, foundLocation(res1.LocationId, res.Locations))
@@ -320,7 +320,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	assert.True(t, foundLocation(res2.LocationId, res.Locations))
 
 	// Try to remove non-existing location
-	_, err = svc.RemoveLocation(ctx, &backupv1beta1.RemoveLocationRequest{
+	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: "non-existing",
 	})
 	assert.EqualError(t, err, `rpc error: code = NotFound desc = Backup location with ID "non-existing" not found.`)
@@ -339,13 +339,13 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 
 	tableTests := []struct {
 		name     string
-		req      *backupv1beta1.TestLocationConfigRequest
+		req      *backuppb.TestLocationConfigRequest
 		errorMsg string
 	}{
 		{
 			name: "client config - missing path",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				FilesystemConfig: &backuppb.FilesystemLocationConfig{
 					Path: "",
 				},
 			},
@@ -353,13 +353,13 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name:     "awsS3 config - missing config",
-			req:      &backupv1beta1.TestLocationConfigRequest{},
+			req:      &backuppb.TestLocationConfigRequest{},
 			errorMsg: "rpc error: code = InvalidArgument desc = Missing location config.",
 		},
 		{
 			name: "awsS3 config - missing endpoint",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "",
 					AccessKey:  "access_key",
 					SecretKey:  "secret_key",
@@ -370,8 +370,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - missing access key",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 					AccessKey:  "",
 					SecretKey:  "secret_key",
@@ -382,8 +382,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - missing secret key",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 					AccessKey:  "secret_key",
 					SecretKey:  "",
@@ -394,8 +394,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - missing bucket name",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "https://awsS3.us-west-2.amazonaws.com/",
 					AccessKey:  "secret_key",
 					SecretKey:  "example_key",
@@ -406,8 +406,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - invalid endpoint",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "#invalidendpoint",
 					AccessKey:  "secret_key",
 					SecretKey:  "example_key",
@@ -418,8 +418,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - invalid endpoint, path is not allowed",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "https://awsS3.us-west-2.amazonaws.com/path",
 					AccessKey:  "secret_key",
 					SecretKey:  "example_key",
@@ -430,8 +430,8 @@ func TestVerifyBackupLocationValidation(t *testing.T) {
 		},
 		{
 			name: "awsS3 config - invalid scheme",
-			req: &backupv1beta1.TestLocationConfigRequest{
-				S3Config: &backupv1beta1.S3LocationConfig{
+			req: &backuppb.TestLocationConfigRequest{
+				S3Config: &backuppb.S3LocationConfig{
 					Endpoint:   "tcp://awsS3.us-west-2.amazonaws.com",
 					AccessKey:  "secret_key",
 					SecretKey:  "example_key",
