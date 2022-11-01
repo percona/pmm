@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/backup/backups.proto
 
-package backupv1beta1
+package backupv1
 
 import (
 	context "context"
@@ -51,7 +51,7 @@ func NewBackupsClient(cc grpc.ClientConnInterface) BackupsClient {
 
 func (c *backupsClient) StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error) {
 	out := new(StartBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/StartBackup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/StartBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (c *backupsClient) StartBackup(ctx context.Context, in *StartBackupRequest,
 
 func (c *backupsClient) ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error) {
 	out := new(ListArtifactCompatibleServicesResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ListArtifactCompatibleServices", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/ListArtifactCompatibleServices", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *backupsClient) ListArtifactCompatibleServices(ctx context.Context, in *
 
 func (c *backupsClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
 	out := new(RestoreBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/RestoreBackup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/RestoreBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *backupsClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequ
 
 func (c *backupsClient) ScheduleBackup(ctx context.Context, in *ScheduleBackupRequest, opts ...grpc.CallOption) (*ScheduleBackupResponse, error) {
 	out := new(ScheduleBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ScheduleBackup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/ScheduleBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (c *backupsClient) ScheduleBackup(ctx context.Context, in *ScheduleBackupRe
 
 func (c *backupsClient) ListScheduledBackups(ctx context.Context, in *ListScheduledBackupsRequest, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error) {
 	out := new(ListScheduledBackupsResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ListScheduledBackups", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/ListScheduledBackups", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (c *backupsClient) ListScheduledBackups(ctx context.Context, in *ListSchedu
 
 func (c *backupsClient) ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error) {
 	out := new(ChangeScheduledBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/ChangeScheduledBackup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/ChangeScheduledBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (c *backupsClient) ChangeScheduledBackup(ctx context.Context, in *ChangeSch
 
 func (c *backupsClient) RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error) {
 	out := new(RemoveScheduledBackupResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/RemoveScheduledBackup", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/RemoveScheduledBackup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (c *backupsClient) RemoveScheduledBackup(ctx context.Context, in *RemoveSch
 
 func (c *backupsClient) GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error) {
 	out := new(GetLogsResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Backups/GetLogs", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Backups/GetLogs", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/StartBackup",
+		FullMethod: "/backup.v1.Backups/StartBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).StartBackup(ctx, req.(*StartBackupRequest))
@@ -219,7 +219,7 @@ func _Backups_ListArtifactCompatibleServices_Handler(srv interface{}, ctx contex
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/ListArtifactCompatibleServices",
+		FullMethod: "/backup.v1.Backups/ListArtifactCompatibleServices",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
@@ -237,7 +237,7 @@ func _Backups_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/RestoreBackup",
+		FullMethod: "/backup.v1.Backups/RestoreBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
@@ -255,7 +255,7 @@ func _Backups_ScheduleBackup_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/ScheduleBackup",
+		FullMethod: "/backup.v1.Backups/ScheduleBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).ScheduleBackup(ctx, req.(*ScheduleBackupRequest))
@@ -273,7 +273,7 @@ func _Backups_ListScheduledBackups_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/ListScheduledBackups",
+		FullMethod: "/backup.v1.Backups/ListScheduledBackups",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).ListScheduledBackups(ctx, req.(*ListScheduledBackupsRequest))
@@ -291,7 +291,7 @@ func _Backups_ChangeScheduledBackup_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/ChangeScheduledBackup",
+		FullMethod: "/backup.v1.Backups/ChangeScheduledBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).ChangeScheduledBackup(ctx, req.(*ChangeScheduledBackupRequest))
@@ -309,7 +309,7 @@ func _Backups_RemoveScheduledBackup_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/RemoveScheduledBackup",
+		FullMethod: "/backup.v1.Backups/RemoveScheduledBackup",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).RemoveScheduledBackup(ctx, req.(*RemoveScheduledBackupRequest))
@@ -327,7 +327,7 @@ func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Backups/GetLogs",
+		FullMethod: "/backup.v1.Backups/GetLogs",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BackupsServer).GetLogs(ctx, req.(*GetLogsRequest))
@@ -339,7 +339,7 @@ func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(int
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Backups_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1beta1.Backups",
+	ServiceName: "backup.v1.Backups",
 	HandlerType: (*BackupsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
