@@ -904,7 +904,7 @@ func main() {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker)
+	authServer := grafana.NewAuthServer(grafanaClient, awsInstanceChecker, db)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

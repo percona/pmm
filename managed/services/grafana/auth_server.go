@@ -27,9 +27,13 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 // rules maps original URL prefix to minimal required role.
@@ -88,6 +92,23 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
+var vmGatewayPrefixes = []string{
+	"/graph/api/datasources/proxy/1/api/v1/",
+	"/graph/api/ds/query",
+	"/graph/api/v1/labels",
+	"/prometheus/api/v1/",
+}
+
+type vmGatewayJWT struct {
+	VMAccess struct {
+		TenantID struct{} `json:"tenant_id"`
+	} `json:"vm_access"`
+	ExtraFilters []string `json:"extra_filters"`
+	Mode         int      `json:"mode"`
+
+	jwt.RegisteredClaims
+}
+
 // Only UI is blocked by setup wizard; APIs can be used.
 // Critically, AWSInstanceCheck must be available for the setup wizard itself to work;
 // and /agent.Agent/Connect and Management APIs should be available for pmm-agent on PMM Server registration.
@@ -114,20 +135,27 @@ type authError struct {
 	message string
 }
 
+// ErrInvalidUserID is returned when user ID is not valid.
+var ErrInvalidUserID = fmt.Errorf("InvalidUserID")
+
+// ErrCannotGetUserID is returned when we cannot retrieve user ID.
+var ErrCannotGetUserID = fmt.Errorf("CannotGetUserID")
+
 type cacheItem struct {
-	r       role
+	u       authUser
 	created time.Time
 }
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getRole(context.Context, http.Header) (role, error)
+	getRole(context.Context, http.Header) (authUser, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	c       clientInterface
 	checker awsInstanceChecker
+	db      *reform.DB
 	l       *logrus.Entry
 
 	cache map[string]cacheItem
@@ -137,10 +165,11 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
 	return &AuthServer{
 		c:       c,
 		checker: checker,
+		db:      db,
 		l:       logrus.WithField("component", "grafana/auth"),
 		cache:   make(map[string]cacheItem),
 	}
@@ -196,24 +225,112 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), 3*time.Second)
 	defer cancel()
 
-	if err := s.authenticate(ctx, req, l); err != nil {
-		// nginx completely ignores auth_request subrequest response body.
-		// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
-		// the same request as a normal request to the same location and returns response body to the client.
-
+	authUser, err := s.authenticate(ctx, req, l)
+	if err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]interface{}{
 			"code":    int(err.code),
 			"error":   err.message,
 			"message": err.message,
 		}
-		rw.Header().Set("Content-Type", "application/json")
+		s.returnError(rw, m, l)
+		return
+	}
 
-		rw.WriteHeader(authenticationErrorCode)
-		if err := json.NewEncoder(rw).Encode(m); err != nil {
-			l.Warnf("%s", err)
+	var userID int
+	if authUser != nil {
+		userID = authUser.userID
+	}
+
+	if err := s.maybeAddVMGatewayToken(ctx, rw, req, userID, l); err != nil {
+		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
+		m := map[string]interface{}{
+			"code":    int(codes.Internal),
+			"error":   "Internal server error.",
+			"message": "Internal server error.",
+		}
+		l.Errorf("Failed to add VM Gateway token: %s", err)
+
+		s.returnError(rw, m, l)
+		return
+	}
+}
+
+func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *logrus.Entry) {
+	// nginx completely ignores auth_request subrequest response body.
+	// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
+	// the same request as a normal request to the same location and returns response body to the client.
+	rw.Header().Set("Content-Type", "application/json")
+
+	rw.WriteHeader(authenticationErrorCode)
+	if err := json.NewEncoder(rw).Encode(msg); err != nil {
+		l.Warnf("%s", err)
+	}
+}
+
+// maybeAddVMGatewayToken adds authorization token to requests proxied to VictoriaMetrics Gateway.
+// In case the request is not proxied to the gateway, this is a no-op.
+func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+	addAuthToken := false
+	for _, p := range vmGatewayPrefixes {
+		if strings.HasPrefix(req.URL.Path, p) {
+			addAuthToken = true
+			break
 		}
 	}
+
+	if !addAuthToken {
+		return nil
+	}
+
+	if userID == 0 {
+		l.Debugf("Getting authenticated user info")
+		authUser, err := s.getAuthUser(ctx, req, l)
+		if err != nil {
+			return fmt.Errorf("%w", ErrCannotGetUserID)
+		}
+
+		if authUser == nil {
+			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
+		}
+
+		userID = authUser.userID
+	}
+
+	if userID <= 0 {
+		return fmt.Errorf("%w", ErrInvalidUserID)
+	}
+
+	user, err := models.GetOrCreateUser(s.db.Querier, userID)
+	if err != nil {
+		return err
+	}
+
+	if user.RoleID <= 0 {
+		return nil
+	}
+
+	var role models.Role
+	err = s.db.FindByPrimaryKeyTo(&role, user.RoleID)
+	if err != nil {
+		return err
+	}
+
+	var claims vmGatewayJWT
+	claims.ExtraFilters = []string{role.Filter}
+	claims.Mode = 1
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(300 * time.Second))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// VM Gateway does not validate the signature
+	ss, err := token.SignedString([]byte("notvalidated"))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	rw.Header().Set("X-Percona-Token", "Bearer "+ss)
+
+	return nil
 }
 
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
@@ -307,7 +424,11 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) *authError {
+// authenticate checks if user has access to a specific path.
+// It returns user information retrieved during authentication.
+// Paths which require no Grafana role return zero value for
+// some fields such as authUser.userID.
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// find the longest prefix present in rules
 	prefix := req.URL.Path
 	for prefix != "/" {
@@ -328,9 +449,32 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	if minRole == none {
 		l.Debugf("Minimal required role is %q, granting access without checking Grafana.", minRole)
-		return nil
+		return nil, nil
 	}
 
+	// Get authenticated user from Grafana
+	authUser, err := s.getAuthUser(ctx, req, l)
+	if err != nil {
+		return nil, err
+	}
+
+	l = l.WithField("role", authUser.role.String())
+
+	if authUser.role == grafanaAdmin {
+		l.Debugf("Grafana admin, allowing access.")
+		return authUser, nil
+	}
+
+	if minRole <= authUser.role {
+		l.Debugf("Minimal required role is %q, granting access.", minRole)
+		return authUser, nil
+	}
+
+	l.Warnf("Minimal required role is %q.", minRole)
+	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
+}
+
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := make(http.Header)
 	for _, k := range []string{
@@ -344,48 +488,38 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
-	var role role
 	s.rw.RLock()
 	item, ok := s.cache[hash]
 	s.rw.RUnlock()
 	if ok {
-		role = item.r
+		return &item.u, nil
 	} else {
-		role, err = s.c.getRole(ctx, authHeaders)
-		if err != nil {
-			l.Warnf("%s", err)
-			if cErr, ok := errors.Cause(err).(*clientError); ok {
-				code := codes.Internal
-				if cErr.Code == 401 || cErr.Code == 403 {
-					code = codes.Unauthenticated
-				}
-				return &authError{code: code, message: cErr.ErrorMessage}
+		return s.retrieveRole(ctx, hash, authHeaders, l)
+	}
+}
+
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+	authUser, err := s.c.getRole(ctx, authHeaders)
+	if err != nil {
+		l.Warnf("%s", err)
+		if cErr, ok := errors.Cause(err).(*clientError); ok {
+			code := codes.Internal
+			if cErr.Code == 401 || cErr.Code == 403 {
+				code = codes.Unauthenticated
 			}
-			return &authError{code: codes.Internal, message: "Internal server error."}
+			return nil, &authError{code: code, message: cErr.ErrorMessage}
 		}
-		s.rw.Lock()
-		s.cache[hash] = cacheItem{
-			r:       role,
-			created: time.Now(),
-		}
-		s.rw.Unlock()
+		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
-
-	l = l.WithField("role", role.String())
-
-	if role == grafanaAdmin {
-		l.Debugf("Grafana admin, allowing access.")
-		return nil
+	s.rw.Lock()
+	s.cache[hash] = cacheItem{
+		u:       authUser,
+		created: time.Now(),
 	}
+	s.rw.Unlock()
 
-	if minRole <= role {
-		l.Debugf("Minimal required role is %q, granting access.", minRole)
-		return nil
-	}
-
-	l.Warnf("Minimal required role is %q.", minRole)
-	return &authError{code: codes.PermissionDenied, message: "Access denied."}
+	return &authUser, nil
 }

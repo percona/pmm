@@ -43,7 +43,8 @@ func TestClient(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
 			t.Parallel()
 
-			role, err := c.getRole(ctx, authHeaders)
+			u, err := c.getRole(ctx, authHeaders)
+			role := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
 			assert.Equal(t, "GrafanaAdmin", role.String())
@@ -55,7 +56,8 @@ func TestClient(t *testing.T) {
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
 
-			role, err := c.getRole(ctx, nil)
+			u, err := c.getRole(ctx, nil)
+			role := u.role
 			clientError, _ := errors.Cause(err).(*clientError)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
@@ -91,7 +93,8 @@ func TestClient(t *testing.T) {
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
 
-			actualRole, err := c.getRole(ctx, userAuthHeaders)
+			u, err := c.getRole(ctx, userAuthHeaders)
+			actualRole := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
 			assert.Equal(t, viewer.String(), actualRole.String())
@@ -120,7 +123,8 @@ func TestClient(t *testing.T) {
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
 
-				actualRole, err := c.getRole(ctx, userAuthHeaders)
+				u, err := c.getRole(ctx, userAuthHeaders)
+				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
@@ -145,7 +149,8 @@ func TestClient(t *testing.T) {
 				apiKeyAuthHeaders := http.Header{}
 				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-				actualRole, err := c.getRole(ctx, apiKeyAuthHeaders)
+				u, err := c.getRole(ctx, apiKeyAuthHeaders)
+				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())

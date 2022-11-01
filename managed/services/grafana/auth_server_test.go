@@ -63,7 +63,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -106,7 +106,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -132,7 +132,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker)
+		s := NewAuthServer(nil, checker, nil)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -159,7 +159,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker)
+	s := NewAuthServer(c, checker, nil)
 
 	req, err := http.NewRequest("GET", "/dummy", nil)
 	require.NoError(t, err)
@@ -173,7 +173,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, res)
 	})
 
@@ -183,7 +183,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		req, err := http.NewRequest("GET", "/foo", nil)
 		require.NoError(t, err)
 
-		res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
@@ -245,7 +245,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
-				res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+				_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
