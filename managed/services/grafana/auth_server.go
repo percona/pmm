@@ -301,19 +301,34 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 		return fmt.Errorf("%w", ErrInvalidUserID)
 	}
 
-	user, err := models.GetOrCreateUser(s.db.Querier, userID)
+	token, err := s.getAuthToken(userID)
 	if err != nil {
 		return err
 	}
 
-	if user.RoleID <= 0 {
+	if token == "" {
 		return nil
+	}
+
+	rw.Header().Set("X-Percona-Token", "Bearer "+token)
+
+	return nil
+}
+
+func (s *AuthServer) getAuthToken(userID int) (string, error) {
+	user, err := models.GetOrCreateUser(s.db.Querier, userID)
+	if err != nil {
+		return "", err
+	}
+
+	if user.RoleID <= 0 {
+		return "", nil
 	}
 
 	var role models.Role
 	err = s.db.FindByPrimaryKeyTo(&role, user.RoleID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var claims vmGatewayJWT
@@ -325,12 +340,10 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 	// VM Gateway does not validate the signature
 	ss, err := token.SignedString([]byte("notvalidated"))
 	if err != nil {
-		return errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	rw.Header().Set("X-Percona-Token", "Bearer "+ss)
-
-	return nil
+	return ss, nil
 }
 
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
@@ -505,7 +518,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getRole(ctx, authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok {
+		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
 				code = codes.Unauthenticated

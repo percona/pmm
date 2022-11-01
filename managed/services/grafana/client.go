@@ -219,14 +219,20 @@ func (c *Client) getRole(ctx context.Context, authHeaders http.Header) (authUser
 	// Check if it's API Key
 	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
 		role, err := c.getRoleForAPIKey(ctx, authHeaders)
-		return authUser{role: role}, err
+		return authUser{
+			role:   role,
+			userID: 0,
+		}, err
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
 	var m map[string]interface{}
 	err := c.do(ctx, "GET", "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		return authUser{role: none}, err
+		return authUser{
+			role:   none,
+			userID: 0,
+		}, err
 	}
 
 	id, _ := m["id"].(float64)

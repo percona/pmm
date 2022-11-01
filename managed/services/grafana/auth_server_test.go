@@ -279,12 +279,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}(t)
 
-	checker := &mockAwsInstanceChecker{}
+	var checker mockAwsInstanceChecker
 	checker.Test(t)
 	defer checker.AssertExpectations(t)
 
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, db)
+	s := NewAuthServer(c, &checker, db)
 	r := management.NewRoleService(db)
 
 	role, err := r.CreateRole(ctx, &managementpb.RoleData{
@@ -308,10 +308,11 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		_, err := models.GetOrCreateUser(db.Querier, userID)
 		require.NoError(t, err)
 
-		r.AssignRole(ctx, &managementpb.AssignRoleRequest{
+		_, err = r.AssignRole(ctx, &managementpb.AssignRoleRequest{
 			RoleId: uint32(roleID),
 			UserId: uint32(userID),
 		})
+		require.NoError(t, err)
 	}
 
 	t.Run("shall properly evaluate adding token", func(t *testing.T) {
@@ -330,7 +331,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
 					t.Parallel()
 					rw := httptest.NewRecorder()
-					req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+					req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 					require.NoError(t, err)
 					if userID == 0 {
 						req.SetBasicAuth("admin", "admin")

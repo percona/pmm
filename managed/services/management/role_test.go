@@ -51,6 +51,8 @@ func TestRoleService(t *testing.T) {
 
 	s := NewRoleService(db)
 	teardown := func(t *testing.T) {
+		t.Helper()
+
 		_, err := db.Querier.DeleteFrom(models.RoleTable, "")
 		require.NoError(t, err)
 		_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
