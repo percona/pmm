@@ -61,14 +61,9 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 		return nil, err
 	}
 
-	userInfo := &models.UserDetails{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		userInfo, err = models.GetOrCreateUser(tx.Querier, userID)
-		return err
-	})
-
-	if e != nil {
-		return nil, e
+	userInfo, err := models.GetOrCreateUser(s.db.Querier, userID)
+	if err != nil {
+		return nil, err
 	}
 
 	resp := &userpb.UserDetailsResponse{
