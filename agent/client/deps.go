@@ -46,6 +46,7 @@ type supervisor interface {
 	Changes() <-chan *agentpb.StateChangedRequest
 	QANRequests() <-chan *agentpb.QANCollectRequest
 	SetState(*agentpb.SetStateRequest)
+	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
