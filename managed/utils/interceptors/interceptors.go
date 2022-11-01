@@ -28,6 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -88,9 +89,7 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	// set logger
 	l := logrus.WithField("request", logger.MakeRequestID())
 	ctx = logger.SetEntry(ctx, l)
-	// @TODO PMM-10948 set source from HTTP header referer
-	source := grpc_prometheus.External
-	ctx = grpc_prometheus.SetSourceToCtx(ctx, source)
+	ctx = grpc_prometheus.SetSourceToCtx(ctx, parseSource(ctx, info.FullMethod))
 
 	var res interface{}
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
@@ -120,6 +119,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 		}
 	}
 	ctx = logger.SetEntry(ctx, l)
+	ctx = grpc_prometheus.SetSourceToCtx(ctx, parseSource(ctx, info.FullMethod))
 
 	err := logRequest(l, "Stream "+info.FullMethod, func() error {
 		wrapped := grpc_middleware.WrapServerStream(ss)
@@ -127,6 +127,20 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 		return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
 	})
 	return err
+}
+
+func parseSource(ctx context.Context, method string) grpc_prometheus.Source {
+	if method == "/server.Server/Readiness" || method == "/agent.Agent/Connect" {
+		return grpc_prometheus.Internal
+	}
+
+	headers, _ := metadata.FromIncomingContext(ctx)
+
+	if len(headers.Get("grpcgateway-referer")) == 0 {
+		return grpc_prometheus.External
+	}
+
+	return grpc_prometheus.Internal
 }
 
 // check interfaces
