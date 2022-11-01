@@ -72,7 +72,36 @@ percona-xtradb-cluster-operator.v1.10.0   Percona Distribution for MySQL Operato
 
 In that case, PMM/DBaaS will have a consistent way to get operator version. In addition, OLM can manage a complex upgrades for operatos via [InstallPlan](https://olm.operatorframework.io/docs/concepts/crds/installplan/), [OperatorGroup](https://olm.operatorframework.io/docs/concepts/crds/operatorgroup/) or [UpgradeGraph](https://olm.operatorframework.io/docs/glossary/#update-graph).
 
+A high-level architecture diagram of OLM
 ![OLM Architecture](./olm_arch.jpg)
+
+High-level sequence diagram that illustraces an Installation and upgrading process inside PMM/DBaaS in terms of end user
+
+```mermaid
+sequenceDiagram
+    autonumber
+    PMM UI->>ManageD: Add kubernetes cluster
+    ManageD->>K8S: Install OLM
+    break when olm is installed 
+    	K8S->>OLM: provisions an OLM
+    end
+    Note right of K8S: OLM is provisioned!
+    ManageD->>OLM: Install required operators and create a manual subscription 
+    OLM->>Catalog: Gets the latest version of the operator 
+    loop when subscription is created 
+        OLM->>Catalog: manages subscription and checks for a new version
+    end
+    Note right of OLM: A new version of operator is available
+    OLM->>Catalog: Downloads and installs a new version of operator and waiting for a user approval to switch to a new version.
+    PMM UI->>ManageD: Check for operator update
+    ManageD->>OLM: Is there an update available?
+    OLM->>ManageD: Sure. I downloaded it for you and waiting for your approval to switch to a new version
+    ManageD->>PMM UI: Yeah, there's a new version of operator available
+    Note left of PMM UI: A user approved the upgrade request
+    PMM UI->> ManageD: approve a new version of operator
+    ManageD->>OLM: approve an subscription upgrade request
+    Note left of OLM: A new version of operator is available 
+```    
 
 ### Working with the databases
 
