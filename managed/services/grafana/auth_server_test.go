@@ -284,21 +284,21 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, &checker, db)
 
-	var role *models.Role
-	role.Title = "Role A"
-	role.Filter = "filter A"
-	err := models.CreateRole(db.Querier, role)
+	var roleA models.Role
+	roleA.Title = "Role A"
+	roleA.Filter = "filter A"
+	err := models.CreateRole(db.Querier, &roleA)
 	require.NoError(t, err)
 
-	var roleB *models.Role
+	var roleB models.Role
 	roleB.Title = "Role B"
 	roleB.Filter = "filter B"
-	err = models.CreateRole(db.Querier, roleB)
+	err = models.CreateRole(db.Querier, &roleB)
 	require.NoError(t, err)
 
 	for userID, roleID := range map[int]int{
-		1337: int(role.ID),
-		1:    int(role.ID),
+		1337: int(roleA.ID),
+		1:    int(roleA.ID),
 	} {
 		_, err := models.GetOrCreateUser(db.Querier, userID)
 		require.NoError(t, err)
