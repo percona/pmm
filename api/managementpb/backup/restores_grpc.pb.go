@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/backup/restores.proto
 
-package backupv1beta1
+package backupv1
 
 import (
 	context "context"
@@ -37,7 +37,7 @@ func NewRestoreHistoryClient(cc grpc.ClientConnInterface) RestoreHistoryClient {
 
 func (c *restoreHistoryClient) ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error) {
 	out := new(ListRestoreHistoryResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.RestoreHistory/ListRestoreHistory", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.RestoreHistory/ListRestoreHistory", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func _RestoreHistory_ListRestoreHistory_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.RestoreHistory/ListRestoreHistory",
+		FullMethod: "/backup.v1.RestoreHistory/ListRestoreHistory",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RestoreHistoryServer).ListRestoreHistory(ctx, req.(*ListRestoreHistoryRequest))
@@ -94,7 +94,7 @@ func _RestoreHistory_ListRestoreHistory_Handler(srv interface{}, ctx context.Con
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RestoreHistory_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1beta1.RestoreHistory",
+	ServiceName: "backup.v1.RestoreHistory",
 	HandlerType: (*RestoreHistoryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
