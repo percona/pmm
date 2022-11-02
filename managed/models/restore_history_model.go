@@ -50,12 +50,13 @@ func (rs RestoreStatus) Validate() error {
 //
 //reform:restore_history
 type RestoreHistoryItem struct {
-	ID         string        `reform:"id,pk"`
-	ArtifactID string        `reform:"artifact_id"`
-	ServiceID  string        `reform:"service_id"`
-	Status     RestoreStatus `reform:"status"`
-	StartedAt  time.Time     `reform:"started_at"`
-	FinishedAt *time.Time    `reform:"finished_at"`
+	ID            string        `reform:"id,pk"`
+	ArtifactID    string        `reform:"artifact_id"`
+	ServiceID     string        `reform:"service_id"`
+	PITRTimestamp *time.Time    `reform:"pitr_timestamp"`
+	Status        RestoreStatus `reform:"status"`
+	StartedAt     time.Time     `reform:"started_at"`
+	FinishedAt    *time.Time    `reform:"finished_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
