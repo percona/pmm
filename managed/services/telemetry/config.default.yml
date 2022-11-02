@@ -49,7 +49,6 @@ telemetry:
       - metric_name: "pmm_server_updates_disabled"
         column: "updates_disabled"
 
-
   # Services Information
   - id: MySQLVersion
     source: VM
