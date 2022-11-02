@@ -45,7 +45,7 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 		return err
 	}
 
-	user, err := GetOrCreateUser(tx.Querier, int(userID))
+	user, err := GetOrCreateUser(tx.Querier, userID)
 	if err != nil {
 		return err
 	}
