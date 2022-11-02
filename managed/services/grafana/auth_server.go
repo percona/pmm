@@ -510,9 +510,9 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	s.rw.RUnlock()
 	if ok {
 		return &item.u, nil
-	} else {
-		return s.retrieveRole(ctx, hash, authHeaders, l)
 	}
+
+	return s.retrieveRole(ctx, hash, authHeaders, l)
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
