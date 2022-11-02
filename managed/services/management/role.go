@@ -52,7 +52,7 @@ func (r *RoleService) CreateRole(_ context.Context, req *managementpb.RoleData) 
 	role.Title = req.Title
 	role.Filter = req.Filter
 
-	if err := r.db.Querier.Insert(&role); err != nil {
+	if err := models.CreateRole(r.db.Querier, &role); err != nil {
 		return nil, err
 	}
 
@@ -157,29 +157,9 @@ func roleToResponse(role *models.Role) *managementpb.RoleData {
 //
 //nolint:unparam
 func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRoleRequest) (*managementpb.EmptyResponse, error) {
-	var err error
-	var role models.Role
-	if err = r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-		if ok := errors.As(err, &reform.ErrNoRows); ok {
-			return nil, status.Errorf(codes.NotFound, "Role not found")
-		}
-
-		return nil, err
-	}
-
-	var user *models.UserDetails
-	err = r.db.InTransaction(func(tx *reform.TX) error {
-		user, err = models.GetOrCreateUser(tx.Querier, int(req.UserId))
-		if err != nil {
-			return err
-		}
-
-		user.RoleID = role.ID
-		err = tx.UpdateColumns(user, "role_id")
-
-		return err
+	err := r.db.InTransaction(func(tx *reform.TX) error {
+		return models.AssignRole(tx, int(req.UserId), int(req.RoleId))
 	})
-
 	if err != nil {
 		return nil, err
 	}

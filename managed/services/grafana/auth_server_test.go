@@ -32,9 +32,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services/management"
 	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -285,32 +283,31 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, &checker, db)
-	r := management.NewRoleService(db)
 
-	role, err := r.CreateRole(ctx, &managementpb.RoleData{
-		RoleId: 0,
+	role := &models.Role{
+		ID:     0,
 		Title:  "Role A",
 		Filter: "filter A",
-	})
+	}
+	err := models.CreateRole(db.Querier, role)
 	require.NoError(t, err)
 
-	_, err = r.CreateRole(ctx, &managementpb.RoleData{
-		RoleId: 0,
+	err = models.CreateRole(db.Querier, &models.Role{
+		ID:     0,
 		Title:  "Role B",
 		Filter: "filter B",
 	})
 	require.NoError(t, err)
 
 	for userID, roleID := range map[int]int{
-		1337: int(role.RoleId),
-		1:    int(role.RoleId),
+		1337: int(role.ID),
+		1:    int(role.ID),
 	} {
 		_, err := models.GetOrCreateUser(db.Querier, userID)
 		require.NoError(t, err)
 
-		_, err = r.AssignRole(ctx, &managementpb.AssignRoleRequest{
-			RoleId: uint32(roleID),
-			UserId: uint32(userID),
+		err = db.InTransaction(func(tx *reform.TX) error {
+			return models.AssignRole(tx, userID, roleID)
 		})
 		require.NoError(t, err)
 	}
