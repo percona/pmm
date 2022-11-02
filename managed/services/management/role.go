@@ -161,6 +161,9 @@ func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRole
 		return models.AssignRole(tx, int(req.UserId), int(req.RoleId))
 	})
 	if err != nil {
+		if errors.Is(err, models.ErrRoleNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Role not found")
+		}
 		return nil, err
 	}
 
