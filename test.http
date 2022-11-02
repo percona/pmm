@@ -1,0 +1,35 @@
+@ck=1285fa81c4d2ee3c38178b04f2d056b3
+###
+{{
+request.headers.cookie = 'grafana_session='+ck
+}}
+PUT http://localhost/v1/management/Role HTTP/1.1
+Content-type: application/json; charset=utf8
+Accept: application/json
+
+{
+    "title": "Role B",
+    "filter": "{env=\"prod\"}"
+}
+
+###
+{{
+request.headers.cookie = 'grafana_session='+ck
+}}
+GET http://localhost/v1/management/Role/List
+Content-type: application/json; charset=utf8
+Accept: application/json
+
+###
+POST http://localhost/v1/management/Role/Assign
+Content-type: application/json; charset=utf8
+Accept: application/json
+
+{
+    "user_id": 1,
+    "role_id": 3
+}
+
+GET http://localhost/prometheus/api/v1/
+Content-type: application/json; charset=utf8
+Accept: application/json
