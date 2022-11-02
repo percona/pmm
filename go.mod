@@ -76,20 +76,6 @@ require (
 )
 
 require (
-	github.com/golang/glog v1.0.0 // indirect
-	github.com/opentracing-contrib/go-grpc v0.0.0-20180928155321-4b5a12d3ff02 // indirect
-	github.com/philhofer/fwd v1.0.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/tinylib/msgp v1.1.1 // indirect
-	github.com/uber/jaeger-client-go v2.16.0+incompatible // indirect
-	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	gopkg.in/DataDog/dd-trace-go.v1 v1.17.0 // indirect
-	k8s.io/apimachinery v0.20.6 // indirect
-	vitess.io/vitess v0.15.0 // indirect
-)
-
-require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.0 // indirect
@@ -144,7 +130,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/miekg/dns v1.1.49 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
