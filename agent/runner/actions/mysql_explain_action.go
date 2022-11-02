@@ -76,7 +76,6 @@ func (a *mysqlExplainAction) Type() string {
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
-
 	query := a.query
 	isDMLQuery := isDMLQuery(query)
 	if isDMLQuery {

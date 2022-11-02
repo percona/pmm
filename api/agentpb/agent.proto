@@ -153,17 +153,12 @@ message StartActionRequest {
   message MySQLExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
-    // Deprecated: should not be used, should be removed.
     string query = 2;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 5;
-    // Values for placeholders in query.
-    repeated string placeholders = 6;
-    // ID of query.
-    string query_id = 7;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
@@ -223,10 +218,6 @@ message StartActionRequest {
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 3;
-    // Values for placeholders in query.
-    repeated string placeholders = 4;
-    // ID of query.
-    string query_id = 5;
   }
   // PTSummaryParams describes parameters for PT summary.
   message PTSummaryParams {}
@@ -263,10 +254,6 @@ message StartActionRequest {
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 4;
-    // Values for placeholders in query.
-    repeated string placeholders = 5;
-    // ID of query.
-    string query_id = 6;
   }
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
@@ -278,10 +265,6 @@ message StartActionRequest {
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 4;
-    // Values for placeholders in query.
-    repeated string placeholders = 5;
-    // ID of query.
-    string query_id = 6;
   }
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
@@ -302,10 +285,6 @@ message StartActionRequest {
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 4;
-    // Values for placeholders in query.
-    repeated string placeholders = 5;
-    // ID of query.
-    string query_id = 6;
   }
   // MongoDBQueryGetParameterParams describes MongoDB getParameter query action parameters.
   message MongoDBQueryGetParameterParams {
