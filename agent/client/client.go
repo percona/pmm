@@ -99,7 +99,7 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		defaultsFileParser: dfp,
 		cus:                cus,
 		logStore:           logStore,
-		connectionUptime: prometheus.NewGauge(prometheus.GaugeOpts{
+		connectionUptime: prometheus.NewGauge(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: `pmm_agent`,
 			Name:      `connection_uptime`,
 			Help:      `Connection uptime between pmm-agent and server in seconds`,

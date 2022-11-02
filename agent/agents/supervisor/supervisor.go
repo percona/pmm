@@ -119,19 +119,19 @@ func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports
 
 		logLinesCount: logLinesCount,
 
-		agentStatuses: *prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		agentStatuses: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "agent_statuses",
 			Help:      "An integer between 0 and 6 that represent agent status. [invalid, starting, running, waiting, stopping, done, unknown]",
 		}, []string{labelAgentID}),
-		agentStatusChangeTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{
+		agentStatusChangeTotal: *prometheus.NewCounterVec(prometheus.CounterOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "agent_status_changes_total",
 			Help:      "A total number of agent status changes.",
 		}, []string{labelAgentID}),
-		agentQANBucketLength: *prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		agentQANBucketLength: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "agent_qan_bucket_length",
