@@ -14198,12 +14198,12 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Deprecated: should not be used, should be removed.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
                 },
@@ -14215,8 +14215,8 @@
                   },
                   "x-order": 4
                 },
-                "query_id": {
-                  "description": "Query ID of query. Query ID or query is required.",
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
                   "x-order": 5
                 }
@@ -14304,12 +14304,12 @@
                   "x-order": 1
                 },
                 "query": {
-                  "description": "Deprecated: should not be used, should be removed.",
+                  "description": "Query ID or query is required.\nValue of query.",
                   "type": "string",
                   "x-order": 2
                 },
-                "database": {
-                  "description": "Database name. Required if it can't be deduced from the query ID.",
+                "query_id": {
+                  "description": "Query ID of query.",
                   "type": "string",
                   "x-order": 3
                 },
@@ -14321,8 +14321,8 @@
                   },
                   "x-order": 4
                 },
-                "query_id": {
-                  "description": "Query ID of query. Query ID or query is required.",
+                "database": {
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
                   "x-order": 5
                 }
