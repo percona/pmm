@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ type LocationsService struct {
 	s3 awsS3
 	l  *logrus.Entry
 
-	backupv1beta1.UnimplementedLocationsServer
+	backuppb.UnimplementedLocationsServer
 }
 
 // NewLocationsService creates new backup locations API service.
@@ -58,12 +58,12 @@ func (s *LocationsService) Enabled() bool {
 }
 
 // ListLocations returns list of all available backup locations.
-func (s *LocationsService) ListLocations(ctx context.Context, req *backupv1beta1.ListLocationsRequest) (*backupv1beta1.ListLocationsResponse, error) {
+func (s *LocationsService) ListLocations(ctx context.Context, req *backuppb.ListLocationsRequest) (*backuppb.ListLocationsResponse, error) {
 	locations, err := models.FindBackupLocations(s.db.Querier)
 	if err != nil {
 		return nil, err
 	}
-	res := make([]*backupv1beta1.Location, len(locations))
+	res := make([]*backuppb.Location, len(locations))
 	for i, location := range locations {
 		loc, err := convertLocation(location)
 		if err != nil {
@@ -71,13 +71,13 @@ func (s *LocationsService) ListLocations(ctx context.Context, req *backupv1beta1
 		}
 		res[i] = loc
 	}
-	return &backupv1beta1.ListLocationsResponse{
+	return &backuppb.ListLocationsResponse{
 		Locations: res,
 	}, nil
 }
 
 // AddLocation adds new backup location.
-func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.AddLocationRequest) (*backupv1beta1.AddLocationResponse, error) {
+func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLocationRequest) (*backuppb.AddLocationResponse, error) {
 	params := models.CreateBackupLocationParams{
 		Name:        req.Name,
 		Description: req.Description,
@@ -92,9 +92,9 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		params.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		params.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 
@@ -127,13 +127,13 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backupv1beta1.A
 		return nil, err
 	}
 
-	return &backupv1beta1.AddLocationResponse{
+	return &backuppb.AddLocationResponse{
 		LocationId: locationModel.ID,
 	}, nil
 }
 
 // ChangeLocation changes existing backup location.
-func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta1.ChangeLocationRequest) (*backupv1beta1.ChangeLocationResponse, error) {
+func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.ChangeLocationRequest) (*backuppb.ChangeLocationResponse, error) {
 	params := models.ChangeBackupLocationParams{
 		Name:        req.Name,
 		Description: req.Description,
@@ -148,9 +148,9 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		params.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		params.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 	if err := params.Validate(models.BackupLocationValidationParams{
@@ -180,14 +180,14 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backupv1beta
 		return nil, err
 	}
 
-	return &backupv1beta1.ChangeLocationResponse{}, nil
+	return &backuppb.ChangeLocationResponse{}, nil
 }
 
 // TestLocationConfig tests backup location and credentials.
 func (s *LocationsService) TestLocationConfig(
 	ctx context.Context,
-	req *backupv1beta1.TestLocationConfigRequest,
-) (*backupv1beta1.TestLocationConfigResponse, error) {
+	req *backuppb.TestLocationConfigRequest,
+) (*backuppb.TestLocationConfigResponse, error) {
 	var locationConfig models.BackupLocationConfig
 
 	if req.S3Config != nil {
@@ -199,9 +199,9 @@ func (s *LocationsService) TestLocationConfig(
 		}
 	}
 
-	if req.PmmClientConfig != nil {
-		locationConfig.PMMClientConfig = &models.PMMClientLocationConfig{
-			Path: req.PmmClientConfig.Path,
+	if req.FilesystemConfig != nil {
+		locationConfig.FilesystemConfig = &models.FilesystemLocationConfig{
+			Path: req.FilesystemConfig.Path,
 		}
 	}
 
@@ -218,11 +218,11 @@ func (s *LocationsService) TestLocationConfig(
 		}
 	}
 
-	return &backupv1beta1.TestLocationConfigResponse{}, nil
+	return &backuppb.TestLocationConfigResponse{}, nil
 }
 
 // RemoveLocation removes backup location.
-func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta1.RemoveLocationRequest) (*backupv1beta1.RemoveLocationResponse, error) {
+func (s *LocationsService) RemoveLocation(ctx context.Context, req *backuppb.RemoveLocationRequest) (*backuppb.RemoveLocationResponse, error) {
 	mode := models.RemoveRestrict
 	if req.Force {
 		mode = models.RemoveCascade
@@ -235,27 +235,27 @@ func (s *LocationsService) RemoveLocation(ctx context.Context, req *backupv1beta
 		return nil, err
 	}
 
-	return &backupv1beta1.RemoveLocationResponse{}, nil
+	return &backuppb.RemoveLocationResponse{}, nil
 }
 
-func convertLocation(locationModel *models.BackupLocation) (*backupv1beta1.Location, error) {
-	loc := &backupv1beta1.Location{
+func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, error) {
+	loc := &backuppb.Location{
 		LocationId:  locationModel.ID,
 		Name:        locationModel.Name,
 		Description: locationModel.Description,
 	}
 	switch locationModel.Type {
-	case models.PMMClientBackupLocationType:
-		config := locationModel.PMMClientConfig
-		loc.Config = &backupv1beta1.Location_PmmClientConfig{
-			PmmClientConfig: &backupv1beta1.PMMClientLocationConfig{
+	case models.FilesystemBackupLocationType:
+		config := locationModel.FilesystemConfig
+		loc.Config = &backuppb.Location_FilesystemConfig{
+			FilesystemConfig: &backuppb.FilesystemLocationConfig{
 				Path: config.Path,
 			},
 		}
 	case models.S3BackupLocationType:
 		config := locationModel.S3Config
-		loc.Config = &backupv1beta1.Location_S3Config{
-			S3Config: &backupv1beta1.S3LocationConfig{
+		loc.Config = &backuppb.Location_S3Config{
+			S3Config: &backuppb.S3LocationConfig{
 				Endpoint:   config.Endpoint,
 				AccessKey:  config.AccessKey,
 				SecretKey:  config.SecretKey,
@@ -299,5 +299,5 @@ func (s *LocationsService) checkBucket(ctx context.Context, c *models.S3Location
 
 // Check interfaces.
 var (
-	_ backupv1beta1.LocationsServer = (*LocationsService)(nil)
+	_ backuppb.LocationsServer = (*LocationsService)(nil)
 )

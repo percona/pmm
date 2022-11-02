@@ -2,11 +2,11 @@
 // source: managementpb/backup/restores.proto
 
 /*
-Package backupv1beta1 is a reverse proxy.
+Package backupv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package backupv1beta1
+package backupv1
 
 import (
 	"context"
@@ -78,7 +78,7 @@ func RegisterRestoreHistoryHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -140,7 +140,7 @@ func RegisterRestoreHistoryHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
