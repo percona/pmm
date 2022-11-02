@@ -42,7 +42,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20221019084503-3649d46509df
+	github.com/percona-platform/dbaas-api v0.0.0-20221028174156-63d3677a3825
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
@@ -60,13 +60,13 @@ require (
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.1
 	go.mongodb.org/mongo-driver v1.10.3
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
+	go.starlark.net v0.0.0-20220928063852-5fccb4daaf6d
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab
+	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.1.12
-	google.golang.org/genproto v0.0.0-20220822174746-9e6da59bd2fc
+	google.golang.org/genproto v0.0.0-20220930163606-c98284e70a91
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
@@ -74,6 +74,8 @@ require (
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require github.com/percona-platform/dbaas-controller v0.1.3-0.20221101144458-c3ca50c5994b // indirect
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
@@ -130,7 +132,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
 	github.com/miekg/dns v1.1.49 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -171,9 +173,9 @@ require (
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
-	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/net v0.0.0-20221004154528-8021a29435af // indirect
+	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1 // indirect
+	golang.org/x/term v0.0.0-20220919170432-7a66f970e087 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gotest.tools/v3 v3.3.0 // indirect
