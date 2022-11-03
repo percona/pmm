@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/backup/locations.proto
 
-package backupv1beta1
+package backupv1
 
 import (
 	context "context"
@@ -45,7 +45,7 @@ func NewLocationsClient(cc grpc.ClientConnInterface) LocationsClient {
 
 func (c *locationsClient) ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error) {
 	out := new(ListLocationsResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/ListLocations", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Locations/ListLocations", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *locationsClient) ListLocations(ctx context.Context, in *ListLocationsRe
 
 func (c *locationsClient) AddLocation(ctx context.Context, in *AddLocationRequest, opts ...grpc.CallOption) (*AddLocationResponse, error) {
 	out := new(AddLocationResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/AddLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Locations/AddLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (c *locationsClient) AddLocation(ctx context.Context, in *AddLocationReques
 
 func (c *locationsClient) ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*ChangeLocationResponse, error) {
 	out := new(ChangeLocationResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/ChangeLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Locations/ChangeLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *locationsClient) ChangeLocation(ctx context.Context, in *ChangeLocation
 
 func (c *locationsClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error) {
 	out := new(RemoveLocationResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/RemoveLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Locations/RemoveLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (c *locationsClient) RemoveLocation(ctx context.Context, in *RemoveLocation
 
 func (c *locationsClient) TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error) {
 	out := new(TestLocationConfigResponse)
-	err := c.cc.Invoke(ctx, "/backup.v1beta1.Locations/TestLocationConfig", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/backup.v1.Locations/TestLocationConfig", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,7 +150,7 @@ func _Locations_ListLocations_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/ListLocations",
+		FullMethod: "/backup.v1.Locations/ListLocations",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).ListLocations(ctx, req.(*ListLocationsRequest))
@@ -168,7 +168,7 @@ func _Locations_AddLocation_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/AddLocation",
+		FullMethod: "/backup.v1.Locations/AddLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).AddLocation(ctx, req.(*AddLocationRequest))
@@ -186,7 +186,7 @@ func _Locations_ChangeLocation_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/ChangeLocation",
+		FullMethod: "/backup.v1.Locations/ChangeLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).ChangeLocation(ctx, req.(*ChangeLocationRequest))
@@ -204,7 +204,7 @@ func _Locations_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/RemoveLocation",
+		FullMethod: "/backup.v1.Locations/RemoveLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).RemoveLocation(ctx, req.(*RemoveLocationRequest))
@@ -222,7 +222,7 @@ func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/backup.v1beta1.Locations/TestLocationConfig",
+		FullMethod: "/backup.v1.Locations/TestLocationConfig",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationsServer).TestLocationConfig(ctx, req.(*TestLocationConfigRequest))
@@ -234,7 +234,7 @@ func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Locations_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1beta1.Locations",
+	ServiceName: "backup.v1.Locations",
 	HandlerType: (*LocationsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

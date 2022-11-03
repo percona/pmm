@@ -732,6 +732,35 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings - 'ia' || jsonb_build_object('alerting', settings->'ia');`,
 		`UPDATE ia_rules SET disabled = TRUE`,
 	},
+	67: {
+		`UPDATE agents
+		SET log_level = 'error'
+		WHERE log_level = 'fatal'
+		AND agent_type IN (
+			'node_exporter',
+			'mysqld_exporter',
+			'postgres_exporter'
+		);`,
+	},
+	68: {
+		`ALTER TABLE agents
+			ADD COLUMN max_query_length INTEGER NOT NULL DEFAULT 0`,
+
+		`ALTER TABLE agents
+			ALTER COLUMN max_query_length DROP DEFAULT`,
+	},
+	69: {
+		`ALTER TABLE backup_locations
+			DROP COLUMN pmm_server_config`,
+	},
+	70: {
+		`ALTER TABLE restore_history
+			ADD COLUMN pitr_timestamp TIMESTAMP`,
+	},
+	71: {
+		`ALTER TABLE backup_locations
+			RENAME COLUMN pmm_client_config TO filesystem_config`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

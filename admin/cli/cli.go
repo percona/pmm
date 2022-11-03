@@ -29,10 +29,23 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
+	"github.com/percona/pmm/admin/commands/pmm/client"
+	"github.com/percona/pmm/admin/commands/pmm/server"
 )
 
-// Commands stores all commands, flags and arguments.
-type Commands struct {
+// GlobalFlagsGetter supports retrieving GlobalFlags.
+type GlobalFlagsGetter interface {
+	GetGlobalFlags() *flags.GlobalFlags
+}
+
+// Check interfaces.
+var (
+	_ GlobalFlagsGetter = &PMMAdminCommands{} //nolint:exhaustruct
+	_ GlobalFlagsGetter = &PMMCommands{}      //nolint:exhaustruct
+)
+
+// PMMAdminCommands stores all commands, flags and arguments for the "pmm-admin" binary.
+type PMMAdminCommands struct {
 	flags.GlobalFlags
 
 	Status     commands.StatusCommand       `cmd:"" help:"Show information about local pmm-agent"`
@@ -46,6 +59,34 @@ type Commands struct {
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *PMMAdminCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return run(ctx, globals)
+}
+
+func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
+	return &c.GlobalFlags
+}
+
+// PMMCommands stores all commands, flags and arguments for the "pmm" binary.
+type PMMCommands struct {
+	flags.GlobalFlags
+
+	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
+	Client client.BaseCommand `cmd:"" help:"PMM client related commands"`
+}
+
+func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
+	return &c.GlobalFlags
+}
+
+// Run function is a top-level function which handles running all commands
+// in a standard way based on the interface they implement.
+func (c *PMMCommands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+	return run(ctx, globals)
 }
 
 // CmdRunner represents a command to be run without arguments.
@@ -63,9 +104,7 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(context.Context, *flags.GlobalFlags) (commands.Result, error)
 }
 
-// Run function is a top-level function which handles running all commands
-// in a standard way based on the interface they implement.
-func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
+func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
 
@@ -82,7 +121,7 @@ func (c *Commands) Run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 		panic("The command does not implement RunCmd()")
 	}
 
-	return printResponse(&c.GlobalFlags, res, err)
+	return printResponse(globals, res, err)
 }
 
 func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) error {
@@ -99,8 +138,10 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		os.Exit(1)
 
 	case *exec.ExitError: // from config command that execs `pmm-agent setup`
-		printExitError(opts, res, err)
-		os.Exit(err.ExitCode())
+		if res != nil {
+			printExitError(opts, res, err)
+			os.Exit(err.ExitCode())
+		}
 	}
 
 	return err

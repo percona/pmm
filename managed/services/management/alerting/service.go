@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -282,7 +281,7 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Templ
 			return nil, ctx.Err()
 		}
 
-		data, err := ioutil.ReadFile(path) //nolint:gosec
+		data, err := os.ReadFile(path) //nolint:gosec
 		if err != nil {
 			s.l.Warnf("Failed to load rule template file %s.", path)
 			continue
@@ -334,7 +333,7 @@ func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 				Type:    alert.Type(param.Type),
 			}
 
-			switch alert.Type(param.Type) {
+			switch alert.Type(param.Type) { //nolint:exhaustive
 			case alert.Float:
 				f := param.FloatParam
 
@@ -777,8 +776,6 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	if err = transformMaps(template.Annotations, annotations, paramsValues.AsStringMap()); err != nil {
 		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
 	}
-	annotations["rule"] = req.Name
-	annotations["summary"] = template.Summary
 
 	labels := make(map[string]string)
 	// Copy labels form template

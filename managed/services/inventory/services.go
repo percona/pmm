@@ -35,7 +35,7 @@ type ServicesService struct {
 	vc    versionCache
 }
 
-// NewServicesService creates new ServicesService
+// NewServicesService creates new ServicesService.
 func NewServicesService(
 	db *reform.DB,
 	r agentsRegistry,
@@ -53,6 +53,7 @@ func NewServicesService(
 }
 
 // List selects all Services in a stable order.
+//
 //nolint:unparam
 func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilters) ([]inventorypb.Service, error) {
 	var servicesM []*models.Service
@@ -75,7 +76,42 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 	return res, nil
 }
 
+// ListActiveServiceTypes lists all active Service Types
+//
+//nolint:unparam
+func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]inventorypb.ServiceType, error) {
+	var types []models.ServiceType
+	e := ss.db.InTransaction(func(tx *reform.TX) error {
+		var err error
+		types, err = models.FindActiveServiceTypes(tx.Querier)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	res := make([]inventorypb.ServiceType, 0, len(types))
+	for _, t := range types {
+		switch t {
+		case models.MySQLServiceType:
+			res = append(res, inventorypb.ServiceType_MYSQL_SERVICE) //nolint:nosnakecase
+		case models.MongoDBServiceType:
+			res = append(res, inventorypb.ServiceType_MONGODB_SERVICE) //nolint:nosnakecase
+		case models.PostgreSQLServiceType:
+			res = append(res, inventorypb.ServiceType_POSTGRESQL_SERVICE) //nolint:nosnakecase
+		case models.ProxySQLServiceType:
+			res = append(res, inventorypb.ServiceType_PROXYSQL_SERVICE) //nolint:nosnakecase
+		case models.HAProxyServiceType:
+			res = append(res, inventorypb.ServiceType_HAPROXY_SERVICE) //nolint:nosnakecase
+		case models.ExternalServiceType:
+			res = append(res, inventorypb.ServiceType_EXTERNAL_SERVICE) //nolint:nosnakecase
+		}
+	}
+	return res, nil
+}
+
 // Get selects a single Service by ID.
+//
 //nolint:unparam
 func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) {
 	service := &models.Service{}
@@ -96,6 +132,7 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 }
 
 // AddMySQL inserts MySQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
 	service := &models.Service{}
@@ -122,6 +159,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 }
 
 // AddMongoDB inserts MongoDB Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
 	service := &models.Service{}
@@ -145,6 +183,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 }
 
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
 	service := &models.Service{}
@@ -168,6 +207,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 }
 
 // AddProxySQL inserts ProxySQL Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ProxySQLService, error) {
 	service := &models.Service{}
@@ -210,6 +250,7 @@ func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models
 }
 
 // AddExternalService inserts External Service with given parameters.
+//
 //nolint:dupl,unparam
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventorypb.ExternalService, error) {
 	service := &models.Service{}

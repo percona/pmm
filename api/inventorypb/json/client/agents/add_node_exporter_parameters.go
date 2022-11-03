@@ -52,10 +52,12 @@ func NewAddNodeExporterParamsWithHTTPClient(client *http.Client) *AddNodeExporte
 	}
 }
 
-/* AddNodeExporterParams contains all the parameters to send to the API endpoint
-   for the add node exporter operation.
+/*
+AddNodeExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add node exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type AddNodeExporterParams struct {
 	// Body.

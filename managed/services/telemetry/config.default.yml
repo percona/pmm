@@ -8,6 +8,22 @@ telemetry:
       - metric_name: "pmm_server_ia_enabled"
         column: "ia_enabled"
 
+  - id: PMMServerAlertsFire
+    source: VM
+    query: max_over_time(grafana_alerting_alerts{state="alerting"}[24h])
+    summary: "Maximum number of active concurrent alerts in the last 24 hours"
+    data:
+      - metric_name: "pmm_server_alerts_firing_max_24h"
+        value: 1
+
+  - id: PMMServerAlertRulesNumber
+    source: VM
+    query: grafana_alerting_schedule_alert_rules
+    summary: "Number of Alerts configured"
+    data:
+      - metric_name: "pmm_server_alert_rules_number"
+        value: 1
+
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
@@ -60,6 +76,46 @@ telemetry:
       - metric_name: "mysql_version_comment"
         label: "version_comment"
 
+  - id: MySQLEngineRocksDBCount
+    source: VM
+    query: count({__name__="mysql_global_variables_rocksdb_block_cache_size"})
+    summary: "Number of monitored MySQL services with RocksDB Engine"
+    data:
+      - metric_name: "mysql_rocksdb_count"
+        value: 1
+
+  - id: MySQLInnodbBufferPoolSize
+    source: VM
+    query: mysql_global_variables_innodb_buffer_pool_size
+    summary: "InnoDB buffer pool size"
+    data:
+      - metric_name: "mysql_global_variables_innodb_buffer_pool_size"
+        value: 1
+
+  - id: MySQLAvgThreadsRunning
+    source: VM
+    query: avg by (service) (avg_over_time(mysql_global_status_threads_running[1d]))
+    summary: "Average number of running threads for last day"
+    data:
+      - metric_name: "mysql_global_status_threads_running"
+        value: 1
+
+  - id: MySQLAvgQueriesRunning
+    source: VM
+    query: avg by (service_name) (rate(mysql_global_status_commands_total{command=~"select|delete|update|insert"}[1d]))
+    summary: "Average number of running queries"
+    data:
+      - metric_name: "mysql_global_status_queries_running"
+        value: 1
+
+  - id: MySQLInnodbSpaceUsed
+    source: VM
+    query: sum(count(mysql_info_schema_table_version{engine="InnoDB"}) by (schema,table) * sum (mysql_info_schema_table_size{component=~"data_length|index_length"}) by (schema,table))
+    summary: "Data usage of MySQL"
+    data:
+      - metric_name: "mysql_innodb_space_used"
+        value: 1
+
   - id: MongoDBVersion
     source: VM
     query: mongodb_version_info{service_type="mongodb"}
@@ -67,6 +123,72 @@ telemetry:
     data:
       - metric_name: "mongodb_version"
         label: "mongodb"
+
+  - id: MongoDBExporterMetricsGeneralStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="general"}
+    summary: "Runtime for general collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_general"
+        value : 1
+
+  - id: MongoDBExporterMetricsDiagnosticDataStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="diagnostic_data"}
+    summary: "Runtime for diagnostic data collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
+        value : 1
+
+  - id: MongoDBExporterMetricsCollectionStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="collstats"}
+    summary: "Runtime for collection statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_collstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsDBStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="dbstats"}
+    summary: "Runtime for database statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_dbstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsIndexStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="indexstats"}
+    summary: "Runtime for index statistics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_indexstats"
+        value : 1
+
+  - id: MongoDBExporterMetricsTopStats
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="top"}
+    summary: "Runtime for top metrics collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_top"
+        value : 1
+
+  - id: MongoDBExporterMetricsReplicationStatus
+    source: VM
+    query: collector_scrape_time_ms{exporter="mongodb",collector="replset_status"}
+    summary: "Runtime for replication status collector of MongoDB exporter"
+    data:
+      - metric_name: "mongodb_collector_scrape_time_replset_status"
+        value : 1
+
+  - id: MongoDBEdition
+    source: VM
+    query: mongodb_version_info{service_type="mongodb"}
+    summary: "Monitored MongoDB edition"
+    data:
+      - metric_name: "mongodb_edition"
+        label: "edition"
+      - metric_name: "mongodb_vendor"
+        label: "vendor"
 
   - id: PMMPostgresDBVersion
     source: VM
@@ -116,6 +238,14 @@ telemetry:
     summary: "Active monthly users"
     data:
       - metric_name: "pmm_server_grafana_stat_active_users"
+        value: 1
+
+  - id: GrafanaStatTotalOrgs
+    source: VM
+    query: grafana_stat_total_orgs
+    summary: "Total Grafana organisations"
+    data:
+      - metric_name: "pmm_server_grafana_stat_total_orgs"
         value: 1
 
   - id: GrafanaStatTotalsAnnotations

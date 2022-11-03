@@ -46,6 +46,7 @@ func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, 
 }
 
 // List returns a list of all Nodes.
+//
 //nolint:unparam
 func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]inventorypb.Node, error) {
 	var nodes []*models.Node
@@ -69,6 +70,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 }
 
 // Get returns a single Node by ID.
+//
 //nolint:unparam
 func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) {
 	modelNode := &models.Node{}
@@ -93,6 +95,7 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 }
 
 // AddGenericNode adds Generic Node.
+//
 //nolint:unparam
 func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
 	params := &models.CreateNodeParams{
@@ -128,6 +131,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 }
 
 // AddContainerNode adds Container Node.
+//
 //nolint:unparam
 func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
 	params := &models.CreateNodeParams{
@@ -164,6 +168,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 }
 
 // AddRemoteNode adds Remote Node.
+//
 //nolint:unparam
 func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
 	params := &models.CreateNodeParams{
@@ -197,6 +202,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 }
 
 // AddRemoteRDSNode adds a new RDS node
+//
 //nolint:unparam
 func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.RemoteRDSNode, error) {
 	params := &models.CreateNodeParams{
@@ -230,6 +236,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 }
 
 // AddRemoteAzureDatabaseNode adds a new Azure database node
+//
 //nolint:unparam,dupl
 func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventorypb.AddRemoteAzureDatabaseNodeRequest) (*inventorypb.RemoteAzureDatabaseNode, error) {
 	params := &models.CreateNodeParams{

@@ -172,7 +172,7 @@ func FindChannelsByIDs(q *reform.Querier, ids []string) ([]*Channel, error) {
 	}
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE id IN (%s) ORDER BY id", p) //nolint:gosec
+	tail := fmt.Sprintf("WHERE id IN (%s) ORDER BY id", p)
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id

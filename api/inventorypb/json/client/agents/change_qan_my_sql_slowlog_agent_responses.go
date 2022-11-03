@@ -50,7 +50,8 @@ func NewChangeQANMySQLSlowlogAgentOK() *ChangeQANMySQLSlowlogAgentOK {
 	return &ChangeQANMySQLSlowlogAgentOK{}
 }
 
-/* ChangeQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
+/*
+ChangeQANMySQLSlowlogAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewChangeQANMySQLSlowlogAgentDefault(code int) *ChangeQANMySQLSlowlogAgentD
 	}
 }
 
-/* ChangeQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
+/*
+ChangeQANMySQLSlowlogAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ChangeQANMySQLSlowlogAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentBody change QAN my SQL slowlog agent body
+/*
+ChangeQANMySQLSlowlogAgentBody change QAN my SQL slowlog agent body
 swagger:model ChangeQANMySQLSlowlogAgentBody
 */
 type ChangeQANMySQLSlowlogAgentBody struct {
@@ -209,7 +212,8 @@ func (o *ChangeQANMySQLSlowlogAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentDefaultBody change QAN my SQL slowlog agent default body
+/*
+ChangeQANMySQLSlowlogAgentDefaultBody change QAN my SQL slowlog agent default body
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBody
 */
 type ChangeQANMySQLSlowlogAgentDefaultBody struct {
@@ -312,7 +316,8 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 change QAN my SQL slowlog agent default body details items0
+/*
+ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 change QAN my SQL slowlog agent default body details items0
 swagger:model ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0
 */
 type ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0 struct {
@@ -348,7 +353,8 @@ func (o *ChangeQANMySQLSlowlogAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentOKBody change QAN my SQL slowlog agent OK body
+/*
+ChangeQANMySQLSlowlogAgentOKBody change QAN my SQL slowlog agent OK body
 swagger:model ChangeQANMySQLSlowlogAgentOKBody
 */
 type ChangeQANMySQLSlowlogAgentOKBody struct {
@@ -436,7 +442,8 @@ func (o *ChangeQANMySQLSlowlogAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
 */
 type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
@@ -469,6 +476,9 @@ type ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit)
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
@@ -650,7 +660,8 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b
 	return nil
 }
 
-/*ChangeQANMySQLSlowlogAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*
+ChangeQANMySQLSlowlogAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeQANMySQLSlowlogAgentParamsBodyCommon
 */
 type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {

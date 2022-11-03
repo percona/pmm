@@ -50,7 +50,8 @@ func NewAddQANPostgreSQLPgStatMonitorAgentOK() *AddQANPostgreSQLPgStatMonitorAge
 	return &AddQANPostgreSQLPgStatMonitorAgentOK{}
 }
 
-/* AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
+/*
+AddQANPostgreSQLPgStatMonitorAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddQANPostgreSQLPgStatMonitorAgentDefault(code int) *AddQANPostgreSQLPgS
 	}
 }
 
-/* AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
+/*
+AddQANPostgreSQLPgStatMonitorAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefault) readResponse(response runtim
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentBody add QAN postgre SQL pg stat monitor agent body
+/*
+AddQANPostgreSQLPgStatMonitorAgentBody add QAN postgre SQL pg stat monitor agent body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentBody struct {
@@ -139,6 +142,9 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
@@ -254,7 +260,8 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentDefaultBody add QAN postgre SQL pg stat monitor agent default body
+/*
+AddQANPostgreSQLPgStatMonitorAgentDefaultBody add QAN postgre SQL pg stat monitor agent default body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBody struct {
@@ -357,7 +364,8 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBody) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg stat monitor agent default body details items0
+/*
+AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg stat monitor agent default body details items0
 swagger:model AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0
 */
 type AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0 struct {
@@ -393,7 +401,8 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentDefaultBodyDetailsItems0) UnmarshalBi
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentOKBody add QAN postgre SQL pg stat monitor agent OK body
+/*
+AddQANPostgreSQLPgStatMonitorAgentOKBody add QAN postgre SQL pg stat monitor agent OK body
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBody
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBody struct {
@@ -481,7 +490,8 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBody) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*
+AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
@@ -505,6 +515,9 @@ type AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent str
 
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

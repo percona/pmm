@@ -19,7 +19,7 @@ init:                 ## Install tools.
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.46.2
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.49.0
 
 	# Download third-party proto files
 	$(eval GO_PROTO_VALIDATOR=$(shell go list -f '{{ .Version }}' -m github.com/mwitkow/go-proto-validators))
@@ -58,13 +58,15 @@ gen: clean            ## Generate files.
 	done
 
 	# generate public API spec, omit agentlocalpb (always private),
-	# and managementpb/dbaas, managementpb/ia, managementpb/alerting, managementpb/backup , managementpb/azure and qanpb (not v1 yet)
+	# and managementpb/dbaas, managementpb/ia, managementpb/azure and qanpb (not v1 yet)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/json/serverpb.json \
 		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
-		api/managementpb/json/managementpb.json
+		api/managementpb/json/managementpb.json \
+        api/managementpb/backup/json/backup.json \
+        api/managementpb/alerting/json/alerting.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
@@ -156,8 +158,7 @@ check:                ## Run required checkers and linters.
 check-license:          ## Run license header checks against source files.
 	bin/license-eye -c .licenserc.yaml header check
 
-check-all: check      ## Run golang ci linter to check new changes from main.
-	check-license
+check-all: check-license check    ## Run golang ci linter to check new changes from main.
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=main
 
 FILES = $(shell find . -type f -name '*.go')

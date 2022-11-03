@@ -24,6 +24,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/truncate"
 )
 
 func TestPGStatMonitorStructs(t *testing.T) {
@@ -50,7 +51,7 @@ func TestPGStatMonitorStructs(t *testing.T) {
 	normalizedQuery, err := settings.getNormalizedQueryValue()
 	assert.NoError(t, err)
 
-	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery)
+	current, cache, err := m.monitorCache.getStatMonitorExtended(context.TODO(), db.Querier, normalizedQuery, truncate.GetDefaultMaxQueryLength())
 
 	require.NoError(t, err)
 	require.NotNil(t, current)

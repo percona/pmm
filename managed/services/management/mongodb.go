@@ -28,6 +28,7 @@ import (
 )
 
 // MongoDBService MongoDB Management Service.
+//
 //nolint:unused
 type MongoDBService struct {
 	db    *reform.DB
@@ -92,7 +93,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			MongoDBOptions:    mongoDBOptions,
 			PushMetrics:       isPushMode(req.MetricsMode),
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 		})
 		if err != nil {
 			return err
@@ -119,7 +120,8 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				TLS:            req.Tls,
 				TLSSkipVerify:  req.TlsSkipVerify,
 				MongoDBOptions: mongoDBOptions,
-				LogLevel:       services.SpecifyLogLevel(req.LogLevel),
+				MaxQueryLength: req.MaxQueryLength,
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 			})
 			if err != nil {

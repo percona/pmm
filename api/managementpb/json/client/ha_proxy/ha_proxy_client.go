@@ -34,9 +34,9 @@ type ClientService interface {
 }
 
 /*
-  AddHAProxy adds HA proxy
+AddHAProxy adds HA proxy
 
-  Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided "node_id", then adds an "external exporter" agent to the inventory.
+Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided "node_id", then adds an "external exporter" agent to the inventory.
 */
 func (a *Client) AddHAProxy(params *AddHAProxyParams, opts ...ClientOption) (*AddHAProxyOK, error) {
 	// TODO: Validate the params before sending
