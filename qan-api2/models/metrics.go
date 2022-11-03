@@ -416,7 +416,7 @@ GROUP BY point
 	ORDER BY point ASC;
 `
 
-//nolint
+// nolint
 var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
 
 // SelectSparklines selects datapoint for sparklines.
@@ -540,7 +540,7 @@ SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(exam
  LIMIT :limit
 `
 
-//nolint
+// nolint
 var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(funcMap).Parse(queryExampleTmpl))
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
@@ -621,7 +621,7 @@ SELECT service_name, database, schema, username, client_host, replication_set, c
        container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
 `
 
-//nolint
+// nolint
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
 
 type queryRowsLabels struct {
