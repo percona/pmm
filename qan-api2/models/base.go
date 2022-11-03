@@ -25,7 +25,6 @@ import (
 
 const queryTimeout = 30 * time.Second
 
-// nolint //nolintlint
 var sparklinePointAllFields = []string{
 	"point",
 	"timestamp",

@@ -416,7 +416,6 @@ GROUP BY point
 	ORDER BY point ASC;
 `
 
-// nolint //nolintlint
 var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
 
 // SelectSparklines selects datapoint for sparklines.
@@ -540,7 +539,6 @@ SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(exam
  LIMIT :limit
 `
 
-// nolint //nolintlint
 var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(funcMap).Parse(queryExampleTmpl))
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
