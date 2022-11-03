@@ -2,6 +2,8 @@
 	{
 		"common": {
 			"queryid": "C684EA1D78348D23",
+			"explain_fingerprint": "select pad from sbtest1 where id = :1",
+			"placeholders_count": 1,
 			"fingerprint": "select name, subsystem, type, comment, count from information_schema.innodb_metrics where status = ?",
 			"username": "root",
 			"agent_id": "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44",

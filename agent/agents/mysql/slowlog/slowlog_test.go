@@ -62,6 +62,8 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
+				ExplainFingerprint:  "select * from contacts as t0 where t0.person_id = :1",
+				PlaceholdersCount:   1,
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
