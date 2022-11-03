@@ -69,7 +69,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(true)
@@ -112,7 +112,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			checker.On("MustCheck").Return(false)
@@ -138,7 +138,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 		checker.Test(t)
 		defer checker.AssertExpectations(t)
 
-		s := NewAuthServer(nil, checker, nil)
+		s := NewAuthServer(nil, checker, nil, true)
 
 		t.Run("Subrequest", func(t *testing.T) {
 			rw := httptest.NewRecorder()
@@ -165,7 +165,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, checker, nil)
+	s := NewAuthServer(c, checker, nil, true)
 
 	req, err := http.NewRequest("GET", "/dummy", nil)
 	require.NoError(t, err)
@@ -282,7 +282,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	defer checker.AssertExpectations(t)
 
 	c := NewClient("127.0.0.1:3000")
-	s := NewAuthServer(c, &checker, db)
+	s := NewAuthServer(c, &checker, db, true)
 
 	var roleA models.Role
 	roleA.Title = "Role A"
