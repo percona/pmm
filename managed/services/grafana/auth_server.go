@@ -154,10 +154,11 @@ type clientInterface interface {
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c       clientInterface
-	checker awsInstanceChecker
-	db      *reform.DB
-	l       *logrus.Entry
+	c             clientInterface
+	checker       awsInstanceChecker
+	db            *reform.DB
+	l             *logrus.Entry
+	accessControl bool
 
 	cache map[string]cacheItem
 	rw    sync.RWMutex
@@ -166,13 +167,14 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB) *AuthServer {
+func NewAuthServer(c clientInterface, checker awsInstanceChecker, db *reform.DB, enableAccessControl bool) *AuthServer {
 	return &AuthServer{
-		c:       c,
-		checker: checker,
-		db:      db,
-		l:       logrus.WithField("component", "grafana/auth"),
-		cache:   make(map[string]cacheItem),
+		c:             c,
+		checker:       checker,
+		db:            db,
+		l:             logrus.WithField("component", "grafana/auth"),
+		cache:         make(map[string]cacheItem),
+		accessControl: enableAccessControl,
 	}
 }
 
@@ -272,6 +274,10 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // maybeAddVMGatewayToken adds authorization token to requests proxied to VictoriaMetrics Gateway.
 // In case the request is not proxied to the gateway, this is a no-op.
 func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
+	if !s.accessControl {
+		return nil
+	}
+
 	addAuthToken := false
 	for _, p := range vmGatewayPrefixes {
 		if strings.HasPrefix(req.URL.Path, p) {
