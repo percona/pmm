@@ -531,8 +531,8 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// placeholders count
 	PlaceholdersCount int64 `json:"placeholders_count,omitempty"`
 
-	// fingerprint
-	Fingerprint string `json:"fingerprint,omitempty"`
+	// explain fingerprint
+	ExplainFingerprint string `json:"explain_fingerprint,omitempty"`
 
 	// query id
 	QueryID string `json:"query_id,omitempty"`

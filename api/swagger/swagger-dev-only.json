@@ -1877,7 +1877,7 @@
                         "format": "int64",
                         "x-order": 4
                       },
-                      "fingerprint": {
+                      "explain_fingerprint": {
                         "type": "string",
                         "x-order": 5
                       },
