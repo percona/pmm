@@ -119,6 +119,7 @@
 	{
 		"common": {
 			"queryid": "28FC5B5D583E2DA6",
+			"explain_fingerprint":  "show global status",
 			"fingerprint": "show global status",
 			"username": "root",
 			"agent_id": "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44",
@@ -161,6 +162,7 @@
 	{
 		"common": {
 			"queryid": "328AAB9660C2879E",
+			"explain_fingerprint":  "set @@lock_wait_timeout = 2",
 			"fingerprint": "set lock_wait_timeout=?",
 			"username": "root",
 			"agent_id": "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44",
@@ -191,6 +193,7 @@
 	{
 		"common": {
 			"queryid": "A212AD93263CF26F",
+			"explain_fingerprint":  "select @@version from dual",
 			"fingerprint": "select @@version",
 			"username": "root",
 			"agent_id": "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44",
