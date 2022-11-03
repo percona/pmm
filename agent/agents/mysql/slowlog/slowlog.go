@@ -35,8 +35,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents"
-	"github.com/percona/pmm/agent/agents/mysql/queryparser"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -419,9 +419,7 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 
 		if v.Example != nil {
 			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
-			if err != nil {
-				l.Warnf("cannot parse query: %s", v.Example)
-			} else {
+			if err == nil {
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
 				if truncated {
 					mb.Common.IsTruncated = truncated
