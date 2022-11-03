@@ -68,7 +68,7 @@ func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.RoleData) 
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		var role models.Role
 		if err := tx.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-			if ok := errors.As(err, &reform.ErrNoRows); ok {
+			if errors.As(err, &reform.ErrNoRows) {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
 			return err
@@ -94,14 +94,18 @@ func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.RoleData) 
 //
 //nolint:unparam
 func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.RoleID) (*managementpb.EmptyResponse, error) {
-	var role models.Role
-	role.ID = req.RoleId
+	err := r.db.InTransaction(func(tx *reform.TX) error {
+		if err := models.DeleteRole(tx, int(req.RoleId)); err != nil {
+			if errors.Is(err, models.ErrRoleNotFound) {
+				return status.Errorf(codes.NotFound, "Role not found")
+			}
 
-	if err := r.db.Querier.Delete(&role); err != nil {
-		if ok := errors.As(err, &reform.ErrNoRows); ok {
-			return nil, status.Errorf(codes.NotFound, "Role not found")
+			return err
 		}
 
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -112,7 +116,7 @@ func (r *RoleService) DeleteRole(_ context.Context, req *managementpb.RoleID) (*
 func (r *RoleService) GetRole(_ context.Context, req *managementpb.RoleID) (*managementpb.RoleData, error) {
 	var role models.Role
 	if err := r.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-		if ok := errors.As(err, &reform.ErrNoRows); ok {
+		if errors.As(err, &reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
 

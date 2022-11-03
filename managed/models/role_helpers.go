@@ -22,8 +22,12 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// ErrRoleNotFound is returned when a role is not found.
-var ErrRoleNotFound = fmt.Errorf("RoleNotFound")
+var (
+	// ErrRoleNotFound is returned when a role is not found.
+	ErrRoleNotFound = fmt.Errorf("RoleNotFound")
+	// ErrRoleIsAssigned is returned when a role is assigned to a user and cannot be removed.
+	ErrRoleIsAssigned = fmt.Errorf("RoleIsAssigned")
+)
 
 // CreateRole creates a new role.
 func CreateRole(q *reform.Querier, role *Role) error {
@@ -36,8 +40,11 @@ func CreateRole(q *reform.Querier, role *Role) error {
 
 // AssignRole assigns a role to a user.
 func AssignRole(tx *reform.TX, userID, roleID int) error {
+	q := tx.Querier
+
 	var role Role
-	if err := tx.Querier.FindByPrimaryKeyTo(&role, roleID); err != nil {
+
+	if err := q.SelectOneTo(&role, "WHERE id = $1 FOR UPDATE", roleID); err != nil {
 		if ok := errors.As(err, &reform.ErrNoRows); ok {
 			return ErrRoleNotFound
 		}
@@ -45,7 +52,7 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 		return err
 	}
 
-	user, err := GetOrCreateUser(tx.Querier, userID)
+	user, err := GetOrCreateUser(q, userID)
 	if err != nil {
 		return err
 	}
@@ -54,4 +61,34 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 	err = tx.UpdateColumns(user, "role_id")
 
 	return err
+}
+
+// DeleteRole deletes a role.
+func DeleteRole(tx *reform.TX, roleID int) error {
+	q := tx.Querier
+
+	var role Role
+	err := q.SelectOneTo(&role, "WHERE id = $1 FOR UPDATE", roleID)
+	if err != nil {
+		return err
+	}
+
+	s, err := q.FindOneFrom(UserDetailsTable, "role_id", roleID)
+	if err != nil && !errors.As(err, &reform.ErrNoRows) {
+		return err
+	}
+
+	if s != nil {
+		return ErrRoleIsAssigned
+	}
+
+	if err := q.Delete(&role); err != nil {
+		if ok := errors.As(err, &reform.ErrNoRows); ok {
+			return ErrRoleNotFound
+		}
+
+		return err
+	}
+
+	return nil
 }

@@ -63,7 +63,6 @@ func TestRoleHelpers(t *testing.T) {
 		defer teardown(t)
 
 		var role models.Role
-		role.Title = "Role A"
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
 
 		require.NoError(t, models.AssignRole(tx, userID, int(role.ID)))
@@ -88,11 +87,34 @@ func TestRoleHelpers(t *testing.T) {
 		defer teardown(t)
 
 		var role models.Role
-		role.Title = "Role A"
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
 		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
 
 		_, err := models.FindUser(tx.Querier, userID)
 		require.NoError(t, err)
+	})
+
+	//nolint:paralleltest
+	t.Run("shall delete role", func(t *testing.T) {
+		tx, teardown := setup(t)
+		defer teardown(t)
+
+		var role models.Role
+		role.Title = "Role A"
+		require.NoError(t, models.CreateRole(tx.Querier, &role))
+		require.NoError(t, models.DeleteRole(tx, int(role.ID)))
+	})
+
+	//nolint:paralleltest
+	t.Run("shall not delete if role is assigned", func(t *testing.T) {
+		tx, teardown := setup(t)
+		defer teardown(t)
+
+		var role models.Role
+		require.NoError(t, models.CreateRole(tx.Querier, &role))
+		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
+
+		err := models.DeleteRole(tx, int(role.ID))
+		require.Equal(t, err, models.ErrRoleIsAssigned)
 	})
 }
