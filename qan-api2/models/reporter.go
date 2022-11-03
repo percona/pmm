@@ -354,7 +354,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	defer rows.Close() //nolint:errcheck
 	resultsWithGaps := map[uint32]*qanpb.Point{}
 
-	mainMetricColumnName := "m_query_time_sum"
+	var mainMetricColumnName string
 	switch column {
 	case "":
 		mainMetricColumnName = "m_query_time_sum"

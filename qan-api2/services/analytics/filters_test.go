@@ -24,7 +24,8 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	"github.com/golang/protobuf/jsonpb"
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"

@@ -416,7 +416,7 @@ GROUP BY point
 	ORDER BY point ASC;
 `
 
-// nolint
+//nolint
 var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
 
 // SelectSparklines selects datapoint for sparklines.
@@ -540,7 +540,7 @@ SELECT schema AS schema, tables, service_id, service_type, example, toUInt8(exam
  LIMIT :limit
 `
 
-// nolint
+//nolint
 var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(funcMap).Parse(queryExampleTmpl))
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
@@ -591,7 +591,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.ServiceId,
 			&row.ServiceType,
 			&row.Example,
-			&row.ExampleFormat,
+			// TODO should we remove this field since it's deprecated?
+			&row.ExampleFormat, //nolint:staticcheck
 			&row.IsTruncated,
 			&row.ExampleType,
 			&row.ExampleMetrics,

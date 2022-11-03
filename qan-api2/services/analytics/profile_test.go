@@ -19,14 +19,15 @@ package analytics
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
-	"github.com/golang/protobuf/proto"
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
+	// TODO replace with 'google.golang.org/protobuf/proto' since this one is deprecated
+	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -57,12 +58,12 @@ func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		err = ioutil.WriteFile(filename, []byte(json), 0o644)
+		err = os.WriteFile(filename, []byte(json), 0o644)
 		if err != nil {
 			t.Errorf("cannot write:%v", err)
 		}
 	}
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		t.Errorf("cannot read data from file:%v", err)
 	}
@@ -273,7 +274,8 @@ func TestService_GetReport_Mix(t *testing.T) {
 			rm: test.fields.rm,
 			mm: test.fields.mm,
 		}
-		got, err := s.GetReport(test.args.ctx, test.args.in)
+		// TODO check if we really need this duplication of 'GetReport' and 'if' statement
+		got, err := s.GetReport(test.args.ctx, test.args.in) //nolint:ineffassign
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
