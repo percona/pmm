@@ -20,6 +20,7 @@ import (
 	"vitess.io/vitess/go/vt/sqlparser"
 )
 
+// MySQL parse query and return fingeprint and placeholders.
 func MySQL(example string) (string, uint32, error) {
 	normalizedQuery, _, err := sqlparser.Parse2(example)
 	if err != nil {
