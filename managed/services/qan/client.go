@@ -107,7 +107,7 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 }
 
 // QueryExists check if query value in request exists in clickhouse.
-// This avoid recieving custom queries.
+// This avoid receiving custom queries.
 func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error {
 	qanReq := &qanpb.QueryExistsRequest{
 		Serviceid: serviceID,
@@ -126,7 +126,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 }
 
 // ExplainFingerprintByQueryID get query for given query ID.
-// This avoid recieving custom queries.
+// This avoid receiving custom queries.
 func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
 	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
 		Serviceid: serviceID,
