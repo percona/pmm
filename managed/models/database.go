@@ -769,9 +769,16 @@ var databaseSchema = [][]string{
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL
 		);
-		
+
+		INSERT INTO roles
+		(id, title, filter, created_at, updated_at)
+		VALUES
+		(1, 'Full access', '', NOW(), NOW());
+
 		ALTER TABLE user_flags
-			ADD COLUMN role_id INTEGER NOT NULL DEFAULT 0;`,
+			ADD COLUMN role_id INTEGER NOT NULL DEFAULT 0;
+		
+		UPDATE user_flags SET role_id = 1;`,
 	},
 }
 
