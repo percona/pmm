@@ -762,7 +762,10 @@ var databaseSchema = [][]string{
 			RENAME COLUMN pmm_client_config TO filesystem_config`,
 	},
 	72: {
-		`CREATE TABLE roles (
+		`ALTER TABLE user_flags
+			ADD COLUMN role_id INTEGER NOT NULL DEFAULT 0;
+		
+		CREATE TABLE roles (
 			id SERIAL PRIMARY KEY,
 			title VARCHAR NOT NULL UNIQUE,
 			filter TEXT NOT NULL,
@@ -770,15 +773,14 @@ var databaseSchema = [][]string{
 			updated_at TIMESTAMP NOT NULL
 		);
 
-		INSERT INTO roles
-		(id, title, filter, created_at, updated_at)
-		VALUES
-		(1, 'Full access', '', NOW(), NOW());
-
-		ALTER TABLE user_flags
-			ADD COLUMN role_id INTEGER NOT NULL DEFAULT 0;
-		
-		UPDATE user_flags SET role_id = 1;`,
+		WITH rows AS (
+			INSERT INTO roles
+			(title, filter, created_at, updated_at)
+			VALUES
+			('Full access', '', NOW(), NOW())
+			RETURNING id
+		)
+		UPDATE user_flags SET role_id = (SELECT id FROM rows);`,
 	},
 }
 
