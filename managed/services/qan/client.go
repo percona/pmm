@@ -191,6 +191,8 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 		}
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
+			ExplainFingerprint:   m.Common.ExplainFingerprint,
+			PlaceholdersCount:    m.Common.PlaceholdersCount,
 			Fingerprint:          m.Common.Fingerprint,
 			ServiceName:          service.ServiceName,
 			Database:             m.Common.Database,
