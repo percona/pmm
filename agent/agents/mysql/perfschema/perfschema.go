@@ -33,6 +33,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/agents/mysql/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
@@ -338,14 +339,19 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 			}
 
 			if esh.SQLText != nil {
-				switch m.disableQueryExamples {
-				case true:
-					query, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
+				explainFingerprint, placeholdersCount, err := queryparser.MySQL(*esh.SQLText)
+				if err != nil {
+					m.l.Warnf("cannot parse query: %s", *esh.SQLText)
+				} else {
+					explainFingerprint, truncated := truncate.Query(explainFingerprint, m.maxQueryLength)
 					if truncated {
 						b.Common.IsTruncated = truncated
 					}
-					b.Common.Query = query
-				default:
+					b.Common.ExplainFingerprint = explainFingerprint
+					b.Common.PlaceholdersCount = placeholdersCount
+				}
+
+				if !m.disableQueryExamples {
 					example, truncated := truncate.Query(*esh.SQLText, m.maxQueryLength)
 					if truncated {
 						b.Common.IsTruncated = truncated

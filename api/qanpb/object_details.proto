@@ -53,10 +53,10 @@ service ObjectDetails {
       body: "*"
     };
   }
-  // QueryByQueryID get query for given query ID.
-  rpc QueryByQueryID(QueryByQueryIDRequest) returns (google.protobuf.StringValue) {
+  // ExplainFingerprintByQueryID get explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDReply) {
     option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/QueryByQueryID"
+      post: "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"
       body: "*"
     };
   }
@@ -194,8 +194,15 @@ message QueryExistsRequest {
   string query = 2;
 }
 
-// QueryByQueryIDRequest get query for given query ID.
-message QueryByQueryIDRequest {
+// ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.
+message ExplainFingerprintByQueryIDRequest {
   string serviceid = 1;
   string query_id = 2;
 }
+
+// ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.
+message ExplainFingerprintByQueryIDReply {
+  string explain_fingerprint = 1;
+  uint32 placeholders_count = 2;
+}
+

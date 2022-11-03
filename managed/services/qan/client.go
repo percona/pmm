@@ -125,20 +125,20 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	return nil
 }
 
-// QueryByQueryID get query for given query ID.
+// ExplainFingerprintByQueryID get query for given query ID.
 // This avoid recieving custom queries.
-func (c *Client) QueryByQueryID(ctx context.Context, serviceID, queryID string) (string, error) {
-	qanReq := &qanpb.QueryByQueryIDRequest{
+func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
 		Serviceid: serviceID,
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	query, err := c.odc.QueryByQueryID(ctx, qanReq)
+	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
 	if err != nil {
-		return "", err
+		return res, err
 	}
 
-	return query.Value, nil
+	return res, nil
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.

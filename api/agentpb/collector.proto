@@ -31,8 +31,10 @@ message MetricsBucket {
   message Common {
     // md5 of digest_text/fingerprint.
     string queryid = 1;
-    // query is saved if examples are disabled, otherwise query stays empty to have always original query.
-    string query = 25;
+    // contains fingerprint prepared by sql parser, which can be different than fingerprint.
+    string explain_fingerprint = 25;
+    // ammount of variables in query.
+    uint32 placeholders_count = 26;
     // digest_text - query signature. Query without values.
     string fingerprint = 2;
     //

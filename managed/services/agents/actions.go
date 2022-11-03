@@ -21,12 +21,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"vitess.io/vitess/go/vt/proto/query"
-	"vitess.io/vitess/go/vt/sqlparser"
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
@@ -52,24 +49,6 @@ func NewActionsService(qanClient qanClient, r *Registry) *ActionsService {
 	}
 }
 
-func mysqlParser(example string) (string, uint32, error) {
-	normalizedQuery, _, err := sqlparser.Parse2(example)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "cannot parse query")
-	}
-
-	bv := make(map[string]*query.BindVariable)
-	err = sqlparser.Normalize(normalizedQuery, sqlparser.NewReservedVars("", sqlparser.GetBindvars(normalizedQuery)), bv)
-	if err != nil {
-		return "", 0, errors.Wrap(err, "cannot normalize query")
-	}
-
-	parsedQuery := sqlparser.NewParsedQuery(normalizedQuery)
-	bindVars := sqlparser.GetBindvars(normalizedQuery)
-
-	return parsedQuery.Query, uint32(len(bindVars)), nil
-}
-
 // StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
 func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, serviceID, dsn, query, queryID string, placeholders []string, format agentpb.MysqlExplainOutputFormat, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error {
 	if query == "" && queryID == "" {
@@ -79,19 +58,16 @@ func (s *ActionsService) StartMySQLExplainAction(ctx context.Context, id, pmmAge
 	var q string
 	switch {
 	case queryID != "":
-		res, err := s.qanClient.QueryByQueryID(ctx, serviceID, queryID)
+		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
 		if err != nil {
 			return err
 		}
 
-		parsed, placeholdersCount, err := mysqlParser(res)
-		if err != nil {
-			return err
-		}
-		if placeholdersCount != uint32(len(placeholders)) {
+		if res.PlaceholdersCount != uint32(len(placeholders)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
 
+		parsed := res.ExplainFingerprint
 		for k, v := range placeholders {
 			parsed = strings.Replace(parsed, fmt.Sprintf(":%d", k+1), v, 1)
 		}

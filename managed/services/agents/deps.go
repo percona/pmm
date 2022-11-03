@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/api/agentpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.
@@ -37,7 +38,7 @@ type prometheusService interface {
 type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
-	QueryByQueryID(ctx context.Context, serviceID, queryID string) (string, error)
+	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
