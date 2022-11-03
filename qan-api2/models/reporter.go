@@ -104,7 +104,6 @@ ORDER BY {{ .Order }}
 LIMIT :offset, :limit
 `
 
-// nolint
 var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
 
 func inSlice(slice []string, val string) bool {
@@ -263,7 +262,6 @@ GROUP BY point
 ORDER BY point ASC;
 `
 
-// nolint
 var tmplQueryReportSparklines = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
 
 // SelectSparklines selects datapoint for sparklines.

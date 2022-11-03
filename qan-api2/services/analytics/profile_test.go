@@ -274,13 +274,8 @@ func TestService_GetReport_Mix(t *testing.T) {
 			rm: test.fields.rm,
 			mm: test.fields.mm,
 		}
-		// TODO check if we really need this duplication of 'GetReport' and 'if' statement
-		got, err := s.GetReport(test.args.ctx, test.args.in) //nolint:ineffassign
-		if (err != nil) != test.wantErr {
-			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
-			return
-		}
-		got, err = s.GetReport(test.args.ctx, test.args.in)
+
+		got, err := s.GetReport(test.args.ctx, test.args.in)
 		if (err != nil) != test.wantErr {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return

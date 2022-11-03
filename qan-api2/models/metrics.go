@@ -620,7 +620,6 @@ SELECT service_name, database, schema, username, client_host, replication_set, c
        container_id, agent_id, agent_type, labels.key, labels.value, cmd_type, top_queryid, application_name, planid
 `
 
-// nolint
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
 
 type queryRowsLabels struct {

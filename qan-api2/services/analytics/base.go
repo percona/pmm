@@ -92,7 +92,6 @@ func isBoolMetric(name string) bool {
 	return ok
 }
 
-// nolint
 var specialColumnNames = map[string]struct{}{
 	"load":                      {},
 	"num_queries":               {},
