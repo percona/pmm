@@ -43,12 +43,7 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 	q := tx.Querier
 
 	var role Role
-
-	if err := q.SelectOneTo(&role, "WHERE id = $1 FOR UPDATE", roleID); err != nil {
-		if ok := errors.As(err, &reform.ErrNoRows); ok {
-			return ErrRoleNotFound
-		}
-
+	if err := findAndLockRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -68,11 +63,7 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 	q := tx.Querier
 
 	var role Role
-	err := q.SelectOneTo(&role, "WHERE id = $1 FOR UPDATE", roleID)
-	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
-			return ErrRoleNotFound
-		}
+	if err := findAndLockRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -90,6 +81,18 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 			return ErrRoleNotFound
 		}
 
+		return err
+	}
+
+	return nil
+}
+
+func findAndLockRole(tx *reform.TX, roleID int, role *Role) error {
+	err := tx.Querier.SelectOneTo(role, "WHERE id = $1 FOR UPDATE", roleID)
+	if err != nil {
+		if errors.As(err, &reform.ErrNoRows) {
+			return ErrRoleNotFound
+		}
 		return err
 	}
 
