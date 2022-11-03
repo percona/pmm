@@ -56,9 +56,7 @@ func Bootstrap(opts any) {
 
 	kongcompletion.Register(kongParser)
 	kongCtx, err := kongParser.Parse(os.Args[1:])
-	if err != nil {
-		logrus.Panic("Failed to parse CLI arguments")
-	}
+	kongParser.FatalIfErrorf(err)
 
 	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
 	if !ok {
