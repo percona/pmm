@@ -70,6 +70,9 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 	var role Role
 	err := q.SelectOneTo(&role, "WHERE id = $1 FOR UPDATE", roleID)
 	if err != nil {
+		if errors.As(err, &reform.ErrNoRows) {
+			return ErrRoleNotFound
+		}
 		return err
 	}
 
@@ -83,7 +86,7 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 	}
 
 	if err := q.Delete(&role); err != nil {
-		if ok := errors.As(err, &reform.ErrNoRows); ok {
+		if errors.As(err, &reform.ErrNoRows) {
 			return ErrRoleNotFound
 		}
 
