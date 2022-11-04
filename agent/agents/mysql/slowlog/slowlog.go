@@ -419,7 +419,9 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 
 		if v.Example != nil {
 			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
-			if err == nil {
+			if err != nil {
+				l.Debugf("cannot parse query: %s", v.Example.Query)
+			} else {
 				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
 				if truncated {
 					mb.Common.IsTruncated = truncated
