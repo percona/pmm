@@ -28,6 +28,7 @@ import (
 )
 
 // MongoDBService MongoDB Management Service.
+//
 //nolint:unused
 type MongoDBService struct {
 	db    *reform.DB
@@ -119,6 +120,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				TLS:            req.Tls,
 				TLSSkipVerify:  req.TlsSkipVerify,
 				MongoDBOptions: mongoDBOptions,
+				MaxQueryLength: req.MaxQueryLength,
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 			})

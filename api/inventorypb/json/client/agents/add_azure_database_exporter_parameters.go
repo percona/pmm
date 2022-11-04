@@ -52,10 +52,12 @@ func NewAddAzureDatabaseExporterParamsWithHTTPClient(client *http.Client) *AddAz
 	}
 }
 
-/* AddAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
-   for the add azure database exporter operation.
+/*
+AddAzureDatabaseExporterParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add azure database exporter operation.
+
+	Typically these are written to a http.Request.
 */
 type AddAzureDatabaseExporterParams struct {
 	// Body.

@@ -213,6 +213,30 @@ func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
 	s.setBuiltinAgents(state.BuiltinAgents)
 }
 
+// RestartAgents restarts all existing agents.
+func (s *Supervisor) RestartAgents() {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	for id, agent := range s.agentProcesses {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+		}
+	}
+
+	for id, agent := range s.builtinAgents {
+		agent.cancel()
+		<-agent.done
+
+		if err := s.startBuiltin(id, agent.requestedState); err != nil {
+			s.l.Errorf("Failed to restart Agent: %s.", err)
+		}
+	}
+}
+
 func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
 	s.arw.Lock()
 	defer s.arw.Unlock()
@@ -461,6 +485,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &perfschema.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
@@ -469,8 +494,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
-			DSN:     dsn,
-			AgentID: agentID,
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
 		}
 		agent, err = mongodb.New(params, l)
 
@@ -479,6 +505,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			DSN:                  dsn,
 			AgentID:              agentID,
 			SlowLogFilePrefix:    s.paths.SlowLogFilePrefix,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
@@ -488,9 +515,10 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:       dsn,
-			AgentID:   agentID,
-			TextFiles: builtinAgent.GetTextFiles(),
+			DSN:            dsn,
+			AgentID:        agentID,
+			MaxQueryLength: builtinAgent.MaxQueryLength,
+			TextFiles:      builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
@@ -498,6 +526,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &pgstatmonitor.Params{
 			DSN:                  dsn,
 			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}

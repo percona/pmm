@@ -2,11 +2,11 @@
 // source: managementpb/backup/locations.proto
 
 /*
-Package backupv1beta1 is a reverse proxy.
+Package backupv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package backupv1beta1
+package backupv1
 
 import (
 	"context"
@@ -24,9 +24,8 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-
 var (
+	_ codes.Code
 	_ io.Reader
 	_ status.Status
 	_ = runtime.String
@@ -207,7 +206,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -231,7 +230,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -255,7 +254,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -279,7 +278,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -303,7 +302,7 @@ func RegisterLocationsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -365,7 +364,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Locations/ListLocations", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -386,7 +385,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Locations/AddLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -407,7 +406,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Locations/ChangeLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -428,7 +427,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Locations/RemoveLocation", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -449,7 +448,7 @@ func RegisterLocationsHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1beta1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Locations/TestLocationConfig", runtime.WithHTTPPathPattern("/v1/management/backup/Locations/TestConfig"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

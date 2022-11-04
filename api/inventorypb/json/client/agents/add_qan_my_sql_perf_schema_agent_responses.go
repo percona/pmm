@@ -50,7 +50,8 @@ func NewAddQANMySQLPerfSchemaAgentOK() *AddQANMySQLPerfSchemaAgentOK {
 	return &AddQANMySQLPerfSchemaAgentOK{}
 }
 
-/* AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
+/*
+AddQANMySQLPerfSchemaAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentD
 	}
 }
 
-/* AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
+/*
+AddQANMySQLPerfSchemaAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
+/*
+AddQANMySQLPerfSchemaAgentBody add QAN my SQL perf schema agent body
 swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
@@ -148,6 +151,9 @@ type AddQANMySQLPerfSchemaAgentBody struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit)
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Disable query examples.
 	DisableQueryExamples bool `json:"disable_query_examples,omitempty"`
@@ -254,7 +260,8 @@ func (o *AddQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
+/*
+AddQANMySQLPerfSchemaAgentDefaultBody add QAN my SQL perf schema agent default body
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
 */
 type AddQANMySQLPerfSchemaAgentDefaultBody struct {
@@ -357,7 +364,8 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
+/*
+AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 add QAN my SQL perf schema agent default body details items0
 swagger:model AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0
 */
 type AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0 struct {
@@ -393,7 +401,8 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
+/*
+AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
 swagger:model AddQANMySQLPerfSchemaAgentOKBody
 */
 type AddQANMySQLPerfSchemaAgentOKBody struct {
@@ -481,7 +490,8 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+/*
+AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
 swagger:model AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent
 */
 type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
@@ -514,6 +524,9 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
+
+	// Limit query length in QAN (default: server-defined; -1: no limit).
+	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`

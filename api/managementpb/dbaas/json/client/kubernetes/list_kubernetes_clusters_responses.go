@@ -50,7 +50,8 @@ func NewListKubernetesClustersOK() *ListKubernetesClustersOK {
 	return &ListKubernetesClustersOK{}
 }
 
-/* ListKubernetesClustersOK describes a response with status code 200, with default header values.
+/*
+ListKubernetesClustersOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -84,7 +85,8 @@ func NewListKubernetesClustersDefault(code int) *ListKubernetesClustersDefault {
 	}
 }
 
-/* ListKubernetesClustersDefault describes a response with status code -1, with default header values.
+/*
+ListKubernetesClustersDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -118,7 +120,8 @@ func (o *ListKubernetesClustersDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
-/*ListKubernetesClustersDefaultBody list kubernetes clusters default body
+/*
+ListKubernetesClustersDefaultBody list kubernetes clusters default body
 swagger:model ListKubernetesClustersDefaultBody
 */
 type ListKubernetesClustersDefaultBody struct {
@@ -221,7 +224,8 @@ func (o *ListKubernetesClustersDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListKubernetesClustersDefaultBodyDetailsItems0 list kubernetes clusters default body details items0
+/*
+ListKubernetesClustersDefaultBodyDetailsItems0 list kubernetes clusters default body details items0
 swagger:model ListKubernetesClustersDefaultBodyDetailsItems0
 */
 type ListKubernetesClustersDefaultBodyDetailsItems0 struct {
@@ -257,7 +261,8 @@ func (o *ListKubernetesClustersDefaultBodyDetailsItems0) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*ListKubernetesClustersOKBody list kubernetes clusters OK body
+/*
+ListKubernetesClustersOKBody list kubernetes clusters OK body
 swagger:model ListKubernetesClustersOKBody
 */
 type ListKubernetesClustersOKBody struct {
@@ -354,7 +359,8 @@ func (o *ListKubernetesClustersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListKubernetesClustersOKBodyKubernetesClustersItems0 Cluster contains public info about Kubernetes cluster.
+/*
+ListKubernetesClustersOKBodyKubernetesClustersItems0 Cluster contains public info about Kubernetes cluster.
 // TODO Do not use inner messages in all public APIs (for consistency).
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0
 */
@@ -503,7 +509,8 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) UnmarshalBinary(b
 	return nil
 }
 
-/*ListKubernetesClustersOKBodyKubernetesClustersItems0Operators Operators contains list of operators installed in Kubernetes cluster.
+/*
+ListKubernetesClustersOKBodyKubernetesClustersItems0Operators Operators contains list of operators installed in Kubernetes cluster.
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0Operators
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0Operators struct {
@@ -636,7 +643,8 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Unmarsha
 	return nil
 }
 
-/*ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB Operator contains all information about operator installed in Kubernetes cluster.
+/*
+ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB Operator contains all information about operator installed in Kubernetes cluster.
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB struct {
@@ -738,7 +746,8 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB) Unm
 	return nil
 }
 
-/*ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC Operator contains all information about operator installed in Kubernetes cluster.
+/*
+ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC Operator contains all information about operator installed in Kubernetes cluster.
 swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC
 */
 type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC struct {

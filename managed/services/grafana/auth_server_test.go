@@ -18,7 +18,7 @@ package grafana
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -75,7 +75,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			assert.NoError(t, err)
 			assert.Empty(t, b)
 		})
@@ -92,7 +92,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			assert.NoError(t, err)
 			assert.Empty(t, b)
 		})
@@ -118,7 +118,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			assert.NoError(t, err)
 			assert.Empty(t, b)
 		})
@@ -143,7 +143,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
-			b, err := ioutil.ReadAll(resp.Body)
+			b, err := io.ReadAll(resp.Body)
 			assert.NoError(t, err)
 			assert.Empty(t, b)
 		})

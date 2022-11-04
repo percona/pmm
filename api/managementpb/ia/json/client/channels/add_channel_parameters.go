@@ -52,10 +52,12 @@ func NewAddChannelParamsWithHTTPClient(client *http.Client) *AddChannelParams {
 	}
 }
 
-/* AddChannelParams contains all the parameters to send to the API endpoint
-   for the add channel operation.
+/*
+AddChannelParams contains all the parameters to send to the API endpoint
 
-   Typically these are written to a http.Request.
+	for the add channel operation.
+
+	Typically these are written to a http.Request.
 */
 type AddChannelParams struct {
 	// Body.

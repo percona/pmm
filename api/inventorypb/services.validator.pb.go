@@ -15,9 +15,8 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-
 var (
+	_ = proto.Marshal
 	_ = fmt.Errorf
 	_ = math.Inf
 )
@@ -99,6 +98,14 @@ func (this *ListServicesResponse) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (this *ListActiveServiceTypesRequest) Validate() error {
+	return nil
+}
+
+func (this *ListActiveServiceTypesResponse) Validate() error {
 	return nil
 }
 

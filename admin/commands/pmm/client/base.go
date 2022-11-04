@@ -12,24 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+// Package client holds the "pmm client" command
+package client
 
 import "github.com/percona/pmm/admin/commands"
 
-// InstallCommand is used by Kong for CLI flags and commands.
-type InstallCommand struct{}
-
-type installResult struct{}
-
-// Result is a command run result.
-func (res *installResult) Result() {}
-
-// String stringifies command result.
-func (res *installResult) String() string {
-	return "works"
+// BaseCommand is used by Kong for CLI flags and commands and holds all client commands.
+type BaseCommand struct {
+	Install InstallCommand `cmd:"" help:"Install PMM client"`
+	Upgrade UpgradeCommand `cmd:"" help:"Upgrade PMM client"`
 }
 
-// RunCmd runs install command.
-func (c *InstallCommand) RunCmd() (commands.Result, error) {
-	return &installResult{}, nil
+// BeforeApply is run before the command is applied.
+func (cmd *BaseCommand) BeforeApply() error {
+	commands.SetupClientsEnabled = false
+	return nil
 }
