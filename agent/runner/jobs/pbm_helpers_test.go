@@ -16,8 +16,10 @@ package jobs
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreatePBMConfig(t *testing.T) {
@@ -29,7 +31,7 @@ func TestCreatePBMConfig(t *testing.T) {
 		BucketRegion: "test_region",
 	}
 
-	pmmClientStorageConfig := PMMClientBackupLocationConfig{
+	filesystemStorageConfig := FilesystemBackupLocationConfig{
 		Path: "/test/path",
 	}
 
@@ -69,9 +71,9 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "invalid location type",
 			inputLocation: BackupLocationConfig{
-				Type:               BackupLocationType("invalid type"),
-				S3Config:           &s3Config,
-				LocalStorageConfig: nil,
+				Type:                    BackupLocationType("invalid type"),
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: nil,
 			},
 			inputPitr: true,
 			output:    nil,
@@ -80,20 +82,20 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "s3 config type",
 			inputLocation: BackupLocationConfig{
-				Type:               S3BackupLocationType,
-				S3Config:           &s3Config,
-				LocalStorageConfig: nil,
+				Type:                    S3BackupLocationType,
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: nil,
 			},
 			inputPitr: true,
 			output:    &expectedOutput1,
 			errString: "",
 		},
 		{
-			name: "pmm client config type",
+			name: "filesystem config type",
 			inputLocation: BackupLocationConfig{
-				Type:               PMMClientBackupLocationType,
-				S3Config:           nil,
-				LocalStorageConfig: &pmmClientStorageConfig,
+				Type:                    FilesystemBackupLocationType,
+				S3Config:                nil,
+				FilesystemStorageConfig: &filesystemStorageConfig,
 			},
 			inputPitr: false,
 			output:    &expectedOutput2,
@@ -102,9 +104,9 @@ func TestCreatePBMConfig(t *testing.T) {
 		{
 			name: "ignores filled up config instead relying on config type",
 			inputLocation: BackupLocationConfig{
-				Type:               PMMClientBackupLocationType,
-				S3Config:           &s3Config,
-				LocalStorageConfig: &pmmClientStorageConfig,
+				Type:                    FilesystemBackupLocationType,
+				S3Config:                &s3Config,
+				FilesystemStorageConfig: &filesystemStorageConfig,
 			},
 			inputPitr: false,
 			output:    &expectedOutput2,
@@ -120,6 +122,76 @@ func TestCreatePBMConfig(t *testing.T) {
 			}
 			assert.NoError(t, err)
 			assert.Equal(t, test.output, res)
+		})
+	}
+}
+
+func TestFindPITRRestore(t *testing.T) {
+	// Tested func searches from the end, so we place records to be skipped at the end.
+	testList := []pbmListRestore{
+		{
+			Name: "2022-10-11T14:53:19.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-error-11T14:53:20.000000001Z",
+			Type: "pitr",
+			PITR: 1000000000,
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000001Z",
+			Type: "snapshot",
+		},
+		{
+			Name: "2022-10-11T14:53:20.000000010Z",
+			Type: "pitr",
+			PITR: 1000000001,
+		},
+	}
+
+	for _, tc := range []struct {
+		name                string
+		restoreInfoPITRTime int64
+		startedAtString     string
+		expected            *pbmListRestore
+	}{
+		{
+			name:                "case1",
+			restoreInfoPITRTime: 1000000000,
+			startedAtString:     "2022-10-11T14:53:20.000000000Z",
+			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000001Z", Type: "pitr", PITR: 1000000000},
+		},
+		{
+			name:                "case2",
+			restoreInfoPITRTime: 1000000001,
+			startedAtString:     "2022-10-11T14:53:20.000000002Z",
+			expected:            &pbmListRestore{Name: "2022-10-11T14:53:20.000000010Z", Type: "pitr", PITR: 1000000001},
+		},
+		{
+			name:                "case3",
+			restoreInfoPITRTime: 1000000002,
+			startedAtString:     "2022-10-11T14:53:20.000000000Z",
+			expected:            nil,
+		},
+		{
+			name:                "case4",
+			restoreInfoPITRTime: 1000000000,
+			startedAtString:     "2022-10-11T14:53:20.000000020Z",
+			expected:            nil,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			startedAt, err := time.Parse(time.RFC3339Nano, tc.startedAtString)
+			require.NoError(t, err)
+
+			res := findPITRRestore(testList, tc.restoreInfoPITRTime, startedAt)
+			assert.Equal(t, tc.expected, res)
 		})
 	}
 }

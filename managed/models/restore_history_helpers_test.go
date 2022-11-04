@@ -123,6 +123,7 @@ func TestRestoreHistory(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, params.ArtifactID, i.ArtifactID)
 		assert.Equal(t, params.ServiceID, i.ServiceID)
+		assert.Equal(t, params.PITRTimestamp, i.PITRTimestamp)
 		assert.Equal(t, params.Status, i.Status)
 		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
 	})
@@ -137,16 +138,20 @@ func TestRestoreHistory(t *testing.T) {
 		q := tx.Querier
 		prepareArtifactsAndService(q)
 
+		now := time.Now().Round(time.Second)
+
 		params := models.CreateRestoreHistoryItemParams{
-			ArtifactID: artifactID1,
-			ServiceID:  serviceID1,
-			Status:     models.InProgressRestoreStatus,
+			ArtifactID:    artifactID1,
+			ServiceID:     serviceID1,
+			PITRTimestamp: &now,
+			Status:        models.InProgressRestoreStatus,
 		}
 
 		i, err := models.CreateRestoreHistoryItem(q, params)
 		require.NoError(t, err)
 		assert.Equal(t, params.ArtifactID, i.ArtifactID)
 		assert.Equal(t, params.ServiceID, i.ServiceID)
+		assert.Equal(t, params.PITRTimestamp, i.PITRTimestamp)
 		assert.Equal(t, params.Status, i.Status)
 		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
 
@@ -156,6 +161,7 @@ func TestRestoreHistory(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, params.ArtifactID, i.ArtifactID)
 		assert.Equal(t, params.ServiceID, i.ServiceID)
+		assert.WithinDuration(t, *params.PITRTimestamp, *i.PITRTimestamp, 0)
 		assert.Equal(t, models.ErrorRestoreStatus, i.Status)
 		assert.Less(t, time.Now().UTC().Unix()-i.StartedAt.Unix(), int64(5))
 	})
