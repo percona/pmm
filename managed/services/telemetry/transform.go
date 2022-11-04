@@ -69,7 +69,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 }
 
 func removeEmpty(metrics []*pmmv1.ServerMetric_Metric) []*pmmv1.ServerMetric_Metric {
-	result := make([]*pmmv1.ServerMetric_Metric, len(metrics))
+	result := make([]*pmmv1.ServerMetric_Metric, 0, len(metrics))
 
 	for _, metric := range metrics {
 		if metric.Value != "" {
