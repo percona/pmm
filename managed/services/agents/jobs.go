@@ -287,7 +287,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 		restartCtx, cancel := context.WithTimeout(context.Background(), maxRestartInterval)
 		defer cancel()
 		restartErr := s.RestartJob(restartCtx, job.ID)
-		if restartErr != nil && restartErr != ErrRetriesExhausted {
+		if restartErr != nil && !errors.Is(restartErr, ErrRetriesExhausted) {
 			s.l.Errorf("restart job %s: %v", job.ID, restartErr)
 		}
 	}()

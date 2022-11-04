@@ -510,6 +510,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
 			TextFiles:            builtinAgent.GetTextFiles(),
 			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			TLS:                  false,
 		}
 		agent, err = slowlog.New(params, l)
 

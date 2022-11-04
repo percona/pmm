@@ -378,7 +378,7 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 			}
 		}
 	default:
-		panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+		panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
 	}
 
 	return errors.Wrap(q.Delete(s), "failed to delete Service")

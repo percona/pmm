@@ -88,7 +88,6 @@ jobs:
           reporter: github-pr-review
           fail_on_error: true
           cache: false
-          golangci_lint_flags: "-c=.golangci-required.yml"
           golangci_lint_version: v1.49.0
 
       - name: Run go-consistent

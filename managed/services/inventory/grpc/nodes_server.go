@@ -75,7 +75,7 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesR
 		case *inventorypb.RemoteAzureDatabaseNode:
 			res.RemoteAzureDatabase = append(res.RemoteAzureDatabase, node)
 		default:
-			panic(fmt.Errorf("unhandled inventory Node type %T", node))
+			panic(fmt.Errorf("unhandled inventory Node type %T", node)) //nolint:goerr113
 		}
 	}
 	return res, nil
@@ -101,7 +101,7 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 	case *inventorypb.RemoteAzureDatabaseNode:
 		res.Node = &inventorypb.GetNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		panic(fmt.Errorf("unhandled inventory Node type %T", node))
+		panic(fmt.Errorf("unhandled inventory Node type %T", node)) //nolint:goerr113
 	}
 	return res, nil
 }

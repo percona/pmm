@@ -348,7 +348,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
 	}
-	pmmAgentIDs := make([]interface{}, len(allAgents))
+	pmmAgentIDs := make([]interface{}, 0, len(allAgents))
 	for _, str := range allAgents {
 		row := str.(*Agent)
 		if row.PMMAgentID != nil {
@@ -953,7 +953,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 				}
 			}
 		default:
-			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode)) //nolint:goerr113
 		}
 	}
 

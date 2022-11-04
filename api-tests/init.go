@@ -76,7 +76,7 @@ var (
 )
 
 // ErrFromNginx is an error type for nginx HTML response.
-type ErrFromNginx string
+type ErrFromNginx string //nolint:errname
 
 // Error implements error interface.
 func (e *ErrFromNginx) Error() string {

@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package envvars contains environment variables parser.
+
+//nolint:goerr113
 package envvars
 
 import (
@@ -63,7 +65,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {

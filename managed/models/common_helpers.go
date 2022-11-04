@@ -18,7 +18,7 @@ package models
 import "fmt"
 
 // ErrInvalidArgument returned when some passed argument is invalid.
-type ErrInvalidArgument struct {
+type ErrInvalidArgument struct { //nolint:errname
 	Details string
 }
 

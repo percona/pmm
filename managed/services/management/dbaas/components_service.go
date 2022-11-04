@@ -388,7 +388,7 @@ func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*mode
 	}
 	for _, v := range rc.Versions {
 		if v.Enable && v.Disable {
-			return nil, fmt.Errorf("enable and disable for version %s can't be passed together", v.Version)
+			return nil, fmt.Errorf("enable and disable for version %s can't be passed together", v.Version) //nolint:goerr113
 		}
 		if v.Enable {
 			delete(disabledVersions, v.Version)
@@ -398,7 +398,7 @@ func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*mode
 		}
 	}
 	if _, ok := disabledVersions[kc.DefaultVersion]; ok {
-		return nil, fmt.Errorf("default version can't be disabled")
+		return nil, fmt.Errorf("default version can't be disabled") //nolint:goerr113
 	}
 	kc.DisabledVersions = stringset.ToSlice(disabledVersions)
 	return kc, nil

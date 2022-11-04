@@ -96,7 +96,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 		}, nil
 
 	default:
-		panic(fmt.Errorf("unhandled Node type %s", node.NodeType))
+		panic(fmt.Errorf("unhandled Node type %s", node.NodeType)) //nolint:goerr113
 	}
 }
 
@@ -189,7 +189,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 		}, nil
 
 	default:
-		panic(fmt.Errorf("unhandled Service type %s", service.ServiceType))
+		panic(fmt.Errorf("unhandled Service type %s", service.ServiceType)) //nolint:goerr113
 	}
 }
 
@@ -466,7 +466,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		}, nil
 
 	default:
-		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
+		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType)) //nolint:goerr113
 	}
 }
 

@@ -108,7 +108,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 		case *inventorypb.VMAgent:
 			res.VmAgent = append(res.VmAgent, agent)
 		default:
-			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
+			panic(fmt.Errorf("unhandled inventory Agent type %T", agent)) //nolint:goerr113
 		}
 	}
 	return res, nil
@@ -154,7 +154,7 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 	case *inventorypb.VMAgent:
 		// skip it, fix later if needed.
 	default:
-		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
+		panic(fmt.Errorf("unhandled inventory Agent type %T", agent)) //nolint:goerr113
 	}
 	return res, nil
 }

@@ -107,7 +107,7 @@ func collectNodes(q *reform.Querier, services map[string]*models.Service) (map[s
 }
 
 // QueryExists check if query value in request exists in clickhouse.
-// This avoid recieving custom queries.
+// This avoid receiving custom queries.
 func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error {
 	qanReq := &qanpb.QueryExistsRequest{
 		Serviceid: serviceID,
@@ -119,7 +119,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		return err
 	}
 	if !resp.Value {
-		return fmt.Errorf("given query is not valid")
+		return fmt.Errorf("given query is not valid") //nolint:goerr113
 	}
 
 	return nil

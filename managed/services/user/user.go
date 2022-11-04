@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -65,7 +66,7 @@ func (s *Service) GetUser(ctx context.Context, req *userpb.UserDetailsRequest) (
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
-		if err == models.ErrNotFound {
+		if errors.Is(err, models.ErrNotFound) {
 			// User entry missing; create entry
 			params := &models.CreateUserParams{
 				UserID: userID,
@@ -104,7 +105,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		var err error
 		userInfo, err = models.FindUser(tx.Querier, userID)
 		if err != nil {
-			if err == models.ErrNotFound {
+			if errors.Is(err, models.ErrNotFound) {
 				return status.Errorf(codes.Unavailable, "User not found")
 			}
 			return err

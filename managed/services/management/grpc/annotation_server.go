@@ -48,7 +48,7 @@ func NewAnnotationServer(db *reform.DB, grafanaClient *grafana.Client) *Annotati
 func (as *AnnotationServer) AddAnnotation(ctx context.Context, req *managementpb.AddAnnotationRequest) (*managementpb.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
+		return nil, fmt.Errorf("cannot get headers from metadata") //nolint:goerr113
 	}
 	// get authorization from headers.
 	authorizationHeaders := headers.Get("Authorization")

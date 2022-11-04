@@ -83,7 +83,7 @@ func ValidateDataRetention(value time.Duration) (time.Duration, error) {
 // ValidateAWSPartitions validates AWS partitions list.
 func ValidateAWSPartitions(partitions []string) error {
 	if len(partitions) > len(endpoints.DefaultPartitions()) {
-		return fmt.Errorf("aws_partitions: list is too long")
+		return fmt.Errorf("aws_partitions: list is too long") //nolint:goerr113
 	}
 
 	for _, p := range partitions {
@@ -95,7 +95,7 @@ func ValidateAWSPartitions(partitions []string) error {
 			}
 		}
 		if !valid {
-			return fmt.Errorf("aws_partitions: partition %q is invalid", p)
+			return fmt.Errorf("aws_partitions: partition %q is invalid", p) //nolint:goerr113
 		}
 	}
 

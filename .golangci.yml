@@ -2,6 +2,9 @@
 linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
+  cyclop:
+    max-complexity: 30
+
 
   depguard:
     list-type: blacklist
@@ -83,6 +86,54 @@ linters:
     - varnamelen        # useless
     - wrapcheck         # we do not use wrapping everywhere
     - wsl               # too annoying
+    - gocyclo           # using cyclop with the max 30 instead
+    - exhaustruct       # too many files to fix/nolint
+
+    - paralleltest #temporary until all errors fixed
+    - tagliatelle #temporary until all errors fixed
+    - thelper #temporary until all errors fixed
+    - tparallel #temporary until all errors fixed
+    - gocritic #temporary until all errors fixed
+    - godot #temporary until all errors fixed
+    - godox #temporary until all errors fixed
+    - revive #temporary until all errors fixed
+    - unparam #temporary until all errors fixed
+    - nosnakecase #temporary until all errors fixed
+    - paralleltest #temporary until all errors fixed
+    - stylecheck #temporary until all errors fixed
+    - ireturn #temporary until all errors fixed
+    - gocognit #temporary until all errors fixed
+    - maintidx #temporary until all errors fixed
+    - lll #temporary until all errors fixed
+    - nestif #temporary until all errors fixed
+    - whitespace #temporary until all errors fixed
+    - errorlint #temporary until all errors fixed
+    - forcetypeassert #temporary until all errors fixed
+    - golint #temporary until all errors fixed
+    - deadcode #temporary until all errors fixed
+    - gosec #temporary until all errors fixed
+    - nonamedreturns #temporary until all errors fixed
+    - noctx #temporary until all errors fixed
+    - usestdlibvars #temporary until all errors fixed
+    - execinquery #temporary until all errors fixed
+    - predeclared #temporary until all errors fixed
+    - nosprintfhostport #temporary until all errors fixed
+    - nilnil #temporary until all errors fixed
+    - nilerr #temporary until all errors fixed
+    - interfacebloat #temporary until all errors fixed
+    - gosimple #temporary until all errors fixed
+    - contextcheck #temporary until all errors fixed
+    - bodyclose #temporary until all errors fixed
+    - varcheck #temporary until all errors fixed
+    - unused #temporary until all errors fixed
+    - prealloc #temporary until all errors fixed
+    - nakedret #temporary until all errors fixed
+    - forbidigo #temporary until all errors fixed
+    - errcheck #temporary until all errors fixed
+    - dupl #temporary until all errors fixed
+    - depguard #temporary until all errors fixed
+    - containedctx #temporary until all errors fixed
+
 
 run:
   timeout: 5m

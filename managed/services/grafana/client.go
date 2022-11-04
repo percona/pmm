@@ -42,8 +42,14 @@ import (
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
-// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
-var ErrFailedToGetToken = errors.New("failed to get token")
+var (
+	// ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
+	ErrFailedToGetToken = errors.New("failed to get token")
+
+	errGettingHeaders        = fmt.Errorf("cannot get headers from metadata")
+	errGrafanaAPIUnavailable = fmt.Errorf("cannot reach Grafana API")
+	errGrafanaErrors         = fmt.Errorf("grafana is running with errors")
+)
 
 const defaultEvaluationInterval = time.Minute
 
@@ -500,7 +506,7 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
+		return nil, errGettingHeaders
 	}
 	// get authorization from headers.
 	authorizationHeaders := headers.Get("Authorization")
@@ -642,12 +648,12 @@ func (c *Client) IsReady(ctx context.Context) error {
 	if err := c.do(ctx, "GET", "/api/health", "", nil, nil, &status); err != nil {
 		// since we don't return the error to the user, log it to help debugging
 		logrus.Errorf("grafana status check failed: %s", err)
-		return fmt.Errorf("cannot reach Grafana API")
+		return errGrafanaAPIUnavailable
 	}
 
 	if strings.ToLower(status.Database) != "ok" {
 		logrus.Errorf("grafana is up but the database is not ok. Database status is %s", status.Database)
-		return fmt.Errorf("grafana is running with errors")
+		return errGrafanaErrors
 	}
 
 	return nil
@@ -681,7 +687,7 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occured during getting of user's token")
+		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
 	}
 
 	return user.AccessToken, nil

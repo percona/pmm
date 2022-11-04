@@ -202,11 +202,11 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %s", err)
+		return false, fmt.Errorf("failed to get PMM Agent: %s", err) //nolint:goerr113
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
-		return false, fmt.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err)
+		return false, fmt.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err) //nolint:goerr113
 	}
 
 	if pmmAgentVersion.Less(checkExternalExporterConnectionPMMVersion) {

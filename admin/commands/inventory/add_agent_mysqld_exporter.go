@@ -56,9 +56,9 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 		return ""
 	}
 
-	s := "enabled"
+	s := "enabled" //nolint:goconst
 	if res.Agent.TablestatsGroupDisabled {
-		s = "disabled"
+		s = "disabled" //nolint:goconst
 	}
 
 	switch {

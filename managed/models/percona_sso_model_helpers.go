@@ -44,7 +44,7 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 
 	ssoDetails, err := q.SelectOneFrom(PerconaSSODetailsTable, "")
 	if err != nil {
-		if err == reform.ErrNoRows {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, ErrNotConnectedToPortal
 		}
 		return nil, errors.Wrap(err, "failed to get Percona SSO Details")
@@ -93,7 +93,7 @@ func (sso *PerconaSSODetails) refreshAndGetAccessToken(ctx context.Context, q *r
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to get access token, response body: %s", bodyBytes)
+		return nil, fmt.Errorf("failed to get access token, response body: %s", bodyBytes) //nolint:goerr113
 	}
 
 	var accessToken *PerconaSSOAccessToken

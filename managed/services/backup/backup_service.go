@@ -65,7 +65,7 @@ type PerformBackupParams struct {
 }
 
 // PerformBackup starts on-demand backup.
-func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) {
+func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams) (string, error) { //nolint:cyclop
 	dbVersion, err := s.compatibilityService.CheckSoftwareCompatibilityForService(ctx, params.ServiceID)
 	if err != nil {
 		return "", err
@@ -158,7 +158,9 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 		} else {
 			if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
+				Status:     models.BackupStatusPointer(models.PendingBackupStatus),
+				ServiceID:  nil,
+				ScheduleID: nil,
 			}); err != nil {
 				return err
 			}

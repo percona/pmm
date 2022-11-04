@@ -103,7 +103,7 @@ func TestRDSService(t *testing.T) {
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
 			ctx := logger.Set(context.Background(), t.Name())
-			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:gosec
+			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:gosec,goconst
 
 			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,

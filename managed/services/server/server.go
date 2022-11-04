@@ -172,7 +172,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror"))
+				panic(fmt.Errorf("panic-fmterror")) //nolint:goerr113
 			default:
 				panic(req.Dummy)
 			}
@@ -568,7 +568,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
