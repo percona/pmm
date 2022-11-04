@@ -233,10 +233,20 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 			continue
 		}
 
-		for _, each := range metrics {
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, each...)
+		if telemetry.Transform != nil {
+			if telemetry.Transform.Type == JSONTransformType {
+				metrics, err = transformToJSON(&telemetry, metrics)
+				if err != nil {
+					s.l.Debugf("failed to transform to JSON: %s", err)
+					continue
+				}
+			}
 		}
+
+		telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
 	}
+	telemetryMetric.Metrics = removeEmpty(telemetryMetric.Metrics)
+
 	s.l.Debugf("fetching all metrics took [%s]", totalTime)
 
 	return telemetryMetric

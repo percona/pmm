@@ -71,7 +71,7 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 	return ds, nil
 }
 
-func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
@@ -97,31 +97,24 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	}
 	cfgColumns := config.mapByColumn()
 
-	var metrics [][]*pmmv1.ServerMetric_Metric
+	var metrics []*pmmv1.ServerMetric_Metric
 	for rows.Next() {
 		if err := rows.Scan(values...); err != nil {
 			l.Error(err)
 			continue
 		}
 
-		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
 			value := pointer.GetString(strs[idx])
-			if value == "" {
-				continue
-			}
 
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
-					metric = append(metric, &pmmv1.ServerMetric_Metric{
+					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
 						Key:   col.MetricName,
 						Value: value,
 					})
 				}
 			}
-		}
-		if len(metric) != 0 {
-			metrics = append(metrics, metric)
 		}
 	}
 

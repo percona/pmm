@@ -66,7 +66,7 @@ func NewDataSourceVictoriaMetrics(config DataSourceVictoriaMetrics, l *logrus.En
 	}, nil
 }
 
-func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, d.config.Timeout)
 	defer cancel()
 
@@ -86,6 +86,11 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 						Key:   configItem.MetricName,
 						Value: string(value),
 					})
+				} else { //TODO:
+					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+						Key:   configItem.MetricName,
+						Value: "",
+					})
 				}
 			}
 
@@ -98,5 +103,5 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 		}
 	}
 
-	return [][]*pmmv1.ServerMetric_Metric{metrics}, nil
+	return metrics, nil
 }

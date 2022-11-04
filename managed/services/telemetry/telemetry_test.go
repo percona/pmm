@@ -21,7 +21,6 @@ import (
 	"io/fs"
 	"os"
 	"reflect"
-	"sync"
 	"testing"
 	"time"
 
@@ -39,8 +38,29 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const (
+	envPGHostPort = "TEST_PG_HOST_PORT"
+	envQanDSN     = "TEST_QAN_DSN"
+	envVmDSN      = "TEST_VM_DSN"
+)
+
 func TestRunTelemetryService(t *testing.T) {
-	t.Skip()
+	pgHostPort := "127.0.0.1:5432"
+	pgHostPortFromEnv, ok := os.LookupEnv(envPGHostPort)
+	if ok {
+		pgHostPort = pgHostPortFromEnv
+	}
+	qanDSN := "tcp://localhost:9000?database=pmm&block_size=10000&pool_size="
+	qanDSNFromEnv, ok := os.LookupEnv(envQanDSN)
+	if ok {
+		qanDSN = qanDSNFromEnv
+	}
+	vmDSN := "http://localhost:9090/prometheus/"
+	vmDSNFromEnv, ok := os.LookupEnv(envVmDSN)
+	if ok {
+		vmDSN = vmDSNFromEnv
+	}
+
 	type fields struct {
 		l                   *logrus.Entry
 		start               time.Time
@@ -137,7 +157,7 @@ func TestRunTelemetryService(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
 			defer cancel()
 
-			serviceConfig := getServiceConfig()
+			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
 
 			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
 			assert.NoError(t, err)
@@ -154,22 +174,15 @@ func TestRunTelemetryService(t *testing.T) {
 				tDistributionMethod: 0,
 				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
+				sendCh:              make(chan *pmmv1.ServerMetric, sendChSize),
 			}
 
-			var wg sync.WaitGroup
-
-			wg.Add(1)
-			go func() {
-				s.Run(ctx)
-				wg.Done()
-			}()
-
-			wg.Wait()
+			s.Run(ctx)
 		})
 	}
 }
 
-func getServiceConfig() ServiceConfig {
+func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceConfig {
 	serviceConfig := ServiceConfig{
 		Enabled:      true,
 		SaasHostname: "check.localhost",
@@ -188,12 +201,12 @@ func getServiceConfig() ServiceConfig {
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				Address: "http://localhost:9090/prometheus/",
+				Address: vmDSN,
 			},
 			QanDBSelect: &DSConfigQAN{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				DSN:     "tcp://localhost:9000?database=pmm&block_size=10000&pool_size=",
+				DSN:     qanDSN,
 			},
 			PmmDBSelect: &DSConfigPMMDB{
 				Enabled:                true,
@@ -213,7 +226,7 @@ func getServiceConfig() ServiceConfig {
 					Params string
 				}{
 					Scheme: "postgres",
-					Host:   "127.0.0.1:5432",
+					Host:   pgPortHost,
 					DB:     "pmm-managed-dev",
 					Params: "sslmode=disable",
 				},
@@ -237,14 +250,14 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtil
 	return dus
 }
 
-func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() sender {
+func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportRequest, timesCall int) func() sender {
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
 			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
-				return matchExpectedReport(report, expetedReport)
+				return matchExpectedReport(report, expectedReport)
 			}),
 		).
 			Return(nil).
@@ -272,6 +285,10 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 				Source:  testSourceName,
 				Query:   "pg_static{service_type=\"postgresql\"}",
 				Summary: "Monitored PostgreSQL services version",
+				Transform: &ConfigTransform{
+					Type:   JSONTransformType,
+					Metric: "test_metric",
+				},
 				Data: []ConfigData{
 					{
 						MetricName: "postgresql_version",
@@ -287,6 +304,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
+			Send:         true,
 			SendOnStart:  sendOnStart,
 			Interval:     reportingInterval,
 			RetryBackoff: 0,
