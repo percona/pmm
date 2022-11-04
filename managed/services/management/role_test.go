@@ -17,10 +17,10 @@ package management
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
