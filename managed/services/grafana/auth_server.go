@@ -231,7 +231,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	authUser, err := s.authenticate(ctx, req, l)
 	if err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]interface{}{
+		m := map[string]any{
 			"code":    int(err.code),
 			"error":   err.message,
 			"message": err.message,
@@ -247,7 +247,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	if err := s.maybeAddVMGatewayToken(ctx, rw, req, userID, l); err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]interface{}{
+		m := map[string]any{
 			"code":    int(codes.Internal),
 			"error":   "Internal server error.",
 			"message": "Internal server error.",
@@ -294,7 +294,7 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 		l.Debugf("Getting authenticated user info")
 		authUser, err := s.getAuthUser(ctx, req, l)
 		if err != nil {
-			return fmt.Errorf("%w", ErrCannotGetUserID)
+			return ErrCannotGetUserID
 		}
 
 		if authUser == nil {
@@ -305,10 +305,10 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 	}
 
 	if userID <= 0 {
-		return fmt.Errorf("%w", ErrInvalidUserID)
+		return ErrInvalidUserID
 	}
 
-	token, err := s.getAuthToken(userID)
+	token, err := s.getAuthTokenForVMGateway(userID)
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 	return nil
 }
 
-func (s *AuthServer) getAuthToken(userID int) (string, error) {
+func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
 	user, err := models.GetOrCreateUser(s.db.Querier, userID)
 	if err != nil {
 		return "", err
@@ -447,7 +447,7 @@ func nextPrefix(path string) string {
 // authenticate checks if user has access to a specific path.
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
-// some fields such as authUser.userID.
+// some user fields such as authUser.userID.
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// find the longest prefix present in rules
 	prefix := req.URL.Path

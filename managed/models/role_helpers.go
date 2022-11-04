@@ -58,7 +58,7 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 	return err
 }
 
-// DeleteRole deletes a role.
+// DeleteRole deletes a role, if possible.
 func DeleteRole(tx *reform.TX, roleID int) error {
 	q := tx.Querier
 
