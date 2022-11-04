@@ -89,8 +89,8 @@ service Service {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add custom labels"
-      description: "Adds custom labels to a Service."
+      summary: "Add/replace custom labels"
+      description: "Adds or replaces (if the key exists) custom labels for a Service."
     };
   }
 

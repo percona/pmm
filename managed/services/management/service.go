@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -147,7 +146,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 	return &managementpb.RemoveServiceResponse{}, nil
 }
 
-// AddCustomLabels adds custom labels to a service.
+// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
 func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.AddCustomLabelsRequest) (*managementpb.AddCustomLabelsResponse, error) {
 	if req.ServiceId == "" {
 		return nil, status.Error(codes.InvalidArgument, "service_id is required")
@@ -192,7 +191,7 @@ func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.
 	return &managementpb.AddCustomLabelsResponse{}, nil
 }
 
-// RemoveCustomLabels adds custom labels to a service.
+// RemoveCustomLabels removes custom labels from a service.
 func (s *ServiceService) RemoveCustomLabels(ctx context.Context, req *managementpb.RemoveCustomLabelsRequest) (*managementpb.RemoveCustomLabelsResponse, error) {
 	if req.ServiceId == "" {
 		return nil, status.Error(codes.InvalidArgument, "service_id is required")
@@ -225,8 +224,6 @@ func (s *ServiceService) RemoveCustomLabels(ctx context.Context, req *management
 		if err != nil {
 			return err
 		}
-
-		logrus.Info(string(service.CustomLabels))
 
 		return nil
 	})

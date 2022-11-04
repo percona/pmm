@@ -38,9 +38,9 @@ type ClientService interface {
 }
 
 /*
-AddCustomLabels adds custom labels
+AddCustomLabels adds replace custom labels
 
-Adds custom labels to a Service.
+Adds or replaces (if the key exists) custom labels for a Service.
 */
 func (a *Client) AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOption) (*AddCustomLabelsOK, error) {
 	// TODO: Validate the params before sending

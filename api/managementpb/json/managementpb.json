@@ -6604,11 +6604,11 @@
     },
     "/v1/management/Service/CustomLabels/Add": {
       "post": {
-        "description": "Adds custom labels to a Service.",
+        "description": "Adds or replaces (if the key exists) custom labels for a Service.",
         "tags": [
           "Service"
         ],
-        "summary": "Add custom labels",
+        "summary": "Add/replace custom labels",
         "operationId": "AddCustomLabels",
         "parameters": [
           {
