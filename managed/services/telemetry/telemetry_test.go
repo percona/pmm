@@ -285,10 +285,6 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 				Source:  testSourceName,
 				Query:   "pg_static{service_type=\"postgresql\"}",
 				Summary: "Monitored PostgreSQL services version",
-				Transform: &ConfigTransform{
-					Type:   JSONTransformType,
-					Metric: "test_metric",
-				},
 				Data: []ConfigData{
 					{
 						MetricName: "postgresql_version",
