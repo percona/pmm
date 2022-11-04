@@ -779,6 +779,8 @@ var databaseSchema = [][]string{
 			VALUES
 			('Full access', '', NOW(), NOW())
 			RETURNING id
+		), settings_id AS (
+			UPDATE settings SET settings['default_role_id'] = (SELECT to_jsonb(id) FROM rows)
 		)
 		UPDATE user_flags SET role_id = (SELECT id FROM rows);`,
 	},

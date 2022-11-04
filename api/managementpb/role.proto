@@ -101,4 +101,16 @@ service Role {
       description: "Assigns Role to a User."
     };
   }
+
+  // SetDefaultRole configures default role assigned to users.
+  rpc SetDefaultRole(RoleID) returns (EmptyResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Role/SetDefault"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Set default Role"
+      description: "Configures default Role assigned to Users."
+    };
+  }
 }

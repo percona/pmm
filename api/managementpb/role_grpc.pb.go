@@ -35,6 +35,8 @@ type RoleClient interface {
 	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
 	// AssignRole assigns a role to a user.
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	// SetDefaultRole configures default role assigned to users.
+	SetDefaultRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type roleClient struct {
@@ -99,6 +101,15 @@ func (c *roleClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts
 	return out, nil
 }
 
+func (c *roleClient) SetDefaultRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
+	err := c.cc.Invoke(ctx, "/management.Role/SetDefaultRole", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoleServer is the server API for Role service.
 // All implementations must embed UnimplementedRoleServer
 // for forward compatibility
@@ -115,6 +126,8 @@ type RoleServer interface {
 	ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error)
 	// AssignRole assigns a role to a user.
 	AssignRole(context.Context, *AssignRoleRequest) (*EmptyResponse, error)
+	// SetDefaultRole configures default role assigned to users.
+	SetDefaultRole(context.Context, *RoleID) (*EmptyResponse, error)
 	mustEmbedUnimplementedRoleServer()
 }
 
@@ -143,6 +156,10 @@ func (UnimplementedRoleServer) ListRoles(context.Context, *ListRolesRequest) (*L
 
 func (UnimplementedRoleServer) AssignRole(context.Context, *AssignRoleRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRole not implemented")
+}
+
+func (UnimplementedRoleServer) SetDefaultRole(context.Context, *RoleID) (*EmptyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultRole not implemented")
 }
 func (UnimplementedRoleServer) mustEmbedUnimplementedRoleServer() {}
 
@@ -265,6 +282,24 @@ func _Role_AssignRole_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Role_SetDefaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleID)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).SetDefaultRole(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Role/SetDefaultRole",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).SetDefaultRole(ctx, req.(*RoleID))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Role_ServiceDesc is the grpc.ServiceDesc for Role service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -295,6 +330,10 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AssignRole",
 			Handler:    _Role_AssignRole_Handler,
+		},
+		{
+			MethodName: "SetDefaultRole",
+			Handler:    _Role_SetDefaultRole_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

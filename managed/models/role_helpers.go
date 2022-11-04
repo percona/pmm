@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 )
 
@@ -43,7 +44,7 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 	q := tx.Querier
 
 	var role Role
-	if err := findAndLockRole(tx, roleID, &role); err != nil {
+	if err := FindAndLockRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -58,12 +59,26 @@ func AssignRole(tx *reform.TX, userID, roleID int) error {
 	return err
 }
 
+// AssignDefaultRole assigns a default role to a user.
+func AssignDefaultRole(tx *reform.TX, userID int) error {
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return err
+	}
+
+	if settings.DefaultRoleID <= 0 {
+		logrus.Panicf("Default role ID is %d", settings.DefaultRoleID)
+	}
+
+	return AssignRole(tx, userID, settings.DefaultRoleID)
+}
+
 // DeleteRole deletes a role, if possible.
 func DeleteRole(tx *reform.TX, roleID int) error {
 	q := tx.Querier
 
 	var role Role
-	if err := findAndLockRole(tx, roleID, &role); err != nil {
+	if err := FindAndLockRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -87,7 +102,8 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 	return nil
 }
 
-func findAndLockRole(tx *reform.TX, roleID int, role *Role) error {
+// FindAndLockRole retrieves a role by ID and locks it for update.
+func FindAndLockRole(tx *reform.TX, roleID int, role *Role) error {
 	err := tx.Querier.SelectOneTo(role, "WHERE id = $1 FOR UPDATE", roleID)
 	if err != nil {
 		if errors.As(err, &reform.ErrNoRows) {

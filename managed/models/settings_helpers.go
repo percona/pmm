@@ -115,6 +115,9 @@ type ChangeSettingsParams struct {
 	EnableBackupManagement bool
 	// Disable Backup Management features.
 	DisableBackupManagement bool
+
+	// DefaultRoleID sets a default role to be assigned to new users.
+	DefaultRoleID int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -132,7 +135,7 @@ func SetPMMServerID(q reform.DBTX) error {
 
 // UpdateSettings updates only non-zero, non-empty values.
 func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) {
-	err := ValidateSettings(params)
+	err := ValidateSettings(q, params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
 	}
@@ -279,6 +282,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.BackupManagement.Enabled = true
 	}
 
+	if params.DefaultRoleID != 0 {
+		settings.DefaultRoleID = params.DefaultRoleID
+	}
+
 	err = SaveSettings(q, settings)
 	if err != nil {
 		return nil, err
@@ -315,7 +322,7 @@ func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
 }
 
 // ValidateSettings validates settings changes.
-func ValidateSettings(params *ChangeSettingsParams) error {
+func ValidateSettings(q reform.DBTX, params *ChangeSettingsParams) error {
 	if params.EnableUpdates && params.DisableUpdates {
 		return errors.New("both enable_updates and disable_updates are present")
 	}
@@ -431,6 +438,18 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {
 		return errors.New("both pmm_public_address and remove_pmm_public_address are present")
+	}
+
+	if params.DefaultRoleID != 0 {
+		tx, ok := q.(*reform.TX)
+		if !ok {
+			return errors.New("changing Role ID requires a *reform.TX")
+		}
+
+		var r Role
+		if err := FindAndLockRole(tx, params.DefaultRoleID, &r); err != nil {
+			return err
+		}
 	}
 
 	return nil

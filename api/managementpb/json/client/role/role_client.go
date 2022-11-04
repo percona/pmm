@@ -38,6 +38,8 @@ type ClientService interface {
 
 	ListRoles(params *ListRolesParams, opts ...ClientOption) (*ListRolesOK, error)
 
+	SetDefaultRole(params *SetDefaultRoleParams, opts ...ClientOption) (*SetDefaultRoleOK, error)
+
 	UpdateRole(params *UpdateRoleParams, opts ...ClientOption) (*UpdateRoleOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -235,6 +237,45 @@ func (a *Client) ListRoles(params *ListRolesParams, opts ...ClientOption) (*List
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListRolesDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+SetDefaultRole sets default role
+
+Configures default Role assigned to Users.
+*/
+func (a *Client) SetDefaultRole(params *SetDefaultRoleParams, opts ...ClientOption) (*SetDefaultRoleOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSetDefaultRoleParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "SetDefaultRole",
+		Method:             "POST",
+		PathPattern:        "/v1/management/Role/SetDefault",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SetDefaultRoleReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SetDefaultRoleOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*SetDefaultRoleDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

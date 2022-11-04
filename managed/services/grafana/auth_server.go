@@ -274,19 +274,7 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *
 // maybeAddVMGatewayToken adds authorization token to requests proxied to VictoriaMetrics Gateway.
 // In case the request is not proxied to the gateway, this is a no-op.
 func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.accessControl {
-		return nil
-	}
-
-	addAuthToken := false
-	for _, p := range vmGatewayPrefixes {
-		if strings.HasPrefix(req.URL.Path, p) {
-			addAuthToken = true
-			break
-		}
-	}
-
-	if !addAuthToken {
+	if !s.shallAddVMGatewayToken(req) {
 		return nil
 	}
 
@@ -322,14 +310,50 @@ func (s *AuthServer) maybeAddVMGatewayToken(ctx context.Context, rw http.Respons
 	return nil
 }
 
+func (s *AuthServer) shallAddVMGatewayToken(req *http.Request) bool {
+	if !s.accessControl {
+		return false
+	}
+
+	addAuthToken := false
+	for _, p := range vmGatewayPrefixes {
+		if strings.HasPrefix(req.URL.Path, p) {
+			addAuthToken = true
+			break
+		}
+	}
+
+	return addAuthToken
+}
+
 func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
 	user, err := models.GetOrCreateUser(s.db.Querier, userID)
 	if err != nil {
 		return "", err
 	}
 
+	// We may see this user for the first time.
+	// If the role is not defined, we automatically assign a default role.
 	if user.RoleID <= 0 {
+		err := s.db.InTransaction(func(tx *reform.TX) error {
+			s.l.Infof("Assigning default role to user ID %d", user.ID)
+			return models.AssignDefaultRole(tx, user.ID)
+		})
+		if err != nil {
+			return "", err
+		}
+
+		// Reload user information
+		user, err = models.GetOrCreateUser(s.db.Querier, userID)
+		if err != nil {
+			return "", err
+		}
+
 		return "", nil
+	}
+
+	if user.RoleID <= 0 {
+		logrus.Panicf("User %d has role ID %d", user.ID, user.RoleID)
 	}
 
 	var role models.Role

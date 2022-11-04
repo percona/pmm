@@ -173,3 +173,20 @@ func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRole
 
 	return &managementpb.EmptyResponse{}, nil
 }
+
+// SetDefaultRole configures default role to be assigned to users.
+func (r *RoleService) SetDefaultRole(_ context.Context, req *managementpb.RoleID) (*managementpb.EmptyResponse, error) {
+	err := r.db.InTransaction(func(tx *reform.TX) error {
+		var p models.ChangeSettingsParams
+		p.DefaultRoleID = int(req.RoleId)
+
+		_, err := models.UpdateSettings(tx, &p)
+
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.EmptyResponse{}, nil
+}
