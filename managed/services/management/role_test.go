@@ -227,37 +227,29 @@ func TestRoleService(t *testing.T) {
 	t.Run("Set default role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			defer teardown(t)
-			assert.NoError(t, db.InTransaction(func(tx *reform.TX) error {
-				settings, err := models.GetSettings(tx)
-				assert.NoError(t, err)
+			settings, err := models.GetSettings(db)
+			assert.NoError(t, err)
 
-				roleID := createDummyRoles(ctx, t, s)
-				assert.NotEqual(t, settings.DefaultRoleID, roleID)
+			roleID := createDummyRoles(ctx, t, s)
+			assert.NotEqual(t, settings.DefaultRoleID, roleID)
 
-				_, err = s.SetDefaultRole(ctx, &managementpb.RoleID{
-					RoleId: roleID,
-				})
-				assert.NoError(t, err)
+			_, err = s.SetDefaultRole(ctx, &managementpb.RoleID{
+				RoleId: roleID,
+			})
+			assert.NoError(t, err)
 
-				settingsNew, err := models.GetSettings(tx)
-				assert.NoError(t, err)
-				assert.Equal(t, settingsNew.DefaultRoleID, int(roleID))
-
-				return tx.Rollback()
-			}))
+			settingsNew, err := models.GetSettings(db)
+			assert.NoError(t, err)
+			assert.Equal(t, settingsNew.DefaultRoleID, int(roleID))
 		})
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
 			defer teardown(t)
-			assert.NoError(t, db.InTransaction(func(tx *reform.TX) error {
-				_, err := s.SetDefaultRole(ctx, &managementpb.RoleID{
-					RoleId: 1337,
-				})
+			_, err := s.SetDefaultRole(ctx, &managementpb.RoleID{
+				RoleId: 1337,
+			})
 
-				assert.Error(t, err)
-
-				return tx.Rollback()
-			}))
+			assert.Error(t, err)
 		})
 	})
 }
