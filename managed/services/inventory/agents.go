@@ -362,7 +362,7 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *invento
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
-//nolint:lll,unused
+//nolint:lll
 func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.AddQANMySQLPerfSchemaAgentRequest) (*inventorypb.QANMySQLPerfSchemaAgent, error) {
 	var res *inventorypb.QANMySQLPerfSchemaAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
@@ -422,8 +422,6 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req 
 }
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
-//
-//nolint:unused
 func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.AddQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
 	var res *inventorypb.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
@@ -551,7 +549,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *invent
 
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //
-//nolint:lll,unused
+//nolint:lll
 func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.AddQANMongoDBProfilerAgentRequest) (*inventorypb.QANMongoDBProfilerAgent, error) {
 	var res *inventorypb.QANMongoDBProfilerAgent
 
@@ -674,7 +672,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *invent
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
 //
-//nolint:lll,unused
+//nolint:lll
 func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.QANPostgreSQLPgStatementsAgent, error) {
 	var res *inventorypb.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
@@ -734,7 +732,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
 //
-//nolint:lll,unused
+//nolint:lll
 func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatMonitorAgentRequest) (*inventorypb.QANPostgreSQLPgStatMonitorAgent, error) {
 	var res *inventorypb.QANPostgreSQLPgStatMonitorAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
