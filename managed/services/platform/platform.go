@@ -37,7 +37,14 @@ import (
 
 const rollbackFailed = "Failed to rollback:"
 
-var errGetSSODetailsFailed = status.Error(codes.Aborted, "Failed to fetch SSO details.")
+var (
+	errGetSSODetailsFailed       = status.Error(codes.Aborted, "Failed to fetch SSO details.")
+	errGrafanaAccessTokenFailed  = status.Error(codes.Unauthenticated, "Failed to get user access token. Please sign in using your Percona Portal account.")
+	errPMMServerAlreadyConnected = status.Error(codes.AlreadyExists, "PMM server is already connected to Portal")
+	errPMMServerAddressNotSet    = status.Error(codes.FailedPrecondition, "The address of PMM server is not set")
+	errNotConnectedToPortal      = status.Error(codes.Aborted, "PMM server is not connected to Portal")
+	errNotACustomer              = status.Error(codes.FailedPrecondition, "User is not a Percona customer.")
+)
 
 // Service is responsible for interactions with Percona Platform.
 type Service struct {
@@ -72,7 +79,7 @@ func New(client *platform.Client, db *reform.DB, supervisord supervisordService,
 func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (*platformpb.ConnectResponse, error) {
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err == nil {
-		return nil, status.Error(codes.AlreadyExists, "PMM server is already connected to Portal")
+		return nil, errPMMServerAlreadyConnected
 	}
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -80,7 +87,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 		return nil, err
 	}
 	if settings.PMMPublicAddress == "" {
-		return nil, status.Error(codes.FailedPrecondition, "The address of PMM server is not set")
+		return nil, errPMMServerAddressNotSet
 	}
 
 	pmmServerURL := fmt.Sprintf("https://%s/graph", settings.PMMPublicAddress)
@@ -118,15 +125,30 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 
 // Disconnect disconnects a PMM server from the organization created on Percona Portal.
 func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequest) (*platformpb.DisconnectResponse, error) {
-	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
+	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		s.l.Errorf("failed to get SSO details: %s", err)
+		s.l.Errorf("Failed to get SSO details: %s", err)
 		return nil, errGetSSODetailsFailed
 	}
 
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		s.l.Errorf("Failed to fetch PMM server ID and address: %s", err)
+		return nil, err
+	}
+
+	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
+	if err != nil {
+		if errors.Is(err, grafana.ErrFailedToGetToken) {
+			return nil, errGrafanaAccessTokenFailed
+		}
+		s.l.Errorf("Disconnect to Platform request failed: %s", err)
+		return nil, err
+	}
+
+	err = s.client.Disconnect(ctx, userAccessToken, settings.PMMServerID)
+	if err != nil {
+		s.l.Errorf("Disconnect request to Platform failed: %s", err)
 		return nil, err
 	}
 
@@ -137,37 +159,6 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 			s.l.Errorf("%s %s", rollbackFailed, e)
 		}
 		return nil, err
-	}
-
-	userAccessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
-	if err != nil {
-		if errors.Is(err, grafana.ErrFailedToGetToken) {
-			return nil, status.Error(codes.FailedPrecondition, "Failed to get access token. Please sign in using your Percona Account.")
-		}
-		s.l.Errorf("Disconnect to Platform request failed: %s", err)
-		return nil, err
-	}
-
-	err = s.client.Disconnect(ctx, userAccessToken, settings.PMMServerID)
-	needRecover := err != nil && !req.Force
-
-	if needRecover {
-		if e := models.InsertPerconaSSODetails(s.db.Querier, &models.PerconaSSODetailsInsert{
-			PMMManagedClientID:     ssoDetails.PMMManagedClientID,
-			PMMManagedClientSecret: ssoDetails.PMMManagedClientSecret,
-			GrafanaClientID:        ssoDetails.GrafanaClientID,
-			IssuerURL:              ssoDetails.IssuerURL,
-			Scope:                  ssoDetails.Scope,
-			OrganizationID:         ssoDetails.OrganizationID,
-			PMMServerName:          ssoDetails.PMMServerName,
-		}); e != nil {
-			s.l.Errorf("%s %s", rollbackFailed, e)
-		}
-		if e := s.UpdateSupervisordConfigurations(ctx); e != nil {
-			s.l.Errorf("%s %s", rollbackFailed, e)
-		}
-
-		return nil, err // this is already a status error
 	}
 
 	if !settings.SaaS.STTDisabled {
@@ -204,7 +195,7 @@ func (s *Service) SearchOrganizationTickets(ctx context.Context, req *platformpb
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
-			return nil, status.Error(codes.Unauthenticated, "Failed to get access token. Please sign in using your Percona Account.")
+			return nil, errGrafanaAccessTokenFailed
 		}
 		s.l.Errorf("SearchOrganizationTickets request failed: %s", err)
 		return nil, err
@@ -212,7 +203,7 @@ func (s *Service) SearchOrganizationTickets(ctx context.Context, req *platformpb
 
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		s.l.Errorf("failed to get SSO details: %s", err)
+		s.l.Errorf("Failed to get SSO details: %s", err)
 		return nil, errGetSSODetailsFailed
 	}
 
@@ -258,7 +249,7 @@ func (s *Service) SearchOrganizationEntitlements(ctx context.Context, req *platf
 	accessToken, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
-			return nil, status.Error(codes.Unauthenticated, "Failed to get access token. Please sign in using your Percona Account.")
+			return nil, errGrafanaAccessTokenFailed
 		}
 		s.l.Errorf("SearchOrganizationEntitlements request failed: %s", err)
 		return nil, err
@@ -266,7 +257,7 @@ func (s *Service) SearchOrganizationEntitlements(ctx context.Context, req *platf
 
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		s.l.Errorf("failed to get SSO details: %s", err)
+		s.l.Errorf("Failed to get SSO details: %s", err)
 		return nil, errGetSSODetailsFailed
 	}
 
@@ -323,7 +314,7 @@ func (s *Service) GetContactInformation(ctx context.Context, req *platformpb.Get
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
 			s.l.Error("Failed to get access token.")
-			return nil, status.Error(codes.Unauthenticated, "Failed to get access token. Please sign in using your Percona Account.")
+			return nil, errGrafanaAccessTokenFailed
 		}
 		s.l.Errorf("GetContactInformation request failed: %s", err)
 		return nil, err
@@ -331,8 +322,8 @@ func (s *Service) GetContactInformation(ctx context.Context, req *platformpb.Get
 
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		s.l.Errorf("failed to get SSO details: %s", err)
-		return nil, status.Error(codes.Aborted, "PMM server is not connected to Portal")
+		s.l.Errorf("Failed to get SSO details: %s", err)
+		return nil, errNotConnectedToPortal
 	}
 
 	resp, err := s.client.GetContactInformation(ctx, accessToken, ssoDetails.OrganizationID)
@@ -351,7 +342,7 @@ func (s *Service) GetContactInformation(ctx context.Context, req *platformpb.Get
 	// Platform account is not linked to ServiceNow.
 	if response.CustomerSuccess.Email == "" {
 		s.l.Error("Failed to find contact information, non-customer account.")
-		return nil, status.Error(codes.FailedPrecondition, "Platform account user is not a Percona customer.")
+		return nil, errNotACustomer
 	}
 
 	return response, nil
@@ -368,7 +359,7 @@ func (s *Service) ServerInfo(ctx context.Context, req *platformpb.ServerInfoRequ
 	connectedToPortal := false
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 	if err != nil {
-		s.l.Errorf("failed to get SSO details: %s", err)
+		s.l.Errorf("Failed to get SSO details: %s", err)
 	}
 
 	if ssoDetails != nil {
@@ -395,7 +386,7 @@ func (s *Service) UserStatus(ctx context.Context, req *platformpb.UserStatusRequ
 	_, err := s.grafanaClient.GetCurrentUserAccessToken(ctx)
 	if err != nil {
 		if errors.Is(err, grafana.ErrFailedToGetToken) {
-			return nil, status.Error(codes.Unauthenticated, "Failed to get access token. Please sign in using your Percona Account.")
+			return nil, errGrafanaAccessTokenFailed
 		}
 		s.l.Errorf("UserStatus request failed: %s", err)
 		return nil, err
