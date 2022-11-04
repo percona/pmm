@@ -53,6 +53,7 @@ func TestSettings(t *testing.T) {
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
+			DefaultRoleID: 1,
 		}
 		assert.Equal(t, expected, actual)
 	})
