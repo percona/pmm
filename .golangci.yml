@@ -122,7 +122,6 @@ linters:
     - gosimple #temporary, needs to be processed
     - contextcheck #temporary, needs to be processed
     - bodyclose #temporary, needs to be processed
-    - varcheck #temporary, needs to be processed
     - prealloc #temporary, needs to be processed
     - nakedret #temporary, needs to be processed
     - forbidigo #temporary, needs to be processed
