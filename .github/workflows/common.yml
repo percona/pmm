@@ -107,18 +107,6 @@ jobs:
             echo "$out"
           fi
 
-      - name: Run optional linters
-        if: github.event_name == 'pull_request'
-        uses: reviewdog/action-golangci-lint@v2
-        with: 
-          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-          go_version: ${{ env.GO_VERSION }}
-          reporter: github-pr-review
-          fail_on_error: false
-          cache: false
-          golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.49.0
-
       - name: Test common API
         run: make test-common
 
