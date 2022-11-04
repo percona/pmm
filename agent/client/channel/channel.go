@@ -96,9 +96,9 @@ type Channel struct { //nolint:maligned
 	s agentpb.Agent_ConnectClient
 	l *logrus.Entry
 
-	mRecv, mSend         prometheus.CounterVec
-	mSizeRecv, mSizeSend prometheus.GaugeVec
-	mFailed              prometheus.Counter
+	mRecv, mSend                   prometheus.CounterVec
+	mSizeRecvTotal, mSizeSendTotal prometheus.GaugeVec
+	mFailed                        prometheus.Counter
 
 	lastSentRequestID uint32
 
@@ -133,13 +133,13 @@ func New(stream agentpb.Agent_ConnectClient) *Channel {
 			Name:      "messages_sent_total",
 			Help:      "A total number of sent messages to pmm-managed.",
 		}, []string{labelMessageType}),
-		mSizeRecv: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
+		mSizeRecvTotal: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "message_received_size",
 			Help:      "Received message size from pmm-managed in bytes.",
 		}, []string{labelMessageType}),
-		mSizeSend: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
+		mSizeSendTotal: *prometheus.NewGaugeVec(prometheus.GaugeOpts{ //nolint:exhaustruct
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "message_sent_size",
@@ -254,9 +254,9 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 		return
 	}
 
-	messageType := string(getMessageTypeFromAgentMessage(msg))
+	messageType := string(getAgentMessageType(msg))
 	c.mSend.WithLabelValues(messageType).Inc()
-	c.mSizeSend.WithLabelValues(messageType).Set(float64(proto.Size(msg)))
+	c.mSizeSendTotal.WithLabelValues(messageType).Add(float64(proto.Size(msg)))
 }
 
 // runReader receives messages from server
@@ -284,7 +284,6 @@ func (c *Channel) runReceiver() {
 			}
 		}
 
-		messageType := Unknown
 		switch p := msg.Payload.(type) {
 		// requests
 		case *agentpb.ServerMessage_Ping:
@@ -292,87 +291,71 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.Ping,
 			}
-			messageType = Ping
 		case *agentpb.ServerMessage_SetState:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.SetState,
 			}
-			messageType = SetState
 		case *agentpb.ServerMessage_StartAction:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StartAction,
 			}
-			messageType = StartAction
 		case *agentpb.ServerMessage_StopAction:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StopAction,
 			}
-			messageType = StopAction
 		case *agentpb.ServerMessage_CheckConnection:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.CheckConnection,
 			}
-			messageType = CheckConnection
 		case *agentpb.ServerMessage_StartJob:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StartJob,
 			}
-			messageType = StartJob
 		case *agentpb.ServerMessage_StopJob:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.StopJob,
 			}
-			messageType = StopJob
 		case *agentpb.ServerMessage_JobStatus:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.JobStatus,
 			}
-			messageType = JobStatus
 		case *agentpb.ServerMessage_GetVersions:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.GetVersions,
 			}
-			messageType = GetVersions
 		case *agentpb.ServerMessage_PbmSwitchPitr:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.PbmSwitchPitr,
 			}
-			messageType = PbmSwitchPitr
 		case *agentpb.ServerMessage_ParseDefaultsFile:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.ParseDefaultsFile,
 			}
-			messageType = ParseDefaultsFile
 		case *agentpb.ServerMessage_AgentLogs:
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
-			messageType = AgentLogs
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
 			c.publish(msg.Id, msg.Status, p.Pong)
-			messageType = Pong
 		case *agentpb.ServerMessage_StateChanged:
 			c.publish(msg.Id, msg.Status, p.StateChanged)
-			messageType = StateChanged
 		case *agentpb.ServerMessage_QanCollect:
 			c.publish(msg.Id, msg.Status, p.QanCollect)
-			messageType = QanCollect
 		case *agentpb.ServerMessage_ActionResult:
 			c.publish(msg.Id, msg.Status, p.ActionResult)
-			messageType = ActionResult
 
 		default:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
@@ -388,8 +371,10 @@ func (c *Channel) runReceiver() {
 			})
 			c.mFailed.Inc()
 		}
-		c.mRecv.WithLabelValues(string(messageType)).Inc()
-		c.mSizeRecv.WithLabelValues(string(messageType)).Set(float64(proto.Size(msg)))
+
+		messageType := string(getServerMessageType(msg))
+		c.mRecv.WithLabelValues(messageType).Inc()
+		c.mSizeRecvTotal.WithLabelValues(messageType).Add(float64(proto.Size(msg)))
 	}
 }
 
@@ -452,8 +437,8 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentpb.Se
 func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
 	c.mRecv.Describe(ch)
 	c.mSend.Describe(ch)
-	c.mSizeRecv.Describe(ch)
-	c.mSizeSend.Describe(ch)
+	c.mSizeRecvTotal.Describe(ch)
+	c.mSizeSendTotal.Describe(ch)
 	c.mFailed.Describe(ch)
 }
 
@@ -461,15 +446,15 @@ func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
 func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mRecv.Collect(ch)
 	c.mSend.Collect(ch)
-	c.mSizeRecv.Collect(ch)
-	c.mSizeSend.Collect(ch)
+	c.mSizeRecvTotal.Collect(ch)
+	c.mSizeSendTotal.Collect(ch)
 	c.mFailed.Collect(ch)
 }
 
 //nolint:cyclop
-func getMessageTypeFromAgentMessage(in *agentpb.AgentMessage) MessageType {
+func getAgentMessageType(msg *agentpb.AgentMessage) MessageType {
 	//nolint:nosnakecase
-	switch in.Payload.(type) {
+	switch msg.Payload.(type) {
 	case *agentpb.AgentMessage_Ping:
 		return Ping
 	case *agentpb.AgentMessage_StateChanged:
@@ -506,6 +491,45 @@ func getMessageTypeFromAgentMessage(in *agentpb.AgentMessage) MessageType {
 		return ParseDefaultsFile
 	case *agentpb.AgentMessage_AgentLogs:
 		return AgentLogs
+	default:
+		return Unknown
+	}
+}
+
+func getServerMessageType(msg *agentpb.ServerMessage) MessageType {
+	switch msg.Payload.(type) {
+	case *agentpb.ServerMessage_Ping:
+		return Ping
+	case *agentpb.ServerMessage_SetState:
+		return SetState
+	case *agentpb.ServerMessage_StartAction:
+		return StartAction
+	case *agentpb.ServerMessage_StopAction:
+		return StopAction
+	case *agentpb.ServerMessage_CheckConnection:
+		return CheckConnection
+	case *agentpb.ServerMessage_StartJob:
+		return StartJob
+	case *agentpb.ServerMessage_StopJob:
+		return StopJob
+	case *agentpb.ServerMessage_JobStatus:
+		return JobStatus
+	case *agentpb.ServerMessage_GetVersions:
+		return GetVersions
+	case *agentpb.ServerMessage_PbmSwitchPitr:
+		return PbmSwitchPitr
+	case *agentpb.ServerMessage_ParseDefaultsFile:
+		return ParseDefaultsFile
+	case *agentpb.ServerMessage_AgentLogs:
+		return AgentLogs
+	case *agentpb.ServerMessage_Pong:
+		return Pong
+	case *agentpb.ServerMessage_StateChanged:
+		return StateChanged
+	case *agentpb.ServerMessage_QanCollect:
+		return QanCollect
+	case *agentpb.ServerMessage_ActionResult:
+		return ActionResult
 	default:
 		return Unknown
 	}
