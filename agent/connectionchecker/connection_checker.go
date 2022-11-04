@@ -131,8 +131,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	if err = cc.sqlPing(ctx, db); err != nil {
 		if errors.As(err, &x509.HostnameError{}) {
 			res.Error = errors.Wrap(err,
-				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields",
-			).Error()
+				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
 		} else {
 			res.Error = err.Error()
 		}

@@ -228,8 +228,7 @@ func parsePlatformAPITimeout(d string) (time.Duration, string) {
 		msg := fmt.Sprintf(
 			"Environment variable %q is not set, using %q as a default timeout for platform API.",
 			envPlatformAPITimeout,
-			defaultPlatformAPITimeout.String(),
-		)
+			defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
