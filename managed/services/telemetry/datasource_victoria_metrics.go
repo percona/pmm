@@ -80,18 +80,11 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	for _, v := range result.(model.Vector) { //nolint:forcetypeassert
 		for _, configItem := range config.Data {
 			if configItem.Label != "" {
-				value, ok := v.Metric[model.LabelName(configItem.Label)]
-				if ok {
-					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-						Key:   configItem.MetricName,
-						Value: string(value),
-					})
-				} else { //TODO:
-					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-						Key:   configItem.MetricName,
-						Value: "",
-					})
-				}
+				value := v.Metric[model.LabelName(configItem.Label)]
+				metrics = append(metrics, &pmmv1.ServerMetric_Metric{
+					Key:   configItem.MetricName,
+					Value: string(value),
+				})
 			}
 
 			if configItem.Value != "" {
