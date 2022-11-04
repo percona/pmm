@@ -798,7 +798,7 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 }
 
 // CreateAgent creates Agent with given type.
-func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) {
+func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := "/agent_id/" + uuid.New().String()
 	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
@@ -927,7 +927,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 }
 
 // RemoveAgent removes Agent by ID.
-func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) {
+func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) { //nolint:unparam
 	a, err := FindAgentByID(q, id)
 	if err != nil {
 		return nil, err

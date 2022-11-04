@@ -97,7 +97,6 @@ linters:
     - godot #temporary, needs to be processed
     - godox #temporary, needs to be processed
     - revive #temporary, needs to be processed
-    - unparam #temporary, needs to be processed
     - nosnakecase #temporary, needs to be processed
     - paralleltest #temporary, needs to be processed
     - stylecheck #temporary, needs to be processed

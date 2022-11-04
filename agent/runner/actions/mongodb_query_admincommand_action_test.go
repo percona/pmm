@@ -173,7 +173,7 @@ func TestMongoDBActionsReplWithSSL(t *testing.T) {
 	})
 }
 
-func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) []byte {
+func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) []byte { //nolint:unparam,lll
 	t.Helper()
 	a := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)

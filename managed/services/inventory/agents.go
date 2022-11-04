@@ -163,8 +163,6 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 }
 
 // Logs by Agent ID.
-//
-//nolint:unparam
 func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]string, uint32, error) {
 	agent, err := models.FindAgentByID(as.db.Querier, id)
 	if err != nil {
@@ -238,7 +236,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventoryp
 }
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters and returns it and an actual table count.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.MySQLdExporter, int32, error) {
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.MySQLdExporter, int32, error) { //nolint:unparam
 	var row *models.Agent
 	var res *inventorypb.MySQLdExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {

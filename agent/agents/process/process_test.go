@@ -45,7 +45,7 @@ func assertStates(t *testing.T, sa *Process, expected ...inventorypb.AgentStatus
 }
 
 // builds helper app.
-func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd {
+func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd { //nolint:unparam
 	t.Helper()
 
 	t.Logf("building to %s", outputFile)

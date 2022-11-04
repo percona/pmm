@@ -112,7 +112,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	}
 }
 
-func handleForwardResponseServerMetadata(w http.ResponseWriter, mux *runtime.ServeMux, md runtime.ServerMetadata) {
+func handleForwardResponseServerMetadata(w http.ResponseWriter, _ *runtime.ServeMux, md runtime.ServerMetadata) {
 	for k, vs := range md.HeaderMD {
 		if h, ok := runtime.DefaultHeaderMatcher(k); ok {
 			for _, v := range vs {

@@ -198,7 +198,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 	return &dbaasv1beta1.CreatePSMDBClusterResponse{}, nil
 }
 
-func (s PSMDBClusterService) fillDefaults(ctx context.Context, kubernetesCluster *models.KubernetesCluster,
+func (s PSMDBClusterService) fillDefaults(_ context.Context, _ *models.KubernetesCluster,
 	req *dbaasv1beta1.CreatePSMDBClusterRequest, psmdbComponents *dbaasv1beta1.GetPSMDBComponentsResponse,
 ) error {
 	if req.Name != "" {

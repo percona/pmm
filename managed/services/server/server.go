@@ -812,7 +812,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+func (s *Server) validateSSHKey(_ context.Context, sshKey string) error {
 	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey)) //nolint:dogsled
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")

@@ -45,7 +45,7 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
-func assertCheckViolation(t *testing.T, err error, table, constraint string) {
+func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
 	t.Helper()
 
 	require.IsType(t, &pq.Error{}, err)

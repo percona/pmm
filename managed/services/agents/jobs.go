@@ -163,7 +163,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -295,7 +295,7 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 	return err
 }
 
-func (s *JobsService) handleJobProgress(ctx context.Context, progress *agentpb.JobProgress) {
+func (s *JobsService) handleJobProgress(_ context.Context, progress *agentpb.JobProgress) {
 	switch result := progress.Result.(type) {
 	case *agentpb.JobProgress_Logs_:
 		_, err := models.CreateJobLog(s.db.Querier, models.CreateJobLogParams{
