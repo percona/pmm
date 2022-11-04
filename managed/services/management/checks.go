@@ -175,7 +175,7 @@ func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *management
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck
+func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
 		if errors.Is(err, services.ErrSTTDisabled) {

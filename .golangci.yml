@@ -104,7 +104,6 @@ linters:
     - ireturn #temporary, needs to be processed
     - gocognit #temporary, needs to be processed
     - maintidx #temporary, needs to be processed
-    - lll #temporary, needs to be processed
     - nestif #temporary, needs to be processed
     - whitespace #temporary, needs to be processed
     - errorlint #temporary, needs to be processed

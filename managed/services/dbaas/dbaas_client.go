@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains logic related to communication with dbaas-controller.
+//
+//nolint:lll
 package dbaas
 
 import (

@@ -309,7 +309,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 				"-web.ssl-cert-file={{ .TextFiles.Cert }}",
 			},
 			Env: []string{
-				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&sslCaFile={{.TextFiles.caFilePlaceholder}}&sslCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}",
+				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&sslCaFile={{.TextFiles.caFilePlaceholder}}&sslCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}", //nolint:lll
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:{{ .listen_port }}",
 			},

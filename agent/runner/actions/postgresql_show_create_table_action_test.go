@@ -46,6 +46,7 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 
+		//nolint:lll
 		expected := `Table "public.country"
 Column         |Type          |Collation |Nullable |Default |Storage  |Stats target |Description
 code           |character(3)  |          |not null |        |extended |             |

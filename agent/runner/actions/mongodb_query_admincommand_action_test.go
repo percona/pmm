@@ -226,7 +226,7 @@ func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:the
 	assert.Len(t, objxM.Get("members").Data(), 2)
 }
 
-func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) { //nolint:thelper
+func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) { //nolint:thelper,lll
 	a := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()

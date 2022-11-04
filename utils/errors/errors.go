@@ -35,7 +35,8 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-// PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler (https://github.com/grpc-ecosystem/grpc-gateway/blob/aec6aa29864109e41408491319a859f190ec4040/runtime/errors.go#L93)
+// PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler
+// (https://github.com/grpc-ecosystem/grpc-gateway/blob/aec6aa29864109e41408491319a859f190ec4040/runtime/errors.go#L93)
 // It injects an extra `Error` field in error responses to support old PMM clients
 func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
 	// return Internal when Marshal failed

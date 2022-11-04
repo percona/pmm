@@ -203,6 +203,8 @@ type gRPCServerDeps struct {
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
+//
+//nolint:lll
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
