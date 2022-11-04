@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -228,36 +227,37 @@ func TestRoleService(t *testing.T) {
 	t.Run("Set default role", func(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			defer teardown(t)
-			db.InTransaction(func(tx *reform.TX) error {
+			assert.NoError(t, db.InTransaction(func(tx *reform.TX) error {
 				settings, err := models.GetSettings(tx)
 				assert.NoError(t, err)
 
 				roleID := createDummyRoles(ctx, t, s)
 				assert.NotEqual(t, settings.DefaultRoleID, roleID)
 
-				s.SetDefaultRole(ctx, &managementpb.RoleID{
+				_, err = s.SetDefaultRole(ctx, &managementpb.RoleID{
 					RoleId: roleID,
 				})
+				assert.NoError(t, err)
 
 				settingsNew, err := models.GetSettings(tx)
 				assert.NoError(t, err)
 				assert.Equal(t, settingsNew.DefaultRoleID, int(roleID))
 
-				return errors.New("revert transaction")
-			})
+				return tx.Rollback()
+			}))
 		})
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
 			defer teardown(t)
-			db.InTransaction(func(tx *reform.TX) error {
+			assert.NoError(t, db.InTransaction(func(tx *reform.TX) error {
 				_, err := s.SetDefaultRole(ctx, &managementpb.RoleID{
 					RoleId: 1337,
 				})
 
 				assert.Error(t, err)
 
-				return errors.New("revert transaction")
-			})
+				return tx.Rollback()
+			}))
 		})
 	})
 }
