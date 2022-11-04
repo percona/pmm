@@ -187,6 +187,8 @@ func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.
 		return nil, err
 	}
 
+	s.vmdb.RequestConfigurationUpdate()
+
 	return &managementpb.AddCustomLabelsResponse{}, nil
 }
 
@@ -231,6 +233,8 @@ func (s *ServiceService) RemoveCustomLabels(ctx context.Context, req *management
 	if err != nil {
 		return nil, err
 	}
+
+	s.vmdb.RequestConfigurationUpdate()
 
 	return &managementpb.RemoveCustomLabelsResponse{}, nil
 }
