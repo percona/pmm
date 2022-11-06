@@ -20,18 +20,23 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 const periodForRunningDeletingOldEvents = time.Minute
 
 // Service calculates connection up time between agent and server
-// based on the connection events events
+// based on the connection events events.
 type Service struct {
-	mx           sync.Mutex
+	mx           sync.RWMutex
 	events       []connectionEvent
 	windowPeriod time.Duration
 	l            *logrus.Entry
+
+	connectionUptime prometheus.GaugeFunc
+	connectionTime   time.Time
+	connected        bool
 }
 
 type connectionEvent struct {
@@ -39,15 +44,23 @@ type connectionEvent struct {
 	Connected bool
 }
 
-// NewService creates new instance of Service
+// NewService creates new instance of Service.
 func NewService(windowPeriod time.Duration) *Service {
-	return &Service{
+	out := &Service{
 		windowPeriod: windowPeriod,
 		l:            logrus.WithField("component", "connection-uptime-service"),
 	}
+
+	out.connectionUptime = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Namespace: `pmm_agent`,
+		Name:      `connection_uptime`,
+		Help:      `Connection uptime between pmm-agent and server in seconds.`,
+	}, out.getUptimeSeconds)
+
+	return out
 }
 
-// SetWindowPeriod updates window period
+// SetWindowPeriod updates window period.
 func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
@@ -55,7 +68,7 @@ func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
-// RegisterConnectionStatus adds connection event
+// RegisterConnectionStatus adds connection event.
 func (c *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
@@ -68,6 +81,11 @@ func (c *Service) addEvent(timestamp time.Time, connected bool) {
 			Timestamp: timestamp,
 			Connected: connected,
 		})
+
+		if !c.connected {
+			c.connectionTime = timestamp
+		}
+		c.connected = connected
 	}
 }
 
@@ -102,6 +120,7 @@ func (c *Service) removeFirstElementsUntilIndex(i int) {
 func (c *Service) RunCleanupGoroutine(ctx context.Context) {
 	go func() {
 		ticker := time.NewTicker(periodForRunningDeletingOldEvents)
+
 		for {
 			select {
 			case <-ticker.C:
@@ -186,4 +205,20 @@ func maxTime(t1, t2 time.Time) time.Time {
 		return t1
 	}
 	return t2
+}
+
+func (c *Service) getUptimeSeconds() float64 {
+	c.mx.RLock()
+	defer c.mx.RUnlock()
+
+	if c.connected {
+		return time.Since(c.connectionTime).Seconds()
+	}
+	return 0
+}
+
+func (c *Service) Describe(ch chan<- *prometheus.Desc) {}
+
+func (c *Service) Collect(ch chan<- prometheus.Metric) {
+	c.connectionUptime.Collect(ch)
 }
