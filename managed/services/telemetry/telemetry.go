@@ -128,7 +128,8 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		}
 
-		report := s.prepareReport(ctx)
+		dataSources := s.locateDataSources(s.config.telemetry)
+		report := s.prepareReport(ctx, dataSources)
 
 		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
 
@@ -207,23 +208,30 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
-	dataSources := s.locateDataSources(s.config.telemetry)
+func (s *Service) prepareReport(ctx context.Context, dataSources map[string]DataSource) *pmmv1.ServerMetric {
+	initializedDataSources := make(map[string]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
 
-	for _, dataSource := range dataSources {
-		err := dataSource.PreFetch(ctx)
+	// initialize datasources
+	for sourceName, dataSource := range dataSources {
+		err := dataSource.Init(ctx)
 		if err != nil {
-			s.l.Debug("PreFetch failed", err)
+			s.l.Error("Telemetry datasource init failed", err)
 			continue
 		}
+		initializedDataSources[sourceName] = dataSource
 	}
 
 	for _, telemetry := range s.config.telemetry {
-		// locate DS
-		ds := dataSources[telemetry.Source]
-		if ds == nil || !ds.Enabled() {
+		// locate DS in initialized state
+		ds := initializedDataSources[telemetry.Source]
+		if ds == nil {
+			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
+			continue
+		}
+		if !ds.Enabled() {
+			s.l.Debugf("datasource %s is disabled", telemetry.Source)
 			continue
 		}
 
@@ -243,10 +251,11 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 	}
 
-	for _, dataSource := range dataSources {
-		err := dataSource.PostFetch(ctx)
+	// datasources disposal
+	for sourceName, dataSource := range initializedDataSources {
+		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debug("PostFetch failed", err)
+			s.l.Debugf("Dispose of %s datasource failed. %v", sourceName, err)
 			continue
 		}
 	}

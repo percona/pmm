@@ -74,10 +74,10 @@ func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([][]*p
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsQanDBSelect) PreFetch(ctx context.Context) error {
+func (d *dsQanDBSelect) Init(ctx context.Context) error {
 	return nil
 }
 
-func (d *dsQanDBSelect) PostFetch(ctx context.Context) error {
+func (d *dsQanDBSelect) Dispose(ctx context.Context) error {
 	return nil
 }

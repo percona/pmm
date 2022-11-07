@@ -62,14 +62,14 @@ func TestDatasource(t *testing.T) {
 		}
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
-		err = grafanaDB.PreFetch(ctx)
+		err = grafanaDB.Init(ctx)
 		assert.NoError(t, err)
 
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)
 		assert.NoError(t, err)
 		assert.Equal(t, len(metrics), 1)
 
-		err = grafanaDB.PostFetch(ctx)
+		err = grafanaDB.Dispose(ctx)
 		assert.NoError(t, err)
 
 		serviceMetric := metrics[0][0]
@@ -87,7 +87,7 @@ func TestDatasource(t *testing.T) {
 
 		grafanaDB := NewDataSourceGrafanaSqliteDB(*conf, logEntry)
 
-		err := grafanaDB.PreFetch(ctx)
+		err := grafanaDB.Init(ctx)
 		assert.Error(t, err, "no such file or directory")
 
 		metrics, err := grafanaDB.FetchMetrics(ctx, *config)

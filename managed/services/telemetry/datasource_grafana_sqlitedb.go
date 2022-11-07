@@ -56,11 +56,15 @@ func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) Dat
 	}
 }
 
-func (d *dsGrafanaSelect) PreFetch(ctx context.Context) error {
+func (d *dsGrafanaSelect) Init(ctx context.Context) error {
 	// validate source file db
 	sourceFileStat, err := os.Stat(d.config.DBFile)
 	if err != nil {
 		return err
+	}
+
+	if sourceFileStat.Size() == 0 {
+		return errors.Errorf("Sourcefile %s is empty.", d.config.DBFile)
 	}
 
 	if !sourceFileStat.Mode().IsRegular() {
@@ -69,15 +73,14 @@ func (d *dsGrafanaSelect) PreFetch(ctx context.Context) error {
 
 	source, err := os.Open(d.config.DBFile)
 	if err != nil {
-		d.log.Error(err)
 		return err
 	}
 
 	tempFile, err := os.CreateTemp(os.TempDir(), "grafana")
 	if err != nil {
-		d.log.Error(err)
 		return err
 	}
+
 	defer func() {
 		if err := source.Close(); err != nil {
 			d.log.Errorf("Error closing file. %s", err)
@@ -85,14 +88,13 @@ func (d *dsGrafanaSelect) PreFetch(ctx context.Context) error {
 	}()
 
 	nBytes, err := io.Copy(tempFile, source)
+	d.log.Debugf("grafana sqlitedb copied with total bytes: %d", nBytes)
 	if err != nil || nBytes == 0 {
-		d.log.Error(err)
 		return errors.Wrapf(err, "cannot create copy of database file %s", d.config.DBFile)
 	}
 
 	db, err := sql.Open("sqlite3", tempFile.Name())
 	if err != nil {
-		d.log.Error(err)
 		return err
 	}
 
@@ -109,7 +111,7 @@ func (d *dsGrafanaSelect) FetchMetrics(ctx context.Context, config Config) ([][]
 	return fetchMetricsFromDB(ctx, d.log, d.config.Timeout, d.db, config)
 }
 
-func (d *dsGrafanaSelect) PostFetch(ctx context.Context) error {
+func (d *dsGrafanaSelect) Dispose(ctx context.Context) error {
 	err := d.db.Close()
 	if err != nil {
 		return err
@@ -117,7 +119,7 @@ func (d *dsGrafanaSelect) PostFetch(ctx context.Context) error {
 
 	err = os.Remove(d.tempFile)
 	if err != nil {
-		d.log.Errorf("Error removing file. %s", err)
+		return errors.Wrapf(err, "Error removing file.")
 	}
 
 	return nil
