@@ -3,7 +3,7 @@
 # https://bugzilla.redhat.com/show_bug.cgi?id=1295951
 %undefine _missing_build_ids_terminate_build
 
-%global repo            qan-api2
+%global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global import_path     %{provider}
 %global commit          376dbed06e403faad1b444f99ab3e1e28ac7687e
@@ -37,18 +37,18 @@ mv %{repo}-%{commit} src/%{provider}
 
 
 %build
-export GOPATH=$(pwd)/
+export GOPATH=$(pwd)/qan-api2
 
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/qan-api2
+cd src/%{provider}/qan-api2
 make release
 
 
 %install
-cd src/github.com/percona/qan-api2
+cd src/%{provider}/qan-api2
 
 install -d -p %{buildroot}%{_sbindir}
 install -p -m 0755 bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
@@ -58,6 +58,9 @@ install -p -m 0755 bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 %attr(0755, root, root) %{_sbindir}/%{name}
 
 %changelog
+* Mon Nov  7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17
+- PMM-10117 migrate QAN API to monorepo
+
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 2.0.0-16
 - PMM-10027 remove useless packages
 
