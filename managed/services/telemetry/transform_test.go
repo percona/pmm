@@ -204,6 +204,7 @@ func Test_removeEmpty(t *testing.T) {
 			want: []*pmmv1.ServerMetric_Metric{},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, removeEmpty(tt.args.metrics), "removeEmpty(%v)", tt.args.metrics)
