@@ -41,7 +41,7 @@ import (
 const (
 	envPGHostPort = "TEST_PG_HOST_PORT"
 	envQanDSN     = "TEST_QAN_DSN"
-	envVmDSN      = "TEST_VM_DSN"
+	envVMDSN      = "TEST_VM_DSN"
 )
 
 func TestRunTelemetryService(t *testing.T) {
@@ -56,7 +56,7 @@ func TestRunTelemetryService(t *testing.T) {
 		qanDSN = qanDSNFromEnv
 	}
 	vmDSN := "http://localhost:9090/prometheus/"
-	vmDSNFromEnv, ok := os.LookupEnv(envVmDSN)
+	vmDSNFromEnv, ok := os.LookupEnv(envVMDSN)
 	if ok {
 		vmDSN = vmDSNFromEnv
 	}

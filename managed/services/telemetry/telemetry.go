@@ -235,6 +235,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 
 		if telemetry.Transform != nil {
 			if telemetry.Transform.Type == JSONTransformType {
+				telemetry := telemetry
 				metrics, err = transformToJSON(&telemetry, metrics)
 				if err != nil {
 					s.l.Debugf("failed to transform to JSON: %s", err)
