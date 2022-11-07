@@ -27,8 +27,8 @@ URL:            https://%{provider}
 Source0:        https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 %description
-Percona Query Analytics (QAN) API v2 is part of Percona Monitoring and Management.
-See the PMM docs for more information.
+Percona Query Analytics (QAN) API v2 is part of Percona Monitoring and Management (PMM).
+See PMM docs for more information.
 
 
 %prep
@@ -58,6 +58,8 @@ install -p -m 0755 bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 
 %files
 %attr(0755, root, root) %{_sbindir}/%{name}
+%license src/%{provider}/LICENSE
+%doc src/%{provider}/README.md
 
 %changelog
 * Mon Nov  7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17
