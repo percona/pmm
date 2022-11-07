@@ -240,6 +240,8 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 					s.l.Debugf("failed to transform to JSON: %s", err)
 					continue
 				}
+			} else {
+				s.l.Errorf("Undefined transform type: %s", telemetry.Transform.Type)
 			}
 		}
 
