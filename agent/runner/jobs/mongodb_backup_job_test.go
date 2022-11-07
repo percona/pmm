@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 )
 
 func TestCreateDBURL(t *testing.T) {
@@ -83,33 +83,33 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	tests := []struct {
 		name      string
 		dbConfig  DBConnConfig
-		dataModel backupv1beta1.DataModel
+		dataModel backuppb.DataModel
 		pitr      bool
 		errMsg    string
 	}{
 		{
 			name:      "logical backup model",
 			dbConfig:  DBConnConfig{},
-			dataModel: backupv1beta1.DataModel_LOGICAL,
+			dataModel: backuppb.DataModel_LOGICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "physical backup model",
 			dbConfig:  DBConnConfig{},
-			dataModel: backupv1beta1.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_PHYSICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "invalid backup model",
 			dbConfig:  DBConnConfig{},
-			dataModel: backupv1beta1.DataModel_DATA_MODEL_INVALID,
+			dataModel: backuppb.DataModel_DATA_MODEL_INVALID,
 			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
 		},
 		{
 			name:      "pitr fails for physical backups",
 			dbConfig:  DBConnConfig{},
 			pitr:      true,
-			dataModel: backupv1beta1.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_PHYSICAL,
 			errMsg:    "PITR is only supported for logical backups",
 		},
 	}

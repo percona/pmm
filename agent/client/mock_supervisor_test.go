@@ -79,6 +79,11 @@ func (_m *mockSupervisor) QANRequests() <-chan *agentpb.QANCollectRequest {
 	return r0
 }
 
+// RestartAgents provides a mock function with given fields:
+func (_m *mockSupervisor) RestartAgents() {
+	_m.Called()
+}
+
 // SetState provides a mock function with given fields: _a0
 func (_m *mockSupervisor) SetState(_a0 *agentpb.SetStateRequest) {
 	_m.Called(_a0)

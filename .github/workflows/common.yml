@@ -167,8 +167,6 @@ jobs:
       SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
 
@@ -187,6 +185,5 @@ jobs:
       SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
 
     steps:
-      - uses: actions/checkout@v3
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
