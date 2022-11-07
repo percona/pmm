@@ -142,3 +142,71 @@ func (c *Config) noFirstMetricNameConfig() *Config {
 	c.Data[0].MetricName = ""
 	return c
 }
+
+func Test_removeEmpty(t *testing.T) {
+	type args struct {
+		metrics []*pmmv1.ServerMetric_Metric
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*pmmv1.ServerMetric_Metric
+	}{
+		{
+			name: "should remove metrics with empty values",
+			args: args{metrics: []*pmmv1.ServerMetric_Metric{
+				{
+					Key:   "empty_value",
+					Value: "",
+				},
+				{
+					Key:   "not_empty",
+					Value: "not_empty",
+				},
+				{
+					Key:   "empty_value",
+					Value: "",
+				},
+			}},
+			want: []*pmmv1.ServerMetric_Metric{
+				{
+					Key:   "not_empty",
+					Value: "not_empty",
+				},
+			},
+		},
+		{
+			name: "should not remove anything if metrics are not empty",
+			args: args{metrics: []*pmmv1.ServerMetric_Metric{
+				{
+					Key:   "not_empty",
+					Value: "not_empty",
+				},
+				{
+					Key:   "not_empty_2",
+					Value: "not_empty",
+				},
+			}},
+			want: []*pmmv1.ServerMetric_Metric{
+				{
+					Key:   "not_empty",
+					Value: "not_empty",
+				},
+				{
+					Key:   "not_empty_2",
+					Value: "not_empty",
+				},
+			},
+		},
+		{
+			name: "should not remove anything if metrics are not empty",
+			args: args{metrics: nil},
+			want: []*pmmv1.ServerMetric_Metric{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, removeEmpty(tt.args.metrics), "removeEmpty(%v)", tt.args.metrics)
+		})
+	}
+}
