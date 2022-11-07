@@ -86,7 +86,7 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 
 	settings, err := GetSettings(tx)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	if settings.DefaultRoleID == roleID {
