@@ -179,12 +179,7 @@ func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRole
 //nolint:unparam
 func (r *RoleService) SetDefaultRole(_ context.Context, req *managementpb.RoleID) (*managementpb.EmptyResponse, error) {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
-		var p models.ChangeSettingsParams
-		p.DefaultRoleID = int(req.RoleId)
-
-		_, err := models.UpdateSettings(tx, &p)
-
-		return err
+		return models.ChangeDefaultRole(tx, int(req.RoleId))
 	})
 	if err != nil {
 		return nil, err

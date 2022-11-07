@@ -28,6 +28,8 @@ var (
 	ErrRoleNotFound = fmt.Errorf("RoleNotFound")
 	// ErrRoleIsAssigned is returned when a role is assigned to a user and cannot be removed.
 	ErrRoleIsAssigned = fmt.Errorf("RoleIsAssigned")
+	// ErrRoleIsDefaultRole is returned when trying to delete a default role.
+	ErrRoleIsDefaultRole = fmt.Errorf("RoleIsDefaultRole")
 )
 
 // CreateRole creates a new role.
@@ -82,6 +84,15 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 		return err
 	}
 
+	settings, err := GetSettings(tx)
+	if err != nil {
+		return nil
+	}
+
+	if settings.DefaultRoleID == roleID {
+		return ErrRoleIsDefaultRole
+	}
+
 	s, err := q.FindOneFrom(UserDetailsTable, "role_id", roleID)
 	if err != nil && !errors.As(err, &reform.ErrNoRows) {
 		return err
@@ -113,4 +124,18 @@ func FindAndLockRole(tx *reform.TX, roleID int, role *Role) error {
 	}
 
 	return nil
+}
+
+// ChangeDefaultRole changes default role in the settings.
+func ChangeDefaultRole(tx *reform.TX, roleID int) error {
+	if err := FindAndLockRole(tx, roleID, &Role{}); err != nil {
+		return err
+	}
+
+	var p ChangeSettingsParams
+	p.DefaultRoleID = roleID
+
+	_, err := UpdateSettings(tx, &p)
+
+	return err
 }

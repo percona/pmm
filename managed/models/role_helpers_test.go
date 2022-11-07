@@ -117,4 +117,18 @@ func TestRoleHelpers(t *testing.T) {
 		err := models.DeleteRole(tx, int(role.ID))
 		require.Equal(t, err, models.ErrRoleIsAssigned)
 	})
+
+	//nolint:paralleltest
+	t.Run("shall not delete default role", func(t *testing.T) {
+		tx, teardown := setup(t)
+		defer teardown(t)
+
+		var role models.Role
+		require.NoError(t, models.CreateRole(tx.Querier, &role))
+		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
+		require.NoError(t, models.ChangeDefaultRole(tx, int(role.ID)))
+
+		err := models.DeleteRole(tx, int(role.ID))
+		require.Equal(t, err, models.ErrRoleIsDefaultRole)
+	})
 }
