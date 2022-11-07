@@ -543,10 +543,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBBackup_PmmClientConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+		case *agentpb.StartJobRequest_MongoDBBackup_FilesystemConfig:
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
@@ -575,10 +575,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 				BucketName:   cfg.S3Config.BucketName,
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
-		case *agentpb.StartJobRequest_MongoDBRestoreBackup_PmmClientConfig:
-			locationConfig.Type = jobs.PMMClientBackupLocationType
-			locationConfig.LocalStorageConfig = &jobs.PMMClientBackupLocationConfig{
-				Path: cfg.PmmClientConfig.Path,
+		case *agentpb.StartJobRequest_MongoDBRestoreBackup_FilesystemConfig:
+			locationConfig.Type = jobs.FilesystemBackupLocationType
+			locationConfig.FilesystemStorageConfig = &jobs.FilesystemBackupLocationConfig{
+				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
@@ -591,7 +591,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbRestoreBackup.Port),
 			Socket:   j.MongodbRestoreBackup.Socket,
 		}
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, dbConnCfg, locationConfig)
+
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
