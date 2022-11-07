@@ -6,7 +6,9 @@
 %global repo            pmm
 %global provider        github.com/percona/%{repo}
 %global import_path     %{provider}
-%global commit          376dbed06e403faad1b444f99ab3e1e28ac7687e
+# The commit hash gets sed'ed by build-server-rpm script to set a correct version
+# see: https://github.com/percona/pmm/blob/main/build/scripts/build-server-rpm#L58
+%global commit          0000000000000000000000000000000000000000
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         17
