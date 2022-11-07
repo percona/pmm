@@ -17,6 +17,7 @@ package telemetry
 
 import (
 	"encoding/json"
+
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 )
@@ -42,9 +43,9 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 
 	firstMetric := config.Data[0].MetricName
 
-	result := map[string]itemsType{}
+	result := make(map[string]itemsType)
 
-	var items []map[string]any
+	var items itemsType
 	var next map[string]any
 	for _, metric := range metrics {
 		isFirstMetric := metric.Key == firstMetric
@@ -52,7 +53,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 			if next != nil {
 				items = append(items, next)
 			}
-			next = map[string]any{}
+			next = make(map[string]any)
 		}
 		if next == nil {
 			return nil, errors.Errorf("invalid metrics sequence: no match with first metric")

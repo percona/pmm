@@ -17,9 +17,10 @@ package telemetry
 
 import (
 	"fmt"
+	"testing"
+
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func Test_transformToJSON(t *testing.T) {
@@ -99,7 +100,7 @@ func Test_transformToJSON(t *testing.T) {
 				},
 			},
 			want: []*pmmv1.ServerMetric_Metric{
-				{Key: config().Transform.Metric, Value: "{\"v\":[{\"my-metric\":\"v1\"},{\"my-metric\":\"v2\"}]}"},
+				{Key: config().Transform.Metric, Value: `{"v":[{"my-metric":"v1"},{"my-metric":"v2"}]}`},
 			},
 			wantErr: assert.NoError,
 		},

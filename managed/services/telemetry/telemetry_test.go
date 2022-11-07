@@ -50,7 +50,7 @@ func TestRunTelemetryService(t *testing.T) {
 	if ok {
 		pgHostPort = pgHostPortFromEnv
 	}
-	qanDSN := "tcp://localhost:9000?database=pmm&block_size=10000&pool_size="
+	qanDSN := "tcp://localhost:9000?database=pmm"
 	qanDSNFromEnv, ok := os.LookupEnv(envQanDSN)
 	if ok {
 		qanDSN = qanDSNFromEnv
