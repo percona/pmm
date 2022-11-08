@@ -27,11 +27,11 @@ By using a subset of all MkDocs, we can get some alignment between those and Boo
 | Admonition                  | MkDocs colour | Bootstrap colour |
 | --------------------------- | ------------- | ---------------- |
 | Notes, info                 | Blue          | Blue             |
-| See also                    | Blue          | Turqoise         |
+| See also                    | Blue          | Turquoise        |
 | Tip                         | Green         | Green            |
 | Caution, Warning, Important | Amber         | Amber            |
 | Danger                      | Red           | Red              |
-| Summary                     | Turquoise     | Turqoise         |
+| Summary                     | Turquoise     | Turquoise        |
 
 ### Note, Info
 
@@ -54,9 +54,9 @@ Preferred use is without the label (first form).
 
 Uses same type but different label text:
 
-- Caution: Use to mean 'Continue with care'. Less strong than 'Warning' IMHO.
+- Caution: Used to mean 'Continue with care'. Less strong than 'Warning' IMHO.
 
-- Important: A significant point that deserves emphasis. (MkDocs default for 'important' admonition is green which is why I don't use it.)
+- Important: A significant point that deserves emphasis. (MkDocs default for 'important' admonition is green, which is why I don't use it.)
 
 Style:
 
@@ -120,11 +120,11 @@ An exception would be when there is an equivalent or closely related section els
 
 ## Variables
 
-We use the `mkdocs-macros` plugin for variable expansion. For example, the variable `release` in `variables.yml` is used in the code so that the current PMM release number is always up to date. (Search the markdown files for `{{release}}`.)
+We use the `mkdocs-macros` plugin for variable expansion. For example, the variable `release` in `variables.yml` is used in the code so that the current PMM release number is always up-to-date. (Search the markdown files for `{{release}}`.)
 
-This plugin can have problems when Jinja-like constructs are used in code. This happens when refering to Docker variables. Work arounds are explained here: https://github.com/fralau/mkdocs_macros_plugin/blob/master/webdoc/docs/advanced.md#solutions
+This plugin can have problems when Jinja-like constructs are used in code. This happens when referring to Docker variables. Workarounds are explained here: https://github.com/fralau/mkdocs_macros_plugin/blob/master/webdoc/docs/advanced.md#solutions
 
-In some places we have used variables themselves to solve the problem. In others, `{% raw %}/{% endraw %}` surrounds the conflicting text.
+In some places, we have used variables themselves to solve the problem. In others, `{% raw %}/{% endraw %}` surrounds the conflicting text.
 
 ## Icons
 

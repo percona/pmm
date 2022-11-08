@@ -47,7 +47,7 @@ Automated checks that you can run against connected databases to identify any po
 
 ## Technical Preview
 
-Releases intended for public preview and feedback but with no support or service level agreement (SLA). Should not be used on production or business-critical systems. May contain breaking changes to UI, API, CLI. ([Read more](https://www.percona.com/services/policies/percona-release-lifecycle-overview).)
+Releases intended for public preview and feedback, but with no support or service level agreement (SLA). Should not be used on production or business-critical systems. May contain breaking changes to UI, API, CLI. ([Read more](https://www.percona.com/services/policies/percona-release-lifecycle-overview).)
 
 ## VG
 

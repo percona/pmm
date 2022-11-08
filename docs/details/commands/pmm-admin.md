@@ -481,7 +481,7 @@ In low resolution we collect metrics from collectors which could take some time:
             Avoid using special characters like '\', ';' and '$' in the custom password.
 
     `--query-source=slowlog`
-    : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source you need change permissions for
+    : Source of SQL queries, one of: `slowlog`, `perfschema`, `none` (default: `slowlog`). For `slowlog` query source, you need change permissions for
     specific files. Root permissions are needed for this.
 
     `--size-slow-logs=N`
@@ -543,7 +543,7 @@ In low resolution we collect metrics from collectors which could take some time:
     : Path to certificate authority file.
 
     `--ssl-ca=PATHTOCACERT`
-    : The path name of the Certificate Authority (CA) certificate file. If used must specify the same certificate used by the server. (-ssl-capath is similar but specifies the path name of a directory of CA certificate files.)
+    : The path name of the Certificate Authority (CA) certificate file. If used, must specify the same certificate used by the server. (-ssl-capath is similar, but specifies the path name of a directory of CA certificate files.)
 
     `--ssl-cert=PATHTOCERTKEY`
     : The path name of the client public key certificate file.

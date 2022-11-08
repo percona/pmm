@@ -31,7 +31,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | <i class="uil uil-cog"></i>        | Configuration        |
 | ![!image](../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
 | ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
-| ![!image](../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab tab will soon be populated with more useful information about your PMM environment. 
+| ![!image](../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment. 
 | <i class="uil uil-shield"></i>     | Server Admin         |
 | <i class="uil uil-history"></i>    | Backup Management    | [Backup management and storage location configuration][BACKUP].
 | {{icon.checks}}                    | PMM Advisor Checks  | Run health assessment checks against your connected databases and check any failed checks. 
@@ -72,7 +72,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 ## View selectors
 
-This menu bar is context sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
+This menu bar is context-sensitive; it changes according to the page you are on. (With wide menus on small screens, items may wrap to the next row.)
 
 ![!](../_images/PMM_Home_Dashboard_Menus_Submenu_Bar.jpg)
 

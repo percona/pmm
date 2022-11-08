@@ -14,7 +14,7 @@ The objects visible are nodes, services, and agents:
 
 - A **Service** represents something useful running on the Node: Amazon Aurora MySQL, MySQL, MongoDB, etc. It runs on zero (Amazon Aurora Serverless), single (MySQL), or several (Percona XtraDB Cluster) Nodes. It also has zero or more Agents providing insights for it.
 
-- An **Agent** represents something that runs on the Node which is not useful in itself but instead provides insights (metrics, query performance data, etc) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.
+- An **Agent** represents something that runs on the Node which is not useful in itself but instead provides insights (metrics, query performance data, etc.) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.
 
 Nodes, Services, and Agents have **Types** which define specific their properties, and their specific logic.
 

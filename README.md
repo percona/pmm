@@ -12,7 +12,7 @@ To contribute to that documentation, you can:
 
 - **report a general problem** -- open a [Jira] issue.
 
-- **fix a problem yourself** -- Use the *Edit this page* link to take you the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. That's what the rest of this README covers.
+- **fix a problem yourself** -- Use the *Edit this page* link to take you to the Markdown source file for that page. Make your changes (you'll have to fork the repo unless you're Percona staff) and submit a PR which we'll review and adjust where necessary before merging and publishing. If the changes are more than a few lines, you might want to build the website locally to see how it looks in context. That's what the rest of this README covers.
 
 ## Introduction
 
@@ -141,12 +141,11 @@ View the site at <http://0.0.0.0:8000>
 
     - `theme`:
 
-        - `main.html`: MkDocs template for HTML published on [docs.percona.com](https://docs.percona.com).
+        - `main.html`: MkDocs template for HTML published on percona.com.
 
 - `requirements.txt`: Python package dependencies.
 
 - `variables.yml`: Values used throughout the Markdown, including the current PMM version/release number.
-
 
 - `.spelling`: Words regarded as correct by `mdspell` (See [Spelling and grammar](#spelling-and-grammar).)
 
@@ -154,7 +153,7 @@ View the site at <http://0.0.0.0:8000>
 
     - `workflows`:
 
-        - `build.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `preview` branch.)
+        - `build.yml`: Workflow specification for building the documentation via a GitHub action. (Uses `mike` which puts HTML in `publish` branch.)
 
 - `site`: When building locally, directory where HTML is put.
 
@@ -162,7 +161,7 @@ View the site at <http://0.0.0.0:8000>
 
 We use [mike] to build different versions of the documentation. Currently, only two are built, the latest PMM 1 and PMM 2 versions.
 
-A [GitHub actions] workflow runs `mike`, which in turn runs `mkdocs`. The HTML is committed and pushed to the `preview` branch.
+A [GitHub actions] workflow runs `mike` which in turn runs `mkdocs`. The HTML is committed and pushed to the `publish` branch. The whole branch is then copied (by an internal Percona Jenkins job) to our web server.
 
 ## Image overlays
 
@@ -216,24 +215,26 @@ composite docs/_images/PMM_Home_Dashboard_Overlay.png docs/_images/PMM_Home_Dash
 
 ## Spelling and grammar
 
-You can perform a basic spell check on the command line if you have [Node.js] installed.
+The GitHub actions build job performs a basic spell check. (A grammar check is currently commented out in the actions file.) You can do these yourself on the command line if you have [Node.js] installed.
 
 ```sh
-npx markdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
+npm i markdown-spellcheck -g
+mdspell --report --en-us --ignore-acronyms --ignore-numbers docs/<path to file>.md
 ```
 
 To check all files:
 
 ```sh
-npx mrkdown-spellcheck --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
+mdspell --report --en-us --ignore-acronyms --ignore-numbers "docs/**/*.md"
 ```
 
-Add any custom dictionary words to `.spelling`. The results of the spell check are printed but the job ignores the return status.
+Add any custom dictionary words to `.spelling`. The results of the spell check are printed, but the job ignores the return status.
 
 Grammar is checked using [`write-good`](https://github.com/btford/write-good).
 
 ```sh
-npx write-good docs/<path to file>.md
+npm i write-good -g
+write-good docs/<path to file>.md
 ```
 
 To check all files:
@@ -244,9 +245,9 @@ write-good docs/**/*.md
 
 ## Link checking
 
-We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs. It works great but increases the build time significantly (by between 10 and 50 times longer).
+We're using the `mkdocs-htmlproofer-plugin` link checking plugin to detect broken URLs. It works well, but increases the build time significantly (by between 10 and 50 times longer).
 
-The plugin is installed in our [PMM documentation Docker image] and by the GitHub action but it is commented out in `mkdocs.yml`.
+The plugin is installed in our [PMM documentation Docker image] and by the GitHub action, but it is commented out in `mkdocs.yml`.
 
 To enable it for local builds, uncomment the line with `htmlproofer` in the `plugins` section of `mkdocs.yml` and parse the build output for warnings.
 

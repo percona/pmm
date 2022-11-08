@@ -131,14 +131,14 @@ See [Troubleshoot update](how-to/troubleshoot.md#update).
 - User name: `pmm`
 - Password: Agent ID
 
-PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter you can use `pmm` as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
+PMM protects an exporter's output from unauthorized access by adding an authorization layer. To access an exporter, you can use `pmm` as a user name and the Agent ID as a password. You can find the Agent ID corresponding to a given exporter by running `pmm-admin list`.
 
 !!! seealso alert alert-info "See also"
     [`pmm-admin list`](details/commands/pmm-admin.md#information-commands)
 
 ## How to provision PMM Server with non-default admin password?
 
-Currently there is no API available to change the `admin` password. If you're deploying through Docker you can use the following code snippet to change the password after starting the Docker container:
+Currently, there is no API available to change the `admin` password. If you're deploying through Docker, you can use the following code snippet to change the password after starting the Docker container:
 
 ```sh
 PMM_PASSWORD="mypassword"
@@ -152,7 +152,7 @@ docker exec -t pmm-server bash -c  "grafana-cli --homepath /usr/share/grafana a
 
 ## How to change the PMM password for a default admin user?
 
-If you're deploying through Docker you can change the default password for an admin user after starting the Docker container as follows:
+If you're deploying through Docker, you can change the default password for an admin user after starting the Docker container as follows:
 
 * For PMM versions 2.27.0 and later:
 
