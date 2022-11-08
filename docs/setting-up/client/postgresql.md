@@ -3,12 +3,12 @@
 How to set up PMM to monitor a [PostgreSQL] or [Percona Distribution for PostgreSQL] database instance.
 
 !!! summary alert alert-info "Summary"
-    - Create PMM account and set permissions.
-    - Choose, install and configure an extension:
-        - `pg_stat_statements`, or,
-        - `pg_stat_monitor`.
-    - Add service.
-    - Check service.
+    - [Create PMM account and set permissions.](#create-a-database-account-for-pmm)
+    - [Choose, install and configure an extension](#choose-and-configure-an-extension):
+        - [`pg_stat_statements`](#pg_stat_statements), or,
+        - [`pg_stat_monitor`](#pg_stat_monitor).
+    - [Add service.](#add-service)
+    - [Check the service](#check-the-service).
 
 ## Before you start
 
