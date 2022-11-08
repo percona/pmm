@@ -16,16 +16,19 @@ theme:
   logo: _images/percona-logo.svg
   favicon: _images/percona-favicon.ico
   palette:
-    scheme: percona-light
-#    - media: "(prefers-color-scheme: light)"
-#      toggle:
-#        icon: material/toggle-switch-off-outline
-#        name: Switch to night mode
-#    - media: "(prefers-color-scheme: dark)"
-#      scheme: slate
-#      toggle:
-#        icon: material/toggle-switch
-#        name: Switch to day mode
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: percona-light
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
 
 extra_css:
   - https://unicons.iconscout.com/release/v3.0.3/css/line.css
