@@ -39,8 +39,6 @@ mv %{repo}-%{commit} src/%{provider}
 
 
 %build
-export GOPATH=$(pwd)/qan-api2
-
 export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
