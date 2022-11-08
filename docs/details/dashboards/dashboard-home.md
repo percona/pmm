@@ -1,28 +1,24 @@
 # Home Dashboard
 
+!!! note alert alert-primary "Availability"
+    The new Home dashboard is available starting with PMM 2.32.0.
+
+The Home Dashboard provides a high-level overview of your environment, such as the services, infrastructure, and critical issues (if any). It is the starting page of PMM from which you can open the tools of PMM and browse online resources.
+
+This Home Dashboard displays data that is organized in panels as given below.
+
+
 ![!image](../../_images/PMM_Home_Dashboard.png)
 
-The Home Dashboard is a high-level overview of your environment, the starting page of the PMM portal from which you can open the tools of PMM, and browse to online resources.
 
-On the PMM home page, you can also find the version number and a button to update your PMM Server.
+## Overview
 
-## General Information
+This panel lists all added hosts along with essential information about their performance. For each host, you can find the current values of the following metrics:
 
-This section contains links to online resources, such as PMM documentation, releases notes, and blogs.
 
-## Shared and Recently Used Dashboards
-
-This section is automatically updated to show the most recent dashboards that you worked with. It also contains the dashboards that you have bookmarked.
-
-## Statistics
-
-This section shows the total number of hosts added to PMM and the total number of database instances being monitored. This section also displays the current version number. Use the *Upgrade to X.X.X version* to upgrade to the most recent version of PMM.
-
-## Environment Overview
-
-This section lists all added hosts along with essential information about their performance. For each host, you can find the current values of the following metrics:
-
-* CPU Busy
+* Monitored DB Services
+* Monitored DB Instances
+* Monitored Nodes
 * Memory Available
 * Disk Reads
 * Disk Writes
@@ -33,3 +29,48 @@ This section lists all added hosts along with essential information about their 
 * RAM
 * Host Uptime
 * DB Uptime
+* Advisors check
+
+ This panel also displays the current version number. Use **Upgrade to X.X.X version** to upgrade to the most recent version of PMM.
+
+
+## Anomaly Detection
+
+The **Anomaly Detection** panel lists all the anomalies in your environment. Color-coded states on the panels provide a quick visual representation of the problem areas.
+
+The following anomalies are displayed on this panel:
+
+* CPU anomalies (high as well as low)
+* High CPU servers
+* Low CPU servers
+* Disk Queue anomalies
+* High disk queue
+* High Memory Used
+
+
+## Command Center
+
+You can find critical information such as CPU utlization, memory utilization, anomalies, read and write latency, etc., about your environment on the **Command Center** panel. 
+
+The information is represented graphically on the **Command Center** panel. In this panel, the graphs for the last hour and the previous week are displayed adjacently, making it easy to identify the trends.
+
+The following information is displayed on the **Command Center** for the **Top 20** nodes:
+
+* CPU usage
+* Disk queue
+* Disk Write latency
+* Disk Read latency
+* Memory usage
+
+Command Center lists the 
+
+## Service Summary
+
+The Service Summary panel provides the following information for the services being monitored:
+
+* DB connections
+* DB QPS (Query per sec)
+* DB uptime
+
+
+

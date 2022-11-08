@@ -71,7 +71,7 @@ plugins:
   with-pdf:
     output_path: "_pdf/PerconaMonitoringAndManagement-2.32.0.pdf"
     cover_title: "Documentation"
-    cover_subtitle: 2.32.0 (Nov 7, 2022)
+    cover_subtitle: 2.32.0 (Nov 8, 2022)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/PMM_Logo.svg
     custom_template_path: _resources/templates
@@ -120,7 +120,9 @@ nav:
       - using/index.md
       - using/interface.md
       - using/alerting.md
-      - using/backup.md
+      - Backup and restore:
+          - using/backup.md
+          - using/mongodb_limitations.md
       - using/query-analytics.md
       - using/dbaas.md
 
@@ -158,7 +160,6 @@ nav:
           - PMM dashboards:
               - Insight:
                   - details/dashboards/dashboard-home.md
-                  - details/dashboards/dashboard-home-experimental.md
                   - details/dashboards/dashboard-advanced-data-exploration.md
                   - details/dashboards/dashboard-victoriametrics.md
                   - details/dashboards/dashboard-victoriametrics-agents-overview.md
@@ -238,6 +239,7 @@ nav:
 
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.32.0": release-notes/2.32.0.md
       - "PMM 2.31.0": release-notes/2.31.0.md
       - "PMM 2.30.0": release-notes/2.30.0.md
       - "PMM 2.29.1": release-notes/2.29.1.md
