@@ -184,15 +184,21 @@ You can now [add the service](#add-service).
 
     You can get a list of other available settings with `SELECT * FROM pg_stat_monitor_settings;`.
 
-    Another important parameter is:
+    Other important parameters are:
     ```ini
     pg_stat_monitor.pgsm_normalized_query
     ```
+    and
+    ```ini
+    pg_stat_monitor.pgsm_enable_query_plan
+    ```
 
-    If the value is set to 1, the actual query values are replaced by placeholders. If the value is 0, the examples are given in QAN. Examples can be found in QAN details tab example.
+    If the value for `pg_stat_monitor.pgsm_normalized_query` is set to 1, the actual query values are replaced by placeholders. If the value is 0, the examples are given in QAN. Examples can be found in QAN details tab example.
+    
+    If `pg_stat_monitor.pgsm_enable_query_plan` is enabled, the query plans are captured and will be available in the `Plan` tab on the Query Analytics dashboard.
 
     !!! note alert alert-primary ""
-        See [`pg_stat_monitor` GitHub repository](https://github.com/percona/pg_stat_monitor/blob/master/docs/USER_GUIDE.md#configuration) for details about available parameters.
+        See [`pg_stat_monitor` online documentation](https://docs.percona.com/pg-stat-monitor/configuration.html) for details about available parameters.
 
 3. Start or restart your PostgreSQL instance. The extension starts capturing statistics from every database.
 
