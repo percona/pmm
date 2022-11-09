@@ -19,6 +19,8 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -345,4 +347,94 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 	}
 
 	return nil
+}
+
+// AddCustomLabels adds or replaces (if key exists) custom labels for a service.
+func (s *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
+	if req.ServiceId == "" {
+		return nil, status.Error(codes.InvalidArgument, "service_id is required")
+	}
+
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			labels = req.CustomLabels
+		} else {
+			for k, v := range req.CustomLabels {
+				labels[k] = v
+			}
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.vmdb.RequestConfigurationUpdate()
+
+	return &inventorypb.AddCustomLabelsResponse{}, nil
+}
+
+// RemoveCustomLabels removes custom labels from a service.
+func (s *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
+	if req.ServiceId == "" {
+		return nil, status.Error(codes.InvalidArgument, "service_id is required")
+	}
+
+	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if err != nil {
+			return err
+		}
+
+		labels, err := service.GetCustomLabels()
+		if err != nil {
+			return err
+		}
+		if labels == nil {
+			return nil
+		}
+
+		for _, k := range req.CustomLabelKeys {
+			delete(labels, k)
+		}
+
+		err = service.SetCustomLabels(labels)
+		if err != nil {
+			return err
+		}
+
+		err = tx.UpdateColumns(service, "custom_labels")
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	s.vmdb.RequestConfigurationUpdate()
+
+	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }

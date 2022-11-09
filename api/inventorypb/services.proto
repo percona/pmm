@@ -442,6 +442,24 @@ message RemoveServiceRequest {
 
 message RemoveServiceResponse {}
 
+message AddCustomLabelsRequest {
+  // Unique Service ID.
+  string service_id = 1;
+  // Custom user-assigned labels to be added.
+  map<string, string> custom_labels = 2;
+}
+
+message AddCustomLabelsResponse {}
+
+message RemoveCustomLabelsRequest {
+  // Unique Service ID.
+  string service_id = 1;
+  // Custom user-assigned label keys to be removed.
+  repeated string custom_label_keys = 2;
+}
+
+message RemoveCustomLabelsResponse {}
+
 // Services service provides public methods for managing Services.
 service Services {
   // ListServices returns a list of Services filtered by type.
@@ -552,6 +570,28 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove Service"
       description: "Removes Service."
+    };
+  }
+  // AddCustomLabels adds custom labels to a Service.
+  rpc AddCustomLabels(AddCustomLabelsRequest) returns (AddCustomLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/CustomLabels/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add/replace custom labels"
+      description: "Adds or replaces (if the key exists) custom labels for a Service."
+    };
+  }
+  // RemoveCustomLabels removes custom labels from a Service.
+  rpc RemoveCustomLabels(RemoveCustomLabelsRequest) returns (RemoveCustomLabelsResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/CustomLabels/Remove"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove custom labels"
+      description: "Removes custom labels from a Service by key."
     };
   }
 }
