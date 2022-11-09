@@ -349,7 +349,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 
 // AddCustomLabels adds or replaces (if key exists) custom labels for a service.
 func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
-	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	err := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
 			return err
@@ -383,14 +383,14 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb
 		return nil, err
 	}
 
-	s.vmdb.RequestConfigurationUpdate()
+	ss.vmdb.RequestConfigurationUpdate()
 
 	return &inventorypb.AddCustomLabelsResponse{}, nil
 }
 
 // RemoveCustomLabels removes custom labels from a service.
 func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
-	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	err := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
 			return err
@@ -424,7 +424,7 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, err
 	}
 
-	s.vmdb.RequestConfigurationUpdate()
+	ss.vmdb.RequestConfigurationUpdate()
 
 	return &inventorypb.RemoveCustomLabelsResponse{}, nil
 }
