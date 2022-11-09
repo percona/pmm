@@ -66,11 +66,16 @@ jobs:
       - name: Install development tools
         run: make init
 
-      - name: Format sources
-        run: make format
-
       - name: Check build
         run: make release
+
+      - name: Check files are formatted and no source code changes
+        run: |
+          make format
+          pushd tools && go mod tidy -v
+          popd        && go mod tidy -v
+          git status
+          git diff --exit-code
 
       - name: Run check-license
         run: |
@@ -80,54 +85,48 @@ jobs:
       - name: Run go-sumtype
         run: bin/go-sumtype ./...
 
-      - name: Run required linters
-        uses: reviewdog/action-golangci-lint@v2
-        with: 
-          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-          go_version: ${{ env.GO_VERSION }}
-          reporter: github-pr-review
-          fail_on_error: true
-          cache: false
-          golangci_lint_flags: "-c=.golangci-required.yml"
-          golangci_lint_version: v1.49.0
-
-      - name: Run go-consistent
-        env:
-          COMMAND: 'bin/go-consistent -pedantic -exclude "tests" ./...'
-          REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
-            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
-              echo "$out"
-              exit $exit_code
-            else
-              echo "$out" ${{ env.REDIRECT }}
-            fi
-          else
-            echo "$out"
-          fi
-
-      - name: Run optional linters
-        if: github.event_name == 'pull_request'
-        uses: reviewdog/action-golangci-lint@v2
-        with: 
-          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-          go_version: ${{ env.GO_VERSION }}
-          reporter: github-pr-review
-          fail_on_error: false
-          cache: false
-          golangci_lint_flags: "-c=.golangci.yml"
-          golangci_lint_version: v1.49.0
+#      - name: Run required linters
+#        uses: reviewdog/action-golangci-lint@v2
+#        with:
+#          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+#          go_version: ${{ env.GO_VERSION }}
+#          reporter: github-pr-review
+#          fail_on_error: true
+#          cache: false
+#          golangci_lint_flags: "-c=.golangci-required.yml"
+#          golangci_lint_version: v1.49.0
+#
+#      - name: Run go-consistent
+#        env:
+#          COMMAND: 'bin/go-consistent -pedantic -exclude "tests" ./...'
+#          REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
+#          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+#        run: |
+#          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
+#            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
+#              echo "$out"
+#              exit $exit_code
+#            else
+#              echo "$out" ${{ env.REDIRECT }}
+#            fi
+#          else
+#            echo "$out"
+#          fi
+#
+#      - name: Run optional linters
+#        if: github.event_name == 'pull_request'
+#        uses: reviewdog/action-golangci-lint@v2
+#        with:
+#          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+#          go_version: ${{ env.GO_VERSION }}
+#          reporter: github-pr-review
+#          fail_on_error: false
+#          cache: false
+#          golangci_lint_flags: "-c=.golangci.yml"
+#          golangci_lint_version: v1.49.0
 
       - name: Test common API
         run: make test-common
-
-      - name: Check that there are no source code changes
-        run: |
-          pushd tools && go mod tidy -v
-          popd        && go mod tidy -v
-          git diff --exit-code
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
