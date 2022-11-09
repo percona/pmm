@@ -163,7 +163,7 @@ func (s *ServiceService) AddCustomLabels(ctx context.Context, req *managementpb.
 			return err
 		}
 		if labels == nil {
-			labels = make(map[string]string)
+			labels = make(map[string]string, len(req.CustomLabels))
 		}
 
 		for k, v := range req.CustomLabels {
