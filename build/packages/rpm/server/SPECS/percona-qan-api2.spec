@@ -50,7 +50,7 @@ make release
 %install
 
 install -d -p %{buildroot}%{_sbindir}
-install -p -m 0755 bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
+install -p -m 0755 src/%{provider}/bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 
 
 %files
