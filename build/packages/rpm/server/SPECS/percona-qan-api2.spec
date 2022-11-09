@@ -55,8 +55,8 @@ install -p -m 0755 src/%{provider}/bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
 
 %files
 %attr(0755, root, root) %{_sbindir}/%{name}
-%license src/%{provider}/LICENSE
-%doc src/%{provider}/README.md
+%license src/%{provider}/qan-api2/LICENSE
+%doc src/%{provider}/qan-api2/README.md
 
 %changelog
 * Mon Nov  7 2022 Alexander Tymchuk <alexander.tymchuk@percona.com> - 2.0.0-17

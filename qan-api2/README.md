@@ -1,15 +1,11 @@
 # qan-api2
 
-[![Build Status](https://travis-ci.org/percona/pmm/qan-api2.svg?branch=master)](https://travis-ci.org/percona/pmm/qan-api2)
-[![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm/qan-api2)](https://goreportcard.com/report/github.com/percona/pmm/qan-api2)
-[![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm%2Fqan-api2.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fpmm%2Fqan-api2?ref=badge_shield)
-
-qan-api for PMM 2.x.
+QAN API for PMM 2.x.
 
 ## Get Report
 
 Examples:
+
 ```bash
 
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
@@ -26,7 +22,7 @@ curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_
 
 ```bash
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
- ```
+```
 
 ```bash
 curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}'  http://127.0.0.1:9922/v0/qan/Filters/Get
@@ -122,11 +118,9 @@ curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to"
 
 `curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetMetrics`
 
-
 ```
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport -s | jq '.rows[].load'
 ```
-
 
 ```
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetLabels | jq
