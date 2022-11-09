@@ -792,7 +792,7 @@ func TestServices(t *testing.T) {
 
 			response, err := s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{})
 			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "service_id is required"), err)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
 		})
 
 		t.Run("Add a label", func(t *testing.T) {
@@ -875,7 +875,7 @@ func TestServices(t *testing.T) {
 
 			response, err := s.RemoveCustomLabels(ctx, &inventorypb.RemoveCustomLabelsRequest{})
 			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "service_id is required"), err)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
 		})
 
 		t.Run("Remove a label", func(t *testing.T) {
