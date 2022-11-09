@@ -19,8 +19,6 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -351,10 +349,6 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 
 // AddCustomLabels adds or replaces (if key exists) custom labels for a service.
 func (s *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
-	if req.ServiceId == "" {
-		return nil, status.Error(codes.InvalidArgument, "service_id is required")
-	}
-
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {
@@ -396,10 +390,6 @@ func (s *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb.
 
 // RemoveCustomLabels removes custom labels from a service.
 func (s *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
-	if req.ServiceId == "" {
-		return nil, status.Error(codes.InvalidArgument, "service_id is required")
-	}
-
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
 		if err != nil {

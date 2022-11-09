@@ -444,7 +444,11 @@ message RemoveServiceResponse {}
 
 message AddCustomLabelsRequest {
   // Unique Service ID.
-  string service_id = 1;
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Custom user-assigned labels to be added.
   map<string, string> custom_labels = 2;
 }
@@ -453,7 +457,11 @@ message AddCustomLabelsResponse {}
 
 message RemoveCustomLabelsRequest {
   // Unique Service ID.
-  string service_id = 1;
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Custom user-assigned label keys to be removed.
   repeated string custom_label_keys = 2;
 }
