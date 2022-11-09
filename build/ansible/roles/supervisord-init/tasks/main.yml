@@ -54,7 +54,7 @@
         state: directory
 
     - name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
-      when: ansible_virtualization_type != "docker"
+      when: ansible_facts.virtualization_type | default('') not in ['docker', 'container', 'containerd', 'kvm']
       copy:
         content: |
           D /var/run/supervisor 0775 root root -
@@ -76,7 +76,7 @@
         value: dummy
 
     - name: Configure supervisor       | Increase number of open files for jobs
-      when: ansible_virtualization_type != "docker"
+      when: ansible_facts.virtualization_type | default('') not in ['docker', 'container', 'containerd', 'kvm']
       ini_file:
         dest: /etc/supervisord.conf
         section: supervisord
@@ -84,7 +84,7 @@
         value: "800000"
 
     - name: Configure supervisor       | Add supervisord.service
-      when: ansible_virtualization_type != "docker"
+      when: ansible_facts.virtualization_type | default('') not in ['docker', 'container', 'containerd', 'kvm']
       copy:
         src: supervisord.service
         dest: /usr/lib/systemd/system/

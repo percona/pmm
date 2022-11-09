@@ -11,7 +11,7 @@
   tasks:
     # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
     - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
-      when: ansible_virtualization_type == "docker"
+      when: ansible_facts.virtualization_type | default('') in ['docker', 'container', 'containerd', 'kvm']
       copy:
         content: "docker"
         dest: /srv/pmm-distribution
@@ -80,11 +80,11 @@
       ignore_errors: True
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
+      when: ansible_facts.virtualization_type | default('') not in ['docker', 'container', 'containerd', 'kvm']
       service: name=supervisord state=stopped enabled=yes
 
     - name: Supervisord stop           | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker"
+      when: ansible_facts.virtualization_type | default('') in ['docker', 'container', 'containerd', 'kvm']
       shell: supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
