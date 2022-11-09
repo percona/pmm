@@ -39,37 +39,37 @@ Creating and restoring MongoDB backups in PMM currently has the following limita
   }
 </style>
 
-| Operation (Backup or Restore) | Backup type (Logical or Physical) | Full or PITR | Storage type (S3 or Local) | Support DB running in container (Containerized) | Support level|                                                                    
+| Operation (Backup or Restore) | Backup type (Logical or Physical) | Full or PITR | Storage type (S3 or Local) | DB running in container (Containerized) | Support level|                                                                    
 | -------------- | ---------------- | ---- | -------- | ------------- | --------------------------------------- |
-| Backup         | Logical          | Yes  | S3       | Yes           | <b style="color:#5794f2;"><b style="color:#5794f2;">Full</b></b>                                  |                                                                               |
-| Backup         | Logical          | Yes  | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Backup         | Logical          | Yes  | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Logical          | Yes  | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Logical          | No   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Backup         | Logical          | No   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Backup         | Logical          | No   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Logical          | No   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Physical         | Yes  | S3       | Yes           | <b style="color:#e36526;">No</b>                                       
-| Backup         | Physical         | Yes  | S3       | No            | <b style="color:#e36526;">No</b>                                       
-| Backup         | Physical         | Yes  | Local    | Yes           | <b style="color:#e36526;">No</b>                                       
-| Backup         | Physical         | Yes  | Local    | No            | <b style="color:#e36526;">No</b>                                      
-| Backup         | Physical         | No   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                   
-| Backup         | Physical         | No   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Physical         | No   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
-| Backup         | Physical         | No   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
-| Restore        | Logical          | Yes  | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Logical          | Yes  | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Logical          | Yes  | Local    | Yes           | <b style="color:#e36526;">No</b>                                      
-| Restore        | Logical          | Yes  | Local    | No            |<b style="color:#e36526;">No</b>                                      
-| Restore        | Logical          | No   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Logical          | No   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Logical          | No   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Logical          | No   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
-| Restore        | Physical         | Yes  | S3       | Yes           | <b style="color:#e36526;">No</b>                                       
-| Restore        | Physical         | Yes  | S3       | No            | <b style="color:#e36526;">No</b>                                     
-| Restore        | Physical         | Yes  | Local    | Yes           | <b style="color:#e36526;">No</b>                                       
-| Restore        | Physical         | Yes  | Local    | No            | <b style="color:#e36526;">No</b>                                       
-| Restore        | Physical         | No   | S3       | Yes           | <b style="color:#e36526;">No</b>                                      
-| Restore        | Physical         | No   | S3       | No            | Partial                                
-| Restore        | Physical         | No   | Local    | Yes           | <b style="color:#e36526;">No</b>                                    
-| Restore        | Physical         | No   | Local    | No            | Partial                                
+| Backup         | Logical          | PITR  | S3       | Yes           | <b style="color:#5794f2;"><b style="color:#5794f2;">Full</b></b>                                  |                                                                               |
+| Backup         | Logical          | PITR  | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Backup         | Logical          | PITR  | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Logical          | PITR  | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Logical          | Full   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Backup         | Logical          | Full   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Backup         | Logical          | Full   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Logical          | Full   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Physical         | PITR  | S3       | Yes           | <b style="color:#e36526;">No</b>                                       
+| Backup         | Physical         | PITR  | S3       | No            | <b style="color:#e36526;">No</b>                                       
+| Backup         | Physical         | PITR  | Local    | Yes           | <b style="color:#e36526;">No</b>                                       
+| Backup         | Physical         | PITR  | Local    | No            | <b style="color:#e36526;">No</b>                                      
+| Backup         | Physical         | Full   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                   
+| Backup         | Physical         | Full   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Physical         | Full   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    
+| Backup         | Physical         | Full   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    
+| Restore        | Logical          | PITR  | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Logical          | PITR  | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Logical          | PITR  | Local    | Yes           | <b style="color:#e36526;">No</b>                                      
+| Restore        | Logical          | PITR  | Local    | No            |<b style="color:#e36526;">No</b>                                      
+| Restore        | Logical          | Full   | S3       | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Logical          | Full   | S3       | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Logical          | Full   | Local    | Yes           | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Logical          | Full   | Local    | No            | <b style="color:#5794f2;">Full</b>                                    |                                                                               |
+| Restore        | Physical         | PITR  | S3       | Yes           | <b style="color:#e36526;">No</b>                                       
+| Restore        | Physical         | PITR  | S3       | No            | <b style="color:#e36526;">No</b>                                     
+| Restore        | Physical         | PITR  | Local    | Yes           | <b style="color:#e36526;">No</b>                                       
+| Restore        | Physical         | PITR  | Local    | No            | <b style="color:#e36526;">No</b>                                       
+| Restore        | Physical         | Full   | S3       | Yes           | <b style="color:#e36526;">No</b>                                      
+| Restore        | Physical         | Full   | S3       | No            | Partial                                
+| Restore        | Physical         | Full   | Local    | Yes           | <b style="color:#e36526;">No</b>                                    
+| Restore        | Physical         | Full   | Local    | No            | Partial                                
