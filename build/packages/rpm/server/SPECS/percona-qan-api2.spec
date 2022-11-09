@@ -48,7 +48,6 @@ make release
 
 
 %install
-cd src/%{provider}/qan-api2
 
 install -d -p %{buildroot}%{_sbindir}
 install -p -m 0755 bin/qan-api2 %{buildroot}%{_sbindir}/%{name}
