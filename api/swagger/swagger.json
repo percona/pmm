@@ -19735,18 +19735,13 @@
             "schema": {
               "type": "object",
               "properties": {
-                "role_id": {
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 0
-                },
                 "title": {
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "filter": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }

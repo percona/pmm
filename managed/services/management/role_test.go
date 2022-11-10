@@ -64,8 +64,7 @@ func TestRoleService(t *testing.T) {
 		t.Run("Shall work", func(t *testing.T) {
 			defer teardown(t)
 
-			res, err := s.CreateRole(ctx, &managementpb.RoleData{
-				RoleId: 0,
+			res, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
 				Title:  "Role A",
 				Filter: "filter",
 			})
@@ -81,7 +80,7 @@ func TestRoleService(t *testing.T) {
 
 			roleID := createDummyRoles(ctx, t, s)
 
-			_, err := s.UpdateRole(ctx, &managementpb.RoleData{
+			_, err := s.UpdateRole(ctx, &managementpb.UpdateRoleRequest{
 				RoleId: roleID,
 				Title:  "Role B - updated",
 				Filter: "filter B - updated",
@@ -99,7 +98,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.UpdateRole(ctx, &managementpb.RoleData{
+			_, err := s.UpdateRole(ctx, &managementpb.UpdateRoleRequest{
 				RoleId: 0,
 				Title:  "",
 				Filter: "",
@@ -115,7 +114,7 @@ func TestRoleService(t *testing.T) {
 
 			roleID := createDummyRoles(ctx, t, s)
 
-			_, err := s.DeleteRole(ctx, &managementpb.RoleID{RoleId: roleID})
+			_, err := s.DeleteRole(ctx, &managementpb.DeleteRoleRequest{RoleId: roleID})
 			assert.NoError(t, err)
 
 			roles, err := s.ListRoles(ctx, &managementpb.ListRolesRequest{})
@@ -129,7 +128,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.DeleteRole(ctx, &managementpb.RoleID{RoleId: 0})
+			_, err := s.DeleteRole(ctx, &managementpb.DeleteRoleRequest{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
@@ -141,7 +140,7 @@ func TestRoleService(t *testing.T) {
 
 			roleID := createDummyRoles(ctx, t, s)
 
-			res, err := s.GetRole(ctx, &managementpb.RoleID{RoleId: roleID})
+			res, err := s.GetRole(ctx, &managementpb.GetRoleRequest{RoleId: roleID})
 			assert.NoError(t, err)
 			assert.Equal(t, res.Title, "Role B")
 		})
@@ -151,7 +150,7 @@ func TestRoleService(t *testing.T) {
 
 			createDummyRoles(ctx, t, s)
 
-			_, err := s.GetRole(ctx, &managementpb.RoleID{RoleId: 0})
+			_, err := s.GetRole(ctx, &managementpb.GetRoleRequest{RoleId: 0})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
 	})
@@ -233,7 +232,7 @@ func TestRoleService(t *testing.T) {
 			roleID := createDummyRoles(ctx, t, s)
 			assert.NotEqual(t, settings.DefaultRoleID, roleID)
 
-			_, err = s.SetDefaultRole(ctx, &managementpb.RoleID{
+			_, err = s.SetDefaultRole(ctx, &managementpb.SetDefaultRoleRequest{
 				RoleId: roleID,
 			})
 			assert.NoError(t, err)
@@ -245,7 +244,7 @@ func TestRoleService(t *testing.T) {
 
 		t.Run("shall return error on non existent role", func(t *testing.T) {
 			defer teardown(t)
-			_, err := s.SetDefaultRole(ctx, &managementpb.RoleID{
+			_, err := s.SetDefaultRole(ctx, &managementpb.SetDefaultRoleRequest{
 				RoleId: 1337,
 			})
 
@@ -257,15 +256,13 @@ func TestRoleService(t *testing.T) {
 func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) uint32 {
 	t.Helper()
 
-	_, err := s.CreateRole(ctx, &managementpb.RoleData{
-		RoleId: 0,
+	_, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
 		Title:  "Role A",
 		Filter: "filter A",
 	})
 	assert.NoError(t, err)
 
-	res, err := s.CreateRole(ctx, &managementpb.RoleData{
-		RoleId: 0,
+	res, err := s.CreateRole(ctx, &managementpb.CreateRoleRequest{
 		Title:  "Role B",
 		Filter: "filter B",
 	})

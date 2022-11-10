@@ -123,9 +123,6 @@ CreateRoleBody create role body
 swagger:model CreateRoleBody
 */
 type CreateRoleBody struct {
-	// role id
-	RoleID int64 `json:"role_id,omitempty"`
-
 	// title
 	Title string `json:"title,omitempty"`
 

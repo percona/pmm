@@ -24,19 +24,19 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleClient interface {
 	// CreateRole creates a new role.
-	CreateRole(ctx context.Context, in *RoleData, opts ...grpc.CallOption) (*RoleID, error)
+	CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error)
 	// UpdateRole creates a new role.
-	UpdateRole(ctx context.Context, in *RoleData, opts ...grpc.CallOption) (*EmptyResponse, error)
+	UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error)
 	// DeleteRole creates a new role.
-	DeleteRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error)
+	DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error)
 	// GetRole retrieves a single role.
-	GetRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*RoleData, error)
+	GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
 	// AssignRole assigns a role to a user.
-	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
 	// SetDefaultRole configures default role assigned to users.
-	SetDefaultRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error)
+	SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error)
 }
 
 type roleClient struct {
@@ -47,8 +47,8 @@ func NewRoleClient(cc grpc.ClientConnInterface) RoleClient {
 	return &roleClient{cc}
 }
 
-func (c *roleClient) CreateRole(ctx context.Context, in *RoleData, opts ...grpc.CallOption) (*RoleID, error) {
-	out := new(RoleID)
+func (c *roleClient) CreateRole(ctx context.Context, in *CreateRoleRequest, opts ...grpc.CallOption) (*CreateRoleResponse, error) {
+	out := new(CreateRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/CreateRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func (c *roleClient) CreateRole(ctx context.Context, in *RoleData, opts ...grpc.
 	return out, nil
 }
 
-func (c *roleClient) UpdateRole(ctx context.Context, in *RoleData, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *roleClient) UpdateRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdateRoleResponse, error) {
+	out := new(UpdateRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/UpdateRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,8 +65,8 @@ func (c *roleClient) UpdateRole(ctx context.Context, in *RoleData, opts ...grpc.
 	return out, nil
 }
 
-func (c *roleClient) DeleteRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *roleClient) DeleteRole(ctx context.Context, in *DeleteRoleRequest, opts ...grpc.CallOption) (*DeleteRoleResponse, error) {
+	out := new(DeleteRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/DeleteRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,8 +74,8 @@ func (c *roleClient) DeleteRole(ctx context.Context, in *RoleID, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *roleClient) GetRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*RoleData, error) {
-	out := new(RoleData)
+func (c *roleClient) GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error) {
+	out := new(GetRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/GetRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -92,8 +92,8 @@ func (c *roleClient) ListRoles(ctx context.Context, in *ListRolesRequest, opts .
 	return out, nil
 }
 
-func (c *roleClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *roleClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error) {
+	out := new(AssignRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/AssignRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -101,8 +101,8 @@ func (c *roleClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts
 	return out, nil
 }
 
-func (c *roleClient) SetDefaultRole(ctx context.Context, in *RoleID, opts ...grpc.CallOption) (*EmptyResponse, error) {
-	out := new(EmptyResponse)
+func (c *roleClient) SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error) {
+	out := new(SetDefaultRoleResponse)
 	err := c.cc.Invoke(ctx, "/management.Role/SetDefaultRole", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -115,38 +115,38 @@ func (c *roleClient) SetDefaultRole(ctx context.Context, in *RoleID, opts ...grp
 // for forward compatibility
 type RoleServer interface {
 	// CreateRole creates a new role.
-	CreateRole(context.Context, *RoleData) (*RoleID, error)
+	CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error)
 	// UpdateRole creates a new role.
-	UpdateRole(context.Context, *RoleData) (*EmptyResponse, error)
+	UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error)
 	// DeleteRole creates a new role.
-	DeleteRole(context.Context, *RoleID) (*EmptyResponse, error)
+	DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error)
 	// GetRole retrieves a single role.
-	GetRole(context.Context, *RoleID) (*RoleData, error)
+	GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error)
 	// AssignRole assigns a role to a user.
-	AssignRole(context.Context, *AssignRoleRequest) (*EmptyResponse, error)
+	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
 	// SetDefaultRole configures default role assigned to users.
-	SetDefaultRole(context.Context, *RoleID) (*EmptyResponse, error)
+	SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error)
 	mustEmbedUnimplementedRoleServer()
 }
 
 // UnimplementedRoleServer must be embedded to have forward compatible implementations.
 type UnimplementedRoleServer struct{}
 
-func (UnimplementedRoleServer) CreateRole(context.Context, *RoleData) (*RoleID, error) {
+func (UnimplementedRoleServer) CreateRole(context.Context, *CreateRoleRequest) (*CreateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRole not implemented")
 }
 
-func (UnimplementedRoleServer) UpdateRole(context.Context, *RoleData) (*EmptyResponse, error) {
+func (UnimplementedRoleServer) UpdateRole(context.Context, *UpdateRoleRequest) (*UpdateRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRole not implemented")
 }
 
-func (UnimplementedRoleServer) DeleteRole(context.Context, *RoleID) (*EmptyResponse, error) {
+func (UnimplementedRoleServer) DeleteRole(context.Context, *DeleteRoleRequest) (*DeleteRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
 
-func (UnimplementedRoleServer) GetRole(context.Context, *RoleID) (*RoleData, error) {
+func (UnimplementedRoleServer) GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRole not implemented")
 }
 
@@ -154,11 +154,11 @@ func (UnimplementedRoleServer) ListRoles(context.Context, *ListRolesRequest) (*L
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
 
-func (UnimplementedRoleServer) AssignRole(context.Context, *AssignRoleRequest) (*EmptyResponse, error) {
+func (UnimplementedRoleServer) AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRole not implemented")
 }
 
-func (UnimplementedRoleServer) SetDefaultRole(context.Context, *RoleID) (*EmptyResponse, error) {
+func (UnimplementedRoleServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDefaultRole not implemented")
 }
 func (UnimplementedRoleServer) mustEmbedUnimplementedRoleServer() {}
@@ -175,7 +175,7 @@ func RegisterRoleServer(s grpc.ServiceRegistrar, srv RoleServer) {
 }
 
 func _Role_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoleData)
+	in := new(CreateRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -187,13 +187,13 @@ func _Role_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/management.Role/CreateRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).CreateRole(ctx, req.(*RoleData))
+		return srv.(RoleServer).CreateRole(ctx, req.(*CreateRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Role_UpdateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoleData)
+	in := new(UpdateRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -205,13 +205,13 @@ func _Role_UpdateRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/management.Role/UpdateRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).UpdateRole(ctx, req.(*RoleData))
+		return srv.(RoleServer).UpdateRole(ctx, req.(*UpdateRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Role_DeleteRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoleID)
+	in := new(DeleteRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -223,13 +223,13 @@ func _Role_DeleteRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/management.Role/DeleteRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).DeleteRole(ctx, req.(*RoleID))
+		return srv.(RoleServer).DeleteRole(ctx, req.(*DeleteRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Role_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoleID)
+	in := new(GetRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func _Role_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interf
 		FullMethod: "/management.Role/GetRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).GetRole(ctx, req.(*RoleID))
+		return srv.(RoleServer).GetRole(ctx, req.(*GetRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -283,7 +283,7 @@ func _Role_AssignRole_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 func _Role_SetDefaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RoleID)
+	in := new(SetDefaultRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -295,7 +295,7 @@ func _Role_SetDefaultRole_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/management.Role/SetDefaultRole",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).SetDefaultRole(ctx, req.(*RoleID))
+		return srv.(RoleServer).SetDefaultRole(ctx, req.(*SetDefaultRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

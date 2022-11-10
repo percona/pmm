@@ -34,7 +34,7 @@ var (
 )
 
 func request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleData
+	var protoReq CreateRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 func local_request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleData
+	var protoReq CreateRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -66,7 +66,7 @@ func local_request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleData
+	var protoReq UpdateRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -82,7 +82,7 @@ func request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 func local_request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleData
+	var protoReq UpdateRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -98,7 +98,7 @@ func local_request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq DeleteRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -114,7 +114,7 @@ func request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 func local_request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq DeleteRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -132,7 +132,7 @@ func local_request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Mars
 var filter_Role_GetRole_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
 func request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq GetRoleRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -147,7 +147,7 @@ func request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, cl
 }
 
 func local_request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq GetRoleRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -210,7 +210,7 @@ func local_request_Role_AssignRole_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq SetDefaultRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -226,7 +226,7 @@ func request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 func local_request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RoleID
+	var protoReq SetDefaultRoleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
