@@ -2,11 +2,6 @@
 
 ## Supported setups 
 
-**- MySQL database server with support for:**
-    
-  - Creating and restoring physical backups
-  - Storing backups to Amazon S3-compatible object storage 
-
 **- MongoDB replica set setups (GA) with support for:**
 
   -  Storing backups on Amazon S3-compatible object storageand on mounted filesystem
@@ -19,7 +14,7 @@
 **- MySQL database server (Technical Preview) with support for:**
     
   - Creating and restoring physical backups
-  - Storing backups to Amazon S3 
+  - Storing backups to Amazon S3-compatible object storage  
 
 
 ## Prerequisites
