@@ -364,8 +364,7 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 	res, err := s.mm.ExplainFingerprintByQueryID(
 		ctx,
 		in.Serviceid,
-		in.QueryId,
-	)
+		in.QueryId)
 	if err != nil {
 		return nil, fmt.Errorf("error in checking query:%v", err)
 	}

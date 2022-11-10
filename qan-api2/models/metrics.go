@@ -1017,8 +1017,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	for rows.Next() {
 		err = rows.Scan(
 			&res.ExplainFingerprint,
-			&res.PlaceholdersCount,
-		)
+			&res.PlaceholdersCount)
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
