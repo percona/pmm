@@ -176,7 +176,6 @@ func TestRunTelemetryService(t *testing.T) {
 				portalClient:        tt.mockTelemetrySender(),
 				sendCh:              make(chan *pmmv1.ServerMetric, sendChSize),
 			}
-
 			s.Run(ctx)
 		})
 	}
