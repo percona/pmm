@@ -227,6 +227,10 @@ func (s *JobsService) handleJobResult(ctx context.Context, l *logrus.Entry, resu
 				return errors.Errorf("result type %s doesn't match job type %s", models.MongoDBRestoreBackupJob, job.Type)
 			}
 
+			if err = s.runMongoPostRestore(job.Data.MongoDBRestoreBackup.ServiceID, job.ID, job.Timeout); err != nil {
+				return err
+			}
+
 			_, err := models.ChangeRestoreHistoryItem(
 				t.Querier,
 				job.Data.MongoDBRestoreBackup.RestoreID,
@@ -491,6 +495,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 // StartMongoDBRestoreBackupJob starts mongo restore backup job on the pmm-agent.
 func (s *JobsService) StartMongoDBRestoreBackupJob(
 	jobID string,
+	serviceID string,
 	pmmAgentID string,
 	timeout time.Duration,
 	name string,
@@ -572,6 +577,60 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		return errors.Errorf("failed to start MonogDB restore backup job: %s", e)
 	}
 
+	return nil
+}
+
+func (s *JobsService) runMongoPostRestore(serviceID string, jobID string, timeout time.Duration) error {
+	s.l.Info("starting mongodb post restore routine...")
+	service, err := models.FindServiceByID(s.db.Querier, serviceID)
+	if err != nil {
+		return err
+	}
+	if service.ReplicationSet == "" {
+		return errors.Errorf("service '%s' is not configured with a valid replica set name", service.ServiceID)
+	}
+
+	serviceType := models.MongoDBServiceType
+	rsMembers, err := models.FindServices(
+		s.db.Querier,
+		models.ServiceFilters{
+			ServiceType:    &serviceType,
+			ReplicationSet: service.ReplicationSet,
+		})
+
+	for _, service := range rsMembers {
+		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, service.ServiceID)
+		if err != nil {
+			return errors.Wrapf(err, "failed to get pmm agent for replica set member: %s", service.ServiceID)
+		}
+		if len(pmmAgents) == 0 {
+			return errors.Errorf("cannot find pmm agent for service %s", service.ServiceID)
+		}
+		pmmAgentID := pmmAgents[0].AgentID
+		if err = PMMAgentSupported(s.db.Querier, pmmAgentID, "restart mongo components", pmmAgentMinVersionForMongoPhysicalBackupAndRestore); err != nil {
+			return err
+		}
+
+		req := &agentpb.StartJobRequest{
+			JobId:   jobID,
+			Timeout: durationpb.New(timeout),
+			Job:     &agentpb.StartJobRequest_MongodbPostRestoreBackup{},
+		}
+
+		agent, err := s.r.get(pmmAgentID)
+		if err != nil {
+			return err
+		}
+
+		resp, err := agent.channel.SendAndWaitResponse(req)
+		if err != nil {
+			return err
+		}
+		if e := resp.(*agentpb.StartJobResponse).Error; e != "" {
+			return errors.Errorf("failed to restart MonogDB components after restore: %s", e)
+		}
+		// for each service, send mongo_post_restore_job
+	}
 	return nil
 }
 

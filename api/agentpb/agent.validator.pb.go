@@ -594,6 +594,13 @@ func (this *StartJobRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetJob().(*StartJobRequest_MongodbPostRestoreBackup); ok {
+		if oneOfNester.MongodbPostRestoreBackup != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbPostRestoreBackup); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbPostRestoreBackup", err)
+			}
+		}
+	}
 	return nil
 }
 
@@ -657,6 +664,10 @@ func (this *StartJobRequest_MongoDBRestoreBackup) Validate() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (this *StartJobRequest_MongoDbPostRestoreBackup) Validate() error {
 	return nil
 }
 

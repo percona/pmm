@@ -557,6 +557,9 @@ message StartJobRequest {
       FilesystemLocationConfig filesystem_config = 11;
     }
   }
+
+  message MongoDbPostRestoreBackup {}
+
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -565,6 +568,7 @@ message StartJobRequest {
     MySQLRestoreBackup mysql_restore_backup = 12;
     MongoDBBackup mongodb_backup = 13;
     MongoDBRestoreBackup mongodb_restore_backup = 14;
+    MongoDbPostRestoreBackup mongodb_post_restore_backup = 15;
   }
 }
 

@@ -65,6 +65,7 @@ type jobsService interface {
 	) error
 	StartMongoDBRestoreBackupJob(
 		jobID string,
+		serviceID string,
 		pmmAgentID string,
 		timeout time.Duration,
 		name string,

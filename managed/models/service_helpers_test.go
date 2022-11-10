@@ -401,6 +401,45 @@ func TestServiceHelpers(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
+
+	t.Run("MongoDB find services in the same replica set", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		_, err := models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName:    "mongors1",
+			NodeID:         "N1",
+			ReplicationSet: "rs0",
+			Address:        pointer.ToString("127.0.0.1"),
+			Port:           pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName:    "mongors2",
+			NodeID:         "N1",
+			ReplicationSet: "rs0",
+			Address:        pointer.ToString("127.0.0.1"),
+			Port:           pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		_, err = models.AddNewService(q, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+			ServiceName:    "mongors3",
+			NodeID:         "N1",
+			ReplicationSet: "rs1",
+			Address:        pointer.ToString("127.0.0.1"),
+			Port:           pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		services, err := models.FindServices(q, models.ServiceFilters{
+			ServiceType:    pointerToServiceType(models.MongoDBServiceType),
+			ReplicationSet: "rs0",
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, services)
+		assert.Len(t, services, 2)
+	})
 }
 
 func pointerToServiceType(serviceType models.ServiceType) *models.ServiceType {

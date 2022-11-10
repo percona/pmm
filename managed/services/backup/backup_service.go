@@ -443,6 +443,7 @@ func (s *Service) startRestoreJob(jobID, serviceID string, params *prepareRestor
 	case models.MongoDBServiceType:
 		if err := s.jobsService.StartMongoDBRestoreBackupJob(
 			jobID,
+			serviceID,
 			params.AgentID,
 			0,
 			params.ArtifactName,
