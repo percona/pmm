@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package backup.v1beta1;
+package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1beta1";
+option go_package = "api/managementpb/backup;backupv1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
@@ -18,7 +18,7 @@ enum BackupStatus {
   BACKUP_STATUS_ERROR = 5;
   BACKUP_STATUS_DELETING = 6;
   BACKUP_STATUS_FAILED_TO_DELETE = 7;
-  BACKUP_STATUS_UNSUPPORTED_AGENT = 8;
+  BACKUP_STATUS_FAILED_UNSUPPORTED_AGENT = 8;
 }
 
 // Artifact represents single backup artifact.
@@ -62,6 +62,22 @@ message DeleteArtifactRequest {
 
 message DeleteArtifactResponse {}
 
+message PitrTimerange {
+  // start_timestamp is the time of the first event in the PITR chunk.
+  google.protobuf.Timestamp start_timestamp = 1;
+  // end_timestamp is the time of the last event in the PITR chunk.
+  google.protobuf.Timestamp end_timestamp = 2;
+}
+
+message ListPitrTimerangesRequest {
+  // Artifact ID represents artifact whose location has PITR timeranges to be retrieved.
+  string artifact_id = 1;
+}
+
+message ListPitrTimerangesResponse {
+  repeated PitrTimerange timeranges = 1;
+}
+
 // Artifacts service provides public methods for managing backup artifacts.
 service Artifacts {
   // ListArtifacts returns a list of all backup artifacts.
@@ -75,6 +91,14 @@ service Artifacts {
   rpc DeleteArtifact(DeleteArtifactRequest) returns (DeleteArtifactResponse) {
     option (google.api.http) = {
       post: "/v1/management/backup/Artifacts/Delete"
+      body: "*"
+    };
+  }
+
+  // ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
+  rpc ListPitrTimeranges(ListPitrTimerangesRequest) returns (ListPitrTimerangesResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/backup/Artifacts/ListPITRTimeranges"
       body: "*"
     };
   }

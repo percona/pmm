@@ -7317,7 +7317,7 @@
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
                           "BACKUP_STATUS_FAILED_TO_DELETE",
-                          "BACKUP_STATUS_UNSUPPORTED_AGENT"
+                          "BACKUP_STATUS_FAILED_UNSUPPORTED_AGENT"
                         ],
                         "x-order": 8
                       },
@@ -7338,6 +7338,94 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/backup/Artifacts/ListPITRTimeranges": {
+      "post": {
+        "tags": [
+          "Artifacts"
+        ],
+        "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
+        "operationId": "ListPitrTimeranges",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "artifact_id": {
+                  "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "timeranges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "start_timestamp": {
+                        "description": "start_timestamp is the time of the first event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 0
+                      },
+                      "end_timestamp": {
+                        "description": "end_timestamp is the time of the last event in the PITR chunk.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 1
                       }
                     }
                   },
@@ -8047,6 +8135,12 @@
                   "description": "Artifact id to restore.",
                   "type": "string",
                   "x-order": 1
+                },
+                "pitr_timestamp": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "Timestamp of PITR to restore to",
+                  "x-order": 2
                 }
               }
             }
@@ -8376,8 +8470,8 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -8386,17 +8480,6 @@
                     }
                   },
                   "x-order": 2
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 3
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -8419,7 +8502,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 4
+                  "x-order": 3
                 }
               }
             }
@@ -8502,8 +8585,8 @@
                   "type": "string",
                   "x-order": 2
                 },
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -8512,17 +8595,6 @@
                     }
                   },
                   "x-order": 3
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 4
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -8545,7 +8617,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -8636,8 +8708,8 @@
                         "title": "Short description",
                         "x-order": 2
                       },
-                      "pmm_client_config": {
-                        "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                      "filesystem_config": {
+                        "description": "FilesystemLocationConfig represents file system location config.",
                         "type": "object",
                         "properties": {
                           "path": {
@@ -8646,17 +8718,6 @@
                           }
                         },
                         "x-order": 3
-                      },
-                      "pmm_server_config": {
-                        "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string",
-                            "x-order": 0
-                          }
-                        },
-                        "x-order": 4
                       },
                       "s3_config": {
                         "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -8679,7 +8740,7 @@
                             "x-order": 3
                           }
                         },
-                        "x-order": 5
+                        "x-order": 4
                       }
                     }
                   },
@@ -8807,8 +8868,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_client_config": {
-                  "description": "PMMClientLocationConfig represents file system config inside pmm-client.",
+                "filesystem_config": {
+                  "description": "FilesystemLocationConfig represents file system location config.",
                   "type": "object",
                   "properties": {
                     "path": {
@@ -8817,17 +8878,6 @@
                     }
                   },
                   "x-order": 0
-                },
-                "pmm_server_config": {
-                  "description": "PMMServerLocationConfig represents file system config inside pmm-server.",
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "x-order": 0
-                    }
-                  },
-                  "x-order": 1
                 },
                 "s3_config": {
                   "description": "S3LocationConfig represents S3 bucket configuration.",
@@ -8850,7 +8900,7 @@
                       "x-order": 3
                     }
                   },
-                  "x-order": 2
+                  "x-order": 1
                 }
               }
             }

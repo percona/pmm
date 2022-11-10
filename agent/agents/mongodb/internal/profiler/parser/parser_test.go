@@ -28,11 +28,12 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm/agent/utils/truncate"
 )
 
 func TestNew(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
 
 	type args struct {
 		docsChan   <-chan pm.SystemProfile
@@ -64,7 +65,7 @@ func TestNew(t *testing.T) {
 func TestParserStartStop(t *testing.T) {
 	var err error
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
 
 	ctx := context.TODO()
 	parser1 := New(docsChan, a, logrus.WithField("component", "test-parser"))
@@ -82,7 +83,7 @@ func TestParserStartStop(t *testing.T) {
 
 func TestParserRunning(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"))
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetDefaultMaxQueryLength())
 	reportChan := a.Start()
 	defer a.Stop()
 	d := aggregator.DefaultInterval

@@ -68,7 +68,7 @@ func TestScheduleBackup(t *testing.T) {
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+				FilesystemConfig: &locations.AddLocationParamsBodyFilesystemConfig{
 					Path: "/tmp",
 				},
 			},

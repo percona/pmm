@@ -18,31 +18,36 @@ package backup
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	backupv1beta1 "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l          *logrus.Entry
-	db         *reform.DB
-	removalSVC removalService
+	l                *logrus.Entry
+	db               *reform.DB
+	removalSVC       removalService
+	pitrTimerangeSVC pitrTimerangeService
 
-	backupv1beta1.UnimplementedArtifactsServer
+	backuppb.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
 	return &ArtifactsService{
-		l:          logrus.WithField("component", "management/backup/artifacts"),
-		db:         db,
-		removalSVC: removalSVC,
+		l:                logrus.WithField("component", "management/backup/artifacts"),
+		db:               db,
+		removalSVC:       removalSVC,
+		pitrTimerangeSVC: storage,
 	}
 }
 
@@ -57,7 +62,7 @@ func (s *ArtifactsService) Enabled() bool {
 }
 
 // ListArtifacts returns a list of all artifacts.
-func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArtifactsRequest) (*backupv1beta1.ListArtifactsResponse, error) {
+func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifactsRequest) (*backuppb.ListArtifactsResponse, error) {
 	q := s.db.Querier
 
 	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{})
@@ -86,7 +91,7 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArt
 		return nil, err
 	}
 
-	artifactsResponse := make([]*backupv1beta1.Artifact, 0, len(artifacts))
+	artifactsResponse := make([]*backuppb.Artifact, 0, len(artifacts))
 	for _, b := range artifacts {
 		convertedArtifact, err := convertArtifact(b, services, locations)
 		if err != nil {
@@ -94,7 +99,7 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArt
 		}
 		artifactsResponse = append(artifactsResponse, convertedArtifact)
 	}
-	return &backupv1beta1.ListArtifactsResponse{
+	return &backuppb.ListArtifactsResponse{
 		Artifacts: artifactsResponse,
 	}, nil
 }
@@ -102,44 +107,85 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backupv1beta1.ListArt
 // DeleteArtifact deletes specified artifact.
 func (s *ArtifactsService) DeleteArtifact(
 	ctx context.Context,
-	req *backupv1beta1.DeleteArtifactRequest,
-) (*backupv1beta1.DeleteArtifactResponse, error) {
+	req *backuppb.DeleteArtifactRequest,
+) (*backuppb.DeleteArtifactResponse, error) {
 	if err := s.removalSVC.DeleteArtifact(ctx, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}
 
-	return &backupv1beta1.DeleteArtifactResponse{}, nil
+	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
-func convertDataModel(model models.DataModel) (backupv1beta1.DataModel, error) {
+// ListPitrTimeranges lists available PITR timelines/time-ranges (for MongoDB)
+func (s *ArtifactsService) ListPitrTimeranges(
+	ctx context.Context,
+	req *backuppb.ListPitrTimerangesRequest,
+) (*backuppb.ListPitrTimerangesResponse, error) {
+	var artifact *models.Artifact
+	var err error
+
+	artifact, err = models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	if err != nil {
+		if errors.Is(err, models.ErrNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Artifact with ID %q not found.", req.ArtifactId)
+		}
+		return nil, err
+	}
+
+	if artifact.Mode != models.PITR {
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return nil, err
+	}
+
+	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*backuppb.PitrTimerange, 0, len(timelines))
+	for _, tl := range timelines {
+		result = append(result, &backuppb.PitrTimerange{
+			StartTimestamp: timestamppb.New(time.Unix(int64(tl.Start), 0)),
+			EndTimestamp:   timestamppb.New(time.Unix(int64(tl.End), 0)),
+		})
+	}
+	return &backuppb.ListPitrTimerangesResponse{
+		Timeranges: result,
+	}, nil
+}
+
+func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backupv1beta1.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backupv1beta1.DataModel_LOGICAL, nil
+		return backuppb.DataModel_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}
 }
 
-func convertBackupStatus(status models.BackupStatus) (backupv1beta1.BackupStatus, error) {
+func convertBackupStatus(status models.BackupStatus) (backuppb.BackupStatus, error) {
 	switch status {
 	case models.PendingBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_PENDING, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_PENDING, nil
 	case models.InProgressBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_IN_PROGRESS, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_IN_PROGRESS, nil
 	case models.PausedBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_PAUSED, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_PAUSED, nil
 	case models.SuccessBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_SUCCESS, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_SUCCESS, nil
 	case models.ErrorBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_ERROR, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_ERROR, nil
 	case models.DeletingBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_DELETING, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_DELETING, nil
 	case models.FailedToDeleteBackupStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
 	case models.UnsupportedPMMAgentStatus:
-		return backupv1beta1.BackupStatus_BACKUP_STATUS_UNSUPPORTED_AGENT, nil
+		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_UNSUPPORTED_AGENT, nil
 	default:
 		return 0, errors.Errorf("invalid status '%s'", status)
 	}
@@ -149,7 +195,7 @@ func convertArtifact(
 	a *models.Artifact,
 	services map[string]*models.Service,
 	locationModels map[string]*models.BackupLocation,
-) (*backupv1beta1.Artifact, error) {
+) (*backuppb.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
 	if err := createdAt.CheckValid(); err != nil {
 		return nil, errors.Wrap(err, "failed to convert timestamp")
@@ -181,7 +227,7 @@ func convertArtifact(
 		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
 	}
 
-	return &backupv1beta1.Artifact{
+	return &backuppb.Artifact{
 		ArtifactId:   a.ID,
 		Name:         a.Name,
 		Vendor:       a.Vendor,
@@ -198,5 +244,5 @@ func convertArtifact(
 
 // Check interfaces.
 var (
-	_ backupv1beta1.ArtifactsServer = (*ArtifactsService)(nil)
+	_ backuppb.ArtifactsServer = (*ArtifactsService)(nil)
 )

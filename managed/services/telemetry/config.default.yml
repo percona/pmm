@@ -8,6 +8,22 @@ telemetry:
       - metric_name: "pmm_server_ia_enabled"
         column: "ia_enabled"
 
+  - id: PMMServerAlertsFire
+    source: VM
+    query: max_over_time(grafana_alerting_alerts{state="alerting"}[24h])
+    summary: "Maximum number of active concurrent alerts in the last 24 hours"
+    data:
+      - metric_name: "pmm_server_alerts_firing_max_24h"
+        value: 1
+
+  - id: PMMServerAlertRulesNumber
+    source: VM
+    query: grafana_alerting_schedule_alert_rules
+    summary: "Number of Alerts configured"
+    data:
+      - metric_name: "pmm_server_alert_rules_number"
+        value: 1
+
   - id: PMMServerSTTEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN stt->'stt_disabled' = 'false' THEN '1' ELSE '0' END) AS stt_enabled FROM settings s, jsonb_extract_path(s.settings, 'sass') AS stt
@@ -163,6 +179,16 @@ telemetry:
     data:
       - metric_name: "mongodb_collector_scrape_time_replset_status"
         value : 1
+
+  - id: MongoDBEdition
+    source: VM
+    query: mongodb_version_info{service_type="mongodb"}
+    summary: "Monitored MongoDB edition"
+    data:
+      - metric_name: "mongodb_edition"
+        label: "edition"
+      - metric_name: "mongodb_vendor"
+        label: "vendor"
 
   - id: PMMPostgresDBVersion
     source: VM
