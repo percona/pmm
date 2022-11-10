@@ -351,6 +351,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		}
 	})
 
+	//nolint:paralleltest
 	t.Run("shall be a valid token", func(t *testing.T) {
 		rw := httptest.NewRecorder()
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
@@ -365,7 +366,8 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 		require.True(t, len(tokenString) > 0)
 
-		token, _ := jwt.ParseWithClaims(tokenString, &vmGatewayJWT{}, func(token *jwt.Token) (interface{}, error) {
+		var vmJWT vmGatewayJWT
+		token, _ := jwt.ParseWithClaims(tokenString, &vmJWT, func(token *jwt.Token) (interface{}, error) {
 			return []byte("not relevant"), nil
 		})
 
