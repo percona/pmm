@@ -48,8 +48,7 @@ func NewGetSettingsOK() *GetSettingsOK {
 	return &GetSettingsOK{}
 }
 
-/*
-GetSettingsOK describes a response with status code 200, with default header values.
+/* GetSettingsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetSettingsOK struct {
 	Payload *GetSettingsOKBody
 }
 
+// IsSuccess returns true when this get settings Ok response has a 2xx status code
+func (o *GetSettingsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get settings Ok response has a 3xx status code
+func (o *GetSettingsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get settings Ok response has a 4xx status code
+func (o *GetSettingsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get settings Ok response has a 5xx status code
+func (o *GetSettingsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get settings Ok response a status code equal to that given
+func (o *GetSettingsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetSettingsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/Settings/Get][%d] getSettingsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetSettingsOK) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] getSettingsOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetSettingsDefault(code int) *GetSettingsDefault {
 	}
 }
 
-/*
-GetSettingsDefault describes a response with status code -1, with default header values.
+/* GetSettingsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetSettingsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get settings default response has a 2xx status code
+func (o *GetSettingsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get settings default response has a 3xx status code
+func (o *GetSettingsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get settings default response has a 4xx status code
+func (o *GetSettingsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get settings default response has a 5xx status code
+func (o *GetSettingsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get settings default response a status code equal to that given
+func (o *GetSettingsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetSettingsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/Settings/Get][%d] GetSettings default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetSettingsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Settings/Get][%d] GetSettings default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetSettingsDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*
-GetSettingsDefaultBody get settings default body
+/*GetSettingsDefaultBody get settings default body
 swagger:model GetSettingsDefaultBody
 */
 type GetSettingsDefaultBody struct {
@@ -222,8 +277,7 @@ func (o *GetSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+/*GetSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -366,8 +420,7 @@ func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSettingsOKBody get settings OK body
+/*GetSettingsOKBody get settings OK body
 swagger:model GetSettingsOKBody
 */
 type GetSettingsOKBody struct {
@@ -455,8 +508,7 @@ func (o *GetSettingsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSettingsOKBodySettings Settings represents PMM Server settings.
+/*GetSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model GetSettingsOKBodySettings
 */
 type GetSettingsOKBodySettings struct {
@@ -727,8 +779,7 @@ func (o *GetSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
+/*GetSettingsOKBodySettingsEmailAlertingSettings EmailAlertingSettings represents email (SMTP) configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsEmailAlertingSettings
 */
 type GetSettingsOKBodySettingsEmailAlertingSettings struct {
@@ -785,8 +836,7 @@ func (o *GetSettingsOKBodySettingsEmailAlertingSettings) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-GetSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+/*GetSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
 swagger:model GetSettingsOKBodySettingsMetricsResolutions
 */
 type GetSettingsOKBodySettingsMetricsResolutions struct {
@@ -828,8 +878,7 @@ func (o *GetSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) 
 	return nil
 }
 
-/*
-GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
+/*GetSettingsOKBodySettingsSlackAlertingSettings SlackAlertingSettings represents Slack configuration for Alerting.
 swagger:model GetSettingsOKBodySettingsSlackAlertingSettings
 */
 type GetSettingsOKBodySettingsSlackAlertingSettings struct {
@@ -865,8 +914,7 @@ func (o *GetSettingsOKBodySettingsSlackAlertingSettings) UnmarshalBinary(b []byt
 	return nil
 }
 
-/*
-GetSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+/*GetSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
 swagger:model GetSettingsOKBodySettingsSttCheckIntervals
 */
 type GetSettingsOKBodySettingsSttCheckIntervals struct {

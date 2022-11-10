@@ -52,12 +52,10 @@ func NewRemoveLocationParamsWithHTTPClient(client *http.Client) *RemoveLocationP
 	}
 }
 
-/*
-RemoveLocationParams contains all the parameters to send to the API endpoint
+/* RemoveLocationParams contains all the parameters to send to the API endpoint
+   for the remove location operation.
 
-	for the remove location operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type RemoveLocationParams struct {
 	// Body.

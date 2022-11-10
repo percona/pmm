@@ -48,8 +48,7 @@ func NewRemoveChannelOK() *RemoveChannelOK {
 	return &RemoveChannelOK{}
 }
 
-/*
-RemoveChannelOK describes a response with status code 200, with default header values.
+/* RemoveChannelOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type RemoveChannelOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this remove channel Ok response has a 2xx status code
+func (o *RemoveChannelOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this remove channel Ok response has a 3xx status code
+func (o *RemoveChannelOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this remove channel Ok response has a 4xx status code
+func (o *RemoveChannelOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this remove channel Ok response has a 5xx status code
+func (o *RemoveChannelOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this remove channel Ok response a status code equal to that given
+func (o *RemoveChannelOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *RemoveChannelOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] removeChannelOk  %+v", 200, o.Payload)
+}
+
+func (o *RemoveChannelOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] removeChannelOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewRemoveChannelDefault(code int) *RemoveChannelDefault {
 	}
 }
 
-/*
-RemoveChannelDefault describes a response with status code -1, with default header values.
+/* RemoveChannelDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *RemoveChannelDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this remove channel default response has a 2xx status code
+func (o *RemoveChannelDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this remove channel default response has a 3xx status code
+func (o *RemoveChannelDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this remove channel default response has a 4xx status code
+func (o *RemoveChannelDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this remove channel default response has a 5xx status code
+func (o *RemoveChannelDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this remove channel default response a status code equal to that given
+func (o *RemoveChannelDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *RemoveChannelDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] RemoveChannel default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RemoveChannelDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] RemoveChannel default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *RemoveChannelDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-RemoveChannelBody remove channel body
+/*RemoveChannelBody remove channel body
 swagger:model RemoveChannelBody
 */
 type RemoveChannelBody struct {
@@ -153,8 +208,7 @@ func (o *RemoveChannelBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveChannelDefaultBody remove channel default body
+/*RemoveChannelDefaultBody remove channel default body
 swagger:model RemoveChannelDefaultBody
 */
 type RemoveChannelDefaultBody struct {
@@ -257,8 +311,7 @@ func (o *RemoveChannelDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
+/*RemoveChannelDefaultBodyDetailsItems0 remove channel default body details items0
 swagger:model RemoveChannelDefaultBodyDetailsItems0
 */
 type RemoveChannelDefaultBodyDetailsItems0 struct {

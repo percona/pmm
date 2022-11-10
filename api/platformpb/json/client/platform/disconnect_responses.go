@@ -48,8 +48,7 @@ func NewDisconnectOK() *DisconnectOK {
 	return &DisconnectOK{}
 }
 
-/*
-DisconnectOK describes a response with status code 200, with default header values.
+/* DisconnectOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type DisconnectOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this disconnect Ok response has a 2xx status code
+func (o *DisconnectOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this disconnect Ok response has a 3xx status code
+func (o *DisconnectOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this disconnect Ok response has a 4xx status code
+func (o *DisconnectOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this disconnect Ok response has a 5xx status code
+func (o *DisconnectOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this disconnect Ok response a status code equal to that given
+func (o *DisconnectOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *DisconnectOK) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] disconnectOk  %+v", 200, o.Payload)
+}
+
+func (o *DisconnectOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] disconnectOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewDisconnectDefault(code int) *DisconnectDefault {
 	}
 }
 
-/*
-DisconnectDefault describes a response with status code -1, with default header values.
+/* DisconnectDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *DisconnectDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this disconnect default response has a 2xx status code
+func (o *DisconnectDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this disconnect default response has a 3xx status code
+func (o *DisconnectDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this disconnect default response has a 4xx status code
+func (o *DisconnectDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this disconnect default response has a 5xx status code
+func (o *DisconnectDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this disconnect default response a status code equal to that given
+func (o *DisconnectDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *DisconnectDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] Disconnect default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *DisconnectDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] Disconnect default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *DisconnectDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-DisconnectBody disconnect body
+/*DisconnectBody disconnect body
 swagger:model DisconnectBody
 */
 type DisconnectBody struct {
@@ -153,8 +208,7 @@ func (o *DisconnectBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DisconnectDefaultBody disconnect default body
+/*DisconnectDefaultBody disconnect default body
 swagger:model DisconnectDefaultBody
 */
 type DisconnectDefaultBody struct {
@@ -257,8 +311,7 @@ func (o *DisconnectDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-DisconnectDefaultBodyDetailsItems0 disconnect default body details items0
+/*DisconnectDefaultBodyDetailsItems0 disconnect default body details items0
 swagger:model DisconnectDefaultBodyDetailsItems0
 */
 type DisconnectDefaultBodyDetailsItems0 struct {

@@ -254,7 +254,10 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, req *dbaa
 			continue
 		}
 		resp.ClusterToComponents[cluster.KubernetesClusterName] = &dbaasv1beta1.ComponentsUpdateInformation{
-			ComponentToUpdateInformation: make(map[string]*dbaasv1beta1.ComponentUpdateInformation),
+			ComponentToUpdateInformation: map[string]*dbaasv1beta1.ComponentUpdateInformation{
+				psmdbOperator: {},
+				pxcOperator:   {},
+			},
 		}
 
 		for _, item := range subscriptions.Items {
@@ -268,7 +271,7 @@ func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, req *dbaa
 							AvailableVersion: matches[1],
 						}
 					case "percona-xtradb-cluster-operator":
-						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[psmdbOperator] = &dbaasv1beta1.ComponentUpdateInformation{
+						resp.ClusterToComponents[cluster.KubernetesClusterName].ComponentToUpdateInformation[pxcOperator] = &dbaasv1beta1.ComponentUpdateInformation{
 							AvailableVersion: matches[1],
 						}
 					}

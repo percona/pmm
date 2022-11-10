@@ -34,9 +34,9 @@ type ClientService interface {
 }
 
 /*
-AddMongoDB adds mongo DB
+  AddMongoDB adds mongo DB
 
-Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mongodb_exporter", and "qan_mongodb_profiler" agents with the provided "pmm_agent_id" and other parameters.
+  Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided "node_id", then adds "mongodb_exporter", and "qan_mongodb_profiler" agents with the provided "pmm_agent_id" and other parameters.
 */
 func (a *Client) AddMongoDB(params *AddMongoDBParams, opts ...ClientOption) (*AddMongoDBOK, error) {
 	// TODO: Validate the params before sending

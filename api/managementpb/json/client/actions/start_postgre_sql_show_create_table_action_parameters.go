@@ -52,12 +52,10 @@ func NewStartPostgreSQLShowCreateTableActionParamsWithHTTPClient(client *http.Cl
 	}
 }
 
-/*
-StartPostgreSQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
+/* StartPostgreSQLShowCreateTableActionParams contains all the parameters to send to the API endpoint
+   for the start postgre SQL show create table action operation.
 
-	for the start postgre SQL show create table action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type StartPostgreSQLShowCreateTableActionParams struct {
 	// Body.

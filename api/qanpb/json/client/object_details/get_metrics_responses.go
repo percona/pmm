@@ -49,8 +49,7 @@ func NewGetMetricsOK() *GetMetricsOK {
 	return &GetMetricsOK{}
 }
 
-/*
-GetMetricsOK describes a response with status code 200, with default header values.
+/* GetMetricsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +57,36 @@ type GetMetricsOK struct {
 	Payload *GetMetricsOKBody
 }
 
+// IsSuccess returns true when this get metrics Ok response has a 2xx status code
+func (o *GetMetricsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get metrics Ok response has a 3xx status code
+func (o *GetMetricsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get metrics Ok response has a 4xx status code
+func (o *GetMetricsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get metrics Ok response has a 5xx status code
+func (o *GetMetricsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get metrics Ok response a status code equal to that given
+func (o *GetMetricsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetMetricsOK) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetMetricsOK) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
 
@@ -84,8 +112,7 @@ func NewGetMetricsDefault(code int) *GetMetricsDefault {
 	}
 }
 
-/*
-GetMetricsDefault describes a response with status code -1, with default header values.
+/* GetMetricsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +127,36 @@ func (o *GetMetricsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get metrics default response has a 2xx status code
+func (o *GetMetricsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get metrics default response has a 3xx status code
+func (o *GetMetricsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get metrics default response has a 4xx status code
+func (o *GetMetricsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get metrics default response has a 5xx status code
+func (o *GetMetricsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get metrics default response a status code equal to that given
+func (o *GetMetricsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetMetricsDefault) Error() string {
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetMetricsDefault) String() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
 }
 
@@ -119,8 +175,7 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
@@ -269,8 +324,7 @@ func (o *GetMetricsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsDefaultBody get metrics default body
+/*GetMetricsDefaultBody get metrics default body
 swagger:model GetMetricsDefaultBody
 */
 type GetMetricsDefaultBody struct {
@@ -373,8 +427,7 @@ func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
+/*GetMetricsDefaultBodyDetailsItems0 get metrics default body details items0
 swagger:model GetMetricsDefaultBodyDetailsItems0
 */
 type GetMetricsDefaultBodyDetailsItems0 struct {
@@ -410,8 +463,7 @@ func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
@@ -612,8 +664,7 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
+/*GetMetricsOKBodyMetricsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyMetricsAnon
 */
 type GetMetricsOKBodyMetricsAnon struct {
@@ -670,8 +721,7 @@ func (o *GetMetricsOKBodyMetricsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+/*GetMetricsOKBodySparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 swagger:model GetMetricsOKBodySparklineItems0
 */
@@ -900,8 +950,7 @@ func (o *GetMetricsOKBodySparklineItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
+/*GetMetricsOKBodyTotalsAnon MetricValues is statistics of specific metric.
 swagger:model GetMetricsOKBodyTotalsAnon
 */
 type GetMetricsOKBodyTotalsAnon struct {
@@ -958,8 +1007,7 @@ func (o *GetMetricsOKBodyTotalsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
+/*GetMetricsParamsBodyLabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model GetMetricsParamsBodyLabelsItems0
 */
 type GetMetricsParamsBodyLabelsItems0 struct {

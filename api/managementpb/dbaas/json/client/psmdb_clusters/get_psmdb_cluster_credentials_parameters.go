@@ -52,12 +52,10 @@ func NewGetPSMDBClusterCredentialsParamsWithHTTPClient(client *http.Client) *Get
 	}
 }
 
-/*
-GetPSMDBClusterCredentialsParams contains all the parameters to send to the API endpoint
+/* GetPSMDBClusterCredentialsParams contains all the parameters to send to the API endpoint
+   for the get PSMDB cluster credentials operation.
 
-	for the get PSMDB cluster credentials operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetPSMDBClusterCredentialsParams struct {
 	// Body.

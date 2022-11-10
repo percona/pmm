@@ -50,8 +50,7 @@ func NewAddQANMongoDBProfilerAgentOK() *AddQANMongoDBProfilerAgentOK {
 	return &AddQANMongoDBProfilerAgentOK{}
 }
 
-/*
-AddQANMongoDBProfilerAgentOK describes a response with status code 200, with default header values.
+/* AddQANMongoDBProfilerAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddQANMongoDBProfilerAgentOK struct {
 	Payload *AddQANMongoDBProfilerAgentOKBody
 }
 
+// IsSuccess returns true when this add Qan mongo Db profiler agent Ok response has a 2xx status code
+func (o *AddQANMongoDBProfilerAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Qan mongo Db profiler agent Ok response has a 3xx status code
+func (o *AddQANMongoDBProfilerAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Qan mongo Db profiler agent Ok response has a 4xx status code
+func (o *AddQANMongoDBProfilerAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Qan mongo Db profiler agent Ok response has a 5xx status code
+func (o *AddQANMongoDBProfilerAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Qan mongo Db profiler agent Ok response a status code equal to that given
+func (o *AddQANMongoDBProfilerAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddQANMongoDBProfilerAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMongoDBProfilerAgent][%d] addQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANMongoDBProfilerAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMongoDBProfilerAgent][%d] addQanMongoDbProfilerAgentOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddQANMongoDBProfilerAgentDefault(code int) *AddQANMongoDBProfilerAgentD
 	}
 }
 
-/*
-AddQANMongoDBProfilerAgentDefault describes a response with status code -1, with default header values.
+/* AddQANMongoDBProfilerAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddQANMongoDBProfilerAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add QAN mongo DB profiler agent default response has a 2xx status code
+func (o *AddQANMongoDBProfilerAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add QAN mongo DB profiler agent default response has a 3xx status code
+func (o *AddQANMongoDBProfilerAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add QAN mongo DB profiler agent default response has a 4xx status code
+func (o *AddQANMongoDBProfilerAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add QAN mongo DB profiler agent default response has a 5xx status code
+func (o *AddQANMongoDBProfilerAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add QAN mongo DB profiler agent default response a status code equal to that given
+func (o *AddQANMongoDBProfilerAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddQANMongoDBProfilerAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMongoDBProfilerAgent][%d] AddQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANMongoDBProfilerAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMongoDBProfilerAgent][%d] AddQANMongoDBProfilerAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddQANMongoDBProfilerAgentDefault) readResponse(response runtime.Client
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentBody add QAN mongo DB profiler agent body
+/*AddQANMongoDBProfilerAgentBody add QAN mongo DB profiler agent body
 swagger:model AddQANMongoDBProfilerAgentBody
 */
 type AddQANMongoDBProfilerAgentBody struct {
@@ -265,8 +320,7 @@ func (o *AddQANMongoDBProfilerAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentDefaultBody add QAN mongo DB profiler agent default body
+/*AddQANMongoDBProfilerAgentDefaultBody add QAN mongo DB profiler agent default body
 swagger:model AddQANMongoDBProfilerAgentDefaultBody
 */
 type AddQANMongoDBProfilerAgentDefaultBody struct {
@@ -369,8 +423,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 add QAN mongo DB profiler agent default body details items0
+/*AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 add QAN mongo DB profiler agent default body details items0
 swagger:model AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0
 */
 type AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0 struct {
@@ -406,8 +459,7 @@ func (o *AddQANMongoDBProfilerAgentDefaultBodyDetailsItems0) UnmarshalBinary(b [
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentOKBody add QAN mongo DB profiler agent OK body
+/*AddQANMongoDBProfilerAgentOKBody add QAN mongo DB profiler agent OK body
 swagger:model AddQANMongoDBProfilerAgentOKBody
 */
 type AddQANMongoDBProfilerAgentOKBody struct {
@@ -495,8 +547,7 @@ func (o *AddQANMongoDBProfilerAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+/*AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 swagger:model AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
 */
 type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {

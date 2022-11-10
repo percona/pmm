@@ -50,8 +50,7 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 	return &AddNodeExporterOK{}
 }
 
-/*
-AddNodeExporterOK describes a response with status code 200, with default header values.
+/* AddNodeExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddNodeExporterOK struct {
 	Payload *AddNodeExporterOKBody
 }
 
+// IsSuccess returns true when this add node exporter Ok response has a 2xx status code
+func (o *AddNodeExporterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add node exporter Ok response has a 3xx status code
+func (o *AddNodeExporterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add node exporter Ok response has a 4xx status code
+func (o *AddNodeExporterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add node exporter Ok response has a 5xx status code
+func (o *AddNodeExporterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add node exporter Ok response a status code equal to that given
+func (o *AddNodeExporterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddNodeExporterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *AddNodeExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
 	}
 }
 
-/*
-AddNodeExporterDefault describes a response with status code -1, with default header values.
+/* AddNodeExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddNodeExporterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add node exporter default response has a 2xx status code
+func (o *AddNodeExporterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add node exporter default response has a 3xx status code
+func (o *AddNodeExporterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add node exporter default response has a 4xx status code
+func (o *AddNodeExporterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add node exporter default response has a 5xx status code
+func (o *AddNodeExporterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add node exporter default response a status code equal to that given
+func (o *AddNodeExporterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddNodeExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] AddNodeExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddNodeExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] AddNodeExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, c
 	return nil
 }
 
-/*
-AddNodeExporterBody add node exporter body
+/*AddNodeExporterBody add node exporter body
 swagger:model AddNodeExporterBody
 */
 type AddNodeExporterBody struct {
@@ -233,8 +288,7 @@ func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddNodeExporterDefaultBody add node exporter default body
+/*AddNodeExporterDefaultBody add node exporter default body
 swagger:model AddNodeExporterDefaultBody
 */
 type AddNodeExporterDefaultBody struct {
@@ -337,8 +391,7 @@ func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddNodeExporterDefaultBodyDetailsItems0 add node exporter default body details items0
+/*AddNodeExporterDefaultBodyDetailsItems0 add node exporter default body details items0
 swagger:model AddNodeExporterDefaultBodyDetailsItems0
 */
 type AddNodeExporterDefaultBodyDetailsItems0 struct {
@@ -374,8 +427,7 @@ func (o *AddNodeExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-AddNodeExporterOKBody add node exporter OK body
+/*AddNodeExporterOKBody add node exporter OK body
 swagger:model AddNodeExporterOKBody
 */
 type AddNodeExporterOKBody struct {
@@ -463,8 +515,7 @@ func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+/*AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
 swagger:model AddNodeExporterOKBodyNodeExporter
 */
 type AddNodeExporterOKBodyNodeExporter struct {

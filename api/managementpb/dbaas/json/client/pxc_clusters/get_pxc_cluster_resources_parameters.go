@@ -52,12 +52,10 @@ func NewGetPXCClusterResourcesParamsWithHTTPClient(client *http.Client) *GetPXCC
 	}
 }
 
-/*
-GetPXCClusterResourcesParams contains all the parameters to send to the API endpoint
+/* GetPXCClusterResourcesParams contains all the parameters to send to the API endpoint
+   for the get PXC cluster resources operation.
 
-	for the get PXC cluster resources operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetPXCClusterResourcesParams struct {
 	// Body.

@@ -42,7 +42,7 @@ type ClientService interface {
 }
 
 /*
-AddLocation adds location adds backup location
+  AddLocation adds location adds backup location
 */
 func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*AddLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -79,7 +79,7 @@ func (a *Client) AddLocation(params *AddLocationParams, opts ...ClientOption) (*
 }
 
 /*
-ChangeLocation changes location changes backup location
+  ChangeLocation changes location changes backup location
 */
 func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOption) (*ChangeLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -116,7 +116,7 @@ func (a *Client) ChangeLocation(params *ChangeLocationParams, opts ...ClientOpti
 }
 
 /*
-ListLocations lists locations returns a list of all backup locations
+  ListLocations lists locations returns a list of all backup locations
 */
 func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption) (*ListLocationsOK, error) {
 	// TODO: Validate the params before sending
@@ -153,7 +153,7 @@ func (a *Client) ListLocations(params *ListLocationsParams, opts ...ClientOption
 }
 
 /*
-RemoveLocation removes location removes existing backup location
+  RemoveLocation removes location removes existing backup location
 */
 func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOption) (*RemoveLocationOK, error) {
 	// TODO: Validate the params before sending
@@ -190,7 +190,7 @@ func (a *Client) RemoveLocation(params *RemoveLocationParams, opts ...ClientOpti
 }
 
 /*
-TestLocationConfig tests location config tests backup location and credentials
+  TestLocationConfig tests location config tests backup location and credentials
 */
 func (a *Client) TestLocationConfig(params *TestLocationConfigParams, opts ...ClientOption) (*TestLocationConfigOK, error) {
 	// TODO: Validate the params before sending

@@ -52,12 +52,10 @@ func NewListPitrTimerangesParamsWithHTTPClient(client *http.Client) *ListPitrTim
 	}
 }
 
-/*
-ListPitrTimerangesParams contains all the parameters to send to the API endpoint
+/* ListPitrTimerangesParams contains all the parameters to send to the API endpoint
+   for the list pitr timeranges operation.
 
-	for the list pitr timeranges operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListPitrTimerangesParams struct {
 	// Body.

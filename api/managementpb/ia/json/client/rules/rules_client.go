@@ -42,7 +42,7 @@ type ClientService interface {
 }
 
 /*
-CreateAlertRule creates alert rule creates alerting rule
+  CreateAlertRule creates alert rule creates alerting rule
 */
 func (a *Client) CreateAlertRule(params *CreateAlertRuleParams, opts ...ClientOption) (*CreateAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -79,7 +79,7 @@ func (a *Client) CreateAlertRule(params *CreateAlertRuleParams, opts ...ClientOp
 }
 
 /*
-DeleteAlertRule deletes alert rule deletes alerting rule
+  DeleteAlertRule deletes alert rule deletes alerting rule
 */
 func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams, opts ...ClientOption) (*DeleteAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -116,7 +116,7 @@ func (a *Client) DeleteAlertRule(params *DeleteAlertRuleParams, opts ...ClientOp
 }
 
 /*
-ListAlertRules lists alert rules returns a list of all alerting rules
+  ListAlertRules lists alert rules returns a list of all alerting rules
 */
 func (a *Client) ListAlertRules(params *ListAlertRulesParams, opts ...ClientOption) (*ListAlertRulesOK, error) {
 	// TODO: Validate the params before sending
@@ -153,7 +153,7 @@ func (a *Client) ListAlertRules(params *ListAlertRulesParams, opts ...ClientOpti
 }
 
 /*
-ToggleAlertRule toggles alert rule allows to switch between disabled and enabled states of an alert rule
+  ToggleAlertRule toggles alert rule allows to switch between disabled and enabled states of an alert rule
 */
 func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams, opts ...ClientOption) (*ToggleAlertRuleOK, error) {
 	// TODO: Validate the params before sending
@@ -190,7 +190,7 @@ func (a *Client) ToggleAlertRule(params *ToggleAlertRuleParams, opts ...ClientOp
 }
 
 /*
-UpdateAlertRule updates alert rule updates alerting rule
+  UpdateAlertRule updates alert rule updates alerting rule
 */
 func (a *Client) UpdateAlertRule(params *UpdateAlertRuleParams, opts ...ClientOption) (*UpdateAlertRuleOK, error) {
 	// TODO: Validate the params before sending

@@ -52,12 +52,10 @@ func NewAddGenericNodeParamsWithHTTPClient(client *http.Client) *AddGenericNodeP
 	}
 }
 
-/*
-AddGenericNodeParams contains all the parameters to send to the API endpoint
+/* AddGenericNodeParams contains all the parameters to send to the API endpoint
+   for the add generic node operation.
 
-	for the add generic node operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddGenericNodeParams struct {
 	// Body.

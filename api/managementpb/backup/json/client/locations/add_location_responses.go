@@ -48,8 +48,7 @@ func NewAddLocationOK() *AddLocationOK {
 	return &AddLocationOK{}
 }
 
-/*
-AddLocationOK describes a response with status code 200, with default header values.
+/* AddLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddLocationOK struct {
 	Payload *AddLocationOKBody
 }
 
+// IsSuccess returns true when this add location Ok response has a 2xx status code
+func (o *AddLocationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add location Ok response has a 3xx status code
+func (o *AddLocationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add location Ok response has a 4xx status code
+func (o *AddLocationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add location Ok response has a 5xx status code
+func (o *AddLocationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add location Ok response a status code equal to that given
+func (o *AddLocationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddLocationOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] addLocationOk  %+v", 200, o.Payload)
+}
+
+func (o *AddLocationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] addLocationOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddLocationDefault(code int) *AddLocationDefault {
 	}
 }
 
-/*
-AddLocationDefault describes a response with status code -1, with default header values.
+/* AddLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddLocationDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add location default response has a 2xx status code
+func (o *AddLocationDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add location default response has a 3xx status code
+func (o *AddLocationDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add location default response has a 4xx status code
+func (o *AddLocationDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add location default response has a 5xx status code
+func (o *AddLocationDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add location default response a status code equal to that given
+func (o *AddLocationDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddLocationDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] AddLocation default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddLocationDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Add][%d] AddLocation default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddLocationDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*
-AddLocationBody add location body
+/*AddLocationBody add location body
 swagger:model AddLocationBody
 */
 type AddLocationBody struct {
@@ -258,8 +313,7 @@ func (o *AddLocationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddLocationDefaultBody add location default body
+/*AddLocationDefaultBody add location default body
 swagger:model AddLocationDefaultBody
 */
 type AddLocationDefaultBody struct {
@@ -362,8 +416,7 @@ func (o *AddLocationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddLocationDefaultBodyDetailsItems0 add location default body details items0
+/*AddLocationDefaultBodyDetailsItems0 add location default body details items0
 swagger:model AddLocationDefaultBodyDetailsItems0
 */
 type AddLocationDefaultBodyDetailsItems0 struct {
@@ -399,8 +452,7 @@ func (o *AddLocationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddLocationOKBody add location OK body
+/*AddLocationOKBody add location OK body
 swagger:model AddLocationOKBody
 */
 type AddLocationOKBody struct {
@@ -436,8 +488,7 @@ func (o *AddLocationOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
+/*AddLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
 swagger:model AddLocationParamsBodyFilesystemConfig
 */
 type AddLocationParamsBodyFilesystemConfig struct {
@@ -473,8 +524,7 @@ func (o *AddLocationParamsBodyFilesystemConfig) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
+/*AddLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model AddLocationParamsBodyS3Config
 */
 type AddLocationParamsBodyS3Config struct {

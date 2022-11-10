@@ -50,8 +50,7 @@ func NewCreateRuleOK() *CreateRuleOK {
 	return &CreateRuleOK{}
 }
 
-/*
-CreateRuleOK describes a response with status code 200, with default header values.
+/* CreateRuleOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type CreateRuleOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this create rule Ok response has a 2xx status code
+func (o *CreateRuleOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this create rule Ok response has a 3xx status code
+func (o *CreateRuleOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this create rule Ok response has a 4xx status code
+func (o *CreateRuleOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this create rule Ok response has a 5xx status code
+func (o *CreateRuleOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this create rule Ok response a status code equal to that given
+func (o *CreateRuleOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *CreateRuleOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
+}
+
+func (o *CreateRuleOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewCreateRuleDefault(code int) *CreateRuleDefault {
 	}
 }
 
-/*
-CreateRuleDefault describes a response with status code -1, with default header values.
+/* CreateRuleDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *CreateRuleDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this create rule default response has a 2xx status code
+func (o *CreateRuleDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this create rule default response has a 3xx status code
+func (o *CreateRuleDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this create rule default response has a 4xx status code
+func (o *CreateRuleDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this create rule default response has a 5xx status code
+func (o *CreateRuleDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this create rule default response a status code equal to that given
+func (o *CreateRuleDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *CreateRuleDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *CreateRuleDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] CreateRule default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *CreateRuleDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-CreateRuleBody create rule body
+/*CreateRuleBody create rule body
 swagger:model CreateRuleBody
 */
 type CreateRuleBody struct {
@@ -359,8 +414,7 @@ func (o *CreateRuleBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateRuleDefaultBody create rule default body
+/*CreateRuleDefaultBody create rule default body
 swagger:model CreateRuleDefaultBody
 */
 type CreateRuleDefaultBody struct {
@@ -463,8 +517,7 @@ func (o *CreateRuleDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateRuleDefaultBodyDetailsItems0 create rule default body details items0
+/*CreateRuleDefaultBodyDetailsItems0 create rule default body details items0
 swagger:model CreateRuleDefaultBodyDetailsItems0
 */
 type CreateRuleDefaultBodyDetailsItems0 struct {
@@ -500,8 +553,7 @@ func (o *CreateRuleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateRuleParamsBodyFiltersItems0 Filter represents a single filter condition.
+/*CreateRuleParamsBodyFiltersItems0 Filter represents a single filter condition.
 swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
@@ -598,8 +650,7 @@ func (o *CreateRuleParamsBodyFiltersItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-CreateRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value.
+/*CreateRuleParamsBodyParamsItems0 ParamValue represents a single rule parameter value.
 swagger:model CreateRuleParamsBodyParamsItems0
 */
 type CreateRuleParamsBodyParamsItems0 struct {

@@ -48,8 +48,7 @@ func NewUserStatusOK() *UserStatusOK {
 	return &UserStatusOK{}
 }
 
-/*
-UserStatusOK describes a response with status code 200, with default header values.
+/* UserStatusOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type UserStatusOK struct {
 	Payload *UserStatusOKBody
 }
 
+// IsSuccess returns true when this user status Ok response has a 2xx status code
+func (o *UserStatusOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this user status Ok response has a 3xx status code
+func (o *UserStatusOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this user status Ok response has a 4xx status code
+func (o *UserStatusOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this user status Ok response has a 5xx status code
+func (o *UserStatusOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this user status Ok response a status code equal to that given
+func (o *UserStatusOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UserStatusOK) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] userStatusOk  %+v", 200, o.Payload)
+}
+
+func (o *UserStatusOK) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] userStatusOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewUserStatusDefault(code int) *UserStatusDefault {
 	}
 }
 
-/*
-UserStatusDefault describes a response with status code -1, with default header values.
+/* UserStatusDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *UserStatusDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this user status default response has a 2xx status code
+func (o *UserStatusDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this user status default response has a 3xx status code
+func (o *UserStatusDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this user status default response has a 4xx status code
+func (o *UserStatusDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this user status default response has a 5xx status code
+func (o *UserStatusDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this user status default response a status code equal to that given
+func (o *UserStatusDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *UserStatusDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] UserStatus default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UserStatusDefault) String() string {
 	return fmt.Sprintf("[POST /v1/Platform/UserStatus][%d] UserStatus default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *UserStatusDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*
-UserStatusDefaultBody user status default body
+/*UserStatusDefaultBody user status default body
 swagger:model UserStatusDefaultBody
 */
 type UserStatusDefaultBody struct {
@@ -222,8 +277,7 @@ func (o *UserStatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UserStatusDefaultBodyDetailsItems0 user status default body details items0
+/*UserStatusDefaultBodyDetailsItems0 user status default body details items0
 swagger:model UserStatusDefaultBodyDetailsItems0
 */
 type UserStatusDefaultBodyDetailsItems0 struct {
@@ -259,8 +313,7 @@ func (o *UserStatusDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UserStatusOKBody user status OK body
+/*UserStatusOKBody user status OK body
 swagger:model UserStatusOKBody
 */
 type UserStatusOKBody struct {

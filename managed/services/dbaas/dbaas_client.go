@@ -253,6 +253,7 @@ func (c *Client) GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKub
 	return c.kubernetesClient.GetKubeconfig(ctx, in, opts...)
 }
 
+// InstallOLMOperator installs the OLM operator.
 func (c *Client) InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()

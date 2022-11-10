@@ -48,8 +48,7 @@ func NewGetPSMDBComponentsOK() *GetPSMDBComponentsOK {
 	return &GetPSMDBComponentsOK{}
 }
 
-/*
-GetPSMDBComponentsOK describes a response with status code 200, with default header values.
+/* GetPSMDBComponentsOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type GetPSMDBComponentsOK struct {
 	Payload *GetPSMDBComponentsOKBody
 }
 
+// IsSuccess returns true when this get Psmdb components Ok response has a 2xx status code
+func (o *GetPSMDBComponentsOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this get Psmdb components Ok response has a 3xx status code
+func (o *GetPSMDBComponentsOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this get Psmdb components Ok response has a 4xx status code
+func (o *GetPSMDBComponentsOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this get Psmdb components Ok response has a 5xx status code
+func (o *GetPSMDBComponentsOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this get Psmdb components Ok response a status code equal to that given
+func (o *GetPSMDBComponentsOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *GetPSMDBComponentsOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
+}
+
+func (o *GetPSMDBComponentsOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] getPsmdbComponentsOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewGetPSMDBComponentsDefault(code int) *GetPSMDBComponentsDefault {
 	}
 }
 
-/*
-GetPSMDBComponentsDefault describes a response with status code -1, with default header values.
+/* GetPSMDBComponentsDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *GetPSMDBComponentsDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this get PSMDB components default response has a 2xx status code
+func (o *GetPSMDBComponentsDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this get PSMDB components default response has a 3xx status code
+func (o *GetPSMDBComponentsDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this get PSMDB components default response has a 4xx status code
+func (o *GetPSMDBComponentsDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this get PSMDB components default response has a 5xx status code
+func (o *GetPSMDBComponentsDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this get PSMDB components default response a status code equal to that given
+func (o *GetPSMDBComponentsDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *GetPSMDBComponentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetPSMDBComponentsDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/GetPSMDB][%d] GetPSMDBComponents default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *GetPSMDBComponentsDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-GetPSMDBComponentsBody get PSMDB components body
+/*GetPSMDBComponentsBody get PSMDB components body
 swagger:model GetPSMDBComponentsBody
 */
 type GetPSMDBComponentsBody struct {
@@ -158,8 +213,7 @@ func (o *GetPSMDBComponentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBComponentsDefaultBody get PSMDB components default body
+/*GetPSMDBComponentsDefaultBody get PSMDB components default body
 swagger:model GetPSMDBComponentsDefaultBody
 */
 type GetPSMDBComponentsDefaultBody struct {
@@ -262,8 +316,7 @@ func (o *GetPSMDBComponentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBComponentsDefaultBodyDetailsItems0 get PSMDB components default body details items0
+/*GetPSMDBComponentsDefaultBodyDetailsItems0 get PSMDB components default body details items0
 swagger:model GetPSMDBComponentsDefaultBodyDetailsItems0
 */
 type GetPSMDBComponentsDefaultBodyDetailsItems0 struct {
@@ -299,8 +352,7 @@ func (o *GetPSMDBComponentsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBody get PSMDB components OK body
+/*GetPSMDBComponentsOKBody get PSMDB components OK body
 swagger:model GetPSMDBComponentsOKBody
 */
 type GetPSMDBComponentsOKBody struct {
@@ -397,8 +449,7 @@ func (o *GetPSMDBComponentsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0 OperatorVersion contains information about operator and components matrix.
+/*GetPSMDBComponentsOKBodyVersionsItems0 OperatorVersion contains information about operator and components matrix.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0
 */
 type GetPSMDBComponentsOKBodyVersionsItems0 struct {
@@ -492,8 +543,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0Matrix Matrix contains all available components.
+/*GetPSMDBComponentsOKBodyVersionsItems0Matrix Matrix contains all available components.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0Matrix
 */
 type GetPSMDBComponentsOKBodyVersionsItems0Matrix struct {
@@ -928,8 +978,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0Matrix) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon struct {
@@ -980,8 +1029,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixBackupAnon) UnmarshalBinary
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon struct {
@@ -1032,8 +1080,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixHaproxyAnon) UnmarshalBinar
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon struct {
@@ -1084,8 +1131,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixLogCollectorAnon) Unmarshal
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon struct {
@@ -1136,8 +1182,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixMongodAnon) UnmarshalBinary
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon struct {
@@ -1188,8 +1233,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixOperatorAnon) UnmarshalBina
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon struct {
@@ -1240,8 +1284,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPMMAnon) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon struct {
@@ -1292,8 +1335,7 @@ func (o *GetPSMDBComponentsOKBodyVersionsItems0MatrixPXCAnon) UnmarshalBinary(b 
 	return nil
 }
 
-/*
-GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains information about component.
+/*GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon Component contains information about component.
 swagger:model GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon
 */
 type GetPSMDBComponentsOKBodyVersionsItems0MatrixProxysqlAnon struct {

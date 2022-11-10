@@ -52,12 +52,10 @@ func NewInstallOperatorParamsWithHTTPClient(client *http.Client) *InstallOperato
 	}
 }
 
-/*
-InstallOperatorParams contains all the parameters to send to the API endpoint
+/* InstallOperatorParams contains all the parameters to send to the API endpoint
+   for the install operator operation.
 
-	for the install operator operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type InstallOperatorParams struct {
 	// Body.

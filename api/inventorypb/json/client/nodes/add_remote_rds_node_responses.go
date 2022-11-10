@@ -48,8 +48,7 @@ func NewAddRemoteRDSNodeOK() *AddRemoteRDSNodeOK {
 	return &AddRemoteRDSNodeOK{}
 }
 
-/*
-AddRemoteRDSNodeOK describes a response with status code 200, with default header values.
+/* AddRemoteRDSNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddRemoteRDSNodeOK struct {
 	Payload *AddRemoteRDSNodeOKBody
 }
 
+// IsSuccess returns true when this add remote Rds node Ok response has a 2xx status code
+func (o *AddRemoteRDSNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add remote Rds node Ok response has a 3xx status code
+func (o *AddRemoteRDSNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add remote Rds node Ok response has a 4xx status code
+func (o *AddRemoteRDSNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add remote Rds node Ok response has a 5xx status code
+func (o *AddRemoteRDSNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add remote Rds node Ok response a status code equal to that given
+func (o *AddRemoteRDSNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddRemoteRDSNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] addRemoteRdsNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddRemoteRDSNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] addRemoteRdsNodeOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddRemoteRDSNodeDefault(code int) *AddRemoteRDSNodeDefault {
 	}
 }
 
-/*
-AddRemoteRDSNodeDefault describes a response with status code -1, with default header values.
+/* AddRemoteRDSNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddRemoteRDSNodeDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add remote RDS node default response has a 2xx status code
+func (o *AddRemoteRDSNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add remote RDS node default response has a 3xx status code
+func (o *AddRemoteRDSNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add remote RDS node default response has a 4xx status code
+func (o *AddRemoteRDSNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add remote RDS node default response has a 5xx status code
+func (o *AddRemoteRDSNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add remote RDS node default response a status code equal to that given
+func (o *AddRemoteRDSNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddRemoteRDSNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteRDSNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteRDS][%d] AddRemoteRDSNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddRemoteRDSNodeDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-AddRemoteRDSNodeBody add remote RDS node body
+/*AddRemoteRDSNodeBody add remote RDS node body
 swagger:model AddRemoteRDSNodeBody
 */
 type AddRemoteRDSNodeBody struct {
@@ -170,8 +225,7 @@ func (o *AddRemoteRDSNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteRDSNodeDefaultBody add remote RDS node default body
+/*AddRemoteRDSNodeDefaultBody add remote RDS node default body
 swagger:model AddRemoteRDSNodeDefaultBody
 */
 type AddRemoteRDSNodeDefaultBody struct {
@@ -274,8 +328,7 @@ func (o *AddRemoteRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteRDSNodeDefaultBodyDetailsItems0 add remote RDS node default body details items0
+/*AddRemoteRDSNodeDefaultBodyDetailsItems0 add remote RDS node default body details items0
 swagger:model AddRemoteRDSNodeDefaultBodyDetailsItems0
 */
 type AddRemoteRDSNodeDefaultBodyDetailsItems0 struct {
@@ -311,8 +364,7 @@ func (o *AddRemoteRDSNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-AddRemoteRDSNodeOKBody add remote RDS node OK body
+/*AddRemoteRDSNodeOKBody add remote RDS node OK body
 swagger:model AddRemoteRDSNodeOKBody
 */
 type AddRemoteRDSNodeOKBody struct {
@@ -400,8 +452,7 @@ func (o *AddRemoteRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
+/*AddRemoteRDSNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes.
 swagger:model AddRemoteRDSNodeOKBodyRemoteRDS
 */
 type AddRemoteRDSNodeOKBodyRemoteRDS struct {

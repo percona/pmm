@@ -48,8 +48,7 @@ func NewListArtifactCompatibleServicesOK() *ListArtifactCompatibleServicesOK {
 	return &ListArtifactCompatibleServicesOK{}
 }
 
-/*
-ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
+/* ListArtifactCompatibleServicesOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type ListArtifactCompatibleServicesOK struct {
 	Payload *ListArtifactCompatibleServicesOKBody
 }
 
+// IsSuccess returns true when this list artifact compatible services Ok response has a 2xx status code
+func (o *ListArtifactCompatibleServicesOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list artifact compatible services Ok response has a 3xx status code
+func (o *ListArtifactCompatibleServicesOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list artifact compatible services Ok response has a 4xx status code
+func (o *ListArtifactCompatibleServicesOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list artifact compatible services Ok response has a 5xx status code
+func (o *ListArtifactCompatibleServicesOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list artifact compatible services Ok response a status code equal to that given
+func (o *ListArtifactCompatibleServicesOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListArtifactCompatibleServicesOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
+}
+
+func (o *ListArtifactCompatibleServicesOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] listArtifactCompatibleServicesOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewListArtifactCompatibleServicesDefault(code int) *ListArtifactCompatibleS
 	}
 }
 
-/*
-ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
+/* ListArtifactCompatibleServicesDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *ListArtifactCompatibleServicesDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list artifact compatible services default response has a 2xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list artifact compatible services default response has a 3xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list artifact compatible services default response has a 4xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list artifact compatible services default response has a 5xx status code
+func (o *ListArtifactCompatibleServicesDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list artifact compatible services default response a status code equal to that given
+func (o *ListArtifactCompatibleServicesDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListArtifactCompatibleServicesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListArtifactCompatibleServicesDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ListArtifactCompatibleServices][%d] ListArtifactCompatibleServices default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *ListArtifactCompatibleServicesDefault) readResponse(response runtime.Cl
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesBody list artifact compatible services body
+/*ListArtifactCompatibleServicesBody list artifact compatible services body
 swagger:model ListArtifactCompatibleServicesBody
 */
 type ListArtifactCompatibleServicesBody struct {
@@ -155,8 +210,7 @@ func (o *ListArtifactCompatibleServicesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesDefaultBody list artifact compatible services default body
+/*ListArtifactCompatibleServicesDefaultBody list artifact compatible services default body
 swagger:model ListArtifactCompatibleServicesDefaultBody
 */
 type ListArtifactCompatibleServicesDefaultBody struct {
@@ -259,8 +313,7 @@ func (o *ListArtifactCompatibleServicesDefaultBody) UnmarshalBinary(b []byte) er
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible services default body details items0
+/*ListArtifactCompatibleServicesDefaultBodyDetailsItems0 list artifact compatible services default body details items0
 swagger:model ListArtifactCompatibleServicesDefaultBodyDetailsItems0
 */
 type ListArtifactCompatibleServicesDefaultBodyDetailsItems0 struct {
@@ -296,8 +349,7 @@ func (o *ListArtifactCompatibleServicesDefaultBodyDetailsItems0) UnmarshalBinary
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
+/*ListArtifactCompatibleServicesOKBody list artifact compatible services OK body
 swagger:model ListArtifactCompatibleServicesOKBody
 */
 type ListArtifactCompatibleServicesOKBody struct {
@@ -448,8 +500,7 @@ func (o *ListArtifactCompatibleServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
+/*ListArtifactCompatibleServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB instance.
 swagger:model ListArtifactCompatibleServicesOKBodyMongodbItems0
 */
 type ListArtifactCompatibleServicesOKBodyMongodbItems0 struct {
@@ -515,8 +566,7 @@ func (o *ListArtifactCompatibleServicesOKBodyMongodbItems0) UnmarshalBinary(b []
 	return nil
 }
 
-/*
-ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
+/*ListArtifactCompatibleServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model ListArtifactCompatibleServicesOKBodyMysqlItems0
 */
 type ListArtifactCompatibleServicesOKBodyMysqlItems0 struct {

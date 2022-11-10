@@ -52,12 +52,10 @@ func NewListChannelsParamsWithHTTPClient(client *http.Client) *ListChannelsParam
 	}
 }
 
-/*
-ListChannelsParams contains all the parameters to send to the API endpoint
+/* ListChannelsParams contains all the parameters to send to the API endpoint
+   for the list channels operation.
 
-	for the list channels operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type ListChannelsParams struct {
 	// Body.

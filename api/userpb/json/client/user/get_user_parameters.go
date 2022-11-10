@@ -52,12 +52,10 @@ func NewGetUserParamsWithHTTPClient(client *http.Client) *GetUserParams {
 	}
 }
 
-/*
-GetUserParams contains all the parameters to send to the API endpoint
+/* GetUserParams contains all the parameters to send to the API endpoint
+   for the get user operation.
 
-	for the get user operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetUserParams struct {
 	timeout    time.Duration

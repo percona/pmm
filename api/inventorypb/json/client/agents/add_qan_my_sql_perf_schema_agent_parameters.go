@@ -52,12 +52,10 @@ func NewAddQANMySQLPerfSchemaAgentParamsWithHTTPClient(client *http.Client) *Add
 	}
 }
 
-/*
-AddQANMySQLPerfSchemaAgentParams contains all the parameters to send to the API endpoint
+/* AddQANMySQLPerfSchemaAgentParams contains all the parameters to send to the API endpoint
+   for the add QAN my SQL perf schema agent operation.
 
-	for the add QAN my SQL perf schema agent operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type AddQANMySQLPerfSchemaAgentParams struct {
 	// Body.

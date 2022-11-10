@@ -36,9 +36,9 @@ type ClientService interface {
 }
 
 /*
-GetUser gets user details
+  GetUser gets user details
 
-Retrieve user details from PMM server
+  Retrieve user details from PMM server
 */
 func (a *Client) GetUser(params *GetUserParams, opts ...ClientOption) (*GetUserOK, error) {
 	// TODO: Validate the params before sending
@@ -75,9 +75,9 @@ func (a *Client) GetUser(params *GetUserParams, opts ...ClientOption) (*GetUserO
 }
 
 /*
-UpdateUser updates user
+  UpdateUser updates user
 
-Update details of given user in PMM server
+  Update details of given user in PMM server
 */
 func (a *Client) UpdateUser(params *UpdateUserParams, opts ...ClientOption) (*UpdateUserOK, error) {
 	// TODO: Validate the params before sending

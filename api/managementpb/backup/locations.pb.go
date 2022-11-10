@@ -156,7 +156,6 @@ type Location struct {
 	// Short description
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// Types that are assignable to Config:
-	//
 	//	*Location_FilesystemConfig
 	//	*Location_S3Config
 	Config isLocation_Config `protobuf_oneof:"config"`

@@ -50,8 +50,7 @@ func NewChangeMongoDBExporterOK() *ChangeMongoDBExporterOK {
 	return &ChangeMongoDBExporterOK{}
 }
 
-/*
-ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
+/* ChangeMongoDBExporterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ChangeMongoDBExporterOK struct {
 	Payload *ChangeMongoDBExporterOKBody
 }
 
+// IsSuccess returns true when this change mongo Db exporter Ok response has a 2xx status code
+func (o *ChangeMongoDBExporterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change mongo Db exporter Ok response has a 3xx status code
+func (o *ChangeMongoDBExporterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change mongo Db exporter Ok response has a 4xx status code
+func (o *ChangeMongoDBExporterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change mongo Db exporter Ok response has a 5xx status code
+func (o *ChangeMongoDBExporterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change mongo Db exporter Ok response a status code equal to that given
+func (o *ChangeMongoDBExporterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangeMongoDBExporterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeMongoDBExporterOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] changeMongoDbExporterOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewChangeMongoDBExporterDefault(code int) *ChangeMongoDBExporterDefault {
 	}
 }
 
-/*
-ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
+/* ChangeMongoDBExporterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ChangeMongoDBExporterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change mongo DB exporter default response has a 2xx status code
+func (o *ChangeMongoDBExporterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change mongo DB exporter default response has a 3xx status code
+func (o *ChangeMongoDBExporterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change mongo DB exporter default response has a 4xx status code
+func (o *ChangeMongoDBExporterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change mongo DB exporter default response has a 5xx status code
+func (o *ChangeMongoDBExporterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change mongo DB exporter default response a status code equal to that given
+func (o *ChangeMongoDBExporterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangeMongoDBExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeMongoDBExporterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMongoDBExporter][%d] ChangeMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
-/*
-ChangeMongoDBExporterBody change mongo DB exporter body
+/*ChangeMongoDBExporterBody change mongo DB exporter body
 swagger:model ChangeMongoDBExporterBody
 */
 type ChangeMongoDBExporterBody struct {
@@ -212,8 +267,7 @@ func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeMongoDBExporterDefaultBody change mongo DB exporter default body
+/*ChangeMongoDBExporterDefaultBody change mongo DB exporter default body
 swagger:model ChangeMongoDBExporterDefaultBody
 */
 type ChangeMongoDBExporterDefaultBody struct {
@@ -316,8 +370,7 @@ func (o *ChangeMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeMongoDBExporterDefaultBodyDetailsItems0 change mongo DB exporter default body details items0
+/*ChangeMongoDBExporterDefaultBodyDetailsItems0 change mongo DB exporter default body details items0
 swagger:model ChangeMongoDBExporterDefaultBodyDetailsItems0
 */
 type ChangeMongoDBExporterDefaultBodyDetailsItems0 struct {
@@ -353,8 +406,7 @@ func (o *ChangeMongoDBExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 	return nil
 }
 
-/*
-ChangeMongoDBExporterOKBody change mongo DB exporter OK body
+/*ChangeMongoDBExporterOKBody change mongo DB exporter OK body
 swagger:model ChangeMongoDBExporterOKBody
 */
 type ChangeMongoDBExporterOKBody struct {
@@ -442,8 +494,7 @@ func (o *ChangeMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+/*ChangeMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 swagger:model ChangeMongoDBExporterOKBodyMongodbExporter
 */
 type ChangeMongoDBExporterOKBodyMongodbExporter struct {
@@ -661,8 +712,7 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ChangeMongoDBExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+/*ChangeMongoDBExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
 swagger:model ChangeMongoDBExporterParamsBodyCommon
 */
 type ChangeMongoDBExporterParamsBodyCommon struct {

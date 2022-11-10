@@ -50,8 +50,7 @@ func NewAddQANPostgreSQLPgStatementsAgentOK() *AddQANPostgreSQLPgStatementsAgent
 	return &AddQANPostgreSQLPgStatementsAgentOK{}
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
+/* AddQANPostgreSQLPgStatementsAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type AddQANPostgreSQLPgStatementsAgentOK struct {
 	Payload *AddQANPostgreSQLPgStatementsAgentOKBody
 }
 
+// IsSuccess returns true when this add Qan postgre Sql pg statements agent Ok response has a 2xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Qan postgre Sql pg statements agent Ok response has a 3xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Qan postgre Sql pg statements agent Ok response has a 4xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Qan postgre Sql pg statements agent Ok response has a 5xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Qan postgre Sql pg statements agent Ok response a status code equal to that given
+func (o *AddQANPostgreSQLPgStatementsAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddQANPostgreSQLPgStatementsAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] addQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatementsAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] addQanPostgreSqlPgStatementsAgentOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewAddQANPostgreSQLPgStatementsAgentDefault(code int) *AddQANPostgreSQLPgSt
 	}
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
+/* AddQANPostgreSQLPgStatementsAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add QAN postgre SQL pg statements agent default response has a 2xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add QAN postgre SQL pg statements agent default response has a 3xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add QAN postgre SQL pg statements agent default response has a 4xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add QAN postgre SQL pg statements agent default response has a 5xx status code
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add QAN postgre SQL pg statements agent default response a status code equal to that given
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddQANPostgreSQLPgStatementsAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] AddQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANPostgreSQLPgStatementsAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent][%d] AddQANPostgreSQLPgStatementsAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefault) readResponse(response runtime
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentBody add QAN postgre SQL pg statements agent body
+/*AddQANPostgreSQLPgStatementsAgentBody add QAN postgre SQL pg statements agent body
 swagger:model AddQANPostgreSQLPgStatementsAgentBody
 */
 type AddQANPostgreSQLPgStatementsAgentBody struct {
@@ -257,8 +312,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentDefaultBody add QAN postgre SQL pg statements agent default body
+/*AddQANPostgreSQLPgStatementsAgentDefaultBody add QAN postgre SQL pg statements agent default body
 swagger:model AddQANPostgreSQLPgStatementsAgentDefaultBody
 */
 type AddQANPostgreSQLPgStatementsAgentDefaultBody struct {
@@ -361,8 +415,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBody) UnmarshalBinary(b []byte)
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg statements agent default body details items0
+/*AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 add QAN postgre SQL pg statements agent default body details items0
 swagger:model AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0
 */
 type AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0 struct {
@@ -398,8 +451,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentDefaultBodyDetailsItems0) UnmarshalBin
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentOKBody add QAN postgre SQL pg statements agent OK body
+/*AddQANPostgreSQLPgStatementsAgentOKBody add QAN postgre SQL pg statements agent OK body
 swagger:model AddQANPostgreSQLPgStatementsAgentOKBody
 */
 type AddQANPostgreSQLPgStatementsAgentOKBody struct {
@@ -487,8 +539,7 @@ func (o *AddQANPostgreSQLPgStatementsAgentOKBody) UnmarshalBinary(b []byte) erro
 	return nil
 }
 
-/*
-AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+/*AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 swagger:model AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type AddQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent struct {

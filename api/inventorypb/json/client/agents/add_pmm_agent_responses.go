@@ -48,8 +48,7 @@ func NewAddPMMAgentOK() *AddPMMAgentOK {
 	return &AddPMMAgentOK{}
 }
 
-/*
-AddPMMAgentOK describes a response with status code 200, with default header values.
+/* AddPMMAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddPMMAgentOK struct {
 	Payload *AddPMMAgentOKBody
 }
 
+// IsSuccess returns true when this add Pmm agent Ok response has a 2xx status code
+func (o *AddPMMAgentOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add Pmm agent Ok response has a 3xx status code
+func (o *AddPMMAgentOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add Pmm agent Ok response has a 4xx status code
+func (o *AddPMMAgentOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add Pmm agent Ok response has a 5xx status code
+func (o *AddPMMAgentOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add Pmm agent Ok response a status code equal to that given
+func (o *AddPMMAgentOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddPMMAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
+}
+
+func (o *AddPMMAgentOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddPMMAgentDefault(code int) *AddPMMAgentDefault {
 	}
 }
 
-/*
-AddPMMAgentDefault describes a response with status code -1, with default header values.
+/* AddPMMAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddPMMAgentDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add PMM agent default response has a 2xx status code
+func (o *AddPMMAgentDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add PMM agent default response has a 3xx status code
+func (o *AddPMMAgentDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add PMM agent default response has a 4xx status code
+func (o *AddPMMAgentDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add PMM agent default response has a 5xx status code
+func (o *AddPMMAgentDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add PMM agent default response a status code equal to that given
+func (o *AddPMMAgentDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddPMMAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPMMAgentDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consu
 	return nil
 }
 
-/*
-AddPMMAgentBody add PMM agent body
+/*AddPMMAgentBody add PMM agent body
 swagger:model AddPMMAgentBody
 */
 type AddPMMAgentBody struct {
@@ -158,8 +213,7 @@ func (o *AddPMMAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentDefaultBody add PMM agent default body
+/*AddPMMAgentDefaultBody add PMM agent default body
 swagger:model AddPMMAgentDefaultBody
 */
 type AddPMMAgentDefaultBody struct {
@@ -262,8 +316,7 @@ func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentDefaultBodyDetailsItems0 add PMM agent default body details items0
+/*AddPMMAgentDefaultBodyDetailsItems0 add PMM agent default body details items0
 swagger:model AddPMMAgentDefaultBodyDetailsItems0
 */
 type AddPMMAgentDefaultBodyDetailsItems0 struct {
@@ -299,8 +352,7 @@ func (o *AddPMMAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentOKBody add PMM agent OK body
+/*AddPMMAgentOKBody add PMM agent OK body
 swagger:model AddPMMAgentOKBody
 */
 type AddPMMAgentOKBody struct {
@@ -388,8 +440,7 @@ func (o *AddPMMAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
+/*AddPMMAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model AddPMMAgentOKBodyPMMAgent
 */
 type AddPMMAgentOKBodyPMMAgent struct {

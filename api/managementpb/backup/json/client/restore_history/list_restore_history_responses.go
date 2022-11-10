@@ -50,8 +50,7 @@ func NewListRestoreHistoryOK() *ListRestoreHistoryOK {
 	return &ListRestoreHistoryOK{}
 }
 
-/*
-ListRestoreHistoryOK describes a response with status code 200, with default header values.
+/* ListRestoreHistoryOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -59,7 +58,36 @@ type ListRestoreHistoryOK struct {
 	Payload *ListRestoreHistoryOKBody
 }
 
+// IsSuccess returns true when this list restore history Ok response has a 2xx status code
+func (o *ListRestoreHistoryOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this list restore history Ok response has a 3xx status code
+func (o *ListRestoreHistoryOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this list restore history Ok response has a 4xx status code
+func (o *ListRestoreHistoryOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this list restore history Ok response has a 5xx status code
+func (o *ListRestoreHistoryOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this list restore history Ok response a status code equal to that given
+func (o *ListRestoreHistoryOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ListRestoreHistoryOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] listRestoreHistoryOk  %+v", 200, o.Payload)
+}
+
+func (o *ListRestoreHistoryOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] listRestoreHistoryOk  %+v", 200, o.Payload)
 }
 
@@ -85,8 +113,7 @@ func NewListRestoreHistoryDefault(code int) *ListRestoreHistoryDefault {
 	}
 }
 
-/*
-ListRestoreHistoryDefault describes a response with status code -1, with default header values.
+/* ListRestoreHistoryDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -101,7 +128,36 @@ func (o *ListRestoreHistoryDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this list restore history default response has a 2xx status code
+func (o *ListRestoreHistoryDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this list restore history default response has a 3xx status code
+func (o *ListRestoreHistoryDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this list restore history default response has a 4xx status code
+func (o *ListRestoreHistoryDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this list restore history default response has a 5xx status code
+func (o *ListRestoreHistoryDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this list restore history default response a status code equal to that given
+func (o *ListRestoreHistoryDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ListRestoreHistoryDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] ListRestoreHistory default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListRestoreHistoryDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/RestoreHistory/List][%d] ListRestoreHistory default  %+v", o._statusCode, o.Payload)
 }
 
@@ -120,8 +176,7 @@ func (o *ListRestoreHistoryDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*
-ListRestoreHistoryDefaultBody list restore history default body
+/*ListRestoreHistoryDefaultBody list restore history default body
 swagger:model ListRestoreHistoryDefaultBody
 */
 type ListRestoreHistoryDefaultBody struct {
@@ -224,8 +279,7 @@ func (o *ListRestoreHistoryDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
+/*ListRestoreHistoryDefaultBodyDetailsItems0 list restore history default body details items0
 swagger:model ListRestoreHistoryDefaultBodyDetailsItems0
 */
 type ListRestoreHistoryDefaultBodyDetailsItems0 struct {
@@ -261,8 +315,7 @@ func (o *ListRestoreHistoryDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) e
 	return nil
 }
 
-/*
-ListRestoreHistoryOKBody list restore history OK body
+/*ListRestoreHistoryOKBody list restore history OK body
 swagger:model ListRestoreHistoryOKBody
 */
 type ListRestoreHistoryOKBody struct {
@@ -359,8 +412,7 @@ func (o *ListRestoreHistoryOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
+/*ListRestoreHistoryOKBodyItemsItems0 RestoreHistoryItem represents single backup restore item.
 swagger:model ListRestoreHistoryOKBodyItemsItems0
 */
 type ListRestoreHistoryOKBodyItemsItems0 struct {

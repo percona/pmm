@@ -48,8 +48,7 @@ func NewChangeLocationOK() *ChangeLocationOK {
 	return &ChangeLocationOK{}
 }
 
-/*
-ChangeLocationOK describes a response with status code 200, with default header values.
+/* ChangeLocationOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type ChangeLocationOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this change location Ok response has a 2xx status code
+func (o *ChangeLocationOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this change location Ok response has a 3xx status code
+func (o *ChangeLocationOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this change location Ok response has a 4xx status code
+func (o *ChangeLocationOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this change location Ok response has a 5xx status code
+func (o *ChangeLocationOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this change location Ok response a status code equal to that given
+func (o *ChangeLocationOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *ChangeLocationOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
+}
+
+func (o *ChangeLocationOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewChangeLocationDefault(code int) *ChangeLocationDefault {
 	}
 }
 
-/*
-ChangeLocationDefault describes a response with status code -1, with default header values.
+/* ChangeLocationDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *ChangeLocationDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this change location default response has a 2xx status code
+func (o *ChangeLocationDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this change location default response has a 3xx status code
+func (o *ChangeLocationDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this change location default response has a 4xx status code
+func (o *ChangeLocationDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this change location default response has a 5xx status code
+func (o *ChangeLocationDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this change location default response a status code equal to that given
+func (o *ChangeLocationDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *ChangeLocationDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeLocationDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] ChangeLocation default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *ChangeLocationDefault) readResponse(response runtime.ClientResponse, co
 	return nil
 }
 
-/*
-ChangeLocationBody change location body
+/*ChangeLocationBody change location body
 swagger:model ChangeLocationBody
 */
 type ChangeLocationBody struct {
@@ -259,8 +314,7 @@ func (o *ChangeLocationBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeLocationDefaultBody change location default body
+/*ChangeLocationDefaultBody change location default body
 swagger:model ChangeLocationDefaultBody
 */
 type ChangeLocationDefaultBody struct {
@@ -363,8 +417,7 @@ func (o *ChangeLocationDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-ChangeLocationDefaultBodyDetailsItems0 change location default body details items0
+/*ChangeLocationDefaultBodyDetailsItems0 change location default body details items0
 swagger:model ChangeLocationDefaultBodyDetailsItems0
 */
 type ChangeLocationDefaultBodyDetailsItems0 struct {
@@ -400,8 +453,7 @@ func (o *ChangeLocationDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-ChangeLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
+/*ChangeLocationParamsBodyFilesystemConfig FilesystemLocationConfig represents file system location config.
 swagger:model ChangeLocationParamsBodyFilesystemConfig
 */
 type ChangeLocationParamsBodyFilesystemConfig struct {
@@ -437,8 +489,7 @@ func (o *ChangeLocationParamsBodyFilesystemConfig) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-ChangeLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
+/*ChangeLocationParamsBodyS3Config S3LocationConfig represents S3 bucket configuration.
 swagger:model ChangeLocationParamsBodyS3Config
 */
 type ChangeLocationParamsBodyS3Config struct {

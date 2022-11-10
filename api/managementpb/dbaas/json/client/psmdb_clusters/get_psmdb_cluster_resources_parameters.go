@@ -52,12 +52,10 @@ func NewGetPSMDBClusterResourcesParamsWithHTTPClient(client *http.Client) *GetPS
 	}
 }
 
-/*
-GetPSMDBClusterResourcesParams contains all the parameters to send to the API endpoint
+/* GetPSMDBClusterResourcesParams contains all the parameters to send to the API endpoint
+   for the get PSMDB cluster resources operation.
 
-	for the get PSMDB cluster resources operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetPSMDBClusterResourcesParams struct {
 	// Body.

@@ -52,12 +52,10 @@ func NewGetFailedChecksParamsWithHTTPClient(client *http.Client) *GetFailedCheck
 	}
 }
 
-/*
-GetFailedChecksParams contains all the parameters to send to the API endpoint
+/* GetFailedChecksParams contains all the parameters to send to the API endpoint
+   for the get failed checks operation.
 
-	for the get failed checks operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetFailedChecksParams struct {
 	// Body.

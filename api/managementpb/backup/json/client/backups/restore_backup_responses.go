@@ -49,8 +49,7 @@ func NewRestoreBackupOK() *RestoreBackupOK {
 	return &RestoreBackupOK{}
 }
 
-/*
-RestoreBackupOK describes a response with status code 200, with default header values.
+/* RestoreBackupOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -58,7 +57,36 @@ type RestoreBackupOK struct {
 	Payload *RestoreBackupOKBody
 }
 
+// IsSuccess returns true when this restore backup Ok response has a 2xx status code
+func (o *RestoreBackupOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this restore backup Ok response has a 3xx status code
+func (o *RestoreBackupOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this restore backup Ok response has a 4xx status code
+func (o *RestoreBackupOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this restore backup Ok response has a 5xx status code
+func (o *RestoreBackupOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this restore backup Ok response a status code equal to that given
+func (o *RestoreBackupOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *RestoreBackupOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] restoreBackupOk  %+v", 200, o.Payload)
+}
+
+func (o *RestoreBackupOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] restoreBackupOk  %+v", 200, o.Payload)
 }
 
@@ -84,8 +112,7 @@ func NewRestoreBackupDefault(code int) *RestoreBackupDefault {
 	}
 }
 
-/*
-RestoreBackupDefault describes a response with status code -1, with default header values.
+/* RestoreBackupDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -100,7 +127,36 @@ func (o *RestoreBackupDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this restore backup default response has a 2xx status code
+func (o *RestoreBackupDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this restore backup default response has a 3xx status code
+func (o *RestoreBackupDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this restore backup default response has a 4xx status code
+func (o *RestoreBackupDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this restore backup default response has a 5xx status code
+func (o *RestoreBackupDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this restore backup default response a status code equal to that given
+func (o *RestoreBackupDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *RestoreBackupDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *RestoreBackupDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/Restore][%d] RestoreBackup default  %+v", o._statusCode, o.Payload)
 }
 
@@ -119,8 +175,7 @@ func (o *RestoreBackupDefault) readResponse(response runtime.ClientResponse, con
 	return nil
 }
 
-/*
-RestoreBackupBody restore backup body
+/*RestoreBackupBody restore backup body
 swagger:model RestoreBackupBody
 */
 type RestoreBackupBody struct {
@@ -184,8 +239,7 @@ func (o *RestoreBackupBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestoreBackupDefaultBody restore backup default body
+/*RestoreBackupDefaultBody restore backup default body
 swagger:model RestoreBackupDefaultBody
 */
 type RestoreBackupDefaultBody struct {
@@ -288,8 +342,7 @@ func (o *RestoreBackupDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
+/*RestoreBackupDefaultBodyDetailsItems0 restore backup default body details items0
 swagger:model RestoreBackupDefaultBodyDetailsItems0
 */
 type RestoreBackupDefaultBodyDetailsItems0 struct {
@@ -325,8 +378,7 @@ func (o *RestoreBackupDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*
-RestoreBackupOKBody restore backup OK body
+/*RestoreBackupOKBody restore backup OK body
 swagger:model RestoreBackupOKBody
 */
 type RestoreBackupOKBody struct {

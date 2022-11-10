@@ -52,12 +52,10 @@ func NewGetKubernetesClusterParamsWithHTTPClient(client *http.Client) *GetKubern
 	}
 }
 
-/*
-GetKubernetesClusterParams contains all the parameters to send to the API endpoint
+/* GetKubernetesClusterParams contains all the parameters to send to the API endpoint
+   for the get kubernetes cluster operation.
 
-	for the get kubernetes cluster operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type GetKubernetesClusterParams struct {
 	// Body.

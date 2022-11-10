@@ -48,8 +48,7 @@ func NewUnregisterKubernetesClusterOK() *UnregisterKubernetesClusterOK {
 	return &UnregisterKubernetesClusterOK{}
 }
 
-/*
-UnregisterKubernetesClusterOK describes a response with status code 200, with default header values.
+/* UnregisterKubernetesClusterOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type UnregisterKubernetesClusterOK struct {
 	Payload interface{}
 }
 
+// IsSuccess returns true when this unregister kubernetes cluster Ok response has a 2xx status code
+func (o *UnregisterKubernetesClusterOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this unregister kubernetes cluster Ok response has a 3xx status code
+func (o *UnregisterKubernetesClusterOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this unregister kubernetes cluster Ok response has a 4xx status code
+func (o *UnregisterKubernetesClusterOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this unregister kubernetes cluster Ok response has a 5xx status code
+func (o *UnregisterKubernetesClusterOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this unregister kubernetes cluster Ok response a status code equal to that given
+func (o *UnregisterKubernetesClusterOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *UnregisterKubernetesClusterOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
+}
+
+func (o *UnregisterKubernetesClusterOK) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
@@ -81,8 +109,7 @@ func NewUnregisterKubernetesClusterDefault(code int) *UnregisterKubernetesCluste
 	}
 }
 
-/*
-UnregisterKubernetesClusterDefault describes a response with status code -1, with default header values.
+/* UnregisterKubernetesClusterDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -97,7 +124,36 @@ func (o *UnregisterKubernetesClusterDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this unregister kubernetes cluster default response has a 2xx status code
+func (o *UnregisterKubernetesClusterDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this unregister kubernetes cluster default response has a 3xx status code
+func (o *UnregisterKubernetesClusterDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this unregister kubernetes cluster default response has a 4xx status code
+func (o *UnregisterKubernetesClusterDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this unregister kubernetes cluster default response has a 5xx status code
+func (o *UnregisterKubernetesClusterDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this unregister kubernetes cluster default response a status code equal to that given
+func (o *UnregisterKubernetesClusterDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *UnregisterKubernetesClusterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *UnregisterKubernetesClusterDefault) String() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] UnregisterKubernetesCluster default  %+v", o._statusCode, o.Payload)
 }
 
@@ -116,8 +172,7 @@ func (o *UnregisterKubernetesClusterDefault) readResponse(response runtime.Clien
 	return nil
 }
 
-/*
-UnregisterKubernetesClusterBody unregister kubernetes cluster body
+/*UnregisterKubernetesClusterBody unregister kubernetes cluster body
 swagger:model UnregisterKubernetesClusterBody
 */
 type UnregisterKubernetesClusterBody struct {
@@ -157,8 +212,7 @@ func (o *UnregisterKubernetesClusterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-UnregisterKubernetesClusterDefaultBody unregister kubernetes cluster default body
+/*UnregisterKubernetesClusterDefaultBody unregister kubernetes cluster default body
 swagger:model UnregisterKubernetesClusterDefaultBody
 */
 type UnregisterKubernetesClusterDefaultBody struct {
@@ -261,8 +315,7 @@ func (o *UnregisterKubernetesClusterDefaultBody) UnmarshalBinary(b []byte) error
 	return nil
 }
 
-/*
-UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluster default body details items0
+/*UnregisterKubernetesClusterDefaultBodyDetailsItems0 unregister kubernetes cluster default body details items0
 swagger:model UnregisterKubernetesClusterDefaultBodyDetailsItems0
 */
 type UnregisterKubernetesClusterDefaultBodyDetailsItems0 struct {

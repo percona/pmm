@@ -48,8 +48,7 @@ func NewAddContainerNodeOK() *AddContainerNodeOK {
 	return &AddContainerNodeOK{}
 }
 
-/*
-AddContainerNodeOK describes a response with status code 200, with default header values.
+/* AddContainerNodeOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
@@ -57,7 +56,36 @@ type AddContainerNodeOK struct {
 	Payload *AddContainerNodeOKBody
 }
 
+// IsSuccess returns true when this add container node Ok response has a 2xx status code
+func (o *AddContainerNodeOK) IsSuccess() bool {
+	return true
+}
+
+// IsRedirect returns true when this add container node Ok response has a 3xx status code
+func (o *AddContainerNodeOK) IsRedirect() bool {
+	return false
+}
+
+// IsClientError returns true when this add container node Ok response has a 4xx status code
+func (o *AddContainerNodeOK) IsClientError() bool {
+	return false
+}
+
+// IsServerError returns true when this add container node Ok response has a 5xx status code
+func (o *AddContainerNodeOK) IsServerError() bool {
+	return false
+}
+
+// IsCode returns true when this add container node Ok response a status code equal to that given
+func (o *AddContainerNodeOK) IsCode(code int) bool {
+	return code == 200
+}
+
 func (o *AddContainerNodeOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
+}
+
+func (o *AddContainerNodeOK) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] addContainerNodeOk  %+v", 200, o.Payload)
 }
 
@@ -83,8 +111,7 @@ func NewAddContainerNodeDefault(code int) *AddContainerNodeDefault {
 	}
 }
 
-/*
-AddContainerNodeDefault describes a response with status code -1, with default header values.
+/* AddContainerNodeDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
@@ -99,7 +126,36 @@ func (o *AddContainerNodeDefault) Code() int {
 	return o._statusCode
 }
 
+// IsSuccess returns true when this add container node default response has a 2xx status code
+func (o *AddContainerNodeDefault) IsSuccess() bool {
+	return o._statusCode/100 == 2
+}
+
+// IsRedirect returns true when this add container node default response has a 3xx status code
+func (o *AddContainerNodeDefault) IsRedirect() bool {
+	return o._statusCode/100 == 3
+}
+
+// IsClientError returns true when this add container node default response has a 4xx status code
+func (o *AddContainerNodeDefault) IsClientError() bool {
+	return o._statusCode/100 == 4
+}
+
+// IsServerError returns true when this add container node default response has a 5xx status code
+func (o *AddContainerNodeDefault) IsServerError() bool {
+	return o._statusCode/100 == 5
+}
+
+// IsCode returns true when this add container node default response a status code equal to that given
+func (o *AddContainerNodeDefault) IsCode(code int) bool {
+	return o._statusCode == code
+}
+
 func (o *AddContainerNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddContainerNodeDefault) String() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
 }
 
@@ -118,8 +174,7 @@ func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, 
 	return nil
 }
 
-/*
-AddContainerNodeBody add container node body
+/*AddContainerNodeBody add container node body
 swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
@@ -179,8 +234,7 @@ func (o *AddContainerNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddContainerNodeDefaultBody add container node default body
+/*AddContainerNodeDefaultBody add container node default body
 swagger:model AddContainerNodeDefaultBody
 */
 type AddContainerNodeDefaultBody struct {
@@ -283,8 +337,7 @@ func (o *AddContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddContainerNodeDefaultBodyDetailsItems0 add container node default body details items0
+/*AddContainerNodeDefaultBodyDetailsItems0 add container node default body details items0
 swagger:model AddContainerNodeDefaultBodyDetailsItems0
 */
 type AddContainerNodeDefaultBodyDetailsItems0 struct {
@@ -320,8 +373,7 @@ func (o *AddContainerNodeDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) err
 	return nil
 }
 
-/*
-AddContainerNodeOKBody add container node OK body
+/*AddContainerNodeOKBody add container node OK body
 swagger:model AddContainerNodeOKBody
 */
 type AddContainerNodeOKBody struct {
@@ -409,8 +461,7 @@ func (o *AddContainerNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*
-AddContainerNodeOKBodyContainer ContainerNode represents a Docker container.
+/*AddContainerNodeOKBodyContainer ContainerNode represents a Docker container.
 swagger:model AddContainerNodeOKBodyContainer
 */
 type AddContainerNodeOKBodyContainer struct {

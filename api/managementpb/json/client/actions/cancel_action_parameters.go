@@ -52,12 +52,10 @@ func NewCancelActionParamsWithHTTPClient(client *http.Client) *CancelActionParam
 	}
 }
 
-/*
-CancelActionParams contains all the parameters to send to the API endpoint
+/* CancelActionParams contains all the parameters to send to the API endpoint
+   for the cancel action operation.
 
-	for the cancel action operation.
-
-	Typically these are written to a http.Request.
+   Typically these are written to a http.Request.
 */
 type CancelActionParams struct {
 	// Body.

@@ -34,7 +34,7 @@ type ClientService interface {
 }
 
 /*
-GetLogs gets logs gets all logs from db cluster
+  GetLogs gets logs gets all logs from db cluster
 */
 func (a *Client) GetLogs(params *GetLogsParams, opts ...ClientOption) (*GetLogsOK, error) {
 	// TODO: Validate the params before sending
