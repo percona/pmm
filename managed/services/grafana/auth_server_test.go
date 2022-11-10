@@ -21,9 +21,11 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -37,6 +39,8 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+const authHeaderPrefix = "Bearer "
 
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{
@@ -296,15 +300,13 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	err = models.CreateRole(db.Querier, &roleB)
 	require.NoError(t, err)
 
-	for userID, roleID := range map[int]int{
-		1337: int(roleA.ID),
-		1:    int(roleA.ID),
+	for userID, roleIDs := range map[int][]int{
+		1337: {int(roleA.ID)},
+		1338: {int(roleA.ID), int(roleB.ID)},
+		1:    {int(roleA.ID)},
 	} {
-		_, err := models.GetOrCreateUser(db.Querier, userID)
-		require.NoError(t, err)
-
-		err = db.InTransaction(func(tx *reform.TX) error {
-			return models.AssignRole(tx, userID, roleID)
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.AssignRoles(tx, userID, roleIDs)
 		})
 		require.NoError(t, err)
 	}
@@ -320,7 +322,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			uri := uri
 			shallAdd := shallAdd
 
-			for _, userID := range []int{0, 1337} {
+			for _, userID := range []int{0, 1337, 1338} {
 				userID := userID
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {
 					t.Parallel()
@@ -334,13 +336,43 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 					err = s.maybeAddVMGatewayToken(ctx, rw, req, userID, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
+					headerString := rw.Header().Get("X-Percona-Token")
+
 					if shallAdd {
-						require.True(t, len(rw.Header().Get("X-Percona-Token")) > 0)
+						require.True(t, strings.HasPrefix(headerString, authHeaderPrefix))
+						token := strings.TrimPrefix(headerString, authHeaderPrefix)
+
+						require.True(t, len(token) > 0)
 					} else {
-						require.Equal(t, rw.Header().Get("X-Percona-Token"), "")
+						require.Equal(t, headerString, "")
 					}
 				})
 			}
 		}
+	})
+
+	t.Run("shall be a valid token", func(t *testing.T) {
+		rw := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
+		require.NoError(t, err)
+
+		err = s.maybeAddVMGatewayToken(ctx, rw, req, 1338, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		headerString := rw.Header().Get("X-Percona-Token")
+		require.True(t, strings.HasPrefix(headerString, authHeaderPrefix))
+		tokenString := strings.TrimPrefix(headerString, authHeaderPrefix)
+
+		require.True(t, len(tokenString) > 0)
+
+		token, _ := jwt.ParseWithClaims(tokenString, &vmGatewayJWT{}, func(token *jwt.Token) (interface{}, error) {
+			return []byte("not relevant"), nil
+		})
+
+		claims, ok := token.Claims.(*vmGatewayJWT)
+		require.True(t, ok)
+		require.Equal(t, len(claims.ExtraFilters), 2)
+		require.Equal(t, claims.ExtraFilters[0], "filter A")
+		require.Equal(t, claims.ExtraFilters[1], "filter B")
 	})
 }

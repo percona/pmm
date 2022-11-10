@@ -23,19 +23,21 @@ import (
 
 //go:generate ../../bin/reform
 
-// UserDetails represents user related flags
+// UserRoles represents mapping of users to roles.
 //
-//reform:user_flags
-type UserDetails struct {
-	ID   int  `reform:"id,pk"`
-	Tour bool `reform:"tour_done"`
+//reform:user_roles
+type UserRoles struct {
+	UserID int    `reform:"user_id"`
+	RoleID uint32 `reform:"role_id"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (t *UserDetails) BeforeInsert() error {
+//
+//nolint:unparam
+func (t *UserRoles) BeforeInsert() error {
 	now := Now()
 	t.CreatedAt = now
 	t.UpdatedAt = now
@@ -44,7 +46,9 @@ func (t *UserDetails) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (t *UserDetails) BeforeUpdate() error {
+//
+//nolint:unparam
+func (t *UserRoles) BeforeUpdate() error {
 	t.UpdatedAt = Now()
 
 	return nil

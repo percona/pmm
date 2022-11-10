@@ -28,7 +28,7 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AssignRole(params *AssignRoleParams, opts ...ClientOption) (*AssignRoleOK, error)
+	AssignRoles(params *AssignRolesParams, opts ...ClientOption) (*AssignRolesOK, error)
 
 	CreateRole(params *CreateRoleParams, opts ...ClientOption) (*CreateRoleOK, error)
 
@@ -46,24 +46,24 @@ type ClientService interface {
 }
 
 /*
-AssignRole assigns role
+AssignRoles assigns roles
 
-Assigns Role to a User.
+Assigns Roles replaces all existing Roles for a User.
 */
-func (a *Client) AssignRole(params *AssignRoleParams, opts ...ClientOption) (*AssignRoleOK, error) {
+func (a *Client) AssignRoles(params *AssignRolesParams, opts ...ClientOption) (*AssignRolesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAssignRoleParams()
+		params = NewAssignRolesParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "AssignRole",
+		ID:                 "AssignRoles",
 		Method:             "POST",
 		PathPattern:        "/v1/management/Role/Assign",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AssignRoleReader{formats: a.formats},
+		Reader:             &AssignRolesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -75,12 +75,12 @@ func (a *Client) AssignRole(params *AssignRoleParams, opts ...ClientOption) (*As
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AssignRoleOK)
+	success, ok := result.(*AssignRolesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AssignRoleDefault)
+	unexpectedSuccess := result.(*AssignRolesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

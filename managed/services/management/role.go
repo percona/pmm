@@ -151,12 +151,16 @@ func (r *RoleService) ListRoles(_ context.Context, _ *managementpb.ListRolesRequ
 	return res, nil
 }
 
-// AssignRole assigns a Role to a user.
+// AssignRoles assigns a Role to a user.
 //
 //nolint:unparam
-func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRoleRequest) (*managementpb.AssignRoleResponse, error) {
+func (r *RoleService) AssignRoles(_ context.Context, req *managementpb.AssignRolesRequest) (*managementpb.AssignRolesResponse, error) {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
-		return models.AssignRole(tx, int(req.UserId), int(req.RoleId))
+		roleIDs := make([]int, 0, len(req.RoleIds))
+		for _, id := range req.RoleIds {
+			roleIDs = append(roleIDs, int(id))
+		}
+		return models.AssignRoles(tx, int(req.UserId), roleIDs)
 	})
 	if err != nil {
 		if errors.Is(err, models.ErrRoleNotFound) {
@@ -165,7 +169,7 @@ func (r *RoleService) AssignRole(_ context.Context, req *managementpb.AssignRole
 		return nil, err
 	}
 
-	return &managementpb.AssignRoleResponse{}, nil
+	return &managementpb.AssignRolesResponse{}, nil
 }
 
 // SetDefaultRole configures default role to be assigned to users.

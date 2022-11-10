@@ -64,12 +64,11 @@ func TestRoleHelpers(t *testing.T) {
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
+		require.NoError(t, models.AssignRoles(tx, userID, []int{int(role.ID)}))
 
-		require.NoError(t, models.AssignRole(tx, userID, int(role.ID)))
-
-		user, err := models.FindUser(tx.Querier, userID)
+		roles, err := models.GetUserRoles(tx.Querier, userID)
 		require.NoError(t, err)
-		require.Equal(t, user.RoleID, role.ID)
+		require.Equal(t, roles[0].ID, role.ID)
 	})
 
 	//nolint:paralleltest
@@ -77,7 +76,7 @@ func TestRoleHelpers(t *testing.T) {
 		tx, teardown := setup(t)
 		defer teardown(t)
 
-		err := models.AssignRole(tx, userID, 0)
+		err := models.AssignRoles(tx, userID, []int{0})
 		require.True(t, errors.Is(err, models.ErrRoleNotFound))
 	})
 
@@ -88,7 +87,7 @@ func TestRoleHelpers(t *testing.T) {
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
+		require.NoError(t, models.AssignRoles(tx, 24, []int{int(role.ID)}))
 
 		_, err := models.FindUser(tx.Querier, userID)
 		require.NoError(t, err)
@@ -112,7 +111,7 @@ func TestRoleHelpers(t *testing.T) {
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
+		require.NoError(t, models.AssignRoles(tx, 24, []int{int(role.ID)}))
 
 		err := models.DeleteRole(tx, int(role.ID))
 		require.Equal(t, err, models.ErrRoleIsAssigned)
@@ -125,10 +124,30 @@ func TestRoleHelpers(t *testing.T) {
 
 		var role models.Role
 		require.NoError(t, models.CreateRole(tx.Querier, &role))
-		require.NoError(t, models.AssignRole(tx, 24, int(role.ID)))
+		require.NoError(t, models.AssignRoles(tx, 24, []int{int(role.ID)}))
 		require.NoError(t, models.ChangeDefaultRole(tx, int(role.ID)))
 
 		err := models.DeleteRole(tx, int(role.ID))
 		require.Equal(t, err, models.ErrRoleIsDefaultRole)
+	})
+
+	//nolint:paralleltest
+	t.Run("shall return roles for a user", func(t *testing.T) {
+		tx, teardown := setup(t)
+		defer teardown(t)
+
+		var roleA, roleB models.Role
+		roleA.Title = "Role A"
+		roleB.Title = "Role B"
+
+		require.NoError(t, models.CreateRole(tx.Querier, &roleA))
+		require.NoError(t, models.CreateRole(tx.Querier, &roleB))
+		require.NoError(t, models.AssignRoles(tx, userID, []int{int(roleA.ID), int(roleB.ID)}))
+
+		roles, err := models.GetUserRoles(tx.Querier, userID)
+		require.NoError(t, err)
+		require.Equal(t, len(roles), 2)
+		require.Equal(t, roles[0].ID, roleA.ID)
+		require.Equal(t, roles[1].ID, roleB.ID)
 	})
 }

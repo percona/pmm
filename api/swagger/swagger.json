@@ -19869,12 +19869,12 @@
     },
     "/v1/management/Role/Assign": {
       "post": {
-        "description": "Assigns Role to a User.",
+        "description": "Assigns Roles replaces all existing Roles for a User.",
         "tags": [
           "Role"
         ],
-        "summary": "Assign Role",
-        "operationId": "AssignRole",
+        "summary": "Assign Roles",
+        "operationId": "AssignRoles",
         "parameters": [
           {
             "name": "body",
@@ -19883,9 +19883,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "role_id": {
-                  "type": "integer",
-                  "format": "int64",
+                "role_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
                   "x-order": 0
                 },
                 "user_id": {

@@ -327,43 +327,40 @@ func (s *AuthServer) shallAddVMGatewayToken(req *http.Request) bool {
 }
 
 func (s *AuthServer) getAuthTokenForVMGateway(userID int) (string, error) {
-	user, err := models.GetOrCreateUser(s.db.Querier, userID)
+	roles, err := models.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
 		return "", err
 	}
 
 	// We may see this user for the first time.
 	// If the role is not defined, we automatically assign a default role.
-	if user.RoleID <= 0 {
+	if len(roles) == 0 {
 		err := s.db.InTransaction(func(tx *reform.TX) error {
-			s.l.Infof("Assigning default role to user ID %d", user.ID)
-			return models.AssignDefaultRole(tx, user.ID)
+			s.l.Infof("Assigning default role to user ID %d", userID)
+			return models.AssignDefaultRole(tx, userID)
 		})
 		if err != nil {
 			return "", err
 		}
 
-		// Reload user information
-		user, err = models.GetOrCreateUser(s.db.Querier, userID)
+		// Reload roles
+		roles, err = models.GetUserRoles(s.db.Querier, userID)
 		if err != nil {
 			return "", err
 		}
-
-		return "", nil
 	}
 
-	if user.RoleID <= 0 {
-		logrus.Panicf("User %d has role ID %d", user.ID, user.RoleID)
+	if len(roles) == 0 {
+		logrus.Panicf("User %d has no roles", userID)
 	}
 
-	var role models.Role
-	err = s.db.FindByPrimaryKeyTo(&role, user.RoleID)
-	if err != nil {
-		return "", err
+	filters := make([]string, 0, len(roles))
+	for _, r := range roles {
+		filters = append(filters, r.Filter)
 	}
 
 	var claims vmGatewayJWT
-	claims.ExtraFilters = []string{role.Filter}
+	claims.ExtraFilters = filters
 	claims.Mode = 1
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(300 * time.Second))
 

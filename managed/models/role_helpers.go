@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -41,24 +42,28 @@ func CreateRole(q *reform.Querier, role *Role) error {
 	return nil
 }
 
-// AssignRole assigns a role to a user.
-func AssignRole(tx *reform.TX, userID, roleID int) error {
+// AssignRoles assigns a set of roles to a user. This replaces all existing roles.
+func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 	q := tx.Querier
 
-	var role Role
-	if err := FindAndLockRole(tx, roleID, &role); err != nil {
+	if _, err := q.DeleteFrom(UserRolesView, " WHERE user_id = $1", userID); err != nil {
 		return err
 	}
 
-	user, err := GetOrCreateUser(q, userID)
-	if err != nil {
-		return err
+	s := make([]reform.Struct, 0, len(roleIDs))
+	for _, roleID := range roleIDs {
+		var role Role
+		if err := FindAndLockRole(tx, roleID, &role); err != nil {
+			return err
+		}
+
+		var userRole UserRoles
+		userRole.UserID = userID
+		userRole.RoleID = uint32(roleID)
+		s = append(s, &userRole)
 	}
 
-	user.RoleID = role.ID
-	err = tx.UpdateColumns(user, "role_id")
-
-	return err
+	return q.InsertMulti(s...)
 }
 
 // AssignDefaultRole assigns a default role to a user.
@@ -72,7 +77,7 @@ func AssignDefaultRole(tx *reform.TX, userID int) error {
 		logrus.Panicf("Default role ID is %d", settings.DefaultRoleID)
 	}
 
-	return AssignRole(tx, userID, settings.DefaultRoleID)
+	return AssignRoles(tx, userID, []int{settings.DefaultRoleID})
 }
 
 // DeleteRole deletes a role, if possible.
@@ -93,7 +98,7 @@ func DeleteRole(tx *reform.TX, roleID int) error {
 		return ErrRoleIsDefaultRole
 	}
 
-	s, err := q.FindOneFrom(UserDetailsTable, "role_id", roleID)
+	s, err := q.FindOneFrom(UserRolesView, "role_id", roleID)
 	if err != nil && !errors.As(err, &reform.ErrNoRows) {
 		return err
 	}
@@ -128,7 +133,8 @@ func FindAndLockRole(tx *reform.TX, roleID int, role *Role) error {
 
 // ChangeDefaultRole changes default role in the settings.
 func ChangeDefaultRole(tx *reform.TX, roleID int) error {
-	if err := FindAndLockRole(tx, roleID, &Role{}); err != nil {
+	var role Role
+	if err := FindAndLockRole(tx, roleID, &role); err != nil {
 		return err
 	}
 
@@ -138,4 +144,41 @@ func ChangeDefaultRole(tx *reform.TX, roleID int) error {
 	_, err := UpdateSettings(tx, &p)
 
 	return err
+}
+
+// GetUserRoles retrieves all roles assigned to a user.
+func GetUserRoles(q *reform.Querier, userID int) ([]Role, error) {
+	query := fmt.Sprintf(`
+		SELECT 
+			%s
+		FROM 
+			%[2]s
+			INNER JOIN %[3]s ON (%[2]s.role_id = %[3]s.id)
+		WHERE
+			user_roles.user_id = $1`,
+		strings.Join(q.QualifiedColumns(RoleTable), ","),
+		UserRolesView.Name(),
+		RoleTable.Name())
+
+	rows, err := q.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close() //nolint:errcheck
+
+	roles := []Role{}
+	for rows.Next() {
+		var role Role
+		if err := rows.Scan(role.Pointers()...); err != nil {
+			return nil, err
+		}
+
+		roles = append(roles, role)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return roles, nil
 }

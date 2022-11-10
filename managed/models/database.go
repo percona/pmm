@@ -762,16 +762,24 @@ var databaseSchema = [][]string{
 			RENAME COLUMN pmm_client_config TO filesystem_config`,
 	},
 	72: {
-		`ALTER TABLE user_flags
-			ADD COLUMN role_id INTEGER NOT NULL DEFAULT 0;
-		
-		CREATE TABLE roles (
+		`CREATE TABLE roles (
 			id SERIAL PRIMARY KEY,
 			title VARCHAR NOT NULL UNIQUE,
 			filter TEXT NOT NULL,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL
 		);
+
+		CREATE TABLE user_roles (
+			user_id INTEGER NOT NULL,
+			role_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			
+			PRIMARY KEY (user_id, role_id)
+		);
+
+		CREATE INDEX role_id_index ON user_roles (role_id);
 
 		WITH rows AS (
 			INSERT INTO roles
@@ -782,7 +790,10 @@ var databaseSchema = [][]string{
 		), settings_id AS (
 			UPDATE settings SET settings['default_role_id'] = (SELECT to_jsonb(id) FROM rows)
 		)
-		UPDATE user_flags SET role_id = (SELECT id FROM rows);`,
+		
+		INSERT INTO user_roles
+		(user_id, role_id, created_at, updated_at)		
+		SELECT u.id, (SELECT id FROM rows), NOW(), NOW() FROM user_flags u;`,
 	},
 }
 

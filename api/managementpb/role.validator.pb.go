@@ -79,11 +79,14 @@ func (this *SetDefaultRoleResponse) Validate() error {
 	return nil
 }
 
-func (this *AssignRoleRequest) Validate() error {
+func (this *AssignRolesRequest) Validate() error {
+	if !(this.UserId > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("UserId", fmt.Errorf(`value '%v' must be greater than '0'`, this.UserId))
+	}
 	return nil
 }
 
-func (this *AssignRoleResponse) Validate() error {
+func (this *AssignRolesResponse) Validate() error {
 	return nil
 }
 

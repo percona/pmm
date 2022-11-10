@@ -33,8 +33,8 @@ type RoleClient interface {
 	GetRole(ctx context.Context, in *GetRoleRequest, opts ...grpc.CallOption) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(ctx context.Context, in *ListRolesRequest, opts ...grpc.CallOption) (*ListRolesResponse, error)
-	// AssignRole assigns a role to a user.
-	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
+	// AssignRoles replaces all assigned roles for a user.
+	AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
 	SetDefaultRole(ctx context.Context, in *SetDefaultRoleRequest, opts ...grpc.CallOption) (*SetDefaultRoleResponse, error)
 }
@@ -92,9 +92,9 @@ func (c *roleClient) ListRoles(ctx context.Context, in *ListRolesRequest, opts .
 	return out, nil
 }
 
-func (c *roleClient) AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error) {
-	out := new(AssignRoleResponse)
-	err := c.cc.Invoke(ctx, "/management.Role/AssignRole", in, out, opts...)
+func (c *roleClient) AssignRoles(ctx context.Context, in *AssignRolesRequest, opts ...grpc.CallOption) (*AssignRolesResponse, error) {
+	out := new(AssignRolesResponse)
+	err := c.cc.Invoke(ctx, "/management.Role/AssignRoles", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +124,8 @@ type RoleServer interface {
 	GetRole(context.Context, *GetRoleRequest) (*GetRoleResponse, error)
 	// ListRoles retrieves a roles.
 	ListRoles(context.Context, *ListRolesRequest) (*ListRolesResponse, error)
-	// AssignRole assigns a role to a user.
-	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
+	// AssignRoles replaces all assigned roles for a user.
+	AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error)
 	// SetDefaultRole configures default role assigned to users.
 	SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error)
 	mustEmbedUnimplementedRoleServer()
@@ -154,8 +154,8 @@ func (UnimplementedRoleServer) ListRoles(context.Context, *ListRolesRequest) (*L
 	return nil, status.Errorf(codes.Unimplemented, "method ListRoles not implemented")
 }
 
-func (UnimplementedRoleServer) AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AssignRole not implemented")
+func (UnimplementedRoleServer) AssignRoles(context.Context, *AssignRolesRequest) (*AssignRolesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AssignRoles not implemented")
 }
 
 func (UnimplementedRoleServer) SetDefaultRole(context.Context, *SetDefaultRoleRequest) (*SetDefaultRoleResponse, error) {
@@ -264,20 +264,20 @@ func _Role_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_AssignRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssignRoleRequest)
+func _Role_AssignRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssignRolesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RoleServer).AssignRole(ctx, in)
+		return srv.(RoleServer).AssignRoles(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/management.Role/AssignRole",
+		FullMethod: "/management.Role/AssignRoles",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RoleServer).AssignRole(ctx, req.(*AssignRoleRequest))
+		return srv.(RoleServer).AssignRoles(ctx, req.(*AssignRolesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -328,8 +328,8 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Role_ListRoles_Handler,
 		},
 		{
-			MethodName: "AssignRole",
-			Handler:    _Role_AssignRole_Handler,
+			MethodName: "AssignRoles",
+			Handler:    _Role_AssignRoles_Handler,
 		},
 		{
 			MethodName: "SetDefaultRole",

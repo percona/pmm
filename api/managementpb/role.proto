@@ -70,12 +70,16 @@ message SetDefaultRoleRequest {
 
 message SetDefaultRoleResponse {}
 
-message AssignRoleRequest {
-  uint32 role_id = 1;
-  uint32 user_id = 2;
+message AssignRolesRequest {
+  repeated uint32 role_ids = 1;
+  uint32 user_id = 2 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
 }
 
-message AssignRoleResponse {}
+message AssignRolesResponse {}
 
 message ListRolesRequest {}
 
@@ -149,15 +153,15 @@ service Role {
     };
   }
 
-  // AssignRole assigns a role to a user.
-  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse) {
+  // AssignRoles replaces all assigned roles for a user.
+  rpc AssignRoles(AssignRolesRequest) returns (AssignRolesResponse) {
     option (google.api.http) = {
       post: "/v1/management/Role/Assign"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Assign Role"
-      description: "Assigns Role to a User."
+      summary: "Assign Roles"
+      description: "Assigns Roles replaces all existing Roles for a User."
     };
   }
 
