@@ -21,11 +21,10 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-
-	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 const (
@@ -41,6 +40,8 @@ const insertSQL = `
   INSERT INTO metrics
   (
     queryid,
+    explain_fingerprint,
+    placeholders_count,
     service_name,
     database,
     schema,
@@ -265,6 +266,8 @@ const insertSQL = `
    )
   VALUES (
     :queryid,
+    :explain_fingerprint,
+    :placeholders_count,
     :service_name,
     :database,
     :schema,
@@ -677,8 +680,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
 				metricsBucket.GetExampleType().String(),
-				// TODO should we remove this field since it's deprecated?
-				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
+				metricsBucket.GetExampleFormat().String(),
 				lk,
 				lv,
 				wk,

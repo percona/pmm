@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"time"
 
+	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
-	"github.com/percona/pmm/qan-api2/models"
+	"github.com/percona/qan-api2/models"
 )
 
 // GetMetrics implements rpc to get metrics for specific filtering.
@@ -357,4 +357,18 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	}
 
 	return wrapperspb.Bool(resp), nil
+}
+
+// ExplainFingerprintByQueryID get explain fingerprint and placeholders count by query ID.
+func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.ExplainFingerprintByQueryIDRequest) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	res, err := s.mm.ExplainFingerprintByQueryID(
+		ctx,
+		in.Serviceid,
+		in.QueryId,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%v", err)
+	}
+
+	return res, nil
 }

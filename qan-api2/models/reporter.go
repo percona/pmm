@@ -25,9 +25,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
-
 	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/pkg/errors"
 )
 
 // Reporter implements models to select metrics bucket by params.
@@ -104,6 +103,7 @@ ORDER BY {{ .Order }}
 LIMIT :offset, :limit
 `
 
+// nolint
 var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
 
 func inSlice(slice []string, val string) bool {
@@ -136,8 +136,7 @@ func escapeColonsInMap(m map[string][]string) map[string][]string {
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
 	group, order, search string, offset, limit uint32,
-	specialColumns, commonColumns, sumColumns []string,
-) ([]M, error) {
+	specialColumns, commonColumns, sumColumns []string) ([]M, error) {
 	search = strings.TrimSpace(search)
 
 	arg := map[string]interface{}{
@@ -262,14 +261,15 @@ GROUP BY point
 ORDER BY point ASC;
 `
 
+// nolint
 var tmplQueryReportSparklines = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
 
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
 	dimensions map[string][]string, labels map[string][]string,
-	group string, column string, isTotal bool,
-) ([]*qanpb.Point, error) {
+	group string, column string, isTotal bool) ([]*qanpb.Point, error) {
+
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60
 	periodStartFromSec = periodStartFromSec / 60 * 60
@@ -352,7 +352,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	defer rows.Close() //nolint:errcheck
 	resultsWithGaps := map[uint32]*qanpb.Point{}
 
-	var mainMetricColumnName string
+	mainMetricColumnName := "m_query_time_sum"
 	switch column {
 	case "":
 		mainMetricColumnName = "m_query_time_sum"
@@ -441,34 +441,32 @@ type customLabel struct {
 	mainMetricPerSec float32
 }
 
-var (
-	queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
-	dimensionQueries   = map[string]*template.Template{
-		"service_name":     queryDimensionTmpl,
-		"database":         queryDimensionTmpl,
-		"schema":           queryDimensionTmpl,
-		"username":         queryDimensionTmpl,
-		"client_host":      queryDimensionTmpl,
-		"replication_set":  queryDimensionTmpl,
-		"cluster":          queryDimensionTmpl,
-		"service_type":     queryDimensionTmpl,
-		"service_id":       queryDimensionTmpl,
-		"environment":      queryDimensionTmpl,
-		"az":               queryDimensionTmpl,
-		"region":           queryDimensionTmpl,
-		"node_model":       queryDimensionTmpl,
-		"node_id":          queryDimensionTmpl,
-		"node_name":        queryDimensionTmpl,
-		"node_type":        queryDimensionTmpl,
-		"machine_id":       queryDimensionTmpl,
-		"container_name":   queryDimensionTmpl,
-		"container_id":     queryDimensionTmpl,
-		"cmd_type":         queryDimensionTmpl,
-		"top_queryid":      queryDimensionTmpl,
-		"application_name": queryDimensionTmpl,
-		"planid":           queryDimensionTmpl,
-	}
-)
+var queryDimensionTmpl = template.Must(template.New("queryDimension").Funcs(funcMap).Parse(queryDimension))
+var dimensionQueries = map[string]*template.Template{
+	"service_name":     queryDimensionTmpl,
+	"database":         queryDimensionTmpl,
+	"schema":           queryDimensionTmpl,
+	"username":         queryDimensionTmpl,
+	"client_host":      queryDimensionTmpl,
+	"replication_set":  queryDimensionTmpl,
+	"cluster":          queryDimensionTmpl,
+	"service_type":     queryDimensionTmpl,
+	"service_id":       queryDimensionTmpl,
+	"environment":      queryDimensionTmpl,
+	"az":               queryDimensionTmpl,
+	"region":           queryDimensionTmpl,
+	"node_model":       queryDimensionTmpl,
+	"node_id":          queryDimensionTmpl,
+	"node_name":        queryDimensionTmpl,
+	"node_type":        queryDimensionTmpl,
+	"machine_id":       queryDimensionTmpl,
+	"container_name":   queryDimensionTmpl,
+	"container_id":     queryDimensionTmpl,
+	"cmd_type":         queryDimensionTmpl,
+	"top_queryid":      queryDimensionTmpl,
+	"application_name": queryDimensionTmpl,
+	"planid":           queryDimensionTmpl,
+}
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
 func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) {
@@ -523,8 +521,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 }
 
 func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
-	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
-) ([]*customLabel, float32, error) {
+	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string) ([]*customLabel, float32, error) {
 	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
 

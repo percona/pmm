@@ -32,18 +32,15 @@ import (
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
+	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
 )
 
-const (
-	agentID  = "dc889ca7be92a66f0a00f616f69ffa7b"
-	dbServer = "fb_db"
-)
+const agentID = "dc889ca7be92a66f0a00f616f69ffa7b"
+const dbServer = "fb_db"
 
 type closedChannelError struct {
 	error
@@ -137,6 +134,8 @@ func main() {
 
 				mb := &qanpb.MetricsBucket{
 					Queryid:              v.Id,
+					ExplainFingerprint:   v.ExplainFingerprint,
+					PlaceholdersCount:    v.PlaceholdersCount,
 					Fingerprint:          v.Fingerprint,
 					Database:             "",
 					Schema:               v.Db,
