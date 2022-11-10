@@ -42,7 +42,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/minio/minio-go/v7 v7.0.36
 	github.com/mwitkow/go-proto-validators v0.3.2
-	github.com/percona-platform/dbaas-api v0.0.0-20221028174156-63d3677a3825
+	github.com/percona-platform/dbaas-api v0.0.0-20221108155624-e41938ef2692
 	github.com/percona-platform/saas v0.0.0-20221014123257-4fa7a15ce672
 	github.com/percona/exporter_shared v0.7.3
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
@@ -66,7 +66,7 @@ require (
 	golang.org/x/sys v0.0.0-20221006211917-84dc82d7e875
 	golang.org/x/text v0.4.0
 	golang.org/x/tools v0.1.12
-	google.golang.org/genproto v0.0.0-20220930163606-c98284e70a91
+	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
@@ -75,7 +75,13 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/percona-platform/dbaas-controller v0.1.3-0.20221101144458-c3ca50c5994b // indirect
+require (
+	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/k0kubun/pp v3.0.1+incompatible // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/percona-platform/dbaas-controller v0.1.3-0.20221102174013-d3d14eaa6235 // indirect
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
+)
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.0.0 // indirect
@@ -115,7 +121,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
-	github.com/hashicorp/go-msgpack v1.1.5 // indirect
+	github.com/hashicorp/go-msgpack v0.5.5 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-sockaddr v1.0.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -173,8 +179,8 @@ require (
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/trace v1.9.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20221004154528-8021a29435af // indirect
-	golang.org/x/oauth2 v0.0.0-20221006150949-b44042a4b9c1 // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
+	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/term v0.0.0-20220919170432-7a66f970e087 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

@@ -76,6 +76,17 @@ type dbaasClient interface {
 	StopMonitoring(ctx context.Context, in *controllerv1beta1.StopMonitoringRequest, opts ...grpc.CallOption) (*controllerv1beta1.StopMonitoringResponse, error)
 	// GetKubeConfig gets inluster config and converts it to kubeConfig
 	GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error)
+	// InstallOLMOperator installs the OLM operaotr from the embedded cr files.
+	InstallOLMOperator(ctx context.Context, in *controllerv1beta1.InstallOLMOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOLMOperatorResponse, error)
+	// InstallOperator installs an operator by creating grups and subscriptions.
+	InstallOperator(ctx context.Context, in *controllerv1beta1.InstallOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallOperatorResponse, error)
+	// ListInstallPlans list all available install plans.
+	ListInstallPlans(ctx context.Context, in *controllerv1beta1.ListInstallPlansRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListInstallPlansResponse, error)
+	// ApproveInstallPlan approves an install plan.
+	ApproveInstallPlan(ctx context.Context, in *controllerv1beta1.ApproveInstallPlanRequest, opts ...grpc.CallOption) (*controllerv1beta1.ApproveInstallPlanResponse, error)
+	// ListSubscriptions list all available subscriptions. Used to check if there are updates. If installed crv is different than current csv (latest)
+	// there is an update available.
+	ListSubscriptions(ctx context.Context, in *controllerv1beta1.ListSubscriptionsRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListSubscriptionsResponse, error)
 }
 
 type versionService interface {
