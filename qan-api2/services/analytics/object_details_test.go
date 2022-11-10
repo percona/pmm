@@ -22,13 +22,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/jsonpb"
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
+	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/qan-api2/models"
+	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 func TestService_GetQueryExample(t *testing.T) {
@@ -155,7 +156,7 @@ func TestService_GetQueryExample(t *testing.T) {
 				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.want == nil {
-				assert.Nil(t, got, "Service.GetQueryExample() return not nil")
+				assert.Nil(t, got, "Service.GetQueryExample() returned not nil")
 				return
 			}
 
@@ -435,7 +436,7 @@ func TestService_GetLabels(t *testing.T) {
 			mm: tt.fields.mm,
 		}
 		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
-		require.Equal(t, err, tt.wantErr)
+		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels"+tt.name+".json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
@@ -545,7 +546,7 @@ func TestService_GetLabels(t *testing.T) {
 			mm: tt.fields.mm,
 		}
 		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
-		require.Equal(t, err, tt.wantErr)
+		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels_"+tt.name+".json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
