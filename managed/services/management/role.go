@@ -65,25 +65,18 @@ func (r *RoleService) CreateRole(_ context.Context, req *managementpb.RoleData) 
 //
 //nolint:unparam
 func (r *RoleService) UpdateRole(_ context.Context, req *managementpb.RoleData) (*managementpb.EmptyResponse, error) {
-	err := r.db.InTransaction(func(tx *reform.TX) error {
-		var role models.Role
-		if err := tx.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-			if errors.As(err, &reform.ErrNoRows) {
-				return status.Errorf(codes.NotFound, "Role not found")
-			}
-			return err
+	var role models.Role
+	if err := r.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
+		if errors.As(err, &reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
+		return nil, err
+	}
 
-		role.Title = req.Title
-		role.Filter = req.Filter
+	role.Title = req.Title
+	role.Filter = req.Filter
 
-		if err := tx.Update(&role); err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
+	if err := r.db.Update(&role); err != nil {
 		return nil, err
 	}
 
