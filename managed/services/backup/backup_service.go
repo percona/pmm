@@ -197,7 +197,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		var target *agents.UnsupportedAgentError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.UnsupportedPMMAgentStatus),
+				Status: models.BackupStatusPointer(models.ErrorUnsupportedAgentStatus),
 			})
 
 			if dbErr != nil {

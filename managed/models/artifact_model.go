@@ -51,14 +51,14 @@ type BackupStatus string
 
 // BackupStatus status (in the same order as in artifacts.proto).
 const (
-	PendingBackupStatus        BackupStatus = "pending"
-	InProgressBackupStatus     BackupStatus = "in_progress"
-	PausedBackupStatus         BackupStatus = "paused"
-	SuccessBackupStatus        BackupStatus = "success"
-	ErrorBackupStatus          BackupStatus = "error"
-	DeletingBackupStatus       BackupStatus = "deleting"
-	FailedToDeleteBackupStatus BackupStatus = "failed_to_delete"
-	UnsupportedPMMAgentStatus  BackupStatus = "unsupported_pmm_agent"
+	PendingBackupStatus         BackupStatus = "pending"
+	InProgressBackupStatus      BackupStatus = "in_progress"
+	PausedBackupStatus          BackupStatus = "paused"
+	SuccessBackupStatus         BackupStatus = "success"
+	ErrorBackupStatus           BackupStatus = "error"
+	DeletingBackupStatus        BackupStatus = "deleting"
+	FailedToDeleteBackupStatus  BackupStatus = "failed_to_delete"
+	ErrorUnsupportedAgentStatus BackupStatus = "unsupported_pmm_agent"
 )
 
 // Validate validates backup status.
@@ -71,7 +71,7 @@ func (bs BackupStatus) Validate() error {
 	case ErrorBackupStatus:
 	case DeletingBackupStatus:
 	case FailedToDeleteBackupStatus:
-	case UnsupportedPMMAgentStatus:
+	case ErrorUnsupportedAgentStatus:
 	default:
 		return NewInvalidArgumentError("invalid status '%s'", bs)
 	}

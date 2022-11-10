@@ -27,14 +27,15 @@ import (
 
 // UnsupportedAgentError is used when the target PMM agent doesn't support the requested functionality.
 type UnsupportedAgentError struct {
-	Functionality string
-	AgentID       string
-	AgentVersion  string
+	Functionality   string
+	AgentID         string
+	AgentVersion    string
+	MinAgentVersion string
 }
 
 func (e *UnsupportedAgentError) Error() string {
-	return fmt.Sprintf("%s is not supported on pmm-agent %q version %q", e.Functionality,
-		e.AgentID, e.AgentVersion)
+	return fmt.Sprintf("%s is not supported on pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
+		e.AgentID, e.AgentVersion, e.MinAgentVersion)
 }
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
@@ -61,9 +62,10 @@ func isAgentSupported(agentModel *models.Agent, functionalityPrefix string, pmmM
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
 		return errors.WithStack(&UnsupportedAgentError{
-			AgentID:       agentModel.AgentID,
-			Functionality: functionalityPrefix,
-			AgentVersion:  *agentModel.Version,
+			AgentID:         agentModel.AgentID,
+			Functionality:   functionalityPrefix,
+			AgentVersion:    *agentModel.Version,
+			MinAgentVersion: pmmMinVersion.String(),
 		})
 	}
 	return nil
