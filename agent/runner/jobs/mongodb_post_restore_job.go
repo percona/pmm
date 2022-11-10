@@ -40,16 +40,16 @@ func (j *MongoDBPostRestoreJob) Run(ctx context.Context, send Send) error {
 	mongoServiceName := "mongod"
 	pbmAgentServiceName := "pbm-agent"
 
-	j.l.Debugf("restarting mongod after restore...")
+	j.l.Info("restarting mongod after restore...")
 	if err := startSystemctlService(ctx, mongoServiceName); err != nil {
 		return errors.WithStack(err)
 	}
 
-	j.l.Debugf("restarting pbm-agent after restore...")
+	j.l.Info("restarting pbm-agent after restore...")
 	if err := startSystemctlService(ctx, pbmAgentServiceName); err != nil {
 		return errors.WithStack(err)
 	}
 
-	j.l.Debugf("mongod and pbm-agent successfully restarted")
+	j.l.Info("mongod and pbm-agent successfully restarted")
 	return nil
 }
