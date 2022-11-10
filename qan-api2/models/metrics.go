@@ -592,7 +592,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.ExplainFingerprint,
 			&row.PlaceholdersCount,
 			&row.Example,
-			&row.ExampleFormat,
+			// TODO should we remove this field since it's deprecated?
+			&row.ExampleFormat, //nolint:staticcheck
 			&row.IsTruncated,
 			&row.ExampleType,
 			&row.ExampleMetrics,
@@ -1023,7 +1024,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 			return res, errors.Wrap(err, "failed to scan query")
 		}
 
-		return res, nil
+		return res, nil //nolint:staticcheck
 	}
 
 	return res, nil

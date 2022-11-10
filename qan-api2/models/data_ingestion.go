@@ -681,7 +681,8 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
 				metricsBucket.GetExampleType().String(),
-				metricsBucket.GetExampleFormat().String(),
+				// TODO should we remove this field since it's deprecated?
+				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
 				lk,
 				lv,
 				wk,
