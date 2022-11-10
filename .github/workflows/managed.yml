@@ -16,6 +16,7 @@ on:
       - "admin/**"
       - "agent/**"
       - "docs/**"
+      - "qan-api2/**"
 
   workflow_call:
     inputs:
