@@ -36,7 +36,6 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
-	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -372,7 +371,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -388,7 +387,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) []*agentpb.MetricsBucket {
+func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
@@ -400,6 +399,8 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:              v.Id,
+				ExplainFingerprint:   v.ExplainFingerprint,
+				PlaceholdersCount:    v.PlaceholdersCount,
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
 				Database:             "",
@@ -417,27 +418,13 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		}
 
-		if v.Example != nil {
-			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
-			if err != nil {
-				l.Debugf("cannot parse query: %s", v.Example.Query)
-			} else {
-				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.ExplainFingerprint = explainFingerprint
-				mb.Common.PlaceholdersCount = placeholdersCount
+		if v.Example != nil && !disableQueryExamples {
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
 			}
-
-			if !disableQueryExamples {
-				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.Example = example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
-			}
+			mb.Common.Example = example
+			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
