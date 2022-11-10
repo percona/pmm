@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"time"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
-	"github.com/percona/qan-api2/models"
+	qanpb "github.com/percona/pmm/api/qanpb"
+	"github.com/percona/pmm/qan-api2/models"
 )
 
 // GetMetrics implements rpc to get metrics for specific filtering.
