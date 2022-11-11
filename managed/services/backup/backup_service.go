@@ -194,10 +194,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		var target *agents.UnsupportedAgentError
+		var target *agents.AgentNotSupportedError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.ErrorUnsupportedAgentStatus),
+				Status: models.BackupStatusPointer(models.ErrorAgentNotSupportedStatus),
 			})
 
 			if dbErr != nil {

@@ -57,8 +57,8 @@ const (
 	SuccessBackupStatus         BackupStatus = "success"
 	ErrorBackupStatus           BackupStatus = "error"
 	DeletingBackupStatus        BackupStatus = "deleting"
-	FailedToDeleteBackupStatus  BackupStatus = "failed_to_delete"
-	ErrorUnsupportedAgentStatus BackupStatus = "unsupported_pmm_agent"
+	FailedToDeleteBackupStatus   BackupStatus = "failed_to_delete"
+	ErrorAgentNotSupportedStatus BackupStatus = "unsupported_pmm_agent"
 )
 
 // Validate validates backup status.
@@ -71,7 +71,7 @@ func (bs BackupStatus) Validate() error {
 	case ErrorBackupStatus:
 	case DeletingBackupStatus:
 	case FailedToDeleteBackupStatus:
-	case ErrorUnsupportedAgentStatus:
+	case ErrorAgentNotSupportedStatus:
 	default:
 		return NewInvalidArgumentError("invalid status '%s'", bs)
 	}

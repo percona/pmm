@@ -619,7 +619,7 @@ func convertBackupError(backupErr error) error {
 		return nil
 	}
 
-	var unsupportedAgentErr *agents.UnsupportedAgentError
+	var unsupportedAgentErr *agents.AgentNotSupportedError
 	if errors.As(backupErr, &unsupportedAgentErr) {
 		return status.Error(codes.FailedPrecondition, backupErr.Error())
 	}
@@ -654,7 +654,7 @@ func convertRestoreBackupError(restoreError error) error {
 		return nil
 	}
 
-	var unsupportedAgentErr *agents.UnsupportedAgentError
+	var unsupportedAgentErr *agents.AgentNotSupportedError
 	if errors.As(restoreError, &unsupportedAgentErr) {
 		return status.Error(codes.FailedPrecondition, restoreError.Error())
 	}
