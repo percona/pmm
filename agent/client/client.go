@@ -77,9 +77,6 @@ type Client struct {
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
-
-	connectionUptime          prometheus.Gauge
-	connectionEstablishedTime time.Time
 }
 
 // New creates new client.
@@ -99,11 +96,6 @@ func New(cfg *config.Config, supervisor supervisor, connectionChecker connection
 		defaultsFileParser: dfp,
 		cus:                cus,
 		logStore:           logStore,
-		connectionUptime: prometheus.NewGauge(prometheus.GaugeOpts{ //nolint:exhaustruct
-			Namespace: `pmm_agent`,
-			Name:      `connection_uptime`,
-			Help:      `Connection uptime between pmm-agent and server in seconds`,
-		}),
 	}
 }
 
@@ -140,7 +132,6 @@ func (c *Client) Run(ctx context.Context) error {
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
 
 		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
-		c.registerConnectionStatus(dialErr == nil)
 		dialCancel()
 		if dialResult != nil {
 			break
@@ -360,7 +351,6 @@ func (c *Client) processChannelRequests(ctx context.Context) {
 			c.l.Errorf("Unhandled server request: %v.", req)
 		}
 		c.cus.RegisterConnectionStatus(time.Now(), true)
-		c.registerConnectionStatus(true)
 
 		response := &channel.AgentResponse{
 			ID:      req.ID,
@@ -829,21 +819,8 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
-	c.connectionUptime.Collect(ch)
 	c.supervisor.Collect(ch)
-}
-
-func (c *Client) registerConnectionStatus(connected bool) {
-	switch {
-	case !c.connectionEstablishedTime.IsZero() && connected:
-		c.connectionUptime.Set(time.Since(c.connectionEstablishedTime).Seconds())
-	case !connected:
-		c.connectionEstablishedTime = time.Time{}
-		c.connectionUptime.Set(0)
-	case connected:
-		c.connectionEstablishedTime = time.Now()
-		c.connectionUptime.Set(0)
-	}
+	c.cus.Collect(ch)
 }
 
 // argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry

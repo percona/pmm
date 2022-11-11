@@ -46,12 +46,12 @@ type connectionEvent struct {
 
 // NewService creates new instance of Service.
 func NewService(windowPeriod time.Duration) *Service {
-	out := &Service{
+	out := &Service{ //nolint:exhaustruct
 		windowPeriod: windowPeriod,
 		l:            logrus.WithField("component", "connection-uptime-service"),
 	}
 
-	out.connectionUptime = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+	out.connectionUptime = prometheus.NewGaugeFunc(prometheus.GaugeOpts{ //nolint:exhaustruct
 		Namespace: `pmm_agent`,
 		Name:      `connection_uptime`,
 		Help:      `Connection uptime between pmm-agent and server in seconds.`,
@@ -217,8 +217,10 @@ func (c *Service) getUptimeSeconds() float64 {
 	return 0
 }
 
+// Describe implements prometheus.Collector.
 func (c *Service) Describe(ch chan<- *prometheus.Desc) {}
 
+// Collect implement prometheus.Collector.
 func (c *Service) Collect(ch chan<- prometheus.Metric) {
 	c.connectionUptime.Collect(ch)
 }
