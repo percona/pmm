@@ -432,6 +432,124 @@ Every additional provider should implement this interface. Kubernetes related im
 3. `managed/services/dbaas/kubernetes/olmclient` contains the implementation for `OLM`
 4. `managed/services/management/dbaas/` contains the REST API implementation for PMM UI and uses `managed/services/dbaas` package.
 
+### DB Templates
+
+1. SRE/DBA creates DB templates (through UI/API/YAML) and they are stored in Kubernetes cluster.
+2. UI requests [PMM API](proposal.md#pmm-rest-api-high-level-design)
+3. PMM gets templates from k8s cluster
+4. User chooses template in UI.
+5. UI parses and present fields from template that are recognized
+6. User creates database with or without modifications to the values from template
+7. UI call PMM with results of user choices
+
+Priority:
+  1. changes from PMM UI configured by user
+  2. chosen template
+  3. defaults from `dbaas-operator`
+
+`dbaas-operator` merges all those 3 sources according to priority and produces CR (custom resource) for specific engine.
+
+Corner cases:
+- user uses PMM UI and there are no default template (or none selected)
+  - PMM uses old scheme with version service and some default values
+- user uses k8s directly without PMM and there neither default templates and submits nor optional fields 
+  - `dbaas-operator` uses default CR that comes from alm-examples of CSV
+
+There are might be couple of ways for `dbaas-operator` to know about templates.
+
+**New parameter in API**
+```go
+          // Optional unique template name for specified EngineType
+		TemplateName string `json:"templateName,omitempty"`
+```
+`dbass-operator` receives `TemplateName` parameters and get template from k8s by combining engine type and template name.
+
+**Annotations**
+
+It could be a good solution to not blow up API and keep it simple by making that convention with annotations and later decide to keep it or to switch to something else. Annotations are more flexible and are conventions instead of hard contract, thus we could avoid migrations/mutations later.
+
+Annotations that PMM or user could set for `dbaas-operator` that related to the templates:
+- `dbaas.percona.com/dbtemplate-kind: PSMDBtemplate`: is CustomResource (CR) Kind that implements template
+- `dbaas.percona.com/dbtemplate-name: prod-app-X-small`: `metadata.name` identifier for CR that provides template
+- `dbaas.percona.com/origin: pmm`: who created CR for `database-operator`: pmm, user, sre, dba, ci
+
+If some of those 2 parameters are not set - `dbaas-operator` wouldn't be able to identify template and thus would ignore another one.
+
+Annotations that are set by `dbaas-operator` for any engine to provide additional information about inputs for template:
+- `dbaas.percona.com/dbtemplate-kind: PSMDBtemplate`
+- `dbaas.percona.com/dbtemplate-name: prod-app-X-small`
+- `dbaas.percona.com/origin: pmm`
+- `dbaas.percona.com/dbtemplate-default: yes`: default CR was created without origin and parameters
+- TBD
+- all annotations from the template should be propagated to CR of the DB Cluster CR.
+
+All of the labels of the DB Template should be propagated to the DB Cluster CR.
+
+**DB Templates**
+
+On a first phase to simplify template creation it might be better to restrict templates to simple k8s custom objects without operator that handles them. Architecture for interacting and layering for some additional operators is not yet found.
+
+To To simplify implementation of `dbaas-operator` it is better to build templates with exactly the same definitions as the corresponding CR of DB Cluster instances. So `dbaas-operator` would just blindly merge template with user input without validating and knowing details of template implementation. Thus templates should have exactly same CRD as CRD for DB clusters. CRD for templates are needed to avoid errors as templates would be validated by k8s.
+
+Here are CRDs for DB Clusters:
+- PSMDBtemplate: [psmdbtpl.dbaas.percona.com.crd.yaml](psmdbtpl.dbaas.percona.com.crd.yaml)
+- PXCtemplate: [pxctpl.dbaas.percona.com.crd.yaml](pxctpl.dbaas.percona.com.crd.yaml)
+
+Example of CRs for templates:
+- [psmdbtpl.dbaas.percona.com.cr.yaml](psmdbtpl.dbaas.percona.com.crd.yaml)
+- [pxctpl.dbaas.percona.com.cr.yaml](pxctpl.dbaas.percona.com.crd.yaml))
+
+CRs should have these annotations:
+- `dbaas.percona.com/dbtemplate-origin: sre`: who created template: sre, dba and etc
+- TBD
+
+CRs should have these labels:
+- `IsDefaultTpl: "yes"`: yes, or no
+- `dbaas.percona.com/engine: psmdb`: engine type
+- `dbaas.percona.com/template: "yes"`: indicates that this is a template
+- TBD
+
+There could be more labels to identify env, teams and defaults for teams. That logic could be defined later and probably defined in a separate document with versions of apps that could understand such convention.
+
+Here is example of 2 templates creation:
+```sh
+minikube start
+
+kubectl apply -f pxctmpl.dbaas.percona.com.crd.yaml 
+customresourcedefinition.apiextensions.k8s.io/pxctemplates.dbaas.percona.com created
+
+kubectl apply -f psmdbtpl.dbaas.percona.com.crd.yaml 
+customresourcedefinition.apiextensions.k8s.io/psmdbtemplates.dbaas.percona.com created
+
+kubectl apply -f pxctpl.dbaas.percona.com.cr.yaml 
+pxctemplate.dbaas.percona.com/prod-app-n-large created
+
+kubectl apply -f psmdbtpl.dbaas.percona.com.cr.yaml 
+psmdbtemplate.dbaas.percona.com/dev-app-x created
+
+kubectl get psmdbtpl,pxctpl
+NAME                                        ENDPOINT   STATUS   AGE
+psmdbtemplate.dbaas.percona.com/dev-app-x                       31s
+
+NAME                                             ENDPOINT   STATUS   PXC   PROXYSQL   HAPROXY   AGE
+pxctemplate.dbaas.percona.com/prod-app-n-large  
+
+```
+
+PMM could get templates by selecting specific dbaas resources:
+```sh
+kubectl api-resources --api-group=dbaas.percona.com
+NAME             SHORTNAMES   APIVERSION                   NAMESPACED   KIND
+psmdbtemplates   psmdbtpl     dbaas.percona.com/v1alpha1   true         PSMDBtemplate
+pxctemplates     pxctpl       dbaas.percona.com/v1alpha1   true         PXCtemplate
+
+kubectl api-resources --api-group=dbaas.percona.com --verbs=list --namespaced -o name | xargs -n 1 kubectl get -l 'dbaas.percona.com/engine in (psmdb,pxc)',dbaas.percona.com/template="yes"
+NAME        ENDPOINT   STATUS   AGE
+dev-app-x                       7s
+NAME               ENDPOINT   STATUS   PXC   PROXYSQL   HAPROXY   AGE
+prod-app-n-large                                                  5m24s
+```
+
 ### Test Plan
 
 During moving from dbaas-controller to `dbaas-operator` we'll keep the same user experience for the end user
