@@ -166,4 +166,8 @@ func TestVersionCache(t *testing.T) {
 
 	cancel()
 	versionerMock.AssertExpectations(t)
+	// Sleep here so cache.Run() has time to finish its run.
+	// Otherwise the tests fail here due to t.Log() being called after
+	// the test has finished.
+	<-time.After(1200 * time.Millisecond)
 }
