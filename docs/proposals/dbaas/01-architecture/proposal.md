@@ -497,7 +497,7 @@ Here are CRDs for DB Clusters:
 
 Example of CRs for templates:
 - [psmdbtpl.dbaas.percona.com.cr.yaml](psmdbtpl.dbaas.percona.com.crd.yaml)
-- [pxctpl.dbaas.percona.com.cr.yaml](pxctpl.dbaas.percona.com.crd.yaml))
+- [pxctpl.dbaas.percona.com.cr.yaml](pxctpl.dbaas.percona.com.crd.yaml)
 
 CRs should have these annotations:
 - `dbaas.percona.com/dbtemplate-origin: sre`: who created template: sre, dba and etc
