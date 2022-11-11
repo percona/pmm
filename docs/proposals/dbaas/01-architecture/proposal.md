@@ -48,11 +48,11 @@ Moving to OLM and a DBaaS operator will improve this situation.
 
 ## Proposal
 
-The main idea is to move from the dbaas-controller that manages operators’ installation/updating its version database creation/management inside Kubernetes to a dbaas-operator and [OLM](https://olm.operatorframework.io/). The high-level architecture is described below.
+The main idea is to move from the dbaas-controller that manages operators’ installation/updating its version database creation/management inside Kubernetes to a `dbaas-operator` and [OLM](https://olm.operatorframework.io/). The high-level architecture is described below.
 
 ![Proposed architecture](./proposed_arch_full.jpg)
 
-In that case, the dbaas-operator provides Kubernetes native implementation of the creating/managing database clusters and acts like `unified operator to create any database cluster`. OLM installs and updates a version of the operators (psmdb, pxc, dbaas, victoria metrics).
+In that case, the `dbaas-operator` provides Kubernetes native implementation of the creating/managing database clusters and acts like `unified operator to create any database cluster`. OLM installs and updates a version of the operators (psmdb, pxc, dbaas, victoria metrics).
 
 ### Working with the operators
 
@@ -60,7 +60,7 @@ An Operator catalog is a repository of metadata that Operator Lifecycle Manager 
 
 ![DBaaS Catalog architecture](./dbaas_catalog.jpg)
 
-Catalog also gives us the benefits of using CatalogSource and ClusterServiceVersion. ClusterServiceVersion (CSV) can solve the issue by getting the current version of installed operators via OLM API. Currently, we rely on the API version of PerconaOperators by requesting api-versions via kubectl and using the latest API version as an operator’s version. However, there'll be no way to get information about the version after the 1.13 release of PSMDB and the 1.12 release of PXC operator. In that case, we can request an operator image and split the version information from the tag, but in the case of the overridden image tag, we can have discrepancies between versions. With OLM we’ll have a single source of truth for the installed operator version. [Read more](https://olm.operatorframework.io/docs/concepts/crds/clusterserviceversion/)
+Catalog also gives us the benefits of using CatalogSource and ClusterServiceVersion. ClusterServiceVersion (CSV) can solve the issue by getting the current version of installed operators via OLM API. Currently, we rely on the API version of Percona Operators by requesting `api-versions` via `kubectl` and using the latest API version as an operator’s version. However, there'll be no way to get information about the version after the 1.13 release of PSMDB and the 1.12 release of PXC operator. In that case, we can request an operator image and split the version information from the tag, but in the case of the overridden image tag, we can have discrepancies between versions. With OLM we’ll have a single source of truth for the installed operator version. [Read more](https://olm.operatorframework.io/docs/concepts/crds/clusterserviceversion/)
 
 Example for PXC operator (It's only 1.10 available on operatorhub, however it demonstrates the idea)
 
@@ -75,7 +75,7 @@ In that case, PMM/DBaaS will have a consistent way to get operator version. In a
 A high-level architecture diagram of OLM
 ![OLM Architecture](./olm_arch.jpg)
 
-High-level sequence diagram that illustraces an Installation and upgrading process inside PMM/DBaaS in terms of end user
+High-level sequence diagram that illustrates an Installation and upgrading process inside PMM/DBaaS in terms of end user
 
 ```mermaid
 sequenceDiagram
@@ -106,14 +106,14 @@ This process makes version service usage for supported versions of operators obs
 
 ### Working with the databases
 
-The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the dbaas-operator will have the following benefits 
+The second part of the proposal is implementing the generic and simplified API to create database clusters via k8s operator. The proposal discusses the drawbacks of the current implementation in the Motivation section and moving to the `dbaas-operator` will have the following benefits 
 
 1. Kubernetes native way to work with database clusters via unified and general specifications.
 2. PMM/DBaaS does need to care about the state of a managed database.
-3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. Dbaas-operator can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
-4. Installation and upgrading of dbaas-operator will be managed by OLM as proposed above.
-5. Dbaas-operator opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries agains exposed/non-exposed database clusters. 
-6. PMM/DBaaS will have native integration with dbaas-operator via `client-go` package that will improve the overall performance on large-scale clusters 
+3. PMM/DBaaS should manage clusters that were created via PMM/DBaaS.Yet,  it manages clusters that were created via Percona operators now. `dbaas-operator` can use its own kubernetes annotations to specify database clusters managed by PMM/DBaaS. Also, it opens room for additional features such as CR templates to create a database cluster and update a version of a template using the same annotations spec.
+4. Installation and upgrading of `dbaas-operator` will be managed by OLM as proposed above.
+5. `dbaas-operator` opens a possibility to create an easy to use integration testing framework using codecept.js/playwright or even simple bash scripts. Integration testing can be covered by development team. It can use Github actions as a pipeline to run additional tests to check create/load/run queries against exposed/non-exposed database clusters. 
+6. PMM/DBaaS will have native integration with `dbaas-operator` via `client-go` package that will improve the overall performance on large-scale clusters 
 
 The sequential diagram illustrates a creation of PXC cluster
 
@@ -251,7 +251,7 @@ TIME="%e\n" time curl -s -k --header "Authorization: Bearer $JWT_TOKEN_KUBESYSTE
 10
 ```
 
-So, requesting a list of database clusters from dbaas-operator (it uses the same framework as well as crossplane) will improve request time drastically. In addition, PMM/DBaaS can use [client-go caches](https://pkg.go.dev/k8s.io/client-go/tools/cache) as well as [Limit and Continue](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ListOptions) params of metav1.ListOptions struct.
+So, requesting a list of database clusters from `dbaas-operator` (it uses the same framework as well as crossplane) will improve request time drastically. In addition, PMM/DBaaS can use [client-go caches](https://pkg.go.dev/k8s.io/client-go/tools/cache) as well as [Limit and Continue](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ListOptions) params of metav1.ListOptions struct.
 
 
 ### User Stories
@@ -434,7 +434,7 @@ Every additional provider should implement this interface. Kubernetes related im
 
 ### Test Plan
 
-During moving from dbaas-controller to dbaas-operator we'll keep the same user experience for the end user
+During moving from dbaas-controller to `dbaas-operator` we'll keep the same user experience for the end user
 
 #### Prerequisite testing updates
 // TBD
