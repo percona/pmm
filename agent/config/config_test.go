@@ -82,14 +82,15 @@ func TestLoadFromFile(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--id=agent-id",
 			"--listen-port=9999",
 			"--server-address=127.0.0.1",
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "agent-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    9999,
@@ -134,12 +135,13 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "agent-id",
 			ListenAddress: "0.0.0.0",
 			ListenPort:    7777,
@@ -183,15 +185,16 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--log-level=info",
 			"--debug",
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
@@ -241,17 +244,18 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
 			"--paths-exporters_base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=mongo_exporter",
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
@@ -300,17 +304,18 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
 			"--paths-base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=dir/mongo_exporter",
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
@@ -358,15 +363,16 @@ func TestGet(t *testing.T) {
 		})
 		defer removeConfig(t, name)
 
-		actual, configFilepath, err := get([]string{
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
 			"--paths-base=/base",
-		}, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		expected := &Config{
+		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
@@ -406,12 +412,14 @@ func TestGet(t *testing.T) {
 		wd, err := os.Getwd()
 		require.NoError(t, err)
 		name := t.Name()
-		actual, configFilepath, err := get([]string{
+
+		var actual Config
+		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
-		}, logrus.WithField("test", t.Name()))
-		expected := &Config{
+		}, &actual, logrus.WithField("test", t.Name()))
+		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
