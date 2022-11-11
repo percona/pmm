@@ -24,6 +24,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/percona/go-mysql/event"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -261,5 +262,6 @@ func TestSlowLog(t *testing.T) {
 		cancel()
 		for range s.Changes() {
 		}
+		assert.Equal(t, 1, testutil.CollectAndCount(s, "pmm_agent_slowlog_rotation_total"))
 	})
 }

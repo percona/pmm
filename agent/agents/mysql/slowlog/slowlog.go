@@ -48,6 +48,11 @@ const (
 	backoffMaxDelay   = 5 * time.Second
 	recheckInterval   = 10 * time.Second
 	aggregateInterval = time.Minute
+
+	prometheusNamespace = "pmm_agent"
+	prometheusSubsystem = "slowlog"
+
+	labelAgentID = "agent_id"
 )
 
 // SlowLog extracts performance data from MySQL slow log.
@@ -55,6 +60,8 @@ type SlowLog struct {
 	params  *Params
 	l       *logrus.Entry
 	changes chan agents.Change
+
+	mRotation prometheus.Counter
 }
 
 // Params represent Agent parameters.
@@ -90,6 +97,13 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 		params:  params,
 		l:       l,
 		changes: make(chan agents.Change, 10),
+		mRotation: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace:   prometheusNamespace,
+			Subsystem:   prometheusSubsystem,
+			Name:        "rotation_total",
+			Help:        "A total number of slowlog ratations.",
+			ConstLabels: prometheus.Labels{labelAgentID: params.AgentID},
+		}),
 	}, nil
 }
 
@@ -292,6 +306,7 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	if err != nil {
 		return errors.Wrap(err, "cannot flush logs")
 	}
+	s.mRotation.Inc()
 
 	// keep one old file around, remove it on next iteration
 
@@ -676,12 +691,12 @@ func errListsToMap(k, v []uint64) map[uint64]uint64 {
 
 // Describe implements prometheus.Collector.
 func (s *SlowLog) Describe(ch chan<- *prometheus.Desc) {
-	// This method is needed to satisfy interface.
+	s.mRotation.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
 func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
-	// This method is needed to satisfy interface.
+	s.mRotation.Collect(ch)
 }
 
 // check interfaces
