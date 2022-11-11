@@ -29,8 +29,9 @@ type CreateUserParams struct {
 
 // UpdateUserParams has parameters to update existing user.
 type UpdateUserParams struct {
-	UserID int
-	Tour   bool
+	UserID       int
+	Tour         bool
+	AlertingTour bool
 }
 
 // CreateUser create a new user with given parameters.
@@ -72,11 +73,9 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 		return nil, err
 	}
 
-	if !params.Tour {
-		return row, nil
-	}
-
 	row.Tour = params.Tour
+	row.AlertingTour = params.AlertingTour
+
 	if err = q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update user")
 	}

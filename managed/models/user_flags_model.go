@@ -27,8 +27,9 @@ import (
 //
 //reform:user_flags
 type UserDetails struct {
-	ID   int  `reform:"id,pk"`
-	Tour bool `reform:"tour_done"`
+	ID           int  `reform:"id,pk"`
+	Tour         bool `reform:"tour_done"`
+	AlertingTour bool `reform:"alerting_tour_done"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
